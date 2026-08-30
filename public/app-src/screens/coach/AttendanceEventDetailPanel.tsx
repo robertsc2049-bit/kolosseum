@@ -170,6 +170,7 @@ function EventDetail({
       <div className="button-row" style={{ justifyContent: "space-between" }}>
         <div>
           <span className={`badge ${cancelled ? "neutral" : "active"}`}>{cancelled ? "Cancelled" : "Active"}</span>
+          {event.owner_scope === "org" ? <span className="badge neutral">Team event</span> : null}
           <h3>{String(event.title ?? "")}</h3>
         </div>
         <button className="button secondary" type="button" onClick={onClose}>Back</button>
@@ -252,6 +253,7 @@ export function AttendanceEventDetailPanel() {
                 <span className={`badge ${event.status === "cancelled" ? "neutral" : "active"}`}>
                   {event.status === "cancelled" ? "Cancelled" : "Active"}
                 </span>
+                {event.owner_scope === "org" ? <span className="badge neutral">Team event</span> : null}
               </div>
               <strong>{String(event.title ?? "")}</strong>
               <button

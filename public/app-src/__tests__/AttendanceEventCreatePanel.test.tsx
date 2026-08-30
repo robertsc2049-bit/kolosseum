@@ -21,6 +21,8 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
 
 function installMocks(options: {
   relationships?: Record<string, unknown>[];
+  orgMemberships?: Record<string, unknown>[];
+  orgRosters?: Record<string, Record<string, unknown>[]>;
   createResult?: { ok: boolean; status?: number; body?: unknown };
 }) {
   const original = globalThis.fetch;
@@ -31,6 +33,13 @@ function installMocks(options: {
     }
     if (path.startsWith("/coach-workspace/relationships")) {
       return jsonResponse({ relationships: options.relationships ?? [] });
+    }
+    if (path === "/coach-workspace/org-memberships") {
+      return jsonResponse({ memberships: options.orgMemberships ?? [] });
+    }
+    if (path.startsWith("/attendance-events/org-roster/")) {
+      const orgId = decodeURIComponent(path.slice("/attendance-events/org-roster/".length));
+      return jsonResponse({ athletes: options.orgRosters?.[orgId] ?? [] });
     }
     if (path === "/attendance-events" && init?.method === "POST") {
       if (options.createResult && !options.createResult.ok) {
@@ -159,6 +168,61 @@ test("toggling repeats reveals recurrence fields, and a weekly series submits th
   assert.equal(recurrence?.frequency, "weekly");
   assert.deepEqual(recurrence?.weekdays, ["mon", "wed"]);
   assert.deepEqual(recurrence?.ends, { type: "after_count", value: 5 });
+});
+
+test("the org-wide option is hidden without an active shared-mode org membership", async () => {
+  installMocks({ relationships: [], orgMemberships: [{ org_id: "org_1", org_name: "Iron Barbell", membership_status: "invited", visibility_mode: "shared" }] });
+  render(<AttendanceEventCreatePanel />);
+  await waitFor(() => screen.getByText("No connected athletes yet."));
+  assert.equal(screen.queryByText("Who is this event for"), null, "an invited-not-active membership never offers the org-wide option");
+});
+
+test("selecting a shared team switches the picker to the org roster and submits an org-wide create request", async () => {
+  installMocks({
+    relationships: [{ athlete_user_id: "athlete_own", display_name: "Own Athlete", relationship_state: "accepted" }],
+    orgMemberships: [{ org_id: "org_1", org_name: "Iron Barbell", membership_status: "active", visibility_mode: "shared" }],
+    orgRosters: { org_1: [{ athlete_user_id: "athlete_team", display_name: "Team Athlete" }] }
+  });
+
+  render(<AttendanceEventCreatePanel />);
+  await waitFor(() => screen.getByText("Own Athlete"));
+  await waitFor(() => screen.getByText("Everyone in Iron Barbell"));
+
+  fireEvent.click(screen.getByLabelText("Everyone in Iron Barbell"));
+  await waitFor(() => screen.getByText("Team Athlete"));
+  assert.equal(screen.queryByText("Own Athlete"), null, "switching to the org scope replaces the picker, it doesn't merge it");
+
+  fireEvent.change(screen.getByLabelText("Title"), { target: { value: "Team practice" } });
+  fireEvent.change(screen.getByLabelText("Date"), { target: { value: "2026-09-07" } });
+  fireEvent.click(screen.getByLabelText("Team Athlete"));
+
+  let received: unknown;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: COACH_USER_ID }, csrf_token: "csrf-token" });
+    if (path.startsWith("/coach-workspace/relationships")) return jsonResponse({ relationships: [] });
+    if (path === "/coach-workspace/org-memberships") return jsonResponse({ memberships: [] });
+    if (path.startsWith("/attendance-events/org-roster/")) return jsonResponse({ athletes: [] });
+    if (path === "/attendance-events" && init?.method === "POST") {
+      received = init.body ? JSON.parse(String(init.body)) : null;
+      return jsonResponse({
+        ok: true,
+        event: { event_id: "attendance_event_1", title: "Team practice", owner_scope: "org" },
+        occurrences: [{ occurrence_id: "occ_1" }],
+        invites: [{ athlete_user_id: "athlete_team" }]
+      }, true, 201);
+    }
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+  });
+
+  await waitFor(() => screen.getByText("Team practice created."));
+  assert.equal((received as { owner_scope?: string })?.owner_scope, "org");
+  assert.equal((received as { owner_org_id?: string })?.owner_org_id, "org_1");
+  assert.deepEqual((received as { athlete_user_ids?: string[] })?.athlete_user_ids, ["athlete_team"]);
 });
 
 test("a rejected create shows a factual error message, not a generic one", async () => {

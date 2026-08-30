@@ -23,6 +23,8 @@ export type CreateAttendanceEventInput = Readonly<{
   end_time: string | null;
   athlete_user_ids: readonly string[];
   recurrence_rule?: RecurrenceRuleInput | null;
+  owner_scope?: "coach" | "org";
+  owner_org_id?: string | null;
 }>;
 
 export async function createAttendanceEvent(
@@ -30,6 +32,11 @@ export async function createAttendanceEvent(
   csrfToken: string
 ): Promise<JsonRecord> {
   return request("POST", "/attendance-events", input as unknown as JsonRecord, csrfToken);
+}
+
+export async function loadSharedOrgAcceptedAthletes(orgId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/attendance-events/org-roster/${encodeURIComponent(orgId)}`);
+  return Array.isArray(response.athletes) ? (response.athletes as JsonRecord[]) : [];
 }
 
 export async function loadCoachAttendanceEvents(): Promise<JsonRecord[]> {

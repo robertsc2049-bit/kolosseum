@@ -24,6 +24,7 @@ import { pool } from "../db/pool.js";
 import { persistBetaProductRecord } from "./beta_product_record_store.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 import { AttendanceEventError, loadAttendanceEventRecord } from "./attendance_event_service.js";
+import { assertOrgAthletesCurrentlyAccepted } from "./attendance_event_org_invite_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -177,7 +178,9 @@ export async function inviteAthletesToAttendanceEvent(
     throw new AttendanceEventError("event_cancelled", 409);
   }
 
-  const requestedAthleteIds = await assertAthletesCurrentlyAccepted(coachUserId, athleteUserIdsInput);
+  const requestedAthleteIds = event.owner_scope === "org"
+    ? await assertOrgAthletesCurrentlyAccepted(coachUserId, event.owner_org_id, athleteUserIdsInput)
+    : await assertAthletesCurrentlyAccepted(coachUserId, athleteUserIdsInput);
 
   const timestamp = new Date().toISOString();
   const invites: Readonly<JsonRecord>[] = [];

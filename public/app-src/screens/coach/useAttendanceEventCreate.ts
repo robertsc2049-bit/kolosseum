@@ -2,12 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachRelationships } from "../../api/coachWorkspaceClient";
-import { createAttendanceEvent, type RecurrenceRuleInput } from "../../api/attendanceEventsClient";
+import { loadCoachOrgMemberships } from "../../api/accountRelationshipsClient";
+import { createAttendanceEvent, loadSharedOrgAcceptedAthletes, type RecurrenceRuleInput } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
 
 const CHANGED_EVENT = "kolosseum:attendance-events-changed";
 
 export type AcceptedAthleteOption = Readonly<{ athlete_user_id: string; display_name: string }>;
+
+export type SharedOrgOption = Readonly<{ org_id: string; org_name: string }>;
 
 export const WEEKDAY_OPTIONS: ReadonlyArray<Readonly<{ token: string; label: string }>> = [
   { token: "mon", label: "Mon" },
@@ -30,6 +33,10 @@ export function useAttendanceEventCreate() {
   const [endTime, setEndTime] = useState("");
   const [selectedAthleteIds, setSelectedAthleteIds] = useState<string[]>([]);
   const [acceptedAthletes, setAcceptedAthletes] = useState<AcceptedAthleteOption[]>([]);
+  const [sharedOrgOptions, setSharedOrgOptions] = useState<SharedOrgOption[]>([]);
+  const [inviteScope, setInviteScope] = useState<"own" | "org">("own");
+  const [selectedOrgId, setSelectedOrgId] = useState("");
+  const [orgAthletes, setOrgAthletes] = useState<AcceptedAthleteOption[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [resultMessage, setResultMessage] = useState<string | null>(null);
@@ -74,12 +81,74 @@ export function useAttendanceEventCreate() {
     return () => { cancelled = true; };
   }, []);
 
+  // Org-wide creation is only offered when the coach has at least one
+  // ACTIVE membership in a shared-visibility org - matching this
+  // capability's own server-side gate (requireActiveSharedOrgMembership
+  // in attendance_event_org_invite_service.ts), so the option never
+  // appears only to be rejected on submit.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const memberships = await loadCoachOrgMemberships();
+        if (cancelled) return;
+        setSharedOrgOptions(
+          memberships
+            .filter((membership) => membership.membership_status === "active" && membership.visibility_mode === "shared")
+            .map((membership) => ({
+              org_id: String(membership.org_id ?? ""),
+              org_name: String(membership.org_name ?? membership.org_id ?? "")
+            }))
+        );
+      }
+      catch {
+        // Leave sharedOrgOptions empty - the create form simply omits the
+        // org-wide option rather than a hard failure blocking the form.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (inviteScope !== "org" || !selectedOrgId) {
+      setOrgAthletes([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const athletes = await loadSharedOrgAcceptedAthletes(selectedOrgId);
+        if (cancelled) return;
+        setOrgAthletes(
+          athletes.map((athlete) => ({
+            athlete_user_id: String(athlete.athlete_user_id ?? ""),
+            display_name: String(athlete.display_name ?? athlete.athlete_user_id ?? "")
+          }))
+        );
+      }
+      catch {
+        if (!cancelled) setOrgAthletes([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [inviteScope, selectedOrgId]);
+
   const toggleAthlete = useCallback((athleteUserId: string) => {
     setSelectedAthleteIds((current) =>
       current.includes(athleteUserId)
         ? current.filter((id) => id !== athleteUserId)
         : [...current, athleteUserId]
     );
+  }, []);
+
+  const chooseInviteScope = useCallback((scope: "own" | "org") => {
+    setInviteScope(scope);
+    setSelectedAthleteIds([]);
+  }, []);
+
+  const chooseOrgId = useCallback((orgId: string) => {
+    setSelectedOrgId(orgId);
+    setSelectedAthleteIds([]);
   }, []);
 
   const create = useCallback(async () => {
@@ -95,6 +164,11 @@ export function useAttendanceEventCreate() {
     if (repeats && endsType === "on_date" && !endsOnDate) {
       setSubmitting(false);
       setError("Pick an end date for the series.");
+      return false;
+    }
+    if (inviteScope === "org" && !selectedOrgId) {
+      setSubmitting(false);
+      setError("Pick which team this event is for.");
       return false;
     }
 
@@ -126,7 +200,9 @@ export function useAttendanceEventCreate() {
           start_time: startTime || null,
           end_time: endTime || null,
           athlete_user_ids: selectedAthleteIds,
-          recurrence_rule: recurrenceRule
+          recurrence_rule: recurrenceRule,
+          owner_scope: inviteScope === "org" ? "org" : "coach",
+          owner_org_id: inviteScope === "org" ? selectedOrgId : null
         },
         csrfToken
       );
@@ -142,6 +218,8 @@ export function useAttendanceEventCreate() {
       setStartTime("");
       setEndTime("");
       setSelectedAthleteIds([]);
+      setInviteScope("own");
+      setSelectedOrgId("");
       setRepeats(false);
       setFrequency("weekly");
       setInterval_("1");
@@ -164,7 +242,7 @@ export function useAttendanceEventCreate() {
     }
   }, [
     title, description, location, activityLabel, timezone, occurrenceDate, startTime, endTime, selectedAthleteIds,
-    repeats, frequency, interval, weekdays, endsType, endsOnDate, endsAfterCount
+    repeats, frequency, interval, weekdays, endsType, endsOnDate, endsAfterCount, inviteScope, selectedOrgId
   ]);
 
   return {
@@ -177,6 +255,10 @@ export function useAttendanceEventCreate() {
     startTime, setStartTime,
     endTime, setEndTime,
     acceptedAthletes,
+    sharedOrgOptions,
+    inviteScope, chooseInviteScope,
+    selectedOrgId, chooseOrgId,
+    orgAthletes,
     selectedAthleteIds,
     toggleAthlete,
     repeats, setRepeats,

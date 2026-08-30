@@ -39,6 +39,12 @@ import {
   listMyAttendanceOccurrences,
   submitAttendanceRsvp
 } from "./attendance_event_rsvp_service.js";
+import {
+  AttendanceEventOrgInviteError,
+  assertOrgAthletesCurrentlyAccepted,
+  listSharedOrgAcceptedAthletes,
+  requireActiveSharedOrgMembership
+} from "./attendance_event_org_invite_service.js";
 
 export const attendanceEventRouter = Router();
 
@@ -82,13 +88,23 @@ attendanceEventRouter.post(
   "/",
   asyncHandler(async (request, response) => {
     const coachUserId = await authenticatedCoach(request, true);
+    const ownerScope = request.body?.owner_scope === "org" ? "org" : "coach";
 
-    // Validate the invite list is fully eligible BEFORE creating the
-    // event - creating it first and only discovering an invalid invite
-    // list afterward would leave an orphaned, invite-less event behind
-    // despite the caller receiving an error response.
+    // Validate the invite list (and, for an org-wide event, the org
+    // membership itself) is fully eligible BEFORE creating the event -
+    // creating it first and only discovering an invalid invite list or
+    // membership afterward would leave an orphaned event behind despite
+    // the caller receiving an error response.
     const athleteUserIds = Array.isArray(request.body?.athlete_user_ids) ? request.body.athlete_user_ids : [];
-    if (athleteUserIds.length > 0) {
+    if (ownerScope === "org") {
+      if (athleteUserIds.length > 0) {
+        await assertOrgAthletesCurrentlyAccepted(coachUserId, request.body?.owner_org_id, athleteUserIds);
+      }
+      else {
+        await requireActiveSharedOrgMembership(coachUserId, request.body?.owner_org_id);
+      }
+    }
+    else if (athleteUserIds.length > 0) {
       await assertAthletesCurrentlyAccepted(coachUserId, athleteUserIds);
     }
 
@@ -122,6 +138,19 @@ attendanceEventRouter.get(
     const athleteUserId = await authenticatedAthlete(request);
     const occurrences = await listMyAttendanceOccurrences(athleteUserId);
     return response.status(200).json({ ok: true, occurrences });
+  })
+);
+
+// Coach-facing read for the org-wide event-creation athlete picker -
+// every currently-accepted athlete across the whole shared-mode org,
+// gated by the same active-membership + shared-visibility check as
+// event creation itself.
+attendanceEventRouter.get(
+  "/org-roster/:org_id",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const athletes = await listSharedOrgAcceptedAthletes(coachUserId, request.params.org_id);
+    return response.status(200).json({ ok: true, athletes });
   })
 );
 
@@ -183,7 +212,7 @@ attendanceEventRouter.post(
 
 attendanceEventRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof AttendanceEventError) {
+    if (error instanceof AttendanceEventError || error instanceof AttendanceEventOrgInviteError) {
       response.status(error.status).json({ error: error.message });
       return;
     }
