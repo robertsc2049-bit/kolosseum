@@ -1,14 +1,16 @@
 // DEV NOTE: Organisation/team billing commercial expansion (part C) - org
 // owner athlete visibility, scoped by the organisation's declared
-// visibility_mode. This is one of only TWO org-owner-facing files that
+// visibility_mode. This is one of only THREE org-owner-facing files that
 // legitimately read athlete-scoped data (beta_product_records /
-// beta17_coach_relationship rows) - the other is org_athlete_messaging_
+// beta17_coach_relationship rows) - the others are org_athlete_messaging_
 // service.ts (part D.4), which reuses this file's same visibility_mode
-// boundary for its own gate. Every other org file (org_owner_account_
-// service.ts, org_owner_auth.ts, org_owner.routes.ts, org_roster_service.ts,
-// org_billing_service.ts, coach_org_membership.routes.ts,
-// org_coach_messaging_service.ts) never does, and must not be edited to do
-// so. Access is gated by
+// boundary for its own gate, and org_progress_rollup_service.ts (progress
+// graphs slice 4), which calls getOrgAthleteVisibility() below directly
+// and only ever enriches its 'shared'-mode (OrgVisibilityRoster) result.
+// Every other org file (org_owner_account_service.ts, org_owner_auth.ts,
+// org_owner.routes.ts, org_roster_service.ts, org_billing_service.ts,
+// coach_org_membership.routes.ts, org_coach_messaging_service.ts) never
+// does, and must not be edited to do so. Access is gated by
 // product_organisations.visibility_mode, which is declared once at org
 // creation and immutable afterward:
 //   - "individual" (default): AGGREGATE COUNTS ONLY per coach - no

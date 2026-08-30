@@ -111,6 +111,7 @@ function renderOrganisations(organisations) {
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
+        <button class="button secondary" type="button" data-view-progress="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Progress</button>
         <button class="button secondary" type="button" data-view-messages="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Messages</button>
         <button class="button secondary" type="button" data-view-audit="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Activity log</button>
       </div>
@@ -132,6 +133,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-view-athletes]")) {
     button.addEventListener("click", () => {
       showVisibilitySection(button.getAttribute("data-view-athletes"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-progress]")) {
+    button.addEventListener("click", () => {
+      showProgressSection(button.getAttribute("data-view-progress"), button.getAttribute("data-org-name"));
     });
   }
 
@@ -206,6 +213,7 @@ function showRosterSection(orgId, orgName) {
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -250,6 +258,7 @@ function showBillingSection(orgId, orgName) {
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -340,6 +349,7 @@ function showVisibilitySection(orgId, orgName) {
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
   el("orgVisibilityError").hidden = true;
@@ -353,6 +363,178 @@ function showVisibilitySection(orgId, orgName) {
 function hideVisibilitySection() {
   state.selectedOrgId = null;
   el("orgVisibilitySection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+// Progress graphs slice 4 - an org-wide progress rollup, one compact
+// adherence chart per accepted athlete across every coach on this
+// organisation's roster. Only ever populated for a 'shared'-mode
+// ("team") org - an 'individual'-mode ("gym") org's rollup call always
+// rejects with org_progress_rollup_not_available_for_individual_org,
+// shown here as a factual explanation rather than a generic error (the
+// "Progress" button itself always renders for every organisation,
+// matching the existing "View athletes" button precedent - the server
+// decides what comes back, never the client).
+//
+// renderLineChartSvg/adherenceSeriesPoints below deliberately duplicate
+// public/app-src/components/LineChart.tsx's geometry and design exactly
+// (same viewBox width, same padding, the same single-point-is-a-dot
+// rule, the same default color cycle reusing the identical CSS custom
+// properties from public/app/styles.css, which this app already links -
+// see index.html) rather than being imported from a shared module: this
+// file is a deliberately standalone, import-free module (see "org.js is
+// wholly separate..." below), and public/org/ has no bundler in any case
+// to share a .tsx React component with.
+const PROGRESS_CHART_COLORS = ["var(--k-accent)", "var(--k-warning)", "var(--k-danger)", "var(--k-accent-bright)"];
+const PROGRESS_CHART_VIEWBOX_WIDTH = 300;
+
+function progressChartCoordinate(point, index, total, height, minValue, valueRange, paddingY) {
+  const x = total > 1 ? (index / (total - 1)) * PROGRESS_CHART_VIEWBOX_WIDTH : PROGRESS_CHART_VIEWBOX_WIDTH / 2;
+  const y = height - paddingY - ((point.value - minValue) / valueRange) * (height - paddingY * 2);
+  return { x, y };
+}
+
+function progressChartPathFor(points, height, minValue, valueRange, paddingY) {
+  return points
+    .map((point, index) => {
+      const { x, y } = progressChartCoordinate(point, index, points.length, height, minValue, valueRange, paddingY);
+      return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+// series: [{ id, label, color?, points: [{ date, value }] }]
+function renderLineChartSvg(series, options = {}) {
+  const height = options.height ?? 80;
+  const compact = options.compact ?? false;
+  const emptyLabel = options.emptyLabel ?? "Not enough data yet.";
+
+  const nonEmptySeries = series.filter((entry) => entry.points.length > 0);
+  if (nonEmptySeries.length === 0) {
+    return `<div class="empty-state compact-empty"><p>${escapeHtml(emptyLabel)}</p></div>`;
+  }
+
+  const allValues = nonEmptySeries.flatMap((entry) => entry.points.map((point) => point.value));
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  const valueRange = maxValue - minValue || 1;
+  const paddingY = compact ? 4 : 10;
+
+  const marks = nonEmptySeries.map((entry, seriesIndex) => {
+    const color = entry.color ?? PROGRESS_CHART_COLORS[seriesIndex % PROGRESS_CHART_COLORS.length];
+    if (entry.points.length === 1) {
+      const { x, y } = progressChartCoordinate(entry.points[0], 0, 1, height, minValue, valueRange, paddingY);
+      return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3" fill="${color}" />`;
+    }
+    return `<path d="${progressChartPathFor(entry.points, height, minValue, valueRange, paddingY)}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+  }).join("");
+
+  const legend = !compact && nonEmptySeries.length > 1
+    ? `<div class="line-chart-legend">${nonEmptySeries.map((entry, seriesIndex) => {
+        const color = entry.color ?? PROGRESS_CHART_COLORS[seriesIndex % PROGRESS_CHART_COLORS.length];
+        return `<span class="line-chart-legend-item"><span class="line-chart-legend-swatch" style="background:${color}"></span>${escapeHtml(entry.label)}</span>`;
+      }).join("")}</div>`
+    : "";
+
+  const ariaLabel = nonEmptySeries.map((entry) => entry.label).join(", ");
+
+  return `
+    <div class="line-chart${compact ? " line-chart-compact" : ""}">
+      <svg viewBox="0 0 ${PROGRESS_CHART_VIEWBOX_WIDTH} ${height}" preserveAspectRatio="none" style="width:100%;height:${height}px;display:block" role="img" aria-label="${escapeHtml(ariaLabel)}">
+        ${marks}
+      </svg>
+      ${legend}
+    </div>
+  `;
+}
+
+// Mirrors CoachProgressOverviewPanel.tsx's adherenceSeriesPoints() exactly -
+// the one compact metric every athlete has data for, filtering out any
+// window with no adherence_percentage to plot.
+function adherenceSeriesPoints(insights) {
+  const series = insights?.session_adherence?.series;
+  if (!Array.isArray(series)) return [];
+  return series
+    .filter((window) => window.adherence_percentage !== null)
+    .map((window) => ({ date: String(window.window_end_date ?? ""), value: Number(window.adherence_percentage) }));
+}
+
+function renderProgress(rollup, coachNamesById) {
+  const container = el("orgProgressList");
+  const coaches = Array.isArray(rollup.coaches) ? rollup.coaches : [];
+  const athleteCount = coaches.reduce((total, coach) => total + coach.athletes.length, 0);
+
+  if (athleteCount === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No connected athletes yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = coaches.flatMap((coach) =>
+    coach.athletes.map((athlete) => `
+      <article class="record-card">
+        <div class="record-meta">
+          <span class="badge neutral">${athlete.insights ? "Adherence" : "Unavailable"}</span>
+        </div>
+        <div>
+          <h3>${escapeHtml(athlete.display_name)}</h3>
+          <p class="muted small">Coached by ${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</p>
+        </div>
+        ${renderLineChartSvg(
+          [{ id: "adherence", label: "Adherence %", points: adherenceSeriesPoints(athlete.insights) }],
+          {
+            compact: true,
+            emptyLabel: athlete.insights
+              ? "Not enough sessions to chart yet."
+              : "Progress could not be loaded for this athlete."
+          }
+        )}
+      </article>
+    `)
+  ).join("");
+}
+
+async function refreshProgress() {
+  const rosterResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`);
+  const coachNamesById = new Map();
+  for (const membership of Array.isArray(rosterResult.roster) ? rosterResult.roster : []) {
+    if (membership.coach_display_name) coachNamesById.set(membership.coach_user_id, membership.coach_display_name);
+  }
+
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/progress-rollup`);
+  renderProgress(result.rollup, coachNamesById);
+}
+
+function showProgressSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = false;
+  el("orgProgressOrgName").textContent = orgName;
+  el("orgProgressError").hidden = true;
+  el("orgProgressList").innerHTML = "";
+  refreshProgress().catch((error) => {
+    el("orgProgressError").hidden = false;
+    el("orgProgressError").textContent = error.message === "org_progress_rollup_not_available_for_individual_org"
+      ? "Progress data is only available for shared-visibility organisations."
+      : "Could not load progress data.";
+    if (error.message !== "org_progress_rollup_not_available_for_individual_org") console.error(error);
+  });
+}
+
+function hideProgressSection() {
+  state.selectedOrgId = null;
+  el("orgProgressSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
 }
@@ -411,6 +593,7 @@ function showAuditSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgProgressSection").hidden = true;
   el("orgAuditSection").hidden = false;
   el("orgAuditOrgName").textContent = orgName;
   el("orgAuditError").hidden = true;
@@ -560,6 +743,7 @@ function showMessagesSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
@@ -830,6 +1014,7 @@ function boot() {
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
+  el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
   el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
   el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
