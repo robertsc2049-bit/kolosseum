@@ -6,6 +6,7 @@
     "node test/beta_08_registry_fk_enum_guard.test.mjs",
     "node test/reg_full_04_equipment_compatibility_applicability_closure.test.mjs",
     "node test/reg_full_06_substitution_graph_closure.test.mjs",
-    "node test/reg_full_07_programme_template_production.test.mjs"
+    "node test/reg_full_07_programme_template_production.test.mjs",
+    "node test/reg_full_08_copy_instructions_provenance_closure.test.mjs"
   ]
 }

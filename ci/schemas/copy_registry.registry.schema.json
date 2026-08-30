@@ -30,7 +30,23 @@
           "forbidden_phrase_references",
           "supported_surface",
           "activity_applicability",
-          "status"
+          "status",
+          "source_registry_id",
+          "source_record_id",
+          "source_file",
+          "source_authority",
+          "source",
+          "source_reference",
+          "source_git_blob_sha",
+          "source_file_sha256",
+          "license_status",
+          "commercial_use_status",
+          "manual_review_status",
+          "legal_review_status",
+          "record_sha256",
+          "exact_copy_policy",
+          "exact_copy_controls",
+          "provenance_notes"
         ],
         "properties": {
           "copy_id": {
@@ -44,8 +60,10 @@
             "pattern": "^[a-z0-9][a-z0-9_.-]*$"
           },
           "allowed_phrase": {
-            "type": "string",
-            "minLength": 1
+            "anyOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "null" }
+            ]
           },
           "forbidden_phrase_references": {
             "type": "array",
@@ -65,7 +83,6 @@
             "type": "array",
             "items": {
               "type": "string",
-              "minLength": 1,
               "enum": [
                 "powerlifting",
                 "general_strength",
@@ -76,8 +93,111 @@
           },
           "status": {
             "type": "string",
+            "const": "active"
+          },
+          "source_registry_id": {
+            "type": "string",
             "minLength": 1,
             "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_authority": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "compatibility_projection",
+              "compatibility_runtime"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "founder_original",
+              "licensed_source",
+              "canonical_project_document"
+            ]
+          },
+          "source_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_git_blob_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "source_file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "license_status": {
+            "type": "string",
+            "enum": [
+              "project_owned",
+              "licensed",
+              "not_required_original"
+            ]
+          },
+          "commercial_use_status": {
+            "type": "string",
+            "enum": [
+              "permitted",
+              "restricted"
+            ]
+          },
+          "manual_review_status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "pending"
+            ]
+          },
+          "legal_review_status": {
+            "type": "string",
+            "enum": [
+              "project_owned_clear",
+              "licensed_clear",
+              "pending"
+            ]
+          },
+          "record_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "exact_copy_policy": {
+            "type": "string",
+            "const": "sha256_exact_utf8"
+          },
+          "exact_copy_controls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field_path",
+                "text_sha256"
+              ],
+              "properties": {
+                "field_path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "text_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            }
+          },
+          "provenance_notes": {
+            "type": "string",
+            "minLength": 1
           }
         }
       }

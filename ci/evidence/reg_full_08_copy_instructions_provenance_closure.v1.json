@@ -1,0 +1,169 @@
+{
+  "canonical_copy_registry_sha256": "6fe2d33e8dd3693c1db197bc20b23fef382e1d22e6c4121b5fe6120376561968",
+  "copy_schema_sha256": "dd4d6926f3e4871641c7f72d3a08cd2a439a7196d523b077da8b7714cfdc1f22",
+  "coverage_policy": "every_explicit_active_source_record",
+  "evidence_version": "1.0.0",
+  "exact_copy_control_count": 5499,
+  "licensed_content_inference": false,
+  "no_runtime_inference": true,
+  "no_source_content_mutation": true,
+  "provenance_policy": {
+    "commercial_use_status": "permitted",
+    "exact_copy_policy": "sha256_exact_utf8",
+    "legal_review_status": "project_owned_clear",
+    "license_status": "project_owned",
+    "manual_review_status": "approved",
+    "source": "canonical_project_document"
+  },
+  "provenance_record_count": 3383,
+  "slice_id": "REG-FULL-08",
+  "source_file_count": 18,
+  "source_files": [
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/activity/activity.registry.json",
+      "source_file_sha256": "21d126c3863b90353f188c26f13fd3ff8229737ad909dbc7e9b5ddff0aed14a1",
+      "source_git_blob_sha": "f740510461fe5679b44fd4b0aa1497749340d3b0",
+      "source_record_count": 3,
+      "source_registry_id": "activity_registry_1"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/sport_subdivision/sport_subdivision.registry.json",
+      "source_file_sha256": "89d1f415e102e8075c62a7e7cdfd254e84e58ec00a708bb503fac8340d543417",
+      "source_git_blob_sha": "ed1f56512ab20b524f6ddff09ba07505b16cc737",
+      "source_record_count": 4,
+      "source_registry_id": "sport_subdivision_registry_1a"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/sport_metric/sport_metric.registry.json",
+      "source_file_sha256": "9c4d3bc7281929d34a8d7662f3f4a887b13b1de4045b0ef7749d8cdba1f5e965",
+      "source_git_blob_sha": "5799c5edb29871d57802ac188c16193bea5e92ac",
+      "source_record_count": 9,
+      "source_registry_id": "sport_metric_registry_1c"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/sport_role/sport_role.registry.json",
+      "source_file_sha256": "d346ffe626aae63d1b11321e188675e0a0d67a6b53073de8ee9777c2d124a931",
+      "source_git_blob_sha": "5b03f903075175ab8eab4529da1f275e7e7931ae",
+      "source_record_count": 3,
+      "source_registry_id": "sport_role_registry_2"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/movement/movement.registry.json",
+      "source_file_sha256": "10309d88db2f41dea1cc07c96012133131f1767778176b5ef630dea0a4160ebc",
+      "source_git_blob_sha": "cd344531aed30a7fc897b1534bee9cfb1d5c87fa",
+      "source_record_count": 54,
+      "source_registry_id": "movement_registry_3"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/exercise/exercise.registry.json",
+      "source_file_sha256": "169c80e99b01aced65f65169a29e16a6734cc25336d65a938d7e835851d521b6",
+      "source_git_blob_sha": "c788903357e277712b282dd6c673da8e207127fb",
+      "source_record_count": 215,
+      "source_registry_id": "exercise_registry_3a"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/exercise_token/exercise_token.registry.json",
+      "source_file_sha256": "3c13edd4f31f12eadd468b78991505a496f4ed6861ecb3f4515425001f40f2f4",
+      "source_git_blob_sha": "a94c01159dbbb1c3b0e8163a1c1182bba4928859",
+      "source_record_count": 4,
+      "source_registry_id": "exercise_token_registry_3b"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/equipment/equipment.registry.json",
+      "source_file_sha256": "32e6ea381f25ed8ebb239bf65eee4e92d97a826df15e2dc568ba25ec07e77983",
+      "source_git_blob_sha": "82176814801988ba51d528f6b43a4ac229d0aa81",
+      "source_record_count": 17,
+      "source_registry_id": "equipment_environment_registry_3e"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/metric_exercise_link/metric_exercise_link.registry.json",
+      "source_file_sha256": "b5ca35511d69e449c89a8fd5e3b3758024ca9d056d329dcf29b89086def2c31f",
+      "source_git_blob_sha": "5b8f91f9eee0ecc204b770dba4f92c716a0a620e",
+      "source_record_count": 12,
+      "source_registry_id": "metric_exercise_link_registry_1c_a"
+    },
+    {
+      "source_authority": "authoritative",
+      "source_file": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
+      "source_file_sha256": "828526b9cfcb72143027ee0e3b79eb09f12c03c950c34190e7a1a2f7e01c6346",
+      "source_git_blob_sha": "9a78bd7235abe6c6a152b5b3a4362c003546b5c8",
+      "source_record_count": 396,
+      "source_registry_id": "exercise_equipment_compatibility_registry"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
+      "source_file_sha256": "e9bd5f9f0db7f1b89fef57b8fc2255aa1416ed4c201ee53d666a42ce76e248cd",
+      "source_git_blob_sha": "efe59ad73e28d6ce15dd4b1abd9ead225c820d7a",
+      "source_record_count": 1785,
+      "source_registry_id": "exercise_sport_applicability_registry_6x"
+    },
+    {
+      "source_authority": "compatibility_projection",
+      "source_file": "registries/program/program.registry.json",
+      "source_file_sha256": "e578db9b58839c23319e8cfccd9de1afb122b0153607e8d58675e6415364a721",
+      "source_git_blob_sha": "3490440957ad59662a2720f8ac49ea2a5c895f0a",
+      "source_record_count": 3,
+      "source_registry_id": "sport_program_template_registry_5f"
+    },
+    {
+      "source_authority": "authoritative",
+      "source_file": "registries/program/sport_program_template.registry.json",
+      "source_file_sha256": "6f33e598a0bb63aea63272bc9a1cde1b896509c8d9ffbc377407833dbd7b40d1",
+      "source_git_blob_sha": "88b26c6e27cbfcb48d4524a72d0efc4a49c856f8",
+      "source_record_count": 11,
+      "source_registry_id": "sport_program_template_registry_5f"
+    },
+    {
+      "source_authority": "authoritative",
+      "source_file": "registries/substitution/substitution.registry.json",
+      "source_file_sha256": "932df48c9aec17aa07d800d517f3d66cf35604a3adaf8372cfdc307f0de131f3",
+      "source_git_blob_sha": "2c8200c50a9b89d72a5e678be7ee9beea705e72b",
+      "source_record_count": 736,
+      "source_registry_id": "substitution_registry"
+    },
+    {
+      "source_authority": "compatibility_runtime",
+      "source_file": "copy/beta_copy_registry.json",
+      "source_file_sha256": "5a7c7206a1b18f605ddcdef9431cb2641b5744970ec6a440edefdf80d1f9be0b",
+      "source_git_blob_sha": "5cacb6cc62b651ce48e5cdfcb3394a444a4c4687",
+      "source_record_count": 21,
+      "source_registry_id": "copy_registry"
+    },
+    {
+      "source_authority": "compatibility_runtime",
+      "source_file": "copy/beta_16_app_path_phase1_6_copy.json",
+      "source_file_sha256": "87d0d043f150ad2b7287ad1d448cbe382f24e474190e91f6f3104a94738d3565",
+      "source_git_blob_sha": "691d1e07e4a60f82bc108c3b7db0a046453348a6",
+      "source_record_count": 75,
+      "source_registry_id": "copy_registry"
+    },
+    {
+      "source_authority": "compatibility_runtime",
+      "source_file": "copy/beta_17_coach_managed_path_copy.json",
+      "source_file_sha256": "ea504711ed901962b15c9720b34481a0b7d85d577d3a0a80228438875f8324b9",
+      "source_git_blob_sha": "82914c36cb20509c8e7a02465745014a060513db",
+      "source_record_count": 29,
+      "source_registry_id": "copy_registry"
+    },
+    {
+      "source_authority": "compatibility_runtime",
+      "source_file": "copy/beta_20_phase7_projection_copy.json",
+      "source_file_sha256": "438a9097f01c67ae6db39e9461f75965f116feabbf76ee5b490496c6f088b769",
+      "source_git_blob_sha": "c0c9bd160dc57b67a5015b7c7e43fcb53a6883df",
+      "source_record_count": 6,
+      "source_registry_id": "copy_registry"
+    }
+  ],
+  "source_record_count": 3383,
+  "status": "authoritative"
+}
