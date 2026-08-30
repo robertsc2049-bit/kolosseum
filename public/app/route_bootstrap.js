@@ -19,6 +19,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_history_detail", pattern: "#/athlete/history/:session_id", view: "history", actors: ["athlete"], entity_key: "session_id" },
+  { route_id: "athlete_attendance_events", pattern: "#/athlete/attendance", view: "attendance", actors: ["athlete"], entity_key: null },
   { route_id: "coach_overview", pattern: "#/coach/overview", view: "coach-overview", actors: ["coach"], entity_key: null },
   { route_id: "coach_athletes", pattern: "#/coach/athletes", view: "athletes", actors: ["coach"], entity_key: null },
   { route_id: "coach_athlete_detail", pattern: "#/coach/athletes/:athlete_id", view: "athletes", actors: ["coach"], entity_key: "athlete_id" },
@@ -30,6 +31,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "coach_review_athlete", pattern: "#/coach/review/:athlete_id", view: "review", actors: ["coach"], entity_key: "athlete_id" },
   { route_id: "coach_marketplace", pattern: "#/coach/marketplace", view: "marketplace", actors: ["coach"], entity_key: null },
   { route_id: "coach_progress_overview", pattern: "#/coach/progress", view: "coach-progress", actors: ["coach"], entity_key: null },
+  { route_id: "coach_attendance_events", pattern: "#/coach/attendance", view: "coach-attendance", actors: ["coach"], entity_key: null },
   { route_id: "shared_account", pattern: "#/account", view: "account", actors: ["athlete", "coach"], entity_key: null }
 ]);
 
@@ -115,6 +117,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "review") return serializeProductRoute("coach_review");
     if (view === "marketplace") return serializeProductRoute("coach_marketplace");
     if (view === "coach-progress") return serializeProductRoute("coach_progress_overview");
+    if (view === "coach-attendance") return serializeProductRoute("coach_attendance_events");
   }
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
@@ -122,6 +125,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "history" && entity.session_id) return serializeProductRoute("athlete_history_detail", entity);
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
+    if (view === "attendance") return serializeProductRoute("athlete_attendance_events");
   }
 
   if (view === "account") return serializeProductRoute("shared_account");
