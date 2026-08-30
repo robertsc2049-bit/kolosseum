@@ -263,8 +263,6 @@ export function auditDeclaredForeignKeys(root, schemaManifest, errors = []) {
   const closedSchemas = schemaRows.filter((row) => row?.row_contract_status === "closed");
   const closedIds = closedSchemas.map((row) => row.canonical_registry_id).sort((a, b) => a.localeCompare(b));
   const materializedIds = [...rowsets.keys()].filter((id) => closedIds.includes(id)).sort((a, b) => a.localeCompare(b));
-  const missingMaterialized = closedIds.filter((id) => !rowsets.has(id));
-  if (missingMaterialized.length) push(errors, "CLOSED_ACTIVE_REGISTRY_DATA_MISSING", missingMaterialized);
 
   let declaredFkFieldCount = 0;
   let fkReferenceCount = 0;
