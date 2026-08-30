@@ -558,7 +558,13 @@ test(
 
     // ============================================================
     // Habit consistency fixture: one daily habit, six completions spread
-    // across the last 30 days.
+    // across the last 30 days, plus a seventh completion dated EXACTLY 30
+    // days ago - the boundary shared between the current window
+    // (today-30, today] and the next-older trailing window
+    // (today-60, today-30]. Progress graphs slice 1's windowing is a
+    // half-open interval specifically so this boundary date counts in
+    // exactly one window (the older one, since the newer window's start
+    // is exclusive) - never both.
     // ============================================================
     const habitResult = await request(baseUrl, "POST", "/habits", {
       habit_label: "Daily stretch",
@@ -568,7 +574,7 @@ test(
     const habitId = habitResult.json?.habit?.habit_id;
     assert.ok(habitId, "expected a habit_id");
 
-    for (const daysAgo of [0, 5, 10, 15, 20, 25]) {
+    for (const daysAgo of [0, 5, 10, 15, 20, 25, 30]) {
       assertStatus(
         await request(baseUrl, "POST", `/habits/${encodeURIComponent(habitId)}/completions`, {
           completion_date: daysAgoDateOnly(daysAgo)
@@ -681,19 +687,24 @@ test(
     assert.equal(habitInsight.habit_id, habitId);
     assert.equal(habitInsight.habit_label, "Daily stretch");
     assert.equal(habitInsight.cadence, "daily");
-    assert.equal(habitInsight.total_completions, 6);
+    assert.equal(habitInsight.total_completions, 7, "6 within-window completions plus the 1 boundary-dated completion");
     assert.equal(habitInsight.window_completions, 6);
     assert.equal(habitInsight.window_expected_units, 30);
     assert.equal(habitInsight.completion_rate_percentage, 20);
 
-    // Progress graphs slice 1: all 6 completions (0-25 days ago) fall
-    // inside the current (most recent) 30-day window only - every older
-    // trailing window has none.
+    // Progress graphs slice 1: the 6 completions 0-25 days ago fall inside
+    // the current (most recent) 30-day window; the 7th, dated EXACTLY 30
+    // days ago, falls on the boundary shared between the current window
+    // (today-30, today] and the next-older trailing window
+    // (today-60, today-30] - the half-open interval means it counts in
+    // exactly the older window, never both and never neither.
     assert.equal(habitInsight.series.length, 6, "habit series has 6 windows");
     const currentHabitWindow = habitInsight.series[5];
-    assert.equal(currentHabitWindow.window_completions, 6, "habit series: current window window_completions");
+    assert.equal(currentHabitWindow.window_completions, 6, "habit series: current window excludes the boundary-dated completion");
     assert.equal(currentHabitWindow.completion_rate_percentage, 20, "habit series: current window completion_rate_percentage");
-    for (const olderWindow of habitInsight.series.slice(0, 5)) {
+    const nextOlderHabitWindow = habitInsight.series[4];
+    assert.equal(nextOlderHabitWindow.window_completions, 1, "habit series: the next-older window gets the boundary-dated completion exactly once");
+    for (const olderWindow of habitInsight.series.slice(0, 4)) {
       assert.equal(olderWindow.window_completions, 0, "habit series: no completions this far back");
     }
 
@@ -767,8 +778,133 @@ test(
     assertStatus(restartedInsights, 200, "athlete progress insights after fresh-process restart");
     assert.equal(restartedInsights.json?.insights?.session_adherence?.adherence_percentage, 50);
     assert.equal(restartedInsights.json?.insights?.strength_trends?.[0]?.current_value, 160);
-    assert.equal(restartedInsights.json?.insights?.habit_consistency?.[0]?.total_completions, 6);
+    assert.equal(restartedInsights.json?.insights?.habit_consistency?.[0]?.total_completions, 7);
     assert.equal(restartedInsights.json?.insights?.body_metric_trends?.length, 2);
     assert.equal(restartedInsights.json?.insights?.session_adherence?.series?.length, 6);
+  }
+);
+
+test(
+  "Progress insights: a session dated exactly on the boundary shared between two trailing 30-day windows counts in exactly one window, never both and never neither",
+  async (testContext) => {
+    const root = repoRoot();
+    void root;
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+
+    let server = null;
+    const coachUserIds = [];
+    const athleteUserIds = [];
+    const sessionIds = [];
+
+    const cleanup = async () => {
+      const allUserIds = [...coachUserIds, ...athleteUserIds].filter(Boolean);
+      for (const sessionId of sessionIds) {
+        await pool.query("DELETE FROM session_event_requests WHERE session_id = $1", [sessionId]).catch(() => {});
+        await pool.query("DELETE FROM runtime_events WHERE session_id = $1", [sessionId]).catch(() => {});
+        await pool.query("DELETE FROM session_event_seq WHERE session_id = $1", [sessionId]).catch(() => {});
+      }
+      if (allUserIds.length > 0) {
+        await pool.query(
+          `DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])`,
+          [allUserIds]
+        ).catch(() => {});
+      }
+      for (const userId of allUserIds) {
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+    };
+
+    testContext.after(async () => {
+      await closeServer(server);
+      await cleanup();
+    });
+
+    server = await listen();
+    const address = server.address();
+    const baseUrl = `http://127.0.0.1:${address.port}`;
+
+    const coach = await registerCoach(baseUrl, nonce, "boundary");
+    coachUserIds.push(coach.userId);
+    const athlete = await registerAthlete(baseUrl, nonce, "boundary");
+    athleteUserIds.push(athlete.userId);
+
+    await seedRelationship(baseUrl, {
+      relationshipId: `insights_boundary_rel_${nonce}`, coachUserId: coach.userId, athleteUserId: athlete.userId, state: "accepted"
+    });
+
+    assertStatus(
+      await request(baseUrl, "POST", "/coach-workspace/athlete-strength-profile", {
+        coach_user_id: coach.userId,
+        athlete_user_id: athlete.userId,
+        preferred_weight_unit: "kg",
+        load_rounding_increment: 2.5,
+        bodyweight: 90,
+        bodyweight_unit: "kg",
+        benchmarks: [
+          {
+            benchmark_id: `insights_boundary_squat_${nonce}`, exercise_id: "back_squat", value: 150, unit: "kg",
+            basis: "tested_1rm", effective_date: daysAgoDateOnly(0), source_note: "boundary window proof", replaces_reference_id: null
+          },
+          {
+            benchmark_id: `insights_boundary_bench_${nonce}`, exercise_id: "bench_press", value: 100, unit: "kg",
+            basis: "tested_1rm", effective_date: daysAgoDateOnly(0), source_note: "boundary window proof", replaces_reference_id: null
+          }
+        ],
+        expected_current_record_sha256: null
+      }, { cookie: coach.cookie, csrf: coach.csrf }),
+      201,
+      "strength profile"
+    );
+
+    const template = await createActivatedTemplate(baseUrl, coach.userId, `Boundary Window Programme ${nonce}`);
+    assertStatus(
+      await request(baseUrl, "POST", "/coach-workspace/athlete-assignment", {
+        request_id: `insights_boundary_request_${nonce}`,
+        requested_at_iso8601: new Date().toISOString(),
+        coach_user_id: coach.userId,
+        athlete_user_id: athlete.userId,
+        template_id: template.template_id,
+        activity_id: "powerlifting",
+        event_id: ""
+      }, { cookie: coach.cookie, csrf: coach.csrf }),
+      201,
+      "athlete assignment"
+    );
+
+    // One session compiled "now" (belongs in the current window), one
+    // compiled "now" then directly backdated in Postgres to exactly 30
+    // days ago - the boundary shared between the current window
+    // (today-30, today] and the next-older trailing window
+    // (today-60, today-30].
+    const currentSessionId = await compileSession(baseUrl, coach, athlete.userId);
+    sessionIds.push(currentSessionId);
+
+    const boundarySessionId = await compileSession(baseUrl, coach, athlete.userId);
+    sessionIds.push(boundarySessionId);
+    const boundaryDate = daysAgoDateOnly(30);
+    await pool.query(
+      "UPDATE sessions SET created_at = $2::date WHERE session_id = $1",
+      [boundarySessionId, boundaryDate]
+    );
+
+    const insightsResult = await request(baseUrl, "GET", "/progress-insights", undefined, { cookie: athlete.cookie });
+    assertStatus(insightsResult, 200, "athlete reads progress insights");
+    const adherence = insightsResult.json?.insights?.session_adherence;
+
+    assert.equal(adherence.total_sessions, 1, "current window: only the non-backdated session");
+    assert.equal(adherence.series.length, 6);
+
+    const currentWindow = adherence.series[5];
+    assert.equal(currentWindow.total_sessions, 1, "current window excludes the boundary-dated session");
+
+    const nextOlderWindow = adherence.series[4];
+    assert.equal(nextOlderWindow.total_sessions, 1, "the next-older window gets the boundary-dated session exactly once");
+
+    for (const olderWindow of adherence.series.slice(0, 4)) {
+      assert.equal(olderWindow.total_sessions, 0, "no sessions this far back");
+    }
   }
 );
