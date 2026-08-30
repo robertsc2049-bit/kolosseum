@@ -26,7 +26,9 @@ import {
   cancelAttendanceEvent,
   createAttendanceEventForCoach,
   getAttendanceEventForCoach,
-  listAttendanceEventsForCoach
+  listAttendanceEventsForCoach,
+  rescheduleAttendanceOccurrence,
+  skipAttendanceOccurrence
 } from "./attendance_event_service.js";
 import {
   assertAthletesCurrentlyAccepted,
@@ -144,6 +146,29 @@ attendanceEventRouter.post(
     const coachUserId = await authenticatedCoach(request, true);
     const event = await cancelAttendanceEvent(coachUserId, request.params.event_id);
     return response.status(200).json({ ok: true, event });
+  })
+);
+
+attendanceEventRouter.post(
+  "/:event_id/occurrences/:occurrence_id/skip",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    const occurrence = await skipAttendanceOccurrence(coachUserId, request.params.event_id, request.params.occurrence_id);
+    return response.status(200).json({ ok: true, occurrence });
+  })
+);
+
+attendanceEventRouter.post(
+  "/:event_id/occurrences/:occurrence_id/reschedule",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    const occurrence = await rescheduleAttendanceOccurrence(
+      coachUserId,
+      request.params.event_id,
+      request.params.occurrence_id,
+      request.body ?? {}
+    );
+    return response.status(200).json({ ok: true, occurrence });
   })
 );
 

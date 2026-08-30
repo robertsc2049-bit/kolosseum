@@ -54,6 +54,12 @@ export function AthleteAttendanceEventsPanel() {
               </div>
               <strong>{String(occurrence.title ?? "")}</strong>
               <p className="muted small">{formatOccurrence(occurrence)}</p>
+              {occurrence.status === "rescheduled" && occurrence.rescheduled_to_date ? (
+                <p className="muted small">
+                  Moved to {String(occurrence.rescheduled_to_date)}
+                  {occurrence.rescheduled_to_start_time ? `, ${String(occurrence.rescheduled_to_start_time)}` : ""}
+                </p>
+              ) : null}
               {occurrence.location ? <p className="muted small">{String(occurrence.location)}</p> : null}
               <div className="button-row">
                 <button

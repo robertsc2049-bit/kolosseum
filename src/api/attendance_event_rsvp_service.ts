@@ -102,8 +102,9 @@ async function latestRsvpsForOccurrence(occurrenceId: string): Promise<readonly 
 
 // Athlete action: respond to one occurrence of an event they were
 // actually invited to. Re-validated server-side every time - an
-// occurrence_id alone is never trusted to imply a valid invite, and a
-// non-"scheduled" (skipped) occurrence can never be RSVP'd to.
+// occurrence_id alone is never trusted to imply a valid invite. A
+// "rescheduled" occurrence still accepts an RSVP (it's the same
+// commitment, just moved) - only a "skipped" one is rejected.
 export async function submitAttendanceRsvp(
   athleteUserIdInput: string,
   occurrenceIdInput: unknown,
@@ -124,7 +125,7 @@ export async function submitAttendanceRsvp(
   }
 
   const occurrence = await loadAttendanceOccurrenceRecord(occurrenceId);
-  if (!occurrence || occurrence.status !== "scheduled") {
+  if (!occurrence || occurrence.status === "skipped") {
     throw new AttendanceEventError("occurrence_not_available", 404);
   }
 
@@ -226,12 +227,19 @@ export type MyAttendanceOccurrence = Readonly<{
   occurrence_date: string;
   start_time: string | null;
   end_time: string | null;
+  status: "scheduled" | "rescheduled";
+  rescheduled_to_date: string | null;
+  rescheduled_to_start_time: string | null;
+  rescheduled_to_end_time: string | null;
   my_rsvp_state: string | null;
 }>;
 
-// Athlete action: every scheduled occurrence this athlete is currently
-// invited to, across every organizing coach, with their own current RSVP
-// state (null = no response yet).
+// Athlete action: every occurrence this athlete is currently invited to
+// (scheduled or rescheduled - never a skipped one), across every
+// organizing coach, with their own current RSVP state (null = no
+// response yet). Sorted by the EFFECTIVE date (the rescheduled target
+// when present) so a moved occurrence appears where it actually now
+// falls, not where it originally sat.
 export async function listMyAttendanceOccurrences(
   athleteUserIdInput: string
 ): Promise<readonly MyAttendanceOccurrence[]> {
@@ -250,7 +258,7 @@ export async function listMyAttendanceOccurrences(
 
     const occurrences = await loadAttendanceOccurrenceRecords(eventId);
     for (const occurrence of occurrences) {
-      if (occurrence.status !== "scheduled") continue;
+      if (occurrence.status === "skipped") continue;
       const occurrenceId = cleanString(occurrence.occurrence_id);
       const rsvp = await latestRsvpRecord(occurrenceId, athleteUserId);
 
@@ -265,12 +273,20 @@ export async function listMyAttendanceOccurrences(
         occurrence_date: cleanString(occurrence.occurrence_date),
         start_time: cleanString(occurrence.start_time) || null,
         end_time: cleanString(occurrence.end_time) || null,
+        status: occurrence.status === "rescheduled" ? "rescheduled" : "scheduled",
+        rescheduled_to_date: cleanString(occurrence.rescheduled_to_date) || null,
+        rescheduled_to_start_time: cleanString(occurrence.rescheduled_to_start_time) || null,
+        rescheduled_to_end_time: cleanString(occurrence.rescheduled_to_end_time) || null,
         my_rsvp_state: rsvp ? cleanString(rsvp.rsvp_state) : null
       }));
     }
   }
 
-  return Object.freeze(results.sort((left, right) => left.occurrence_date.localeCompare(right.occurrence_date)));
+  return Object.freeze(results.sort((left, right) => {
+    const leftDate = left.rescheduled_to_date ?? left.occurrence_date;
+    const rightDate = right.rescheduled_to_date ?? right.occurrence_date;
+    return leftDate.localeCompare(rightDate);
+  }));
 }
 
 // Exposed for potential future reuse (e.g. slice 5 notification
