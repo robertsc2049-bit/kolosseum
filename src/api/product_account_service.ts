@@ -153,7 +153,8 @@ function validateActivity(
   if (
     activity !== "powerlifting" &&
     activity !== "general_strength" &&
-    activity !== "rugby_union"
+    activity !== "rugby_union" &&
+    activity !== "strongman"
   ) {
     throw new ProductAccountError(
       "account_activity_invalid"

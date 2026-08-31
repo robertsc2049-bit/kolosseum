@@ -516,7 +516,8 @@
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "carry"
@@ -532,7 +533,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "hinge",
@@ -549,7 +551,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "vertical_push"
@@ -565,7 +568,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "vertical_push",
@@ -582,7 +586,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "carry",
@@ -599,7 +604,8 @@
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "hinge",

@@ -42,7 +42,8 @@ export class Beta19CoachEventError extends Error {
 const supportedActivities = new Set([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 function isRecord(value: unknown): value is JsonRecord {

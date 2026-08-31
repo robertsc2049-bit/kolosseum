@@ -4,11 +4,11 @@ import path from "node:path";
 export const TOKEN = "CI_REG_FULL_03_EXERCISE_REGISTRY_PRODUCTION";
 export const EXPECTED_EXERCISE_COUNT = 221;
 export const EXPECTED_TOKEN_COUNT = 4;
-export const EXPECTED_APPLICABILITY_COUNT = 1821;
+export const EXPECTED_APPLICABILITY_COUNT = 1803;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
-export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union"]);
-export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 165, general_strength: 221, rugby_union: 221 });
-export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54 });
+export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 165, general_strength: 215, rugby_union: 215, strongman: 6 });
+export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54, strongman: 3 });
 
 export const REQUIRED_CANONICAL_FIELDS = Object.freeze([
   "exercise_id", "display_label", "movement_pattern_id", "primary_activity_applicability",
@@ -202,5 +202,5 @@ if (import.meta.url === `file://${process.argv[1]?.replaceAll("\\", "/")}` || pr
     process.exit(1);
   }
   const c = result.counts;
-  console.log(`${TOKEN}: PASS exercises=${c.exercises} movements=${c.movement_patterns} tokens=${c.tokens} applicability=${c.applicability} powerlifting=${c.activity_exercises.powerlifting} general_strength=${c.activity_exercises.general_strength} rugby_union=${c.activity_exercises.rugby_union}`);
+  console.log(`${TOKEN}: PASS exercises=${c.exercises} movements=${c.movement_patterns} tokens=${c.tokens} applicability=${c.applicability} powerlifting=${c.activity_exercises.powerlifting} general_strength=${c.activity_exercises.general_strength} rugby_union=${c.activity_exercises.rugby_union} strongman=${c.activity_exercises.strongman}`);
 }

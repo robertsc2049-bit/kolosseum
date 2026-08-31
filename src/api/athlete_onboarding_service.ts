@@ -19,7 +19,7 @@ export const ATHLETE_ONBOARDING_STAGES = Object.freeze([
 ] as const);
 export type AthleteOnboardingStage = (typeof ATHLETE_ONBOARDING_STAGES)[number];
 export const ATHLETE_ACTIVITY_IDS = Object.freeze([
-  "powerlifting", "general_strength", "rugby_union"
+  "powerlifting", "general_strength", "rugby_union", "strongman"
 ] as const);
 export const ATHLETE_EXECUTION_SCOPES = Object.freeze([
   "individual", "coach_managed"

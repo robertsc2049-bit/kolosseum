@@ -64,7 +64,8 @@
             "enum": [
               "powerlifting",
               "general_strength",
-              "rugby_union"
+              "rugby_union",
+              "strongman"
             ]
           },
           "assignment_scope": {
@@ -263,7 +264,8 @@
                 "enum": [
                   "powerlifting",
                   "general_strength",
-                  "rugby_union"
+                  "rugby_union",
+                  "strongman"
                 ]
               },
               "exercise_ids": {

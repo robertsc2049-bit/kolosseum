@@ -20,7 +20,8 @@ export class EventProgrammeCompilerError extends Error {
 const supportedActivities = new Set([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const eventTypesByActivity = new Map<string, ReadonlySet<string>>([
@@ -46,6 +47,15 @@ const eventTypesByActivity = new Map<string, ReadonlySet<string>>([
     new Set([
       "rugby_match",
       "rugby_tournament",
+      "test_day",
+      "other"
+    ])
+  ],
+  [
+    "strongman",
+    new Set([
+      "strongman_competition",
+      "strength_event",
       "test_day",
       "other"
     ])

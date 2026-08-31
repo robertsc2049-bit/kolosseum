@@ -1,6 +1,6 @@
 {
   "registry_id": "exercise_activity_applicability",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "entries": {
     "back_squat__powerlifting__training": {
       "applicability_id": "back_squat__powerlifting__training",
@@ -21422,10 +21422,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "yoke_walk__general_strength__training": {
-      "applicability_id": "yoke_walk__general_strength__training",
+    "yoke_walk__strongman__training": {
+      "applicability_id": "yoke_walk__strongman__training",
       "exercise_id": "yoke_walk",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21434,10 +21434,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "yoke_walk__general_strength__testing": {
-      "applicability_id": "yoke_walk__general_strength__testing",
+    "yoke_walk__strongman__testing": {
+      "applicability_id": "yoke_walk__strongman__testing",
       "exercise_id": "yoke_walk",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21446,10 +21446,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "yoke_walk__general_strength__competition": {
-      "applicability_id": "yoke_walk__general_strength__competition",
+    "yoke_walk__strongman__competition": {
+      "applicability_id": "yoke_walk__strongman__competition",
       "exercise_id": "yoke_walk",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],
@@ -21458,46 +21458,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "yoke_walk__rugby_union__training": {
-      "applicability_id": "yoke_walk__rugby_union__training",
-      "exercise_id": "yoke_walk",
-      "activity_id": "rugby_union",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "yoke_walk__rugby_union__testing": {
-      "applicability_id": "yoke_walk__rugby_union__testing",
-      "exercise_id": "yoke_walk",
-      "activity_id": "rugby_union",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "yoke_walk__rugby_union__competition": {
-      "applicability_id": "yoke_walk__rugby_union__competition",
-      "exercise_id": "yoke_walk",
-      "activity_id": "rugby_union",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "atlas_stone_carry__general_strength__training": {
-      "applicability_id": "atlas_stone_carry__general_strength__training",
+    "atlas_stone_carry__strongman__training": {
+      "applicability_id": "atlas_stone_carry__strongman__training",
       "exercise_id": "atlas_stone_carry",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21506,10 +21470,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "atlas_stone_carry__general_strength__testing": {
-      "applicability_id": "atlas_stone_carry__general_strength__testing",
+    "atlas_stone_carry__strongman__testing": {
+      "applicability_id": "atlas_stone_carry__strongman__testing",
       "exercise_id": "atlas_stone_carry",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21518,10 +21482,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "atlas_stone_carry__general_strength__competition": {
-      "applicability_id": "atlas_stone_carry__general_strength__competition",
+    "atlas_stone_carry__strongman__competition": {
+      "applicability_id": "atlas_stone_carry__strongman__competition",
       "exercise_id": "atlas_stone_carry",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],
@@ -21530,46 +21494,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "atlas_stone_carry__rugby_union__training": {
-      "applicability_id": "atlas_stone_carry__rugby_union__training",
-      "exercise_id": "atlas_stone_carry",
-      "activity_id": "rugby_union",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "atlas_stone_carry__rugby_union__testing": {
-      "applicability_id": "atlas_stone_carry__rugby_union__testing",
-      "exercise_id": "atlas_stone_carry",
-      "activity_id": "rugby_union",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "atlas_stone_carry__rugby_union__competition": {
-      "applicability_id": "atlas_stone_carry__rugby_union__competition",
-      "exercise_id": "atlas_stone_carry",
-      "activity_id": "rugby_union",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "strongman_log_press__general_strength__training": {
-      "applicability_id": "strongman_log_press__general_strength__training",
+    "strongman_log_press__strongman__training": {
+      "applicability_id": "strongman_log_press__strongman__training",
       "exercise_id": "strongman_log_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21578,10 +21506,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "strongman_log_press__general_strength__testing": {
-      "applicability_id": "strongman_log_press__general_strength__testing",
+    "strongman_log_press__strongman__testing": {
+      "applicability_id": "strongman_log_press__strongman__testing",
       "exercise_id": "strongman_log_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21590,10 +21518,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "strongman_log_press__general_strength__competition": {
-      "applicability_id": "strongman_log_press__general_strength__competition",
+    "strongman_log_press__strongman__competition": {
+      "applicability_id": "strongman_log_press__strongman__competition",
       "exercise_id": "strongman_log_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],
@@ -21602,46 +21530,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "strongman_log_press__rugby_union__training": {
-      "applicability_id": "strongman_log_press__rugby_union__training",
-      "exercise_id": "strongman_log_press",
-      "activity_id": "rugby_union",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "strongman_log_press__rugby_union__testing": {
-      "applicability_id": "strongman_log_press__rugby_union__testing",
-      "exercise_id": "strongman_log_press",
-      "activity_id": "rugby_union",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "strongman_log_press__rugby_union__competition": {
-      "applicability_id": "strongman_log_press__rugby_union__competition",
-      "exercise_id": "strongman_log_press",
-      "activity_id": "rugby_union",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "axle_bar_press__general_strength__training": {
-      "applicability_id": "axle_bar_press__general_strength__training",
+    "axle_bar_press__strongman__training": {
+      "applicability_id": "axle_bar_press__strongman__training",
       "exercise_id": "axle_bar_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21650,10 +21542,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "axle_bar_press__general_strength__testing": {
-      "applicability_id": "axle_bar_press__general_strength__testing",
+    "axle_bar_press__strongman__testing": {
+      "applicability_id": "axle_bar_press__strongman__testing",
       "exercise_id": "axle_bar_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21662,10 +21554,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "axle_bar_press__general_strength__competition": {
-      "applicability_id": "axle_bar_press__general_strength__competition",
+    "axle_bar_press__strongman__competition": {
+      "applicability_id": "axle_bar_press__strongman__competition",
       "exercise_id": "axle_bar_press",
-      "activity_id": "general_strength",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],
@@ -21674,10 +21566,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "axle_bar_press__rugby_union__training": {
-      "applicability_id": "axle_bar_press__rugby_union__training",
-      "exercise_id": "axle_bar_press",
-      "activity_id": "rugby_union",
+    "tire_flip__strongman__training": {
+      "applicability_id": "tire_flip__strongman__training",
+      "exercise_id": "tire_flip",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21686,10 +21578,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "axle_bar_press__rugby_union__testing": {
-      "applicability_id": "axle_bar_press__rugby_union__testing",
-      "exercise_id": "axle_bar_press",
-      "activity_id": "rugby_union",
+    "tire_flip__strongman__testing": {
+      "applicability_id": "tire_flip__strongman__testing",
+      "exercise_id": "tire_flip",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21698,10 +21590,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "axle_bar_press__rugby_union__competition": {
-      "applicability_id": "axle_bar_press__rugby_union__competition",
-      "exercise_id": "axle_bar_press",
-      "activity_id": "rugby_union",
+    "tire_flip__strongman__competition": {
+      "applicability_id": "tire_flip__strongman__competition",
+      "exercise_id": "tire_flip",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],
@@ -21710,10 +21602,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "tire_flip__general_strength__training": {
-      "applicability_id": "tire_flip__general_strength__training",
-      "exercise_id": "tire_flip",
-      "activity_id": "general_strength",
+    "sandbag_carry__strongman__training": {
+      "applicability_id": "sandbag_carry__strongman__training",
+      "exercise_id": "sandbag_carry",
+      "activity_id": "strongman",
       "activity_context": "training",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21722,10 +21614,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "tire_flip__general_strength__testing": {
-      "applicability_id": "tire_flip__general_strength__testing",
-      "exercise_id": "tire_flip",
-      "activity_id": "general_strength",
+    "sandbag_carry__strongman__testing": {
+      "applicability_id": "sandbag_carry__strongman__testing",
+      "exercise_id": "sandbag_carry",
+      "activity_id": "strongman",
       "activity_context": "testing",
       "applicability_state": "allowed",
       "conditions": [],
@@ -21734,118 +21626,10 @@
       "substitution_applicability": "not_eligible",
       "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
     },
-    "tire_flip__general_strength__competition": {
-      "applicability_id": "tire_flip__general_strength__competition",
-      "exercise_id": "tire_flip",
-      "activity_id": "general_strength",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "tire_flip__rugby_union__training": {
-      "applicability_id": "tire_flip__rugby_union__training",
-      "exercise_id": "tire_flip",
-      "activity_id": "rugby_union",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "tire_flip__rugby_union__testing": {
-      "applicability_id": "tire_flip__rugby_union__testing",
-      "exercise_id": "tire_flip",
-      "activity_id": "rugby_union",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "tire_flip__rugby_union__competition": {
-      "applicability_id": "tire_flip__rugby_union__competition",
-      "exercise_id": "tire_flip",
-      "activity_id": "rugby_union",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__general_strength__training": {
-      "applicability_id": "sandbag_carry__general_strength__training",
+    "sandbag_carry__strongman__competition": {
+      "applicability_id": "sandbag_carry__strongman__competition",
       "exercise_id": "sandbag_carry",
-      "activity_id": "general_strength",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__general_strength__testing": {
-      "applicability_id": "sandbag_carry__general_strength__testing",
-      "exercise_id": "sandbag_carry",
-      "activity_id": "general_strength",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__general_strength__competition": {
-      "applicability_id": "sandbag_carry__general_strength__competition",
-      "exercise_id": "sandbag_carry",
-      "activity_id": "general_strength",
-      "activity_context": "competition",
-      "applicability_state": "prohibited",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "not_eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__rugby_union__training": {
-      "applicability_id": "sandbag_carry__rugby_union__training",
-      "exercise_id": "sandbag_carry",
-      "activity_id": "rugby_union",
-      "activity_context": "training",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__rugby_union__testing": {
-      "applicability_id": "sandbag_carry__rugby_union__testing",
-      "exercise_id": "sandbag_carry",
-      "activity_id": "rugby_union",
-      "activity_context": "testing",
-      "applicability_state": "allowed",
-      "conditions": [],
-      "tier_cap": null,
-      "template_applicability": "eligible",
-      "substitution_applicability": "not_eligible",
-      "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
-    },
-    "sandbag_carry__rugby_union__competition": {
-      "applicability_id": "sandbag_carry__rugby_union__competition",
-      "exercise_id": "sandbag_carry",
-      "activity_id": "rugby_union",
+      "activity_id": "strongman",
       "activity_context": "competition",
       "applicability_state": "prohibited",
       "conditions": [],

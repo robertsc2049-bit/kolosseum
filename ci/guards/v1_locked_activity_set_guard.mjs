@@ -19,11 +19,11 @@ const repoRoot = process.cwd();
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const rejectedExamples = Object.freeze([
-  "strongman",
   "bodybuilding",
   "weightlifting",
   "combat_sports",

@@ -39,7 +39,8 @@ const weightUnits = new Set(["kg", "lb"]);
 const supportedActivities = new Set([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 const benchmarkBases = new Set([
   "tested_1rm",
