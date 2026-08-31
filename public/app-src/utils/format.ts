@@ -30,6 +30,20 @@ export function rpeReserveLabel(value: unknown): string {
   return "very light effort";
 }
 
+// DEV NOTE: linear RPE<->reps-in-reserve conversion (rir = 10 - rpe) so a
+// coach can prescribe intensity in whichever scale they think in - only
+// rpe_value is ever stored, RIR is purely an alternate input/display for
+// that same field, never a separate persisted value.
+export function rpeToReserve(value: unknown): number {
+  const rpe = Math.max(1, Math.min(10, Math.round(Number(value)) || 8));
+  return 10 - rpe;
+}
+
+export function reserveToRpe(value: unknown): number {
+  const rir = Math.max(0, Math.min(9, Math.round(Number(value)) || 2));
+  return 10 - rir;
+}
+
 export function formatDate(value: unknown): string {
   if (!value) return "Date not recorded";
 

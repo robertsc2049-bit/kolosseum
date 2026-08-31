@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { CoachProgrammeBuilderTree } from "../screens/coach/CoachProgrammeBuilderTree";
 import {
@@ -120,6 +120,34 @@ test("a bodyweight-loaded work item shows the factual no-load note instead of a 
 
   assert.ok(screen.getByText("No external load is prescribed."));
   assert.equal(container.querySelector('input[data-field="percent_1rm"]'), null);
+});
+
+test("an RPE-loaded work item defaults to the RPE entry mode, showing the raw rpe_value field and a reps-in-the-tank caption", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "rpe", value: 8 } }));
+
+  const rpeInput = container.querySelector('input[data-field="rpe_value"]') as HTMLInputElement;
+  assert.ok(rpeInput);
+  assert.equal(rpeInput.value, "8");
+  assert.equal(container.querySelector('input[data-field="rir_value"]'), null);
+  assert.ok(screen.getByText("RPE 8 - 2 reps in the tank"));
+});
+
+test("switching an RPE work item's entry mode to reps-in-reserve shows a converted, correctly-tagged input instead", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "rpe", value: 8 } }));
+
+  fireEvent.change(screen.getByText("Enter as").closest("label")!.querySelector("select")!, { target: { value: "rir" } });
+
+  assert.equal(container.querySelector('input[data-field="rpe_value"]'), null);
+  const rirInput = container.querySelector('input[data-field="rir_value"]') as HTMLInputElement;
+  assert.ok(rirInput);
+  assert.equal(rirInput.value, "2", "RPE 8 is 2 reps in reserve (10 - rpe)");
+  assert.equal(rirInput.getAttribute("data-template-kind"), "work-item");
+  assert.ok(screen.getByText("RPE 8 - 2 reps in the tank"), "the caption still reflects the same underlying effort level");
+
+  fireEvent.change(rirInput, { target: { value: "4" } });
+  assert.ok(screen.getByText("RPE 6 - 4 reps in the tank"), "typing a new RIR live-updates the caption to its equivalent RPE");
 });
 
 test("a grouped work item shows the grouping-type select and an Ungroup button, not Group with next", async () => {
