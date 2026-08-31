@@ -12,23 +12,23 @@
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "c1d88025da311cf4ba330c3e950eb782560d2aec8a2a48ac5ea30549333b6cb2"
+      "sha256": "d1df30b297ca7e9478e6d232c39777ebc441b437f3da07d0eae044c60511c145"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "63613103086fd165c3039ef60939f4588da99b62b62d418789c0cc5370b6e761"
+      "sha256": "f54a36035907c39e61cf22418bde352dc6b4cf833b8bfadfb81bd72648eca462"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
-      "sha256": "39682f4bba2918750403ce17ba01465d4fe925e7255f15c5351016e1e1392450"
+      "sha256": "4bf67769cd569b7881da61617780df0aefc2fa4077fa1faac28940a7cdff395f"
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "2a3f9948e4c4189e8e5b3d5f3d0747d954ad9957a8c45d2435aa995057b3472b"
+      "sha256": "0d1f17e1f49e3e8b8c9262e2e1b4cf2d3a2abcf7c9be4a4050a4e6e5ba233ee5"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "a0ca2c0840f87fed6a422f4ed01272fbcc0b81d1cce64611667e965303c82ffe"
+      "sha256": "b1d7af74a204759cb7de4d75a505ca840640fb14bdb3c22028f1815cd45a0944"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",

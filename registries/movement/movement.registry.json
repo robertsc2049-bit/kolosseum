@@ -1,6 +1,6 @@
 {
   "registry_id": "movement",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "entries": {
     "squat": {
       "movement_pattern_id": "squat",
@@ -35,7 +35,8 @@
         "lumbar_high",
         "sacroiliac_low",
         "sacroiliac_medium",
-        "sacroiliac_high"
+        "sacroiliac_high",
+        "elbow"
       ],
       "activity_applicability": [
         "powerlifting",
@@ -171,7 +172,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "glute_ham_bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -234,11 +236,16 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "barbell",
+        "bench",
+        "glute_ham_bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
-        "hip"
+        "hip",
+        "lumbar_low",
+        "knee"
       ],
       "activity_applicability": [
         "powerlifting",
@@ -391,7 +398,8 @@
         "rack",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "dip_bars"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -461,7 +469,8 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "cable_single_handle_attachment"
+        "cable_single_handle_attachment",
+        "landmine_attachment"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -489,13 +498,16 @@
         "pull_up_bar",
         "plate",
         "cable_v_bar_attachment",
-        "cable_straight_bar_attachment"
+        "cable_straight_bar_attachment",
+        "landmine_attachment",
+        "bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
         "shoulder",
         "elbow",
-        "wrist"
+        "wrist",
+        "lumbar_low"
       ],
       "activity_applicability": [
         "powerlifting",
@@ -516,7 +528,8 @@
         "resistance_band",
         "pull_up_bar",
         "plate",
-        "cable_lat_bar_attachment"
+        "cable_lat_bar_attachment",
+        "bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -582,7 +595,9 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "barbell",
+        "trap_bar"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
