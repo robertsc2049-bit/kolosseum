@@ -67,8 +67,9 @@ Implementation must remain limited to:
 1. powerlifting
 2. general_strength
 3. rugby_union
+4. strongman
 
-No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set.
+No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set. (Amendment: strongman was activated as the fourth locked activity by the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Required implementation order
 

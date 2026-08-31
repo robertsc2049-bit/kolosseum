@@ -9,7 +9,8 @@ const repoRoot = process.cwd();
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const fixturePath = path.join(
@@ -34,7 +35,7 @@ test("S-V1-20 locks the supported activity set exactly", () => {
   assert.deepEqual(
     boundary.V1_SUPPORTED_ACTIVITIES,
     expectedActivities,
-    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union"
+    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union, strongman"
   );
 
   for (const activityId of expectedActivities) {

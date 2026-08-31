@@ -18,7 +18,8 @@ const TOKEN = "CI_V1_SUPPORTED_ACTIVITY_SET_LOCK";
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredFiles = Object.freeze([
