@@ -70,7 +70,15 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
     "squat", "hinge", "horizontal_push", "vertical_push", "horizontal_pull",
     "vertical_pull", "carry", "brace", "sprint_acceleration",
     "deceleration_change_of_direction", "jump_land", "conditioning_general"
-  ])
+  ]),
+  // strongman is a later authorised registry-production activity (see
+  // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md) added after S-REG-32's
+  // authoring time. It did not exist when the historical 19-record derivation
+  // above was performed, so it carries no historical movement-id evidence
+  // here; it is present only so this validator's live-registry compatibility
+  // check recognises it as a known activity id, per this file's own boundary
+  // that later facts must not rewrite S-REG-32's historical record.
+  strongman: Object.freeze(["squat", "hinge", "horizontal_push", "carry"])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([
