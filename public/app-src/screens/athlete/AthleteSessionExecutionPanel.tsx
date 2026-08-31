@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { exerciseDetails, exerciseName, titleCase } from "../../utils/format";
+import { exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -287,6 +287,7 @@ export function AthleteSessionExecutionPanel() {
                   <h3>Report RPE for this exercise?</h3>
                   <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
                   <label><span>RPE (1-10)</span><input type="number" min={1} max={10} step={1} value={session.rpeValue} onChange={(event) => session.setRpeValue(Number(event.target.value))} /></label>
+                  <p className="muted small">RPE {session.rpeValue} - {rpeReserveLabel(session.rpeValue)}</p>
                   <div className="button-row">
                     <button id="confirmRpeReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmRpeReport()}>Record RPE</button>
                     <button id="cancelRpeReportButton" className="button secondary" type="button" onClick={() => session.closeActionPanel()}>Cancel</button>

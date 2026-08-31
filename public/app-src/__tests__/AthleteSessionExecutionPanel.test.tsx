@@ -185,6 +185,24 @@ test("starting a session reveals the full action button set", async () => {
   assert.ok(screen.getByText("Stop and return later"));
 });
 
+test("the RPE panel shows a live reps-in-the-tank hint next to the raw 1-10 value", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Report RPE"));
+  });
+
+  await waitFor(() => screen.getByText("RPE 8 - 2 reps in the tank"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("RPE (1-10)"), { target: { value: "10" } });
+  });
+  assert.ok(screen.getByText("RPE 10 - 0 reps in the tank - maximum effort"));
+});
+
 test("completing the current exercise starts a rest timer and refreshes the session", async () => {
   seedActiveSession("session_1");
   installMocks({ sessionState: baseSessionState({ started: true }) });
