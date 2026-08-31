@@ -111,7 +111,7 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "9B2849C00DEFC332915B330610859ABF5AE4FB93D0F339216F990842321C4201"
+        "sha256": "821F9B2FE07FDD09305CCE8AB1212003BB6BCA26927CE3B6368A94B1600C98AA"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
