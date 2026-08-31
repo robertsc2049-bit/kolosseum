@@ -18,7 +18,7 @@ export const REG_FULL_06_PATHS = Object.freeze({
   evidence: "ci/evidence/reg_full_06_substitution_graph_closure.v1.json"
 });
 
-export const ACTIVITY_ORDER = Object.freeze(["powerlifting", "general_strength", "rugby_union"]);
+export const ACTIVITY_ORDER = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
 export const DIFFICULTY_RANK = Object.freeze({ beginner: 0, intermediate: 1, advanced: 2 });
 
 // Authoring-time equipment burden only. These levels are explicit REG-FULL-06 policy;

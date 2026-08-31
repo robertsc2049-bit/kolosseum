@@ -19,7 +19,8 @@ const repoRoot = process.cwd();
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredDomains = Object.freeze([
@@ -124,7 +125,6 @@ const requiredFieldGroups = Object.freeze({
 });
 
 const excludedSchemaDriftExamples = Object.freeze([
-  "strongman",
   "bodybuilding",
   "weightlifting",
   "combat_sports",

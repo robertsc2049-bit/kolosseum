@@ -4,19 +4,19 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "6f33e598a0bb63aea63272bc9a1cde1b896509c8d9ffbc377407833dbd7b40d1",
+  "canonical_registry_sha256": "2097f37681a9008c73a41015647363c0d57daa598591ba910d59b1ce2be170df",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "21d126c3863b90353f188c26f13fd3ff8229737ad909dbc7e9b5ddff0aed14a1"
+      "sha256": "f81fea595e812b66d0d62bf12b354276b05c33d7cfc5819af5ddfd64d8bd6fa9"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "2853b07bee1eb1d5334a6b67820f15593075e406f2f3bb62968e1cbfa8b719b3"
+      "sha256": "c1d88025da311cf4ba330c3e950eb782560d2aec8a2a48ac5ea30549333b6cb2"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "24cb596cb88db57a74b1ec38344a0cb8768e1f73c42e77a7be9116b3057a4f3d"
+      "sha256": "63613103086fd165c3039ef60939f4588da99b62b62d418789c0cc5370b6e761"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
@@ -24,15 +24,15 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "74aa9875e6a5bed0fc53f272825ec7d90b2c6d932937eaffd56b6c8248e22e1d"
+      "sha256": "2a3f9948e4c4189e8e5b3d5f3d0747d954ad9957a8c45d2435aa995057b3472b"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "5d53bb211c31e922d1ab81e765d19f0a94e01da41cb12f68a6dc82e193d50feb"
+      "sha256": "a0ca2c0840f87fed6a422f4ed01272fbcc0b81d1cce64611667e965303c82ffe"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "e578db9b58839c23319e8cfccd9de1afb122b0153607e8d58675e6415364a721"
+      "sha256": "000d2cc8fa2bd43ac962cacb268f0414eb5908bea0396b6012e8e3433645b6ff"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -40,7 +40,7 @@
     },
     "surfaceManifest": {
       "path": "registries/final_registry_surface_manifest.json",
-      "sha256": "e236341a4b5ecb7ad4ca36088b6433bffad51cc0e1da9a9b3f0e22cb88d26489"
+      "sha256": "bfced1d3ab5092f8d24a3b60c3438b750f83360493fb829a666f5ee3684fd641"
     },
     "schemaManifest": {
       "path": "registries/final_registry_schema_manifest.json",
@@ -48,13 +48,14 @@
     }
   },
   "counts": {
-    "template_count": 11,
+    "template_count": 12,
     "powerlifting_templates": 4,
     "general_strength_templates": 3,
     "rugby_union_templates": 4,
+    "strongman_templates": 1,
     "low_equipment_templates": 2,
-    "unique_scheduled_exercises": 14,
-    "scheduled_work_items": 388
+    "unique_scheduled_exercises": 15,
+    "scheduled_work_items": 420
   },
   "family_ids": [
     "powerlifting_novice",
@@ -67,7 +68,8 @@
     "rugby_union_off_season",
     "rugby_union_pre_season",
     "rugby_union_in_season",
-    "rugby_union_low_equipment"
+    "rugby_union_low_equipment",
+    "strongman_novice"
   ],
   "policy": {
     "finished_exercises_only": true,

@@ -11,7 +11,8 @@ const TOKEN_PREFIX = "v1_programme_assignment_contract_";
 const LOCKED_ACTIVITY_IDS = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const REQUIRED_ROOT_KEYS = Object.freeze([

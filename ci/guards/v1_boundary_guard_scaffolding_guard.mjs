@@ -226,11 +226,11 @@ if (!Array.isArray(guards.V1_SUPPORTED_ACTIVITIES)) {
   fail("V1_SUPPORTED_ACTIVITIES export is not an array");
 }
 
-for (const activityId of ["powerlifting", "general_strength", "rugby_union"]) {
+for (const activityId of ["powerlifting", "general_strength", "rugby_union", "strongman"]) {
   guards.assertActivityIsV1Supported(activityId);
 }
 
-for (const activityId of ["strongman", "bodybuilding", "weightlifting", "combat_sports"]) {
+for (const activityId of ["bodybuilding", "weightlifting", "combat_sports"]) {
   assertThrowsWithCode(
     () => guards.assertActivityIsV1Supported(activityId),
     "v1_boundary_guard_unsupported_activity"
@@ -264,7 +264,7 @@ assertThrowsWithCode(
     relationshipState: "relationship_active",
     coachId: "coach_1",
     athleteId: "athlete_1",
-    assignmentActivityId: "strongman"
+    assignmentActivityId: "weightlifting"
   }),
   "v1_boundary_guard_unsupported_activity"
 );

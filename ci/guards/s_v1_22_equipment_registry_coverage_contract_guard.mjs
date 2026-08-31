@@ -17,7 +17,8 @@ const TOKEN_PREFIX = "v1_equipment_registry_coverage_contract_";
 const lockedActivityIds = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredEquipmentFields = Object.freeze([

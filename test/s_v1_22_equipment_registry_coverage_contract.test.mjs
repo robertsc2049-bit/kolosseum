@@ -10,7 +10,8 @@ const TOKEN_PREFIX = "v1_equipment_registry_coverage_contract_";
 const lockedActivityIds = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredEquipmentFields = Object.freeze([
@@ -277,7 +278,8 @@ function makeEquipmentRecord(equipmentId, overrides = {}) {
     activity_applicability: [
       "powerlifting",
       "general_strength",
-      "rugby_union"
+      "rugby_union",
+      "strongman"
     ],
     movement_pattern_applicability: [
       "squat",
@@ -305,7 +307,8 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
   assert.deepEqual(lockedActivityIds, [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [

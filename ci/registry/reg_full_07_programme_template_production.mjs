@@ -23,16 +23,18 @@ const EXPECTED_FAMILY_IDS = Object.freeze([
   "rugby_union_off_season",
   "rugby_union_pre_season",
   "rugby_union_in_season",
-  "rugby_union_low_equipment"
+  "rugby_union_low_equipment",
+  "strongman_novice"
 ]);
 
 const EXPECTED_LEGACY_PROGRAM = Object.freeze({
   registry_id: "program",
-  version: "1.1.0",
+  version: "1.2.0",
   entries: [
     { activity_id: "powerlifting", template_id: "PROGRAM_POWERLIFTING_V1", exercise_eligibility: ["bench_press", "back_squat", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
     { activity_id: "rugby_union", template_id: "PROGRAM_RUGBY_UNION_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
-    { activity_id: "general_strength", template_id: "PROGRAM_GENERAL_STRENGTH_V1", exercise_eligibility: ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"] }
+    { activity_id: "general_strength", template_id: "PROGRAM_GENERAL_STRENGTH_V1", exercise_eligibility: ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "strongman", template_id: "PROGRAM_STRONGMAN_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "farmers_carry"] }
   ]
 });
 
@@ -123,9 +125,9 @@ export function auditRegFull07Documents(docs, repoRoot = process.cwd()) {
   const familyIds = templates.map((row) => row?.template_id);
   if (!same(familyIds, EXPECTED_FAMILY_IDS)) push(errors, "FAMILY_INVENTORY", familyIds);
 
-  const activityCounts = { powerlifting: 0, general_strength: 0, rugby_union: 0 };
+  const activityCounts = { powerlifting: 0, general_strength: 0, rugby_union: 0, strongman: 0 };
   for (const template of templates) if (Object.hasOwn(activityCounts, template?.activity_id)) activityCounts[template.activity_id] += 1;
-  if (!same(activityCounts, { powerlifting: 4, general_strength: 3, rugby_union: 4 })) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
+  if (!same(activityCounts, { powerlifting: 4, general_strength: 3, rugby_union: 4, strongman: 1 })) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
 
   const exerciseRows = entries(docs.exercise);
   const equipmentRows = entries(docs.equipment);
@@ -233,6 +235,7 @@ export function auditRegFull07Documents(docs, repoRoot = process.cwd()) {
       powerlifting_templates: activityCounts.powerlifting,
       general_strength_templates: activityCounts.general_strength,
       rugby_union_templates: activityCounts.rugby_union,
+      strongman_templates: activityCounts.strongman,
       low_equipment_templates: REG_FULL_07_LOW_EQUIPMENT_IDS.length
     }
   };
@@ -251,7 +254,7 @@ function main() {
     for (const error of result.errors) console.error(JSON.stringify(error));
     process.exit(1);
   }
-  console.log(`${REG_FULL_07_FAILURE_TOKEN}: PASS templates=${result.summary.template_count} powerlifting=${result.summary.powerlifting_templates} general_strength=${result.summary.general_strength_templates} rugby_union=${result.summary.rugby_union_templates} low_equipment=${result.summary.low_equipment_templates}`);
+  console.log(`${REG_FULL_07_FAILURE_TOKEN}: PASS templates=${result.summary.template_count} powerlifting=${result.summary.powerlifting_templates} general_strength=${result.summary.general_strength_templates} rugby_union=${result.summary.rugby_union_templates} strongman=${result.summary.strongman_templates} low_equipment=${result.summary.low_equipment_templates}`);
 }
 
 const invoked = process.argv[1] ? path.resolve(process.argv[1]) : "";

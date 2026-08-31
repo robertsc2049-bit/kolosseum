@@ -33,8 +33,9 @@ The v1 supported activities remain exactly:
 - powerlifting
 - general_strength
 - rugby_union
+- strongman
 
-No implementation slice may add, imply, seed, expose, copy, or test support for another active v1 activity unless a later accepted decision record replaces the locked set.
+No implementation slice may add, imply, seed, expose, copy, or test support for another active v1 activity unless a later accepted decision record replaces the locked set. (See the amendment below for how strongman entered this list.)
 
 ## Files changed
 
@@ -69,10 +70,11 @@ This slice must not modify:
 The S19 guard must prove:
 
 - V1_SUPPORTED_ACTIVITIES exists
-- the set length is exactly 3
+- the set length is exactly 4
 - the set contains powerlifting
 - the set contains general_strength
 - the set contains rugby_union
+- the set contains strongman
 - the set contains no additional activity ids
 - assertActivityIsV1Supported accepts the locked set
 - assertActivityIsV1Supported rejects excluded activity examples
@@ -84,7 +86,6 @@ The S19 guard must prove:
 
 The guard must reject examples outside v1, including:
 
-- strongman
 - bodybuilding
 - weightlifting
 - combat_sports
@@ -118,7 +119,7 @@ S19 is accepted when:
 - the S19 CI guard exists
 - the S19 guard is indexed in docs/GUARDS_INDEX.md
 - lint:fast invokes the S19 guard
-- the locked activity set is exactly powerlifting, general_strength, and rugby_union
+- the locked activity set is exactly powerlifting, general_strength, rugby_union, and strongman
 - excluded activity examples are rejected
 - no registry content is added
 - no template content is added
@@ -151,3 +152,7 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is S20 - v1 registry schema target hardening.
 
 S20 should harden schema expectations before registry expansion content begins.
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, and strongman (length 4), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` and `rejectedExamples` were updated accordingly, and "strongman" was removed from the "Excluded examples" list above since it is no longer an excluded activity.

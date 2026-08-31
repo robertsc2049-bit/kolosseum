@@ -53,7 +53,8 @@ export const BETA17_COACH_COPY_IDS =
 const supportedActivities = new Set([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const forbiddenKeys = new Set([

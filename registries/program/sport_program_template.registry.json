@@ -7857,6 +7857,670 @@
         "no_royalty_scope",
         "registry_bound"
       ]
+    },
+    {
+      "template_id": "strongman_novice",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "strongman",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_strongman_novice",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "strongman_novice_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "strongman_novice_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "strongman_novice_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w01_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w01_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w01_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w01_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w01_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 2,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "strongman_novice_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "strongman_novice_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w02_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w02_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w02_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w02_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w02_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 2,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "strongman_novice_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "strongman_novice_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w03_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w03_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w03_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w03_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w03_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 2,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "strongman_novice_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "strongman_novice_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "strongman_novice_w04_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "strongman_novice_w04_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "strongman_novice_w04_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w04_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "bench",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "bench_press__to__dumbbell_bench_press"
+                          },
+                          {
+                            "work_item_id": "strongman_novice_w04_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "deadlift",
+                            "planned_sets": 2,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "deadlift__to__romanian_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "strongman",
+        "exercise_ids": [
+          "back_squat",
+          "bench_press",
+          "deadlift",
+          "farmers_carry"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "bench",
+          "dumbbell",
+          "open_floor_space",
+          "rack"
+        ],
+        "substitution_edge_ids": [
+          "back_squat__to__goblet_squat",
+          "bench_press__to__dumbbell_bench_press",
+          "deadlift__to__romanian_deadlift",
+          "farmers_carry__to__kettlebell_farmers_carry"
+        ],
+        "applicability_ids": [
+          "back_squat__strongman__training",
+          "bench_press__strongman__training",
+          "deadlift__strongman__training",
+          "farmers_carry__strongman__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
     }
   ]
 }

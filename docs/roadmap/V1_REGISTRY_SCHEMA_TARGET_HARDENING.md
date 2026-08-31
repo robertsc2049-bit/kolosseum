@@ -159,7 +159,6 @@ Schema target hardening must reject:
 - additional active activity ids
 - unknown registry domain names
 - registry domains without required fields
-- schema targets that imply strongman support
 - schema targets that imply bodybuilding support
 - schema targets that imply weightlifting support
 - schema targets that imply combat sport support
@@ -191,7 +190,7 @@ S20 is accepted when:
 - lint:fast invokes the S20 guard
 - required registry domains are listed
 - required field groups are listed
-- locked activities remain powerlifting, general_strength, and rugby_union
+- locked activities remain powerlifting, general_strength, rugby_union, and strongman
 - excluded schema drift examples are rejected
 - no registry content is added
 - no template content is added
@@ -224,6 +223,10 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is S21 - v1 registry domain scaffold.
 
 S21 may create inert schema target artefacts if needed, but it must not add registry content records.
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+The locked activity set is now powerlifting, general_strength, rugby_union, and strongman, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. "Schema targets that imply strongman support" is removed from the rejected-drift list above since strongman support is no longer a drift condition.
 - tactical_pack
 - rehabilitation_pack
 - youth_pack

@@ -10,7 +10,8 @@ const TOKEN_PREFIX = "v1_boundary_guard_";
 const V1_SUPPORTED_ACTIVITIES = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 function fail(token, message) {

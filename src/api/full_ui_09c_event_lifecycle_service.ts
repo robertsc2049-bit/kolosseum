@@ -45,7 +45,8 @@ export class FullUi09cEventLifecycleError extends Error {
 const supportedActivities = new Set([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const eventStates = new Set([

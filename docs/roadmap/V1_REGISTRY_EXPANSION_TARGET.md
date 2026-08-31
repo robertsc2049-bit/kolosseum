@@ -431,3 +431,11 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is v1 coach-athlete journey map.
 
 That lane must define the required coach and athlete flows before registry implementation begins.
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+Status: Accepted.
+
+docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to four activities: powerlifting, general_strength, rugby_union, and strongman. This amendment supersedes the "strongman" line of the "Explicit exclusions" section above for this document's own scope.
+
+The v1 registry expansion target now also covers strongman: activity registry entry, exercise and equipment applicability, movement pattern coverage, substitution edge coverage, one minimal programme template (strongman_novice), and copy/legal boundary review, matching the same target already defined above for the original three activities.

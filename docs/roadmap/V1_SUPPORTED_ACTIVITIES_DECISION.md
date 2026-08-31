@@ -152,3 +152,22 @@ That lane must define the exact registry coverage required for:
 - rugby_union
 
 No implementation slice should begin until the registry expansion target is accepted.
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+Status: Accepted.
+
+This amendment supersedes the "Explicit v1 exclusions" listing of strongman above and the strongman line of the "Copy and claims boundary" section above. It does not rewrite that historical text; it records that the exclusion no longer holds.
+
+v1 supported activities are now locked to:
+
+1. powerlifting
+2. general_strength
+3. rugby_union
+4. strongman
+
+Authorisation: explicit direct chat instruction from the product owner during this session ("i want to include strongman now", followed by "Full end-to-end sweep now" confirming a complete registry + runtime + CI activation, not a partial/registry-only change).
+
+Rationale: strongman-specific exercise and equipment content had already entered the registry under a `general_strength`/`rugby_union` label, which itself violated the original exclusion ("No registry item may imply support for an excluded activity"). Rather than leave that mislabeled or silently revert it, strongman is formally activated as a genuine fourth locked v1 activity, following the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition.
+
+Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, and strongman. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports) are unchanged and still apply.

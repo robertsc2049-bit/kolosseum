@@ -44,7 +44,8 @@ export const BETA16_APP_PATH_COPY_IDS = Object.freeze({
 const supportedActivities = new Set([
   "powerlifting",
   "rugby_union",
-  "general_strength"
+  "general_strength",
+  "strongman"
 ]);
 
 const authInputKeys = new Set([

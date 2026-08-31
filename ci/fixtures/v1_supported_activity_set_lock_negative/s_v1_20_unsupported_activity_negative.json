@@ -5,10 +5,10 @@
   "locked_supported_activity_ids": [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman"
   ],
   "unsupported_activity_ids": [
-    "strongman",
     "bodybuilding",
     "weightlifting",
     "combat_sports",

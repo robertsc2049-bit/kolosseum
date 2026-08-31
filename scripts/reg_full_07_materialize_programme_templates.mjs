@@ -77,6 +77,11 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
   Object.freeze({ template_id: "rugby_union_low_equipment", activity_id: "rugby_union", weeks: 4, low_equipment: true, days: Object.freeze([
     Object.freeze([work("box_jump", 3, 4), work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)]),
     Object.freeze([work("bulgarian_split_squat", 3, 8), work("dumbbell_overhead_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)])
+  ]) }),
+  Object.freeze({ template_id: "strongman_novice", activity_id: "strongman", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("back_squat", 3, 5), work("bench_press", 3, 5), work("farmers_carry", 3, 1)]),
+    Object.freeze([work("deadlift", 3, 5), work("farmers_carry", 3, 1)]),
+    Object.freeze([work("back_squat", 3, 5), work("bench_press", 3, 5), work("deadlift", 2, 3)])
   ]) })
 ]);
 
@@ -100,7 +105,8 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   kettlebell_deadlift: "kettlebell_deadlift__to__single_leg_rdl",
   bulgarian_split_squat: "bulgarian_split_squat__to__forward_lunge",
   box_jump: "box_jump__to__countermovement_jump",
-  backward_overhead_medicine_ball_throw: "backward_overhead_medicine_ball_throw__to__medicine_ball_chest_pass"
+  backward_overhead_medicine_ball_throw: "backward_overhead_medicine_ball_throw__to__medicine_ball_chest_pass",
+  farmers_carry: "farmers_carry__to__kettlebell_farmers_carry"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);
@@ -333,6 +339,7 @@ export function buildRegFull07Evidence(repoRoot, registry) {
       powerlifting_templates: registry.entries.filter((row) => row.activity_id === "powerlifting").length,
       general_strength_templates: registry.entries.filter((row) => row.activity_id === "general_strength").length,
       rugby_union_templates: registry.entries.filter((row) => row.activity_id === "rugby_union").length,
+      strongman_templates: registry.entries.filter((row) => row.activity_id === "strongman").length,
       low_equipment_templates: registry.entries.filter((row) => REG_FULL_07_LOW_EQUIPMENT_IDS.includes(row.template_id)).length,
       unique_scheduled_exercises: exerciseIds.size,
       scheduled_work_items: workItemCount

@@ -43,7 +43,8 @@ const supportedActivities =
   new Set([
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman"
   ]);
 
 const templateStatuses =
