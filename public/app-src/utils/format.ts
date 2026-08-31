@@ -14,6 +14,22 @@ export function initials(name: unknown): string {
   return (words.slice(0, 2).map((word) => word[0]).join("") || "K").toUpperCase();
 }
 
+// DEV NOTE: standard strength-training RPE->reps-in-reserve convention
+// (Tuchscherer scale) - shown as a live hint next to the raw 1-10 RPE
+// input so athletes unfamiliar with the numeric scale can anchor it to
+// a concrete "how many more reps could you have done" feeling.
+export function rpeReserveLabel(value: unknown): string {
+  const rpe = Number(value);
+  if (!Number.isFinite(rpe)) return "";
+  if (rpe >= 10) return "0 reps in the tank - maximum effort";
+  if (rpe === 9) return "1 rep in the tank";
+  if (rpe === 8) return "2 reps in the tank";
+  if (rpe === 7) return "3 reps in the tank";
+  if (rpe === 6) return "4 reps in the tank";
+  if (rpe === 5) return "~5 reps in the tank";
+  return "very light effort";
+}
+
 export function formatDate(value: unknown): string {
   if (!value) return "Date not recorded";
 
