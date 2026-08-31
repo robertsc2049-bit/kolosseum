@@ -204,7 +204,7 @@ export function auditRegFull06Documents(docs) {
   const expectedActivities = [...REG_FULL_06_ACTIVITIES].sort();
 
   if (!sameJson(activities, expectedActivities)) push(errors, "ACTIVITY_SCOPE", activities);
-  if (Object.keys(ex).length !== 215) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
+  if (Object.keys(ex).length !== 221) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
   if (Object.keys(mv).length !== 54) push(errors, "MOVEMENT_COUNT", Object.keys(mv).length);
   if (docs.substitution?.registry_id !== "substitution_registry" || docs.substitution?.version !== "1.0.0") push(errors, "SUBSTITUTION_HEADER", { registry_id: docs.substitution?.registry_id, version: docs.substitution?.version });
   if (Object.keys(sub).length === 0) push(errors, "EMPTY_SUBSTITUTION_REGISTRY", null);

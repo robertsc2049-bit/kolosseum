@@ -53,7 +53,7 @@ function validateAndBuild() {
   const activities = entries(activityDoc);
   const applicability = entries(applicabilityDoc);
 
-  if (Object.keys(exercises).length !== 215) fail("REG_FULL_04_EXERCISE_UNIVERSE_INVALID", { expected: 215, actual: Object.keys(exercises).length });
+  if (Object.keys(exercises).length !== 221) fail("REG_FULL_04_EXERCISE_UNIVERSE_INVALID", { expected: 221, actual: Object.keys(exercises).length });
 
   const applicabilityByExercise = new Map();
   for (const [key, row] of Object.entries(applicability)) {
