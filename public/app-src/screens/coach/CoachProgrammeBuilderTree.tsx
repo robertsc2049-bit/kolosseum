@@ -1,8 +1,10 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve } from "../../utils/format";
+import { formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
 import {
+  EXERCISE_CATEGORY_ORDER,
+  exerciseCategory,
   templateCounts,
   type ProgrammeBlockDraft,
   type ProgrammeSessionDraft,
@@ -279,6 +281,76 @@ function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
   );
 }
 
+// DEV NOTE: the exercise picker used to be one flat, unlabelled 200+-item
+// alphabetical <select> with no indication of what equipment an exercise
+// needs - not practical to scan, and gave a coach without (e.g.) a cable
+// machine no way to narrow the list. Groups by exerciseCategory() (see
+// programmeDraft.ts's own DEV NOTE) via <optgroup>, shows each exercise's
+// equipment inline, and adds a local, UI-only equipment filter. The
+// filter never removes an <option> from the DOM (only toggles `hidden`)
+// so the underlying uncontrolled data-field="exercise_id" select's
+// current selection is never silently dropped by React reconciling a
+// shorter option list out from under it - the currently-selected
+// exercise always stays visible/selectable regardless of the filter.
+function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, templateExercises }: WorkItemControlProps & { templateExercises: JsonRecord[] }) {
+  const [equipmentFilter, setEquipmentFilter] = React.useState("");
+
+  const equipmentOptions = React.useMemo(() => {
+    const tags = new Set<string>();
+    for (const exercise of templateExercises) {
+      for (const tag of Array.isArray(exercise.equipment) ? exercise.equipment : []) {
+        tags.add(String(tag));
+      }
+    }
+    return [...tags].sort((left, right) => titleCase(left).localeCompare(titleCase(right)));
+  }, [templateExercises]);
+
+  const groupedExercises = React.useMemo(() => {
+    const buckets = new Map<string, JsonRecord[]>();
+    for (const exercise of templateExercises) {
+      const category = exerciseCategory(exercise);
+      if (!buckets.has(category)) buckets.set(category, []);
+      buckets.get(category)!.push(exercise);
+    }
+    return EXERCISE_CATEGORY_ORDER
+      .map((category) => ({ category, exercises: buckets.get(category) ?? [] }))
+      .filter((entry) => entry.exercises.length > 0);
+  }, [templateExercises]);
+
+  return (
+    <>
+      <label className="template-exercise-filter-field">
+        <span>Equipment</span>
+        <select value={equipmentFilter} onChange={(event) => setEquipmentFilter(event.target.value)}>
+          <option value="">All equipment</option>
+          {equipmentOptions.map((tag) => (
+            <option key={tag} value={tag}>{titleCase(tag)}</option>
+          ))}
+        </select>
+      </label>
+      <label className="template-exercise-field">
+        <span>Exercise</span>
+        <select defaultValue={workItem.exercise_id} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
+          {groupedExercises.map(({ category, exercises }) => (
+            <optgroup label={category} key={category}>
+              {exercises.map((exercise) => {
+                const exerciseId = String(exercise.exercise_id);
+                const equipmentTags = Array.isArray(exercise.equipment) ? exercise.equipment.map((tag) => titleCase(String(tag))) : [];
+                const matchesFilter = !equipmentFilter || (Array.isArray(exercise.equipment) && exercise.equipment.includes(equipmentFilter));
+                return (
+                  <option key={exerciseId} value={exerciseId} hidden={!matchesFilter && exerciseId !== workItem.exercise_id}>
+                    {String(exercise.display_name ?? exerciseId)}{equipmentTags.length ? ` (${equipmentTags.join(", ")})` : ""}
+                  </option>
+                );
+              })}
+            </optgroup>
+          ))}
+        </select>
+      </label>
+    </>
+  );
+}
+
 function BuilderWorkItem({
   workItem,
   blockIndex,
@@ -294,16 +366,14 @@ function BuilderWorkItem({
     <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`}>
       <div className="template-work-item-header">
         <span className="exercise-order">{workItemIndex + 1}</span>
-        <label className="template-exercise-field">
-          <span>Exercise</span>
-          <select defaultValue={workItem.exercise_id} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
-            {templateExercises.map((exercise) => (
-              <option key={String(exercise.exercise_id)} value={String(exercise.exercise_id)}>
-                {String(exercise.display_name ?? exercise.exercise_id)}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ExerciseField
+          workItem={workItem}
+          blockIndex={blockIndex}
+          weekIndex={weekIndex}
+          sessionIndex={sessionIndex}
+          workItemIndex={workItemIndex}
+          templateExercises={templateExercises}
+        />
         <label className="template-role-field">
           <span>Role</span>
           <select defaultValue={workItem.role} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "role")}>

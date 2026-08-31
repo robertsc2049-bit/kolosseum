@@ -746,3 +746,46 @@ export function exerciseDisplayName(exerciseId: string, templateExercises: JsonR
   const match = templateExercises.find((exercise) => exercise.exercise_id === exerciseId);
   return String(match?.display_name ?? titleCase(exerciseId));
 }
+
+// DEV NOTE: the exercise registry's movement_pattern_id is a fine-grained
+// biomechanical tag (54 distinct values, e.g. "single_leg_hinge",
+// "scapular_retraction") - too granular to be a useful grouping in a
+// coach-facing exercise picker. This collapses them into the small set
+// of categories coaches already think in (the same "squat/hinge/push/
+// pull" split used industry-wide), purely for display grouping - the
+// registry's own pattern id is still what's stored on the work item and
+// used for substitution/applicability elsewhere, this mapping is never
+// persisted anywhere.
+const EXERCISE_CATEGORY_BY_PATTERN: Record<string, string> = {
+  squat: "Squat & knee", single_leg_squat: "Squat & knee", knee_extension_isolation: "Squat & knee",
+  knee_flexion_isolation: "Squat & knee", calf_raise: "Squat & knee", tibialis_raise: "Squat & knee",
+  hinge: "Hinge & hip", single_leg_hinge: "Hinge & hip", hip_extension_isolation: "Hinge & hip",
+  hip_flexion_isolation: "Hinge & hip", hip_abduction_isolation: "Hinge & hip", hip_adduction_isolation: "Hinge & hip",
+  horizontal_push: "Push", incline_push: "Push", decline_push: "Push", vertical_push: "Push", angled_push: "Push",
+  horizontal_pull: "Pull", vertical_pull: "Pull", scapular_retraction: "Pull", scapular_protraction: "Pull",
+  scapular_upward_rotation: "Pull", scapular_depression: "Pull",
+  shoulder_external_rotation: "Shoulders & arms", shoulder_internal_rotation: "Shoulders & arms",
+  shoulder_abduction_isolation: "Shoulders & arms", shoulder_horizontal_abduction_isolation: "Shoulders & arms",
+  elbow_flexion_isolation: "Shoulders & arms", elbow_extension_isolation: "Shoulders & arms",
+  forearm_flexion_isolation: "Shoulders & arms", forearm_extension_isolation: "Shoulders & arms",
+  grip_crush: "Shoulders & arms", grip_support: "Shoulders & arms",
+  carry_bilateral: "Core & carries", carry_unilateral: "Core & carries", core_anti_extension: "Core & carries",
+  core_anti_rotation: "Core & carries", core_anti_lateral_flexion: "Core & carries", trunk_flexion: "Core & carries",
+  trunk_extension: "Core & carries", rotation: "Core & carries",
+  locomotion_walk: "Speed, power & conditioning", locomotion_run: "Speed, power & conditioning",
+  locomotion_crawl: "Speed, power & conditioning", jump_vertical: "Speed, power & conditioning",
+  jump_horizontal: "Speed, power & conditioning", sprint_acceleration: "Speed, power & conditioning",
+  sprint_max_velocity: "Speed, power & conditioning", deceleration: "Speed, power & conditioning",
+  change_of_direction: "Speed, power & conditioning", throw_slam: "Speed, power & conditioning",
+  conditioning_cyclical: "Speed, power & conditioning", conditioning_row: "Speed, power & conditioning",
+  conditioning_sled: "Speed, power & conditioning"
+};
+
+export const EXERCISE_CATEGORY_ORDER = [
+  "Squat & knee", "Hinge & hip", "Push", "Pull", "Shoulders & arms", "Core & carries",
+  "Speed, power & conditioning", "Other"
+];
+
+export function exerciseCategory(exercise: JsonRecord): string {
+  return EXERCISE_CATEGORY_BY_PATTERN[String(exercise.pattern ?? "")] ?? "Other";
+}
