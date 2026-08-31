@@ -175,7 +175,8 @@
               "enum": [
                 "powerlifting",
                 "general_strength",
-                "rugby_union"
+                "rugby_union",
+                "strongman"
               ]
             },
             "uniqueItems": true
