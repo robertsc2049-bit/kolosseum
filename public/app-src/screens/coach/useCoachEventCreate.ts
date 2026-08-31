@@ -31,6 +31,12 @@ const EVENT_TYPES_BY_ACTIVITY: Record<string, ReadonlyArray<readonly [string, st
     ["rugby_tournament", "Rugby tournament"],
     ["test_day", "Test day"],
     ["other", "Other"]
+  ],
+  strongman: [
+    ["strongman_competition", "Strongman competition"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other"]
   ]
 };
 

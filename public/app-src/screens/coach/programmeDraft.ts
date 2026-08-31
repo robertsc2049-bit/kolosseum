@@ -433,7 +433,7 @@ export type ProgrammeActivationIssue = {
   path: string;
 };
 
-const SUPPORTED_ACTIVITIES = new Set(["powerlifting", "general_strength", "rugby_union"]);
+const SUPPORTED_ACTIVITIES = new Set(["powerlifting", "general_strength", "rugby_union", "strongman"]);
 const SUPPORTED_BLOCK_TYPES = new Set(["general", "volume", "strength", "peak", "deload", "custom"]);
 
 // Structural/work-item validation only - the event-plan-bound branch
