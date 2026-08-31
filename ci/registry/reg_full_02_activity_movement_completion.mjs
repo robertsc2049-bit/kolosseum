@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const TOKEN = "CI_REG_FULL_02_ACTIVITY_MOVEMENT_COMPLETION";
-export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union"]);
+export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
 export const REQUIRED_MOVEMENTS = Object.freeze([
   "squat", "hinge", "single_leg_squat", "single_leg_hinge",
   "knee_extension_isolation", "knee_flexion_isolation", "hip_abduction_isolation",
@@ -73,7 +73,7 @@ export function auditRegFull02(root) {
     if (!isObject(row)) { fail("MOVEMENT_ROW_MISSING", movementId); continue; }
     if (row.movement_pattern_id !== movementId) fail("MOVEMENT_PRIMARY_KEY", movementId);
     const applicable = Array.isArray(row.activity_applicability) ? row.activity_applicability : [];
-    if (!sameSet(applicable, REQUIRED_ACTIVITIES)) fail("MOVEMENT_ACTIVITY_APPLICABILITY", `${movementId}:${applicable.length}/3`);
+    if (!sameSet(applicable, REQUIRED_ACTIVITIES)) fail("MOVEMENT_ACTIVITY_APPLICABILITY", `${movementId}:${applicable.length}/${REQUIRED_ACTIVITIES.length}`);
     else movementToActivity += applicable.length;
   }
 
@@ -92,7 +92,8 @@ export function auditRegFull02(root) {
     activity_to_movement_permissions: activityToMovement,
     movement_to_activity_permissions: movementToActivity
   };
-  if (summary.activity_count !== 3 || summary.movement_count !== 54 || activityToMovement !== 162 || movementToActivity !== 162) {
+  const expectedPermissions = REQUIRED_ACTIVITIES.length * REQUIRED_MOVEMENTS.length;
+  if (summary.activity_count !== REQUIRED_ACTIVITIES.length || summary.movement_count !== 54 || activityToMovement !== expectedPermissions || movementToActivity !== expectedPermissions) {
     fail("SUMMARY_COUNTS", JSON.stringify(summary));
   }
   return { ok: errors.length === 0, errors, summary };
@@ -105,5 +106,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToP
     for (const e of result.errors) console.error(`${e.code}: ${typeof e.detail === "string" ? e.detail : JSON.stringify(e.detail)}`);
     process.exit(1);
   }
-  console.log(`${TOKEN}: PASS activities=3 movements=54 activity_to_movement=162 movement_to_activity=162`);
+  console.log(`${TOKEN}: PASS activities=${result.summary.activity_count} movements=${result.summary.movement_count} activity_to_movement=${result.summary.activity_to_movement_permissions} movement_to_activity=${result.summary.movement_to_activity_permissions}`);
 }

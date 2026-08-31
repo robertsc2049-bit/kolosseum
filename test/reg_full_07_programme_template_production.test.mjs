@@ -54,10 +54,11 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
   const result = auditRegFull07Documents(loadRegFull07Documents(process.cwd()), process.cwd());
   assert.equal(result.ok, true, JSON.stringify(result.errors, null, 2));
   assert.deepEqual(result.summary, {
-    template_count: 11,
+    template_count: 12,
     powerlifting_templates: 4,
     general_strength_templates: 3,
     rugby_union_templates: 4,
+    strongman_templates: 1,
     low_equipment_templates: 2
   });
 });
