@@ -36,7 +36,13 @@ export const REG_FULL_06_EQUIPMENT_LEVEL = Object.freeze({
   sled: 2,
   box: 2,
   machine_general: 2,
-  cardio_machine_general: 2
+  cardio_machine_general: 2,
+  yoke: 3,
+  atlas_stone: 3,
+  strongman_log: 3,
+  axle_bar: 3,
+  sandbag: 3,
+  tire: 3
 });
 
 const CHANGE_PRIORITY = Object.freeze({ same_required_equipment: 0, lateral: 1, downgrade: 2 });
