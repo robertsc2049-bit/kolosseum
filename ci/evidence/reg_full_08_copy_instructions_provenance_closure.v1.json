@@ -1,5 +1,5 @@
 {
-  "canonical_copy_registry_sha256": "87ae8c090ad38f7897fc1cf3f547896446789af649a5325a07617da38472bef1",
+  "canonical_copy_registry_sha256": "c18aad891e94805e4d923643a654ef95cceb646d6576c90993434e5c8c66d669",
   "copy_schema_sha256": "dd4d6926f3e4871641c7f72d3a08cd2a439a7196d523b077da8b7714cfdc1f22",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
@@ -78,8 +78,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/equipment/equipment.registry.json",
-      "source_file_sha256": "d0014fec86ecf68b3775e61b4be4f8e00cab2c691e4f7b2d8e3b16864a4b0e25",
-      "source_git_blob_sha": "2099cfc0055ff40c42caa0724793dcda76a58ab5",
+      "source_file_sha256": "24cb596cb88db57a74b1ec38344a0cb8768e1f73c42e77a7be9116b3057a4f3d",
+      "source_git_blob_sha": "2d68f7b8a751e7b640dd2e9e6957b4840b32a3e6",
       "source_record_count": 33,
       "source_registry_id": "equipment_environment_registry_3e"
     },
