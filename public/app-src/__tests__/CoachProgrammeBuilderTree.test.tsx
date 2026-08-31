@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { CoachProgrammeBuilderTree } from "../screens/coach/CoachProgrammeBuilderTree";
 import {
@@ -61,8 +61,25 @@ function broadcast(value: ProgrammeDraft | null) {
   });
 }
 
+const realFetch = globalThis.fetch;
+
+function installExerciseRegistryMock(exercises: Record<string, unknown>[]) {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    if (String(input).includes("/templates/exercises")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true, registry_id: "test", registry_version: "1", exercises }),
+        text: async () => JSON.stringify({ ok: true, exercises })
+      } as Response;
+    }
+    throw new Error(`unexpected fetch in test: ${String(input)}`);
+  }) as typeof fetch;
+}
+
 test.afterEach(() => {
   cleanup();
+  globalThis.fetch = realFetch;
 });
 
 test("renders nothing until the legacy builder broadcasts an open draft", () => {
@@ -148,6 +165,50 @@ test("switching an RPE work item's entry mode to reps-in-reserve shows a convert
 
   fireEvent.change(rirInput, { target: { value: "4" } });
   assert.ok(screen.getByText("RPE 6 - 4 reps in the tank"), "typing a new RIR live-updates the caption to its equivalent RPE");
+});
+
+test("the exercise picker groups options by movement category and shows each exercise's equipment inline", async () => {
+  installExerciseRegistryMock([
+    { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"] },
+    { exercise_id: "bench_press", display_name: "Bench Press", pattern: "horizontal_push", equipment: ["barbell", "bench", "rack"] },
+    { exercise_id: "push_up", display_name: "Push-Up", pattern: "horizontal_push", equipment: ["bodyweight"] }
+  ]);
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "back_squat" }));
+  await waitFor(() => assert.ok(container.querySelector('select[data-field="exercise_id"] optgroup')));
+
+  const exerciseSelect = container.querySelector('select[data-field="exercise_id"]') as HTMLSelectElement;
+  const optgroups = [...exerciseSelect.querySelectorAll("optgroup")];
+  assert.deepEqual(optgroups.map((group) => group.label), ["Squat & knee", "Push"]);
+
+  const pushGroup = optgroups.find((group) => group.label === "Push")!;
+  const options = [...pushGroup.querySelectorAll("option")];
+  assert.deepEqual(
+    options.map((option) => option.textContent),
+    ["Bench Press (Barbell, Bench, Rack)", "Push-Up (Bodyweight)"]
+  );
+});
+
+test("filtering the exercise picker by equipment hides non-matching options but never hides the currently-selected exercise", async () => {
+  installExerciseRegistryMock([
+    { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"] },
+    { exercise_id: "goblet_squat", display_name: "Goblet Squat", pattern: "squat", equipment: ["dumbbell"] },
+    { exercise_id: "push_up", display_name: "Push-Up", pattern: "horizontal_push", equipment: ["bodyweight"] }
+  ]);
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "back_squat" }));
+  await waitFor(() => assert.ok(container.querySelector('select[data-field="exercise_id"] optgroup')));
+
+  const optionByValue = (value: string) => container.querySelector(`option[value="${value}"]`) as HTMLOptionElement;
+  assert.equal(optionByValue("back_squat").hidden, false);
+  assert.equal(optionByValue("goblet_squat").hidden, false);
+  assert.equal(optionByValue("push_up").hidden, false);
+
+  fireEvent.change(screen.getByLabelText("Equipment"), { target: { value: "dumbbell" } });
+
+  assert.equal(optionByValue("goblet_squat").hidden, false, "matches the selected equipment filter");
+  assert.equal(optionByValue("push_up").hidden, true, "does not use a dumbbell");
+  assert.equal(optionByValue("back_squat").hidden, false, "the current selection stays visible even though it needs a barbell, not a dumbbell");
 });
 
 test("a grouped work item shows the grouping-type select and an Ungroup button, not Group with next", async () => {
