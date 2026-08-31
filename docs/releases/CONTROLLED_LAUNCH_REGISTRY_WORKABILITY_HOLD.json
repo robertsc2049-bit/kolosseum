@@ -15,10 +15,10 @@
     "main_release_commit_observed": "847659dd4e7c8a38c917f825220c28007e77e470"
   },
   "registry_law_counts": {
-    "activity": 3,
+    "activity": 4,
     "movement": 54,
     "exercise": 221,
-    "program": 3
+    "program": 4
   },
   "workability_findings": {
     "structural_registry_gates_pass": true,
