@@ -5,7 +5,8 @@
   "locked_activity_ids": [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman"
   ],
   "expected_failure_code": "v1_equipment_registry_coverage_contract_missing_equipment_reference",
   "missing_case": {
@@ -20,7 +21,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "movement_pattern_applicability": [
         "squat",
