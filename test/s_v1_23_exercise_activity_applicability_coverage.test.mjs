@@ -10,7 +10,8 @@ const TOKEN_PREFIX = "v1_exercise_activity_applicability_coverage_";
 const lockedActivityIds = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredActivityContexts = Object.freeze([
@@ -436,7 +437,8 @@ test("S-V1-23 locks exercise activity applicability to v1 activities, contexts, 
   assert.deepEqual(lockedActivityIds, [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman"
   ]);
 
   assert.deepEqual(requiredActivityContexts, [
@@ -507,7 +509,7 @@ test("S-V1-23 refuses unsupported activity leakage, duplicate keys, and conditio
     () => validateExerciseActivityApplicabilityCoverage({
       exerciseRecords: [
         makeExerciseRecord({
-          primary_activity_applicability: "strongman",
+          primary_activity_applicability: "weightlifting",
           secondary_activity_applicability: []
         })
       ],

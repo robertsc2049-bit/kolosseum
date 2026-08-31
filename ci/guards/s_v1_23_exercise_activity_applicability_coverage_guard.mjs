@@ -18,7 +18,8 @@ const TOKEN_PREFIX = "v1_exercise_activity_applicability_coverage_";
 const lockedActivityIds = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman"
 ]);
 
 const requiredActivityContexts = Object.freeze([
