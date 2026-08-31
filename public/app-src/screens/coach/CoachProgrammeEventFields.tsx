@@ -39,6 +39,12 @@ const EVENT_TYPES_BY_ACTIVITY: Record<string, [string, string][]> = {
     ["rugby_tournament", "Rugby tournament"],
     ["test_day", "Test day"],
     ["other", "Other event"]
+  ],
+  strongman: [
+    ["strongman_competition", "Strongman competition"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
   ]
 };
 

@@ -190,6 +190,7 @@ export function CoachProgrammeLibraryPanel() {
             <option value="powerlifting">Powerlifting</option>
             <option value="general_strength">General strength</option>
             <option value="rugby_union">Rugby union</option>
+            <option value="strongman">Strongman</option>
           </select>
         </label>
 

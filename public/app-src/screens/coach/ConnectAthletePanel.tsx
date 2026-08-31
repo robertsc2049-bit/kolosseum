@@ -9,7 +9,8 @@ import { useConnectAthlete } from "./useConnectAthlete";
 const ACTIVITIES = [
   ["powerlifting", "Powerlifting"],
   ["general_strength", "General strength"],
-  ["rugby_union", "Rugby union"]
+  ["rugby_union", "Rugby union"],
+  ["strongman", "Strongman"]
 ] as const;
 
 export function ConnectAthletePanel() {
