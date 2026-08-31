@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate } from "../../utils/format";
+import { formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve } from "../../utils/format";
 import {
   templateCounts,
   type ProgrammeBlockDraft,
@@ -212,12 +212,70 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
             </label>
           </>
         ) : loadMode === "rpe" ? (
-          <label><span>RPE</span><input type="number" min={1} max={10} step={1} defaultValue={workItem.rpe_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rpe_value")} /></label>
+          <RpeLoadField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : (
           <div className="template-bodyweight-note">No external load is prescribed.</div>
         )}
       </div>
     </fieldset>
+  );
+}
+
+// DEV NOTE: RPE and reps-in-reserve (RIR) are the same 1-10 effort scale
+// read in opposite directions (rir = 10 - rpe) - this toggle lets a coach
+// prescribe in whichever one they think in, but only rpe_value is ever
+// stored. Switching the "Enter as" select remounts the number input (via
+// `key`) so its defaultValue is freshly derived from the current stored
+// rpe_value rather than going stale, matching this tree's deliberately-
+// uncontrolled-input convention (see LoadControls' own file-level DEV
+// NOTE) for the actual data-mutating field, while the toggle itself and
+// the live caption below it are ordinary local React state with no
+// connection to the legacy delegated mutation pipeline.
+function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const [entryMode, setEntryMode] = React.useState<"rpe" | "rir">("rpe");
+  const storedRpe = Number.isFinite(workItem.rpe_value) ? workItem.rpe_value : 8;
+  const [hintRpe, setHintRpe] = React.useState(storedRpe);
+
+  return (
+    <>
+      <label className="template-method-field">
+        <span>Enter as</span>
+        <select value={entryMode} onChange={(event) => setEntryMode(event.target.value === "rir" ? "rir" : "rpe")}>
+          <option value="rpe">RPE (1-10)</option>
+          <option value="rir">Reps in reserve (0-9)</option>
+        </select>
+      </label>
+      {entryMode === "rpe" ? (
+        <label>
+          <span>RPE</span>
+          <input
+            key="rpe-input"
+            type="number"
+            min={1}
+            max={10}
+            step={1}
+            defaultValue={storedRpe}
+            onChange={(event) => setHintRpe(Number(event.target.value))}
+            {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rpe_value")}
+          />
+        </label>
+      ) : (
+        <label>
+          <span>Reps in reserve</span>
+          <input
+            key="rir-input"
+            type="number"
+            min={0}
+            max={9}
+            step={1}
+            defaultValue={rpeToReserve(storedRpe)}
+            onChange={(event) => setHintRpe(reserveToRpe(Number(event.target.value)))}
+            {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rir_value")}
+          />
+        </label>
+      )}
+      <p className="muted small">RPE {hintRpe} - {rpeReserveLabel(hintRpe)}</p>
+    </>
   );
 }
 

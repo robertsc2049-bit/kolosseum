@@ -5033,6 +5033,17 @@ function updateTemplateFieldFromControl(control) {
     return;
   }
 
+  // FULL-UI-05B: "reps in reserve" is never a persisted field - it's an
+  // alternate reading of the same 1-10 effort scale as rpe_value
+  // (rir = 10 - rpe), offered so a coach can prescribe in whichever scale
+  // they think in. See CoachProgrammeBuilderTree.tsx's RpeLoadField.
+  if (kind === "work-item" && field === "rir_value") {
+    const rir = Math.max(0, Math.min(9, Math.round(Number(control.value)) || 0));
+    target.rpe_value = 10 - rir;
+    saveState();
+    return;
+  }
+
   target[field] = control.type === "number" ? Number(control.value) : control.value;
   if (kind === "block") {
     state.templateDraft.event_compile_summary = null;
