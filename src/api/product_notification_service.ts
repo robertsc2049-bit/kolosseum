@@ -49,7 +49,10 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "video_feedback_received",
   "athlete_goal_achieved",
   "video_submitted",
-  "marketplace_template_sold"
+  "marketplace_template_sold",
+  "attendance_event_invited",
+  "attendance_event_cancelled",
+  "attendance_event_occurrence_changed"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -64,7 +67,8 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   coachAthletes: "coach_athletes",
   coachReviewAthlete: "coach_review_athlete",
   coachProgrammeDetail: "coach_programme_detail",
-  sharedAccount: "shared_account"
+  sharedAccount: "shared_account",
+  athleteAttendanceEvents: "athlete_attendance_events"
 });
 
 function notificationId(
@@ -368,6 +372,146 @@ async function deriveEventCancelledNotifications(
         event_id: cleanString(row.event_id)
       },
       occurredAtIso8601: toIso(row.event_effective_at)
+    });
+  }
+}
+
+// --- Attendance events: invited / cancelled / occurrence changed -----------
+// A DIFFERENT, unrelated "event" concept from beta19_coach_event above -
+// see attendance_event_service.ts's own DEV NOTE. attendance_event_invite
+// rows are written once per (event, athlete) and never revoked by any
+// slice shipped so far, so this resolves the latest version per invite_id
+// the same defensive way listAttendanceInvitesForAthlete already does
+// (DISTINCT ON, then filter invite_state in application code) rather than
+// filtering invite_state inside the SQL WHERE clause, which would silently
+// pick a stale non-latest row once a revoke path exists.
+
+async function deriveAttendanceEventInvitedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT DISTINCT ON (record_id) record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+    ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    if (cleanString(row.record_payload?.invite_state) !== "invited") continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_invited",
+      sourceRecordType: "attendance_event_invite",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        organizer_user_id: cleanString(row.record_payload?.organizer_user_id),
+        event_id: cleanString(row.record_payload?.event_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+async function deriveAttendanceEventCancelledNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH my_invites AS (
+      SELECT DISTINCT ON (record_id) record_id, record_payload
+      FROM beta_product_records
+      WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT DISTINCT ON (e.record_id)
+      e.record_id AS event_record_id,
+      e.effective_at AS event_effective_at,
+      e.record_payload AS event_payload
+    FROM my_invites i
+    JOIN beta_product_records e
+      ON e.record_type = 'attendance_event'
+      AND e.record_id = i.record_payload->>'event_id'
+      AND e.record_payload->>'status' = 'cancelled'
+    WHERE i.record_payload->>'invite_state' = 'invited'
+    ORDER BY e.record_id, e.effective_at DESC, e.created_at DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_cancelled",
+      sourceRecordType: "attendance_event",
+      sourceRecordId: cleanString(row.event_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        event_id: cleanString(row.event_record_id),
+        title: cleanString(isRecord(row.event_payload) ? row.event_payload.title : null)
+      },
+      occurredAtIso8601: toIso(row.event_effective_at)
+    });
+  }
+}
+
+async function deriveAttendanceEventOccurrenceChangedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH my_invites AS (
+      SELECT DISTINCT ON (record_id) record_id, record_payload
+      FROM beta_product_records
+      WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    ),
+    my_events AS (
+      SELECT DISTINCT ON (e.record_id) e.record_id, e.record_payload
+      FROM beta_product_records e
+      WHERE e.record_type = 'attendance_event'
+        AND e.record_id IN (SELECT record_payload->>'event_id' FROM my_invites)
+      ORDER BY e.record_id, e.effective_at DESC, e.created_at DESC
+    )
+    SELECT DISTINCT ON (o.record_id)
+      o.record_id AS occurrence_record_id,
+      o.effective_at AS occurrence_effective_at,
+      o.record_payload AS occurrence_payload
+    FROM my_invites i
+    JOIN my_events ev ON ev.record_id = i.record_payload->>'event_id'
+    JOIN beta_product_records o
+      ON o.record_type = 'attendance_event_occurrence'
+      AND o.record_payload->>'event_id' = i.record_payload->>'event_id'
+    WHERE i.record_payload->>'invite_state' = 'invited'
+      AND ev.record_payload->>'status' != 'cancelled'
+    ORDER BY o.record_id, o.effective_at DESC, o.created_at DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const status = cleanString(row.occurrence_payload?.status);
+    if (status !== "skipped" && status !== "rescheduled") continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_occurrence_changed",
+      sourceRecordType: "attendance_event_occurrence",
+      sourceRecordId: cleanString(row.occurrence_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        event_id: cleanString(row.occurrence_payload?.event_id),
+        occurrence_id: cleanString(row.occurrence_record_id),
+        status
+      },
+      occurredAtIso8601: toIso(row.occurrence_effective_at)
     });
   }
 }
@@ -695,6 +839,9 @@ async function deriveNotificationsForRecipient(
   await deriveAssignmentNotifications(client, recipientUserId);
   await deriveEventLinkNotifications(client, recipientUserId);
   await deriveEventCancelledNotifications(client, recipientUserId);
+  await deriveAttendanceEventInvitedNotifications(client, recipientUserId);
+  await deriveAttendanceEventCancelledNotifications(client, recipientUserId);
+  await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
