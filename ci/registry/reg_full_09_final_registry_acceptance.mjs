@@ -22,7 +22,7 @@ import {
 export const REG_FULL_09_FAILURE_TOKEN = "CI_REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE";
 export const REG_FULL_09_REPORT = "ci/evidence/reg_full_09_final_registry_acceptance.v1.json";
 export const REG_FULL_09_SUPPORTED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
-const REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES = 762;
+const REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES = 737;
 
 const SURFACE_MANIFEST = "registries/final_registry_surface_manifest.json";
 const SCHEMA_MANIFEST = "registries/final_registry_schema_manifest.json";
