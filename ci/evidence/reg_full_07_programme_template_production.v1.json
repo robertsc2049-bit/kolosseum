@@ -16,7 +16,7 @@
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "d0014fec86ecf68b3775e61b4be4f8e00cab2c691e4f7b2d8e3b16864a4b0e25"
+      "sha256": "24cb596cb88db57a74b1ec38344a0cb8768e1f73c42e77a7be9116b3057a4f3d"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",

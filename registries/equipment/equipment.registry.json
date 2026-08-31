@@ -327,7 +327,7 @@
     },
     "squat_bar": {
       "equipment_id": "squat_bar",
-      "display_label": "Squat bar (20kg, stiff)",
+      "display_label": "Squat bar",
       "equipment_class": "free_weight",
       "activity_applicability": [
         "powerlifting",
@@ -344,7 +344,7 @@
     },
     "safety_squat_bar": {
       "equipment_id": "safety_squat_bar",
-      "display_label": "Safety squat bar (32kg, cambered)",
+      "display_label": "Safety squat bar",
       "equipment_class": "free_weight",
       "activity_applicability": [
         "powerlifting",
@@ -361,7 +361,7 @@
     },
     "deadlift_bar": {
       "equipment_id": "deadlift_bar",
-      "display_label": "Deadlift bar (20kg, flexible)",
+      "display_label": "Deadlift bar",
       "equipment_class": "free_weight",
       "activity_applicability": [
         "powerlifting",
