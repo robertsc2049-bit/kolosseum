@@ -63,14 +63,14 @@ function broadcast(value: ProgrammeDraft | null) {
 
 const realFetch = globalThis.fetch;
 
-function installExerciseRegistryMock(exercises: Record<string, unknown>[]) {
+function installExerciseRegistryMock(exercises: Record<string, unknown>[], equipmentCatalog: Record<string, unknown>[] = []) {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     if (String(input).includes("/templates/exercises")) {
       return {
         ok: true,
         status: 200,
-        json: async () => ({ ok: true, registry_id: "test", registry_version: "1", exercises }),
-        text: async () => JSON.stringify({ ok: true, exercises })
+        json: async () => ({ ok: true, registry_id: "test", registry_version: "1", exercises, equipment_catalog: equipmentCatalog }),
+        text: async () => JSON.stringify({ ok: true, exercises, equipment_catalog: equipmentCatalog })
       } as Response;
     }
     throw new Error(`unexpected fetch in test: ${String(input)}`);
@@ -209,6 +209,28 @@ test("filtering the exercise picker by equipment hides non-matching options but 
   assert.equal(optionByValue("goblet_squat").hidden, false, "matches the selected equipment filter");
   assert.equal(optionByValue("push_up").hidden, true, "does not use a dumbbell");
   assert.equal(optionByValue("back_squat").hidden, false, "the current selection stays visible even though it needs a barbell, not a dumbbell");
+});
+
+test("the exercise picker surfaces equipment_alternatives (not just equipment_requirements) and prefers the equipment catalog's own display_label over a titleCased id", async () => {
+  installExerciseRegistryMock(
+    [
+      { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"], equipment_alternatives: ["squat_bar", "safety_squat_bar"] }
+    ],
+    [
+      { equipment_id: "barbell", display_label: "Barbell" },
+      { equipment_id: "rack", display_label: "Rack" },
+      { equipment_id: "squat_bar", display_label: "Squat Bar (20kg, stiff)" },
+      { equipment_id: "safety_squat_bar", display_label: "Safety Squat Bar (32kg, cambered)" }
+    ]
+  );
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "back_squat" }));
+  await waitFor(() => assert.ok(container.querySelector('select[data-field="exercise_id"] option')));
+
+  const option = container.querySelector('option[value="back_squat"]') as HTMLOptionElement;
+  assert.equal(option.textContent, "Back Squat (Barbell, Rack, Squat Bar (20kg, stiff), Safety Squat Bar (32kg, cambered))");
+
+  assert.ok(screen.getByText("Squat Bar (20kg, stiff)"), "the equipment filter dropdown also uses the catalog display_label");
 });
 
 test("a grouped work item shows the grouping-type select and an Ungroup button, not Group with next", async () => {

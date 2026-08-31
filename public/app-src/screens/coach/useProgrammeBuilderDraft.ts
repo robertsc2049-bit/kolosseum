@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { loadTemplateExercises } from "../../api/coachWorkspaceClient";
+import { loadTemplateEquipmentCatalog, loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
 import { type ProgrammeDraft } from "./programmeDraft";
 
@@ -45,12 +45,18 @@ const initialDetail: ProgrammeBuilderDraftDetail = {
 export function useProgrammeBuilderDraft() {
   const [detail, setDetail] = useState<ProgrammeBuilderDraftDetail>(initialDetail);
   const [templateExercises, setTemplateExercises] = useState<JsonRecord[]>([]);
+  const [equipmentCatalog, setEquipmentCatalog] = useState<JsonRecord[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     loadTemplateExercises()
       .then((exercises) => {
         if (!cancelled) setTemplateExercises(exercises);
+      })
+      .catch(() => {});
+    loadTemplateEquipmentCatalog()
+      .then((catalog) => {
+        if (!cancelled) setEquipmentCatalog(catalog);
       })
       .catch(() => {});
     return () => {
@@ -76,5 +82,5 @@ export function useProgrammeBuilderDraft() {
     };
   }, []);
 
-  return { ...detail, templateExercises };
+  return { ...detail, templateExercises, equipmentCatalog };
 }

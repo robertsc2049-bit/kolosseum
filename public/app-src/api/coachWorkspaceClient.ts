@@ -22,6 +22,11 @@ export async function loadTemplateExercises(): Promise<JsonRecord[]> {
   return Array.isArray(response.exercises) ? (response.exercises as JsonRecord[]) : [];
 }
 
+export async function loadTemplateEquipmentCatalog(): Promise<JsonRecord[]> {
+  const response = await request("GET", "/templates/exercises");
+  return Array.isArray(response.equipment_catalog) ? (response.equipment_catalog as JsonRecord[]) : [];
+}
+
 export async function loadAthleteProgressInsights(athleteUserId: string): Promise<JsonRecord | null> {
   const response = await request("GET", `/progress-insights/coach/${encodeURIComponent(athleteUserId)}`);
   return response.insights && typeof response.insights === "object" ? (response.insights as JsonRecord) : null;
