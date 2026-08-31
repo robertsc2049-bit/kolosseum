@@ -219,8 +219,8 @@ test("the exercise picker surfaces equipment_alternatives (not just equipment_re
     [
       { equipment_id: "barbell", display_label: "Barbell" },
       { equipment_id: "rack", display_label: "Rack" },
-      { equipment_id: "squat_bar", display_label: "Squat Bar (20kg, stiff)" },
-      { equipment_id: "safety_squat_bar", display_label: "Safety Squat Bar (32kg, cambered)" }
+      { equipment_id: "squat_bar", display_label: "Squat Bar (specialty)" },
+      { equipment_id: "safety_squat_bar", display_label: "Safety Squat Bar (specialty)" }
     ]
   );
   const { container } = render(<CoachProgrammeBuilderTree />);
@@ -228,9 +228,9 @@ test("the exercise picker surfaces equipment_alternatives (not just equipment_re
   await waitFor(() => assert.ok(container.querySelector('select[data-field="exercise_id"] option')));
 
   const option = container.querySelector('option[value="back_squat"]') as HTMLOptionElement;
-  assert.equal(option.textContent, "Back Squat (Barbell, Rack, Squat Bar (20kg, stiff), Safety Squat Bar (32kg, cambered))");
+  assert.equal(option.textContent, "Back Squat (Barbell, Rack, Squat Bar (specialty), Safety Squat Bar (specialty))");
 
-  assert.ok(screen.getByText("Squat Bar (20kg, stiff)"), "the equipment filter dropdown also uses the catalog display_label");
+  assert.ok(screen.getByText("Squat Bar (specialty)"), "the equipment filter dropdown also uses the catalog display_label");
 });
 
 test("a grouped work item shows the grouping-type select and an Ungroup button, not Group with next", async () => {
