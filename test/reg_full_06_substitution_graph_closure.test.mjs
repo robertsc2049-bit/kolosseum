@@ -51,7 +51,7 @@ test("REG-FULL-06 materialized registry is exactly reproducible and full closure
   assert.deepEqual(docs.substitution, rebuilt);
   const result = runRegFull06Closure(ROOT);
   assert.equal(result.ok, true);
-  assert.equal(result.counts.exercises, 215);
+  assert.equal(result.counts.exercises, 221);
   assert.equal(result.counts.movements, 54);
   assert.ok(result.counts.edges > 0);
 });

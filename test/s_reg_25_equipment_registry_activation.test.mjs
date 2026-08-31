@@ -34,8 +34,8 @@ test("S-REG-25 records a genuine activation decision, not a hold or a design", (
   assert.equal(result.activation_ready, true);
   assert.equal(result.active_registry_activation, true);
   assert.equal(result.runtime_status, "non_runtime");
-  assert.equal(result.activated_record_count, 17);
-  assert.equal(result.exercise_records_annotated_count, 215);
+  assert.equal(result.activated_record_count, 33);
+  assert.equal(result.exercise_records_annotated_count, 221);
 });
 
 test("S-REG-25 is recorded in both S-REG-23's and S-REG-24's append-only supersession logs", () => {
@@ -74,7 +74,7 @@ test("S-REG-25 extends the active registry surface with equipment only, appended
   assert.deepEqual(activation.active_registry_order_after, S_REG_25_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(equipmentRegistry.registry_id, "equipment");
-  assert.equal(Object.keys(equipmentRegistry.entries).length, 17);
+  assert.equal(Object.keys(equipmentRegistry.entries).length, 33);
 
   // No other candidate domain was activated alongside this one. sport_subdivision
   // (S-REG-26), sport_metric (S-REG-27), and threshold_marker (S-REG-30) were

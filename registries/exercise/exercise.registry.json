@@ -1,6 +1,6 @@
 {
   "registry_id": "exercise",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "entries": {
     "back_squat": {
       "exercise_id": "back_squat",
@@ -37,7 +37,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -89,7 +92,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -141,7 +147,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -245,7 +254,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -297,7 +309,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -350,7 +365,10 @@
         "rack",
         "bench"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -402,7 +420,10 @@
         "barbell",
         "rack"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "squat_bar",
+        "safety_squat_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -454,7 +475,9 @@
         "dumbbell"
       ],
       "equipment_alternatives": [
-        "kettlebell"
+        "kettlebell",
+        "hex_dumbbell",
+        "adjustable_dumbbell"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -605,7 +628,10 @@
       "equipment_requirements": [
         "barbell"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "deadlift_bar",
+        "trap_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -810,7 +836,10 @@
         "barbell",
         "plate"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "deadlift_bar",
+        "trap_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -862,7 +891,10 @@
         "barbell",
         "plate"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "deadlift_bar",
+        "trap_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -965,7 +997,10 @@
       "equipment_requirements": [
         "barbell"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "deadlift_bar",
+        "trap_bar"
+      ],
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
@@ -1594,7 +1629,9 @@
         "dumbbell"
       ],
       "equipment_alternatives": [
-        "kettlebell"
+        "kettlebell",
+        "hex_dumbbell",
+        "adjustable_dumbbell"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -3163,7 +3200,10 @@
         "dumbbell",
         "bench"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "hex_dumbbell",
+        "adjustable_dumbbell"
+      ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
@@ -3865,7 +3905,10 @@
       "equipment_requirements": [
         "dumbbell"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "hex_dumbbell",
+        "adjustable_dumbbell"
+      ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
@@ -4178,7 +4221,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -4481,7 +4525,10 @@
       "equipment_requirements": [
         "cable_machine"
       ],
-      "equipment_alternatives": [],
+      "equipment_alternatives": [
+        "cable_v_bar_attachment",
+        "cable_straight_bar_attachment"
+      ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
@@ -4778,7 +4825,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "machine_general"
+        "machine_general",
+        "cable_lat_bar_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -4829,7 +4877,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "machine_general"
+        "machine_general",
+        "cable_lat_bar_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -4979,7 +5028,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_rope_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -5718,7 +5768,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -5867,7 +5918,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -6114,7 +6166,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_straight_bar_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -6216,7 +6269,9 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_rope_attachment",
+        "cable_straight_bar_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -6267,7 +6322,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_rope_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -6913,7 +6969,9 @@
         "open_floor_space"
       ],
       "equipment_alternatives": [
-        "kettlebell"
+        "kettlebell",
+        "hex_dumbbell",
+        "adjustable_dumbbell"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -7530,7 +7588,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -7580,7 +7639,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -8218,7 +8278,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -8318,7 +8379,8 @@
         "cable_machine"
       ],
       "equipment_alternatives": [
-        "resistance_band"
+        "resistance_band",
+        "cable_single_handle_attachment"
       ],
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
@@ -10923,6 +10985,319 @@
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "yoke_walk": {
+      "exercise_id": "yoke_walk",
+      "display_label": "Yoke walk",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "lumbar_low",
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Yoke walk: Stand tall under the loaded yoke and walk under control while maintaining even steps and trunk position.",
+      "instruction_detail_text": [
+        "Set up the yoke, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Stand tall under the loaded yoke and walk under control while maintaining even steps and trunk position.",
+        "Reset yoke walk deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before lifting the yoke",
+        "Take short controlled steps",
+        "Keep the chest tall"
+      ],
+      "common_faults": [
+        "Leaning forward under the load",
+        "Taking steps that are too long",
+        "Losing trunk brace mid-walk"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "yoke",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "atlas_stone_carry": {
+      "exercise_id": "atlas_stone_carry",
+      "display_label": "Atlas stone carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "lumbar_low",
+        "hip",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Atlas stone carry: Lift the stone to the torso with a braced trunk, then carry it under control before setting it down deliberately.",
+      "instruction_detail_text": [
+        "Set up the atlas stone, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Lift the stone to the torso with a braced trunk, then carry it under control before setting it down deliberately.",
+        "Reset atlas stone carry deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before lifting the stone",
+        "Keep the stone close to the torso",
+        "Set the stone down under control"
+      ],
+      "common_faults": [
+        "Rounding the trunk to lift the stone",
+        "Letting the stone drift away from the torso",
+        "Dropping the stone instead of setting it down"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "atlas_stone"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "strongman_log_press": {
+      "exercise_id": "strongman_log_press",
+      "display_label": "Strongman log press",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Strongman log press: Clean the log to the chest, brace, then press it overhead to full elbow extension.",
+      "instruction_detail_text": [
+        "Set up the strongman log securely and establish the prescribed starting position before the first repetition.",
+        "Clean the log to the chest, brace, then press it overhead to full elbow extension.",
+        "Reset strongman log press deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before pressing",
+        "Drive through a full lockout overhead",
+        "Keep the ribs down during the press"
+      ],
+      "common_faults": [
+        "Pressing before the trunk is braced",
+        "Stopping short of full lockout",
+        "Flaring the ribs and extending the lower back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "strongman_log"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "axle_bar_press": {
+      "exercise_id": "axle_bar_press",
+      "display_label": "Axle bar press",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Axle bar press: Brace with the axle bar at the chest, then press it overhead to full elbow extension.",
+      "instruction_detail_text": [
+        "Set up the axle bar securely and establish the prescribed starting position before the first repetition.",
+        "Brace with the axle bar at the chest, then press it overhead to full elbow extension.",
+        "Reset axle bar press deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace the trunk before pressing",
+        "Press in a straight line overhead",
+        "Finish with a full lockout"
+      ],
+      "common_faults": [
+        "Pressing with an unbraced trunk",
+        "Pressing the bar forward instead of straight up",
+        "Stopping short of full lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "axle_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "tire_flip": {
+      "exercise_id": "tire_flip",
+      "display_label": "Tire flip",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "lumbar_low",
+        "hip",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Tire flip: Hinge to grip the tire low, drive through the hips to lift it, then push it forward to complete the flip.",
+      "instruction_detail_text": [
+        "Set up the tire, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Hinge to grip the tire low, drive through the hips to lift it, then push it forward to complete the flip.",
+        "Reset tire flip deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Grip low and brace before the pull",
+        "Drive through the hips, not the lower back",
+        "Push through, don't just lift"
+      ],
+      "common_faults": [
+        "Rounding the trunk on the initial pull",
+        "Pulling with the arms instead of the hips",
+        "Stopping at the top instead of pushing through"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "tire",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sandbag_carry": {
+      "exercise_id": "sandbag_carry",
+      "display_label": "Sandbag carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "wrist",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Sandbag carry: Brace, lift the sandbag to the torso, then walk tall under control while maintaining even steps.",
+      "instruction_detail_text": [
+        "Set up the sandbag, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Brace, lift the sandbag to the torso, then walk tall under control while maintaining even steps.",
+        "Reset sandbag carry deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before lifting",
+        "Keep the sandbag close to the torso",
+        "Walk tall with even steps"
+      ],
+      "common_faults": [
+        "Lifting the sandbag with a rounded trunk",
+        "Letting the sandbag shift away from the body",
+        "Rushing the foot contacts"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "sandbag",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
       "template_eligibility": "eligible",
       "copy_legal_boundary_flags": [
         "factual_instruction_only",

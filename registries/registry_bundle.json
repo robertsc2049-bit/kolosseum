@@ -196,7 +196,7 @@
     },
     "movement": {
       "registry_id": "movement",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "entries": {
         "squat": {
           "movement_pattern_id": "squat",
@@ -209,7 +209,11 @@
             "kettlebell",
             "bench",
             "trap_bar",
-            "plate"
+            "plate",
+            "squat_bar",
+            "safety_squat_bar",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -247,7 +251,12 @@
             "rack",
             "trap_bar",
             "cable_machine",
-            "plate"
+            "plate",
+            "deadlift_bar",
+            "tire",
+            "open_floor_space",
+            "strongman_log",
+            "axle_bar"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -264,7 +273,8 @@
             "lumbar_high",
             "sacroiliac_low",
             "sacroiliac_medium",
-            "sacroiliac_high"
+            "sacroiliac_high",
+            "shoulder"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -308,7 +318,9 @@
             "rack",
             "trap_bar",
             "plate",
-            "box"
+            "box",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -495,7 +507,9 @@
             "rack",
             "kettlebell",
             "cable_machine",
-            "plate"
+            "plate",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -584,7 +598,11 @@
             "bench",
             "rack",
             "cable_machine",
-            "plate"
+            "plate",
+            "hex_dumbbell",
+            "adjustable_dumbbell",
+            "strongman_log",
+            "axle_bar"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -622,7 +640,8 @@
             "rack",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_single_handle_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -647,7 +666,9 @@
             "cable_machine",
             "resistance_band",
             "pull_up_bar",
-            "plate"
+            "plate",
+            "cable_v_bar_attachment",
+            "cable_straight_bar_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -672,7 +693,8 @@
             "cable_machine",
             "resistance_band",
             "pull_up_bar",
-            "plate"
+            "plate",
+            "cable_lat_bar_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -694,7 +716,8 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_rope_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -816,7 +839,8 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_single_handle_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -837,7 +861,8 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_single_handle_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -858,7 +883,8 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_straight_bar_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -880,7 +906,9 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "cable_rope_attachment",
+            "cable_straight_bar_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -986,7 +1014,12 @@
             "kettlebell",
             "trap_bar",
             "plate",
-            "open_floor_space"
+            "open_floor_space",
+            "hex_dumbbell",
+            "adjustable_dumbbell",
+            "yoke",
+            "atlas_stone",
+            "sandbag"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -995,7 +1028,8 @@
             "wrist",
             "hip",
             "knee",
-            "ankle"
+            "ankle",
+            "lumbar_low"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -1056,7 +1090,8 @@
             "resistance_band",
             "medicine_ball",
             "plate",
-            "open_floor_space"
+            "open_floor_space",
+            "cable_single_handle_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -1136,7 +1171,8 @@
             "resistance_band",
             "medicine_ball",
             "plate",
-            "open_floor_space"
+            "open_floor_space",
+            "cable_single_handle_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -1405,7 +1441,7 @@
     },
     "exercise": {
       "registry_id": "exercise",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "entries": {
         "back_squat": {
           "exercise_id": "back_squat",
@@ -1442,7 +1478,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1494,7 +1533,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1546,7 +1588,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1650,7 +1695,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1702,7 +1750,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1755,7 +1806,10 @@
             "rack",
             "bench"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1807,7 +1861,10 @@
             "barbell",
             "rack"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "squat_bar",
+            "safety_squat_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -1859,7 +1916,9 @@
             "dumbbell"
           ],
           "equipment_alternatives": [
-            "kettlebell"
+            "kettlebell",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -2010,7 +2069,10 @@
           "equipment_requirements": [
             "barbell"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "deadlift_bar",
+            "trap_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -2215,7 +2277,10 @@
             "barbell",
             "plate"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "deadlift_bar",
+            "trap_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -2267,7 +2332,10 @@
             "barbell",
             "plate"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "deadlift_bar",
+            "trap_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -2370,7 +2438,10 @@
           "equipment_requirements": [
             "barbell"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "deadlift_bar",
+            "trap_bar"
+          ],
           "primary_activity_applicability": "powerlifting",
           "secondary_activity_applicability": [
             "general_strength",
@@ -2999,7 +3070,9 @@
             "dumbbell"
           ],
           "equipment_alternatives": [
-            "kettlebell"
+            "kettlebell",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -4568,7 +4641,10 @@
             "dumbbell",
             "bench"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "hex_dumbbell",
+            "adjustable_dumbbell"
+          ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
@@ -5270,7 +5346,10 @@
           "equipment_requirements": [
             "dumbbell"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "hex_dumbbell",
+            "adjustable_dumbbell"
+          ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
@@ -5583,7 +5662,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -5886,7 +5966,10 @@
           "equipment_requirements": [
             "cable_machine"
           ],
-          "equipment_alternatives": [],
+          "equipment_alternatives": [
+            "cable_v_bar_attachment",
+            "cable_straight_bar_attachment"
+          ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
@@ -6183,7 +6266,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "machine_general"
+            "machine_general",
+            "cable_lat_bar_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -6234,7 +6318,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "machine_general"
+            "machine_general",
+            "cable_lat_bar_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -6384,7 +6469,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_rope_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -7123,7 +7209,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -7272,7 +7359,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -7519,7 +7607,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_straight_bar_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -7621,7 +7710,9 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_rope_attachment",
+            "cable_straight_bar_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -7672,7 +7763,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_rope_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -8318,7 +8410,9 @@
             "open_floor_space"
           ],
           "equipment_alternatives": [
-            "kettlebell"
+            "kettlebell",
+            "hex_dumbbell",
+            "adjustable_dumbbell"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -8935,7 +9029,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -8985,7 +9080,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -9623,7 +9719,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -9723,7 +9820,8 @@
             "cable_machine"
           ],
           "equipment_alternatives": [
-            "resistance_band"
+            "resistance_band",
+            "cable_single_handle_attachment"
           ],
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
@@ -12334,6 +12432,319 @@
             "no_medical_claims",
             "no_performance_guarantees"
           ]
+        },
+        "yoke_walk": {
+          "exercise_id": "yoke_walk",
+          "display_label": "Yoke walk",
+          "movement_pattern_id": "carry_bilateral",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "semi_stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "shoulder",
+            "lumbar_low",
+            "hip",
+            "knee"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Yoke walk: Stand tall under the loaded yoke and walk under control while maintaining even steps and trunk position.",
+          "instruction_detail_text": [
+            "Set up the yoke, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Stand tall under the loaded yoke and walk under control while maintaining even steps and trunk position.",
+            "Reset yoke walk deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before lifting the yoke",
+            "Take short controlled steps",
+            "Keep the chest tall"
+          ],
+          "common_faults": [
+            "Leaning forward under the load",
+            "Taking steps that are too long",
+            "Losing trunk brace mid-walk"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "yoke",
+            "open_floor_space"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "atlas_stone_carry": {
+          "exercise_id": "atlas_stone_carry",
+          "display_label": "Atlas stone carry",
+          "movement_pattern_id": "carry_bilateral",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "lumbar_low",
+            "hip",
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Atlas stone carry: Lift the stone to the torso with a braced trunk, then carry it under control before setting it down deliberately.",
+          "instruction_detail_text": [
+            "Set up the atlas stone, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Lift the stone to the torso with a braced trunk, then carry it under control before setting it down deliberately.",
+            "Reset atlas stone carry deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before lifting the stone",
+            "Keep the stone close to the torso",
+            "Set the stone down under control"
+          ],
+          "common_faults": [
+            "Rounding the trunk to lift the stone",
+            "Letting the stone drift away from the torso",
+            "Dropping the stone instead of setting it down"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "atlas_stone"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "strongman_log_press": {
+          "exercise_id": "strongman_log_press",
+          "display_label": "Strongman log press",
+          "movement_pattern_id": "vertical_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "semi_stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Strongman log press: Clean the log to the chest, brace, then press it overhead to full elbow extension.",
+          "instruction_detail_text": [
+            "Set up the strongman log securely and establish the prescribed starting position before the first repetition.",
+            "Clean the log to the chest, brace, then press it overhead to full elbow extension.",
+            "Reset strongman log press deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before pressing",
+            "Drive through a full lockout overhead",
+            "Keep the ribs down during the press"
+          ],
+          "common_faults": [
+            "Pressing before the trunk is braced",
+            "Stopping short of full lockout",
+            "Flaring the ribs and extending the lower back"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "strongman_log"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load",
+            "overhead_loading"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "axle_bar_press": {
+          "exercise_id": "axle_bar_press",
+          "display_label": "Axle bar press",
+          "movement_pattern_id": "vertical_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow"
+          ],
+          "tempo_capability": "paused_and_tempo",
+          "instruction_short_text": "Axle bar press: Brace with the axle bar at the chest, then press it overhead to full elbow extension.",
+          "instruction_detail_text": [
+            "Set up the axle bar securely and establish the prescribed starting position before the first repetition.",
+            "Brace with the axle bar at the chest, then press it overhead to full elbow extension.",
+            "Reset axle bar press deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace the trunk before pressing",
+            "Press in a straight line overhead",
+            "Finish with a full lockout"
+          ],
+          "common_faults": [
+            "Pressing with an unbraced trunk",
+            "Pressing the bar forward instead of straight up",
+            "Stopping short of full lockout"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "axle_bar"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load",
+            "overhead_loading"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "tire_flip": {
+          "exercise_id": "tire_flip",
+          "display_label": "Tire flip",
+          "movement_pattern_id": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "lumbar_low",
+            "hip",
+            "shoulder"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Tire flip: Hinge to grip the tire low, drive through the hips to lift it, then push it forward to complete the flip.",
+          "instruction_detail_text": [
+            "Set up the tire, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Hinge to grip the tire low, drive through the hips to lift it, then push it forward to complete the flip.",
+            "Reset tire flip deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Grip low and brace before the pull",
+            "Drive through the hips, not the lower back",
+            "Push through, don't just lift"
+          ],
+          "common_faults": [
+            "Rounding the trunk on the initial pull",
+            "Pulling with the arms instead of the hips",
+            "Stopping at the top instead of pushing through"
+          ],
+          "fast_execution": true,
+          "equipment_requirements": [
+            "tire",
+            "open_floor_space"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load",
+            "high_speed_execution"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "sandbag_carry": {
+          "exercise_id": "sandbag_carry",
+          "display_label": "Sandbag carry",
+          "movement_pattern_id": "carry_bilateral",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "wrist",
+            "hip",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Sandbag carry: Brace, lift the sandbag to the torso, then walk tall under control while maintaining even steps.",
+          "instruction_detail_text": [
+            "Set up the sandbag, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Brace, lift the sandbag to the torso, then walk tall under control while maintaining even steps.",
+            "Reset sandbag carry deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before lifting",
+            "Keep the sandbag close to the torso",
+            "Walk tall with even steps"
+          ],
+          "common_faults": [
+            "Lifting the sandbag with a rounded trunk",
+            "Letting the sandbag shift away from the body",
+            "Rushing the foot contacts"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "sandbag",
+            "open_floor_space"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "restricted",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
         }
       }
     },
@@ -12381,7 +12792,7 @@
     },
     "equipment": {
       "registry_id": "equipment",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "entries": {
         "barbell": {
           "equipment_id": "barbell",
@@ -12704,6 +13115,291 @@
           "substitution_relevance": "low_equipment_alternative",
           "template_relevance": "template_selectable",
           "low_equipment_alternative_relevance": "primary_low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "squat_bar": {
+          "equipment_id": "squat_bar",
+          "display_label": "Squat bar (20kg, stiff)",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "safety_squat_bar": {
+          "equipment_id": "safety_squat_bar",
+          "display_label": "Safety squat bar (32kg, cambered)",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "deadlift_bar": {
+          "equipment_id": "deadlift_bar",
+          "display_label": "Deadlift bar (20kg, flexible)",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "hinge"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "hex_dumbbell": {
+          "equipment_id": "hex_dumbbell",
+          "display_label": "Hexagonal dumbbell",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat",
+            "hinge",
+            "horizontal_push",
+            "vertical_push",
+            "horizontal_pull",
+            "carry",
+            "lunge_split_stance"
+          ],
+          "substitution_relevance": "lateral_or_low_equipment_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "adjustable_dumbbell": {
+          "equipment_id": "adjustable_dumbbell",
+          "display_label": "Loadable dumbbell (adjustable plates)",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "squat",
+            "hinge",
+            "horizontal_push",
+            "vertical_push",
+            "horizontal_pull",
+            "carry",
+            "lunge_split_stance"
+          ],
+          "substitution_relevance": "lateral_or_low_equipment_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "low_equipment_option",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_rope_attachment": {
+          "equipment_id": "cable_rope_attachment",
+          "display_label": "Rope attachment",
+          "equipment_class": "attachment",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull",
+            "trunk_rotation_anti_rotation"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_straight_bar_attachment": {
+          "equipment_id": "cable_straight_bar_attachment",
+          "display_label": "Straight bar attachment",
+          "equipment_class": "attachment",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull",
+            "horizontal_push"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_v_bar_attachment": {
+          "equipment_id": "cable_v_bar_attachment",
+          "display_label": "V-bar attachment",
+          "equipment_class": "attachment",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_single_handle_attachment": {
+          "equipment_id": "cable_single_handle_attachment",
+          "display_label": "Single handle attachment",
+          "equipment_class": "attachment",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "vertical_pull",
+            "horizontal_push",
+            "trunk_rotation_anti_rotation"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "cable_lat_bar_attachment": {
+          "equipment_id": "cable_lat_bar_attachment",
+          "display_label": "Lat pulldown bar attachment",
+          "equipment_class": "attachment",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "vertical_pull"
+          ],
+          "substitution_relevance": "lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "yoke": {
+          "equipment_id": "yoke",
+          "display_label": "Yoke",
+          "equipment_class": "conditioning_tool",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "carry"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "atlas_stone": {
+          "equipment_id": "atlas_stone",
+          "display_label": "Atlas stone",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "hinge",
+            "carry"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "strongman_log": {
+          "equipment_id": "strongman_log",
+          "display_label": "Strongman log",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "vertical_push"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "axle_bar": {
+          "equipment_id": "axle_bar",
+          "display_label": "Axle bar",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "vertical_push",
+            "hinge"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "sandbag": {
+          "equipment_id": "sandbag",
+          "display_label": "Sandbag",
+          "equipment_class": "free_weight",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "carry",
+            "hinge"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "tire": {
+          "equipment_id": "tire",
+          "display_label": "Tire",
+          "equipment_class": "conditioning_tool",
+          "activity_applicability": [
+            "general_strength",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "hinge",
+            "conditioning_general"
+          ],
+          "substitution_relevance": "activity_specific_option",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
           "copy_legal_boundary_notes": "Factual equipment label only."
         }
       }
@@ -13129,7 +13825,7 @@
     },
     "exercise_activity_applicability": {
       "registry_id": "exercise_activity_applicability",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "entries": {
         "back_squat__powerlifting__training": {
           "applicability_id": "back_squat__powerlifting__training",
@@ -34543,6 +35239,438 @@
           "applicability_id": "lateral_sled_drag__general_strength__competition",
           "exercise_id": "lateral_sled_drag",
           "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__general_strength__training": {
+          "applicability_id": "yoke_walk__general_strength__training",
+          "exercise_id": "yoke_walk",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__general_strength__testing": {
+          "applicability_id": "yoke_walk__general_strength__testing",
+          "exercise_id": "yoke_walk",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__general_strength__competition": {
+          "applicability_id": "yoke_walk__general_strength__competition",
+          "exercise_id": "yoke_walk",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__rugby_union__training": {
+          "applicability_id": "yoke_walk__rugby_union__training",
+          "exercise_id": "yoke_walk",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__rugby_union__testing": {
+          "applicability_id": "yoke_walk__rugby_union__testing",
+          "exercise_id": "yoke_walk",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "yoke_walk__rugby_union__competition": {
+          "applicability_id": "yoke_walk__rugby_union__competition",
+          "exercise_id": "yoke_walk",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__general_strength__training": {
+          "applicability_id": "atlas_stone_carry__general_strength__training",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__general_strength__testing": {
+          "applicability_id": "atlas_stone_carry__general_strength__testing",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__general_strength__competition": {
+          "applicability_id": "atlas_stone_carry__general_strength__competition",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__rugby_union__training": {
+          "applicability_id": "atlas_stone_carry__rugby_union__training",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__rugby_union__testing": {
+          "applicability_id": "atlas_stone_carry__rugby_union__testing",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "atlas_stone_carry__rugby_union__competition": {
+          "applicability_id": "atlas_stone_carry__rugby_union__competition",
+          "exercise_id": "atlas_stone_carry",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__general_strength__training": {
+          "applicability_id": "strongman_log_press__general_strength__training",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__general_strength__testing": {
+          "applicability_id": "strongman_log_press__general_strength__testing",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__general_strength__competition": {
+          "applicability_id": "strongman_log_press__general_strength__competition",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__rugby_union__training": {
+          "applicability_id": "strongman_log_press__rugby_union__training",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__rugby_union__testing": {
+          "applicability_id": "strongman_log_press__rugby_union__testing",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_log_press__rugby_union__competition": {
+          "applicability_id": "strongman_log_press__rugby_union__competition",
+          "exercise_id": "strongman_log_press",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__general_strength__training": {
+          "applicability_id": "axle_bar_press__general_strength__training",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__general_strength__testing": {
+          "applicability_id": "axle_bar_press__general_strength__testing",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__general_strength__competition": {
+          "applicability_id": "axle_bar_press__general_strength__competition",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__rugby_union__training": {
+          "applicability_id": "axle_bar_press__rugby_union__training",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__rugby_union__testing": {
+          "applicability_id": "axle_bar_press__rugby_union__testing",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_bar_press__rugby_union__competition": {
+          "applicability_id": "axle_bar_press__rugby_union__competition",
+          "exercise_id": "axle_bar_press",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__general_strength__training": {
+          "applicability_id": "tire_flip__general_strength__training",
+          "exercise_id": "tire_flip",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__general_strength__testing": {
+          "applicability_id": "tire_flip__general_strength__testing",
+          "exercise_id": "tire_flip",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__general_strength__competition": {
+          "applicability_id": "tire_flip__general_strength__competition",
+          "exercise_id": "tire_flip",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__rugby_union__training": {
+          "applicability_id": "tire_flip__rugby_union__training",
+          "exercise_id": "tire_flip",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__rugby_union__testing": {
+          "applicability_id": "tire_flip__rugby_union__testing",
+          "exercise_id": "tire_flip",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "tire_flip__rugby_union__competition": {
+          "applicability_id": "tire_flip__rugby_union__competition",
+          "exercise_id": "tire_flip",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__general_strength__training": {
+          "applicability_id": "sandbag_carry__general_strength__training",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__general_strength__testing": {
+          "applicability_id": "sandbag_carry__general_strength__testing",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__general_strength__competition": {
+          "applicability_id": "sandbag_carry__general_strength__competition",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__rugby_union__training": {
+          "applicability_id": "sandbag_carry__rugby_union__training",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__rugby_union__testing": {
+          "applicability_id": "sandbag_carry__rugby_union__testing",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_carry__rugby_union__competition": {
+          "applicability_id": "sandbag_carry__rugby_union__competition",
+          "exercise_id": "sandbag_carry",
+          "activity_id": "rugby_union",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

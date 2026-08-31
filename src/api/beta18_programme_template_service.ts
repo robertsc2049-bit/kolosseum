@@ -1109,6 +1109,42 @@ function loadExerciseRegistry(): Readonly<{
   });
 }
 
+// DEV NOTE: FULL-UI-05B exercise picker equipment-catalog labels - the
+// equipment registry's own crafted display_label (e.g. "V-bar attachment")
+// reads far better than a mechanically titleCased equipment_id, especially
+// for the newer attachment/bar-variant ids. Read the same way
+// loadExerciseRegistry() reads its own registry file.
+function loadEquipmentRegistry(): Readonly<Record<string, JsonRecord>> {
+  const registryPath =
+    path.resolve(
+      process.cwd(),
+      "registries",
+      "equipment",
+      "equipment.registry.json"
+    );
+
+  const parsed =
+    JSON.parse(
+      fs.readFileSync(
+        registryPath,
+        "utf8"
+      )
+    ) as unknown;
+
+  if (
+    !isRecord(parsed) ||
+    cleanString(parsed.registry_id) !==
+      "equipment" ||
+    !isRecord(parsed.entries)
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "active_equipment_registry_invalid"
+    );
+  }
+
+  return deepFreeze(parsed.entries as Record<string, JsonRecord>);
+}
+
 export async function requireActiveCoach(
   coachUserId: string
 ): Promise<Readonly<JsonRecord>> {
@@ -2605,9 +2641,12 @@ export function listActiveExerciseOptions(): Readonly<{
   registry_id: string;
   registry_version: string;
   exercises: readonly Readonly<JsonRecord>[];
+  equipment_catalog: readonly Readonly<JsonRecord>[];
 }> {
   const registry =
     loadExerciseRegistry();
+  const equipmentRegistry =
+    loadEquipmentRegistry();
 
   const exercises =
     Object.values(
@@ -2642,6 +2681,15 @@ export function listActiveExerciseOptions(): Readonly<{
                     .equipment_requirements
                     .map(cleanString)
                     .filter(Boolean)
+                : [],
+            equipment_alternatives:
+              Array.isArray(
+                entry.equipment_alternatives
+              )
+                ? entry
+                    .equipment_alternatives
+                    .map(cleanString)
+                    .filter(Boolean)
                 : []
           });
         }
@@ -2657,12 +2705,21 @@ export function listActiveExerciseOptions(): Readonly<{
           )
       );
 
+  const equipmentCatalog =
+    Object.values(equipmentRegistry)
+      .map((entry) => deepFreeze({
+        equipment_id: cleanString(entry.equipment_id),
+        display_label: cleanString(entry.display_label) || titleFromId(cleanString(entry.equipment_id))
+      }))
+      .sort((left, right) => String(left.display_label).localeCompare(String(right.display_label)));
+
   return deepFreeze({
     registry_id:
       registry.registry_id,
     registry_version:
       registry.version,
-    exercises
+    exercises,
+    equipment_catalog: equipmentCatalog
   });
 }
 

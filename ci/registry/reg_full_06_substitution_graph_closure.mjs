@@ -36,7 +36,13 @@ export const REG_FULL_06_EQUIPMENT_LEVEL = Object.freeze({
   sled: 2,
   box: 2,
   machine_general: 2,
-  cardio_machine_general: 2
+  cardio_machine_general: 2,
+  yoke: 3,
+  atlas_stone: 3,
+  strongman_log: 3,
+  axle_bar: 3,
+  sandbag: 3,
+  tire: 3
 });
 
 const CHANGE_PRIORITY = Object.freeze({ same_required_equipment: 0, lateral: 1, downgrade: 2 });
@@ -204,7 +210,7 @@ export function auditRegFull06Documents(docs) {
   const expectedActivities = [...REG_FULL_06_ACTIVITIES].sort();
 
   if (!sameJson(activities, expectedActivities)) push(errors, "ACTIVITY_SCOPE", activities);
-  if (Object.keys(ex).length !== 215) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
+  if (Object.keys(ex).length !== 221) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
   if (Object.keys(mv).length !== 54) push(errors, "MOVEMENT_COUNT", Object.keys(mv).length);
   if (docs.substitution?.registry_id !== "substitution_registry" || docs.substitution?.version !== "1.0.0") push(errors, "SUBSTITUTION_HEADER", { registry_id: docs.substitution?.registry_id, version: docs.substitution?.version });
   if (Object.keys(sub).length === 0) push(errors, "EMPTY_SUBSTITUTION_REGISTRY", null);

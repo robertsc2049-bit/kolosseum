@@ -292,18 +292,27 @@ function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
 // current selection is never silently dropped by React reconciling a
 // shorter option list out from under it - the currently-selected
 // exercise always stays visible/selectable regardless of the filter.
-function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, templateExercises }: WorkItemControlProps & { templateExercises: JsonRecord[] }) {
+function exerciseEquipmentIds(exercise: JsonRecord): string[] {
+  const required = Array.isArray(exercise.equipment) ? exercise.equipment.map(String) : [];
+  const alternatives = Array.isArray(exercise.equipment_alternatives) ? exercise.equipment_alternatives.map(String) : [];
+  return [...new Set([...required, ...alternatives])];
+}
+
+function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, templateExercises, equipmentCatalog }: WorkItemControlProps & { templateExercises: JsonRecord[]; equipmentCatalog: JsonRecord[] }) {
   const [equipmentFilter, setEquipmentFilter] = React.useState("");
+
+  const equipmentLabel = React.useCallback((equipmentId: string) => {
+    const match = equipmentCatalog.find((entry) => entry.equipment_id === equipmentId);
+    return String(match?.display_label ?? titleCase(equipmentId));
+  }, [equipmentCatalog]);
 
   const equipmentOptions = React.useMemo(() => {
     const tags = new Set<string>();
     for (const exercise of templateExercises) {
-      for (const tag of Array.isArray(exercise.equipment) ? exercise.equipment : []) {
-        tags.add(String(tag));
-      }
+      for (const tag of exerciseEquipmentIds(exercise)) tags.add(tag);
     }
-    return [...tags].sort((left, right) => titleCase(left).localeCompare(titleCase(right)));
-  }, [templateExercises]);
+    return [...tags].sort((left, right) => equipmentLabel(left).localeCompare(equipmentLabel(right)));
+  }, [templateExercises, equipmentLabel]);
 
   const groupedExercises = React.useMemo(() => {
     const buckets = new Map<string, JsonRecord[]>();
@@ -324,7 +333,7 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
         <select value={equipmentFilter} onChange={(event) => setEquipmentFilter(event.target.value)}>
           <option value="">All equipment</option>
           {equipmentOptions.map((tag) => (
-            <option key={tag} value={tag}>{titleCase(tag)}</option>
+            <option key={tag} value={tag}>{equipmentLabel(tag)}</option>
           ))}
         </select>
       </label>
@@ -335,8 +344,9 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
             <optgroup label={category} key={category}>
               {exercises.map((exercise) => {
                 const exerciseId = String(exercise.exercise_id);
-                const equipmentTags = Array.isArray(exercise.equipment) ? exercise.equipment.map((tag) => titleCase(String(tag))) : [];
-                const matchesFilter = !equipmentFilter || (Array.isArray(exercise.equipment) && exercise.equipment.includes(equipmentFilter));
+                const equipmentIds = exerciseEquipmentIds(exercise);
+                const equipmentTags = equipmentIds.map(equipmentLabel);
+                const matchesFilter = !equipmentFilter || equipmentIds.includes(equipmentFilter);
                 return (
                   <option key={exerciseId} value={exerciseId} hidden={!matchesFilter && exerciseId !== workItem.exercise_id}>
                     {String(exercise.display_name ?? exerciseId)}{equipmentTags.length ? ` (${equipmentTags.join(", ")})` : ""}
@@ -358,8 +368,9 @@ function BuilderWorkItem({
   sessionIndex,
   workItemIndex,
   workItemCount,
-  templateExercises
-}: WorkItemControlProps & { workItemCount: number; templateExercises: JsonRecord[] }) {
+  templateExercises,
+  equipmentCatalog
+}: WorkItemControlProps & { workItemCount: number; templateExercises: JsonRecord[]; equipmentCatalog: JsonRecord[] }) {
   const grouped = Boolean(workItem.group_id);
 
   return (
@@ -373,6 +384,7 @@ function BuilderWorkItem({
           sessionIndex={sessionIndex}
           workItemIndex={workItemIndex}
           templateExercises={templateExercises}
+          equipmentCatalog={equipmentCatalog}
         />
         <label className="template-role-field">
           <span>Role</span>
@@ -442,7 +454,8 @@ function BuilderSession({
   weekIndex,
   sessionIndex,
   sessionCount,
-  templateExercises
+  templateExercises,
+  equipmentCatalog
 }: {
   session: ProgrammeSessionDraft;
   blockIndex: number;
@@ -450,6 +463,7 @@ function BuilderSession({
   sessionIndex: number;
   sessionCount: number;
   templateExercises: JsonRecord[];
+  equipmentCatalog: JsonRecord[];
 }) {
   return (
     <section className="template-session">
@@ -498,6 +512,7 @@ function BuilderSession({
             workItemIndex={workItemIndex}
             workItemCount={session.work_items.length}
             templateExercises={templateExercises}
+            equipmentCatalog={equipmentCatalog}
           />
         ))}
       </div>
@@ -511,13 +526,15 @@ function BuilderWeek({
   blockIndex,
   weekIndex,
   weekCount,
-  templateExercises
+  templateExercises,
+  equipmentCatalog
 }: {
   week: ProgrammeWeekDraft;
   blockIndex: number;
   weekIndex: number;
   weekCount: number;
   templateExercises: JsonRecord[];
+  equipmentCatalog: JsonRecord[];
 }) {
   return (
     <article className="template-week">
@@ -552,6 +569,7 @@ function BuilderWeek({
             sessionIndex={sessionIndex}
             sessionCount={week.sessions.length}
             templateExercises={templateExercises}
+            equipmentCatalog={equipmentCatalog}
           />
         ))}
       </div>
@@ -566,7 +584,8 @@ function BuilderBlock({
   blockCount,
   totalWeeks,
   hasEventPlan,
-  templateExercises
+  templateExercises,
+  equipmentCatalog
 }: {
   block: ProgrammeBlockDraft;
   blockIndex: number;
@@ -574,6 +593,7 @@ function BuilderBlock({
   totalWeeks: number;
   hasEventPlan: boolean;
   templateExercises: JsonRecord[];
+  equipmentCatalog: JsonRecord[];
 }) {
   return (
     <article className="template-block">
@@ -636,6 +656,7 @@ function BuilderBlock({
             weekIndex={weekIndex}
             weekCount={block.weeks.length}
             templateExercises={templateExercises}
+            equipmentCatalog={equipmentCatalog}
           />
         ))}
       </div>
@@ -644,7 +665,7 @@ function BuilderBlock({
 }
 
 export function CoachProgrammeBuilderTree() {
-  const { draft, templateExercises } = useProgrammeBuilderDraft();
+  const { draft, templateExercises, equipmentCatalog } = useProgrammeBuilderDraft();
   if (!draft) return null;
 
   const totalWeeks = templateCounts(draft).weeks;
@@ -661,6 +682,7 @@ export function CoachProgrammeBuilderTree() {
           totalWeeks={totalWeeks}
           hasEventPlan={hasEventPlan}
           templateExercises={templateExercises}
+          equipmentCatalog={equipmentCatalog}
         />
       ))}
     </>

@@ -1,6 +1,6 @@
 {
   "registry_id": "equipment",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "entries": {
     "barbell": {
       "equipment_id": "barbell",
@@ -323,6 +323,291 @@
       "substitution_relevance": "low_equipment_alternative",
       "template_relevance": "template_selectable",
       "low_equipment_alternative_relevance": "primary_low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "squat_bar": {
+      "equipment_id": "squat_bar",
+      "display_label": "Squat bar (20kg, stiff)",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "safety_squat_bar": {
+      "equipment_id": "safety_squat_bar",
+      "display_label": "Safety squat bar (32kg, cambered)",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "deadlift_bar": {
+      "equipment_id": "deadlift_bar",
+      "display_label": "Deadlift bar (20kg, flexible)",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "hinge"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "hex_dumbbell": {
+      "equipment_id": "hex_dumbbell",
+      "display_label": "Hexagonal dumbbell",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "vertical_push",
+        "horizontal_pull",
+        "carry",
+        "lunge_split_stance"
+      ],
+      "substitution_relevance": "lateral_or_low_equipment_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "adjustable_dumbbell": {
+      "equipment_id": "adjustable_dumbbell",
+      "display_label": "Loadable dumbbell (adjustable plates)",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "squat",
+        "hinge",
+        "horizontal_push",
+        "vertical_push",
+        "horizontal_pull",
+        "carry",
+        "lunge_split_stance"
+      ],
+      "substitution_relevance": "lateral_or_low_equipment_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_rope_attachment": {
+      "equipment_id": "cable_rope_attachment",
+      "display_label": "Rope attachment",
+      "equipment_class": "attachment",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_pull",
+        "vertical_pull",
+        "trunk_rotation_anti_rotation"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_straight_bar_attachment": {
+      "equipment_id": "cable_straight_bar_attachment",
+      "display_label": "Straight bar attachment",
+      "equipment_class": "attachment",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_pull",
+        "vertical_pull",
+        "horizontal_push"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_v_bar_attachment": {
+      "equipment_id": "cable_v_bar_attachment",
+      "display_label": "V-bar attachment",
+      "equipment_class": "attachment",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_pull",
+        "vertical_pull"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_single_handle_attachment": {
+      "equipment_id": "cable_single_handle_attachment",
+      "display_label": "Single handle attachment",
+      "equipment_class": "attachment",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "horizontal_pull",
+        "vertical_pull",
+        "horizontal_push",
+        "trunk_rotation_anti_rotation"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "cable_lat_bar_attachment": {
+      "equipment_id": "cable_lat_bar_attachment",
+      "display_label": "Lat pulldown bar attachment",
+      "equipment_class": "attachment",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "vertical_pull"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "yoke": {
+      "equipment_id": "yoke",
+      "display_label": "Yoke",
+      "equipment_class": "conditioning_tool",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "carry"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "atlas_stone": {
+      "equipment_id": "atlas_stone",
+      "display_label": "Atlas stone",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "hinge",
+        "carry"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "strongman_log": {
+      "equipment_id": "strongman_log",
+      "display_label": "Strongman log",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "vertical_push"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "axle_bar": {
+      "equipment_id": "axle_bar",
+      "display_label": "Axle bar",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "vertical_push",
+        "hinge"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "sandbag": {
+      "equipment_id": "sandbag",
+      "display_label": "Sandbag",
+      "equipment_class": "free_weight",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "carry",
+        "hinge"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "tire": {
+      "equipment_id": "tire",
+      "display_label": "Tire",
+      "equipment_class": "conditioning_tool",
+      "activity_applicability": [
+        "general_strength",
+        "rugby_union"
+      ],
+      "movement_pattern_applicability": [
+        "hinge",
+        "conditioning_general"
+      ],
+      "substitution_relevance": "activity_specific_option",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
       "copy_legal_boundary_notes": "Factual equipment label only."
     }
   }

@@ -427,7 +427,7 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
     duplicate_id_closure: checkStatus(policies.duplicate_id_count === 0),
     orphan_relationship_closure: checkStatus(orphanRelationships === 0),
     programme_template_coverage: checkStatus(templateCoverageGap === 0 && templateSummary.template_count === 11),
-    substitution_reachability: checkStatus(substitutionReachabilityGap === 0 && substitutionCounts.edges === 736)
+    substitution_reachability: checkStatus(substitutionReachabilityGap === 0 && substitutionCounts.edges === 762)
   };
 
   const overallPass = errors.length === 0 && Object.values(checks).every((status) => status === "PASS") && dependencyFailures === 0;
