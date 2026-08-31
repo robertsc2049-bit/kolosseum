@@ -44,7 +44,8 @@
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -482,7 +483,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -635,7 +637,8 @@
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1057,7 +1060,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -2833,7 +2837,8 @@
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -3207,7 +3212,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -6976,7 +6982,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7082,7 +7089,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
