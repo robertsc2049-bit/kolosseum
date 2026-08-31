@@ -258,7 +258,7 @@
     },
     "movement": {
       "registry_id": "movement",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "entries": {
         "squat": {
           "movement_pattern_id": "squat",
@@ -293,7 +293,8 @@
             "lumbar_high",
             "sacroiliac_low",
             "sacroiliac_medium",
-            "sacroiliac_high"
+            "sacroiliac_high",
+            "elbow"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -429,7 +430,8 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "glute_ham_bench"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -492,11 +494,16 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "barbell",
+            "bench",
+            "glute_ham_bench"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
-            "hip"
+            "hip",
+            "lumbar_low",
+            "knee"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -649,7 +656,8 @@
             "rack",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "dip_bars"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -719,7 +727,8 @@
             "cable_machine",
             "resistance_band",
             "plate",
-            "cable_single_handle_attachment"
+            "cable_single_handle_attachment",
+            "landmine_attachment"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -747,13 +756,16 @@
             "pull_up_bar",
             "plate",
             "cable_v_bar_attachment",
-            "cable_straight_bar_attachment"
+            "cable_straight_bar_attachment",
+            "landmine_attachment",
+            "bench"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
             "shoulder",
             "elbow",
-            "wrist"
+            "wrist",
+            "lumbar_low"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -774,7 +786,8 @@
             "resistance_band",
             "pull_up_bar",
             "plate",
-            "cable_lat_bar_attachment"
+            "cable_lat_bar_attachment",
+            "bench"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -840,7 +853,9 @@
             "machine_general",
             "cable_machine",
             "resistance_band",
-            "plate"
+            "plate",
+            "barbell",
+            "trap_bar"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -1557,7 +1572,7 @@
     },
     "exercise": {
       "registry_id": "exercise",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "entries": {
         "back_squat": {
           "exercise_id": "back_squat",
@@ -12857,6 +12872,1172 @@
             "no_medical_claims",
             "no_performance_guarantees"
           ]
+        },
+        "hack_squat": {
+          "exercise_id": "hack_squat",
+          "display_label": "Hack squat",
+          "movement_pattern_id": "squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_2",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "knee"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Hack squat: Descend with the load balanced over the mid-foot to the prescribed depth, then drive to full standing extension.",
+          "instruction_detail_text": [
+            "Set up the machine_general securely and establish the prescribed starting position before the first repetition.",
+            "Descend with the load balanced over the mid-foot to the prescribed depth, then drive to full standing extension.",
+            "Reset hack squat deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before the descent",
+            "Track the knees with the toes",
+            "Keep pressure through the whole foot"
+          ],
+          "common_faults": [
+            "Losing trunk position during the descent",
+            "Knees collapsing inward under load",
+            "Shifting onto the toes and losing balance"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "machine_general"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "zercher_squat": {
+          "exercise_id": "zercher_squat",
+          "display_label": "Zercher squat",
+          "movement_pattern_id": "squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "hip",
+            "knee",
+            "lumbar_low",
+            "elbow"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Zercher squat: Descend with the load balanced over the mid-foot to the prescribed depth, then drive to full standing extension.",
+          "instruction_detail_text": [
+            "Set up the barbell securely and establish the prescribed starting position before the first repetition.",
+            "Descend with the load balanced over the mid-foot to the prescribed depth, then drive to full standing extension.",
+            "Reset zercher squat deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before the descent",
+            "Track the knees with the toes",
+            "Keep pressure through the whole foot"
+          ],
+          "common_faults": [
+            "Losing trunk position during the descent",
+            "Knees collapsing inward under load",
+            "Shifting onto the toes and losing balance"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "strongman",
+            "powerlifting",
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "stiff_leg_deadlift": {
+          "exercise_id": "stiff_leg_deadlift",
+          "display_label": "Stiff-leg deadlift",
+          "movement_pattern_id": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "lumbar_low"
+          ],
+          "tempo_capability": "paused_and_tempo",
+          "instruction_short_text": "Stiff-leg deadlift: Push the hips back with a braced trunk, keep the load close, then extend the hips to finish tall.",
+          "instruction_detail_text": [
+            "Set up the barbell securely and establish the prescribed starting position before the first repetition.",
+            "Push the hips back with a braced trunk, keep the load close, then extend the hips to finish tall.",
+            "Reset stiff-leg deadlift deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before the pull",
+            "Keep the load close to the body",
+            "Finish with the hips, not the lower back"
+          ],
+          "common_faults": [
+            "Rounding the trunk under load",
+            "Letting the load drift away from the body",
+            "Turning the hinge into a squat"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": [
+            "dumbbell"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "snatch_grip_deadlift": {
+          "exercise_id": "snatch_grip_deadlift",
+          "display_label": "Snatch-grip deadlift",
+          "movement_pattern_id": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "hip",
+            "lumbar_low",
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Snatch-grip deadlift: Push the hips back with a braced trunk, keep the load close, then extend the hips to finish tall.",
+          "instruction_detail_text": [
+            "Set up the barbell securely and establish the prescribed starting position before the first repetition.",
+            "Push the hips back with a braced trunk, keep the load close, then extend the hips to finish tall.",
+            "Reset snatch-grip deadlift deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before the pull",
+            "Keep the load close to the body",
+            "Finish with the hips, not the lower back"
+          ],
+          "common_faults": [
+            "Rounding the trunk under load",
+            "Letting the load drift away from the body",
+            "Turning the hinge into a squat"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "curtsy_lunge": {
+          "exercise_id": "curtsy_lunge",
+          "display_label": "Curtsy lunge",
+          "movement_pattern_id": "single_leg_squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "knee"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Curtsy lunge: Control the working leg through the prescribed depth while keeping the pelvis level, then drive back to the start.",
+          "instruction_detail_text": [
+            "Set up the dumbbell securely and establish the prescribed starting position before the first repetition.",
+            "Control the working leg through the prescribed depth while keeping the pelvis level, then drive back to the start.",
+            "Reset curtsy lunge deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the working knee tracking over the foot",
+            "Control the pelvis",
+            "Use the whole working foot"
+          ],
+          "common_faults": [
+            "Pushing excessively from the non-working leg",
+            "Knee collapsing inward",
+            "Losing balance by rushing the descent"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": [
+            "kettlebell",
+            "bodyweight"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "barbell_hip_thrust": {
+          "exercise_id": "barbell_hip_thrust",
+          "display_label": "Barbell hip thrust",
+          "movement_pattern_id": "hip_extension_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Barbell hip thrust: Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+          "instruction_detail_text": [
+            "Set up the barbell, bench securely and establish the prescribed starting position before the first repetition.",
+            "Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+            "Reset barbell hip thrust deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Control the working joint",
+            "Keep the rest of the body still",
+            "Use a deliberate return"
+          ],
+          "common_faults": [
+            "Using momentum",
+            "Shortening the range without intent",
+            "Shifting position to move more load"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "bench"
+          ],
+          "equipment_alternatives": [
+            "dumbbell"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "dip": {
+          "exercise_id": "dip",
+          "display_label": "Dip",
+          "movement_pattern_id": "decline_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Dip: Press on the declined line through the prescribed range while maintaining stable shoulder and trunk position.",
+          "instruction_detail_text": [
+            "Set up the bodyweight, dip_bars securely and establish the prescribed starting position before the first repetition.",
+            "Press on the declined line through the prescribed range while maintaining stable shoulder and trunk position.",
+            "Reset dip deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the shoulder blades controlled",
+            "Maintain a stable torso",
+            "Finish each rep under control"
+          ],
+          "common_faults": [
+            "Losing body position",
+            "Shortening the range as fatigue rises",
+            "Bouncing out of the bottom"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "bodyweight",
+            "dip_bars"
+          ],
+          "equipment_alternatives": [
+            "machine_general"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "shrug": {
+          "exercise_id": "shrug",
+          "display_label": "Shrug",
+          "movement_pattern_id": "scapular_upward_rotation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Shrug: Elevate the shoulders straight up toward the ears under control, then lower through the full range before the next repetition.",
+          "instruction_detail_text": [
+            "Set up the barbell securely and establish the prescribed starting position before the first repetition.",
+            "Elevate the shoulders straight up toward the ears under control, then lower through the full range before the next repetition.",
+            "Reset shrug deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Lift straight up, not forward or back",
+            "Pause briefly at the top",
+            "Lower under control"
+          ],
+          "common_faults": [
+            "Rolling the shoulders instead of lifting straight up",
+            "Using momentum from the legs or hips",
+            "Cutting the descent short"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": [
+            "dumbbell",
+            "trap_bar"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "front_raise": {
+          "exercise_id": "front_raise",
+          "display_label": "Front raise",
+          "movement_pattern_id": "shoulder_abduction_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "semi_stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Front raise: Move the shoulder through the prescribed isolated path with a stable trunk and controlled resistance.",
+          "instruction_detail_text": [
+            "Set up the dumbbell securely and establish the prescribed starting position before the first repetition.",
+            "Move the shoulder through the prescribed isolated path with a stable trunk and controlled resistance.",
+            "Reset front raise deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the shoulder centred",
+            "Use a smooth range",
+            "Keep the trunk still"
+          ],
+          "common_faults": [
+            "Using trunk momentum",
+            "Exceeding the controlled range",
+            "Letting the elbow or wrist drift unnecessarily"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": [
+            "cable_machine"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "t_bar_row": {
+          "exercise_id": "t_bar_row",
+          "display_label": "T-bar row",
+          "movement_pattern_id": "horizontal_pull",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "T-bar row: Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+          "instruction_detail_text": [
+            "Set up the barbell, landmine_attachment securely and establish the prescribed starting position before the first repetition.",
+            "Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+            "Reset t-bar row deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Lead with the elbow",
+            "Keep the trunk stable",
+            "Finish with controlled scapular retraction"
+          ],
+          "common_faults": [
+            "Jerking the torso for momentum",
+            "Shrugging during the pull",
+            "Shortening the return range"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "landmine_attachment"
+          ],
+          "equipment_alternatives": [
+            "machine_general"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "chest_supported_row": {
+          "exercise_id": "chest_supported_row",
+          "display_label": "Chest-supported row",
+          "movement_pattern_id": "horizontal_pull",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Chest-supported row: Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+          "instruction_detail_text": [
+            "Set up the dumbbell, bench securely and establish the prescribed starting position before the first repetition.",
+            "Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+            "Reset chest-supported row deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Lead with the elbow",
+            "Keep the trunk stable",
+            "Finish with controlled scapular retraction"
+          ],
+          "common_faults": [
+            "Jerking the torso for momentum",
+            "Shrugging during the pull",
+            "Shortening the return range"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell",
+            "bench"
+          ],
+          "equipment_alternatives": [
+            "machine_general"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "inverted_row": {
+          "exercise_id": "inverted_row",
+          "display_label": "Inverted row",
+          "movement_pattern_id": "horizontal_pull",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Inverted row: Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+          "instruction_detail_text": [
+            "Set up the bodyweight, pull_up_bar securely and establish the prescribed starting position before the first repetition.",
+            "Pull the resistance toward the torso with the shoulder blade moving under control, then return to full reach.",
+            "Reset inverted row deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Lead with the elbow",
+            "Keep the trunk stable",
+            "Finish with controlled scapular retraction"
+          ],
+          "common_faults": [
+            "Jerking the torso for momentum",
+            "Shrugging during the pull",
+            "Shortening the return range"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "bodyweight",
+            "pull_up_bar"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "landmine_press": {
+          "exercise_id": "landmine_press",
+          "display_label": "Landmine press",
+          "movement_pattern_id": "angled_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "semi_stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Landmine press: Press along the prescribed diagonal line while resisting trunk rotation and maintaining shoulder control.",
+          "instruction_detail_text": [
+            "Set up the barbell, landmine_attachment securely and establish the prescribed starting position before the first repetition.",
+            "Press along the prescribed diagonal line while resisting trunk rotation and maintaining shoulder control.",
+            "Reset landmine press deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace against rotation",
+            "Follow the diagonal path",
+            "Keep the shoulder down and controlled"
+          ],
+          "common_faults": [
+            "Rotating the torso to finish the rep",
+            "Changing the press angle mid-rep",
+            "Losing wrist alignment"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell",
+            "landmine_attachment"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "arnold_press": {
+          "exercise_id": "arnold_press",
+          "display_label": "Arnold press",
+          "movement_pattern_id": "vertical_push",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow"
+          ],
+          "tempo_capability": "paused_and_tempo",
+          "instruction_short_text": "Arnold press: Brace the trunk and press overhead to a stacked lockout, then lower under control to the start.",
+          "instruction_detail_text": [
+            "Set up the dumbbell securely and establish the prescribed starting position before the first repetition.",
+            "Brace the trunk and press overhead to a stacked lockout, then lower under control to the start.",
+            "Reset arnold press deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Brace before every press",
+            "Finish stacked over the base",
+            "Keep the ribcage controlled"
+          ],
+          "common_faults": [
+            "Overextending the lower back",
+            "Pressing the load forward of the base",
+            "Shrugging without control"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "overhead_loading"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "upright_row": {
+          "exercise_id": "upright_row",
+          "display_label": "Upright row",
+          "movement_pattern_id": "vertical_pull",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_1",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Upright row: Pull the resistance up along the body toward chin height with the elbows leading, then lower under control.",
+          "instruction_detail_text": [
+            "Set up the barbell securely and establish the prescribed starting position before the first repetition.",
+            "Pull the resistance up along the body toward chin height with the elbows leading, then lower under control.",
+            "Reset upright row deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Lead with the elbows",
+            "Keep the bar or handle close to the body",
+            "Control the lowering phase"
+          ],
+          "common_faults": [
+            "Leading with the wrists instead of elbows",
+            "Swinging the torso for momentum",
+            "Raising past a comfortable range"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "barbell"
+          ],
+          "equipment_alternatives": [
+            "dumbbell",
+            "cable_machine"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "pullover": {
+          "exercise_id": "pullover",
+          "display_label": "Pullover",
+          "movement_pattern_id": "vertical_pull",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "shoulder"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Pullover: Lower the resistance in a controlled arc behind the head while keeping the trunk stable, then pull back over the chest.",
+          "instruction_detail_text": [
+            "Set up the dumbbell, bench securely and establish the prescribed starting position before the first repetition.",
+            "Lower the resistance in a controlled arc behind the head while keeping the trunk stable, then pull back over the chest.",
+            "Reset pullover deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep a slight, stable elbow bend",
+            "Control the stretch behind the head",
+            "Keep the ribs from flaring"
+          ],
+          "common_faults": [
+            "Overarching the lower back",
+            "Losing control at end range",
+            "Rushing the return over the chest"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell",
+            "bench"
+          ],
+          "equipment_alternatives": [
+            "cable_machine"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "concentration_curl": {
+          "exercise_id": "concentration_curl",
+          "display_label": "Concentration curl",
+          "movement_pattern_id": "elbow_flexion_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "elbow"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Concentration curl: Move at the elbow through the prescribed range while keeping the upper arm and trunk controlled.",
+          "instruction_detail_text": [
+            "Set up the dumbbell securely and establish the prescribed starting position before the first repetition.",
+            "Move at the elbow through the prescribed range while keeping the upper arm and trunk controlled.",
+            "Reset concentration curl deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the upper arm stable",
+            "Use the full controlled range",
+            "Keep the wrist neutral"
+          ],
+          "common_faults": [
+            "Swinging the torso",
+            "Moving the upper arm to create momentum",
+            "Dropping the eccentric"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": [
+            "cable_machine"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "zottman_curl": {
+          "exercise_id": "zottman_curl",
+          "display_label": "Zottman curl",
+          "movement_pattern_id": "elbow_flexion_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "elbow",
+            "wrist"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Zottman curl: Move at the elbow through the prescribed range while keeping the upper arm and trunk controlled.",
+          "instruction_detail_text": [
+            "Set up the dumbbell securely and establish the prescribed starting position before the first repetition.",
+            "Move at the elbow through the prescribed range while keeping the upper arm and trunk controlled.",
+            "Reset zottman curl deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the upper arm stable",
+            "Use the full controlled range",
+            "Keep the wrist neutral"
+          ],
+          "common_faults": [
+            "Swinging the torso",
+            "Moving the upper arm to create momentum",
+            "Dropping the eccentric"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "dumbbell"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "reverse_hyper": {
+          "exercise_id": "reverse_hyper",
+          "display_label": "Reverse hyper",
+          "movement_pattern_id": "hip_extension_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_2",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Reverse hyper: Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+          "instruction_detail_text": [
+            "Set up the glute_ham_bench securely and establish the prescribed starting position before the first repetition.",
+            "Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+            "Reset reverse hyper deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Control the working joint",
+            "Keep the rest of the body still",
+            "Use a deliberate return"
+          ],
+          "common_faults": [
+            "Using momentum",
+            "Shortening the range without intent",
+            "Shifting position to move more load"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "glute_ham_bench"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "powerlifting",
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "nordic_curl": {
+          "exercise_id": "nordic_curl",
+          "display_label": "Nordic curl",
+          "movement_pattern_id": "knee_flexion_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "knee"
+          ],
+          "tempo_capability": "paused_and_tempo",
+          "instruction_short_text": "Nordic curl: Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+          "instruction_detail_text": [
+            "Set up the bodyweight, glute_ham_bench securely and establish the prescribed starting position before the first repetition.",
+            "Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+            "Reset nordic curl deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Control the working joint",
+            "Keep the rest of the body still",
+            "Use a deliberate return"
+          ],
+          "common_faults": [
+            "Using momentum",
+            "Shortening the range without intent",
+            "Shifting position to move more load"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "bodyweight",
+            "glute_ham_bench"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "glute_ham_raise": {
+          "exercise_id": "glute_ham_raise",
+          "display_label": "Glute-ham raise",
+          "movement_pattern_id": "hip_extension_isolation",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "advanced",
+          "joint_stress_tags": [
+            "hip",
+            "knee"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Glute-ham raise: Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+          "instruction_detail_text": [
+            "Set up the bodyweight, glute_ham_bench securely and establish the prescribed starting position before the first repetition.",
+            "Move the target joint through the prescribed isolated range with a stable body position and controlled resistance.",
+            "Reset glute-ham raise deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Control the working joint",
+            "Keep the rest of the body still",
+            "Use a deliberate return"
+          ],
+          "common_faults": [
+            "Using momentum",
+            "Shortening the range without intent",
+            "Shifting position to move more load"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "bodyweight",
+            "glute_ham_bench"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "kettlebell_swing": {
+          "exercise_id": "kettlebell_swing",
+          "display_label": "Kettlebell swing",
+          "movement_pattern_id": "hinge",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "semi_stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "lumbar_low"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Kettlebell swing: Hike the kettlebell back with a braced hinge, then snap the hips forward to project it to the prescribed height.",
+          "instruction_detail_text": [
+            "Set up the kettlebell securely and establish the prescribed starting position before the first repetition.",
+            "Hike the kettlebell back with a braced hinge, then snap the hips forward to project it to the prescribed height.",
+            "Reset kettlebell swing deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Hike-pass before the snap",
+            "Snap the hips, don't lift with the arms",
+            "Keep the spine neutral throughout"
+          ],
+          "common_faults": [
+            "Squatting the movement instead of hinging",
+            "Muscling the load up with the arms",
+            "Overextending the lower back at the top"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "kettlebell"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union",
+            "strongman"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_speed_execution"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "box_step_up": {
+          "exercise_id": "box_step_up",
+          "display_label": "Box step-up",
+          "movement_pattern_id": "single_leg_squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Box step-up: Control the working leg through the prescribed depth while keeping the pelvis level, then drive back to the start.",
+          "instruction_detail_text": [
+            "Set up the box securely and establish the prescribed starting position before the first repetition.",
+            "Control the working leg through the prescribed depth while keeping the pelvis level, then drive back to the start.",
+            "Reset box step-up deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the working knee tracking over the foot",
+            "Control the pelvis",
+            "Use the whole working foot"
+          ],
+          "common_faults": [
+            "Pushing excessively from the non-working leg",
+            "Knee collapsing inward",
+            "Losing balance by rushing the descent"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "box"
+          ],
+          "equipment_alternatives": [
+            "dumbbell",
+            "kettlebell"
+          ],
+          "primary_activity_applicability": "general_strength",
+          "secondary_activity_applicability": [
+            "rugby_union"
+          ],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
         }
       }
     },
@@ -12914,7 +14095,7 @@
     },
     "equipment": {
       "registry_id": "equipment",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "entries": {
         "barbell": {
           "equipment_id": "barbell",
@@ -13529,6 +14710,60 @@
           "template_relevance": "template_selectable",
           "low_equipment_alternative_relevance": "not_low_equipment",
           "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "landmine_attachment": {
+          "equipment_id": "landmine_attachment",
+          "display_label": "Landmine attachment",
+          "equipment_class": "fixed_support",
+          "activity_applicability": [
+            "general_strength",
+            "powerlifting",
+            "rugby_union",
+            "strongman"
+          ],
+          "movement_pattern_applicability": [
+            "horizontal_pull",
+            "angled_push"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "dip_bars": {
+          "equipment_id": "dip_bars",
+          "display_label": "Dip bars",
+          "equipment_class": "fixed_support",
+          "activity_applicability": [
+            "general_strength",
+            "powerlifting",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "decline_push"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
+        },
+        "glute_ham_bench": {
+          "equipment_id": "glute_ham_bench",
+          "display_label": "Glute-ham bench",
+          "equipment_class": "fixed_support",
+          "activity_applicability": [
+            "general_strength",
+            "powerlifting",
+            "rugby_union"
+          ],
+          "movement_pattern_applicability": [
+            "hip_extension_isolation",
+            "knee_flexion_isolation"
+          ],
+          "substitution_relevance": "required_or_lateral_swap",
+          "template_relevance": "template_selectable",
+          "low_equipment_alternative_relevance": "not_low_equipment",
+          "copy_legal_boundary_notes": "Factual equipment label only."
         }
       }
     },
@@ -13956,7 +15191,7 @@
     },
     "exercise_activity_applicability": {
       "registry_id": "exercise_activity_applicability",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "entries": {
         "back_squat__powerlifting__training": {
           "applicability_id": "back_squat__powerlifting__training",
@@ -35874,6 +37109,2310 @@
           "applicability_id": "kettlebell_farmers_carry__strongman__competition",
           "exercise_id": "kettlebell_farmers_carry",
           "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__general_strength__training": {
+          "applicability_id": "hack_squat__general_strength__training",
+          "exercise_id": "hack_squat",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__general_strength__testing": {
+          "applicability_id": "hack_squat__general_strength__testing",
+          "exercise_id": "hack_squat",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__general_strength__competition": {
+          "applicability_id": "hack_squat__general_strength__competition",
+          "exercise_id": "hack_squat",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__powerlifting__training": {
+          "applicability_id": "hack_squat__powerlifting__training",
+          "exercise_id": "hack_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__powerlifting__testing": {
+          "applicability_id": "hack_squat__powerlifting__testing",
+          "exercise_id": "hack_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__powerlifting__competition": {
+          "applicability_id": "hack_squat__powerlifting__competition",
+          "exercise_id": "hack_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__rugby_union__training": {
+          "applicability_id": "hack_squat__rugby_union__training",
+          "exercise_id": "hack_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__rugby_union__testing": {
+          "applicability_id": "hack_squat__rugby_union__testing",
+          "exercise_id": "hack_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__rugby_union__competition": {
+          "applicability_id": "hack_squat__rugby_union__competition",
+          "exercise_id": "hack_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__strongman__training": {
+          "applicability_id": "hack_squat__strongman__training",
+          "exercise_id": "hack_squat",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__strongman__testing": {
+          "applicability_id": "hack_squat__strongman__testing",
+          "exercise_id": "hack_squat",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hack_squat__strongman__competition": {
+          "applicability_id": "hack_squat__strongman__competition",
+          "exercise_id": "hack_squat",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__general_strength__training": {
+          "applicability_id": "zercher_squat__general_strength__training",
+          "exercise_id": "zercher_squat",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__general_strength__testing": {
+          "applicability_id": "zercher_squat__general_strength__testing",
+          "exercise_id": "zercher_squat",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__general_strength__competition": {
+          "applicability_id": "zercher_squat__general_strength__competition",
+          "exercise_id": "zercher_squat",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__strongman__training": {
+          "applicability_id": "zercher_squat__strongman__training",
+          "exercise_id": "zercher_squat",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__strongman__testing": {
+          "applicability_id": "zercher_squat__strongman__testing",
+          "exercise_id": "zercher_squat",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__strongman__competition": {
+          "applicability_id": "zercher_squat__strongman__competition",
+          "exercise_id": "zercher_squat",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__powerlifting__training": {
+          "applicability_id": "zercher_squat__powerlifting__training",
+          "exercise_id": "zercher_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__powerlifting__testing": {
+          "applicability_id": "zercher_squat__powerlifting__testing",
+          "exercise_id": "zercher_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__powerlifting__competition": {
+          "applicability_id": "zercher_squat__powerlifting__competition",
+          "exercise_id": "zercher_squat",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__rugby_union__training": {
+          "applicability_id": "zercher_squat__rugby_union__training",
+          "exercise_id": "zercher_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__rugby_union__testing": {
+          "applicability_id": "zercher_squat__rugby_union__testing",
+          "exercise_id": "zercher_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zercher_squat__rugby_union__competition": {
+          "applicability_id": "zercher_squat__rugby_union__competition",
+          "exercise_id": "zercher_squat",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__general_strength__training": {
+          "applicability_id": "stiff_leg_deadlift__general_strength__training",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__general_strength__testing": {
+          "applicability_id": "stiff_leg_deadlift__general_strength__testing",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__general_strength__competition": {
+          "applicability_id": "stiff_leg_deadlift__general_strength__competition",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__powerlifting__training": {
+          "applicability_id": "stiff_leg_deadlift__powerlifting__training",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__powerlifting__testing": {
+          "applicability_id": "stiff_leg_deadlift__powerlifting__testing",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__powerlifting__competition": {
+          "applicability_id": "stiff_leg_deadlift__powerlifting__competition",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__rugby_union__training": {
+          "applicability_id": "stiff_leg_deadlift__rugby_union__training",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__rugby_union__testing": {
+          "applicability_id": "stiff_leg_deadlift__rugby_union__testing",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__rugby_union__competition": {
+          "applicability_id": "stiff_leg_deadlift__rugby_union__competition",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__strongman__training": {
+          "applicability_id": "stiff_leg_deadlift__strongman__training",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__strongman__testing": {
+          "applicability_id": "stiff_leg_deadlift__strongman__testing",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "stiff_leg_deadlift__strongman__competition": {
+          "applicability_id": "stiff_leg_deadlift__strongman__competition",
+          "exercise_id": "stiff_leg_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__general_strength__training": {
+          "applicability_id": "snatch_grip_deadlift__general_strength__training",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__general_strength__testing": {
+          "applicability_id": "snatch_grip_deadlift__general_strength__testing",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__general_strength__competition": {
+          "applicability_id": "snatch_grip_deadlift__general_strength__competition",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__powerlifting__training": {
+          "applicability_id": "snatch_grip_deadlift__powerlifting__training",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__powerlifting__testing": {
+          "applicability_id": "snatch_grip_deadlift__powerlifting__testing",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__powerlifting__competition": {
+          "applicability_id": "snatch_grip_deadlift__powerlifting__competition",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__strongman__training": {
+          "applicability_id": "snatch_grip_deadlift__strongman__training",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__strongman__testing": {
+          "applicability_id": "snatch_grip_deadlift__strongman__testing",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "snatch_grip_deadlift__strongman__competition": {
+          "applicability_id": "snatch_grip_deadlift__strongman__competition",
+          "exercise_id": "snatch_grip_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__general_strength__training": {
+          "applicability_id": "curtsy_lunge__general_strength__training",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__general_strength__testing": {
+          "applicability_id": "curtsy_lunge__general_strength__testing",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__general_strength__competition": {
+          "applicability_id": "curtsy_lunge__general_strength__competition",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__rugby_union__training": {
+          "applicability_id": "curtsy_lunge__rugby_union__training",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__rugby_union__testing": {
+          "applicability_id": "curtsy_lunge__rugby_union__testing",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curtsy_lunge__rugby_union__competition": {
+          "applicability_id": "curtsy_lunge__rugby_union__competition",
+          "exercise_id": "curtsy_lunge",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__general_strength__training": {
+          "applicability_id": "barbell_hip_thrust__general_strength__training",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__general_strength__testing": {
+          "applicability_id": "barbell_hip_thrust__general_strength__testing",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__general_strength__competition": {
+          "applicability_id": "barbell_hip_thrust__general_strength__competition",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__powerlifting__training": {
+          "applicability_id": "barbell_hip_thrust__powerlifting__training",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__powerlifting__testing": {
+          "applicability_id": "barbell_hip_thrust__powerlifting__testing",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__powerlifting__competition": {
+          "applicability_id": "barbell_hip_thrust__powerlifting__competition",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__rugby_union__training": {
+          "applicability_id": "barbell_hip_thrust__rugby_union__training",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__rugby_union__testing": {
+          "applicability_id": "barbell_hip_thrust__rugby_union__testing",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__rugby_union__competition": {
+          "applicability_id": "barbell_hip_thrust__rugby_union__competition",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__strongman__training": {
+          "applicability_id": "barbell_hip_thrust__strongman__training",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__strongman__testing": {
+          "applicability_id": "barbell_hip_thrust__strongman__testing",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_hip_thrust__strongman__competition": {
+          "applicability_id": "barbell_hip_thrust__strongman__competition",
+          "exercise_id": "barbell_hip_thrust",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__general_strength__training": {
+          "applicability_id": "dip__general_strength__training",
+          "exercise_id": "dip",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__general_strength__testing": {
+          "applicability_id": "dip__general_strength__testing",
+          "exercise_id": "dip",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__general_strength__competition": {
+          "applicability_id": "dip__general_strength__competition",
+          "exercise_id": "dip",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__powerlifting__training": {
+          "applicability_id": "dip__powerlifting__training",
+          "exercise_id": "dip",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__powerlifting__testing": {
+          "applicability_id": "dip__powerlifting__testing",
+          "exercise_id": "dip",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__powerlifting__competition": {
+          "applicability_id": "dip__powerlifting__competition",
+          "exercise_id": "dip",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__rugby_union__training": {
+          "applicability_id": "dip__rugby_union__training",
+          "exercise_id": "dip",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__rugby_union__testing": {
+          "applicability_id": "dip__rugby_union__testing",
+          "exercise_id": "dip",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__rugby_union__competition": {
+          "applicability_id": "dip__rugby_union__competition",
+          "exercise_id": "dip",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__general_strength__training": {
+          "applicability_id": "shrug__general_strength__training",
+          "exercise_id": "shrug",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__general_strength__testing": {
+          "applicability_id": "shrug__general_strength__testing",
+          "exercise_id": "shrug",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__general_strength__competition": {
+          "applicability_id": "shrug__general_strength__competition",
+          "exercise_id": "shrug",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__powerlifting__training": {
+          "applicability_id": "shrug__powerlifting__training",
+          "exercise_id": "shrug",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__powerlifting__testing": {
+          "applicability_id": "shrug__powerlifting__testing",
+          "exercise_id": "shrug",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__powerlifting__competition": {
+          "applicability_id": "shrug__powerlifting__competition",
+          "exercise_id": "shrug",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__rugby_union__training": {
+          "applicability_id": "shrug__rugby_union__training",
+          "exercise_id": "shrug",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__rugby_union__testing": {
+          "applicability_id": "shrug__rugby_union__testing",
+          "exercise_id": "shrug",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__rugby_union__competition": {
+          "applicability_id": "shrug__rugby_union__competition",
+          "exercise_id": "shrug",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__strongman__training": {
+          "applicability_id": "shrug__strongman__training",
+          "exercise_id": "shrug",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__strongman__testing": {
+          "applicability_id": "shrug__strongman__testing",
+          "exercise_id": "shrug",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "shrug__strongman__competition": {
+          "applicability_id": "shrug__strongman__competition",
+          "exercise_id": "shrug",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__general_strength__training": {
+          "applicability_id": "front_raise__general_strength__training",
+          "exercise_id": "front_raise",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__general_strength__testing": {
+          "applicability_id": "front_raise__general_strength__testing",
+          "exercise_id": "front_raise",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__general_strength__competition": {
+          "applicability_id": "front_raise__general_strength__competition",
+          "exercise_id": "front_raise",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__powerlifting__training": {
+          "applicability_id": "front_raise__powerlifting__training",
+          "exercise_id": "front_raise",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__powerlifting__testing": {
+          "applicability_id": "front_raise__powerlifting__testing",
+          "exercise_id": "front_raise",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__powerlifting__competition": {
+          "applicability_id": "front_raise__powerlifting__competition",
+          "exercise_id": "front_raise",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__rugby_union__training": {
+          "applicability_id": "front_raise__rugby_union__training",
+          "exercise_id": "front_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__rugby_union__testing": {
+          "applicability_id": "front_raise__rugby_union__testing",
+          "exercise_id": "front_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_raise__rugby_union__competition": {
+          "applicability_id": "front_raise__rugby_union__competition",
+          "exercise_id": "front_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__general_strength__training": {
+          "applicability_id": "t_bar_row__general_strength__training",
+          "exercise_id": "t_bar_row",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__general_strength__testing": {
+          "applicability_id": "t_bar_row__general_strength__testing",
+          "exercise_id": "t_bar_row",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__general_strength__competition": {
+          "applicability_id": "t_bar_row__general_strength__competition",
+          "exercise_id": "t_bar_row",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__powerlifting__training": {
+          "applicability_id": "t_bar_row__powerlifting__training",
+          "exercise_id": "t_bar_row",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__powerlifting__testing": {
+          "applicability_id": "t_bar_row__powerlifting__testing",
+          "exercise_id": "t_bar_row",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__powerlifting__competition": {
+          "applicability_id": "t_bar_row__powerlifting__competition",
+          "exercise_id": "t_bar_row",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__rugby_union__training": {
+          "applicability_id": "t_bar_row__rugby_union__training",
+          "exercise_id": "t_bar_row",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__rugby_union__testing": {
+          "applicability_id": "t_bar_row__rugby_union__testing",
+          "exercise_id": "t_bar_row",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "t_bar_row__rugby_union__competition": {
+          "applicability_id": "t_bar_row__rugby_union__competition",
+          "exercise_id": "t_bar_row",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__general_strength__training": {
+          "applicability_id": "chest_supported_row__general_strength__training",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__general_strength__testing": {
+          "applicability_id": "chest_supported_row__general_strength__testing",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__general_strength__competition": {
+          "applicability_id": "chest_supported_row__general_strength__competition",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__rugby_union__training": {
+          "applicability_id": "chest_supported_row__rugby_union__training",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__rugby_union__testing": {
+          "applicability_id": "chest_supported_row__rugby_union__testing",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chest_supported_row__rugby_union__competition": {
+          "applicability_id": "chest_supported_row__rugby_union__competition",
+          "exercise_id": "chest_supported_row",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__general_strength__training": {
+          "applicability_id": "inverted_row__general_strength__training",
+          "exercise_id": "inverted_row",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__general_strength__testing": {
+          "applicability_id": "inverted_row__general_strength__testing",
+          "exercise_id": "inverted_row",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__general_strength__competition": {
+          "applicability_id": "inverted_row__general_strength__competition",
+          "exercise_id": "inverted_row",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__rugby_union__training": {
+          "applicability_id": "inverted_row__rugby_union__training",
+          "exercise_id": "inverted_row",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__rugby_union__testing": {
+          "applicability_id": "inverted_row__rugby_union__testing",
+          "exercise_id": "inverted_row",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inverted_row__rugby_union__competition": {
+          "applicability_id": "inverted_row__rugby_union__competition",
+          "exercise_id": "inverted_row",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__general_strength__training": {
+          "applicability_id": "landmine_press__general_strength__training",
+          "exercise_id": "landmine_press",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__general_strength__testing": {
+          "applicability_id": "landmine_press__general_strength__testing",
+          "exercise_id": "landmine_press",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__general_strength__competition": {
+          "applicability_id": "landmine_press__general_strength__competition",
+          "exercise_id": "landmine_press",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__powerlifting__training": {
+          "applicability_id": "landmine_press__powerlifting__training",
+          "exercise_id": "landmine_press",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__powerlifting__testing": {
+          "applicability_id": "landmine_press__powerlifting__testing",
+          "exercise_id": "landmine_press",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__powerlifting__competition": {
+          "applicability_id": "landmine_press__powerlifting__competition",
+          "exercise_id": "landmine_press",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__rugby_union__training": {
+          "applicability_id": "landmine_press__rugby_union__training",
+          "exercise_id": "landmine_press",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__rugby_union__testing": {
+          "applicability_id": "landmine_press__rugby_union__testing",
+          "exercise_id": "landmine_press",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__rugby_union__competition": {
+          "applicability_id": "landmine_press__rugby_union__competition",
+          "exercise_id": "landmine_press",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__strongman__training": {
+          "applicability_id": "landmine_press__strongman__training",
+          "exercise_id": "landmine_press",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__strongman__testing": {
+          "applicability_id": "landmine_press__strongman__testing",
+          "exercise_id": "landmine_press",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "landmine_press__strongman__competition": {
+          "applicability_id": "landmine_press__strongman__competition",
+          "exercise_id": "landmine_press",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__general_strength__training": {
+          "applicability_id": "arnold_press__general_strength__training",
+          "exercise_id": "arnold_press",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__general_strength__testing": {
+          "applicability_id": "arnold_press__general_strength__testing",
+          "exercise_id": "arnold_press",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__general_strength__competition": {
+          "applicability_id": "arnold_press__general_strength__competition",
+          "exercise_id": "arnold_press",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__rugby_union__training": {
+          "applicability_id": "arnold_press__rugby_union__training",
+          "exercise_id": "arnold_press",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__rugby_union__testing": {
+          "applicability_id": "arnold_press__rugby_union__testing",
+          "exercise_id": "arnold_press",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "arnold_press__rugby_union__competition": {
+          "applicability_id": "arnold_press__rugby_union__competition",
+          "exercise_id": "arnold_press",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__general_strength__training": {
+          "applicability_id": "upright_row__general_strength__training",
+          "exercise_id": "upright_row",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__general_strength__testing": {
+          "applicability_id": "upright_row__general_strength__testing",
+          "exercise_id": "upright_row",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__general_strength__competition": {
+          "applicability_id": "upright_row__general_strength__competition",
+          "exercise_id": "upright_row",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__rugby_union__training": {
+          "applicability_id": "upright_row__rugby_union__training",
+          "exercise_id": "upright_row",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__rugby_union__testing": {
+          "applicability_id": "upright_row__rugby_union__testing",
+          "exercise_id": "upright_row",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "upright_row__rugby_union__competition": {
+          "applicability_id": "upright_row__rugby_union__competition",
+          "exercise_id": "upright_row",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__general_strength__training": {
+          "applicability_id": "pullover__general_strength__training",
+          "exercise_id": "pullover",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__general_strength__testing": {
+          "applicability_id": "pullover__general_strength__testing",
+          "exercise_id": "pullover",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__general_strength__competition": {
+          "applicability_id": "pullover__general_strength__competition",
+          "exercise_id": "pullover",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__rugby_union__training": {
+          "applicability_id": "pullover__rugby_union__training",
+          "exercise_id": "pullover",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__rugby_union__testing": {
+          "applicability_id": "pullover__rugby_union__testing",
+          "exercise_id": "pullover",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pullover__rugby_union__competition": {
+          "applicability_id": "pullover__rugby_union__competition",
+          "exercise_id": "pullover",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__general_strength__training": {
+          "applicability_id": "concentration_curl__general_strength__training",
+          "exercise_id": "concentration_curl",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__general_strength__testing": {
+          "applicability_id": "concentration_curl__general_strength__testing",
+          "exercise_id": "concentration_curl",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__general_strength__competition": {
+          "applicability_id": "concentration_curl__general_strength__competition",
+          "exercise_id": "concentration_curl",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__rugby_union__training": {
+          "applicability_id": "concentration_curl__rugby_union__training",
+          "exercise_id": "concentration_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__rugby_union__testing": {
+          "applicability_id": "concentration_curl__rugby_union__testing",
+          "exercise_id": "concentration_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "concentration_curl__rugby_union__competition": {
+          "applicability_id": "concentration_curl__rugby_union__competition",
+          "exercise_id": "concentration_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__general_strength__training": {
+          "applicability_id": "zottman_curl__general_strength__training",
+          "exercise_id": "zottman_curl",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__general_strength__testing": {
+          "applicability_id": "zottman_curl__general_strength__testing",
+          "exercise_id": "zottman_curl",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__general_strength__competition": {
+          "applicability_id": "zottman_curl__general_strength__competition",
+          "exercise_id": "zottman_curl",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__rugby_union__training": {
+          "applicability_id": "zottman_curl__rugby_union__training",
+          "exercise_id": "zottman_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__rugby_union__testing": {
+          "applicability_id": "zottman_curl__rugby_union__testing",
+          "exercise_id": "zottman_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__rugby_union__competition": {
+          "applicability_id": "zottman_curl__rugby_union__competition",
+          "exercise_id": "zottman_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__general_strength__training": {
+          "applicability_id": "reverse_hyper__general_strength__training",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__general_strength__testing": {
+          "applicability_id": "reverse_hyper__general_strength__testing",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__general_strength__competition": {
+          "applicability_id": "reverse_hyper__general_strength__competition",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__powerlifting__training": {
+          "applicability_id": "reverse_hyper__powerlifting__training",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "powerlifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__powerlifting__testing": {
+          "applicability_id": "reverse_hyper__powerlifting__testing",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "powerlifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__powerlifting__competition": {
+          "applicability_id": "reverse_hyper__powerlifting__competition",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "powerlifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__rugby_union__training": {
+          "applicability_id": "reverse_hyper__rugby_union__training",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__rugby_union__testing": {
+          "applicability_id": "reverse_hyper__rugby_union__testing",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_hyper__rugby_union__competition": {
+          "applicability_id": "reverse_hyper__rugby_union__competition",
+          "exercise_id": "reverse_hyper",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__general_strength__training": {
+          "applicability_id": "nordic_curl__general_strength__training",
+          "exercise_id": "nordic_curl",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__general_strength__testing": {
+          "applicability_id": "nordic_curl__general_strength__testing",
+          "exercise_id": "nordic_curl",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__general_strength__competition": {
+          "applicability_id": "nordic_curl__general_strength__competition",
+          "exercise_id": "nordic_curl",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__rugby_union__training": {
+          "applicability_id": "nordic_curl__rugby_union__training",
+          "exercise_id": "nordic_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__rugby_union__testing": {
+          "applicability_id": "nordic_curl__rugby_union__testing",
+          "exercise_id": "nordic_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "nordic_curl__rugby_union__competition": {
+          "applicability_id": "nordic_curl__rugby_union__competition",
+          "exercise_id": "nordic_curl",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__general_strength__training": {
+          "applicability_id": "glute_ham_raise__general_strength__training",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__general_strength__testing": {
+          "applicability_id": "glute_ham_raise__general_strength__testing",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__general_strength__competition": {
+          "applicability_id": "glute_ham_raise__general_strength__competition",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__rugby_union__training": {
+          "applicability_id": "glute_ham_raise__rugby_union__training",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__rugby_union__testing": {
+          "applicability_id": "glute_ham_raise__rugby_union__testing",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "glute_ham_raise__rugby_union__competition": {
+          "applicability_id": "glute_ham_raise__rugby_union__competition",
+          "exercise_id": "glute_ham_raise",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__general_strength__training": {
+          "applicability_id": "kettlebell_swing__general_strength__training",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__general_strength__testing": {
+          "applicability_id": "kettlebell_swing__general_strength__testing",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__general_strength__competition": {
+          "applicability_id": "kettlebell_swing__general_strength__competition",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__rugby_union__training": {
+          "applicability_id": "kettlebell_swing__rugby_union__training",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__rugby_union__testing": {
+          "applicability_id": "kettlebell_swing__rugby_union__testing",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__rugby_union__competition": {
+          "applicability_id": "kettlebell_swing__rugby_union__competition",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__strongman__training": {
+          "applicability_id": "kettlebell_swing__strongman__training",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__strongman__testing": {
+          "applicability_id": "kettlebell_swing__strongman__testing",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_swing__strongman__competition": {
+          "applicability_id": "kettlebell_swing__strongman__competition",
+          "exercise_id": "kettlebell_swing",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__general_strength__training": {
+          "applicability_id": "box_step_up__general_strength__training",
+          "exercise_id": "box_step_up",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__general_strength__testing": {
+          "applicability_id": "box_step_up__general_strength__testing",
+          "exercise_id": "box_step_up",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__general_strength__competition": {
+          "applicability_id": "box_step_up__general_strength__competition",
+          "exercise_id": "box_step_up",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__rugby_union__training": {
+          "applicability_id": "box_step_up__rugby_union__training",
+          "exercise_id": "box_step_up",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__rugby_union__testing": {
+          "applicability_id": "box_step_up__rugby_union__testing",
+          "exercise_id": "box_step_up",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "box_step_up__rugby_union__competition": {
+          "applicability_id": "box_step_up__rugby_union__competition",
+          "exercise_id": "box_step_up",
+          "activity_id": "rugby_union",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

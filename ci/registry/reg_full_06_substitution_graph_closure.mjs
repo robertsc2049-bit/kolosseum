@@ -37,6 +37,9 @@ export const REG_FULL_06_EQUIPMENT_LEVEL = Object.freeze({
   box: 2,
   machine_general: 2,
   cardio_machine_general: 2,
+  landmine_attachment: 2,
+  dip_bars: 2,
+  glute_ham_bench: 2,
   yoke: 3,
   atlas_stone: 3,
   strongman_log: 3,
@@ -210,7 +213,7 @@ export function auditRegFull06Documents(docs) {
   const expectedActivities = [...REG_FULL_06_ACTIVITIES].sort();
 
   if (!sameJson(activities, expectedActivities)) push(errors, "ACTIVITY_SCOPE", activities);
-  if (Object.keys(ex).length !== 221) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
+  if (Object.keys(ex).length !== 244) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
   if (Object.keys(mv).length !== 54) push(errors, "MOVEMENT_COUNT", Object.keys(mv).length);
   if (docs.substitution?.registry_id !== "substitution_registry" || docs.substitution?.version !== "1.0.0") push(errors, "SUBSTITUTION_HEADER", { registry_id: docs.substitution?.registry_id, version: docs.substitution?.version });
   if (Object.keys(sub).length === 0) push(errors, "EMPTY_SUBSTITUTION_REGISTRY", null);

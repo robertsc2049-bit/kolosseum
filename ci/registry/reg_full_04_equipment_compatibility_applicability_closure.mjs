@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const TOKEN = "CI_REG_FULL_04_EQUIPMENT_COMPATIBILITY_APPLICABILITY_CLOSURE";
-export const EXPECTED_EXERCISE_COUNT = 221;
+export const EXPECTED_EXERCISE_COUNT = 244;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
 export const VALID_COMPATIBILITY_TYPES = Object.freeze(["required", "alternative"]);
 export const PATHS = Object.freeze({
