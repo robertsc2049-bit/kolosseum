@@ -49,8 +49,8 @@
     "program",
     "equipment"
   ],
-  "activated_record_count": 17,
-  "exercise_records_annotated_count": 215,
+  "activated_record_count": 33,
+  "exercise_records_annotated_count": 221,
   "human_authorisation": {
     "authorised_by": "repository owner",
     "authorisation_method": "explicit_chat_instruction",
