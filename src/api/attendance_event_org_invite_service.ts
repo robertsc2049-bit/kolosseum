@@ -28,6 +28,14 @@
 // (see attendance_event_invite_service.ts), the resulting invite list is
 // naturally a point-in-time snapshot - a coach who joins the org later
 // never retroactively appears on a past event.
+//
+// resolveOrgActiveCoachAcceptedAthletes/activeCoachIdsForOrg below are
+// exported for reuse by attendance_event_gym_roster_service.ts (slice
+// 4) - that file's individual-mode owner-facing gate is intentionally
+// separate from this file's coach-facing gate (owner sessions and coach
+// sessions are different account universes), but the underlying
+// "which athletes are currently accepted across this org's active
+// coaches" computation is identical either way.
 
 import { pool } from "../db/pool.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
@@ -89,7 +97,7 @@ export async function requireActiveSharedOrgMembership(
   return orgId;
 }
 
-async function activeCoachIdsForOrg(orgId: string): Promise<readonly string[]> {
+export async function activeCoachIdsForOrg(orgId: string): Promise<readonly string[]> {
   const result = await pool.query(
     `SELECT coach_user_id FROM product_org_coach_memberships WHERE org_id = $1 AND membership_status = 'active'`,
     [orgId]
@@ -97,7 +105,7 @@ async function activeCoachIdsForOrg(orgId: string): Promise<readonly string[]> {
   return result.rows.map((row) => cleanString(row.coach_user_id)).filter(Boolean);
 }
 
-export type SharedOrgAthleteOption = Readonly<{
+export type OrgActiveCoachAthleteOption = Readonly<{
   athlete_user_id: string;
   display_name: string;
   email: string | null;
@@ -105,13 +113,18 @@ export type SharedOrgAthleteOption = Readonly<{
 }>;
 
 // Every currently-accepted athlete belonging to any ACTIVE coach in this
-// shared-mode org, full identity - reuses listConnectedCoachAthletes
-// (the same per-coach accepted-roster resolver slice 1 already uses)
-// once per active coach, rather than hand-rolling a cross-coach SQL
-// query that would have to re-derive that function's relationship-
-// expiry logic from scratch. An org's active-coach count is small
-// (a team/gym roster), so N per-coach calls is not a real cost.
-async function resolveSharedOrgAcceptedAthletes(orgId: string): Promise<readonly SharedOrgAthleteOption[]> {
+// org, full identity - visibility-mode-agnostic (the caller's own gate
+// decides whether reaching this point was authorized; this function
+// itself has no opinion on 'shared' vs 'individual') - reused by both
+// this file's shared-mode coach-facing gate and
+// attendance_event_gym_roster_service.ts's individual-mode owner-facing
+// gate (slice 4). Reuses listConnectedCoachAthletes (the same per-coach
+// accepted-roster resolver slice 1 already uses) once per active coach,
+// rather than hand-rolling a cross-coach SQL query that would have to
+// re-derive that function's relationship-expiry logic from scratch. An
+// org's active-coach count is small (a team/gym roster), so N per-coach
+// calls is not a real cost.
+export async function resolveOrgActiveCoachAcceptedAthletes(orgId: string): Promise<readonly OrgActiveCoachAthleteOption[]> {
   const coachIds = await activeCoachIdsForOrg(orgId);
   if (coachIds.length === 0) return Object.freeze([]);
 
@@ -126,7 +139,7 @@ async function resolveSharedOrgAcceptedAthletes(orgId: string): Promise<readonly
   }));
 
   const seen = new Set<string>();
-  const deduped: SharedOrgAthleteOption[] = [];
+  const deduped: OrgActiveCoachAthleteOption[] = [];
   for (const athlete of perCoach.flat()) {
     if (!athlete.athlete_user_id || seen.has(athlete.athlete_user_id)) continue;
     seen.add(athlete.athlete_user_id);
@@ -142,9 +155,9 @@ async function resolveSharedOrgAcceptedAthletes(orgId: string): Promise<readonly
 export async function listSharedOrgAcceptedAthletes(
   coachUserIdInput: string,
   orgIdInput: unknown
-): Promise<readonly SharedOrgAthleteOption[]> {
+): Promise<readonly OrgActiveCoachAthleteOption[]> {
   const orgId = await requireActiveSharedOrgMembership(coachUserIdInput, orgIdInput);
-  return resolveSharedOrgAcceptedAthletes(orgId);
+  return resolveOrgActiveCoachAcceptedAthletes(orgId);
 }
 
 // Validates a requested invite list is fully within the org's current
@@ -167,7 +180,7 @@ export async function assertOrgAthletesCurrentlyAccepted(
     throw new AttendanceEventOrgInviteError("invite_athlete_ids_required");
   }
 
-  const roster = await resolveSharedOrgAcceptedAthletes(orgId);
+  const roster = await resolveOrgActiveCoachAcceptedAthletes(orgId);
   const rosterIds = new Set(roster.map((athlete) => athlete.athlete_user_id));
   for (const athleteId of requestedAthleteIds) {
     if (!rosterIds.has(athleteId)) {
