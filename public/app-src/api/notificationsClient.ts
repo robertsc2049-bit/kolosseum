@@ -24,7 +24,10 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   video_feedback_received: "Coach feedback on your video",
   athlete_goal_achieved: "Goal achieved",
   video_submitted: "New video submitted for review",
-  marketplace_template_sold: "Template sold"
+  marketplace_template_sold: "Template sold",
+  attendance_event_invited: "Invited to an event",
+  attendance_event_cancelled: "Event cancelled",
+  attendance_event_occurrence_changed: "Event occurrence changed"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {

@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 316
+- implemented: 317
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -393,7 +393,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 15 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 16 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -412,6 +412,7 @@ Implemented: 15 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_athlete_goal_achieved` — Notify a coach when one of their accepted athletes marks a goal achieved, deep-linking straight to that athlete's profile
 - `notification_video_submitted` — Notify a coach when one of their accepted athletes submits a new exercise video, deep-linking straight to that athlete's review queue
 - `notification_marketplace_template_sold` — Notify the selling coach when another coach buys their released marketplace template, deep-linking straight to their own original template
+- `notification_attendance_event` — Notify an invited athlete when they're invited to an attendance event, when that event is cancelled, or when one of its occurrences is skipped or rescheduled - deep-linking to the athlete's own attendance view
 
 ### Data rights and consent
 
@@ -769,6 +770,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-74: implemented
 - FULL-UI-75: implemented
 - FULL-UI-76: implemented
+- FULL-UI-77: implemented
 
 ## Prohibited capabilities
 

@@ -1161,6 +1161,44 @@ ALTER TABLE product_notifications
       )
     );
 
+-- product_notifications_attendance_events_slice_5_type_migration
+-- Additive attendance-events slice 5 notification types
+-- (attendance_event_invited/attendance_event_cancelled/
+-- attendance_event_occurrence_changed) - same reason and same DROP/ADD
+-- pattern as the FULL-UI-75 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed'
+      )
+    );
+
 -- FULL-UI-20 factual status, support and error-reporting.
 -- Every row stores only an explicit, narrow allowlist of caller-supplied
 -- context (never a raw error payload, stack trace, header set, cookie or
