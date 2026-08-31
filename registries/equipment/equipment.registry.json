@@ -1,6 +1,6 @@
 {
   "registry_id": "equipment",
-  "version": "1.3.0",
+  "version": "1.2.0",
   "entries": {
     "barbell": {
       "equipment_id": "barbell",
@@ -612,60 +612,6 @@
         "conditioning_general"
       ],
       "substitution_relevance": "activity_specific_option",
-      "template_relevance": "template_selectable",
-      "low_equipment_alternative_relevance": "not_low_equipment",
-      "copy_legal_boundary_notes": "Factual equipment label only."
-    },
-    "landmine_attachment": {
-      "equipment_id": "landmine_attachment",
-      "display_label": "Landmine attachment",
-      "equipment_class": "fixed_support",
-      "activity_applicability": [
-        "general_strength",
-        "powerlifting",
-        "rugby_union",
-        "strongman"
-      ],
-      "movement_pattern_applicability": [
-        "horizontal_pull",
-        "angled_push"
-      ],
-      "substitution_relevance": "required_or_lateral_swap",
-      "template_relevance": "template_selectable",
-      "low_equipment_alternative_relevance": "not_low_equipment",
-      "copy_legal_boundary_notes": "Factual equipment label only."
-    },
-    "dip_bars": {
-      "equipment_id": "dip_bars",
-      "display_label": "Dip bars",
-      "equipment_class": "fixed_support",
-      "activity_applicability": [
-        "general_strength",
-        "powerlifting",
-        "rugby_union"
-      ],
-      "movement_pattern_applicability": [
-        "decline_push"
-      ],
-      "substitution_relevance": "required_or_lateral_swap",
-      "template_relevance": "template_selectable",
-      "low_equipment_alternative_relevance": "not_low_equipment",
-      "copy_legal_boundary_notes": "Factual equipment label only."
-    },
-    "glute_ham_bench": {
-      "equipment_id": "glute_ham_bench",
-      "display_label": "Glute-ham bench",
-      "equipment_class": "fixed_support",
-      "activity_applicability": [
-        "general_strength",
-        "powerlifting",
-        "rugby_union"
-      ],
-      "movement_pattern_applicability": [
-        "hip_extension_isolation",
-        "knee_flexion_isolation"
-      ],
-      "substitution_relevance": "required_or_lateral_swap",
       "template_relevance": "template_selectable",
       "low_equipment_alternative_relevance": "not_low_equipment",
       "copy_legal_boundary_notes": "Factual equipment label only."

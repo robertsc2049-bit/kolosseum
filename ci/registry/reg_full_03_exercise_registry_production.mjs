@@ -2,13 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 export const TOKEN = "CI_REG_FULL_03_EXERCISE_REGISTRY_PRODUCTION";
-export const EXPECTED_EXERCISE_COUNT = 244;
+export const EXPECTED_EXERCISE_COUNT = 221;
 export const EXPECTED_TOKEN_COUNT = 4;
-export const EXPECTED_APPLICABILITY_COUNT = 2019;
+export const EXPECTED_APPLICABILITY_COUNT = 1827;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
 export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
-export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 176, general_strength: 238, rugby_union: 237, strongman: 22 });
-export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54, strongman: 8 });
+export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 165, general_strength: 215, rugby_union: 215, strongman: 14 });
+export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54, strongman: 5 });
 
 export const REQUIRED_CANONICAL_FIELDS = Object.freeze([
   "exercise_id", "display_label", "movement_pattern_id", "primary_activity_applicability",

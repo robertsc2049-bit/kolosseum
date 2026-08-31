@@ -59,11 +59,11 @@ test("REG-FULL-09 reports the exact final closure counts", () => {
   assert.ok(c.fk_reference_count > 0);
   assert.equal(c.dependency_gate_count, 10);
   assert.equal(c.dependency_failure_count, 0);
-  assert.equal(c.exercise_count, 244);
-  assert.equal(c.resolved_exercise_count, 244);
-  assert.equal(c.equipment_compatibility_edge_count, 501);
-  assert.equal(c.activity_relation_pair_count, 673);
-  assert.equal(c.applicability_row_count, 2019);
+  assert.equal(c.exercise_count, 221);
+  assert.equal(c.resolved_exercise_count, 221);
+  assert.equal(c.equipment_compatibility_edge_count, 453);
+  assert.equal(c.activity_relation_pair_count, 609);
+  assert.equal(c.applicability_row_count, 1827);
   assert.equal(c.programme_template_count, 12);
   assert.equal(c.powerlifting_template_count, 4);
   assert.equal(c.general_strength_template_count, 3);
@@ -71,14 +71,14 @@ test("REG-FULL-09 reports the exact final closure counts", () => {
   assert.equal(c.strongman_template_count, 1);
   assert.equal(c.low_equipment_template_count, 2);
   assert.equal(c.programme_template_coverage_gap_count, 0);
-  assert.equal(c.substitution_edge_count, 896);
-  assert.equal(c.substitution_source_count, 209);
-  assert.equal(c.substitution_target_count, 212);
+  assert.equal(c.substitution_edge_count, 737);
+  assert.equal(c.substitution_source_count, 191);
+  assert.equal(c.substitution_target_count, 192);
   assert.equal(c.substitution_reachability_gap_count, 0);
   assert.equal(c.copy_source_file_count, 18);
-  assert.equal(c.copy_source_record_count, 3933);
-  assert.equal(c.copy_provenance_record_count, 3933);
-  assert.equal(c.exact_copy_control_count, 6355);
+  assert.equal(c.copy_source_record_count, 3508);
+  assert.equal(c.copy_provenance_record_count, 3508);
+  assert.equal(c.exact_copy_control_count, 5697);
 });
 
 test("REG-FULL-09 does not require fabricated data for schema-only closed authorities", () => {
