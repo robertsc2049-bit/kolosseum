@@ -168,6 +168,150 @@
       <p id="orgProgressError" class="muted small" hidden></p>
     </section>
 
+    <section id="orgAttendanceSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Attendance</p>
+          <h2>Gym-wide events for <strong id="orgAttendanceOrgName"></strong></h2>
+        </div>
+        <button id="orgAttendanceBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <form id="orgAttendanceCreateForm">
+        <label class="field">
+          <span>Title</span>
+          <input id="orgAttendanceTitle" type="text" maxlength="120" required />
+        </label>
+        <label class="field">
+          <span>Description</span>
+          <textarea id="orgAttendanceDescription" maxlength="1000"></textarea>
+        </label>
+        <label class="field">
+          <span>Location</span>
+          <input id="orgAttendanceLocation" type="text" maxlength="200" />
+        </label>
+        <label class="field">
+          <span>Activity</span>
+          <input id="orgAttendanceActivity" type="text" maxlength="80" placeholder="e.g. CrossFit class" />
+        </label>
+        <label class="field">
+          <span>Date</span>
+          <input id="orgAttendanceDate" type="date" required />
+        </label>
+        <label class="field">
+          <span>Start time</span>
+          <input id="orgAttendanceStartTime" type="time" />
+        </label>
+        <label class="field">
+          <span>End time</span>
+          <input id="orgAttendanceEndTime" type="time" />
+        </label>
+
+        <fieldset>
+          <legend>Repeats</legend>
+          <label class="checkbox-field">
+            <input id="orgAttendanceRepeats" type="checkbox" />
+            <span>This event repeats</span>
+          </label>
+
+          <div id="orgAttendanceRecurrenceFields" hidden>
+            <label class="field">
+              <span>Frequency</span>
+              <select id="orgAttendanceFrequency">
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Every</span>
+              <input id="orgAttendanceInterval" type="number" min="1" max="52" value="1" />
+            </label>
+
+            <fieldset id="orgAttendanceWeekdaysFieldset">
+              <legend>On these days</legend>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="mon" /><span>Mon</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="tue" /><span>Tue</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="wed" /><span>Wed</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="thu" /><span>Thu</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="fri" /><span>Fri</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="sat" /><span>Sat</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="sun" /><span>Sun</span></label>
+            </fieldset>
+
+            <fieldset>
+              <legend>Ends</legend>
+              <label class="radio-field">
+                <input type="radio" name="orgAttendanceEndsType" value="after_count" checked />
+                <span>After a number of occurrences</span>
+              </label>
+              <label class="field">
+                <span>Number of occurrences</span>
+                <input id="orgAttendanceEndsAfterCount" type="number" min="1" max="200" value="10" />
+              </label>
+              <label class="radio-field">
+                <input type="radio" name="orgAttendanceEndsType" value="on_date" />
+                <span>On a specific date</span>
+              </label>
+              <label class="field">
+                <span>End date</span>
+                <input id="orgAttendanceEndsOnDate" type="date" />
+              </label>
+            </fieldset>
+          </div>
+        </fieldset>
+
+        <p class="muted small">Every currently-accepted athlete across every coach in this organisation is invited automatically.</p>
+        <div class="button-row">
+          <button class="button primary" type="submit">Create event</button>
+        </div>
+      </form>
+      <p id="orgAttendanceCreateError" class="muted small" hidden></p>
+      <p id="orgAttendanceCreateSuccess" class="muted small" hidden></p>
+
+      <div id="orgAttendanceList" class="record-list"></div>
+      <p id="orgAttendanceError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgAttendanceDetailSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Attendance</p>
+          <h2 id="orgAttendanceDetailTitle"></h2>
+        </div>
+        <button id="orgAttendanceDetailBackButton" class="button secondary" type="button">Back to events</button>
+      </div>
+
+      <h3>Occurrences</h3>
+      <div id="orgAttendanceDetailOccurrences" class="record-list"></div>
+
+      <div id="orgAttendanceRescheduleForm" hidden>
+        <label class="field">
+          <span>New date</span>
+          <input id="orgAttendanceRescheduleDate" type="date" />
+        </label>
+        <label class="field">
+          <span>New start time</span>
+          <input id="orgAttendanceRescheduleStartTime" type="time" />
+        </label>
+        <label class="field">
+          <span>New end time</span>
+          <input id="orgAttendanceRescheduleEndTime" type="time" />
+        </label>
+        <div class="button-row">
+          <button id="orgAttendanceRescheduleConfirmButton" class="button primary small-button" type="button">Confirm reschedule</button>
+          <button id="orgAttendanceRescheduleCancelButton" class="button secondary small-button" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <h3>Roster</h3>
+      <div id="orgAttendanceDetailRoster" class="record-list"></div>
+      <p id="orgAttendanceDetailError" class="muted small" hidden></p>
+
+      <div class="button-row">
+        <button id="orgAttendanceCancelEventButton" class="button secondary" type="button">Cancel event</button>
+      </div>
+    </section>
+
     <section id="orgAuditSection" class="panel" hidden>
       <div class="button-row" style="justify-content: space-between;">
         <div>

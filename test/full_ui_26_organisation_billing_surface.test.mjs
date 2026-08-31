@@ -39,6 +39,7 @@ const orgMessagesPanel = read("public/app-src/screens/account/AccountOrgMessages
 const orgContextHook = read("public/app-src/screens/account/useAccountOrgContext.ts");
 const orgContextPanel = read("public/app-src/screens/account/AccountOrgContextPanel.tsx");
 const accountRelationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+const attendanceGymRosterService = read("src/api/attendance_event_gym_roster_service.ts");
 
 const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
 
@@ -218,8 +219,9 @@ function extractFunctionSource(source, functionName) {
 }
 
 // org_visibility_service.ts (part C), org_athlete_messaging_service.ts
-// (part D.4) and org_progress_rollup_service.ts (progress graphs slices
-// 4-5) are the three deliberate, explicitly-gated exceptions to the
+// (part D.4), org_progress_rollup_service.ts (progress graphs slices
+// 4-5) and attendance_event_gym_roster_service.ts (attendance events
+// slice 4) are the four deliberate, explicitly-gated exceptions to the
 // "no org file ever reads or writes athlete-scoped data" rule proved by
 // the test above - none is added to orgFiles, and must never be: doing
 // so would make that test correctly fail the moment its real
@@ -229,8 +231,8 @@ function extractFunctionSource(source, functionName) {
 // path does. org_athlete_messaging_service.ts reuses that exact same
 // visibility_mode gate for its own boundary (proved in the dedicated
 // D.4 test below) - it is only ever reachable for 'shared'-mode orgs.
-// org_progress_rollup_service.ts is the odd one out structurally:
-// unlike the other two, it never queries beta_product_records/
+// org_progress_rollup_service.ts is structurally different from the
+// other two: it never queries beta_product_records/
 // beta17_coach_relationship itself at all (its only direct data-access
 // path is calling getOrgAthleteVisibility()), but it IS reachable for
 // BOTH modes - its 'individual'-mode branch does its own separate
@@ -238,7 +240,17 @@ function extractFunctionSource(source, functionName) {
 // getProgressInsightsForCoach) to compute an average, so it carries its
 // own additional k-anonymity-style cohort-size gate rather than simply
 // refusing the individual-mode branch outright.
-test("org_visibility_service.ts, org_athlete_messaging_service.ts and org_progress_rollup_service.ts are the only three explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
+// attendance_event_gym_roster_service.ts is the fourth: like
+// org_progress_rollup_service.ts it never queries beta_product_records/
+// beta17_coach_relationship directly either, composing already-tested
+// attendance-events functions instead - but unlike every other
+// exception, it is reachable ONLY for 'individual'-mode orgs (a shared-
+// mode org's gym-wide event creation is rejected outright - proved by
+// the org-owner-only route), and reveals full, real athlete identity
+// with NO aggregation at all, scoped precisely to an event the org
+// owner themselves created (never a general gym-mode roster read) - see
+// that file's own DEV NOTE.
+test("org_visibility_service.ts, org_athlete_messaging_service.ts, org_progress_rollup_service.ts and attendance_event_gym_roster_service.ts are the only four explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
   assert.match(visibilityService, /beta_product_records/u);
   assert.match(visibilityService, /beta17_coach_relationship/u);
   assert.match(orgAthleteMessagingService, /beta_product_records/u);
@@ -271,6 +283,16 @@ test("org_visibility_service.ts, org_athlete_messaging_service.ts and org_progre
   const rosterFn = extractFunctionSource(visibilityService, "fullRosterForOrg");
   assert.match(rosterFn, /athlete_user_id/u);
   assert.match(rosterFn, /display_name/u);
+
+  // The fourth exception: never queries beta_product_records/
+  // beta17_coach_relationship directly, gates every function on both
+  // active org ownership AND individual-visibility mode, and reveals
+  // real identity only for an event that specific event's owner_org_id/
+  // owner_coach_user_id already ties back to the caller.
+  assert.doesNotMatch(attendanceGymRosterService, /beta_product_records|beta17_coach_relationship/u);
+  assert.match(attendanceGymRosterService, /org\.visibility_mode !== "individual"/u);
+  assert.match(attendanceGymRosterService, /cleanString\(org\.owner_user_id\) !== ownerUserId/u);
+  assert.match(attendanceGymRosterService, /cleanString\(event\.owner_org_id\) !== orgId/u);
 });
 
 // fullRosterForOrg's per-athlete auth lookup used to run inside an inner
@@ -642,6 +664,72 @@ test("the progress-view line chart mirrors LineChart.tsx's design exactly: a lon
   // Deliberately does not import from a shared module - org.js is a
   // standalone, import-free file (proved above).
   assert.doesNotMatch(orgDashboardJs, /from ["']\.\/progressChart\.js["']/u);
+});
+
+// Attendance events slice 4 - gym-mode org-wide events, org-owner-only.
+// Mirrors the Progress button's own precedent exactly: the Attendance
+// button always renders for every organisation regardless of
+// visibility_mode, and the server (never the client) decides what's
+// actually allowed - a shared-mode org's create attempt surfaces as the
+// real 403 error text, not a client-side hidden button.
+test("each organisation card exposes a real, keyboard-reachable button to view gym-wide attendance events, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgAttendanceSection"/u);
+  assert.match(orgDashboardHtml, /<section id="orgAttendanceDetailSection"/u);
+  assert.match(orgDashboardJs, /data-view-attendance="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-attendance=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-attendance\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showAttendanceSection[\s\S]{0,400}orgRosterSection"\)\.hidden = true[\s\S]{0,400}orgBillingSection"\)\.hidden = true[\s\S]{0,400}orgVisibilitySection"\)\.hidden = true[\s\S]{0,400}orgProgressSection"\)\.hidden = true/u
+  );
+  assert.doesNotMatch(orgDashboardJs, /organisation\.visibility_mode[\s\S]{0,80}data-view-attendance/u);
+});
+
+test("the attendance section calls the new org-owner attendance routes, and its create form and back button are real, keyboard-reachable controls", () => {
+  assert.match(orgDashboardHtml, /<form id="orgAttendanceCreateForm">/u);
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAttendanceBackButton"[^>]*type="button"/u,
+    "orgAttendanceBackButton must be a real <button type=\"button\">"
+  );
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAttendanceDetailBackButton"[^>]*type="button"/u,
+    "orgAttendanceDetailBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/attendance-events`\)/u);
+  assert.match(orgDashboardJs, /api\("POST", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/attendance-events`/u);
+
+  for (const path_ of [
+    '"/organisations/:org_id/attendance-events"',
+    '"/organisations/:org_id/attendance-events/:event_id"',
+    '"/organisations/:org_id/attendance-events/:event_id/cancel"',
+    '"/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip"',
+    '"/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"'
+  ]) {
+    assert.ok(ownerRoutes.includes(path_), `expected org owner attendance route ${path_}`);
+  }
+});
+
+test("gym-wide event creation deliberately has no athlete picker in the UI - only descriptive/scheduling fields and the recurrence controls, matching the server's own auto-invite-the-whole-roster design", () => {
+  assert.doesNotMatch(orgDashboardJs, /athlete_user_ids/u, "org.js must never build an explicit invite list - the server auto-invites the whole roster");
+  assert.match(orgDashboardHtml, /invited automatically/u);
+});
+
+test("a skipped occurrence's controls disappear, and a rescheduled occurrence's new date\\/time is actually rendered", () => {
+  assert.match(orgDashboardJs, /occurrence\.status !== "skipped"/u);
+  assert.match(orgDashboardJs, /occurrence\.status === "rescheduled" && occurrence\.rescheduled_to_date/u);
+});
+
+test("athlete names and emails rendered into the gym-wide attendance roster are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /renderAttendanceRoster/u);
+  const fn = orgDashboardJs.slice(
+    orgDashboardJs.indexOf("function renderAttendanceRoster"),
+    orgDashboardJs.indexOf("function renderAttendanceRoster") + 600
+  );
+  assert.match(fn, /escapeHtml\(entry\.display_name\)/u);
+  assert.match(fn, /escapeHtml\(entry\.email \|\| "no email"\)/u);
 });
 
 // Part O.6 - athlete-facing team/org context. The athlete panel used to be

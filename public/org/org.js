@@ -26,7 +26,9 @@ const state = {
   selectedThreadKind: null,
   selectedThreadId: null,
   selectedCounterpartId: null,
-  selectedCounterpartName: ""
+  selectedCounterpartName: "",
+  selectedAttendanceEventId: null,
+  reschedulingOccurrenceId: null
 };
 
 function el(id) {
@@ -112,6 +114,7 @@ function renderOrganisations(organisations) {
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
         <button class="button secondary" type="button" data-view-progress="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Progress</button>
+        <button class="button secondary" type="button" data-view-attendance="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Attendance</button>
         <button class="button secondary" type="button" data-view-messages="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Messages</button>
         <button class="button secondary" type="button" data-view-audit="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Activity log</button>
       </div>
@@ -139,6 +142,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-view-progress]")) {
     button.addEventListener("click", () => {
       showProgressSection(button.getAttribute("data-view-progress"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-attendance]")) {
+    button.addEventListener("click", () => {
+      showAttendanceSection(button.getAttribute("data-view-attendance"), button.getAttribute("data-org-name"));
     });
   }
 
@@ -214,6 +223,8 @@ function showRosterSection(orgId, orgName) {
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -259,6 +270,8 @@ function showBillingSection(orgId, orgName) {
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -350,6 +363,8 @@ function showVisibilitySection(orgId, orgName) {
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
   el("orgVisibilityError").hidden = true;
@@ -569,6 +584,8 @@ function showProgressSection(orgId, orgName) {
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgProgressSection").hidden = false;
   el("orgProgressOrgName").textContent = orgName;
   el("orgProgressError").hidden = true;
@@ -583,8 +600,333 @@ function showProgressSection(orgId, orgName) {
 function hideProgressSection() {
   state.selectedOrgId = null;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
+}
+
+// Attendance events slice 4 - gym-mode (individual-visibility) org-wide
+// events, org-owner-only. Mirrors the "View athletes"/"Progress" pattern
+// exactly: the Attendance button always renders for every organisation
+// (the server decides what's allowed, never the client), and a
+// shared-mode org's create attempt is shown as a factual explanation
+// rather than a generic error. Creation deliberately has NO athlete
+// picker - see attendance_event_gym_roster_service.ts's own DEV NOTE for
+// why every currently-accepted athlete across the org's active coaches
+// is auto-invited server-side instead.
+function attendanceEventStatusLabel(status) {
+  return status === "cancelled" ? "Cancelled" : "Active";
+}
+
+function occurrenceStatusLabel(status) {
+  if (status === "skipped") return "Skipped";
+  if (status === "rescheduled") return "Rescheduled";
+  return "Scheduled";
+}
+
+function rsvpLabel(state_) {
+  if (state_ === "attending") return "Attending";
+  if (state_ === "maybe") return "Maybe";
+  if (state_ === "not_attending") return "Not attending";
+  return "No response yet";
+}
+
+function formatOccurrence(occurrence) {
+  const date = occurrence.occurrence_date || "";
+  const start = occurrence.start_time || null;
+  const end = occurrence.end_time || null;
+  if (start && end) return `${date}, ${start}–${end}`;
+  if (start) return `${date}, ${start}`;
+  return date;
+}
+
+function renderAttendanceEvents(events) {
+  const container = el("orgAttendanceList");
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No gym-wide events created yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = events.map((eventRecord) => `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge ${eventRecord.status === "cancelled" ? "neutral" : "active"}">${attendanceEventStatusLabel(eventRecord.status)}</span>
+      </div>
+      <h3>${escapeHtml(eventRecord.title)}</h3>
+      <button class="button secondary small-button" type="button" data-open-attendance-event="${escapeHtml(eventRecord.event_id)}">Open event</button>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-open-attendance-event]")) {
+    button.addEventListener("click", () => {
+      showAttendanceDetail(button.getAttribute("data-open-attendance-event")).catch(console.error);
+    });
+  }
+}
+
+async function refreshAttendanceEvents() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events`);
+  renderAttendanceEvents(Array.isArray(result.events) ? result.events : []);
+}
+
+function selectedWeekdayTokens() {
+  return Array.from(el("orgAttendanceWeekdaysFieldset").querySelectorAll("[data-weekday]"))
+    .filter((input) => input.checked)
+    .map((input) => input.getAttribute("data-weekday"));
+}
+
+function selectedEndsType() {
+  const checked = el("orgAttendanceCreateForm").querySelector('input[name="orgAttendanceEndsType"]:checked');
+  return checked ? checked.value : "after_count";
+}
+
+async function createAttendanceEvent(event) {
+  event.preventDefault();
+  el("orgAttendanceCreateError").hidden = true;
+  el("orgAttendanceCreateSuccess").hidden = true;
+
+  const repeats = el("orgAttendanceRepeats").checked;
+  let recurrenceRule = null;
+  if (repeats) {
+    const endsType = selectedEndsType();
+    recurrenceRule = {
+      frequency: el("orgAttendanceFrequency").value,
+      interval: Number.parseInt(el("orgAttendanceInterval").value, 10) || 1,
+      weekdays: el("orgAttendanceFrequency").value === "weekly" ? selectedWeekdayTokens() : [],
+      ends: endsType === "on_date"
+        ? { type: "on_date", value: el("orgAttendanceEndsOnDate").value }
+        : { type: "after_count", value: Number.parseInt(el("orgAttendanceEndsAfterCount").value, 10) || 1 }
+    };
+  }
+
+  try {
+    const result = await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events`, {
+      title: el("orgAttendanceTitle").value.trim(),
+      description: el("orgAttendanceDescription").value.trim(),
+      location: el("orgAttendanceLocation").value.trim(),
+      activity_label: el("orgAttendanceActivity").value.trim(),
+      occurrence_date: el("orgAttendanceDate").value,
+      start_time: el("orgAttendanceStartTime").value || null,
+      end_time: el("orgAttendanceEndTime").value || null,
+      recurrence_rule: recurrenceRule
+    });
+
+    el("orgAttendanceCreateForm").reset();
+    el("orgAttendanceRecurrenceFields").hidden = true;
+    el("orgAttendanceCreateSuccess").hidden = false;
+    el("orgAttendanceCreateSuccess").textContent =
+      `${result.event.title} created (${result.invited_count} athlete${result.invited_count === 1 ? "" : "s"} invited).`;
+    await refreshAttendanceEvents();
+  }
+  catch (error) {
+    el("orgAttendanceCreateError").hidden = false;
+    el("orgAttendanceCreateError").textContent = error.message;
+  }
+}
+
+function showAttendanceSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgAttendanceSection").hidden = false;
+  el("orgAttendanceOrgName").textContent = orgName;
+  el("orgAttendanceCreateForm").reset();
+  el("orgAttendanceRecurrenceFields").hidden = true;
+  el("orgAttendanceCreateError").hidden = true;
+  el("orgAttendanceCreateSuccess").hidden = true;
+  el("orgAttendanceError").hidden = true;
+  refreshAttendanceEvents().catch((error) => {
+    el("orgAttendanceError").hidden = false;
+    el("orgAttendanceError").textContent = "Could not load attendance events.";
+    console.error(error);
+  });
+}
+
+function hideAttendanceSection() {
+  state.selectedOrgId = null;
+  el("orgAttendanceSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function renderAttendanceOccurrences(occurrences, roster) {
+  const container = el("orgAttendanceDetailOccurrences");
+  container.innerHTML = occurrences.map((occurrence) => {
+    const canAct = occurrence.status !== "skipped";
+    return `
+      <article class="record-card">
+        <div class="button-row" style="justify-content: space-between;">
+          <span>
+            <span class="badge ${occurrence.status === "skipped" ? "neutral" : occurrence.status === "rescheduled" ? "warning" : "active"}">${occurrenceStatusLabel(occurrence.status)}</span>
+            ${escapeHtml(formatOccurrence(occurrence))}
+          </span>
+          ${canAct ? `
+            <div class="button-row">
+              <button class="button secondary small-button" type="button" data-reschedule-occurrence="${escapeHtml(occurrence.occurrence_id)}">Reschedule</button>
+              <button class="button secondary small-button" type="button" data-skip-occurrence="${escapeHtml(occurrence.occurrence_id)}">Skip</button>
+            </div>
+          ` : ""}
+        </div>
+        ${occurrence.status === "rescheduled" && occurrence.rescheduled_to_date
+          ? `<p class="muted small">Moved to ${escapeHtml(occurrence.rescheduled_to_date)}${occurrence.rescheduled_to_start_time ? `, ${escapeHtml(occurrence.rescheduled_to_start_time)}` : ""}</p>`
+          : ""}
+        ${roster.length > 0 ? `
+          <div class="record-list">
+            ${roster.map((entry) => `
+              <div class="record-meta">
+                <span>${escapeHtml(entry.display_name)}</span>
+                <span class="badge neutral">${rsvpLabel(entry.rsvp_by_occurrence?.[occurrence.occurrence_id] ?? null)}</span>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+      </article>
+    `;
+  }).join("");
+
+  for (const button of container.querySelectorAll("[data-skip-occurrence]")) {
+    button.addEventListener("click", () => {
+      skipAttendanceOccurrence(button.getAttribute("data-skip-occurrence")).catch(console.error);
+    });
+  }
+  for (const button of container.querySelectorAll("[data-reschedule-occurrence]")) {
+    button.addEventListener("click", () => {
+      openRescheduleForm(button.getAttribute("data-reschedule-occurrence"));
+    });
+  }
+}
+
+function renderAttendanceRoster(roster) {
+  const container = el("orgAttendanceDetailRoster");
+  if (roster.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No athletes invited yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = roster.map((entry) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(entry.display_name)}</h3>
+        <p class="muted small">${escapeHtml(entry.email || "no email")}</p>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAttendanceDetail() {
+  const result = await api(
+    "GET",
+    `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}`
+  );
+  el("orgAttendanceDetailTitle").textContent = result.event.title;
+  renderAttendanceOccurrences(Array.isArray(result.occurrences) ? result.occurrences : [], Array.isArray(result.roster) ? result.roster : []);
+  renderAttendanceRoster(Array.isArray(result.roster) ? result.roster : []);
+  el("orgAttendanceCancelEventButton").hidden = result.event.status === "cancelled";
+}
+
+async function showAttendanceDetail(eventId) {
+  state.selectedAttendanceEventId = eventId;
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = false;
+  el("orgAttendanceRescheduleForm").hidden = true;
+  el("orgAttendanceDetailError").hidden = true;
+  try {
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = "Could not load event detail.";
+    console.error(error);
+  }
+}
+
+function hideAttendanceDetailSection() {
+  state.selectedAttendanceEventId = null;
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgAttendanceSection").hidden = false;
+  refreshAttendanceEvents().catch(console.error);
+}
+
+async function skipAttendanceOccurrence(occurrenceId) {
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/occurrences/${encodeURIComponent(occurrenceId)}/skip`
+    );
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
+}
+
+function openRescheduleForm(occurrenceId) {
+  state.reschedulingOccurrenceId = occurrenceId;
+  el("orgAttendanceRescheduleForm").hidden = false;
+  el("orgAttendanceRescheduleDate").value = "";
+  el("orgAttendanceRescheduleStartTime").value = "";
+  el("orgAttendanceRescheduleEndTime").value = "";
+}
+
+function closeRescheduleForm() {
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceRescheduleForm").hidden = true;
+}
+
+async function confirmReschedule() {
+  const occurrenceId = state.reschedulingOccurrenceId;
+  if (!occurrenceId) return;
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/occurrences/${encodeURIComponent(occurrenceId)}/reschedule`,
+      {
+        new_date: el("orgAttendanceRescheduleDate").value,
+        new_start_time: el("orgAttendanceRescheduleStartTime").value || null,
+        new_end_time: el("orgAttendanceRescheduleEndTime").value || null
+      }
+    );
+    closeRescheduleForm();
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
+}
+
+async function cancelAttendanceEventFromDetail() {
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/cancel`
+    );
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
 }
 
 function auditActionTypeLabel(actionType) {
@@ -642,6 +984,8 @@ function showAuditSection(orgId, orgName) {
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgAuditSection").hidden = false;
   el("orgAuditOrgName").textContent = orgName;
   el("orgAuditError").hidden = true;
@@ -792,6 +1136,8 @@ function showMessagesSection(orgId, orgName) {
   el("orgThreadDetailSection").hidden = true;
   el("orgAuditSection").hidden = true;
   el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
@@ -1064,6 +1410,15 @@ function boot() {
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
   el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
   el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
+  el("orgAttendanceBackButton").addEventListener("click", () => hideAttendanceSection());
+  el("orgAttendanceCreateForm").addEventListener("submit", (event) => createAttendanceEvent(event).catch(console.error));
+  el("orgAttendanceRepeats").addEventListener("change", () => {
+    el("orgAttendanceRecurrenceFields").hidden = !el("orgAttendanceRepeats").checked;
+  });
+  el("orgAttendanceDetailBackButton").addEventListener("click", () => hideAttendanceDetailSection());
+  el("orgAttendanceRescheduleConfirmButton").addEventListener("click", () => confirmReschedule().catch(console.error));
+  el("orgAttendanceRescheduleCancelButton").addEventListener("click", () => closeRescheduleForm());
+  el("orgAttendanceCancelEventButton").addEventListener("click", () => cancelAttendanceEventFromDetail().catch(console.error));
   el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));

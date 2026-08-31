@@ -68,7 +68,14 @@ function randomId(prefix: string): string {
   return `${prefix}_${crypto.randomUUID().replaceAll("-", "")}`;
 }
 
-async function writeInviteVersion(input: Readonly<{
+// Exported for attendance_event_gym_roster_service.ts (slice 4): a gym-
+// wide event auto-invites its whole resolved roster server-side (no
+// athlete_user_ids ever come from the owner - see that file's DEV
+// NOTE), so it writes invites directly with this same primitive rather
+// than through inviteAthletesToAttendanceEvent below, which is shaped
+// for a COACH caller (assertAthletesCurrentlyAccepted takes a
+// coachUserId) and would reject an org-owner identity outright.
+export async function writeInviteVersion(input: Readonly<{
   invite_id: string;
   event_id: string;
   athlete_user_id: string;

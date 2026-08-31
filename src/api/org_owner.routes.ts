@@ -64,6 +64,16 @@ import {
   sendAttachmentFile,
   validateStagedUpload
 } from "./message_attachment_storage.js";
+import { AttendanceEventError } from "./attendance_event_service.js";
+import {
+  AttendanceEventGymRosterError,
+  cancelGymWideAttendanceEventForOwner,
+  createGymWideAttendanceEventForOwner,
+  getGymAttendanceEventDetailForOwner,
+  listGymWideAttendanceEventsForOwner,
+  rescheduleGymWideAttendanceOccurrenceForOwner,
+  skipGymWideAttendanceOccurrenceForOwner
+} from "./attendance_event_gym_roster_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -243,6 +253,81 @@ orgOwnerRouter.get(
   })
 );
 
+// Attendance events slice 4: gym-mode (individual-visibility) org-wide
+// events, org-owner-only - the fourth exception to org_visibility_
+// service.ts's identity-hiding invariant, scoped precisely to events
+// the owner themselves created (see attendance_event_gym_roster_
+// service.ts's own DEV NOTE). Creation takes no explicit invite list at
+// all from the owner - every currently-accepted athlete across the
+// org's active coaches is auto-invited server-side.
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const created = await createGymWideAttendanceEventForOwner(user_id, request.params.org_id, request.body ?? {});
+    return response.status(201).json({
+      ok: true,
+      event: created.event,
+      occurrences: created.occurrences,
+      invited_count: created.invited_count
+    });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const events = await listGymWideAttendanceEventsForOwner(user_id, request.params.org_id);
+    return response.status(200).json({ ok: true, events });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events/:event_id",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const detail = await getGymAttendanceEventDetailForOwner(user_id, request.params.org_id, request.params.event_id);
+    return response.status(200).json({
+      ok: true,
+      event: detail.event,
+      occurrences: detail.occurrences,
+      roster: detail.roster
+    });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/cancel",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const event = await cancelGymWideAttendanceEventForOwner(user_id, request.params.org_id, request.params.event_id);
+    return response.status(200).json({ ok: true, event });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const occurrence = await skipGymWideAttendanceOccurrenceForOwner(
+      user_id, request.params.org_id, request.params.event_id, request.params.occurrence_id
+    );
+    return response.status(200).json({ ok: true, occurrence });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const occurrence = await rescheduleGymWideAttendanceOccurrenceForOwner(
+      user_id, request.params.org_id, request.params.event_id, request.params.occurrence_id, request.body ?? {}
+    );
+    return response.status(200).json({ ok: true, occurrence });
+  })
+);
+
 orgOwnerRouter.get(
   "/organisations/:org_id/audit-log",
   asyncHandler(async (request, response) => {
@@ -365,13 +450,13 @@ orgOwnerRouter.get(
 );
 
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
-// OrgCoachMessagingError/OrgAthleteMessagingError/MessageAttachmentError
-// are not ApiError, so without this router-scoped handler they would
-// otherwise reach the generic error mapper, which mistakes the string
-// message for a Postgres error code and returns a misleading 500 instead
-// of the correct status (mirrors the identical, deliberate pattern in
-// product_admin.routes.ts). MulterError is mapped the same way, for the
-// same reason.
+// OrgCoachMessagingError/OrgAthleteMessagingError/MessageAttachmentError/
+// AttendanceEventGymRosterError/AttendanceEventError are not ApiError, so
+// without this router-scoped handler they would otherwise reach the
+// generic error mapper, which mistakes the string message for a Postgres
+// error code and returns a misleading 500 instead of the correct status
+// (mirrors the identical, deliberate pattern in product_admin.routes.ts).
+// MulterError is mapped the same way, for the same reason.
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
@@ -381,7 +466,9 @@ orgOwnerRouter.use(
       error instanceof OrgVisibilityError ||
       error instanceof OrgCoachMessagingError ||
       error instanceof OrgAthleteMessagingError ||
-      error instanceof MessageAttachmentError
+      error instanceof MessageAttachmentError ||
+      error instanceof AttendanceEventGymRosterError ||
+      error instanceof AttendanceEventError
     ) {
       response.status(error.status).json({ error: error.message });
       return;

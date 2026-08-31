@@ -5885,6 +5885,32 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "org_owner_attendance_events",
+          "label": "Org owner creates a gym-wide attendance event (with no athlete picker - every currently-accepted athlete across every active coach is auto-invited server-side) for an individual-visibility ('gym') organisation they own, views full real identity and RSVP state on the roster for that one event, cancels it, and skips or reschedules a single occurrence - the fourth, narrowly-scoped exception to org_visibility_service.ts's gym-mode identity-hiding invariant",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/attendance-events",
+            "/org/organisations/:org_id/attendance-events/:event_id",
+            "/org/organisations/:org_id/attendance-events/:event_id/cancel",
+            "/org/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+            "/org/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/attendance_events_org_individual.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },

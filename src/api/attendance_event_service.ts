@@ -101,7 +101,7 @@ type RecurrenceEnds =
   | Readonly<{ type: "on_date"; value: string }>
   | Readonly<{ type: "after_count"; value: number }>;
 
-type RecurrenceRule = Readonly<{
+export type RecurrenceRule = Readonly<{
   frequency: "daily" | "weekly";
   interval: number;
   weekdays: readonly string[];
@@ -184,7 +184,7 @@ function toDateOnly(date: Date): string {
 // bound (an after_count value capped at ATTENDANCE_OCCURRENCE_CAP, or a
 // fixed end date) or throws before the occurrence count can exceed the
 // cap - this never silently truncates a series short of what was asked.
-function generateOccurrenceDates(anchorDate: string, rule: RecurrenceRule | null): readonly string[] {
+export function generateOccurrenceDates(anchorDate: string, rule: RecurrenceRule | null): readonly string[] {
   if (rule === null) return Object.freeze([anchorDate]);
 
   const anchor = new Date(`${anchorDate}T00:00:00.000Z`);
@@ -293,7 +293,17 @@ async function latestOccurrenceRecord(occurrenceId: string): Promise<Readonly<Js
   return row && isRecord(row.record_payload) ? row.record_payload : null;
 }
 
-async function writeEventVersion(input: Readonly<{
+// Exported for attendance_event_gym_roster_service.ts (slice 4), which
+// writes attendance_event/attendance_event_occurrence records for an
+// org-owner-created gym-wide event using the exact same record shapes -
+// keeping this file the single source of truth for what these two
+// record types look like, rather than a second file re-deriving the
+// same shape independently and risking drift. That file cannot import
+// createAttendanceEventForCoach itself (it calls
+// requireActiveCoachProfile, which an org owner account can never
+// satisfy - owners and coaches are different account universes), so it
+// needs these lower-level primitives directly instead.
+export async function writeEventVersion(input: Readonly<{
   event_id: string;
   owner_scope: "coach" | "org";
   owner_coach_user_id: string;
@@ -330,7 +340,7 @@ async function writeEventVersion(input: Readonly<{
   return persistBetaProductRecord(record);
 }
 
-async function writeOccurrenceVersion(input: Readonly<{
+export async function writeOccurrenceVersion(input: Readonly<{
   occurrence_id: string;
   event_id: string;
   owner_coach_user_id: string;
@@ -365,7 +375,7 @@ async function writeOccurrenceVersion(input: Readonly<{
   return persistBetaProductRecord(record);
 }
 
-type CreateAttendanceEventInput = Readonly<{
+export type CreateAttendanceEventInput = Readonly<{
   title?: unknown;
   description?: unknown;
   location?: unknown;
@@ -379,7 +389,7 @@ type CreateAttendanceEventInput = Readonly<{
   owner_org_id?: unknown;
 }>;
 
-function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
+export function validateCreateInput(input: CreateAttendanceEventInput): Readonly<{
   title: string;
   description: string;
   location: string;

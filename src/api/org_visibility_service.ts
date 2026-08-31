@@ -1,18 +1,23 @@
 // DEV NOTE: Organisation/team billing commercial expansion (part C) - org
 // owner athlete visibility, scoped by the organisation's declared
-// visibility_mode. This is one of only THREE org-owner-facing files that
+// visibility_mode. This is one of only FOUR org-owner-facing files that
 // legitimately read athlete-scoped data (beta_product_records /
 // beta17_coach_relationship rows) - the others are org_athlete_messaging_
 // service.ts (part D.4), which reuses this file's same visibility_mode
-// boundary for its own gate, and org_progress_rollup_service.ts (progress
+// boundary for its own gate; org_progress_rollup_service.ts (progress
 // graphs slices 4-5), which calls getOrgAthleteVisibility() below
 // directly for both its own visibility_mode gate AND its per-coach
-// active_athlete_count. For 'shared'-mode it enriches OrgVisibilityRoster
-// with real per-athlete progress; for 'individual'-mode it does its OWN
-// separate athlete-scoped reads (not via aggregateCountsForOrg() below)
-// to compute a per-coach AVERAGE adherence trend - see that file's own
-// DEV NOTE for the k-anonymity-style cohort-size threshold that keeps
-// this consistent with the "no athlete identity leaves individual mode"
+// active_athlete_count; and attendance_event_gym_roster_service.ts
+// (attendance events slice 4), which reveals real athlete identity for
+// an 'individual'-mode org ONLY for an attendance event the owner
+// themselves created (never a general gym-mode roster read) - see that
+// file's own DEV NOTE for exactly how narrowly that exception is scoped.
+// For 'shared'-mode it enriches OrgVisibilityRoster with real per-
+// athlete progress; for 'individual'-mode it does its OWN separate
+// athlete-scoped reads (not via aggregateCountsForOrg() below) to
+// compute a per-coach AVERAGE adherence trend - see that file's own DEV
+// NOTE for the k-anonymity-style cohort-size threshold that keeps this
+// consistent with the "no athlete identity leaves individual mode"
 // invariant below, even though the averaging itself necessarily touches
 // real per-athlete numbers to get there.
 // Every other org file (org_owner_account_service.ts, org_owner_auth.ts,
