@@ -2,6 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
+import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import {
   EXERCISE_CATEGORY_ORDER,
   exerciseCategory,
@@ -201,7 +202,7 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           </select>
         </label>
         {loadMode === "percent_1rm" ? (
-          <label><span>% 1RM</span><input type="number" min={1} max={100} step={0.5} defaultValue={workItem.percent_1rm} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "percent_1rm")} /></label>
+          <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
             <label><span>Weight</span><input type="number" min={0.25} max={1000} step={0.25} defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
@@ -220,6 +221,50 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
         )}
       </div>
     </fieldset>
+  );
+}
+
+// DEV NOTE: Prilepin's chart (classic + a commonly used modified/higher-
+// rep extension - see shared/prilepin-reference/prilepinChartReference.mjs)
+// is a factual reference display only, never an auto-fill. The panel below
+// is a live hint keyed off local React state (mirroring RpeLoadField's
+// hintRpe pattern immediately below), entirely separate from the
+// uncontrolled, delegated-mutation %1RM input itself - the coach always
+// types their own planned_sets/planned_reps regardless of what the panel
+// shows. If a percentage falls in both the classic and modified table's
+// range, both matching zones are shown side by side, clearly labelled -
+// there is no auto-selection between them.
+function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const storedPercent = Number.isFinite(workItem.percent_1rm) ? workItem.percent_1rm : 75;
+  const [hintPercent, setHintPercent] = React.useState(storedPercent);
+  const zones = lookupPrilepinZones(hintPercent).chart_matches;
+
+  return (
+    <>
+      <label>
+        <span>% 1RM</span>
+        <input
+          type="number"
+          min={1}
+          max={100}
+          step={0.5}
+          defaultValue={storedPercent}
+          onChange={(event) => setHintPercent(Number(event.target.value))}
+          {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "percent_1rm")}
+        />
+      </label>
+      <div className="template-prilepin-reference muted small">
+        {zones.length === 0 ? (
+          <p>No Prilepin's chart reference zone for this percentage.</p>
+        ) : (
+          zones.map((zoneRow) => (
+            <p key={zoneRow.zone_id}>
+              {zoneRow.zone_label}: {zoneRow.reps_per_set_min}-{zoneRow.reps_per_set_max} reps/set, optimal {zoneRow.optimal_total_reps_min} total reps (range {zoneRow.total_reps_min}-{zoneRow.total_reps_max})
+            </p>
+          ))
+        )}
+      </div>
+    </>
   );
 }
 
