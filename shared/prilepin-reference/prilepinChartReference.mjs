@@ -24,8 +24,8 @@ function zone(fields) {
   return Object.freeze({ ...fields });
 }
 
-// Classic Prilepin's chart: the widely-cited 4-zone table (Soviet
-// weightlifting research, popularised via Zatsiorsky/Westside Barbell),
+// Classic Prilepin's chart: the widely-cited 4-zone table (Soviet-era
+// strength sport research, popularised via Zatsiorsky/Westside Barbell),
 // covering the ~55-100% 1RM range typical of strength/power work.
 export const CLASSIC_PRILEPIN_ZONES = Object.freeze([
   zone({
