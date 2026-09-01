@@ -1572,7 +1572,7 @@
     },
     "exercise": {
       "registry_id": "exercise",
-      "version": "2.2.0",
+      "version": "2.3.0",
       "entries": {
         "back_squat": {
           "exercise_id": "back_squat",
@@ -2787,7 +2787,8 @@
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "strongman"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -2839,7 +2840,8 @@
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "strongman"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -4884,7 +4886,8 @@
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "strongman"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15191,7 +15194,7 @@
     },
     "exercise_activity_applicability": {
       "registry_id": "exercise_activity_applicability",
-      "version": "2.4.0",
+      "version": "2.5.0",
       "entries": {
         "back_squat__powerlifting__training": {
           "applicability_id": "back_squat__powerlifting__training",
@@ -39413,6 +39416,114 @@
           "applicability_id": "box_step_up__rugby_union__competition",
           "exercise_id": "box_step_up",
           "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__strongman__training": {
+          "applicability_id": "kettlebell_deadlift__strongman__training",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__strongman__testing": {
+          "applicability_id": "kettlebell_deadlift__strongman__testing",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__strongman__competition": {
+          "applicability_id": "kettlebell_deadlift__strongman__competition",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_leg_rdl__strongman__training": {
+          "applicability_id": "single_leg_rdl__strongman__training",
+          "exercise_id": "single_leg_rdl",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_leg_rdl__strongman__testing": {
+          "applicability_id": "single_leg_rdl__strongman__testing",
+          "exercise_id": "single_leg_rdl",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_leg_rdl__strongman__competition": {
+          "applicability_id": "single_leg_rdl__strongman__competition",
+          "exercise_id": "single_leg_rdl",
+          "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__strongman__training": {
+          "applicability_id": "push_up__strongman__training",
+          "exercise_id": "push_up",
+          "activity_id": "strongman",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__strongman__testing": {
+          "applicability_id": "push_up__strongman__testing",
+          "exercise_id": "push_up",
+          "activity_id": "strongman",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__strongman__competition": {
+          "applicability_id": "push_up__strongman__competition",
+          "exercise_id": "push_up",
+          "activity_id": "strongman",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

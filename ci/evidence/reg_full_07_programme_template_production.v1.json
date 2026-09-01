@@ -4,7 +4,7 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "2097f37681a9008c73a41015647363c0d57daa598591ba910d59b1ce2be170df",
+  "canonical_registry_sha256": "a10618c90a46d423e294e73861fe2b8017c17a0c2f3feac6810c5065b3703286",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
@@ -12,7 +12,7 @@
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "d1df30b297ca7e9478e6d232c39777ebc441b437f3da07d0eae044c60511c145"
+      "sha256": "4062b4589bfcde928112200ec4a795a549ded735d41a0de905ed303130857e21"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
@@ -24,11 +24,11 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "0d1f17e1f49e3e8b8c9262e2e1b4cf2d3a2abcf7c9be4a4050a4e6e5ba233ee5"
+      "sha256": "5672d1244df4e66cff68738681ee4f67c0571199e6b0fb0e86fd2c573a3878e5"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "b1d7af74a204759cb7de4d75a505ca840640fb14bdb3c22028f1815cd45a0944"
+      "sha256": "4d6f8cc63a4ee5372f56fd4a80e302c5eee76bd566841548dc839706cc5d3cf6"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
@@ -48,14 +48,14 @@
     }
   },
   "counts": {
-    "template_count": 12,
+    "template_count": 14,
     "powerlifting_templates": 4,
     "general_strength_templates": 3,
     "rugby_union_templates": 4,
-    "strongman_templates": 1,
-    "low_equipment_templates": 2,
-    "unique_scheduled_exercises": 15,
-    "scheduled_work_items": 420
+    "strongman_templates": 3,
+    "low_equipment_templates": 3,
+    "unique_scheduled_exercises": 16,
+    "scheduled_work_items": 492
   },
   "family_ids": [
     "powerlifting_novice",
@@ -69,7 +69,9 @@
     "rugby_union_pre_season",
     "rugby_union_in_season",
     "rugby_union_low_equipment",
-    "strongman_novice"
+    "strongman_novice",
+    "strongman_intermediate",
+    "strongman_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,

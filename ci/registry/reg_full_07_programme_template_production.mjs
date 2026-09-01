@@ -24,7 +24,9 @@ const EXPECTED_FAMILY_IDS = Object.freeze([
   "rugby_union_pre_season",
   "rugby_union_in_season",
   "rugby_union_low_equipment",
-  "strongman_novice"
+  "strongman_novice",
+  "strongman_intermediate",
+  "strongman_low_equipment"
 ]);
 
 const EXPECTED_LEGACY_PROGRAM = Object.freeze({
@@ -127,7 +129,7 @@ export function auditRegFull07Documents(docs, repoRoot = process.cwd()) {
 
   const activityCounts = { powerlifting: 0, general_strength: 0, rugby_union: 0, strongman: 0 };
   for (const template of templates) if (Object.hasOwn(activityCounts, template?.activity_id)) activityCounts[template.activity_id] += 1;
-  if (!same(activityCounts, { powerlifting: 4, general_strength: 3, rugby_union: 4, strongman: 1 })) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
+  if (!same(activityCounts, { powerlifting: 4, general_strength: 3, rugby_union: 4, strongman: 3 })) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
 
   const exerciseRows = entries(docs.exercise);
   const equipmentRows = entries(docs.equipment);

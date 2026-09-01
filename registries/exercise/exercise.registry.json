@@ -1,6 +1,6 @@
 {
   "registry_id": "exercise",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "entries": {
     "back_squat": {
       "exercise_id": "back_squat",
@@ -1215,7 +1215,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -1267,7 +1268,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3312,7 +3314,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",

@@ -82,6 +82,17 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
     Object.freeze([work("back_squat", 3, 5), work("bench_press", 3, 5), work("farmers_carry", 3, 1)]),
     Object.freeze([work("deadlift", 3, 5), work("farmers_carry", 3, 1)]),
     Object.freeze([work("back_squat", 3, 5), work("bench_press", 3, 5), work("deadlift", 2, 3)])
+  ]) }),
+  Object.freeze({ template_id: "strongman_intermediate", activity_id: "strongman", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("back_squat", 4, 5), work("bench_press", 4, 5), work("farmers_carry", 4, 1)]),
+    Object.freeze([work("deadlift", 4, 4), work("bench_press", 3, 6)]),
+    Object.freeze([work("back_squat", 3, 6), work("farmers_carry", 3, 1)]),
+    Object.freeze([work("deadlift", 3, 3), work("bench_press", 4, 4), work("farmers_carry", 3, 1)])
+  ]) }),
+  Object.freeze({ template_id: "strongman_low_equipment", activity_id: "strongman", weeks: 4, low_equipment: true, days: Object.freeze([
+    Object.freeze([work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("kettlebell_farmers_carry", 3, 1)]),
+    Object.freeze([work("dumbbell_bench_press", 3, 10), work("kettlebell_farmers_carry", 3, 1)]),
+    Object.freeze([work("kettlebell_deadlift", 3, 10), work("dumbbell_bench_press", 3, 8), work("kettlebell_farmers_carry", 3, 1)])
   ]) })
 ]);
 
@@ -106,7 +117,8 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   bulgarian_split_squat: "bulgarian_split_squat__to__forward_lunge",
   box_jump: "box_jump__to__countermovement_jump",
   backward_overhead_medicine_ball_throw: "backward_overhead_medicine_ball_throw__to__medicine_ball_chest_pass",
-  farmers_carry: "farmers_carry__to__kettlebell_farmers_carry"
+  farmers_carry: "farmers_carry__to__kettlebell_farmers_carry",
+  kettlebell_farmers_carry: "kettlebell_farmers_carry__to__farmers_carry"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);
