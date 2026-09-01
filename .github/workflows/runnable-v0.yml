@@ -15,19 +15,11 @@
 # replay, release, and protection checks belong to their dedicated workflows.
 name: runnable-v0
 
-# DEV NOTE: Pull requests skip documentation-only changes on purpose.
-#
-# The runnable smoke test is a code-path guard. Documentation gates are handled
-# elsewhere, so markdown/text/doc-template-only edits should not consume this
-# workflow or create noise around executable status.
+# DEV NOTE: ADMIN-01 makes runnable-v0 a required merge context for every PR.
+# Required status checks must always be emitted; path-filtering documentation-only
+# changes would leave the required context pending forever and deadlock the PR.
 on:
-  pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "**/*.txt"
-      - "docs/**"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE*"
+  pull_request: {}
   push:
     branches:
       - main
