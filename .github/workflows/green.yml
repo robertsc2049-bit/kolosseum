@@ -11,6 +11,7 @@
 # This variant formally separates:
 #   1) unit (fast, no DB) -> runs npm run green:ci (parity guard requirement)
 #   2) integration (DB-backed, spawns dist server)
+#   3) ADMIN-08 repository administrative closure (PR only, live GitHub readback)
 #
 # DEV NOTE: This workflow is the main repository green gate.
 # Keep it behaviour-preserving and boring. Do not add feature-specific
@@ -30,9 +31,10 @@ on:
       - main
   workflow_dispatch: {}
 
-# DEV NOTE: Read-only repository access is enough for this workflow.
-# Do not widen permissions unless a future slice explicitly proves why the
-# workflow must write to GitHub state.
+# DEV NOTE: Read-only repository access is enough for ordinary green jobs.
+# ADMIN-08 declares its additional read permissions at job scope because it must
+# reconcile live checks, issues, pull requests, and ruleset metadata without
+# mutating any GitHub state.
 permissions:
   contents: read
 
@@ -165,3 +167,53 @@ jobs:
         # Unit failure should stop here; integration does not compensate for a
         # failed fast gate.
         run: npm run test:ci:integration
+
+  admin-closure:
+    # DEV NOTE: ADMIN-08 is a PR-only acceptance readback. It runs only after the
+    # two required green jobs pass, then reconciles the exact PR head against the
+    # complete live required-check set and current GitHub governance state.
+    name: admin-repository-closure
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [unit, integration]
+
+    permissions:
+      contents: read
+      checks: read
+      issues: read
+      pull-requests: read
+
+    env:
+      NODE_VERSION: "25.9.0"
+      ADMIN_REPOSITORY: ${{ github.repository }}
+      ADMIN_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      ADMIN_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Repository administrative closure
+        run: node scripts/run_admin_repository_closure.mjs --write
+
+      - name: Upload administrative closure evidence
+        if: always() && hashFiles('ci/evidence/admin_repository_closure.v1.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-repository-closure-${{ github.event.pull_request.head.sha }}
+          path: ci/evidence/admin_repository_closure.v1.json
+          if-no-files-found: error
+          retention-days: 30
