@@ -10,9 +10,11 @@ import {
   loadRegFull06Documents,
   runRegFull06Closure
 } from "../ci/registry/reg_full_06_substitution_graph_closure.mjs";
+import { loadRegistryExpectedCounts } from "../ci/registry/registry_expected_counts.mjs";
 import { buildRegistry } from "../scripts/reg_full_06_materialize_substitution_registry.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts(ROOT).counts;
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function load() { return loadRegFull06Documents(ROOT); }
@@ -51,9 +53,9 @@ test("REG-FULL-06 materialized registry is exactly reproducible and full closure
   assert.deepEqual(docs.substitution, rebuilt);
   const result = runRegFull06Closure(ROOT);
   assert.equal(result.ok, true);
-  assert.equal(result.counts.exercises, 244);
-  assert.equal(result.counts.movements, 54);
-  assert.ok(result.counts.edges > 0);
+  assert.equal(result.counts.exercises, REGISTRY_EXPECTED_COUNTS.exercise_count);
+  assert.equal(result.counts.movements, REGISTRY_EXPECTED_COUNTS.movement_count);
+  assert.equal(result.counts.edges, REGISTRY_EXPECTED_COUNTS.substitution_edge_count);
 });
 
 test("REG-FULL-06 rejects missing source FK", () => {

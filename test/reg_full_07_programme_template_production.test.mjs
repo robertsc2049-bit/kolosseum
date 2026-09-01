@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { auditRegFull07Documents, loadRegFull07Documents } from "../ci/registry/reg_full_07_programme_template_production.mjs";
+import { loadRegistryExpectedCounts } from "../ci/registry/registry_expected_counts.mjs";
+
+const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts().counts;
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function fresh() { return clone(loadRegFull07Documents(process.cwd())); }
@@ -54,7 +57,7 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
   const result = auditRegFull07Documents(loadRegFull07Documents(process.cwd()), process.cwd());
   assert.equal(result.ok, true, JSON.stringify(result.errors, null, 2));
   assert.deepEqual(result.summary, {
-    template_count: 14,
+    template_count: REGISTRY_EXPECTED_COUNTS.programme_template_count,
     powerlifting_templates: 4,
     general_strength_templates: 3,
     rugby_union_templates: 4,

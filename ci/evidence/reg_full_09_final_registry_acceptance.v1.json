@@ -11,6 +11,7 @@
     "strongman"
   ],
   "checks": {
+    "registry_expected_count_authority": "PASS",
     "registry_bundle_rebuild": "PASS",
     "schema_closure": "PASS",
     "foreign_key_closure": "PASS",

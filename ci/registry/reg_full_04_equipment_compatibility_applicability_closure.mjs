@@ -2,8 +2,12 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
+import { loadRegistryExpectedCounts } from "./registry_expected_counts.mjs";
+
+const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts().counts;
+
 export const TOKEN = "CI_REG_FULL_04_EQUIPMENT_COMPATIBILITY_APPLICABILITY_CLOSURE";
-export const EXPECTED_EXERCISE_COUNT = 244;
+export const EXPECTED_EXERCISE_COUNT = REGISTRY_EXPECTED_COUNTS.exercise_count;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
 export const VALID_COMPATIBILITY_TYPES = Object.freeze(["required", "alternative"]);
 export const PATHS = Object.freeze({
@@ -47,6 +51,11 @@ export function auditRegFull04Documents({ exercise, movement, equipment, activit
   if (exercise?.registry_id !== "exercise") push(errors, "EXERCISE_REGISTRY_ID", exercise?.registry_id);
   if (compatibility?.registry_id !== "exercise_equipment_compatibility_registry") push(errors, "COMPATIBILITY_REGISTRY_ID", compatibility?.registry_id);
   if (Object.keys(ex).length !== EXPECTED_EXERCISE_COUNT) push(errors, "EXERCISE_COUNT", { expected: EXPECTED_EXERCISE_COUNT, actual: Object.keys(ex).length });
+  if (Object.keys(mv).length !== REGISTRY_EXPECTED_COUNTS.movement_count) push(errors, "MOVEMENT_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.movement_count, actual: Object.keys(mv).length });
+  if (Object.keys(eq).length !== REGISTRY_EXPECTED_COUNTS.equipment_count) push(errors, "EQUIPMENT_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.equipment_count, actual: Object.keys(eq).length });
+  if (Object.keys(ac).length !== REGISTRY_EXPECTED_COUNTS.supported_activity_count) push(errors, "ACTIVITY_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.supported_activity_count, actual: Object.keys(ac).length });
+  if (Object.keys(ap).length !== REGISTRY_EXPECTED_COUNTS.applicability_row_count) push(errors, "APPLICABILITY_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.applicability_row_count, actual: Object.keys(ap).length });
+  if (Object.keys(cp).length !== REGISTRY_EXPECTED_COUNTS.equipment_compatibility_edge_count) push(errors, "COMPATIBILITY_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.equipment_compatibility_edge_count, actual: Object.keys(cp).length });
 
   const equipmentRowsByExercise = new Map();
   const seenEquipmentPair = new Set();
@@ -134,6 +143,11 @@ export function auditRegFull04Documents({ exercise, movement, equipment, activit
 
   for (const exerciseId of equipmentRowsByExercise.keys()) if (!ex[exerciseId]) push(errors, "ORPHAN_EQUIPMENT_RELATION", exerciseId);
   for (const exerciseId of applicabilityRowsByExercise.keys()) if (!ex[exerciseId]) push(errors, "ORPHAN_ACTIVITY_RELATION", exerciseId);
+
+  if (resolvedExercises !== REGISTRY_EXPECTED_COUNTS.resolved_exercise_count) push(errors, "RESOLVED_EXERCISE_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.resolved_exercise_count, actual: resolvedExercises });
+  if (requiredEquipmentEdges !== REGISTRY_EXPECTED_COUNTS.required_equipment_edge_count) push(errors, "REQUIRED_EQUIPMENT_EDGE_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.required_equipment_edge_count, actual: requiredEquipmentEdges });
+  if (alternativeEquipmentEdges !== REGISTRY_EXPECTED_COUNTS.alternative_equipment_edge_count) push(errors, "ALTERNATIVE_EQUIPMENT_EDGE_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.alternative_equipment_edge_count, actual: alternativeEquipmentEdges });
+  if (activityRelationPairs !== REGISTRY_EXPECTED_COUNTS.activity_relation_pair_count) push(errors, "ACTIVITY_RELATION_PAIR_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.activity_relation_pair_count, actual: activityRelationPairs });
 
   return {
     ok: errors.length === 0,

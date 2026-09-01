@@ -1,6 +1,6 @@
-// DEV NOTE: REG-FULL-09 controlled materializer. It rebuilds the compact
-// compatibility bundle using the canonical writer, then writes the final
-// completion report only when every acceptance criterion is green.
+// DEV NOTE: REG-FULL-09 controlled materializer. It rebuilds the accepted count
+// snapshot and compact compatibility bundle, then writes the final completion
+// report only when every acceptance criterion is green.
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -26,6 +26,7 @@ function stableJson(value) {
 }
 
 if (write) {
+  execFileSync(process.execPath, ["scripts/materialize_registry_expected_counts.mjs", "--write"], { cwd: root, stdio: "inherit" });
   execFileSync(process.execPath, ["scripts/bundle_writer.cjs"], { cwd: root, stdio: "inherit" });
   const result = computeRegFull09Acceptance(root);
   if (!result.ok || result.report.status !== "PASS") {

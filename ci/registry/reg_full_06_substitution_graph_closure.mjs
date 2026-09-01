@@ -3,6 +3,10 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
+import { loadRegistryExpectedCounts } from "./registry_expected_counts.mjs";
+
+const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts().counts;
+
 export const REG_FULL_06_FAILURE_TOKEN = "CI_REG_FULL_06_SUBSTITUTION_GRAPH_CLOSURE";
 export const REG_FULL_06_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
 export const REG_FULL_06_PATHS = Object.freeze({
@@ -213,8 +217,12 @@ export function auditRegFull06Documents(docs) {
   const expectedActivities = [...REG_FULL_06_ACTIVITIES].sort();
 
   if (!sameJson(activities, expectedActivities)) push(errors, "ACTIVITY_SCOPE", activities);
-  if (Object.keys(ex).length !== 244) push(errors, "EXERCISE_COUNT", Object.keys(ex).length);
-  if (Object.keys(mv).length !== 54) push(errors, "MOVEMENT_COUNT", Object.keys(mv).length);
+  if (Object.keys(ex).length !== REGISTRY_EXPECTED_COUNTS.exercise_count) push(errors, "EXERCISE_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.exercise_count, actual: Object.keys(ex).length });
+  if (Object.keys(mv).length !== REGISTRY_EXPECTED_COUNTS.movement_count) push(errors, "MOVEMENT_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.movement_count, actual: Object.keys(mv).length });
+  if (Object.keys(eq).length !== REGISTRY_EXPECTED_COUNTS.equipment_count) push(errors, "EQUIPMENT_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.equipment_count, actual: Object.keys(eq).length });
+  if (Object.keys(entries(docs.equipmentCompatibility)).length !== REGISTRY_EXPECTED_COUNTS.equipment_compatibility_edge_count) push(errors, "EQUIPMENT_COMPATIBILITY_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.equipment_compatibility_edge_count, actual: Object.keys(entries(docs.equipmentCompatibility)).length });
+  if (Object.keys(entries(docs.applicability)).length !== REGISTRY_EXPECTED_COUNTS.applicability_row_count) push(errors, "APPLICABILITY_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.applicability_row_count, actual: Object.keys(entries(docs.applicability)).length });
+  if (Object.keys(sub).length !== REGISTRY_EXPECTED_COUNTS.substitution_edge_count) push(errors, "SUBSTITUTION_COUNT", { expected: REGISTRY_EXPECTED_COUNTS.substitution_edge_count, actual: Object.keys(sub).length });
   if (docs.substitution?.registry_id !== "substitution_registry" || docs.substitution?.version !== "1.0.0") push(errors, "SUBSTITUTION_HEADER", { registry_id: docs.substitution?.registry_id, version: docs.substitution?.version });
   if (Object.keys(sub).length === 0) push(errors, "EMPTY_SUBSTITUTION_REGISTRY", null);
   auditArchitecture(docs.surfaceManifest, docs.legacyGraph, errors);
