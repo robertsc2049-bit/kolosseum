@@ -3,4 +3,5 @@
 # deterministic and reviewable. Keep side effects explicit, paths repo-root relative, and
 # failure output readable for PowerShell and CI users.
 
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Users\rober\kolosseum\scripts\engine-health.ps1
+$EngineHealthScript = Join-Path $PSScriptRoot "engine-health.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File $EngineHealthScript

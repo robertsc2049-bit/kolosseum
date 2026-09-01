@@ -196,12 +196,10 @@ Good:
 4. keep the slice contract visible while working
 5. keep authority boundaries intact
 
-### Required local checks before commit/push
-1. `npm run lint:fast`
-2. `npm run test:unit`
-3. `npm run build:fast`
+### Required local check before commit/push
+1. `npm run verify`
 
-If a stronger slice-specific command exists, run that too.
+If a stronger slice-specific command exists, run that too. Lower-level commands such as `lint:fast`, `test:unit`, and `build:fast` are diagnostic or slice-specific surfaces and do not replace `verify` as the normal developer verification entrypoint.
 
 ### PR and merge flow
 1. commit only intended files
@@ -235,14 +233,14 @@ If required checks are skipped, the slice is incomplete and must not be merged.
 
 ## 7. Required PowerShell command style
 
-All PowerShell command blocks must start with:
+Portable PowerShell examples must use a neutral repo-root placeholder rather than a developer-specific profile path:
 
-    Set-Location C:\Users\rober\kolosseum
+    Set-Location C:\path\to\kolosseum
     $ErrorActionPreference = "Stop"
 
-Use full copy-paste-ready commands.
-Do not use placeholder paths.
-Do not assume manual editing in the middle of a workflow unless explicitly stated.
+Use full copy-paste-ready commands after replacing the neutral repo-root placeholder with the local checkout path.
+Do not assume the shell is already in the repository.
+Do not embed a named developer's home directory in portable documentation or shared helpers.
 
 ---
 

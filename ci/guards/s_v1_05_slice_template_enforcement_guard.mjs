@@ -50,7 +50,7 @@ const REQUIRED_SLICE_TEMPLATE_MARKERS = [
   "Every v1 commit must start with the slice ID.",
   "Every v1 PR must state Boundary, Proof, and Non-scope.",
   "Generated files must be refreshed only through owning generators.",
-  "`npm.cmd run lint:fast` passes from a clean tree"
+  "`npm.cmd run verify` passes from a clean tree"
 ];
 
 const REQUIRED_PR_TEMPLATE_MARKERS = [

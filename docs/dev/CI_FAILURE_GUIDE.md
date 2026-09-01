@@ -18,7 +18,7 @@ Use docs/dev/FAILURE_TOKEN_INDEX.md when the failure output includes a stable to
 4. Fix the underlying boundary drift.
 5. Re-run the targeted guard.
 6. Commit.
-7. Run `npm.cmd run lint:fast` from a clean tree.
+7. Run `npm.cmd run verify` from a clean tree.
 
 ## Common failures
 
@@ -58,11 +58,11 @@ Correct response: normalise touched files to LF and re-run the targeted guard.
 
 ### readme_validation_contract_guard
 
-Meaning: `README.md` no longer contains the required validation contract or contains a forbidden internal command.
+Meaning: the canonical developer command surface no longer agrees across `package.json` and current-facing developer docs, or a portable developer surface contains a user-specific absolute path.
 
-Do not fix by adding internal green commands to the README.
+Do not fix by adding internal green commands to the README or by weakening the cross-doc checks.
 
-Correct response: keep README as a stable entry point and point detailed commands to `docs/COMMANDS.md`.
+Correct response: keep `npm run verify` as the normal human verification command, keep lower-level commands diagnostic, and use repo-relative or neutral paths in portable surfaces.
 
 ### green_ci_parity_guard
 
@@ -170,17 +170,21 @@ Correct response: restore missing required files or update the manifest only thr
 
 ## Local triage pattern
 
-Use targeted checks first, then full gate:
+Use targeted checks first:
 
     node ci/guards/no_bom_guard.mjs
     node ci/guards/no_crlf_guard.mjs
     npm.cmd run lint:fast
 
-Only run `npm.cmd run lint:fast` after committing or reverting changes, because it includes `clean_tree_guard`.
+Use those commands to isolate the failing layer. After committing or reverting the intended change, finish with the canonical local verification entrypoint:
+
+    npm.cmd run verify
+
+Both `lint:fast` and `verify` include clean-tree-sensitive checks, so run them only when their clean-tree precondition is satisfied.
 
 ## Final rule
 
-A passing targeted guard is not enough by itself. Finish with clean tree plus the slice-required full gates.
+A passing targeted guard is not enough by itself. Finish with a clean tree, `npm.cmd run verify`, and any slice-required additional gates.
 
 ### CI wrapper contract failures
 
@@ -205,7 +209,7 @@ Start here:
 
 Primary local check command:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
 This section states what not to touch during failure recovery.
 
@@ -261,7 +265,7 @@ Check in this order:
 
 Do not fix by manually editing generated token/index files.
 
-Correct response: patch the emitting guard or test source, run `node ci/scripts/run_failure_token_index_guard.mjs --write`, run `npm.cmd run guard:index` if guard surfaces changed, run `npm.cmd run hash:write`, then re-run the targeted guard and full local gate.
+Correct response: patch the emitting guard or test source, run `node ci/scripts/run_failure_token_index_guard.mjs --write`, run `npm.cmd run guard:index` if guard surfaces changed, run `npm.cmd run hash:write`, then re-run the targeted guard and `npm.cmd run verify`.
 
 This slice exists to block hidden string-only failures in critical v1 gates.
 <!-- S-V1-09:FAILURE-TOKEN-CLOSURE-FAILURE-PATH:END -->

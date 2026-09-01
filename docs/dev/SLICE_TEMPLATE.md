@@ -33,7 +33,7 @@ Commit message:
 - Do not add v1 implementation inside v0 closure slices.
 - Do not alter package version, release tags, registry content, migrations, UI screens, billing, dashboards, or commercial surfaces unless the slice explicitly requires it.
 - Preserve UTF-8 without BOM and LF line endings.
-- Run full gates from a clean tree before calling the slice complete.
+- Run the canonical local verification entrypoint plus slice-specific gates from a clean tree before calling the slice complete.
 
 ## Inspection checklist
 
@@ -73,9 +73,9 @@ Common targeted gates:
 
 Then commit.
 
-Then run clean-tree gates:
+Then run the canonical clean-tree verification entrypoint:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
 Slice-specific engine public contract gate:
 
@@ -101,7 +101,7 @@ A slice is complete only when:
 
 - intended files are committed
 - required targeted gates pass
-- `npm.cmd run lint:fast` passes from a clean tree
+- `npm.cmd run verify` passes from a clean tree
 - slice-specific gates pass
 - final working tree is clean
 
@@ -184,7 +184,7 @@ A v1 slice is locally complete only when:
 - intended files are committed
 - targeted guard or test passes
 - generated-file checks pass where applicable
-- `npm.cmd run lint:fast` passes from a clean tree
+- `npm.cmd run verify` passes from a clean tree
 - final working tree is clean
 - commit message begins with the slice ID
 
