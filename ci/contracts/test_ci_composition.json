@@ -370,6 +370,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/admin_04_product_surface_index_reconciliation.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/full_ui_01_function_manifest.test.mjs"
     },
     {
