@@ -22,7 +22,7 @@ import {
 export const REG_FULL_09_FAILURE_TOKEN = "CI_REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE";
 export const REG_FULL_09_REPORT = "ci/evidence/reg_full_09_final_registry_acceptance.v1.json";
 export const REG_FULL_09_SUPPORTED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
-const REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES = 896;
+const REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES = 898;
 
 const SURFACE_MANIFEST = "registries/final_registry_surface_manifest.json";
 const SCHEMA_MANIFEST = "registries/final_registry_schema_manifest.json";
@@ -409,7 +409,7 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
     if (activityId === "powerlifting") return templateSummary.powerlifting_templates !== 4;
     if (activityId === "general_strength") return templateSummary.general_strength_templates !== 3;
     if (activityId === "rugby_union") return templateSummary.rugby_union_templates !== 4;
-    if (activityId === "strongman") return templateSummary.strongman_templates !== 1;
+    if (activityId === "strongman") return templateSummary.strongman_templates !== 3;
     return true;
   }).length;
   if (templateCoverageGap) push(errors, "TEMPLATE_COVERAGE_GAP", templateCoverageGap);
@@ -428,7 +428,7 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
     fallback_closure: checkStatus(policies.fallback_count === 0 && dependencies.gates.reg_full_06 === "PASS" && dependencies.gates.reg_full_07 === "PASS"),
     duplicate_id_closure: checkStatus(policies.duplicate_id_count === 0),
     orphan_relationship_closure: checkStatus(orphanRelationships === 0),
-    programme_template_coverage: checkStatus(templateCoverageGap === 0 && templateSummary.template_count === 12),
+    programme_template_coverage: checkStatus(templateCoverageGap === 0 && templateSummary.template_count === 14),
     substitution_reachability: checkStatus(substitutionReachabilityGap === 0 && substitutionCounts.edges === REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES)
   };
 
