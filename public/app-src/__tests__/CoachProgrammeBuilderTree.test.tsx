@@ -167,6 +167,43 @@ test("switching an RPE work item's entry mode to reps-in-reserve shows a convert
   assert.ok(screen.getByText("RPE 6 - 4 reps in the tank"), "typing a new RIR live-updates the caption to its equivalent RPE");
 });
 
+test("a percent-1RM work item shows a Prilepin's chart reference for the current percentage", async () => {
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem());
+
+  assert.ok(screen.getByText(/Intermediate \(70-79% 1RM\)/, { exact: false }));
+});
+
+test("typing a new percent-1RM live-updates the Prilepin reference, showing both tables when their zones overlap", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem());
+
+  const percentInput = container.querySelector('input[data-field="percent_1rm"]') as HTMLInputElement;
+  assert.ok(percentInput);
+
+  fireEvent.change(percentInput, { target: { value: "60" } });
+
+  assert.ok(screen.getByText(/Sub-maximal \(55-69% 1RM\)/, { exact: false }));
+  assert.ok(screen.getByText(/Moderate volume \(50-64% 1RM, modified chart\)/, { exact: false }));
+});
+
+test("a percent-1RM value outside both Prilepin tables shows a factual no-match message", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem());
+
+  const percentInput = container.querySelector('input[data-field="percent_1rm"]') as HTMLInputElement;
+  fireEvent.change(percentInput, { target: { value: "10" } });
+
+  assert.ok(screen.getByText("No Prilepin's chart reference zone for this percentage."));
+});
+
+test("a non-percent-1RM loaded work item never shows the Prilepin reference panel", async () => {
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "rpe", value: 8 } }));
+
+  assert.equal(screen.queryByText(/1RM\)/, { exact: false }), null);
+});
+
 test("the exercise picker groups options by movement category and shows each exercise's equipment inline", async () => {
   installExerciseRegistryMock([
     { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"] },
