@@ -1,250 +1,292 @@
-<!-- DEV NOTE: Developer documentation surface. This document explains repo behaviour or boundaries, but canonical law remains in the tracked contracts, guards, and tests. Keep docs aligned with executable checks. -->
+<!-- DEV NOTE: Current documentation-currency reference. This file points to current tracked authority and implementation evidence. It does not create engine, registry, release, product, legal, commercial, or CI authority. -->
 
-# CURRENT_PROJECT_DOCS_STATUS
+# Current Project Documentation Status
 
 Document class: product/docs currency reference
-Status: working reference
+Status: current working reference
 Authority: non-canonical, engine-inert
-Scope: current project document currency against completed repository work
-Applies to: Kolosseum v0 docs, product docs, pilot docs, brand-feel docs
-Does not define: engine behaviour, CI authority, legal authority, registry data, release scope, replay, evidence, or runtime execution logic
+Scope: current tracked repository documentation and implementation pointers
 
 ## 1. Purpose
 
-This document records whether the current project documentation set is aligned with completed repository work.
+This document exists to stop historical notes, superseded copies, attached legacy documents, old PR summaries, and chat context from being mistaken for the current repository state.
 
-It exists to prevent stale attached docs, older project notes, and future prompts from being mistaken for the current product state.
+It deliberately does not define current state by a latest PR number. Repository work continues after any individual PR, so current state must be read from the tracked authority, manifests, executable guards/tests, and current evidence surfaces named below.
 
-This is a docs-status reference only. Canonical engine, legal, CI, registry, and release-scope documents remain authoritative above this file.
+If this file conflicts with a canonical authority source, executable guard/test, or authoritative registry/product manifest, that higher-authority source wins and this file must be reconciled.
 
-## 2. Current repo baseline
+## 2. Document classes and authority
 
-Current main includes work through:
+### 2.1 Canonical authority
 
-- PR #629 â€” Add brand feel parameters reference
-- PR #628 â€” Add brand feel parameters prompt
-- PR #627 â€” S48 pilot readiness evaluator
-- PR #626 â€” S47 pilot blocked reason registry
-- PR #625 â€” S46 pilot sign-off record
-- PR #624 â€” S45 coach-ready pilot acceptance pack
-- PR #623 â€” S44 public sales claim registry guard
-- PR #622 â€” S43 support boundary templates
-- PR #621 â€” S42 pilot state machine enforcement
-- PR #620 â€” S41 operator pilot dashboard
-- PR #619 â€” S40 history counts only
-- PR #618 â€” S39 coach assignment within limits
-- PR #617 â€” Kolosseum v0 agent operating system
-- PR #616 â€” S38 non-binding coach notes
-- PR #615 â€” S37 session artefact viewer
-- PR #614 â€” S36 extra work / deviation event capture
-- PR #613 â€” public UI diagnostics fence
+Canonical authority defines a boundary, contract, law, or acceptance requirement. Current authority pointers include:
 
-## 3. Attached docs currency verdict
+- `docs/SPINE.md`
+- `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md`
+- `docs/v1/V1_RELEASE_BOUNDARY.md`
+- `docs/v1/V1_ACCEPTANCE_GATE.md`
+- `docs/v1/V1_NOT_IN_SCOPE.md`
+- `docs/v1/V1_DOC_AUTHORITY_MAP.md`
+- canonical engine-law documents and engine contracts
+- canonical registry law, schemas, active registries, and registry bundle
+- CI guards and tests that enforce the declared contracts
 
-The attached v0 redefinition documents are directionally current for the v0/v1 boundary.
+This file cannot widen, narrow, or replace those authorities.
 
-They correctly preserve the main boundary:
+### 2.2 Current working reference
 
-- v0 is the Deterministic Execution Alpha
-- v0 is individual and coach-managed only
-- v0 is Phase 1 through Phase 6 only
-- v0 excludes Phase 7 truth projection
-- v0 excludes Phase 8 evidence sealing
-- v0 excludes evidence envelopes and export
-- v0 excludes org, team, unit, and gym execution
-- v0 excludes dashboards, analytics, rankings, messaging, readiness scoring, outcome evaluation, and medical/safety claims
+A current working reference reports or points to current tracked state without creating authority. Examples include:
 
-However, the attached docs are not complete against current repo progress.
+- this file
+- `docs/product/FULL_UI_GAP_REPORT.md`
+- current developer handover documentation under `docs/dev/`
+- generated or factual reports whose own headers declare them non-authoritative
 
-They do not fully reflect the completed S36-S48 implementation/documentation slices or the new brand-feel prompt/reference work.
+### 2.3 Historical documents and evidence
 
-## 4. Current completed work not fully reflected in older attached docs
+Historical documents record what a named slice, launch step, proof run, or repository state established at that time. They remain valid historical evidence and must not be rewritten to pretend they were generated from today's repository state.
 
-The following completed surfaces must be treated as current repo reality:
+Examples include named S-*, REG-FULL-*, FULL-UI-* and release-evidence records that preserve a completed decision or proof event.
 
-### S36 â€” extra work / deviation event capture
+Historical evidence may still be a required dependency for a current acceptance gate. Historical does not mean invalid; it means the record must be interpreted at its declared time and scope.
 
-Factual append-only runtime deviation events exist as a v0 slice.
+### 2.4 Superseded documents
 
-These events are engine-inert and must not mutate Phase 5, future compilation, constraints, progression, or registries.
+A document is superseded only when its own status, an authority map, or a named successor says that it has been replaced. Age alone does not make a document superseded.
 
-### S37 â€” session artefact viewer
+Old copies or old revisions of this status document are superseded by the version tracked on the current branch. They must not be used as a current repository baseline.
 
-A read-only factual session artefact viewer exists as a v0 slice.
+### 2.5 Attached legacy documents
 
-Access is limited to the athlete and linked coach where permitted.
+Legacy attachments such as `Kolosseum_v0_redefinition.docx` and `Kolosseum_v0_redefinition_summary.txt` remain useful historical/product context when supplied with the project, but they are not a substitute for current tracked repository authority.
 
-It does not create edit, override, Phase 1 mutation, or authority paths.
+Where an attached legacy document conflicts with current tracked authority, the tracked authority wins.
 
-### S38 â€” non-binding coach notes
+## 3. Current release and boundary position
 
-Coach notes exist as observational platform metadata.
+Read `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` first as the repository's active boundary pointer, then follow the source documents it names.
 
-They are non-binding, non-authoritative, and engine-inert.
+The v1 authority chain remains centred on:
 
-They must not influence execution, artefacts, replay, or evidence.
+- `docs/v1/V1_RELEASE_BOUNDARY.md`
+- `docs/v1/V1_ACCEPTANCE_GATE.md`
+- `docs/v1/V1_NOT_IN_SCOPE.md`
+- `docs/v1/V1_DOC_AUTHORITY_MAP.md`
 
-### S39 â€” coach assignment within limits
+The final controlled-launch decision record is:
 
-Coach assignment exists as platform visibility/access control only.
+- `docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.md`
+- `docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json`
 
-It must not mutate engine output, Phase 1, substitutions, progression, registries, compilation, or history truth.
+That record states `Decision: GO` for controlled launch only and authorises the named founder group only. It explicitly does not authorise open availability, marketplace access, organisation access, gym access, team access, federation access, enterprise dashboards, messaging, or other post-v1 scope.
 
-### S40 â€” history counts only
+Current repository implementation may contain later product surfaces beyond that controlled-launch decision. Implementation presence is not release authority. Do not use a later UI surface to silently widen the recorded controlled-launch scope.
 
-Factual history count surfaces exist for athlete and linked coach views.
+## 4. Current UI implementation inventory
 
-These are counts only and must not become analytics, scoring, ranking, readiness, or outcome evaluation.
+The current UI/product function authority surface is:
 
-### S41 â€” operator pilot dashboard
+- `product/ui/function_manifest.json`
 
-A factual/operator-only pilot dashboard exists.
+Its deterministic report is:
 
-It must fail closed on unknown source state and only allow Coach Ready when source-record preconditions are true.
+- `docs/product/FULL_UI_GAP_REPORT.md`
 
-### S42 â€” pilot state machine enforcement
+The current report records:
 
-A pilot state machine exists for legal pilot transitions.
+- implemented: 317
+- partial: 0
+- missing: 0
+- prohibited: 0
 
-It uses terminal fail-closed behaviour, unknown-state refusal, Coach Ready preconditions, and Active activation requirements.
+The manifest, its direct tests, integration tests, and `ci/guards/full_ui_completion_guard.mjs` are the correct surfaces for determining whether a UI function is implemented. Do not infer current UI completeness from old slice summaries or PR lists.
 
-### S43 â€” support boundary templates
+Current implemented areas include identity/account access, athlete and coach onboarding, coach-athlete relationships, athlete directory/profile, strength references, standalone events, programme library, programme builder, event-to-programme calendar, athlete assignment, athlete Today, session execution, history, coach review/live status, notifications/task state, data rights, and later product surfaces represented in the same manifest.
 
-Support boundary templates exist as factual, boundary-safe app documentation and JSON templates.
+## 5. Current registry acceptance and active activity scope
 
-They avoid unsupported v0 capability claims.
+Final registry acceptance evidence is:
 
-### S44 â€” public/sales claim registry guard
+- `docs/roadmap/REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE_GATE.md`
+- `ci/evidence/reg_full_09_final_registry_acceptance.v1.json`
+- `ci/registry/reg_full_09_final_registry_acceptance.mjs`
 
-A public/sales claim registry guard exists.
+The current REG-FULL-09 evidence status is `PASS`.
 
-Public claims must be registered, proof-linked, fail closed if unknown, and boundary-safe.
+The accepted active activity scope is:
 
-### S45 â€” coach-ready pilot acceptance pack
+- `powerlifting`
+- `general_strength`
+- `rugby_union`
+- `strongman`
 
-A coach-ready pilot acceptance pack exists.
+The acceptance evidence records zero unsupported activities, zero active candidate-only records, zero fallback records, zero duplicate IDs, and zero orphan relationships in the final accepted surface.
 
-It proves coach-ready acceptance only for the permitted pilot slice.
+Do not replace this activity scope with older candidate-registry notes or historical controlled-launch seed counts.
 
-It does not expand v0 into organisation, team, gym, proof, or evidence capability.
+## 6. Current exercise, template, and substitution state
 
-### S46 â€” pilot sign-off record
+REG-FULL-09 records the current accepted production state as:
 
-A pilot sign-off record exists as a platform operator record.
+- 244 exercises
+- 244 resolved exercises
+- 501 equipment-compatibility edges
+- 676 activity relation pairs
+- 2,028 applicability rows
+- 14 programme templates
+- 898 substitution edges
+- 209 substitution sources
+- 212 substitution targets
+- zero programme-template coverage gaps
+- zero substitution-reachability gaps
 
-It stores coach_ready or blocked outcomes, uses source artefact references, and remains append-only.
+Template coverage in that evidence is:
 
-It is not an engine input, engine output, pricing claim, public claim surface, or coach authority surface.
+- powerlifting: 4 templates
+- general strength: 3 templates
+- rugby union: 4 templates
+- strongman: 3 templates
+- low-equipment templates: 3
 
-### S47 â€” pilot blocked reason registry
+Relevant production-history pointers include:
 
-A closed-world pilot blocked reason registry exists.
+- `docs/roadmap/REG_FULL_03_EXERCISE_REGISTRY_PRODUCTION.md`
+- `docs/roadmap/REG_FULL_06_SUBSTITUTION_REGISTRY_PRODUCTION.md`
+- `docs/roadmap/REG_FULL_07_PROGRAMME_TEMPLATE_PRODUCTION.md`
+- `docs/roadmap/REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE_GATE.md`
 
-Operators must use controlled blocked reason IDs only.
+The final acceptance evidence is the preferred current acceptance pointer; earlier REG-FULL documents remain implementation/history records for their named stages.
 
-No free-text blocked reasons are permitted for this surface.
+## 7. Organisation, gym, and team-related implemented product surfaces
 
-### S48 â€” pilot readiness evaluator
+Organisation/gym/team-related implementation now exists in the current product/UI inventory. This does not by itself rewrite the controlled-launch or canonical v1 boundary.
 
-A pure pilot readiness evaluator exists.
+Examples represented as implemented in `product/ui/function_manifest.json` and the generated UI report include:
 
-It returns coach_ready or blocked from checklist and boundary inputs.
+- organisation-owner billing and seat-plan state
+- organisation-owner athlete visibility constrained by declared visibility mode
+- organisation-owner progress rollups with team/gym privacy rules
+- coach organisation-membership read/accept/leave flows
+- athlete organisation context limited to the athlete's own accepted coach relationship and declared visibility context
+- gym-wide attendance events for eligible organisation owners
 
-It does not store records, sign records, create timestamps, read a database, use a network, infer missing data, produce advice, or alter engine behaviour.
+Where organisation visibility rules intentionally differ between shared-visibility team organisations and individual-visibility gym organisations, the implementation tests and services own those runtime privacy rules. This status file does not redefine them.
 
-### Brand-feel prompt and reference
+## 8. Attendance-event implementation
 
-The repo now includes:
+The current manifest includes `org_owner_attendance_events` as implemented.
 
-- docs/product/BRAND_FEEL_PARAMETERS_v0_PROMPT.md
-- docs/product/BRAND_FEEL_PARAMETERS_v0.md
+That surface allows an eligible organisation owner to create a gym-wide attendance event without manually choosing athletes; currently accepted athletes across active coaches are auto-invited server-side. The owner can view the event roster and RSVP state, cancel the event, and skip or reschedule an occurrence within the declared implementation boundary.
 
-These are product/design references only.
+Attendance-event persistence and notification behaviour have direct and persistent integration proof, including the attendance-event notification integration surface.
 
-They do not define engine behaviour, CI authority, legal authority, registry data, or release scope.
+The current notification inventory also includes `notification_attendance_event`, which notifies an invited athlete when they are invited, when the event is cancelled, or when an occurrence is skipped or rescheduled, with a deep link to the athlete's own attendance view.
 
-## 5. Docs that should be treated as current
+## 9. Notification surfaces
 
-The following repo docs should be treated as current product/design references:
+The current UI report records 16 implemented notification/task-state functions.
 
-- docs/product/BRAND_FEEL_PARAMETERS_v0.md
-- docs/product/BRAND_FEEL_PARAMETERS_v0_PROMPT.md
+They cover factual notifications for relationship state, assignment state, event state, programme availability, session completion, visible coach notes, billing/entitlement action, read/unread state, deep links, marketplace-template lifecycle events, weekly check-ins, video feedback/submission, athlete goal achievement, and attendance events.
 
-The following project attached docs should still be treated as valid for v0 boundary direction:
+Use `product/ui/function_manifest.json`, the notification clients/routes, direct tests, and persistent integration tests to determine current notification implementation. Do not use older reminder-only documentation as a complete notification inventory.
 
-- Kolosseum_v0_redefinition.docx
-- Kolosseum_v0_redefinition_summary.txt
+## 10. Current programme-builder capabilities
 
-But they should be read with this update:
+The current UI report records 25 implemented programme-builder functions.
 
-They predate S36-S48 and do not fully describe current pilot, support-boundary, public-claim, and brand-feel documentation surfaces.
+The implemented builder supports, among other declared functions:
 
-## 6. Docs that need future review
+- programme identity and activity selection
+- ordered blocks and explicit block types
+- block, week, and session add/remove/duplicate/reorder actions
+- session composition with 1-12 exercises and superset/circuit grouping
+- session- and exercise-level coaching notes
+- warm-up, working, and cool-down segmentation
+- registry-backed exercise selection and exercise information
+- primary/accessory role selection
+- sets and fixed/range repetition prescriptions
+- percentage, fixed-load, bodyweight, or RPE loading
+- repetition, timed-hold, or distance prescription modes
+- optional tempo, load units, and rest time
+- deterministic structure summary
+- unsaved-change and save-state feedback
+- validation links
+- keyboard and phone operation
 
-Review older docs for these stale-risk terms:
+Programme-library, event-calendar, assignment, and activation-validation functions are separate implemented areas and should be read from the same current manifest rather than inferred from old builder slice notes.
 
-- build-complete v0
-- proof-complete v0
-- Phase 7 as v0
-- Phase 8 as v0
-- evidence envelope as v0
-- export as v0
-- organisation runtime as v0
-- team runtime as v0
-- gym runtime as v0
-- dashboards as v0
-- analytics as v0
-- readiness scoring
-- outcome evaluation
-- medical or safety claims
-- optimisation claims
-- best for you
-- tailored to you
-- guaranteed progress
+## 11. Current developer documentation
 
-Any current-facing doc using these terms as active v0 capability should be updated or demoted.
+The normal developer verification entrypoint is now reconciled across the repository:
 
-## 7. Current interpretation rule
+- generic shell/documentation form: `npm run verify`
+- local Windows PowerShell form: `npm.cmd run verify`
 
-If an older attached doc conflicts with completed repo work or active repo docs, use this order for product planning:
+Current developer handover surfaces include:
 
-1. Canonical engine, legal, CI, registry, and release-scope documents
-2. Current repo docs on main
-3. This current docs status reference
-4. Older attached project docs
-5. Chat notes and prompts
+- `README.md`
+- `CONTRIBUTING.md`
+- `DEV_OPERATING_RULES.md`
+- `docs/DEVELOPER_ONBOARDING.md`
+- `docs/COMMANDS.md`
+- `docs/ARCHITECTURE.md`
+- `docs/dev/GETTING_STARTED.md`
+- `docs/dev/COMMAND_GUIDE.md`
+- `docs/dev/CI_FAILURE_GUIDE.md`
+- `docs/dev/SLICE_TEMPLATE.md`
+- `docs/dev/DEVELOPER_OPERATING_CONVENTIONS.md`
+- `docs/GUARDS_INDEX.md`
+- `docs/dev/FAILURE_TOKEN_INDEX.md`
 
-Older attached docs remain useful context, but they are not enough to describe the current repo state.
+Lower-level lint, test, build, and proof commands remain diagnostic or slice-specific surfaces. They do not replace `verify` as the normal developer verification entrypoint.
 
-## 8. Recommended next docs work
+## 12. Controlled-launch scope versus repository implementation
 
-Create a dedicated docs index for active v0 surfaces.
+The repository must be read in two dimensions:
 
-Recommended future file:
+1. what is implemented and proven in the current tracked product/registry/runtime surfaces; and
+2. what the canonical release and controlled-launch authorities permit to be launched or claimed.
 
-docs/product/V0_SURFACE_INDEX.md
+These are not interchangeable.
 
-It should list the current v0 and pilot-adjacent surfaces, their authority level, engine impact, and whether each is active v0, operator-only, product/design reference, or future-platform direction.
+A product function can be implemented and tested while remaining outside the old controlled-launch decision scope. Conversely, a historical release decision can remain authoritative for its named launch even after the repository contains later implementation work.
 
-Do not update canonical engine law to include product/design references unless a separate authority decision is made.
+When planning launch, commercial, or public claims, use the current release/boundary authority and controlled-launch decision records. When determining implementation existence, use the current manifest, code, tests, guards, schemas, and acceptance evidence.
 
-## 9. Final ruling
+## 13. Currency rules for future updates
 
-The attached docs are not fully up to date.
+Do not maintain this file by appending every merged PR.
 
-They are still useful for the core v0/v1 boundary, but they do not cover completed work through S48 or the brand-feel reference.
+Update this file when one of its authoritative pointer classes materially changes, for example:
 
-The repo should treat this file as the current product/docs currency note until a fuller v0 surface index is created.
+- active release/boundary authority changes
+- UI manifest state changes materially
+- final registry acceptance or supported activity scope changes
+- exercise/template/substitution acceptance changes
+- a major implemented product area is added or removed
+- controlled-launch or release decision scope changes
+- canonical developer workflow changes
 
-## v0 completion gate manifest
+Keep historical evidence historical. Do not rewrite old proof records to match the latest repository.
 
-Current authoritative v0 completion checklist:
+Do not use an old PR number as the current repository baseline.
 
-- `docs/v0/V0_COMPLETION_GATE_MANIFEST.md`
-- `docs/v0/V0_COMPLETION_GATE_MANIFEST.json`
+## 14. Current interpretation order
 
-Current verifier:
+When sources conflict, use this practical order:
 
-- `ci/scripts/run_v0_completion_gate_manifest_verifier.mjs`
+1. canonical law, active release/boundary authority, registry authority, and legal/CI authority
+2. executable guards, tests, schemas, active registries, and authoritative product manifests for the behaviour they own
+3. final acceptance evidence for its declared acceptance scope
+4. current tracked working references, including this document and generated current-state reports
+5. historical and superseded repo documents, interpreted at their declared time and status
+6. attached legacy documents
+7. chat notes, prompts, and founder memory
 
-Purpose: records the source documents, required commands, required guard presence, and required `lint:fast` wiring for v0 completion. This is checklist verification only and does not create new engine or product scope.
+This order does not elevate this file above the authorities it points to.
+
+## 15. Final ruling
+
+`docs/product/CURRENT_PROJECT_DOCS_STATUS.md` is the current working documentation-currency pointer, not a frozen repository snapshot and not a new authority layer.
+
+Current repository state must be derived from the tracked authority, current manifests, executable proof, and acceptance evidence listed here. Old PR baselines and corrupted legacy text must not be used as current-state evidence.

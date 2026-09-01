@@ -39,6 +39,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_29_production_beta_rehearsal_guard.mjs` | Repo Governance | high | release | DEV NOTE: BETA-29 production beta rehearsal composition guard. |
 | `ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs` | Beta Copy Registry Authority | high | beta-copy | DEV NOTE: BETA-FIX-01 authoritative beta copy registry reconciliation guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
+| `ci/guards/current_project_docs_currency_guard.mjs` | Repo Governance | medium | docs | DEV NOTE: The old status document treated one finite PR sequence as the |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
 | `ci/guards/developer_operating_conventions_guard.mjs` | Repo Governance | medium | repo |  |
