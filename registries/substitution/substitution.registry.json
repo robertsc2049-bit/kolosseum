@@ -1420,7 +1420,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|02|02|push_up",
@@ -3605,7 +3606,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|02|01|kettlebell_deadlift",
@@ -3641,7 +3643,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|02|01|single_leg_rdl",
@@ -4266,7 +4269,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_bench_press|02|01|push_up",
@@ -6220,7 +6224,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_deadlift|00|00|kettlebell_swing",
@@ -6238,7 +6243,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_deadlift|02|00|single_leg_rdl",
@@ -6345,7 +6351,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_swing|00|00|kettlebell_deadlift",
@@ -6362,7 +6369,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_swing|02|00|single_leg_rdl",
@@ -11549,7 +11557,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|02|00|kettlebell_deadlift",
@@ -11585,7 +11594,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|02|00|single_leg_rdl",
@@ -12763,7 +12773,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|02|01|kettlebell_deadlift",
@@ -12797,7 +12808,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|02|01|single_leg_rdl",
@@ -13629,7 +13641,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "stiff_leg_deadlift|02|00|kettlebell_deadlift",
@@ -13665,7 +13678,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "strongman"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "stiff_leg_deadlift|02|00|single_leg_rdl",
@@ -14770,6 +14784,22 @@
       "deterministic_ordering_key": "tire_flip|02|00|snatch_grip_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "tire_flip__to__kettlebell_deadlift": {
+      "substitution_edge_id": "tire_flip__to__kettlebell_deadlift",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "tire_flip__to__kettlebell_swing": {
       "substitution_edge_id": "tire_flip__to__kettlebell_swing",
       "source_exercise_id": "tire_flip",
@@ -14800,6 +14830,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "tire_flip|02|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__single_leg_rdl": {
+      "substitution_edge_id": "tire_flip__to__single_leg_rdl",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "tire_flip__to__stiff_leg_deadlift": {
