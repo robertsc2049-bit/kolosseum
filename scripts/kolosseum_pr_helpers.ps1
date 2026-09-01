@@ -217,7 +217,6 @@ function Show-KolosseumRecentRuns {
     Write-Host "Recent runs: no structured results returned"
     return
   }
-
   $runs = $runsJson | ConvertFrom-Json
   if (-not $runs) {
     Write-Host "Recent runs: none"
@@ -237,7 +236,7 @@ function Sync-KolosseumMainAfterMerge {
   [CmdletBinding()]
   param()
 
-  Set-Location C:\Users\rober\kolosseum
+  Set-Location -LiteralPath (Split-Path -Parent $PSScriptRoot)
   $ErrorActionPreference = "Stop"
 
   git fetch origin --prune | Out-Host

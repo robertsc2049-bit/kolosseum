@@ -38,7 +38,9 @@ From repo root:
 
 From a clean tree:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
+
+`verify` is the single normal developer verification entrypoint. The lower-level commands below remain diagnostic or slice-specific proof surfaces.
 
 ## Common targeted proof commands
 
@@ -79,7 +81,11 @@ Developer convention checks:
     node ci/guards/s_v1_06_adr_system_start_guard.mjs
     node ci/guards/s_v1_07_developer_entry_pack_guard.mjs
 
-## Broader checks
+## Broader diagnostic and slice-specific checks
+
+Fast lint/guard chain:
+
+    npm.cmd run lint:fast
 
 Build fast:
 
@@ -96,6 +102,8 @@ Change-focused suite:
 Full suite:
 
     npm.cmd run test:full
+
+These commands do not replace `npm.cmd run verify` as the normal developer verification entrypoint.
 
 ## Generated-file order
 
@@ -116,7 +124,7 @@ When a slice touches a guard or generated documentation surface, use this order:
 
 5. Re-run the target guard or test.
 6. Run index/checksum/encoding checks.
-7. Run `npm.cmd run lint:fast` from a clean tree after commit.
+7. Run `npm.cmd run verify` from a clean tree after commit.
 
 ## What not to touch with commands
 
@@ -155,7 +163,7 @@ Targeted check:
 
 Primary local gate:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
 The master gate distinguishes v0 closure, v1 boundary, registry, copy/claims, auth/permissions, proof/replay/export, and no-coupling/engine-truth checks.
 

@@ -22,27 +22,23 @@ No legacy command drift is allowed.
 
 ### 1) Repo root
 
-`powershell
-Set-Location C:\Users\rober\kolosseum
-`",
-  ",
-  
+```powershell
+Set-Location C:\path\to\kolosseum
+```
 
 Run the slice-targeted proof first.
 
-`powershell
+```powershell
 node --test <targeted test file>
-`",
-  ",
-  
+```
 
-`powershell
-npm run lint:fast
-npm run dev:status
+Then run the canonical local verification entrypoint and status checks.
+
+```powershell
+npm.cmd run verify
+npm.cmd run dev:status
 gh run list --limit 10
-`",
-  ",
-  
+```
 
 Use only tracked v0 artefacts for proof/demo boundary reading:
 
@@ -58,11 +54,13 @@ Do not widen beyond local proof, demo, and release checks.
 
 ## Allowed Commands
 
-- Set-Location C:\Users\rober\kolosseum
-- node --test <targeted test file>
-- npm run lint:fast
-- npm run dev:status
-- gh run list --limit 10
+- `Set-Location C:\path\to\kolosseum`
+- `node --test <targeted test file>`
+- `npm.cmd run verify`
+- `npm.cmd run dev:status`
+- `gh run list --limit 10`
+
+Lower-level commands such as `lint:fast` remain diagnostic or slice-specific and are not the normal operator verification entrypoint.
 
 ## Forbidden Legacy Drift
 

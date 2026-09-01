@@ -28,7 +28,7 @@ That is the default supported local check.
 
 ### Start from main
 
-    Set-Location C:\Users\rober\kolosseum
+    Set-Location C:\path\to\kolosseum
     git switch main
     git pull --ff-only
     git switch -c ticket/real-slice-name
@@ -145,7 +145,7 @@ Local setup command:
 
 Primary local check command:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
 Generated-file refresh commands:
 
