@@ -1,10 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 
+import { loadRegistryExpectedCounts } from "./registry_expected_counts.mjs";
+
+const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts().counts;
+
 export const TOKEN = "CI_REG_FULL_03_EXERCISE_REGISTRY_PRODUCTION";
-export const EXPECTED_EXERCISE_COUNT = 244;
+export const EXPECTED_EXERCISE_COUNT = REGISTRY_EXPECTED_COUNTS.exercise_count;
 export const EXPECTED_TOKEN_COUNT = 4;
-export const EXPECTED_APPLICABILITY_COUNT = 2028;
+export const EXPECTED_APPLICABILITY_COUNT = REGISTRY_EXPECTED_COUNTS.applicability_row_count;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
 export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
 export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 176, general_strength: 238, rugby_union: 237, strongman: 25 });
@@ -78,7 +82,9 @@ export function auditRegFull03Documents({ exercise, movement, equipment, activit
 
   if (exercise?.registry_id !== "exercise") push(errors, "REGISTRY_ID", exercise?.registry_id);
   if (exerciseIds.length !== EXPECTED_EXERCISE_COUNT) push(errors, "EXERCISE_COUNT", { expected: EXPECTED_EXERCISE_COUNT, actual: exerciseIds.length });
-  if (Object.keys(mv).length !== 54) push(errors, "MOVEMENT_UNIVERSE", { expected: 54, actual: Object.keys(mv).length });
+  if (Object.keys(mv).length !== REGISTRY_EXPECTED_COUNTS.movement_count) push(errors, "MOVEMENT_UNIVERSE", { expected: REGISTRY_EXPECTED_COUNTS.movement_count, actual: Object.keys(mv).length });
+  if (Object.keys(eq).length !== REGISTRY_EXPECTED_COUNTS.equipment_count) push(errors, "EQUIPMENT_UNIVERSE", { expected: REGISTRY_EXPECTED_COUNTS.equipment_count, actual: Object.keys(eq).length });
+  if (Object.keys(ac).length !== REGISTRY_EXPECTED_COUNTS.supported_activity_count) push(errors, "ACTIVITY_UNIVERSE", { expected: REGISTRY_EXPECTED_COUNTS.supported_activity_count, actual: Object.keys(ac).length });
   if (Object.keys(tk).length !== EXPECTED_TOKEN_COUNT) push(errors, "TOKEN_COUNT", { expected: EXPECTED_TOKEN_COUNT, actual: Object.keys(tk).length });
   if (Object.keys(ap).length !== EXPECTED_APPLICABILITY_COUNT) push(errors, "APPLICABILITY_COUNT", { expected: EXPECTED_APPLICABILITY_COUNT, actual: Object.keys(ap).length });
 

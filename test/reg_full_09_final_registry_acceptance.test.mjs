@@ -10,8 +10,10 @@ import {
   auditDeclaredForeignKeys,
   computeRegFull09Acceptance
 } from "../ci/registry/reg_full_09_final_registry_acceptance.mjs";
+import { loadRegistryExpectedCounts } from "../ci/registry/registry_expected_counts.mjs";
 
 const root = process.cwd();
+const expectedCounts = loadRegistryExpectedCounts(root).counts;
 const live = computeRegFull09Acceptance(root);
 
 function clone(value) {
@@ -34,6 +36,7 @@ function mutatedActivity(mutator) {
 test("REG-FULL-09 final registry acceptance is green and the committed report is exact", () => {
   assert.equal(live.ok, true, JSON.stringify({ errors: live.errors, expected_report: live.report }, null, 2));
   assert.equal(live.report.status, "PASS");
+  assert.equal(live.report.checks.registry_expected_count_authority, "PASS");
   assert.equal(live.report.completion_statement, "REGISTRIES_FINISHED: all REG-FULL-09 final acceptance criteria pass");
   const reportPath = path.join(root, ...REG_FULL_09_REPORT.split("/"));
   assert.equal(fs.existsSync(reportPath), true, JSON.stringify({ missing: REG_FULL_09_REPORT, expected_report: live.report }, null, 2));
@@ -41,13 +44,13 @@ test("REG-FULL-09 final registry acceptance is green and the committed report is
   assert.deepEqual(committed, live.report);
 });
 
-test("REG-FULL-09 reports the exact final closure counts", () => {
+test("REG-FULL-09 reports production totals from the centralized accepted-count authority", () => {
   const c = live.report.counts;
-  assert.equal(c.required_active_registry_count, 25);
-  assert.equal(c.authoritative_schema_count, 25);
+  assert.equal(c.required_active_registry_count, expectedCounts.required_active_registry_count);
+  assert.equal(c.authoritative_schema_count, expectedCounts.authoritative_schema_count);
   assert.equal(c.schema_conflict_count, 0);
-  assert.equal(c.compact_bundle_registry_count, 12);
-  assert.equal(c.supported_activity_count, 4);
+  assert.equal(c.compact_bundle_registry_count, expectedCounts.compact_bundle_registry_count);
+  assert.equal(c.supported_activity_count, expectedCounts.supported_activity_count);
   assert.equal(c.unsupported_activity_count, 0);
   assert.equal(c.candidate_only_active_record_count, 0);
   assert.equal(c.dormant_candidate_only_record_count, 5);
@@ -59,26 +62,43 @@ test("REG-FULL-09 reports the exact final closure counts", () => {
   assert.ok(c.fk_reference_count > 0);
   assert.equal(c.dependency_gate_count, 10);
   assert.equal(c.dependency_failure_count, 0);
-  assert.equal(c.exercise_count, 244);
-  assert.equal(c.resolved_exercise_count, 244);
-  assert.equal(c.equipment_compatibility_edge_count, 501);
-  assert.equal(c.activity_relation_pair_count, 676);
-  assert.equal(c.applicability_row_count, 2028);
-  assert.equal(c.programme_template_count, 14);
+  assert.equal(c.exercise_count, expectedCounts.exercise_count);
+  assert.equal(c.resolved_exercise_count, expectedCounts.resolved_exercise_count);
+  assert.equal(c.equipment_compatibility_edge_count, expectedCounts.equipment_compatibility_edge_count);
+  assert.equal(c.activity_relation_pair_count, expectedCounts.activity_relation_pair_count);
+  assert.equal(c.applicability_row_count, expectedCounts.applicability_row_count);
+  assert.equal(c.programme_template_count, expectedCounts.programme_template_count);
   assert.equal(c.powerlifting_template_count, 4);
   assert.equal(c.general_strength_template_count, 3);
   assert.equal(c.rugby_union_template_count, 4);
   assert.equal(c.strongman_template_count, 3);
   assert.equal(c.low_equipment_template_count, 3);
   assert.equal(c.programme_template_coverage_gap_count, 0);
-  assert.equal(c.substitution_edge_count, 898);
-  assert.equal(c.substitution_source_count, 209);
-  assert.equal(c.substitution_target_count, 212);
+  assert.equal(c.substitution_edge_count, expectedCounts.substitution_edge_count);
+  assert.equal(c.substitution_source_count, expectedCounts.substitution_source_count);
+  assert.equal(c.substitution_target_count, expectedCounts.substitution_target_count);
   assert.equal(c.substitution_reachability_gap_count, 0);
-  assert.equal(c.copy_source_file_count, 18);
-  assert.equal(c.copy_source_record_count, 3946);
-  assert.equal(c.copy_provenance_record_count, 3946);
-  assert.equal(c.exact_copy_control_count, 6366);
+  assert.equal(c.copy_source_file_count, expectedCounts.copy_source_file_count);
+  assert.equal(c.copy_source_record_count, expectedCounts.copy_source_record_count);
+  assert.equal(c.copy_provenance_record_count, expectedCounts.copy_provenance_record_count);
+  assert.equal(c.exact_copy_control_count, expectedCounts.exact_copy_control_count);
+});
+
+test("REG-FULL-09 independently aggregates every child gate as PASS", () => {
+  assert.deepEqual(live.report.dependency_gates, {
+    reg_full_00: "PASS",
+    reg_full_02: "PASS",
+    reg_full_03: "PASS",
+    registry_bundle_guard: "PASS",
+    v1_registry_fk_closure: "PASS",
+    reg_full_01: "PASS",
+    reg_full_04: "PASS",
+    reg_full_06: "PASS",
+    reg_full_07: "PASS",
+    reg_full_08: "PASS"
+  });
+  assert.equal(live.report.counts.dependency_gate_count, Object.keys(live.report.dependency_gates).length);
+  assert.equal(live.report.counts.dependency_failure_count, 0);
 });
 
 test("REG-FULL-09 does not require fabricated data for schema-only closed authorities", () => {

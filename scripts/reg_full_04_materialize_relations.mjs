@@ -53,8 +53,6 @@ function validateAndBuild() {
   const activities = entries(activityDoc);
   const applicability = entries(applicabilityDoc);
 
-  if (Object.keys(exercises).length !== 244) fail("REG_FULL_04_EXERCISE_UNIVERSE_INVALID", { expected: 244, actual: Object.keys(exercises).length });
-
   const applicabilityByExercise = new Map();
   for (const [key, row] of Object.entries(applicability)) {
     if (!row || typeof row !== "object" || Array.isArray(row)) fail("REG_FULL_04_APPLICABILITY_ROW_INVALID", key);

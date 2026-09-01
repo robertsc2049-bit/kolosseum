@@ -18,11 +18,11 @@ import {
   validateRegFull08Closure,
   REG_FULL_08_GUARD_SOURCE_SPECS
 } from "./reg_full_08_copy_instructions_provenance_closure.mjs";
+import { validateRegistryExpectedCountsSnapshot } from "./registry_expected_counts.mjs";
 
 export const REG_FULL_09_FAILURE_TOKEN = "CI_REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE";
 export const REG_FULL_09_REPORT = "ci/evidence/reg_full_09_final_registry_acceptance.v1.json";
 export const REG_FULL_09_SUPPORTED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
-const REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES = 898;
 
 const SURFACE_MANIFEST = "registries/final_registry_surface_manifest.json";
 const SCHEMA_MANIFEST = "registries/final_registry_schema_manifest.json";
@@ -388,11 +388,14 @@ function checkStatus(ok) { return ok ? "PASS" : "FAIL"; }
 
 export function computeRegFull09Acceptance(root = process.cwd()) {
   const errors = [];
+  const countAuthority = validateRegistryExpectedCountsSnapshot(root);
+  if (!countAuthority.ok) push(errors, "REGISTRY_EXPECTED_COUNTS", countAuthority.errors.slice(0, 50));
+  const expectedCounts = countAuthority.snapshot?.counts ?? {};
+
   const bundle = auditBundleDeterminism(root, errors);
   const policies = auditActiveRecordPolicies(root, errors);
   const dependencies = dependencyGates(root, errors);
   const fkAudit = auditDeclaredForeignKeys(root, dependencies.schemaManifest, errors);
-  const schemaSummary = dependencies.schemaManifest?.summary ?? {};
   const activityDoc = readJson(root, "registries/activity/activity.registry.json");
   const supportedActivityIds = Object.keys(isObject(activityDoc?.entries) ? activityDoc.entries : {});
   const exactActivityScope = sameJson([...supportedActivityIds].sort(), [...REG_FULL_09_SUPPORTED_ACTIVITIES].sort());
@@ -414,11 +417,32 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
   }).length;
   if (templateCoverageGap) push(errors, "TEMPLATE_COVERAGE_GAP", templateCoverageGap);
 
+  const countParity = countAuthority.ok
+    && requiredActive === expectedCounts.required_active_registry_count
+    && authoritativeSchemas === expectedCounts.authoritative_schema_count
+    && bundle.registry_count === expectedCounts.compact_bundle_registry_count
+    && supportedActivityIds.length === expectedCounts.supported_activity_count
+    && reg04Counts.exercise_count === expectedCounts.exercise_count
+    && reg04Counts.resolved_exercise_count === expectedCounts.resolved_exercise_count
+    && reg04Counts.compatibility_edge_count === expectedCounts.equipment_compatibility_edge_count
+    && reg04Counts.activity_relation_pair_count === expectedCounts.activity_relation_pair_count
+    && reg04Counts.applicability_row_count === expectedCounts.applicability_row_count
+    && templateSummary.template_count === expectedCounts.programme_template_count
+    && substitutionCounts.edges === expectedCounts.substitution_edge_count
+    && substitutionCounts.sources === expectedCounts.substitution_source_count
+    && substitutionCounts.targets === expectedCounts.substitution_target_count
+    && copySummary.source_files === expectedCounts.copy_source_file_count
+    && copySummary.source_records === expectedCounts.copy_source_record_count
+    && copySummary.provenance_records === expectedCounts.copy_provenance_record_count
+    && copySummary.exact_copy_controls === expectedCounts.exact_copy_control_count;
+  if (!countParity) push(errors, "EXPECTED_COUNT_PARITY", { expected: expectedCounts });
+
   const dependencyFailures = Object.values(dependencies.gates).filter((status) => status !== "PASS").length;
   const substitutionReachabilityGap = dependencies.gates.reg_full_06 === "PASS" ? 0 : 1;
   const orphanRelationships = fkAudit.orphan_relationship_count;
 
   const checks = {
+    registry_expected_count_authority: checkStatus(countAuthority.ok && countParity),
     registry_bundle_rebuild: checkStatus(bundle.bundle_rebuild_result === "byte_identical"),
     schema_closure: checkStatus(dependencies.gates.reg_full_01 === "PASS" && requiredActive === authoritativeSchemas && schemaConflicts === 0),
     foreign_key_closure: checkStatus(orphanRelationships === 0),
@@ -428,8 +452,8 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
     fallback_closure: checkStatus(policies.fallback_count === 0 && dependencies.gates.reg_full_06 === "PASS" && dependencies.gates.reg_full_07 === "PASS"),
     duplicate_id_closure: checkStatus(policies.duplicate_id_count === 0),
     orphan_relationship_closure: checkStatus(orphanRelationships === 0),
-    programme_template_coverage: checkStatus(templateCoverageGap === 0 && templateSummary.template_count === 14),
-    substitution_reachability: checkStatus(substitutionReachabilityGap === 0 && substitutionCounts.edges === REG_FULL_09_EXPECTED_SUBSTITUTION_EDGES)
+    programme_template_coverage: checkStatus(templateCoverageGap === 0 && templateSummary.template_count === expectedCounts.programme_template_count),
+    substitution_reachability: checkStatus(substitutionReachabilityGap === 0 && substitutionCounts.edges === expectedCounts.substitution_edge_count)
   };
 
   const overallPass = errors.length === 0 && Object.values(checks).every((status) => status === "PASS") && dependencyFailures === 0;
