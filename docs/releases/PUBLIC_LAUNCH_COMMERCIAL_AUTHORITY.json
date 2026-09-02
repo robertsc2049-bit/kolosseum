@@ -1,0 +1,58 @@
+{
+  "schema_version": "LAUNCH-02.1.0.0",
+  "slice_id": "LAUNCH-02",
+  "release": {
+    "release_id": "kolosseum_public_launch",
+    "release_name": "Kolosseum Public Launch",
+    "release_authority": "LAUNCH-00",
+    "surface_authority": "LAUNCH-01",
+    "final_acceptance_gate": "LAUNCH-10",
+    "public_launch_authorised": false
+  },
+  "currency": { "code": "GBP", "minor_unit": "pence", "billing_interval": "month" },
+  "products": {
+    "athlete_individual": { "product": "athlete_individual", "account_role": "athlete", "tier": "athlete_monthly", "athlete_capacity": null, "standard_price_gbp_minor": 1499, "personal_subscription_required": true },
+    "coach": {
+      "product": "coach_subscription",
+      "account_role": "coach",
+      "tiers": [
+        { "tier": "coach_6", "athlete_capacity": 6, "standard_price_gbp_minor": 2499, "intro_price_gbp_minor": 1699 },
+        { "tier": "coach_16", "athlete_capacity": 16, "standard_price_gbp_minor": 5999, "intro_price_gbp_minor": 3999 },
+        { "tier": "coach_32", "athlete_capacity": 32, "standard_price_gbp_minor": 10999, "intro_price_gbp_minor": 7499 },
+        { "tier": "coach_64", "athlete_capacity": 64, "standard_price_gbp_minor": 18999, "intro_price_gbp_minor": 12999 },
+        { "tier": "coach_120", "athlete_capacity": 120, "standard_price_gbp_minor": 29999, "intro_price_gbp_minor": 19999 },
+        { "tier": "coach_250", "athlete_capacity": 250, "standard_price_gbp_minor": 49999, "intro_price_gbp_minor": 32999 }
+      ]
+    }
+  },
+  "founding_coach_offer": {
+    "enabled": true,
+    "trial_days": 30,
+    "card_required_during_trial": false,
+    "intro_paid_months": 6,
+    "automatic_transition_to_standard_price": true,
+    "upgrade_preserves_intro_period_start": true,
+    "upgrade_preserves_intro_period_end": true,
+    "upgrade_does_not_restart_intro_clock": true,
+    "cohort": { "initial_limit": 100, "active_limit": 100, "maximum_authorised_limit": 250, "expansion_requires_explicit_authority_update": true }
+  },
+  "entitlement_record": {
+    "exact_fields": ["product","account_role","tier","athlete_capacity","trial_state","trial_start_at","trial_end_at","intro_price_state","intro_period_start_at","intro_period_end_at","standard_price_gbp_minor","intro_price_gbp_minor","billing_state","access_state","founding_coach","founding_cohort_ordinal","billing_provider_ids","entitlement_metadata"],
+    "provider_ids_are_opaque_metadata_only": true,
+    "entitlement_metadata_is_engine_inert": true
+  },
+  "state_vocabulary": {
+    "trial_state": ["not_applicable","eligible","active","completed","expired"],
+    "intro_price_state": ["not_applicable","scheduled","active","completed"],
+    "billing_state": ["not_started","trial","active_paid","past_due","cancelled","ended"],
+    "access_state": ["active","restricted","inactive"]
+  },
+  "capacity_policy": { "server_authoritative": true, "hard_cap": true, "silent_overflow": false, "occupied_athlete_count_source": "server_relationship_state", "capacity_applies_to": "active_coach_athlete_relationships", "over_capacity_result": "product_access_rejected", "engine_decision": false },
+  "commercial_separation": { "athlete_and_coach_subscriptions_are_separate": true, "coach_payment_satisfies_athlete_personal_subscription": false, "athlete_payment_satisfies_coach_subscription": false, "relationship_truth_is_not_billing_truth": true, "billing_truth_is_not_relationship_truth": true },
+  "provider_boundary": { "provider_agnostic_authority": true, "stripe_connection_authorised_by_launch_02": false, "checkout_implementation_authorised_by_launch_02": false, "provider_price_ids_defined_by_launch_02": false, "provider_customer_or_subscription_ids_can_change_engine_truth": false },
+  "engine_truth_invariants": { "tier_can_change_engine_legality": false, "price_can_change_deterministic_output": false, "billing_state_can_change_registry_legality": false, "billing_state_can_change_substitution_legality": false, "billing_state_can_change_factual_history": false, "billing_state_can_change_proof_truth": false, "billing_state_can_change_relationship_truth": false, "trial_state_can_change_deterministic_output": false, "founding_coach_status_can_change_deterministic_output": false, "billing_provider_ids_can_change_deterministic_output": false, "entitlement_metadata_can_change_deterministic_output": false },
+  "legacy_controlled_launch": { "existing_payment_and_seat_contracts_remain_historical": true, "controlled_launch_org_seat_scope_is_public_launch_authority": false, "organisation_team_gym_enterprise_tiers_authorised": false },
+  "required_engine_invariance_variants": ["tier","price","paid_unpaid_state","trial_state","founding_coach_status","billing_provider_ids","entitlement_metadata"],
+  "non_scope": ["stripe_connection","checkout_implementation","provider_price_id_binding","deterministic_engine_changes","registry_changes","substitution_changes","relationship_truth_changes","organisation_tiers","team_tiers","gym_tiers","enterprise_tiers"],
+  "acceptance": { "pass_token": "PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY: PASS", "capacity_hard_cap_required": true, "commercial_engine_invariance_required": true, "athlete_coach_separation_required": true }
+}
