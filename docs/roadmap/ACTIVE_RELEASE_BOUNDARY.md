@@ -190,3 +190,31 @@ Use the executable LAUNCH-01 proof:
 
 LAUNCH-01 does not authorise public launch. Final authority remains LAUNCH-10.
 <!-- LAUNCH-01:PUBLIC-LAUNCH-SURFACE:END -->
+
+<!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:START -->
+## LAUNCH-02 Commercial Pricing and Entitlement Freeze
+
+Status: frozen provider-agnostic pricing and entitlement authority.
+
+Authority:
+
+- `docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json`
+- `docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.md`
+- `scripts/launch_02_commercial_pricing_entitlement_guard.mjs`
+- `test/launch_02_commercial_pricing_entitlement_freeze.test.mjs`
+
+The launch commercial model freezes one individual-athlete plan and six coach tiers, the 30-day no-card founding trial, six paid introductory months, first-100 active founding cohort with explicit expansion authority up to 250, and server-authoritative hard athlete caps.
+
+Athlete and coach subscriptions remain separate commercial truths. Commercial state controls product access only and cannot alter deterministic engine, registry, substitution, factual history, proof, or relationship truth.
+
+LAUNCH-02 does not connect Stripe or implement checkout. Production billing lifecycle activation remains LAUNCH-04 scope. Organisation, team, gym and enterprise tiers remain unauthorised.
+
+Use the executable LAUNCH-02 proof:
+
+    node --test test/launch_02_commercial_pricing_entitlement_freeze.test.mjs
+    node scripts/launch_02_commercial_pricing_entitlement_guard.mjs
+
+PASS token: `PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY: PASS`
+
+LAUNCH-02 does not authorise public launch. Final authority remains LAUNCH-10.
+<!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:END -->
