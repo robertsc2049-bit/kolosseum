@@ -100,6 +100,13 @@ jobs:
           node scripts/launch_00_current_release_authority_guard.mjs
           npm run verify
 
+      - name: LAUNCH-01 Public Launch Surface Manifest
+        # DEV NOTE: LAUNCH-01 classifies the exact current UI inventory against
+        # LAUNCH-00. It is an authority gate only and does not expose excluded UI.
+        run: |
+          node --test test/launch_01_public_launch_surface_manifest.test.mjs
+          node scripts/launch_01_public_launch_surface_guard.mjs
+
       - name: Green (CI)
         # DEV NOTE: This is the fast deterministic green gate.
         # Keep the actual check set inside package scripts so local and CI
