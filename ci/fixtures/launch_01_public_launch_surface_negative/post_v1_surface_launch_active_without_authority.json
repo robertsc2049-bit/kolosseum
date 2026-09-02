@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "post_v1_surface_launch_active_without_authority",
+  "mutation": {
+    "operation": "move_area",
+    "area_id": "programme_marketplace",
+    "classification": "launch_active"
+  },
+  "expected_token": "POST_V1_SURFACE_ACTIVE_WITHOUT_AUTHORITY"
+}

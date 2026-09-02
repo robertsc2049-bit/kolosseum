@@ -1,0 +1,12 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "actor_ownership_changes",
+  "mutation": {
+    "operation": "replace_function_actors",
+    "function_id": "account_create",
+    "actors": [
+      "org_owner"
+    ]
+  },
+  "expected_token": "LAUNCH_FUNCTION_ACTOR_UNLAWFUL"
+}

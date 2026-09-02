@@ -1,0 +1,157 @@
+{
+  "schema_version": "LAUNCH-01.1.0.0",
+  "slice_id": "LAUNCH-01",
+  "release": {
+    "release_id": "kolosseum_public_launch",
+    "release_name": "Kolosseum Public Launch",
+    "authority": "LAUNCH-00",
+    "final_acceptance_gate": "LAUNCH-10",
+    "public_launch_authorised": false
+  },
+  "sources": {
+    "launch_00_boundary": "docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json",
+    "launch_00_boundary_blob_sha": "e165484abb251cbf76d9188bf62e4dc9c5931443",
+    "ui_function_manifest": "product/ui/function_manifest.json",
+    "ui_function_manifest_blob_sha": "c970be98cadbe87b221be81a1e06a62366ecb859",
+    "full_ui_gap_report": "docs/product/FULL_UI_GAP_REPORT.md",
+    "full_ui_ship_record": "docs/product/FULL_UI_25_SHIP_RECORD.json"
+  },
+  "closed_world": {
+    "enabled": true,
+    "expected_product_area_count": 35,
+    "expected_function_count": 317,
+    "unknown_areas_fail": true,
+    "unknown_functions_fail": true,
+    "function_overrides": {}
+  },
+  "classification_categories": [
+    "launch_active",
+    "launch_operator_only",
+    "implemented_not_launched",
+    "historical",
+    "diagnostic",
+    "future"
+  ],
+  "area_classifications": {
+    "launch_active": [
+      "identity_account",
+      "athlete_onboarding",
+      "coach_commercial",
+      "relationships",
+      "coach_overview",
+      "athlete_directory",
+      "strength_references",
+      "programme_library",
+      "programme_builder",
+      "assignments",
+      "athlete_today",
+      "session_execution",
+      "athlete_history",
+      "coach_review",
+      "notifications",
+      "data_rights",
+      "status_support",
+      "cross_product_quality"
+    ],
+    "launch_operator_only": [
+      "founder_admin"
+    ],
+    "implemented_not_launched": [
+      "events",
+      "event_calendar_binding",
+      "organisation_billing",
+      "messaging",
+      "progress_photos",
+      "body_metrics_habits",
+      "exercise_reference_media",
+      "exercise_content",
+      "device_sync",
+      "video_feedback",
+      "progress_insights",
+      "athlete_goals",
+      "weekly_checkins",
+      "coach_branding",
+      "programme_marketplace",
+      "attendance_events"
+    ],
+    "historical": [],
+    "diagnostic": [],
+    "future": []
+  },
+  "actor_policy": {
+    "launch_active": [
+      "athlete",
+      "coach"
+    ],
+    "launch_operator_only": [
+      "founder_admin"
+    ],
+    "excluded_account_actors": [
+      "org_owner",
+      "shared"
+    ]
+  },
+  "function_record_projection": {
+    "function_id": "source.function_id",
+    "actor": "source.actors",
+    "route_action": "source.route_id plus resolved route pattern, source.api_routes, or cross-cutting lawful-route scope",
+    "persistence": "source.persistence",
+    "owning_authority": "source area.slice_id plus LAUNCH-00 plus LAUNCH-01",
+    "direct_test": "source.direct_test",
+    "persistent_integration_proof": "source.integration_test when persistence is not navigation_cache",
+    "commercial_entitlement": "coach_commercial functions only; downstream-gated by LAUNCH-00 commercial activation gates",
+    "engine_impact": "none_on_deterministic_engine_truth",
+    "launch_classification": "inherited from exact closed-world area classification"
+  },
+  "reachability_policy": {
+    "require_normal_route_or_discoverable_action": true,
+    "cross_cutting_area": "cross_product_quality",
+    "cross_cutting_function_exceptions": [
+      "admin_no_engine_override"
+    ],
+    "forbidden_completion_modes": [
+      "localStorage_only",
+      "diagnostic_ui_only",
+      "direct_api_only",
+      "database_edit_only"
+    ],
+    "operator_routes_may_have_public_actors": false,
+    "diagnostic_routes_are_product_ui": false,
+    "manual_identifier_transfer_is_launch_workflow": false,
+    "manual_database_edit_is_launch_workflow": false
+  },
+  "commercial_policy": {
+    "area_id": "coach_commercial",
+    "function_ids": [
+      "coach_profile_setup",
+      "coach_terms",
+      "subscription_state",
+      "seat_allowance",
+      "checkout_entry",
+      "payment_return",
+      "billing_portal",
+      "entitlement_error",
+      "webhook_confirmation"
+    ],
+    "required_activation_gates": [
+      "LAUNCH-02",
+      "LAUNCH-04",
+      "LAUNCH-10"
+    ],
+    "entitlement_can_change_engine_truth": false
+  },
+  "engine_truth_invariants": {
+    "payment_flag_can_change_compile_output": false,
+    "entitlement_can_change_compile_output": false,
+    "ui_state_can_change_compile_output": false,
+    "commercial_state_can_change_compile_output": false,
+    "product_state_can_change_compile_output": false
+  },
+  "acceptance": {
+    "launch_active_scope_must_equal_launch_00": true,
+    "all_current_functions_must_materialize": true,
+    "all_launch_visible_records_must_be_complete": true,
+    "excluded_surfaces_remain_excluded": true,
+    "pass_token": "PUBLIC_LAUNCH_SURFACE: PASS"
+  }
+}

@@ -162,3 +162,31 @@ Use the executable LAUNCH-00 proof:
 
 This pointer creates no payment implementation, pricing, account-registration change, UI change, database migration, programme import, marketplace activation, organisation activation, registry content, or engine behaviour.
 <!-- LAUNCH-00:CURRENT-PUBLIC-LAUNCH-AUTHORITY:END -->
+
+<!-- LAUNCH-01:PUBLIC-LAUNCH-SURFACE:START -->
+## LAUNCH-01 Public Launch Surface
+
+Status: executable closed-world function classification for the LAUNCH-00 release boundary.
+
+Authority:
+
+- `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.json`
+- `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.md`
+- `scripts/launch_01_public_launch_surface_guard.mjs`
+- `test/launch_01_public_launch_surface_manifest.test.mjs`
+
+The exact current UI inventory is 35 product areas and 317 implemented functions. Every function is classified through the blob-pinned closed-world projection. No implementation is launch-active merely because it exists.
+
+`launch_active` equals LAUNCH-00 public launch candidate scope exactly. `founder_admin` remains operator-only. All LAUNCH-00 post-v1 areas remain implemented but not launched. Current `historical`, `diagnostic` and `future` area sets are empty and explicit.
+
+Function-level launch overrides are forbidden. Unknown functions, unknown areas, actor drift, missing normal route/action ownership, public operator exposure and unauthorised post-v1 promotion fail closed.
+
+Commercial entitlement remains downstream-gated and cannot alter deterministic engine truth. UI state, payment state and product state cannot change compile output.
+
+Use the executable LAUNCH-01 proof:
+
+    node --test test/launch_01_public_launch_surface_manifest.test.mjs
+    node scripts/launch_01_public_launch_surface_guard.mjs
+
+LAUNCH-01 does not authorise public launch. Final authority remains LAUNCH-10.
+<!-- LAUNCH-01:PUBLIC-LAUNCH-SURFACE:END -->

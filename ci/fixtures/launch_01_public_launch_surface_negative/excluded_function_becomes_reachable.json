@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "excluded_function_becomes_reachable",
+  "mutation": {
+    "operation": "set_function_override",
+    "function_id": "programme_marketplace_browse",
+    "classification": "launch_active"
+  },
+  "expected_token": "EXCLUDED_FUNCTION_REACHABLE"
+}
