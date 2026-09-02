@@ -1,0 +1,1 @@
+{"schema_version":"LAUNCH-02.NEGATIVE.1.0.0","slice_id":"LAUNCH-02","case_id":"subscription_conflation","mutation":{"path":"commercial_separation.coach_payment_satisfies_athlete_personal_subscription","value":true},"expected_token":"LAUNCH_02_SUBSCRIPTION_CONFLATION"}

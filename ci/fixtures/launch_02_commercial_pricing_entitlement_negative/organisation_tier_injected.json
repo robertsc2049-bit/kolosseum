@@ -1,0 +1,1 @@
+{"schema_version":"LAUNCH-02.NEGATIVE.1.0.0","slice_id":"LAUNCH-02","case_id":"organisation_tier_injected","mutation":{"path":"legacy_controlled_launch.organisation_team_gym_enterprise_tiers_authorised","value":true},"expected_token":"LAUNCH_02_ORG_TIER_FORBIDDEN"}
