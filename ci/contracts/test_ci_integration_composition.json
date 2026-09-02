@@ -23,6 +23,14 @@
         "node test/ci_test_ci_integration_launch_03_account_access_manifest_file.test.mjs",
         "node test/ci_test_ci_integration_launch_03_account_access_manifest.test.mjs"
       ]
+    },
+    {
+      "id": "launch_04_billing_lifecycle",
+      "manifest": "ci/contracts/test_ci_integration_launch_04_billing_manifest.json",
+      "guards": [
+        "node test/ci_test_ci_integration_launch_04_billing_manifest_file.test.mjs",
+        "node test/ci_test_ci_integration_launch_04_billing_manifest.test.mjs"
+      ]
     }
   ]
 }
