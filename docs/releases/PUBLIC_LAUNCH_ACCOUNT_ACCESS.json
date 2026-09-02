@@ -76,7 +76,7 @@
   "persistent_proof": {
     "identity_account": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
     "relationship_lifecycle": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
-    "integration_manifest": "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json"
+    "integration_manifest": "ci/contracts/test_ci_integration_launch_03_account_access_manifest.json"
   },
   "sources": {
     "account_service": "src/api/product_account_service.ts",
