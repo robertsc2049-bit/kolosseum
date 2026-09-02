@@ -1,0 +1,187 @@
+{
+  "schema_version": "LAUNCH-00.1.0.0",
+  "slice_id": "LAUNCH-00",
+  "release": {
+    "release_id": "kolosseum_public_launch",
+    "release_name": "Kolosseum Public Launch",
+    "authority_kind": "release_preparation_boundary",
+    "activation_state": "not_yet_authorised",
+    "final_acceptance_gate": "LAUNCH-10",
+    "final_acceptance_statement": "PUBLIC_LAUNCH_ACCEPTANCE: GO"
+  },
+  "authority": {
+    "human_readable_boundary": "docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.md",
+    "active_release_pointer": "docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md",
+    "implementation_inventory": "product/ui/function_manifest.json",
+    "implementation_report": "docs/product/FULL_UI_GAP_REPORT.md",
+    "registry_acceptance_evidence": "ci/evidence/reg_full_09_final_registry_acceptance.v1.json",
+    "administrative_acceptance_contract": "docs/roadmap/ADMIN_08_FINAL_REPOSITORY_ADMINISTRATIVE_ACCEPTANCE_GATE.md",
+    "historical_controlled_launch_record": "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.md",
+    "historical_controlled_launch_record_json": "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json"
+  },
+  "supersession": {
+    "supersedes_founder_group_only_boundary_for_this_release": true,
+    "superseded_boundary": "controlled_launch_founder_group_only",
+    "scope": "new_public_launch_release_activation_only",
+    "historical_records_remain_final_for_their_original_scope": true,
+    "historical_records_must_not_be_rewritten": true,
+    "retroactive_v1_scope_rewrite": false,
+    "does_not_itself_authorise_public_launch": true
+  },
+  "historical_record_pins": {
+    "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.md": "edd287f24c9c80a0948c39b1cca5c834f0d95887",
+    "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json": "05a94d1940b7dbdc66909945739e0ec366863482"
+  },
+  "actors": {
+    "public": [
+      "athlete",
+      "coach"
+    ],
+    "operator_only": [
+      "founder_admin"
+    ],
+    "excluded_from_public_launch": [
+      "org_owner",
+      "shared"
+    ]
+  },
+  "activities": {
+    "permitted": [
+      "powerlifting",
+      "general_strength",
+      "rugby_union",
+      "strongman"
+    ],
+    "source": "REG-FULL-09 supported_activity_scope",
+    "closed_world": true
+  },
+  "product_areas": {
+    "public_launch_candidate": [
+      "identity_account",
+      "athlete_onboarding",
+      "coach_commercial",
+      "relationships",
+      "coach_overview",
+      "athlete_directory",
+      "strength_references",
+      "programme_library",
+      "programme_builder",
+      "assignments",
+      "athlete_today",
+      "session_execution",
+      "athlete_history",
+      "coach_review",
+      "notifications",
+      "data_rights",
+      "status_support",
+      "cross_product_quality"
+    ],
+    "operator_only": [
+      "founder_admin"
+    ],
+    "implemented_not_launched": [
+      "events",
+      "event_calendar_binding",
+      "organisation_billing",
+      "messaging",
+      "progress_photos",
+      "body_metrics_habits",
+      "exercise_reference_media",
+      "exercise_content",
+      "device_sync",
+      "video_feedback",
+      "progress_insights",
+      "athlete_goals",
+      "weekly_checkins",
+      "coach_branding",
+      "programme_marketplace",
+      "attendance_events"
+    ],
+    "closed_world": true
+  },
+  "function_resolution": {
+    "mode": "all_functions_in_classified_product_areas",
+    "require_manifest_resolution": true,
+    "require_implemented_state_for_public_candidate": true,
+    "require_zero_partial": true,
+    "require_zero_missing": true
+  },
+  "commercial_surfaces": {
+    "permitted_candidate_area": "coach_commercial",
+    "permitted_existing_function_ids": [
+      "coach_profile_setup",
+      "coach_terms",
+      "subscription_state",
+      "seat_allowance",
+      "checkout_entry",
+      "payment_return",
+      "billing_portal",
+      "entitlement_error",
+      "webhook_confirmation"
+    ],
+    "activation_requires": [
+      "LAUNCH-02",
+      "LAUNCH-04",
+      "LAUNCH-10"
+    ],
+    "pricing_defined_by_launch_00": false,
+    "payment_implementation_defined_by_launch_00": false
+  },
+  "engine_truth_invariants": {
+    "payment_state_can_alter_engine_truth": false,
+    "entitlement_state_can_alter_engine_truth": false,
+    "ui_state_can_alter_engine_truth": false,
+    "commercial_state_can_alter_engine_truth": false,
+    "product_state_can_alter_engine_truth": false,
+    "coach_notes_can_alter_engine_truth": false,
+    "notification_state_can_alter_engine_truth": false
+  },
+  "explicitly_excluded_capabilities": [
+    "organisations",
+    "organizations",
+    "teams",
+    "gyms",
+    "federation_runtime",
+    "enterprise",
+    "marketplace",
+    "messaging",
+    "chat",
+    "attendance_events",
+    "progress_photos",
+    "progress_insights",
+    "body_metrics_habits",
+    "goals",
+    "weekly_checkins",
+    "video_feedback",
+    "coach_branding",
+    "event_calendar_extensions",
+    "standalone_events",
+    "device_sync",
+    "exercise_reference_media",
+    "exercise_coaching_content"
+  ],
+  "required_downstream_gates": [
+    "LAUNCH-01",
+    "LAUNCH-02",
+    "LAUNCH-03",
+    "LAUNCH-04",
+    "LAUNCH-05",
+    "LAUNCH-06",
+    "LAUNCH-07",
+    "LAUNCH-08",
+    "LAUNCH-09",
+    "LAUNCH-10"
+  ],
+  "non_scope": [
+    "payment_implementation",
+    "pricing_definition",
+    "account_registration_changes",
+    "ui_changes",
+    "database_migrations",
+    "programme_imports",
+    "marketplace_activation",
+    "organisation_activation",
+    "new_registry_content",
+    "engine_behaviour_changes"
+  ]
+}

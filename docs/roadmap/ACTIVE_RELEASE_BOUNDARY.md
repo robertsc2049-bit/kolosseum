@@ -134,3 +134,31 @@ Organisations, organizations, teams, gyms, units, federations, marketplace, mess
 
 This active release pointer does not create implementation authority, engine authority, registry content, payment implementation, auth implementation, UI implementation, commercial authority, legal authority, proof authority, or release approval.
 <!-- S-V1-10:ACTIVE-RELEASE-BOUNDARY-CLOSURE:END -->
+
+<!-- LAUNCH-00:CURRENT-PUBLIC-LAUNCH-AUTHORITY:START -->
+## LAUNCH-00 Current Public Launch Authority
+
+Status: current release-preparation pointer.
+
+The current post-ADMIN public-launch preparation boundary is:
+
+- `docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.md`
+- `docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json`
+
+Release name: Kolosseum Public Launch.
+
+For this new release's activation decisions only, LAUNCH-00 supersedes the historical founder-group-only controlled-launch limit. It does not rewrite the historical controlled-launch GO record, does not retroactively widen First Lawful Run v1 scope, and does not itself authorise public launch.
+
+Implementation existence remains distinct from release activation. Current post-v1 surfaces remain unlaunched unless the LAUNCH-00 manifest explicitly classifies them otherwise.
+
+The exact accepted registry activity scope remains sourced from REG-FULL-09.
+
+Final public launch authority belongs only to `LAUNCH-10`, which may emit `PUBLIC_LAUNCH_ACCEPTANCE: GO` only after every required launch gate passes.
+
+Use the executable LAUNCH-00 proof:
+
+    node --test test/launch_00_current_release_authority.test.mjs
+    node scripts/launch_00_current_release_authority_guard.mjs
+
+This pointer creates no payment implementation, pricing, account-registration change, UI change, database migration, programme import, marketplace activation, organisation activation, registry content, or engine behaviour.
+<!-- LAUNCH-00:CURRENT-PUBLIC-LAUNCH-AUTHORITY:END -->
