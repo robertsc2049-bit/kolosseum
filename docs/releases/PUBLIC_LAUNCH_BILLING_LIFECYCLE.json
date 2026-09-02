@@ -1,0 +1,175 @@
+{
+  "schema_version": "LAUNCH-04.1.0.0",
+  "slice_id": "LAUNCH-04",
+  "release_id": "kolosseum_public_launch",
+  "prerequisites": ["LAUNCH-00", "LAUNCH-01", "LAUNCH-02", "LAUNCH-03"],
+  "final_acceptance_gate": "LAUNCH-10",
+  "public_launch_authorised": false,
+  "pricing_authority": "docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json",
+  "provider": {
+    "name": "stripe",
+    "activation_flag": "KOLOSSEUM_PUBLIC_LAUNCH_BILLING_ENABLED",
+    "mode_variable": "KOLOSSEUM_PUBLIC_LAUNCH_BILLING_MODE",
+    "allowed_modes": ["test", "live"],
+    "secret_variable": "STRIPE_SECRET_KEY",
+    "webhook_secret_variable": "STRIPE_WEBHOOK_SECRET",
+    "public_app_url_variable": "KOLOSSEUM_PUBLIC_APP_URL",
+    "test_api_override": "STRIPE_TEST_API_BASE_URL",
+    "production_requires_live_mode": true,
+    "production_requires_live_secret": true,
+    "browser_payment_return_is_trusted": false,
+    "signed_webhook_is_trusted": true
+  },
+  "plans": {
+    "athlete_monthly": {
+      "account_role": "athlete",
+      "athlete_capacity": null,
+      "standard_price_gbp_minor": 1499,
+      "intro_price_gbp_minor": null,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_ATHLETE_STANDARD_PRICE_ID"
+    },
+    "coach_6": {
+      "account_role": "coach",
+      "athlete_capacity": 6,
+      "standard_price_gbp_minor": 2499,
+      "intro_price_gbp_minor": 1699,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_6_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_6_INTRO_PRICE_ID"
+    },
+    "coach_16": {
+      "account_role": "coach",
+      "athlete_capacity": 16,
+      "standard_price_gbp_minor": 5999,
+      "intro_price_gbp_minor": 3999,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_16_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_16_INTRO_PRICE_ID"
+    },
+    "coach_32": {
+      "account_role": "coach",
+      "athlete_capacity": 32,
+      "standard_price_gbp_minor": 10999,
+      "intro_price_gbp_minor": 7499,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_32_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_32_INTRO_PRICE_ID"
+    },
+    "coach_64": {
+      "account_role": "coach",
+      "athlete_capacity": 64,
+      "standard_price_gbp_minor": 18999,
+      "intro_price_gbp_minor": 12999,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_64_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_64_INTRO_PRICE_ID"
+    },
+    "coach_120": {
+      "account_role": "coach",
+      "athlete_capacity": 120,
+      "standard_price_gbp_minor": 29999,
+      "intro_price_gbp_minor": 19999,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_120_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_120_INTRO_PRICE_ID"
+    },
+    "coach_250": {
+      "account_role": "coach",
+      "athlete_capacity": 250,
+      "standard_price_gbp_minor": 49999,
+      "intro_price_gbp_minor": 32999,
+      "standard_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_250_STANDARD_PRICE_ID",
+      "intro_price_env": "KOLOSSEUM_PUBLIC_LAUNCH_COACH_250_INTRO_PRICE_ID"
+    }
+  },
+  "founding_coach_offer": {
+    "active_cohort_limit": 100,
+    "maximum_authorised_cohort": 250,
+    "trial_days": 30,
+    "card_required_to_start_trial": false,
+    "intro_paid_months": 6,
+    "intro_clock_restarts_on_upgrade": false,
+    "tier_change_preserves_trial_start_end": true,
+    "tier_change_preserves_intro_start_end": true,
+    "automatic_standard_transition": "after_six_paid_intro_invoices_or_intro_period_end"
+  },
+  "entitlement_fields": [
+    "product",
+    "account_role",
+    "tier",
+    "athlete_capacity",
+    "trial_state",
+    "trial_start_at",
+    "trial_end_at",
+    "intro_price_state",
+    "intro_period_start_at",
+    "intro_period_end_at",
+    "standard_price_gbp_minor",
+    "intro_price_gbp_minor",
+    "billing_state",
+    "access_state",
+    "founding_coach",
+    "founding_cohort_ordinal",
+    "billing_provider_ids",
+    "entitlement_metadata"
+  ],
+  "lifecycle": {
+    "coach_trial_start": "server_authoritative_no_card",
+    "checkout": "stripe_subscription_checkout",
+    "tier_change": "server_validated_provider_price_change",
+    "downgrade_over_capacity": "rejected",
+    "cancellation": "cancel_at_period_end_when_provider_subscription_exists",
+    "server_only_trial_cancellation": "immediate",
+    "renewal": "invoice.paid",
+    "payment_failure": "invoice.payment_failed",
+    "subscription_reconciliation": "customer.subscription.updated_and_explicit_reconcile",
+    "subscription_end": "customer.subscription.deleted",
+    "webhook_idempotency": "stripe_event_id",
+    "webhook_ordering": "event_created_then_event_id_monotonic_guard",
+    "stale_webhook_action": "acknowledge_without_state_regression"
+  },
+  "capacity": {
+    "source": "server_relationship_state",
+    "counted_relationship_state": "accepted",
+    "hard_cap": true,
+    "enforced_before_relationship_acceptance_when_public_launch_billing_enabled": true,
+    "over_capacity_result": "product_access_rejected",
+    "billing_state_is_relationship_truth": false
+  },
+  "commercial_separation": {
+    "athlete_subscription_separate_from_coach_subscription": true,
+    "coach_payment_satisfies_athlete_subscription": false,
+    "athlete_payment_satisfies_coach_subscription": false,
+    "organisation_team_gym_enterprise_tiers_authorised": false
+  },
+  "engine_isolation": {
+    "tier_can_change_engine_truth": false,
+    "price_can_change_engine_truth": false,
+    "billing_state_can_change_engine_truth": false,
+    "trial_state_can_change_engine_truth": false,
+    "founding_coach_can_change_engine_truth": false,
+    "billing_provider_ids_can_change_engine_truth": false,
+    "entitlement_metadata_can_change_engine_truth": false
+  },
+  "public_routes": [
+    "/account/commercial",
+    "/account/commercial/trial",
+    "/account/commercial/checkout",
+    "/account/commercial/tier",
+    "/account/commercial/cancel",
+    "/account/commercial/reconcile",
+    "/account/commercial/portal",
+    "/account/commercial/payment-return",
+    "/webhooks/stripe"
+  ],
+  "persistent_proof": {
+    "integration_test": "test/launch_04_billing_lifecycle_persistent.integration.test.mjs",
+    "integration_manifest": "ci/contracts/test_ci_integration_launch_04_billing_manifest.json"
+  },
+  "sources": {
+    "service": "src/api/public_launch_billing_service.ts",
+    "commercial_routes": "src/api/product_commercial.routes.ts",
+    "webhook_routes": "src/api/product_commercial_webhook.routes.ts",
+    "relationship_service": "src/api/relationship_invitation_service.ts",
+    "ui": "public/app-src/screens/account/CommercialPanel.tsx"
+  },
+  "acceptance": {
+    "pass_token": "PUBLIC_LAUNCH_BILLING_LIFECYCLE: PASS",
+    "launch_10_still_required": true
+  }
+}

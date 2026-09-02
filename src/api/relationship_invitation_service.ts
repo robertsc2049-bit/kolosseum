@@ -16,6 +16,9 @@ import {
   loadLatestBetaProductRecord,
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
+import {
+  assertPublicLaunchCoachCapacity
+} from "./public_launch_billing_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -256,13 +259,6 @@ async function withCoachDisplay(
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId = cleanString(relationship.coach_user_id);
 
-  // A failure loading one coach's profile/brand records (a malformed
-  // relationship row, or just a transient read failure) must never take
-  // down the athlete's ENTIRE invitations/relationships list - this runs
-  // inside an outer Promise.all across every relationship the athlete has,
-  // so an unhandled rejection here would hide every other coach's entry
-  // too. Falling back to null degrades this one coach to the same "record
-  // doesn't exist yet" defaults used below.
   let coachProfile = null;
   let brandPreference = null;
   try {
@@ -280,8 +276,8 @@ async function withCoachDisplay(
     ]);
   }
   catch {
-    // coachProfile/brandPreference stay null - handled identically to a
-    // legitimately absent record by every read below.
+    // One malformed/temporarily unavailable coach display record must not
+    // hide every other relationship from the athlete's list.
   }
 
   return Object.freeze({
@@ -299,9 +295,6 @@ async function withCoachDisplay(
   });
 }
 
-// Athlete action: list this athlete's own pending invitations. The athlete
-// identity comes only from the caller's resolved session - never a
-// client-supplied id.
 export async function listPendingRelationshipInvitationsForAthlete(
   athleteUserIdInput: string
 ): Promise<readonly Readonly<JsonRecord>[]> {
@@ -318,10 +311,6 @@ export async function listPendingRelationshipInvitationsForAthlete(
   return Promise.all(pending.map(withCoachDisplay));
 }
 
-// Athlete action: list this athlete's own current and past coach
-// relationships (accepted, declined, revoked or expired) - history is never
-// deleted, only ever appended to, so a relationship that ended remains fully
-// visible and queryable here.
 export async function listRelationshipsForAthlete(
   athleteUserIdInput: string
 ): Promise<readonly Readonly<JsonRecord>[]> {
@@ -336,10 +325,6 @@ export async function listRelationshipsForAthlete(
   return Promise.all(relevant.map(withCoachDisplay));
 }
 
-// Athlete action: accept a pending invitation. The athlete supplies only the
-// relationship_id their own pending-invitations list already gave them; the
-// server independently verifies it names this athlete's own session and is
-// genuinely still pending before writing an accepted transition.
 export async function acceptRelationshipInvitation(
   athleteUserIdInput: string,
   relationshipIdInput: unknown
@@ -361,6 +346,14 @@ export async function acceptRelationshipInvitation(
     throw new RelationshipInvitationError("invitation_not_pending", 404);
   }
 
+  // LAUNCH-04 hard commercial-cap gate. The check is server-authoritative
+  // and occurs before an accepted relationship transition is persisted.
+  // When LAUNCH-04 is disabled the helper is a no-op, preserving historical
+  // controlled-launch behaviour and proofs.
+  await assertPublicLaunchCoachCapacity(
+    cleanString(current.coach_user_id)
+  );
+
   const timestamp = new Date().toISOString();
 
   return writeRelationshipTransition({
@@ -374,10 +367,6 @@ export async function acceptRelationshipInvitation(
   });
 }
 
-// Athlete action: decline a pending invitation - the symmetric counterpart
-// to acceptRelationshipInvitation. The coach is notified of the decline the
-// same way they are notified of an acceptance (product_notification_service
-// derives relationship_declined from this same record).
 export async function declineRelationshipInvitation(
   athleteUserIdInput: string,
   relationshipIdInput: unknown
@@ -413,12 +402,6 @@ export async function declineRelationshipInvitation(
   });
 }
 
-// Athlete action: end an accepted relationship from their own profile - the
-// athlete-initiated counterpart to the coach's existing "revoke" control.
-// The server independently re-verifies the relationship is currently
-// accepted and names this athlete before writing the closure; the prior
-// invited/accepted history remains fully preserved and queryable, never
-// deleted.
 export async function athleteEndsRelationship(
   athleteUserIdInput: string,
   relationshipIdInput: unknown

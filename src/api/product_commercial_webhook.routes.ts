@@ -1,9 +1,6 @@
-// DEV NOTE: FULL-UI-08 Stripe webhook - the trusted-confirmation counterpart
-// to product_commercial.routes.ts's session-authenticated routes. This
-// route is unauthenticated by session (Stripe has no product session
-// cookie) and instead trusts only a verified Stripe signature. Mounted
-// with a raw (non-JSON-parsed) body in src/server.ts, since signature
-// verification requires the exact bytes Stripe signed.
+// DEV NOTE: FULL-UI-08 + LAUNCH-04 Stripe webhook - trusted provider
+// confirmation. This route is unauthenticated by product session and trusts
+// only the exact raw request body after Stripe signature verification.
 
 import Stripe from "stripe";
 
@@ -17,6 +14,11 @@ import {
 import {
   recordProductCommercialWebhookEvent
 } from "./product_commercial_service.js";
+
+import {
+  publicLaunchBillingEnabled,
+  recordPublicLaunchBillingWebhookEvent
+} from "./public_launch_billing_service.js";
 
 export const productCommercialWebhookRouter = Router();
 
@@ -61,25 +63,19 @@ productCommercialWebhookRouter.post(
       });
     }
 
-    const signature =
-      request.headers["stripe-signature"];
+    const signature = request.headers["stripe-signature"];
 
     if (typeof signature !== "string" || !signature) {
       return response.status(400).json({
-        error:
-          "commercial_webhook_signature_invalid"
+        error: "commercial_webhook_signature_invalid"
       });
     }
 
-    // express.raw() (mounted for this path in server.ts, ahead of the
-    // global express.json()) leaves request.body as a Buffer of the exact
-    // bytes Stripe signed - required for constructEvent's HMAC check.
     const rawBody = request.body;
 
     if (!Buffer.isBuffer(rawBody)) {
       return response.status(400).json({
-        error:
-          "commercial_webhook_signature_invalid"
+        error: "commercial_webhook_signature_invalid"
       });
     }
 
@@ -94,15 +90,19 @@ productCommercialWebhookRouter.post(
     }
     catch {
       return response.status(400).json({
-        error:
-          "commercial_webhook_signature_invalid"
+        error: "commercial_webhook_signature_invalid"
       });
     }
 
-    const result =
-      await recordProductCommercialWebhookEvent(
-        event
-      );
+    if (publicLaunchBillingEnabled()) {
+      const publicResult = await recordPublicLaunchBillingWebhookEvent(event);
+
+      if (publicResult.handled) {
+        return response.status(200).json(publicResult.result);
+      }
+    }
+
+    const result = await recordProductCommercialWebhookEvent(event);
 
     return response.status(200).json(result);
   })
