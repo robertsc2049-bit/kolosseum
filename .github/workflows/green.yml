@@ -107,6 +107,14 @@ jobs:
           node --test test/launch_01_public_launch_surface_manifest.test.mjs
           node scripts/launch_01_public_launch_surface_guard.mjs
 
+      - name: LAUNCH-02 Commercial Pricing and Entitlement Freeze
+        # DEV NOTE: LAUNCH-02 freezes provider-agnostic public-launch pricing,
+        # hard-cap entitlement law and commercial/engine isolation. It does not
+        # connect Stripe, implement checkout, or change deterministic engine law.
+        run: |
+          node --test test/launch_02_commercial_pricing_entitlement_freeze.test.mjs
+          node scripts/launch_02_commercial_pricing_entitlement_guard.mjs
+
       - name: Green (CI)
         # DEV NOTE: This is the fast deterministic green gate.
         # Keep the actual check set inside package scripts so local and CI
