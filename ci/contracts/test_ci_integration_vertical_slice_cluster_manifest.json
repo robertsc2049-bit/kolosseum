@@ -12,6 +12,7 @@
     "node test/full_ui_03c_athlete_onboarding_persistent_http.integration.test.mjs",
     "node test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
     "node test/full_ui_04c_coach_commercial_webhook.test.mjs",
+    "node test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
     "node test/beta_18_template_builder.integration.test.mjs",
     "node test/event_programme_compiler_service.test.mjs",
     "node test/beta19_coach_event_service.test.mjs",

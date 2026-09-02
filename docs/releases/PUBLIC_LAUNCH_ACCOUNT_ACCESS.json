@@ -1,0 +1,92 @@
+{
+  "schema_version": "LAUNCH-03.1.0.0",
+  "slice_id": "LAUNCH-03",
+  "release_id": "kolosseum_public_launch",
+  "authority": ["LAUNCH-00", "LAUNCH-01", "LAUNCH-02", "LAUNCH-03"],
+  "final_acceptance_gate": "LAUNCH-10",
+  "public_launch_authorised": false,
+  "active_public_roles": ["athlete", "coach"],
+  "rejected_active_roles": ["founder_admin", "org_owner", "organisation_owner", "organization_owner", "team_owner", "gym_owner", "federation_admin", "enterprise_admin", "shared"],
+  "identity_policy": {
+    "unique_identity_required": true,
+    "canonical_unique_key": "canonical_email",
+    "explicit_account_state_required": true,
+    "explicit_role_required": true,
+    "implicit_role_promotion_permitted": false,
+    "email_verification_required_for_launch_journey": true,
+    "server_authoritative": true
+  },
+  "account_states": {
+    "launch_access_state": "active",
+    "access_denied_states": ["suspended", "closed", "deleted"],
+    "expired_or_revoked_session_denies_access": true
+  },
+  "public_routes": {
+    "terms": "/account/terms",
+    "register": "/account/register",
+    "sign_in": "/account/sign-in",
+    "session": "/account/session",
+    "sign_out": "/account/sign-out",
+    "verification_request": "/account/email-verification/request",
+    "verification_complete": "/account/email-verification/complete"
+  },
+  "coach_journey": [
+    "open_registration",
+    "create_coach_account",
+    "verify_identity_contact_state",
+    "select_lawful_commercial_entry_path",
+    "reach_coach_onboarding",
+    "athlete_data_requires_accepted_individual_relationship"
+  ],
+  "athlete_journey": [
+    "create_individual_account_or_accept_invitation",
+    "complete_account_setup",
+    "complete_lawful_onboarding_declarations",
+    "self_only_visibility_without_relationship_authority"
+  ],
+  "commercial_entry": {
+    "authority": "docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json",
+    "pricing_entitlement_frozen": true,
+    "billing_provider_activation_gate": "LAUNCH-04",
+    "checkout_required_in_launch_03": false
+  },
+  "relationship_access": {
+    "scope": "individual_coach_athlete",
+    "accepted_state_required_for_coach_access": true,
+    "athlete_self_access_requires_relationship": false,
+    "unassigned_coach_access": "denied",
+    "revoked_or_expired_relationship_access": "denied",
+    "organisation_team_gym_scope_active": false
+  },
+  "onboarding": {
+    "coach_home_route": "#/coach/overview",
+    "athlete_home_route": "#/athlete/today",
+    "athlete_declarations_required": true,
+    "account_role_cannot_bypass_declarations": true
+  },
+  "engine_isolation": {
+    "account_fields_are_engine_truth": false,
+    "authentication_metadata_in_deterministic_engine_input": false,
+    "account_state_can_change_compile_output": false,
+    "role_can_change_compile_output": false,
+    "session_token_can_change_compile_output": false,
+    "email_verification_can_change_compile_output": false,
+    "relationship_permission_is_engine_truth": false
+  },
+  "persistent_proof": {
+    "identity_account": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
+    "relationship_lifecycle": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
+    "integration_manifest": "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json"
+  },
+  "sources": {
+    "account_service": "src/api/product_account_service.ts",
+    "account_routes": "src/api/product_account.routes.ts",
+    "relationship_permission": "src/coachAthleteRelationshipAcceptance.mjs",
+    "launch_surface": "docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.json",
+    "commercial_authority": "docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json"
+  },
+  "acceptance": {
+    "pass_token": "PUBLIC_LAUNCH_ACCOUNT_ACCESS: PASS",
+    "launch_04_may_connect_billing_only_after_this_passes": true
+  }
+}
