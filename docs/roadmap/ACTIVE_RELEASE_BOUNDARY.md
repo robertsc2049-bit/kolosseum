@@ -56,46 +56,165 @@ V1 slices must state boundary, proof, and non-scope.
 
 ## Explicitly not added by this document
 
-This document does not add billing or subscription flows beyond named slices, sales dashboards, marketplace, new registry content, new programme templates, unsliced database migrations, org/team/unit/gym runtime capability, live coach intervention, advisory claims, new engine exports, package version changes, release tags, or Metric Threshold Marker Engine implementation.
+This document does not add:
+
+- billing or subscription flows beyond a deliberately sliced controlled-launch payment path
+- sales dashboards
+- coach marketplace
+- athlete marketplace
+- new UI screens without a v1 acceptance item
+- new registry content records without a registry slice
+- new programme templates without a registry/template slice
+- database migrations without a data-model slice
+- org/team/unit/gym runtime capability
+- live coach intervention
+- claim, outcome, advisory, or interpretation language
+- new engine public exports
+- package version changes
+- release tags
+- Metric Threshold Marker Engine implementation
 
 ## Boundary check
 
-Before changing code or docs, identify the permitting authority, acceptance gate, non-scope boundary, proof guard, protected files, engine-truth effect, and any competing UI/payment/notes authority.
+Before changing code or docs, answer:
+
+1. Which current boundary source permits this change?
+2. Which acceptance gate item does this advance?
+3. Which not-in-scope item does this avoid?
+4. Which guard proves it?
+5. Which files must remain untouched?
+6. Does this change alter engine truth?
+7. Does this change make docs, UI, payment, notes, metrics, proof, or copy appear more authoritative than engine contracts?
+
+If the answer is unclear, inspect the relevant guard and source-of-truth record before editing.
 
 ## Completion references
 
-Use `npm run verify` for the full local gate. Historical v0/v1 completion records remain governed by their own canonical documents.
+v0 completion is not declared by this file.
+
+Use the completion manifest and its verifier:
+
+    node ci/scripts/run_v0_completion_gate_manifest_verifier.mjs
+
+Use full local gate from a clean tree:
+
+    npm run verify
+
+V1 completion is not declared by this file.
+
+Use the v1 acceptance gate and any matching v1 release gate:
+
+    docs/v1/V1_ACCEPTANCE_GATE.md
+    node ci/scripts/run_v1_release_gate.mjs
+
+<!-- S-V1-01:ACTIVE-V1-BOUNDARY-CONFIRMATION:START -->
+## S-V1-01 Active v1 Boundary Confirmation
+
+Status: active boundary confirmed
+
+The active v1 boundary is confirmed by:
+
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.md
+- docs/roadmap/V1_ACTIVE_BOUNDARY_CONFIRMATION.json
+- ci/guards/s_v1_01_active_boundary_confirmation_guard.mjs
+
+This confirmation does not reopen v0 scope and does not add engine runtime behaviour.
+<!-- S-V1-01:ACTIVE-V1-BOUNDARY-CONFIRMATION:END -->
+
+<!-- S-V1-10:ACTIVE-RELEASE-BOUNDARY-CLOSURE:START -->
+## S-V1-10 Active Release Boundary Closure
+
+S-V1-10 closes the canonical v1 release-boundary files before product implementation widens.
+
+V1 equals a complete coach-athlete product with proof layer and full supported registry/template/substitution coverage.
+
+Controlled launch support is allowed only where separately sliced and only where it cannot alter engine truth.
+
+Organisations, organizations, teams, gyms, units, federations, marketplace, messaging, chat, EPOS, gym access, full dashboards, and enterprise remain excluded from v1.
+
+This active release pointer does not create implementation authority, engine authority, registry content, payment implementation, auth implementation, UI implementation, commercial authority, legal authority, proof authority, or release approval.
+<!-- S-V1-10:ACTIVE-RELEASE-BOUNDARY-CLOSURE:END -->
 
 <!-- LAUNCH-00:CURRENT-PUBLIC-LAUNCH-AUTHORITY:START -->
 ## LAUNCH-00 Current Public Launch Authority
-Authority: `docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.md` and `.json`.
-Release name: Kolosseum Public Launch. LAUNCH-00 supersedes the founder-only limit only for this new release's activation decisions and does not itself authorise public launch. Final authority is LAUNCH-10.
+
+Status: current release-preparation pointer.
+
+The current post-ADMIN public-launch preparation boundary is:
+
+- `docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.md`
+- `docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json`
+
+Release name: Kolosseum Public Launch.
+
+For this new release's activation decisions only, LAUNCH-00 supersedes the historical founder-group-only controlled-launch limit. It does not rewrite the historical controlled-launch GO record, does not retroactively widen First Lawful Run v1 scope, and does not itself authorise public launch.
+
+Implementation existence remains distinct from release activation. Current post-v1 surfaces remain unlaunched unless the LAUNCH-00 manifest explicitly classifies them otherwise.
+
+The exact accepted registry activity scope remains sourced from REG-FULL-09.
+
+Final public launch authority belongs only to `LAUNCH-10`, which may emit `PUBLIC_LAUNCH_ACCEPTANCE: GO` only after every required launch gate passes.
+
+Use the executable LAUNCH-00 proof:
+
+    node --test test/launch_00_current_release_authority.test.mjs
+    node scripts/launch_00_current_release_authority_guard.mjs
+
+This pointer creates no payment implementation, pricing, account-registration change, UI change, database migration, programme import, marketplace activation, organisation activation, registry content, or engine behaviour.
 <!-- LAUNCH-00:CURRENT-PUBLIC-LAUNCH-AUTHORITY:END -->
 
 <!-- LAUNCH-01:PUBLIC-LAUNCH-SURFACE:START -->
 ## LAUNCH-01 Public Launch Surface
-Authority: `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.json` and `.md`.
-All 35 areas / 317 current functions are closed-world classified. Athlete/coach candidate scope is active; founder admin remains operator-only; post-v1 areas remain unlaunched.
+
+Status: executable closed-world function classification for the LAUNCH-00 release boundary.
+
+Authority:
+
+- `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.json`
+- `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.md`
+- `scripts/launch_01_public_launch_surface_guard.mjs`
+- `test/launch_01_public_launch_surface_manifest.test.mjs`
+
+The exact current UI inventory is 35 product areas and 317 implemented functions. Every function is classified through the blob-pinned closed-world projection. No implementation is launch-active merely because it exists.
+
+`launch_active` equals LAUNCH-00 public launch candidate scope exactly. `founder_admin` remains operator-only. All LAUNCH-00 post-v1 areas remain implemented but not launched. Current `historical`, `diagnostic` and `future` area sets are empty and explicit.
+
+Function-level launch overrides are forbidden. Unknown functions, unknown areas, actor drift, missing normal route/action ownership, public operator exposure and unauthorised post-v1 promotion fail closed.
+
+Commercial entitlement remains downstream-gated and cannot alter deterministic engine truth. UI state, payment state and product state cannot change compile output.
+
+Use the executable LAUNCH-01 proof:
+
+    node --test test/launch_01_public_launch_surface_manifest.test.mjs
+    node scripts/launch_01_public_launch_surface_guard.mjs
+
+LAUNCH-01 does not authorise public launch. Final authority remains LAUNCH-10.
 <!-- LAUNCH-01:PUBLIC-LAUNCH-SURFACE:END -->
 
 <!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:START -->
 ## LAUNCH-02 Commercial Pricing and Entitlement Freeze
-Authority: `docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json` and `.md`.
-Provider-agnostic athlete and coach pricing, founding trial/intro clocks, hard capacity and engine isolation are frozen. Billing provider activation remains LAUNCH-04.
-<!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:END -->
 
-<!-- LAUNCH-03:PUBLIC-ACCOUNT-ACCESS:START -->
-## LAUNCH-03 Public Account Registration and Access Activation
+Status: frozen provider-agnostic pricing and entitlement authority.
+
 Authority:
-- `docs/releases/PUBLIC_LAUNCH_ACCOUNT_ACCESS.json`
-- `docs/releases/PUBLIC_LAUNCH_ACCOUNT_ACCESS.md`
-- `scripts/launch_03_public_account_access_guard.mjs`
-- `test/launch_03_public_account_access.test.mjs`
 
-Public account actors are exactly athlete and coach. Existing persisted account registration, verification, session lifecycle and accepted individual coach-athlete relationship permissions are the launch account path. Organisation/team/gym account scope remains inactive. Auth/account/relationship permission state remains engine-invisible.
+- `docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.json`
+- `docs/releases/PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY.md`
+- `scripts/launch_02_commercial_pricing_entitlement_guard.mjs`
+- `test/launch_02_commercial_pricing_entitlement_freeze.test.mjs`
 
-Persistent account and relationship lifecycle proofs are explicitly indexed into the DB-backed integration suite. Billing provider activation remains LAUNCH-04.
+The launch commercial model freezes one individual-athlete plan and six coach tiers, the 30-day no-card founding trial, six paid introductory months, first-100 active founding cohort with explicit expansion authority up to 250, and server-authoritative hard athlete caps.
 
-PASS token: `PUBLIC_LAUNCH_ACCOUNT_ACCESS: PASS`.
-LAUNCH-03 does not authorise public launch. Final authority remains LAUNCH-10.
-<!-- LAUNCH-03:PUBLIC-ACCOUNT-ACCESS:END -->
+Athlete and coach subscriptions remain separate commercial truths. Commercial state controls product access only and cannot alter deterministic engine, registry, substitution, factual history, proof, or relationship truth.
+
+LAUNCH-02 does not connect Stripe or implement checkout. Production billing lifecycle activation remains LAUNCH-04 scope. Organisation, team, gym and enterprise tiers remain unauthorised.
+
+Use the executable LAUNCH-02 proof:
+
+    node --test test/launch_02_commercial_pricing_entitlement_freeze.test.mjs
+    node scripts/launch_02_commercial_pricing_entitlement_guard.mjs
+
+PASS token: `PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY: PASS`
+
+LAUNCH-02 does not authorise public launch. Final authority remains LAUNCH-10.
+<!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:END -->
