@@ -81,8 +81,11 @@ export function runLaunch03Guard(authorityPath = canonicalPath) {
     if (leaf && !accountRoutes.includes(`"${leaf}"`)) return fail(LAUNCH_03_REASON_CODES.ROUTE_PROOF_INVALID, { route });
   }
   const accountService = readText(authority.sources.account_service);
-  for (const token of ["athlete", "coach", "canonical_email", "account_state", "email_verified_at", "expires_at", "revoked_at"]) {
+  for (const token of ["athlete", "coach", "validateEmail", "email_canonical", "account_state", "email_verified_at", "expires_at", "revoked_at"]) {
     if (!accountService.includes(token)) return fail(LAUNCH_03_REASON_CODES.ROUTE_PROOF_INVALID, { missing_account_service_token: token });
+  }
+  if (!/function\s+validateEmail[\s\S]*?toLowerCase\(\)/u.test(accountService)) {
+    return fail(LAUNCH_03_REASON_CODES.IDENTITY_POLICY_INVALID, { missing_identity_proof: "validateEmail_lowercase_canonicalisation" });
   }
   const relationshipSource = readText(authority.sources.relationship_permission);
   for (const token of ["individual_coach_athlete", "canCoachViewAssignedAthlete", "canAthleteViewAthleteData", "coach_not_assigned_to_athlete", "engine_visible: false"]) {
