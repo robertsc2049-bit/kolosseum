@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-00.NEGATIVE.1.0.0",
+  "slice_id": "LAUNCH-00",
+  "case_id": "unsupported_activity_activation",
+  "mutation": {
+    "append_permitted_activity": "weightlifting"
+  },
+  "expected_result": "reject",
+  "expected_token": "LAUNCH_00_ACTIVITY_SCOPE_REG_FULL_09_DRIFT"
+}
