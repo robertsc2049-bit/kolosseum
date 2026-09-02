@@ -1,0 +1,6 @@
+{
+  "label": "test:ci:integration LAUNCH-04 production billing lifecycle",
+  "commands": [
+    "node test/launch_04_billing_lifecycle_persistent.integration.test.mjs"
+  ]
+}
