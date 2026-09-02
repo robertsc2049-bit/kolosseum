@@ -1,4 +1,4 @@
-// DEV NOTE: FULL-UI-08 authenticated commercial account API.
+// DEV NOTE: FULL-UI-08 + LAUNCH-04 authenticated commercial account API.
 // Commercial state is owned by the product layer and is never engine input.
 
 import {
@@ -22,6 +22,21 @@ import {
   getProductCommercialOverview,
   recordProductCommercialPaymentReturn
 } from "./product_commercial_service.js";
+
+import {
+  cancelPublicLaunchBilling,
+  changePublicLaunchCoachTier,
+  createPublicLaunchCheckout,
+  getPublicLaunchCommercialOverview,
+  publicLaunchBillingEnabled,
+  reconcilePublicLaunchBilling,
+  startPublicLaunchCoachTrial
+} from "./public_launch_billing_service.js";
+
+import {
+  createPublicLaunchBillingPortal,
+  recordPublicLaunchPaymentReturn
+} from "./public_launch_billing_aux_service.js";
 
 export const productCommercialRouter = Router();
 
@@ -56,15 +71,13 @@ function cookieValue(
       continue;
     }
 
-    const key =
-      item.slice(0, separatorIndex).trim();
+    const key = item.slice(0, separatorIndex).trim();
 
     if (key !== name) {
       continue;
     }
 
-    const encoded =
-      item.slice(separatorIndex + 1).trim();
+    const encoded = item.slice(separatorIndex + 1).trim();
 
     try {
       return decodeURIComponent(encoded);
@@ -111,18 +124,10 @@ async function accountIdentity(
   actor_type: string;
 }>> {
   const token = sessionToken(request);
-  const session =
-    await resolveProductSession(token);
-  const account =
-    session.account as Readonly<
-      Record<string, unknown>
-    >;
-  const userId = String(
-    account.user_id ?? ""
-  ).trim();
-  const actorType = String(
-    account.actor_type ?? ""
-  ).trim();
+  const session = await resolveProductSession(token);
+  const account = session.account as Readonly<Record<string, unknown>>;
+  const userId = String(account.user_id ?? "").trim();
+  const actorType = String(account.actor_type ?? "").trim();
 
   if (!userId || !actorType) {
     throw new ProductAccountError(
@@ -141,36 +146,103 @@ async function accountIdentity(
 productCommercialRouter.get(
   "/",
   asyncHandler(async (request, response) => {
-    const identity =
-      await accountIdentity(request);
+    const identity = await accountIdentity(request);
 
-    const result =
-      await getProductCommercialOverview(
-        identity.user_id,
-        identity.actor_type
-      );
+    const result = publicLaunchBillingEnabled()
+      ? await getPublicLaunchCommercialOverview(
+          identity.user_id,
+          identity.actor_type
+        )
+      : await getProductCommercialOverview(
+          identity.user_id,
+          identity.actor_type
+        );
 
     return response.status(200).json(result);
   })
 );
 
 productCommercialRouter.post(
-  "/checkout",
+  "/trial",
   asyncHandler(async (request, response) => {
-    const identity =
-      await accountIdentity(request);
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
 
-    assertMutationAuthorised(
-      request,
-      identity.token
+    const result = await startPublicLaunchCoachTrial(
+      identity.user_id,
+      identity.actor_type,
+      request.body
     );
 
-    const result =
-      await createProductCommercialCheckout(
-        identity.user_id,
-        identity.actor_type,
-        request.body
-      );
+    return response.status(201).json(result);
+  })
+);
+
+productCommercialRouter.post(
+  "/checkout",
+  asyncHandler(async (request, response) => {
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
+
+    const result = publicLaunchBillingEnabled()
+      ? await createPublicLaunchCheckout(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        )
+      : await createProductCommercialCheckout(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        );
+
+    return response.status(201).json(result);
+  })
+);
+
+productCommercialRouter.post(
+  "/tier",
+  asyncHandler(async (request, response) => {
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
+
+    const result = await changePublicLaunchCoachTier(
+      identity.user_id,
+      identity.actor_type,
+      request.body
+    );
+
+    return response.status(201).json(result);
+  })
+);
+
+productCommercialRouter.post(
+  "/cancel",
+  asyncHandler(async (request, response) => {
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
+
+    const result = await cancelPublicLaunchBilling(
+      identity.user_id,
+      identity.actor_type,
+      request.body
+    );
+
+    return response.status(201).json(result);
+  })
+);
+
+productCommercialRouter.post(
+  "/reconcile",
+  asyncHandler(async (request, response) => {
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
+
+    const result = await reconcilePublicLaunchBilling(
+      identity.user_id,
+      identity.actor_type,
+      request.body
+    );
 
     return response.status(201).json(result);
   })
@@ -179,20 +251,20 @@ productCommercialRouter.post(
 productCommercialRouter.post(
   "/payment-return",
   asyncHandler(async (request, response) => {
-    const identity =
-      await accountIdentity(request);
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
 
-    assertMutationAuthorised(
-      request,
-      identity.token
-    );
-
-    const result =
-      await recordProductCommercialPaymentReturn(
-        identity.user_id,
-        identity.actor_type,
-        request.body
-      );
+    const result = publicLaunchBillingEnabled()
+      ? await recordPublicLaunchPaymentReturn(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        )
+      : await recordProductCommercialPaymentReturn(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        );
 
     return response.status(201).json(result);
   })
@@ -201,20 +273,20 @@ productCommercialRouter.post(
 productCommercialRouter.post(
   "/portal",
   asyncHandler(async (request, response) => {
-    const identity =
-      await accountIdentity(request);
+    const identity = await accountIdentity(request);
+    assertMutationAuthorised(request, identity.token);
 
-    assertMutationAuthorised(
-      request,
-      identity.token
-    );
-
-    const result =
-      await createProductCommercialPortalRequest(
-        identity.user_id,
-        identity.actor_type,
-        request.body
-      );
+    const result = publicLaunchBillingEnabled()
+      ? await createPublicLaunchBillingPortal(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        )
+      : await createProductCommercialPortalRequest(
+          identity.user_id,
+          identity.actor_type,
+          request.body
+        );
 
     return response.status(201).json(result);
   })
@@ -240,8 +312,7 @@ productCommercialRouter.use(
     if (error instanceof ProductAccountError) {
       response.status(error.status).json({
         error: error.code,
-        account_state:
-          error.account_state ?? null
+        account_state: error.account_state ?? null
       });
       return;
     }
