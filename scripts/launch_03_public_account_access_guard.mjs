@@ -62,6 +62,17 @@ export function validateLaunch03Authority(authority) {
   return { ok: true };
 }
 
+function requireProofInManifest(proofPath, manifestPath) {
+  if (!proofPath || !manifestPath || !fs.existsSync(path.join(root, proofPath)) || !fs.existsSync(path.join(root, manifestPath))) {
+    return fail(LAUNCH_03_REASON_CODES.PERSISTENT_PROOF_INVALID, { proofPath, manifestPath });
+  }
+  const manifest = readJson(manifestPath);
+  if (!manifest.commands?.includes(`node ${proofPath}`)) {
+    return fail(LAUNCH_03_REASON_CODES.PERSISTENT_PROOF_INVALID, { proofPath, manifestPath });
+  }
+  return { ok: true };
+}
+
 export function runLaunch03Guard(authorityPath = canonicalPath) {
   const authority = readJson(authorityPath);
   const validation = validateLaunch03Authority(authority);
@@ -92,12 +103,18 @@ export function runLaunch03Guard(authorityPath = canonicalPath) {
     if (!relationshipSource.includes(token)) return fail(LAUNCH_03_REASON_CODES.RELATIONSHIP_POLICY_INVALID, { missing_relationship_token: token });
   }
 
-  const integration = readJson(authority.persistent_proof.integration_manifest);
-  for (const proofPath of [authority.persistent_proof.identity_account, authority.persistent_proof.relationship_lifecycle]) {
-    if (!fs.existsSync(path.join(root, proofPath)) || !integration.commands?.includes(`node ${proofPath}`)) {
-      return fail(LAUNCH_03_REASON_CODES.PERSISTENT_PROOF_INVALID, { proofPath });
-    }
-  }
+  const identityProof = requireProofInManifest(
+    authority.persistent_proof.identity_account,
+    authority.persistent_proof.identity_account_manifest
+  );
+  if (!identityProof.ok) return identityProof;
+
+  const relationshipProof = requireProofInManifest(
+    authority.persistent_proof.relationship_lifecycle,
+    authority.persistent_proof.relationship_lifecycle_manifest
+  );
+  if (!relationshipProof.ok) return relationshipProof;
+
   return { ok: true, pass_token: `${TOKEN}: PASS` };
 }
 
