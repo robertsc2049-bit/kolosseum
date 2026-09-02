@@ -115,6 +115,14 @@ jobs:
           node --test test/launch_02_commercial_pricing_entitlement_freeze.test.mjs
           node scripts/launch_02_commercial_pricing_entitlement_guard.mjs
 
+      - name: LAUNCH-04 Production Billing Lifecycle
+        # DEV NOTE: LAUNCH-04 activates public-launch product billing only.
+        # Its direct gate proves pricing parity, lifecycle completeness, signed
+        # provider-event handling, hard capacity and deterministic-engine isolation.
+        run: |
+          node --test test/launch_04_production_billing_lifecycle.test.mjs
+          node scripts/launch_04_production_billing_lifecycle_guard.mjs
+
       - name: Green (CI)
         # DEV NOTE: This is the fast deterministic green gate.
         # Keep the actual check set inside package scripts so local and CI
