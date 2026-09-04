@@ -75,6 +75,31 @@ Verified totals after remediation:
 
 This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
 
+## Dependency audit refresh: fast-uri and qs
+
+Commit subject: Fix fast-uri and qs transitive dependency vulnerabilities
+
+Production dependency audit totals before remediation:
+
+- high: 1;
+- moderate: 1;
+- critical: 0;
+- affected audit entries: fast-uri (high), qs (moderate).
+
+package-lock.json was refreshed through:
+
+`npm audit fix`
+
+No direct dependency declaration was added to or removed from package.json by the audit repair; both are transitive dependencies.
+
+Verified totals after remediation:
+
+- high: 0;
+- moderate: 0;
+- critical: 0.
+
+This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
+
 ## Part E live messaging: add ws dependency
 
 Commit subject: feat(messaging): add live delivery via WebSocket push (part E)
