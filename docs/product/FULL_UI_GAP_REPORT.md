@@ -238,7 +238,7 @@ Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_role` — Set primary or accessory role
 - `builder_sets` — Set planned sets
 - `builder_repetitions` — Set fixed repetitions or range
-- `builder_loading` — Set percentage, fixed load, bodyweight or RPE
+- `builder_loading` — Set percentage, fixed load, bodyweight, RPE, Borg or CR10
 - `builder_prescription_mode` — Prescribe reps, a timed hold, or a distance per exercise
 - `builder_tempo` — Set an optional coaching tempo per exercise
 - `builder_load_unit` — Set load unit
