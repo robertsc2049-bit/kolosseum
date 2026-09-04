@@ -353,6 +353,8 @@ export function AthleteSessionHistoryList() {
         const skipReasons = Array.isArray(session.skip_reasons) ? (session.skip_reasons as unknown[]) : [];
         const substitutions = Array.isArray(session.substitutions) ? (session.substitutions as JsonRecord[]) : [];
         const rpeReports = Array.isArray(session.rpe_reports) ? (session.rpe_reports as JsonRecord[]) : [];
+        const borgReports = Array.isArray(session.borg_reports) ? (session.borg_reports as JsonRecord[]) : [];
+        const cr10Reports = Array.isArray(session.cr10_reports) ? (session.cr10_reports as JsonRecord[]) : [];
 
         return (
           <article className="record-card" key={String(session.session_id ?? index)}>
@@ -375,6 +377,16 @@ export function AthleteSessionHistoryList() {
               {rpeReports.length > 0 ? (
                 <p className="muted small">
                   RPE: {rpeReports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.rpe_value)}`).join(", ")}
+                </p>
+              ) : null}
+              {borgReports.length > 0 ? (
+                <p className="muted small">
+                  Borg: {borgReports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.borg_value)}`).join(", ")}
+                </p>
+              ) : null}
+              {cr10Reports.length > 0 ? (
+                <p className="muted small">
+                  CR10: {cr10Reports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.cr10_value)}`).join(", ")}
                 </p>
               ) : null}
               {session.split_return_decision ? (

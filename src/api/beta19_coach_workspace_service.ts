@@ -1360,6 +1360,30 @@ export async function loadCoachAthleteDetail(
           ),
           '[]'::json
         ) AS session_rpe_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'borg_value', (re.event->>'borg_value')::int
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'BORG_REPORT'
+              AND re.event->>'borg_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_borg_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'cr10_value', (re.event->>'cr10_value')::numeric
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'CR10_REPORT'
+              AND re.event->>'cr10_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_cr10_reports,
         bool_or(
           re.event->>'type' = 'SPLIT_SESSION'
         ) AS session_split_entered,
@@ -1592,6 +1616,28 @@ export async function loadCoachAthleteDetail(
                     isRecord(entry) &&
                     typeof entry.exercise_id === "string" &&
                     Number.isInteger(entry.rpe_value)
+                )
+              : [],
+          borg_reports:
+            Array.isArray(
+              row.session_borg_reports
+            )
+              ? row.session_borg_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.borg_value)
+                )
+              : [],
+          cr10_reports:
+            Array.isArray(
+              row.session_cr10_reports
+            )
+              ? row.session_cr10_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isFinite(entry.cr10_value)
                 )
               : [],
           split_entered:

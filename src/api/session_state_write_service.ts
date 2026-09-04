@@ -495,6 +495,114 @@ function ensureRpeReportShapeValid(event: unknown, planned: PlannedSession, summ
   }
 }
 
+const BORG_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "borg_value", "client_request_id"]);
+
+function ensureBorgReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "BORG_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!BORG_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (Borg report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_borg_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing Borg report exercise_id)", {
+      failure_token: "phase6_runtime_borg_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const borgValue = obj.borg_value;
+  if (!Number.isInteger(borgValue) || (borgValue as number) < 6 || (borgValue as number) > 20) {
+    throw badRequest("Runtime event rejected (Borg report must be a whole number between 6 and 20)", {
+      failure_token: "phase6_runtime_borg_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: borg_value"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (Borg report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_borg_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_BORG_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+const CR10_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "cr10_value", "client_request_id"]);
+
+function ensureCr10ReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "CR10_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!CR10_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (CR10 report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_cr10_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing CR10 report exercise_id)", {
+      failure_token: "phase6_runtime_cr10_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const cr10Value = obj.cr10_value;
+  if (
+    typeof cr10Value !== "number" ||
+    !Number.isFinite(cr10Value) ||
+    cr10Value < 0 ||
+    cr10Value > 10 ||
+    !Number.isInteger(cr10Value * 2)
+  ) {
+    throw badRequest("Runtime event rejected (CR10 report must be between 0 and 10 in half-point steps)", {
+      failure_token: "phase6_runtime_cr10_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: cr10_value"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (CR10 report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_cr10_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_CR10_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
 function ensureSubstitutionTagValid(event: unknown): void {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
@@ -756,6 +864,8 @@ export async function appendRuntimeEventMutation(
     ensureSkipReasonValid(event);
     ensurePainReportShapeValid(event, planned, workingSummary);
     ensureRpeReportShapeValid(event, planned, workingSummary);
+    ensureBorgReportShapeValid(event, planned, workingSummary);
+    ensureCr10ReportShapeValid(event, planned, workingSummary);
     ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);

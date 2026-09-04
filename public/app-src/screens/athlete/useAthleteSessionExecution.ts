@@ -16,6 +16,7 @@ import { type JsonRecord } from "../../api/transport";
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
 // startSession()/postSessionEvent()/loadSessionState()/
 // confirmSkipWithReason()/confirmPainReport()/confirmRpeReport()/
+// confirmBorgReport()/confirmCr10Report()/
 // checkSubstitution()/applySubstitution()/uploadExerciseVideo()/
 // startRestTimer() family/renderExerciseFocus() family. createSession() and
 // loadAthleteToday() stay fully legacy (they reach into
@@ -53,7 +54,7 @@ function notifyMutated(sessionId: string, refreshHistory: boolean) {
   document.dispatchEvent(new CustomEvent(SESSION_MUTATED_EVENT, { detail: { session_id: sessionId, refreshHistory } }));
 }
 
-export type ActionPanelKind = "skip" | "pain" | "rpe" | "substitution" | "video" | null;
+export type ActionPanelKind = "skip" | "pain" | "rpe" | "borg" | "cr10" | "substitution" | "video" | null;
 
 export type HowtoState = {
   exerciseId: string;
@@ -73,6 +74,8 @@ export type AthleteSessionExecutionState = {
   actionPanel: ActionPanelKind;
   skipReasonCode: string;
   rpeValue: number;
+  borgValue: number;
+  cr10Value: number;
   substitutionUnavailableEquipment: string[];
   substitutionResult: SubstitutionResultState;
   substitutionChecking: boolean;
@@ -92,6 +95,8 @@ const initialState: AthleteSessionExecutionState = {
   actionPanel: null,
   skipReasonCode: "equipment_unavailable",
   rpeValue: 8,
+  borgValue: 13,
+  cr10Value: 5,
   substitutionUnavailableEquipment: [],
   substitutionResult: null,
   substitutionChecking: false,
@@ -152,6 +157,8 @@ export function useAthleteSessionExecution() {
         actionPanel: null,
         skipReasonCode: "equipment_unavailable",
         rpeValue: 8,
+        borgValue: 13,
+        cr10Value: 5,
         substitutionUnavailableEquipment: [],
         substitutionResult: null,
         videoError: null,
@@ -325,6 +332,34 @@ export function useAthleteSessionExecution() {
     }, true);
   }, [runMutation, state.sessionState, state.rpeValue]);
 
+  const setBorgValue = useCallback((value: number) => {
+    setState((current) => ({ ...current, borgValue: value }));
+  }, []);
+
+  const confirmBorgReport = useCallback(async () => {
+    const exerciseId = currentExerciseId(state.sessionState);
+    if (!exerciseId) return false;
+    const borgValue = state.borgValue;
+    setState((current) => ({ ...current, actionPanel: null }));
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "BORG_REPORT", exercise_id: exerciseId, borg_value: borgValue }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState, state.borgValue]);
+
+  const setCr10Value = useCallback((value: number) => {
+    setState((current) => ({ ...current, cr10Value: value }));
+  }, []);
+
+  const confirmCr10Report = useCallback(async () => {
+    const exerciseId = currentExerciseId(state.sessionState);
+    if (!exerciseId) return false;
+    const cr10Value = state.cr10Value;
+    setState((current) => ({ ...current, actionPanel: null }));
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState, state.cr10Value]);
+
   const toggleSubstitutionEquipment = useCallback((equipmentId: string) => {
     setState((current) => {
       const has = current.substitutionUnavailableEquipment.includes(equipmentId);
@@ -466,6 +501,10 @@ export function useAthleteSessionExecution() {
     confirmPainReport,
     setRpeValue,
     confirmRpeReport,
+    setBorgValue,
+    confirmBorgReport,
+    setCr10Value,
+    confirmCr10Report,
     toggleSubstitutionEquipment,
     checkSubstitution,
     applySubstitution,

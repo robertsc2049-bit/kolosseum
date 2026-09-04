@@ -467,6 +467,8 @@ export function toEngineEvent(w) {
       return { type: "split_return_continue" };
     case "RETURN_SKIP":
       return { type: "split_return_skip" };
+    // RPE_REPORT/PAIN_REPORT/BORG_REPORT/CR10_REPORT deliberately fall
+    // through to default: reports never mutate reducer truth.
     default:
       return null;
   }

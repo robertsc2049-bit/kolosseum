@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -295,6 +295,32 @@ export function AthleteSessionExecutionPanel() {
                 </div>
               ) : null}
 
+              {session.actionPanel === "borg" ? (
+                <div className="pain-report-panel">
+                  <h3>Report Borg rating for this exercise?</h3>
+                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <label><span>Borg (6-20)</span><input type="number" min={6} max={20} step={1} value={session.borgValue} onChange={(event) => session.setBorgValue(Number(event.target.value))} /></label>
+                  <p className="muted small">Borg {session.borgValue} - {borgAnchorLabel(session.borgValue)}</p>
+                  <div className="button-row">
+                    <button id="confirmBorgReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmBorgReport()}>Record Borg</button>
+                    <button id="cancelBorgReportButton" className="button secondary" type="button" onClick={() => session.closeActionPanel()}>Cancel</button>
+                  </div>
+                </div>
+              ) : null}
+
+              {session.actionPanel === "cr10" ? (
+                <div className="pain-report-panel">
+                  <h3>Report modified Borg / CR10 rating for this exercise?</h3>
+                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <label><span>Modified Borg / CR10 (0-10)</span><input type="number" min={0} max={10} step={0.5} value={session.cr10Value} onChange={(event) => session.setCr10Value(Number(event.target.value))} /></label>
+                  <p className="muted small">CR10 {session.cr10Value} - {cr10AnchorLabel(session.cr10Value)}</p>
+                  <div className="button-row">
+                    <button id="confirmCr10ReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmCr10Report()}>Record CR10</button>
+                    <button id="cancelCr10ReportButton" className="button secondary" type="button" onClick={() => session.closeActionPanel()}>Cancel</button>
+                  </div>
+                </div>
+              ) : null}
+
               {session.actionPanel === "video" ? (
                 <div className="pain-report-panel">
                   <h3>Record a form-check video</h3>
@@ -380,6 +406,8 @@ export function AthleteSessionExecutionPanel() {
                   <button id="skipExerciseButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("skip")}>Skip exercise</button>
                   <button id="reportPainButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("pain")}>Report pain</button>
                   <button id="reportRpeButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("rpe")}>Report RPE</button>
+                  <button id="reportBorgButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("borg")}>Report Borg</button>
+                  <button id="reportCr10Button" className="button secondary wide" type="button" onClick={() => session.openActionPanel("cr10")}>Report CR10</button>
                   <button id="requestSubstitutionButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("substitution")}>Request substitution</button>
                   <button id="recordVideoFeedbackButton" className="button secondary wide" type="button" onClick={() => session.openActionPanel("video")}>Record form-check video</button>
                   <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>

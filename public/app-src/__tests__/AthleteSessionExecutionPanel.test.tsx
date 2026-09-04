@@ -180,6 +180,8 @@ test("starting a session reveals the full action button set", async () => {
   assert.ok(screen.getByText("Skip exercise"));
   assert.ok(screen.getByText("Report pain"));
   assert.ok(screen.getByText("Report RPE"));
+  assert.ok(screen.getByText("Report Borg"));
+  assert.ok(screen.getByText("Report CR10"));
   assert.ok(screen.getByText("Request substitution"));
   assert.ok(screen.getByText("Record form-check video"));
   assert.ok(screen.getByText("Stop and return later"));
@@ -201,6 +203,42 @@ test("the RPE panel shows a live reps-in-the-tank hint next to the raw 1-10 valu
     fireEvent.change(screen.getByLabelText("RPE (1-10)"), { target: { value: "10" } });
   });
   assert.ok(screen.getByText("RPE 10 - 0 reps in the tank - maximum effort"));
+});
+
+test("the Borg panel shows a live anchor hint next to the raw 6-20 value", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Report Borg"));
+  });
+
+  await waitFor(() => screen.getByText("Borg 13 - somewhat hard effort"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Borg (6-20)"), { target: { value: "19" } });
+  });
+  assert.ok(screen.getByText("Borg 19 - extremely hard effort"));
+});
+
+test("the CR10 panel shows a live anchor hint next to the raw 0-10 half-point value", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Report CR10"));
+  });
+
+  await waitFor(() => screen.getByText("CR10 5 - somewhat hard effort"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Modified Borg / CR10 (0-10)"), { target: { value: "7.5" } });
+  });
+  assert.ok(screen.getByText("CR10 7.5 - very hard effort"));
 });
 
 test("completing the current exercise starts a rest timer and refreshes the session", async () => {

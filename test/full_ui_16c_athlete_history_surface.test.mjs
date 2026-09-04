@@ -97,6 +97,21 @@ test("the athlete's own recorded RPE report is surfaced back on their session hi
   assert.match(historyPanel, /exercise\.rpe_reported/u);
 });
 
+test("the athlete's own recorded Borg and CR10 reports are surfaced back on their session history detail - not silently discarded", () => {
+  // BORG_REPORT/CR10_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureBorgReportShapeValid/
+  // ensureCr10ReportShapeValid exactly like RPE_REPORT above, but
+  // athlete_history_service.ts must actually read the values back out - not
+  // even to the athlete who submitted them.
+  assert.match(historyService, /borg_reported/u);
+  assert.match(historyService, /BORG_REPORT/u);
+  assert.match(historyService, /cr10_reported/u);
+  assert.match(historyService, /CR10_REPORT/u);
+
+  assert.match(historyPanel, /exercise\.borg_reported/u);
+  assert.match(historyPanel, /exercise\.cr10_reported/u);
+});
+
 test("programme, assignment and event provenance are derived from immutable stored records, not inferred", () => {
   assert.match(historyService, /beta17_assignment_trigger/u);
   assert.match(historyService, /beta18_programme_template|loadExecutableCoachTemplateById/u);
