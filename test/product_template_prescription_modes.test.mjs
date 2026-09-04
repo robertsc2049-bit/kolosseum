@@ -39,6 +39,20 @@ test("template input supports percentage, weight, bodyweight and RPE loading", (
   assert.match(service, /stored_rpe_value_invalid/u);
 });
 
+test("template input supports Borg and modified-Borg (CR10) loading", () => {
+  assert.match(service, /"rpe",\s*"borg",\s*"cr10"/u);
+  assert.match(service, /type: "borg"/u);
+  assert.match(service, /type: "cr10"/u);
+  assert.match(service, /borg_value_invalid/u);
+  assert.match(service, /stored_borg_value_invalid/u);
+  assert.match(service, /cr10_value_invalid/u);
+  assert.match(service, /stored_cr10_value_invalid/u);
+  assert.match(phase4, /type: "borg"; value: number/u);
+  assert.match(phase4, /type: "cr10"; value: number/u);
+  assert.match(phase6, /type: "borg"; value: number/u);
+  assert.match(phase6, /type: "cr10"; value: number/u);
+});
+
 test("engine carries the complete explicit prescription to the session", () => {
   assert.match(phase4, /rep_range\?: PlannedItemRepRange/u);
   assert.match(phase4, /unit\?: "kg" \| "lb"/u);
@@ -64,12 +78,23 @@ test("coach builder exposes conditional rep and loading controls", () => {
   assert.match(css, /\.template-prescription-card/u);
 });
 
+test("coach builder exposes Borg and modified-Borg (CR10) loading controls", () => {
+  assert.match(builderTree, /function BorgLoadField/u);
+  assert.match(builderTree, /function Cr10LoadField/u);
+  assert.match(builderTree, /borg_value/u);
+  assert.match(builderTree, /cr10_value/u);
+  assert.match(builderTree, /Borg \(6-20\)/u);
+  assert.match(builderTree, /Modified Borg \/ CR10 \(0-10\)/u);
+});
+
 test("athlete session formatting distinguishes range and loading type", () => {
   assert.ok(js.includes("${repRange.minimum}–${repRange.maximum} reps"));
   assert.match(js, /% 1RM/u);
   assert.ok(js.includes("details.push(`${Number(intensity.value)} ${unit}`)"));
   assert.match(js, /details\.push\("Bodyweight"\)/u);
   assert.match(js, /RPE \$\{Number\(intensity\.value\)\}/u);
+  assert.match(js, /Borg \$\{Number\(intensity\.value\)\}/u);
+  assert.match(js, /CR10 \$\{Number\(intensity\.value\)\}/u);
 });
 
 test("template input supports duration and distance prescriptions alongside reps", () => {

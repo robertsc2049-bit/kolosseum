@@ -204,6 +204,46 @@ test("a non-percent-1RM loaded work item never shows the Prilepin reference pane
   assert.equal(screen.queryByText(/1RM\)/, { exact: false }), null);
 });
 
+test("a Borg-loaded work item shows the raw borg_value field and an anchor caption", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "borg", value: 15 } }));
+
+  const borgInput = container.querySelector('input[data-field="borg_value"]') as HTMLInputElement;
+  assert.ok(borgInput);
+  assert.equal(borgInput.value, "15");
+  assert.ok(screen.getByText("Borg 15 - hard effort"));
+});
+
+test("typing a new Borg value live-updates the anchor caption", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "borg", value: 15 } }));
+
+  const borgInput = container.querySelector('input[data-field="borg_value"]') as HTMLInputElement;
+  fireEvent.change(borgInput, { target: { value: "19" } });
+
+  assert.ok(screen.getByText("Borg 19 - extremely hard effort"));
+});
+
+test("a CR10-loaded work item shows the raw cr10_value field and an anchor caption", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "cr10", value: 5 } }));
+
+  const cr10Input = container.querySelector('input[data-field="cr10_value"]') as HTMLInputElement;
+  assert.ok(cr10Input);
+  assert.equal(cr10Input.value, "5");
+  assert.ok(screen.getByText("CR10 5 - somewhat hard effort"));
+});
+
+test("typing a new CR10 value live-updates the anchor caption", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "cr10", value: 5 } }));
+
+  const cr10Input = container.querySelector('input[data-field="cr10_value"]') as HTMLInputElement;
+  fireEvent.change(cr10Input, { target: { value: "10" } });
+
+  assert.ok(screen.getByText("CR10 10 - maximal effort"));
+});
+
 test("the exercise picker groups options by movement category and shows each exercise's equipment inline", async () => {
   installExerciseRegistryMock([
     { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"] },

@@ -124,7 +124,7 @@ test("prescription formats reps, duration and distance correctly", () => {
   assert.equal(programmePreviewPrescription(distance), "400m");
 });
 
-test("load formats bodyweight, fixed weight, RPE and percent-1RM correctly", () => {
+test("load formats bodyweight, fixed weight, RPE, Borg, CR10 and percent-1RM correctly", () => {
   const bodyweight = storedWorkItemToDraft({ loading_reference: { type: "bodyweight" } }, 0);
   assert.equal(programmePreviewLoad(bodyweight), "Bodyweight");
 
@@ -133,6 +133,12 @@ test("load formats bodyweight, fixed weight, RPE and percent-1RM correctly", () 
 
   const rpe = storedWorkItemToDraft({ loading_reference: { type: "rpe", value: 8 } }, 0);
   assert.equal(programmePreviewLoad(rpe), "RPE 8");
+
+  const borg = storedWorkItemToDraft({ loading_reference: { type: "borg", value: 15 } }, 0);
+  assert.equal(programmePreviewLoad(borg), "Borg 15");
+
+  const cr10 = storedWorkItemToDraft({ loading_reference: { type: "cr10", value: 5 } }, 0);
+  assert.equal(programmePreviewLoad(cr10), "CR10 5");
 
   const percent = storedWorkItemToDraft({ loading_reference: { type: "percent_1rm", value: 75 } }, 0);
   assert.equal(programmePreviewLoad(percent), "75% 1RM");

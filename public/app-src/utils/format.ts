@@ -44,6 +44,38 @@ export function reserveToRpe(value: unknown): number {
   return 10 - rir;
 }
 
+// DEV NOTE: Borg RPE scale (6-20), a well-established perceived-exertion
+// scale distinct from the strength-training RPE/RIR scale above. These
+// anchor phrases are independently worded, not transcribed from any
+// published Borg-scale booklet - the numeric scale itself is public
+// domain, specific published wording may not be.
+export function borgAnchorLabel(value: unknown): string {
+  const borg = Number(value);
+  if (!Number.isFinite(borg)) return "";
+  if (borg >= 19) return "extremely hard effort";
+  if (borg >= 17) return "very hard effort";
+  if (borg >= 15) return "hard effort";
+  if (borg >= 13) return "somewhat hard effort";
+  if (borg >= 11) return "light effort";
+  if (borg >= 9) return "very light effort";
+  return "extremely light effort";
+}
+
+// DEV NOTE: Modified/CR10 Borg scale (0-10, half-point steps) - a
+// separate scale from classic Borg (6-20), not a fixed linear transform
+// of it, so it gets its own independently-worded anchor text rather than
+// a shared conversion.
+export function cr10AnchorLabel(value: unknown): string {
+  const cr10 = Number(value);
+  if (!Number.isFinite(cr10)) return "";
+  if (cr10 >= 10) return "maximal effort";
+  if (cr10 >= 7) return "very hard effort";
+  if (cr10 >= 4) return "somewhat hard effort";
+  if (cr10 >= 2) return "light effort";
+  if (cr10 > 0) return "very light effort";
+  return "no effort at all";
+}
+
 export function formatDate(value: unknown): string {
   if (!value) return "Date not recorded";
 
@@ -212,6 +244,12 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   }
   else if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) {
     details.push(`RPE ${Number(intensity.value)}`);
+  }
+  else if (intensity?.type === "borg" && Number.isFinite(Number(intensity.value))) {
+    details.push(`Borg ${Number(intensity.value)}`);
+  }
+  else if (intensity?.type === "cr10" && Number.isFinite(Number(intensity.value))) {
+    details.push(`CR10 ${Number(intensity.value)}`);
   }
 
   if (Number.isInteger(exercise?.rest_seconds)) {

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import {
   EXERCISE_CATEGORY_ORDER,
@@ -186,7 +186,7 @@ function PrescriptionControls(props: WorkItemControlProps) {
 }
 
 function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
-  const loadMode = ["fixed_weight", "bodyweight", "rpe"].includes(workItem.load_mode) ? workItem.load_mode : "percent_1rm";
+  const loadMode = ["fixed_weight", "bodyweight", "rpe", "borg", "cr10"].includes(workItem.load_mode) ? workItem.load_mode : "percent_1rm";
 
   return (
     <fieldset className="template-prescription-card">
@@ -199,6 +199,8 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
             <option value="fixed_weight">Fixed weight</option>
             <option value="bodyweight">Bodyweight</option>
             <option value="rpe">RPE</option>
+            <option value="borg">Borg (6-20)</option>
+            <option value="cr10">Modified Borg / CR10 (0-10)</option>
           </select>
         </label>
         {loadMode === "percent_1rm" ? (
@@ -216,6 +218,10 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           </>
         ) : loadMode === "rpe" ? (
           <RpeLoadField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
+        ) : loadMode === "borg" ? (
+          <BorgLoadField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
+        ) : loadMode === "cr10" ? (
+          <Cr10LoadField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : (
           <div className="template-bodyweight-note">No external load is prescribed.</div>
         )}
@@ -322,6 +328,58 @@ function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
         </label>
       )}
       <p className="muted small">RPE {hintRpe} - {rpeReserveLabel(hintRpe)}</p>
+    </>
+  );
+}
+
+// DEV NOTE: Borg (6-20) is a separate perceived-exertion scale from RPE,
+// not a fixed linear transform of it - plain numeric entry only, no
+// conversion toggle (unlike RpeLoadField's RPE/RIR toggle above).
+function BorgLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const storedBorg = Number.isFinite(workItem.borg_value) ? workItem.borg_value : 13;
+  const [hintBorg, setHintBorg] = React.useState(storedBorg);
+
+  return (
+    <>
+      <label>
+        <span>Borg (6-20)</span>
+        <input
+          type="number"
+          min={6}
+          max={20}
+          step={1}
+          defaultValue={storedBorg}
+          onChange={(event) => setHintBorg(Number(event.target.value))}
+          {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "borg_value")}
+        />
+      </label>
+      <p className="muted small">Borg {hintBorg} - {borgAnchorLabel(hintBorg)}</p>
+    </>
+  );
+}
+
+// DEV NOTE: modified Borg / CR10 (0-10, half-point steps) is its own
+// scale, not a fixed linear transform of classic Borg - plain numeric
+// entry only, no conversion toggle.
+function Cr10LoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const storedCr10 = Number.isFinite(workItem.cr10_value) ? workItem.cr10_value : 5;
+  const [hintCr10, setHintCr10] = React.useState(storedCr10);
+
+  return (
+    <>
+      <label>
+        <span>Modified Borg / CR10 (0-10)</span>
+        <input
+          type="number"
+          min={0}
+          max={10}
+          step={0.5}
+          defaultValue={storedCr10}
+          onChange={(event) => setHintCr10(Number(event.target.value))}
+          {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "cr10_value")}
+        />
+      </label>
+      <p className="muted small">CR10 {hintCr10} - {cr10AnchorLabel(hintCr10)}</p>
     </>
   );
 }

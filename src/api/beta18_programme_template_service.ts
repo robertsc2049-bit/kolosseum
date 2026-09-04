@@ -98,7 +98,9 @@ const loadModes =
     "percent_1rm",
     "fixed_weight",
     "bodyweight",
-    "rpe"
+    "rpe",
+    "borg",
+    "cr10"
   ]);
 
 const weightUnits =
@@ -199,6 +201,27 @@ function numberInRange(
   return normalised;
 }
 
+function cr10ValueInRange(
+  value: unknown,
+  reason: string
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < 0 ||
+    value > 10 ||
+    !Number.isInteger(
+      value * 2
+    )
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+
+  return value;
+}
+
 type RepPrescription =
   | Readonly<{
       type: "fixed";
@@ -225,6 +248,14 @@ type LoadingReference =
     }>
   | Readonly<{
       type: "rpe";
+      value: number;
+    }>
+  | Readonly<{
+      type: "borg";
+      value: number;
+    }>
+  | Readonly<{
+      type: "cr10";
       value: number;
     }>;
 
@@ -361,6 +392,30 @@ function loadingReferenceFromInput(
           1,
           10,
           "rpe_value_invalid"
+        )
+    });
+  }
+
+  if (loadMode === "borg") {
+    return deepFreeze({
+      type: "borg",
+      value:
+        integerInRange(
+          workItem.borg_value,
+          6,
+          20,
+          "borg_value_invalid"
+        )
+    });
+  }
+
+  if (loadMode === "cr10") {
+    return deepFreeze({
+      type: "cr10",
+      value:
+        cr10ValueInRange(
+          workItem.cr10_value,
+          "cr10_value_invalid"
         )
     });
   }
@@ -755,6 +810,30 @@ function loadingReferenceFromStored(
           1,
           10,
           "stored_rpe_value_invalid"
+        )
+    });
+  }
+
+  if (type === "borg") {
+    return deepFreeze({
+      type: "borg",
+      value:
+        integerInRange(
+          raw.value,
+          6,
+          20,
+          "stored_borg_value_invalid"
+        )
+    });
+  }
+
+  if (type === "cr10") {
+    return deepFreeze({
+      type: "cr10",
+      value:
+        cr10ValueInRange(
+          raw.value,
+          "stored_cr10_value_invalid"
         )
     });
   }
@@ -1662,6 +1741,8 @@ function normaliseTemplateStructure(
                               "weight_value",
                               "weight_unit",
                               "rpe_value",
+                              "borg_value",
+                              "cr10_value",
                               "rest_seconds",
                               "role",
                               "coaching_notes",
@@ -2388,7 +2469,15 @@ export function templateRecordInput(
                                           loading.type
                                         ) === "rpe"
                                         ? "rpe"
-                                        : "percent_1rm",
+                                        : cleanString(
+                                            loading.type
+                                          ) === "borg"
+                                          ? "borg"
+                                          : cleanString(
+                                              loading.type
+                                            ) === "cr10"
+                                            ? "cr10"
+                                            : "percent_1rm",
                                 percent_1rm:
                                   cleanString(
                                     loading.type
@@ -2419,6 +2508,22 @@ export function templateRecordInput(
                                         loading.value
                                       )
                                     : 8,
+                                borg_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "borg"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 13,
+                                cr10_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "cr10"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 5,
                                 rest_seconds:
                                   Number(
                                     workItem

@@ -42,11 +42,13 @@ export type ProgrammeWorkItemDraft = {
   planned_distance_value: number;
   distance_min_value: number;
   distance_max_value: number;
-  load_mode: "percent_1rm" | "fixed_weight" | "bodyweight" | "rpe";
+  load_mode: "percent_1rm" | "fixed_weight" | "bodyweight" | "rpe" | "borg" | "cr10";
   percent_1rm: number;
   weight_value: number;
   weight_unit: "kg" | "lb";
   rpe_value: number;
+  borg_value: number;
+  cr10_value: number;
   rest_seconds: number;
   role: "primary" | "accessory";
   coaching_notes: string;
@@ -228,7 +230,11 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
       ? "bodyweight"
       : loadingReference.type === "rpe"
         ? "rpe"
-        : "percent_1rm";
+        : loadingReference.type === "borg"
+          ? "borg"
+          : loadingReference.type === "cr10"
+            ? "cr10"
+            : "percent_1rm";
   const fallbackReps = Number(workItem?.planned_reps ?? 5);
   const fallbackDuration = Number(workItem?.planned_duration_seconds ?? 30);
   const fallbackDistance = Number(workItem?.planned_distance_value ?? 20);
@@ -258,6 +264,8 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
     weight_value: loadingReference.type === "load" ? Number(loadingReference.value ?? 20) : 20,
     weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
     rpe_value: loadingReference.type === "rpe" ? Number(loadingReference.value ?? 8) : 8,
+    borg_value: loadingReference.type === "borg" ? Number(loadingReference.value ?? 13) : 13,
+    cr10_value: loadingReference.type === "cr10" ? Number(loadingReference.value ?? 5) : 5,
     rest_seconds: Number(workItem?.rest_seconds ?? 120),
     role: workItem?.role === "primary" ? "primary" : "accessory",
     coaching_notes: String(workItem?.coaching_notes ?? ""),
@@ -412,6 +420,8 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 weight_value: workItem.weight_value,
                 weight_unit: workItem.weight_unit,
                 rpe_value: workItem.rpe_value,
+                borg_value: workItem.borg_value,
+                cr10_value: workItem.cr10_value,
                 rest_seconds: workItem.rest_seconds,
                 role: workItem.role,
                 coaching_notes: workItem.coaching_notes,
@@ -663,7 +673,7 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           }
 
           const loadMode = workItem.load_mode;
-          if (!["percent_1rm", "fixed_weight", "bodyweight", "rpe"].includes(loadMode)) {
+          if (!["percent_1rm", "fixed_weight", "bodyweight", "rpe", "borg", "cr10"].includes(loadMode)) {
             addIssue("load_mode_invalid", `${itemPath} has an unsupported loading mode.`, itemPath);
           }
           else if (loadMode === "percent_1rm") {
@@ -685,6 +695,18 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
             const rpeValue = workItem.rpe_value;
             if (!Number.isInteger(rpeValue) || rpeValue < 1 || rpeValue > 10) {
               addIssue("rpe_value_invalid", `${itemPath} RPE must be a whole number between one and 10.`, itemPath);
+            }
+          }
+          else if (loadMode === "borg") {
+            const borgValue = workItem.borg_value;
+            if (!Number.isInteger(borgValue) || borgValue < 6 || borgValue > 20) {
+              addIssue("borg_value_invalid", `${itemPath} Borg rating must be a whole number between 6 and 20.`, itemPath);
+            }
+          }
+          else if (loadMode === "cr10") {
+            const cr10Value = workItem.cr10_value;
+            if (!Number.isFinite(cr10Value) || cr10Value < 0 || cr10Value > 10 || !Number.isInteger(cr10Value * 2)) {
+              addIssue("cr10_value_invalid", `${itemPath} CR10 rating must be between zero and 10 in half-point steps.`, itemPath);
             }
           }
 
@@ -737,6 +759,14 @@ export function programmePreviewLoad(workItem: ProgrammeWorkItemDraft): string {
 
   if (workItem.load_mode === "rpe") {
     return `RPE ${workItem.rpe_value}`;
+  }
+
+  if (workItem.load_mode === "borg") {
+    return `Borg ${workItem.borg_value}`;
+  }
+
+  if (workItem.load_mode === "cr10") {
+    return `CR10 ${workItem.cr10_value}`;
   }
 
   return `${workItem.percent_1rm}% 1RM`;
