@@ -269,6 +269,8 @@ test("displays a session with its recorded event count and every bespoke fact - 
         skip_reasons: ["equipment_unavailable"],
         substitutions: [{ exercise_id: "back_squat", substituted_exercise_id: "leg_press" }],
         rpe_reports: [{ exercise_id: "bench_press", rpe_value: 8 }],
+        borg_reports: [{ exercise_id: "deadlift", borg_value: 15 }],
+        cr10_reports: [{ exercise_id: "overhead_press", cr10_value: 7.5 }],
         split_return_decision: "continue_remaining_work"
       }
     ]
@@ -285,6 +287,8 @@ test("displays a session with its recorded event count and every bespoke fact - 
   assert.match(document.body.textContent ?? "", /Skipped: Equipment Unavailable/u);
   assert.match(document.body.textContent ?? "", /Substituted: Back Squat → Leg Press/u);
   assert.match(document.body.textContent ?? "", /RPE: Bench Press 8/u);
+  assert.match(document.body.textContent ?? "", /Borg: Deadlift 15/u);
+  assert.match(document.body.textContent ?? "", /CR10: Overhead Press 7\.5/u);
   assert.match(document.body.textContent ?? "", /Return decision: Continue Remaining Work/u);
   assert.ok(screen.getByText("Review"));
   assert.ok(screen.getByText("Add note"));

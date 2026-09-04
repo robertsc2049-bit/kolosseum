@@ -410,6 +410,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const skipReasons = new Map<string, string>();
   const painReports = new Set<string>();
   const rpeReports = new Map<string, number>();
+  const borgReports = new Map<string, number>();
+  const cr10Reports = new Map<string, number>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -426,6 +428,14 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
     if (type === "RPE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.rpe_value)) {
       rpeReports.set(event.exercise_id, event.rpe_value as number);
+    }
+
+    if (type === "BORG_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.borg_value)) {
+      borgReports.set(event.exercise_id, event.borg_value as number);
+    }
+
+    if (type === "CR10_REPORT" && typeof event.exercise_id === "string" && Number.isFinite(event.cr10_value)) {
+      cr10Reports.set(event.exercise_id, event.cr10_value as number);
     }
 
     if (
@@ -470,6 +480,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       skip_reason: skipReasons.get(exerciseId) ?? null,
       pain_reported: painReports.has(exerciseId),
       rpe_reported: rpeReports.get(exerciseId) ?? null,
+      borg_reported: borgReports.get(exerciseId) ?? null,
+      cr10_reported: cr10Reports.get(exerciseId) ?? null,
       substitution: substitutions.get(exerciseId) ?? null
     });
   });

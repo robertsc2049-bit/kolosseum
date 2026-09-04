@@ -276,6 +276,34 @@ test(
       /session\.rpe_reports/u
     );
 
+    // Same gap for Borg/CR10 reports: an athlete's recorded BORG_REPORT/
+    // CR10_REPORT was validated and persisted but read back nowhere - not
+    // even to the athlete themselves, let alone the coach's session history.
+    assert.match(
+      service,
+      /session_borg_reports/u
+    );
+    assert.match(
+      service,
+      /borg_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.borg_reports/u
+    );
+    assert.match(
+      service,
+      /session_cr10_reports/u
+    );
+    assert.match(
+      service,
+      /cr10_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.cr10_reports/u
+    );
+
     // Same gap for split/return: the athlete's own history detail already
     // exposes split_entered/split_return_decision/split_return_events, but
     // the coach's session history never surfaced whether an athlete split a
