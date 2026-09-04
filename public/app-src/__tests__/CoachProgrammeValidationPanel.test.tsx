@@ -147,6 +147,40 @@ test("an invalid percent-1RM load is flagged", () => {
   assert.ok(issues.some((issue) => issue.code === "percent_1rm_invalid"));
 });
 
+test("an invalid Borg load is flagged", () => {
+  const invalidBorg = template({
+    template_structure: {
+      blocks: [block({
+        weeks: [week({
+          days: [{ day_id: "day_1", order_index: 1, sessions: [session({
+            work_items: [workItem({ loading_reference: { type: "borg", value: 25 } })]
+          })] }]
+        })]
+      })]
+    }
+  });
+
+  const issues = programmeActivationIssues(invalidBorg, [{ exercise_id: "back_squat" }]);
+  assert.ok(issues.some((issue) => issue.code === "borg_value_invalid"));
+});
+
+test("an invalid CR10 load is flagged", () => {
+  const invalidCr10 = template({
+    template_structure: {
+      blocks: [block({
+        weeks: [week({
+          days: [{ day_id: "day_1", order_index: 1, sessions: [session({
+            work_items: [workItem({ loading_reference: { type: "cr10", value: 5.25 } })]
+          })] }]
+        })]
+      })]
+    }
+  });
+
+  const issues = programmeActivationIssues(invalidCr10, [{ exercise_id: "back_squat" }]);
+  assert.ok(issues.some((issue) => issue.code === "cr10_value_invalid"));
+});
+
 test("an out-of-range rest period is flagged", () => {
   const invalidRest = template({
     template_structure: {

@@ -166,7 +166,7 @@ function normalisePersistedTemplateDraft(draft) {
     const fallbackReps = Number(workItem?.planned_reps ?? 5);
     const fallbackDuration = Number(workItem?.planned_duration_seconds ?? 30);
     const fallbackDistance = Number(workItem?.planned_distance_value ?? 20);
-    const loadMode = ["fixed_weight", "bodyweight", "rpe"].includes(workItem?.load_mode)
+    const loadMode = ["fixed_weight", "bodyweight", "rpe", "borg", "cr10"].includes(workItem?.load_mode)
       ? workItem.load_mode
       : "percent_1rm";
 
@@ -197,6 +197,8 @@ function normalisePersistedTemplateDraft(draft) {
       weight_value: Number(workItem?.weight_value ?? 20),
       weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
       rpe_value: Number(workItem?.rpe_value ?? 8),
+      borg_value: Number(workItem?.borg_value ?? 13),
+      cr10_value: Number(workItem?.cr10_value ?? 5),
       rest_seconds: Number(workItem?.rest_seconds ?? 120),
       role: workItem?.role === "primary" ? "primary" : "accessory",
       coaching_notes: String(workItem?.coaching_notes ?? ""),
@@ -602,13 +604,17 @@ function friendlyError(payload, status) {
     distance_range_min_invalid: "The minimum distance must be between 0.1 and 10,000.",
     distance_range_max_invalid: "The maximum distance must be between 0.1 and 10,000.",
     distance_range_order_invalid: "The maximum distance cannot be lower than the minimum distance.",
-    load_mode_invalid: "Choose percentage, weight, bodyweight, or RPE loading.",
+    load_mode_invalid: "Choose percentage, weight, bodyweight, RPE, Borg, or CR10 loading.",
     percent_1rm_invalid: "Percentage must be between 1 and 100.",
     weight_value_invalid: "Weight must be between 0.25 and 1,000.",
     weight_value_invalid_precision_invalid: "Weight may use up to three decimal places.",
     weight_unit_invalid: "Choose kilograms or pounds.",
     rpe_value_invalid: "RPE must be a whole number between 1 and 10.",
     stored_rpe_value_invalid: "RPE must be a whole number between 1 and 10.",
+    borg_value_invalid: "Borg must be a whole number between 6 and 20.",
+    stored_borg_value_invalid: "Borg must be a whole number between 6 and 20.",
+    cr10_value_invalid: "CR10 must be between 0 and 10 in half-point steps.",
+    stored_cr10_value_invalid: "CR10 must be between 0 and 10 in half-point steps.",
     rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
     active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
     only_draft_can_complete: "Only a draft template can be marked complete.",
@@ -898,6 +904,12 @@ function exerciseDetails(exercise) {
   }
   else if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) {
     details.push(`RPE ${Number(intensity.value)}`);
+  }
+  else if (intensity?.type === "borg" && Number.isFinite(Number(intensity.value))) {
+    details.push(`Borg ${Number(intensity.value)}`);
+  }
+  else if (intensity?.type === "cr10" && Number.isFinite(Number(intensity.value))) {
+    details.push(`CR10 ${Number(intensity.value)}`);
   }
 
   if (Number.isInteger(exercise?.rest_seconds)) {
@@ -2830,7 +2842,11 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
       ? "bodyweight"
       : loadingReference.type === "rpe"
         ? "rpe"
-        : "percent_1rm";
+        : loadingReference.type === "borg"
+          ? "borg"
+          : loadingReference.type === "cr10"
+            ? "cr10"
+            : "percent_1rm";
   const fallbackReps = Number(workItem?.planned_reps ?? 5);
   const fallbackDuration = Number(workItem?.planned_duration_seconds ?? 30);
   const fallbackDistance = Number(workItem?.planned_distance_value ?? 20);
@@ -2868,6 +2884,12 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
     rpe_value: loadingReference.type === "rpe"
       ? Number(loadingReference.value ?? 8)
       : 8,
+    borg_value: loadingReference.type === "borg"
+      ? Number(loadingReference.value ?? 13)
+      : 13,
+    cr10_value: loadingReference.type === "cr10"
+      ? Number(loadingReference.value ?? 5)
+      : 5,
     rest_seconds: Number(workItem?.rest_seconds ?? 120),
     role: workItem?.role === "primary" ? "primary" : "accessory",
     coaching_notes: String(workItem?.coaching_notes ?? ""),
@@ -3539,7 +3561,7 @@ function programmeActivationIssues(template) {
           }
 
           const loadMode = String(workItem?.load_mode ?? "");
-          if (!["percent_1rm", "fixed_weight", "bodyweight", "rpe"].includes(loadMode)) {
+          if (!["percent_1rm", "fixed_weight", "bodyweight", "rpe", "borg", "cr10"].includes(loadMode)) {
             addIssue(
               "load_mode_invalid",
               `${itemPath} has an unsupported loading mode.`,
@@ -3580,6 +3602,26 @@ function programmeActivationIssues(template) {
               addIssue(
                 "rpe_value_invalid",
                 `${itemPath} RPE must be a whole number between one and 10.`,
+                itemPath
+              );
+            }
+          }
+          else if (loadMode === "borg") {
+            const borgValue = Number(workItem?.borg_value);
+            if (!Number.isInteger(borgValue) || borgValue < 6 || borgValue > 20) {
+              addIssue(
+                "borg_value_invalid",
+                `${itemPath} Borg rating must be a whole number between 6 and 20.`,
+                itemPath
+              );
+            }
+          }
+          else if (loadMode === "cr10") {
+            const cr10Value = Number(workItem?.cr10_value);
+            if (!Number.isFinite(cr10Value) || cr10Value < 0 || cr10Value > 10 || !Number.isInteger(cr10Value * 2)) {
+              addIssue(
+                "cr10_value_invalid",
+                `${itemPath} CR10 rating must be between zero and 10 in half-point steps.`,
                 itemPath
               );
             }
@@ -4522,6 +4564,8 @@ function templateDraftValidationRecord() {
                       weight_value: Number(workItem?.weight_value),
                       weight_unit: String(workItem?.weight_unit ?? ""),
                       rpe_value: Number(workItem?.rpe_value),
+                      borg_value: Number(workItem?.borg_value),
+                      cr10_value: Number(workItem?.cr10_value),
                       rest_seconds: Number(workItem?.rest_seconds),
                       role: String(workItem?.role ?? ""),
                       coaching_notes: String(workItem?.coaching_notes ?? ""),
@@ -4685,6 +4729,12 @@ function templateValidationSelector(issue) {
   }
   else if (code === "rpe_value_invalid") {
     field = "rpe_value";
+  }
+  else if (code === "borg_value_invalid") {
+    field = "borg_value";
+  }
+  else if (code === "cr10_value_invalid") {
+    field = "cr10_value";
   }
   else if (code === "rest_seconds_invalid") {
     field = "rest_seconds";
@@ -5363,6 +5413,8 @@ function templatePayloadFromDraft() {
             weight_value: Number(workItem.weight_value),
             weight_unit: workItem.weight_unit,
             rpe_value: Number(workItem.rpe_value),
+            borg_value: Number(workItem.borg_value),
+            cr10_value: Number(workItem.cr10_value),
             rest_seconds: Number(workItem.rest_seconds),
             role: workItem.role,
             coaching_notes: (workItem.coaching_notes ?? "").trim(),

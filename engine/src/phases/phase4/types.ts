@@ -38,6 +38,8 @@ export type PlannedItemRole = "primary" | "accessory";
 export type PlannedItemIntensity =
   | { type: "percent_1rm"; value: number }
   | { type: "rpe"; value: number }
+  | { type: "borg"; value: number }
+  | { type: "cr10"; value: number }
   | {
       type: "load";
       value: number;
