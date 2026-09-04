@@ -2830,7 +2830,7 @@
         },
         {
           "function_id": "builder_loading",
-          "label": "Set percentage, fixed load, bodyweight or RPE",
+          "label": "Set percentage, fixed load, bodyweight, RPE, Borg or CR10",
           "actors": [
             "coach"
           ],
