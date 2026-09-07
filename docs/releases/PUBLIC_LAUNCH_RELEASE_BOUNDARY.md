@@ -71,6 +71,7 @@ The public launch candidate uses the exact REG-FULL-09 accepted activity scope:
 - `general_strength`
 - `rugby_union`
 - `strongman`
+- `hyrox`
 
 The activity set is closed world. An activity outside REG-FULL-09 accepted scope is not permitted by LAUNCH-00.
 
