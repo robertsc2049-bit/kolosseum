@@ -58,10 +58,13 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
   assert.equal(result.ok, true, JSON.stringify(result.errors, null, 2));
   assert.deepEqual(result.summary, {
     template_count: REGISTRY_EXPECTED_COUNTS.programme_template_count,
-    powerlifting_templates: 4,
-    general_strength_templates: 3,
-    rugby_union_templates: 4,
-    strongman_templates: 3,
+    templates_by_activity: {
+      powerlifting: 4,
+      general_strength: 3,
+      rugby_union: 4,
+      strongman: 3,
+      hyrox: 3
+    },
     low_equipment_templates: 3
   });
 });

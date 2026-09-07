@@ -171,3 +171,23 @@ Authorisation: explicit direct chat instruction from the product owner during th
 Rationale: strongman-specific exercise and equipment content had already entered the registry under a `general_strength`/`rugby_union` label, which itself violated the original exclusion ("No registry item may imply support for an excluded activity"). Rather than leave that mislabeled or silently revert it, strongman is formally activated as a genuine fourth locked v1 activity, following the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition.
 
 Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, and strongman. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports) are unchanged and still apply.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+Status: Accepted.
+
+This amendment does not rewrite the "Explicit v1 exclusions" listing above (Hyrox was not itself a named exclusion there); it records a new activity added to the locked set under "additional individual sports."
+
+v1 supported activities are now locked to:
+
+1. powerlifting
+2. general_strength
+3. rugby_union
+4. strongman
+5. hyrox
+
+Authorisation: explicit direct chat instruction from the product owner ("we need to expand on the available activities too", followed by "add all" against a candidate list that named Hyrox, then an explicit choice via clarifying question to prove the activation recipe with "a structurally harder case (Hyrox, CrossFit, or wrestling/boxing)" before committing to the full list). A full implementation plan naming Hyrox specifically (fixed 8-station format needing a new programme-template shape, reusing already-registered sled/medicine-ball/carry/conditioning equipment and movement patterns) was presented and approved via Plan Mode before this slice began.
+
+Rationale: this is the first activity added on top of the generalized v1 activity-set foundation (see `shared/v1-boundary/v1ActivityRegistry.mjs`), chosen specifically to prove that foundation handles a genuinely new programme-template shape (a fixed-order station/circuit format, not the periodized block/week/session model every prior activity uses) rather than only a cheap relabelling of existing content. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition.
+
+Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, and Hyrox. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.

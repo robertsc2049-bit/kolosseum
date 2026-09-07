@@ -12,8 +12,8 @@ export const EXPECTED_TOKEN_COUNT = 4;
 export const EXPECTED_APPLICABILITY_COUNT = REGISTRY_EXPECTED_COUNTS.applicability_row_count;
 export const REQUIRED_CONTEXTS = Object.freeze(["training", "testing", "competition"]);
 export const REQUIRED_ACTIVITIES = V1_ACTIVITY_IDS;
-export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 176, general_strength: 238, rugby_union: 237, strongman: 25 });
-export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54, strongman: 8 });
+export const EXPECTED_ACTIVITY_COUNTS = Object.freeze({ powerlifting: 176, general_strength: 238, rugby_union: 237, strongman: 25, hyrox: 12 });
+export const EXPECTED_ACTIVITY_PATTERN_COUNTS = Object.freeze({ powerlifting: 41, general_strength: 54, rugby_union: 54, strongman: 8, hyrox: 6 });
 
 export const REQUIRED_CANONICAL_FIELDS = Object.freeze([
   "exercise_id", "display_label", "movement_pattern_id", "primary_activity_applicability",
@@ -209,5 +209,6 @@ if (import.meta.url === `file://${process.argv[1]?.replaceAll("\\", "/")}` || pr
     process.exit(1);
   }
   const c = result.counts;
-  console.log(`${TOKEN}: PASS exercises=${c.exercises} movements=${c.movement_patterns} tokens=${c.tokens} applicability=${c.applicability} powerlifting=${c.activity_exercises.powerlifting} general_strength=${c.activity_exercises.general_strength} rugby_union=${c.activity_exercises.rugby_union} strongman=${c.activity_exercises.strongman}`);
+  const byActivity = Object.entries(c.activity_exercises).map(([activityId, count]) => `${activityId}=${count}`).join(" ");
+  console.log(`${TOKEN}: PASS exercises=${c.exercises} movements=${c.movement_patterns} tokens=${c.tokens} applicability=${c.applicability} ${byActivity}`);
 }

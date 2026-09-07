@@ -58,7 +58,8 @@
                 "powerlifting",
                 "general_strength",
                 "rugby_union",
-                "strongman"
+                "strongman",
+                "hyrox"
               ]
             },
             "minItems": 1,

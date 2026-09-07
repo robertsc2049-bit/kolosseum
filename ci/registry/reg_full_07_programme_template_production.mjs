@@ -221,10 +221,7 @@ export function auditRegFull07Documents(docs, repoRoot = process.cwd()) {
     errors,
     summary: {
       template_count: templates.length,
-      powerlifting_templates: activityCounts.powerlifting,
-      general_strength_templates: activityCounts.general_strength,
-      rugby_union_templates: activityCounts.rugby_union,
-      strongman_templates: activityCounts.strongman,
+      templates_by_activity: activityCounts,
       low_equipment_templates: REG_FULL_07_LOW_EQUIPMENT_IDS.length
     }
   };
@@ -243,7 +240,8 @@ function main() {
     for (const error of result.errors) console.error(JSON.stringify(error));
     process.exit(1);
   }
-  console.log(`${REG_FULL_07_FAILURE_TOKEN}: PASS templates=${result.summary.template_count} powerlifting=${result.summary.powerlifting_templates} general_strength=${result.summary.general_strength_templates} rugby_union=${result.summary.rugby_union_templates} strongman=${result.summary.strongman_templates} low_equipment=${result.summary.low_equipment_templates}`);
+  const byActivity = Object.entries(result.summary.templates_by_activity).map(([activityId, count]) => `${activityId}=${count}`).join(" ");
+  console.log(`${REG_FULL_07_FAILURE_TOKEN}: PASS templates=${result.summary.template_count} ${byActivity} low_equipment=${result.summary.low_equipment_templates}`);
 }
 
 const invoked = process.argv[1] ? path.resolve(process.argv[1]) : "";

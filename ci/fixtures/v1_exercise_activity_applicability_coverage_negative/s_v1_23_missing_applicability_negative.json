@@ -6,7 +6,8 @@
     "powerlifting",
     "general_strength",
     "rugby_union",
-    "strongman"
+    "strongman",
+    "hyrox"
   ],
   "required_activity_contexts": [
     "training",

@@ -42,7 +42,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "hinge": {
@@ -86,7 +87,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "single_leg_squat": {
@@ -100,7 +102,8 @@
         "rack",
         "trap_bar",
         "plate",
-        "box"
+        "box",
+        "sandbag"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -112,7 +115,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "single_leg_hinge": {
@@ -140,7 +144,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "knee_extension_isolation": {
@@ -161,7 +166,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "knee_flexion_isolation": {
@@ -183,7 +189,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "hip_abduction_isolation": {
@@ -204,7 +211,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "hip_adduction_isolation": {
@@ -225,7 +233,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "hip_extension_isolation": {
@@ -251,7 +260,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "hip_flexion_isolation": {
@@ -272,7 +282,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "calf_raise": {
@@ -294,7 +305,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "tibialis_raise": {
@@ -316,7 +328,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "horizontal_push": {
@@ -356,7 +369,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "incline_push": {
@@ -383,7 +397,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "decline_push": {
@@ -411,7 +426,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "vertical_push": {
@@ -453,7 +469,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "angled_push": {
@@ -482,7 +499,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "horizontal_pull": {
@@ -513,7 +531,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "vertical_pull": {
@@ -541,7 +560,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "scapular_retraction": {
@@ -563,7 +583,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "scapular_protraction": {
@@ -584,7 +605,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "scapular_upward_rotation": {
@@ -607,7 +629,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "scapular_depression": {
@@ -628,7 +651,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "shoulder_external_rotation": {
@@ -650,7 +674,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "shoulder_internal_rotation": {
@@ -672,7 +697,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "shoulder_abduction_isolation": {
@@ -695,7 +721,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "shoulder_horizontal_abduction_isolation": {
@@ -718,7 +745,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "elbow_flexion_isolation": {
@@ -742,7 +770,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "elbow_extension_isolation": {
@@ -767,7 +796,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "forearm_flexion_isolation": {
@@ -789,7 +819,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "forearm_extension_isolation": {
@@ -811,7 +842,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "grip_crush": {
@@ -833,7 +865,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "grip_support": {
@@ -855,7 +888,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "carry_bilateral": {
@@ -887,7 +921,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "carry_unilateral": {
@@ -913,7 +948,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "core_anti_extension": {
@@ -934,7 +970,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "core_anti_rotation": {
@@ -956,7 +993,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "core_anti_lateral_flexion": {
@@ -977,7 +1015,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "trunk_flexion": {
@@ -998,7 +1037,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "trunk_extension": {
@@ -1019,7 +1059,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "rotation": {
@@ -1041,7 +1082,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "locomotion_walk": {
@@ -1062,7 +1104,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "locomotion_run": {
@@ -1083,7 +1126,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "locomotion_crawl": {
@@ -1104,7 +1148,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "jump_vertical": {
@@ -1125,7 +1170,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "jump_horizontal": {
@@ -1146,7 +1192,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "sprint_acceleration": {
@@ -1166,7 +1213,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "sprint_max_velocity": {
@@ -1186,7 +1234,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "deceleration": {
@@ -1205,7 +1254,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "change_of_direction": {
@@ -1224,7 +1274,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "throw_slam": {
@@ -1245,7 +1296,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "conditioning_cyclical": {
@@ -1265,7 +1317,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "conditioning_row": {
@@ -1285,7 +1338,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "conditioning_sled": {
@@ -1307,7 +1361,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     }
   }

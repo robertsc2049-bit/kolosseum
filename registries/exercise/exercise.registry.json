@@ -1376,7 +1376,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -6986,7 +6987,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7093,7 +7095,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9065,7 +9068,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [
         "impact_landing",
@@ -10489,7 +10493,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [
         "high_speed_execution"
@@ -10738,7 +10743,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10839,7 +10845,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10890,7 +10897,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -12461,6 +12469,203 @@
       "secondary_activity_applicability": [
         "rugby_union"
       ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ski_erg": {
+      "exercise_id": "ski_erg",
+      "display_label": "Ski erg",
+      "movement_pattern_id": "conditioning_row",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Ski erg: Drive the pull from the lats through the trunk to the arms at the prescribed pace, then recover for the next stroke.",
+      "instruction_detail_text": [
+        "Set up the cardio machine general securely and establish the prescribed starting position before the first repetition.",
+        "Drive the pull from the lats through the trunk to the arms at the prescribed pace, then recover for the next stroke.",
+        "Reset ski erg deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Drive down and back with the arms",
+        "Hinge from the hips on the pull",
+        "Keep the stroke repeatable"
+      ],
+      "common_faults": [
+        "Pulling with the arms before the hips hinge",
+        "Rushing the recovery",
+        "Losing a consistent pace"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "burpee_broad_jump": {
+      "exercise_id": "burpee_broad_jump",
+      "display_label": "Burpee broad jump",
+      "movement_pattern_id": "jump_horizontal",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Burpee broad jump: Drop to a chest-to-floor burpee, stand, then project the body horizontally before absorbing the landing.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Drop to a chest-to-floor burpee, stand, then project the body horizontally before absorbing the landing.",
+        "Reset burpee broad jump deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep the burpee chest to floor",
+        "Stand fully before jumping",
+        "Stick the landing before resetting"
+      ],
+      "common_faults": [
+        "Skipping full chest-to-floor contact",
+        "Jumping before standing tall",
+        "Knees collapsing on landing"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sandbag_lunge": {
+      "exercise_id": "sandbag_lunge",
+      "display_label": "Sandbag lunge",
+      "movement_pattern_id": "single_leg_squat",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Sandbag lunge: Brace the sandbag load and control the working leg through the prescribed depth, then drive back to the start.",
+      "instruction_detail_text": [
+        "Set up the sandbag securely and establish the prescribed starting position before the first repetition.",
+        "Brace the sandbag load and control the working leg through the prescribed depth, then drive back to the start.",
+        "Reset sandbag lunge deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep the working knee tracking over the foot",
+        "Brace against the shifting load",
+        "Use the whole working foot"
+      ],
+      "common_faults": [
+        "Letting the sandbag shift the trunk off line",
+        "Knee collapsing inward",
+        "Rushing the descent"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "sandbag"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wall_ball": {
+      "exercise_id": "wall_ball",
+      "display_label": "Wall ball",
+      "movement_pattern_id": "throw_slam",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Wall ball: Squat to the prescribed depth then drive the medicine ball to the target with coordinated hip and arm extension.",
+      "instruction_detail_text": [
+        "Set up the medicine ball, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Squat to the prescribed depth then drive the medicine ball to the target with coordinated hip and arm extension.",
+        "Reset wall ball deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Squat to full depth every rep",
+        "Drive through the hips first",
+        "Catch and absorb before the next rep"
+      ],
+      "common_faults": [
+        "Shortening the squat depth as fatigue rises",
+        "Throwing with the arms before the hips",
+        "Losing the catch position"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "medicine_ball",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
       "template_eligibility": "eligible",

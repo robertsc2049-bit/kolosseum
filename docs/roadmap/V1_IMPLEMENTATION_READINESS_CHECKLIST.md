@@ -68,8 +68,9 @@ Implementation must remain limited to:
 2. general_strength
 3. rugby_union
 4. strongman
+5. hyrox
 
-No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set. (Amendment: strongman was activated as the fourth locked activity by the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
+No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set. (Amendment: strongman was activated as the fourth locked activity, and hyrox as the fifth, by the amendments recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Required implementation order
 

@@ -275,7 +275,8 @@ function makeEquipmentRecord(equipmentId, overrides = {}) {
       "powerlifting",
       "general_strength",
       "rugby_union",
-      "strongman"
+      "strongman",
+      "hyrox"
     ],
     movement_pattern_applicability: [
       "squat",
@@ -304,7 +305,8 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
     "powerlifting",
     "general_strength",
     "rugby_union",
-    "strongman"
+    "strongman",
+    "hyrox"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [

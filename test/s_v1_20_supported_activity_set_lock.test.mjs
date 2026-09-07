@@ -10,7 +10,8 @@ const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
   "rugby_union",
-  "strongman"
+  "strongman",
+  "hyrox"
 ]);
 
 const fixturePath = path.join(
@@ -35,7 +36,7 @@ test("S-V1-20 locks the supported activity set exactly", () => {
   assert.deepEqual(
     boundary.V1_SUPPORTED_ACTIVITIES,
     expectedActivities,
-    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union, strongman"
+    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union, strongman, hyrox"
   );
 
   for (const activityId of expectedActivities) {

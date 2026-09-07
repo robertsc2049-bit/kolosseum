@@ -3,6 +3,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
+
 export const REG_FULL_07_FAILURE_TOKEN = "CI_REG_FULL_07_PROGRAMME_TEMPLATE_PRODUCTION";
 
 export const REG_FULL_07_PATHS = Object.freeze({
@@ -93,6 +95,42 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
     Object.freeze([work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("kettlebell_farmers_carry", 3, 1)]),
     Object.freeze([work("dumbbell_bench_press", 3, 10), work("kettlebell_farmers_carry", 3, 1)]),
     Object.freeze([work("kettlebell_deadlift", 3, 10), work("dumbbell_bench_press", 3, 8), work("kettlebell_farmers_carry", 3, 1)])
+  ]) }),
+  Object.freeze({ template_id: "hyrox_novice", activity_id: "hyrox", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([
+      work("ski_erg", 1, 1),
+      work("sled_push", 3, 1),
+      work("sled_drag", 3, 1),
+      work("burpee_broad_jump", 3, 10),
+      work("rowing_ergometer", 1, 1),
+      work("farmers_carry", 3, 1),
+      work("sandbag_lunge", 3, 8),
+      work("wall_ball", 3, 10)
+    ])
+  ]) }),
+  Object.freeze({ template_id: "hyrox_intermediate", activity_id: "hyrox", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([
+      work("ski_erg", 2, 1),
+      work("sled_push", 4, 1),
+      work("sled_drag", 4, 1),
+      work("burpee_broad_jump", 4, 12),
+      work("rowing_ergometer", 2, 1),
+      work("farmers_carry", 4, 1),
+      work("sandbag_lunge", 4, 10),
+      work("wall_ball", 4, 12)
+    ])
+  ]) }),
+  Object.freeze({ template_id: "hyrox_race_prep", activity_id: "hyrox", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([
+      work("ski_erg", 1, 1),
+      work("sled_push", 1, 1),
+      work("sled_drag", 1, 1),
+      work("burpee_broad_jump", 1, 20),
+      work("rowing_ergometer", 1, 1),
+      work("farmers_carry", 1, 1),
+      work("sandbag_lunge", 1, 12),
+      work("wall_ball", 1, 15)
+    ])
   ]) })
 ]);
 
@@ -118,7 +156,14 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   box_jump: "box_jump__to__countermovement_jump",
   backward_overhead_medicine_ball_throw: "backward_overhead_medicine_ball_throw__to__medicine_ball_chest_pass",
   farmers_carry: "farmers_carry__to__kettlebell_farmers_carry",
-  kettlebell_farmers_carry: "kettlebell_farmers_carry__to__farmers_carry"
+  kettlebell_farmers_carry: "kettlebell_farmers_carry__to__farmers_carry",
+  ski_erg: "ski_erg__to__rowing_ergometer",
+  sled_push: "sled_push__to__sled_drag",
+  sled_drag: "sled_drag__to__sled_push",
+  burpee_broad_jump: "burpee_broad_jump__to__standing_broad_jump",
+  rowing_ergometer: "rowing_ergometer__to__ski_erg",
+  sandbag_lunge: "sandbag_lunge__to__reverse_lunge",
+  wall_ball: "wall_ball__to__backward_overhead_medicine_ball_throw"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);
@@ -134,8 +179,8 @@ function sha256File(abs) { return crypto.createHash("sha256").update(fs.readFile
 function assert(condition, message) { if (!condition) throw new Error(`REG_FULL_07_MATERIALIZE: ${message}`); }
 
 function loadingReference(exerciseId) {
-  if (exerciseId === "box_jump" || exerciseId === "bulgarian_split_squat") return "bodyweight";
-  if (exerciseId === "backward_overhead_medicine_ball_throw") return "coach_declared_implement_load";
+  if (exerciseId === "box_jump" || exerciseId === "bulgarian_split_squat" || exerciseId === "burpee_broad_jump") return "bodyweight";
+  if (exerciseId === "backward_overhead_medicine_ball_throw" || exerciseId === "wall_ball") return "coach_declared_implement_load";
   return "coach_declared_load";
 }
 
@@ -348,10 +393,10 @@ export function buildRegFull07Evidence(repoRoot, registry) {
     source_authorities: sourceHashes(repoRoot),
     counts: {
       template_count: registry.entries.length,
-      powerlifting_templates: registry.entries.filter((row) => row.activity_id === "powerlifting").length,
-      general_strength_templates: registry.entries.filter((row) => row.activity_id === "general_strength").length,
-      rugby_union_templates: registry.entries.filter((row) => row.activity_id === "rugby_union").length,
-      strongman_templates: registry.entries.filter((row) => row.activity_id === "strongman").length,
+      templates_by_activity: Object.fromEntries(V1_ACTIVITY_IDS.map((activityId) => [
+        activityId,
+        registry.entries.filter((row) => row.activity_id === activityId).length
+      ])),
       low_equipment_templates: registry.entries.filter((row) => REG_FULL_07_LOW_EQUIPMENT_IDS.includes(row.template_id)).length,
       unique_scheduled_exercises: exerciseIds.size,
       scheduled_work_items: workItemCount

@@ -220,3 +220,7 @@ The guard verifies the active v1 confirmation exists, is machine-readable, refer
 ## Amendment - strongman activated as v1's fourth locked activity
 
 shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, and strongman, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, strongman, and hyrox, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.

@@ -439,3 +439,11 @@ Status: Accepted.
 docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to four activities: powerlifting, general_strength, rugby_union, and strongman. This amendment supersedes the "strongman" line of the "Explicit exclusions" section above for this document's own scope.
 
 The v1 registry expansion target now also covers strongman: activity registry entry, exercise and equipment applicability, movement pattern coverage, substitution edge coverage, one minimal programme template (strongman_novice), and copy/legal boundary review, matching the same target already defined above for the original three activities.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+Status: Accepted.
+
+docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to five activities: powerlifting, general_strength, rugby_union, strongman, and hyrox.
+
+The v1 registry expansion target now also covers hyrox: activity registry entry, exercise and equipment applicability for its eight fixed stations, movement pattern coverage, substitution edge coverage, three programme templates (hyrox_novice, hyrox_intermediate, hyrox_race_prep), and copy/legal boundary review, matching the same target already defined above for the prior activities.

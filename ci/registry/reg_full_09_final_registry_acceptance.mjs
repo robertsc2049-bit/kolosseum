@@ -409,8 +409,9 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
   const requiredActive = (dependencies.surfaceManifest?.entities ?? []).filter((row) => row?.classification === "required_active").length;
   const authoritativeSchemas = Array.isArray(dependencies.schemaManifest?.registries) ? dependencies.schemaManifest.registries.length : 0;
   const schemaConflicts = Array.isArray(dependencies.schemaManifest?.schema_conflicts) ? dependencies.schemaManifest.schema_conflicts.length : -1;
+  const templatesByActivity = templateSummary.templates_by_activity ?? {};
   const templateCoverageGap = V1_ACTIVITIES.filter((activity) => {
-    return templateSummary[`${activity.activity_id}_templates`] !== activity.programme_template_family_ids.length;
+    return templatesByActivity[activity.activity_id] !== activity.programme_template_family_ids.length;
   }).length;
   if (templateCoverageGap) push(errors, "TEMPLATE_COVERAGE_GAP", templateCoverageGap);
 
@@ -485,10 +486,7 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
       activity_relation_pair_count: reg04Counts.activity_relation_pair_count ?? 0,
       applicability_row_count: reg04Counts.applicability_row_count ?? 0,
       programme_template_count: templateSummary.template_count ?? 0,
-      powerlifting_template_count: templateSummary.powerlifting_templates ?? 0,
-      general_strength_template_count: templateSummary.general_strength_templates ?? 0,
-      rugby_union_template_count: templateSummary.rugby_union_templates ?? 0,
-      strongman_template_count: templateSummary.strongman_templates ?? 0,
+      templates_by_activity: templatesByActivity,
       low_equipment_template_count: templateSummary.low_equipment_templates ?? 0,
       programme_template_coverage_gap_count: templateCoverageGap,
       substitution_edge_count: substitutionCounts.edges ?? 0,

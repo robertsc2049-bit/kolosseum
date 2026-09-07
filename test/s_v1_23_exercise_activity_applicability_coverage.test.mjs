@@ -434,7 +434,8 @@ test("S-V1-23 locks exercise activity applicability to v1 activities, contexts, 
     "powerlifting",
     "general_strength",
     "rugby_union",
-    "strongman"
+    "strongman",
+    "hyrox"
   ]);
 
   assert.deepEqual(requiredActivityContexts, [
