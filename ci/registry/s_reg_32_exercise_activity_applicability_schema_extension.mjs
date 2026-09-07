@@ -78,7 +78,12 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
   // here; it is present only so this validator's live-registry compatibility
   // check recognises it as a known activity id, per this file's own boundary
   // that later facts must not rewrite S-REG-32's historical record.
-  strongman: Object.freeze(["squat", "hinge", "horizontal_push", "carry"])
+  strongman: Object.freeze(["squat", "hinge", "horizontal_push", "carry"]),
+  // hyrox is a later authorised registry-production activity (see
+  // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md), added the same way as
+  // strongman above: a live-recognition placeholder only, with no historical
+  // movement-id evidence from S-REG-32's authoring time.
+  hyrox: Object.freeze(["carry", "conditioning_general", "squat", "lunge_split_stance"])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([
