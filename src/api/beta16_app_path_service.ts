@@ -4,6 +4,7 @@
 // call engine phases, infer training decisions or create Phase 7/8 UI.
 
 import crypto from "node:crypto";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -41,12 +42,7 @@ export const BETA16_APP_PATH_COPY_IDS = Object.freeze({
   error: "BETA16_COPY_STATUS_ERROR"
 });
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "rugby_union",
-  "general_strength",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 const authInputKeys = new Set([
   "user_id",

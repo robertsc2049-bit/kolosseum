@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const ROOT = process.cwd();
 const __filename = fileURLToPath(import.meta.url);
@@ -18,7 +19,7 @@ export const REG_FULL_06_PATHS = Object.freeze({
   evidence: "ci/evidence/reg_full_06_substitution_graph_closure.v1.json"
 });
 
-export const ACTIVITY_ORDER = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const ACTIVITY_ORDER = V1_ACTIVITY_IDS;
 export const DIFFICULTY_RANK = Object.freeze({ beginner: 0, intermediate: 1, advanced: 2 });
 
 // Authoring-time equipment burden only. These levels are explicit REG-FULL-06 policy;

@@ -4,11 +4,12 @@ import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 
 import { loadRegistryExpectedCounts } from "./registry_expected_counts.mjs";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const REGISTRY_EXPECTED_COUNTS = loadRegistryExpectedCounts().counts;
 
 export const REG_FULL_06_FAILURE_TOKEN = "CI_REG_FULL_06_SUBSTITUTION_GRAPH_CLOSURE";
-export const REG_FULL_06_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const REG_FULL_06_ACTIVITIES = V1_ACTIVITY_IDS;
 export const REG_FULL_06_PATHS = Object.freeze({
   activity: "registries/activity/activity.registry.json",
   exercise: "registries/exercise/exercise.registry.json",

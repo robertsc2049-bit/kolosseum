@@ -2,17 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repoRoot = process.cwd();
 
 const TOKEN_PREFIX = "v1_equipment_registry_coverage_contract_";
 
-const lockedActivityIds = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const lockedActivityIds = V1_ACTIVITY_IDS;
 
 const requiredEquipmentFields = Object.freeze([
   "equipment_id",

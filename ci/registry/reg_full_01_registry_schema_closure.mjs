@@ -3,9 +3,10 @@
 // validates that authority and the committed repository implementation.
 import fs from "node:fs";
 import path from "node:path";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 export const TOKEN = "CI_REG_FULL_01_REGISTRY_SCHEMA_CLOSURE";
-export const REQUIRED_ACTIVITY_SCOPE = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const REQUIRED_ACTIVITY_SCOPE = V1_ACTIVITY_IDS;
 export const FORBIDDEN_CANONICAL_FIELDS = Object.freeze(["id", "pattern", "movement_id", "program_id"]);
 
 function isObject(value) {

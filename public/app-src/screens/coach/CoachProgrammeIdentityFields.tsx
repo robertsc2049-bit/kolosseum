@@ -1,6 +1,8 @@
 import React from "react";
 
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-05B programme builder identity fields (name/activity/
 // description) - ported field-for-field from public/app/index.html's
@@ -61,10 +63,9 @@ export function CoachProgrammeIdentityFields() {
           data-template-kind="header"
           data-field="activity_id"
         >
-          <option value="powerlifting">Powerlifting</option>
-          <option value="general_strength">General strength</option>
-          <option value="rugby_union">Rugby union</option>
-          <option value="strongman">Strongman</option>
+          {V1_ACTIVITIES.map((activity) => (
+            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+          ))}
         </select>
       </label>
       <label className="field">

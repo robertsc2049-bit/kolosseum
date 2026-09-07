@@ -11,6 +11,8 @@ import {
   type ProgrammeSortMode,
   useCoachProgrammeLibrary
 } from "./useCoachProgrammeLibrary";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-05A programme library (read-only) - ported from
 // public/app/app.js's renderTemplateLibrary()/templateCard()/
@@ -187,10 +189,9 @@ export function CoachProgrammeLibraryPanel() {
           <span>Activity</span>
           <select value={activityFilter} onChange={(event) => setActivityFilter(event.target.value)}>
             <option value="all">All activities</option>
-            <option value="powerlifting">Powerlifting</option>
-            <option value="general_strength">General strength</option>
-            <option value="rugby_union">Rugby union</option>
-            <option value="strongman">Strongman</option>
+            {V1_ACTIVITIES.map((activity) => (
+              <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+            ))}
           </select>
         </label>
 

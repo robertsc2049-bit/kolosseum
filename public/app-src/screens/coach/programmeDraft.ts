@@ -1,5 +1,7 @@
 import { formatDate, titleCase } from "../../utils/format";
 import { type JsonRecord } from "../../api/transport";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITY_IDS } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-05A programme structure conversion + activation
 // validation + structure preview formatting (read-only) - ported field-
@@ -443,7 +445,7 @@ export type ProgrammeActivationIssue = {
   path: string;
 };
 
-const SUPPORTED_ACTIVITIES = new Set(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+const SUPPORTED_ACTIVITIES = new Set(V1_ACTIVITY_IDS);
 const SUPPORTED_BLOCK_TYPES = new Set(["general", "volume", "strength", "peak", "deload", "custom"]);
 
 // Structural/work-item validation only - the event-plan-bound branch

@@ -19,10 +19,11 @@ import {
   REG_FULL_08_GUARD_SOURCE_SPECS
 } from "./reg_full_08_copy_instructions_provenance_closure.mjs";
 import { validateRegistryExpectedCountsSnapshot } from "./registry_expected_counts.mjs";
+import { V1_ACTIVITIES, V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 export const REG_FULL_09_FAILURE_TOKEN = "CI_REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE";
 export const REG_FULL_09_REPORT = "ci/evidence/reg_full_09_final_registry_acceptance.v1.json";
-export const REG_FULL_09_SUPPORTED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const REG_FULL_09_SUPPORTED_ACTIVITIES = V1_ACTIVITY_IDS;
 
 const SURFACE_MANIFEST = "registries/final_registry_surface_manifest.json";
 const SCHEMA_MANIFEST = "registries/final_registry_schema_manifest.json";
@@ -408,12 +409,8 @@ export function computeRegFull09Acceptance(root = process.cwd()) {
   const requiredActive = (dependencies.surfaceManifest?.entities ?? []).filter((row) => row?.classification === "required_active").length;
   const authoritativeSchemas = Array.isArray(dependencies.schemaManifest?.registries) ? dependencies.schemaManifest.registries.length : 0;
   const schemaConflicts = Array.isArray(dependencies.schemaManifest?.schema_conflicts) ? dependencies.schemaManifest.schema_conflicts.length : -1;
-  const templateCoverageGap = REG_FULL_09_SUPPORTED_ACTIVITIES.filter((activityId) => {
-    if (activityId === "powerlifting") return templateSummary.powerlifting_templates !== 4;
-    if (activityId === "general_strength") return templateSummary.general_strength_templates !== 3;
-    if (activityId === "rugby_union") return templateSummary.rugby_union_templates !== 4;
-    if (activityId === "strongman") return templateSummary.strongman_templates !== 3;
-    return true;
+  const templateCoverageGap = V1_ACTIVITIES.filter((activity) => {
+    return templateSummary[`${activity.activity_id}_templates`] !== activity.programme_template_family_ids.length;
   }).length;
   if (templateCoverageGap) push(errors, "TEMPLATE_COVERAGE_GAP", templateCoverageGap);
 

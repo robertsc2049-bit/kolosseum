@@ -20,6 +20,7 @@ import {
 import {
   compileStandaloneCoachEvent
 } from "./beta19_coach_event_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -42,12 +43,7 @@ export class FullUi09cEventLifecycleError extends Error {
   }
 }
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 const eventStates = new Set([
   "active",

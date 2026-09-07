@@ -21,6 +21,7 @@ import {
   projectStrengthReferenceLifecycle,
   resolveStrengthReferenceLoad
 } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -36,12 +37,7 @@ export class Beta19CoachWorkspaceError extends Error {
 }
 
 const weightUnits = new Set(["kg", "lb"]);
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 const benchmarkBases = new Set([
   "tested_1rm",
   "estimated_1rm",

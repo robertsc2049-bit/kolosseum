@@ -4,6 +4,7 @@
 // declarations, alter registries or override deterministic engine decisions.
 
 import crypto from "node:crypto";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -50,12 +51,7 @@ export const BETA17_COACH_COPY_IDS =
       "BETA17_COPY_STATUS_ERROR"
   });
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 const forbiddenKeys = new Set([
   "engine_input",

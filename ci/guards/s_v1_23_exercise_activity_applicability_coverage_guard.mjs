@@ -10,17 +10,13 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repoRoot = process.cwd();
 const TOKEN = "CI_V1_EXERCISE_ACTIVITY_APPLICABILITY_COVERAGE";
 const TOKEN_PREFIX = "v1_exercise_activity_applicability_coverage_";
 
-const lockedActivityIds = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const lockedActivityIds = V1_ACTIVITY_IDS;
 
 const requiredActivityContexts = Object.freeze([
   "training",

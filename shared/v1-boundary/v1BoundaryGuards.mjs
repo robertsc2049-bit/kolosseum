@@ -5,14 +5,11 @@
  * Determinism: The same explicit input must always produce the same pass result or failure token.
  * Failure: Throws stable v1 boundary tokens when forbidden fields or unsupported activity ids are present.
  */
+import { V1_ACTIVITY_IDS } from "./v1ActivityRegistry.mjs";
+
 const TOKEN_PREFIX = "v1_boundary_guard_";
 
-const V1_SUPPORTED_ACTIVITIES = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const V1_SUPPORTED_ACTIVITIES = V1_ACTIVITY_IDS;
 
 function fail(token, message) {
   const error = new Error(`${token}: ${message}`);
