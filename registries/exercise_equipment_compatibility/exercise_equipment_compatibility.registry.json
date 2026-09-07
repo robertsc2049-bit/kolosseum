@@ -555,6 +555,20 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "burpee_broad_jump__bodyweight": {
+      "compatibility_id": "burpee_broad_jump__bodyweight",
+      "exercise_id": "burpee_broad_jump",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "burpee_broad_jump__open_floor_space": {
+      "compatibility_id": "burpee_broad_jump__open_floor_space",
+      "exercise_id": "burpee_broad_jump",
+      "equipment_id": "open_floor_space",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "cable_anti_lateral_hold__cable_machine": {
       "compatibility_id": "cable_anti_lateral_hold__cable_machine",
       "exercise_id": "cable_anti_lateral_hold",
@@ -2634,6 +2648,13 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "sandbag_lunge__sandbag": {
+      "compatibility_id": "sandbag_lunge__sandbag",
+      "exercise_id": "sandbag_lunge",
+      "equipment_id": "sandbag",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "seated_cable_row__cable_machine": {
       "compatibility_id": "seated_cable_row__cable_machine",
       "exercise_id": "seated_cable_row",
@@ -2870,6 +2891,13 @@
       "exercise_id": "single_leg_rdl",
       "equipment_id": "kettlebell",
       "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "ski_erg__cardio_machine_general": {
+      "compatibility_id": "ski_erg__cardio_machine_general",
+      "exercise_id": "ski_erg",
+      "equipment_id": "cardio_machine_general",
+      "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "sled_drag__sled": {
@@ -3437,6 +3465,20 @@
       "exercise_id": "walking_lunge",
       "equipment_id": "kettlebell",
       "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "wall_ball__medicine_ball": {
+      "compatibility_id": "wall_ball__medicine_ball",
+      "exercise_id": "wall_ball",
+      "equipment_id": "medicine_ball",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "wall_ball__open_floor_space": {
+      "compatibility_id": "wall_ball__open_floor_space",
+      "exercise_id": "wall_ball",
+      "equipment_id": "open_floor_space",
+      "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "wall_slide__bodyweight": {

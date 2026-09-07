@@ -9993,6 +9993,1716 @@
         "no_royalty_scope",
         "registry_bound"
       ]
+    },
+    {
+      "template_id": "hyrox_novice",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "hyrox",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_hyrox_novice",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "hyrox_novice_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "hyrox_novice_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "hyrox_novice_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_novice_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w01_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_novice_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "hyrox_novice_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_novice_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w02_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_novice_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "hyrox_novice_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_novice_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w03_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_novice_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "hyrox_novice_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_novice_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 3,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_novice_w04_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "hyrox",
+        "exercise_ids": [
+          "burpee_broad_jump",
+          "farmers_carry",
+          "rowing_ergometer",
+          "sandbag_lunge",
+          "ski_erg",
+          "sled_drag",
+          "sled_push",
+          "wall_ball"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "cardio_machine_general",
+          "dumbbell",
+          "medicine_ball",
+          "open_floor_space",
+          "sandbag",
+          "sled"
+        ],
+        "substitution_edge_ids": [
+          "burpee_broad_jump__to__standing_broad_jump",
+          "farmers_carry__to__kettlebell_farmers_carry",
+          "rowing_ergometer__to__ski_erg",
+          "sandbag_lunge__to__reverse_lunge",
+          "ski_erg__to__rowing_ergometer",
+          "sled_drag__to__sled_push",
+          "sled_push__to__sled_drag",
+          "wall_ball__to__backward_overhead_medicine_ball_throw"
+        ],
+        "applicability_ids": [
+          "burpee_broad_jump__hyrox__training",
+          "farmers_carry__hyrox__training",
+          "rowing_ergometer__hyrox__training",
+          "sandbag_lunge__hyrox__training",
+          "ski_erg__hyrox__training",
+          "sled_drag__hyrox__training",
+          "sled_push__hyrox__training",
+          "wall_ball__hyrox__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "hyrox_intermediate",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "hyrox",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_hyrox_intermediate",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "hyrox_intermediate_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "hyrox_intermediate_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "hyrox_intermediate_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_intermediate_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 4,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w01_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_intermediate_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "hyrox_intermediate_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_intermediate_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 4,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w02_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_intermediate_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "hyrox_intermediate_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_intermediate_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 4,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w03_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_intermediate_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "hyrox_intermediate_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_intermediate_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 2,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 4,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 4,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_intermediate_w04_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "hyrox",
+        "exercise_ids": [
+          "burpee_broad_jump",
+          "farmers_carry",
+          "rowing_ergometer",
+          "sandbag_lunge",
+          "ski_erg",
+          "sled_drag",
+          "sled_push",
+          "wall_ball"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "cardio_machine_general",
+          "dumbbell",
+          "medicine_ball",
+          "open_floor_space",
+          "sandbag",
+          "sled"
+        ],
+        "substitution_edge_ids": [
+          "burpee_broad_jump__to__standing_broad_jump",
+          "farmers_carry__to__kettlebell_farmers_carry",
+          "rowing_ergometer__to__ski_erg",
+          "sandbag_lunge__to__reverse_lunge",
+          "ski_erg__to__rowing_ergometer",
+          "sled_drag__to__sled_push",
+          "sled_push__to__sled_drag",
+          "wall_ball__to__backward_overhead_medicine_ball_throw"
+        ],
+        "applicability_ids": [
+          "burpee_broad_jump__hyrox__training",
+          "farmers_carry__hyrox__training",
+          "rowing_ergometer__hyrox__training",
+          "sandbag_lunge__hyrox__training",
+          "ski_erg__hyrox__training",
+          "sled_drag__hyrox__training",
+          "sled_push__hyrox__training",
+          "wall_ball__hyrox__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "hyrox_race_prep",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "hyrox",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_hyrox_race_prep",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "hyrox_race_prep_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "hyrox_race_prep_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "hyrox_race_prep_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_race_prep_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 1,
+                            "planned_reps": 20,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 1,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w01_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 1,
+                            "planned_reps": 15,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_race_prep_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "hyrox_race_prep_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_race_prep_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 1,
+                            "planned_reps": 20,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 1,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w02_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 1,
+                            "planned_reps": 15,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_race_prep_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "hyrox_race_prep_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_race_prep_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 1,
+                            "planned_reps": 20,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 1,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w03_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 1,
+                            "planned_reps": 15,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "hyrox_race_prep_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "hyrox_race_prep_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "hyrox_race_prep_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "ski_erg",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "ski_erg__to__rowing_ergometer"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "sled_push",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_push__to__sled_drag"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "sled_drag",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "open_floor_space",
+                              "sled"
+                            ],
+                            "substitution_policy_id": "sled_drag__to__sled_push"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i04",
+                            "order_index": 4,
+                            "exercise_id": "burpee_broad_jump",
+                            "planned_sets": 1,
+                            "planned_reps": 20,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee_broad_jump__to__standing_broad_jump"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i05",
+                            "order_index": 5,
+                            "exercise_id": "rowing_ergometer",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "cardio_machine_general"
+                            ],
+                            "substitution_policy_id": "rowing_ergometer__to__ski_erg"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i06",
+                            "order_index": 6,
+                            "exercise_id": "farmers_carry",
+                            "planned_sets": 1,
+                            "planned_reps": 1,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "farmers_carry__to__kettlebell_farmers_carry"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i07",
+                            "order_index": 7,
+                            "exercise_id": "sandbag_lunge",
+                            "planned_sets": 1,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "sandbag"
+                            ],
+                            "substitution_policy_id": "sandbag_lunge__to__reverse_lunge"
+                          },
+                          {
+                            "work_item_id": "hyrox_race_prep_w04_d01_i08",
+                            "order_index": 8,
+                            "exercise_id": "wall_ball",
+                            "planned_sets": 1,
+                            "planned_reps": 15,
+                            "loading_reference": "coach_declared_implement_load",
+                            "equipment_requirement_ids": [
+                              "medicine_ball",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "wall_ball__to__backward_overhead_medicine_ball_throw"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "hyrox",
+        "exercise_ids": [
+          "burpee_broad_jump",
+          "farmers_carry",
+          "rowing_ergometer",
+          "sandbag_lunge",
+          "ski_erg",
+          "sled_drag",
+          "sled_push",
+          "wall_ball"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "cardio_machine_general",
+          "dumbbell",
+          "medicine_ball",
+          "open_floor_space",
+          "sandbag",
+          "sled"
+        ],
+        "substitution_edge_ids": [
+          "burpee_broad_jump__to__standing_broad_jump",
+          "farmers_carry__to__kettlebell_farmers_carry",
+          "rowing_ergometer__to__ski_erg",
+          "sandbag_lunge__to__reverse_lunge",
+          "ski_erg__to__rowing_ergometer",
+          "sled_drag__to__sled_push",
+          "sled_push__to__sled_drag",
+          "wall_ball__to__backward_overhead_medicine_ball_throw"
+        ],
+        "applicability_ids": [
+          "burpee_broad_jump__hyrox__training",
+          "farmers_carry__hyrox__training",
+          "rowing_ergometer__hyrox__training",
+          "sandbag_lunge__hyrox__training",
+          "ski_erg__hyrox__training",
+          "sled_drag__hyrox__training",
+          "sled_push__hyrox__training",
+          "wall_ball__hyrox__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
     }
   ]
 }

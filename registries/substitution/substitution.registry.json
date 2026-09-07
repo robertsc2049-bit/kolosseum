@@ -338,6 +338,22 @@
       "deterministic_ordering_key": "backward_overhead_medicine_ball_throw|00|00|rotational_medicine_ball_throw",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "backward_overhead_medicine_ball_throw__to__wall_ball": {
+      "substitution_edge_id": "backward_overhead_medicine_ball_throw__to__wall_ball",
+      "source_exercise_id": "backward_overhead_medicine_ball_throw",
+      "target_exercise_id": "wall_ball",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "backward_overhead_medicine_ball_throw|00|00|wall_ball",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "backward_sled_drag__to__lateral_sled_drag": {
       "substitution_edge_id": "backward_sled_drag__to__lateral_sled_drag",
       "source_exercise_id": "backward_sled_drag",
@@ -2319,6 +2335,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bulgarian_split_squat|02|00|walking_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "burpee_broad_jump__to__standing_broad_jump": {
+      "substitution_edge_id": "burpee_broad_jump__to__standing_broad_jump",
+      "source_exercise_id": "burpee_broad_jump",
+      "target_exercise_id": "standing_broad_jump",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "burpee_broad_jump|00|00|standing_broad_jump",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "cable_anti_lateral_hold__to__plate_offset_hold": {
@@ -4571,7 +4603,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "farmers_carry|01|00|kettlebell_farmers_carry",
@@ -6263,7 +6296,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_farmers_carry|01|00|farmers_carry",
@@ -11686,6 +11720,38 @@
       "deterministic_ordering_key": "rowing_ergometer|00|00|interval_row",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "rowing_ergometer__to__ski_erg": {
+      "substitution_edge_id": "rowing_ergometer__to__ski_erg",
+      "source_exercise_id": "rowing_ergometer",
+      "target_exercise_id": "ski_erg",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rowing_ergometer|00|00|ski_erg",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "sandbag_lunge__to__reverse_lunge": {
+      "substitution_edge_id": "sandbag_lunge__to__reverse_lunge",
+      "source_exercise_id": "sandbag_lunge",
+      "target_exercise_id": "reverse_lunge",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "sandbag_lunge|02|00|reverse_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "seated_cable_row__to__barbell_row": {
       "substitution_edge_id": "seated_cable_row__to__barbell_row",
       "source_exercise_id": "seated_cable_row",
@@ -12403,6 +12469,22 @@
       "deterministic_ordering_key": "single_leg_hip_hinge_reach|00|00|single_leg_good_morning",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "ski_erg__to__rowing_ergometer": {
+      "substitution_edge_id": "ski_erg__to__rowing_ergometer",
+      "source_exercise_id": "ski_erg",
+      "target_exercise_id": "rowing_ergometer",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "ski_erg|00|00|rowing_ergometer",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "sled_drag__to__backward_sled_drag": {
       "substitution_edge_id": "sled_drag__to__backward_sled_drag",
       "source_exercise_id": "sled_drag",
@@ -12448,7 +12530,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "sled_drag|00|00|sled_push",
@@ -12499,7 +12582,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "sled_push|00|00|sled_drag",
@@ -13162,6 +13246,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "standing_broad_jump|00|00|broad_jump_to_stick",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "standing_broad_jump__to__burpee_broad_jump": {
+      "substitution_edge_id": "standing_broad_jump__to__burpee_broad_jump",
+      "source_exercise_id": "standing_broad_jump",
+      "target_exercise_id": "burpee_broad_jump",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "standing_broad_jump|00|00|burpee_broad_jump",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "standing_broad_jump__to__lateral_bound": {
@@ -15496,6 +15596,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "walking_lunge|00|00|reverse_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "wall_ball__to__backward_overhead_medicine_ball_throw": {
+      "substitution_edge_id": "wall_ball__to__backward_overhead_medicine_ball_throw",
+      "source_exercise_id": "wall_ball",
+      "target_exercise_id": "backward_overhead_medicine_ball_throw",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "wall_ball|00|00|backward_overhead_medicine_ball_throw",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "weighted_back_extension__to__back_extension": {

@@ -16,8 +16,9 @@ The locked v1 supported activities are exactly:
 2. general_strength
 3. rugby_union
 4. strongman
+5. hyrox
 
-No other activity is active in v1 unless a later named boundary-change slice deliberately replaces this record and updates all linked guards, fixtures, tests, and release-boundary records. (Strongman was added by such an amendment - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
+No other activity is active in v1 unless a later named boundary-change slice deliberately replaces this record and updates all linked guards, fixtures, tests, and release-boundary records. (Strongman and hyrox were added by such amendments - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Boundary
 
@@ -53,6 +54,7 @@ The supported activity set contains only:
 - general_strength
 - rugby_union
 - strongman
+- hyrox
 
 Unsupported activities are rejected by boundary guards or remain dormant according to the release boundary.
 
@@ -91,7 +93,7 @@ The required proof is:
 S-V1-20 is accepted when:
 
 - docs/v1/V1_SUPPORTED_ACTIVITY_SET_LOCK.md exists
-- the supported set is exactly powerlifting, general_strength, rugby_union, and strongman
+- the supported set is exactly powerlifting, general_strength, rugby_union, strongman, and hyrox
 - the negative fixture exists
 - unsupported activity ids in the fixture are rejected
 - the S-V1-20 test exists and passes

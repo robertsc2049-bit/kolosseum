@@ -65,7 +65,8 @@
               "powerlifting",
               "general_strength",
               "rugby_union",
-              "strongman"
+              "strongman",
+              "hyrox"
             ]
           },
           "assignment_scope": {
@@ -265,7 +266,8 @@
                   "powerlifting",
                   "general_strength",
                   "rugby_union",
-                  "strongman"
+                  "strongman",
+                  "hyrox"
                 ]
               },
               "exercise_ids": {

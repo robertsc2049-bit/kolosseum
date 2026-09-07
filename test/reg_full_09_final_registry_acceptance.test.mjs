@@ -68,10 +68,13 @@ test("REG-FULL-09 reports production totals from the centralized accepted-count 
   assert.equal(c.activity_relation_pair_count, expectedCounts.activity_relation_pair_count);
   assert.equal(c.applicability_row_count, expectedCounts.applicability_row_count);
   assert.equal(c.programme_template_count, expectedCounts.programme_template_count);
-  assert.equal(c.powerlifting_template_count, 4);
-  assert.equal(c.general_strength_template_count, 3);
-  assert.equal(c.rugby_union_template_count, 4);
-  assert.equal(c.strongman_template_count, 3);
+  assert.deepEqual(c.templates_by_activity, {
+    powerlifting: 4,
+    general_strength: 3,
+    rugby_union: 4,
+    strongman: 3,
+    hyrox: 3
+  });
   assert.equal(c.low_equipment_template_count, 3);
   assert.equal(c.programme_template_coverage_gap_count, 0);
   assert.equal(c.substitution_edge_count, expectedCounts.substitution_edge_count);

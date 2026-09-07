@@ -94,7 +94,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ]
     },
     "classification_enum": {

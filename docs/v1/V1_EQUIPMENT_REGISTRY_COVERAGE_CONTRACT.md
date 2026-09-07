@@ -22,10 +22,11 @@ The equipment registry coverage contract is locked to:
 2. general_strength
 3. rugby_union
 4. strongman
+5. hyrox
 
 No equipment registry entry may imply active support for an activity outside this set.
 
-(Amendment: strongman was activated as v1's fourth locked activity - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
+(Amendment: strongman was activated as v1's fourth locked activity, and hyrox as the fifth - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Boundary
 
@@ -212,7 +213,7 @@ S-V1-22 is accepted when:
 - docs/GUARDS_INDEX.md is regenerated through the guard index generator
 - docs/dev/FAILURE_TOKEN_INDEX.md is regenerated through the failure-token index generator
 - docs/checksums.sha256 is regenerated through the checksum writer
-- locked activities remain powerlifting, general_strength, rugby_union, and strongman
+- locked activities remain powerlifting, general_strength, rugby_union, strongman, and hyrox
 - missing required equipment fields fail closed
 - missing equipment references fail closed
 - unsupported activity leakage fails closed

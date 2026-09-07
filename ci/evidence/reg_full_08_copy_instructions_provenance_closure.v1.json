@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "e144dec6d10c59c182db8b5bce47a24cd362ac247829a0ca77532d45004685e2",
-  "copy_schema_sha256": "346c8256f68d6e4bdab080c656b0bd53228396e24641f4c0a7a9e19d54492e7d",
+  "canonical_copy_registry_sha256": "13a8065e1359d13776d0624f0eac0f76d49198137cccd694119d4446194bba5a",
+  "copy_schema_sha256": "a6d0aaa107dc6d0ffd3deaff8dc8827ab0526fa15041bb4d0110b9a83887a147",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 6366,
+  "exact_copy_control_count": 6459,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,16 +15,16 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 3946,
+  "provenance_record_count": 4003,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/activity/activity.registry.json",
-      "source_file_sha256": "f81fea595e812b66d0d62bf12b354276b05c33d7cfc5819af5ddfd64d8bd6fa9",
-      "source_git_blob_sha": "bb372bf54da88b367c09f9037bf5e6b1413e7d5c",
-      "source_record_count": 4,
+      "source_file_sha256": "b203fd9111fed71fa3f9690904462fb027c45a6e21c5b66f8cf3b56567e3cefa",
+      "source_git_blob_sha": "acec8a24eeb011f00538304415d8fb7db65cd247",
+      "source_record_count": 5,
       "source_registry_id": "activity_registry_1"
     },
     {
@@ -54,17 +54,17 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/movement/movement.registry.json",
-      "source_file_sha256": "31594103e741b8ec47e61cf6fb4e922156238a96ad29b4707550934a2cdc7c42",
-      "source_git_blob_sha": "80659fd4067a2fc74586e8b87f830866e03d6e44",
+      "source_file_sha256": "104650a34b1ad43141b8903f747f33d4bdbcdf2175d349f4267e391e16f1400e",
+      "source_git_blob_sha": "b5a81135d3b37f4ee77ab4a34a23dd20b9d679be",
       "source_record_count": 54,
       "source_registry_id": "movement_registry_3"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "4062b4589bfcde928112200ec4a795a549ded735d41a0de905ed303130857e21",
-      "source_git_blob_sha": "43512cc6ff79f5ae93bcef8a96cd49a660850949",
-      "source_record_count": 244,
+      "source_file_sha256": "e169acc470577d797451c674c090a5d5348183bec34410ddaa2777f022a2e1fb",
+      "source_git_blob_sha": "a3206e5c8d3247622cac175787564a551f3e2cdc",
+      "source_record_count": 248,
       "source_registry_id": "exercise_registry_3a"
     },
     {
@@ -78,8 +78,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/equipment/equipment.registry.json",
-      "source_file_sha256": "f54a36035907c39e61cf22418bde352dc6b4cf833b8bfadfb81bd72648eca462",
-      "source_git_blob_sha": "98011b4e7cfce838401898f7585e5dc11b882ffe",
+      "source_file_sha256": "ea7c65d3634ae980b548f02547116910994156eb00db63e0114f3562e6df59c1",
+      "source_git_blob_sha": "9481ae623e9c626045a78cf0671d6a74721373c7",
       "source_record_count": 36,
       "source_registry_id": "equipment_environment_registry_3e"
     },
@@ -94,17 +94,17 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
-      "source_file_sha256": "4bf67769cd569b7881da61617780df0aefc2fa4077fa1faac28940a7cdff395f",
-      "source_git_blob_sha": "0e296594c47fef851942ddcfca9e36be27a1be16",
-      "source_record_count": 501,
+      "source_file_sha256": "52e12238b58f583d2a8dbde97af3038b3657d96cd693659b73b60db9341655ab",
+      "source_git_blob_sha": "23dcf6bc05f7fc0873ba87ef217ac90f698dbe23",
+      "source_record_count": 507,
       "source_registry_id": "exercise_equipment_compatibility_registry"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "5672d1244df4e66cff68738681ee4f67c0571199e6b0fb0e86fd2c573a3878e5",
-      "source_git_blob_sha": "9a303ee84cceb99323dab4a3ae13c6616222c5e1",
-      "source_record_count": 2028,
+      "source_file_sha256": "51ae761f4dbff7f538d6bf5e6af3121963b01514d23c73731a92a0d8bcf7e34a",
+      "source_git_blob_sha": "1fae8450f3d6952c295290c2364b1bc1f37d464c",
+      "source_record_count": 2064,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
@@ -118,17 +118,17 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/program/sport_program_template.registry.json",
-      "source_file_sha256": "a10618c90a46d423e294e73861fe2b8017c17a0c2f3feac6810c5065b3703286",
-      "source_git_blob_sha": "56f5cbfa34dd3e0056b0ef485e8d7815d784a183",
-      "source_record_count": 14,
+      "source_file_sha256": "e3db371dcf7f4abc6d139df76eb8487d48cbacd4e0d16f1b5fb9e06234cb1eff",
+      "source_git_blob_sha": "77591d995c736b267d3d1545ff12416cb08f26dd",
+      "source_record_count": 17,
       "source_registry_id": "sport_program_template_registry_5f"
     },
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "4d6f8cc63a4ee5372f56fd4a80e302c5eee76bd566841548dc839706cc5d3cf6",
-      "source_git_blob_sha": "c9cacf9595f5b4af9f6f0ff5c93da4168b68985c",
-      "source_record_count": 898,
+      "source_file_sha256": "6bf0d9a0ce465b97c1ad1bccbf792977ec98f80095f2eba7f5e22ec00860778c",
+      "source_git_blob_sha": "3929b663406062285d52e91645934f22b02bde03",
+      "source_record_count": 905,
       "source_registry_id": "substitution_registry"
     },
     {
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 3946,
+  "source_record_count": 4003,
   "status": "authoritative"
 }

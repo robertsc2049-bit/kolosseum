@@ -253,6 +253,68 @@
             "conditioning_row",
             "conditioning_sled"
           ]
+        },
+        "hyrox": {
+          "activity_id": "hyrox",
+          "stimulus_intents": [
+            "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled"
+          ]
         }
       }
     },
@@ -300,7 +362,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "hinge": {
@@ -344,7 +407,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "single_leg_squat": {
@@ -358,7 +422,8 @@
             "rack",
             "trap_bar",
             "plate",
-            "box"
+            "box",
+            "sandbag"
           ],
           "joint_stress_tags_vocab": [
             "neutral",
@@ -370,7 +435,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "single_leg_hinge": {
@@ -398,7 +464,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "knee_extension_isolation": {
@@ -419,7 +486,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "knee_flexion_isolation": {
@@ -441,7 +509,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "hip_abduction_isolation": {
@@ -462,7 +531,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "hip_adduction_isolation": {
@@ -483,7 +553,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "hip_extension_isolation": {
@@ -509,7 +580,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "hip_flexion_isolation": {
@@ -530,7 +602,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "calf_raise": {
@@ -552,7 +625,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "tibialis_raise": {
@@ -574,7 +648,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "horizontal_push": {
@@ -614,7 +689,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "incline_push": {
@@ -641,7 +717,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "decline_push": {
@@ -669,7 +746,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "vertical_push": {
@@ -711,7 +789,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "angled_push": {
@@ -740,7 +819,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "horizontal_pull": {
@@ -771,7 +851,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "vertical_pull": {
@@ -799,7 +880,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "scapular_retraction": {
@@ -821,7 +903,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "scapular_protraction": {
@@ -842,7 +925,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "scapular_upward_rotation": {
@@ -865,7 +949,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "scapular_depression": {
@@ -886,7 +971,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "shoulder_external_rotation": {
@@ -908,7 +994,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "shoulder_internal_rotation": {
@@ -930,7 +1017,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "shoulder_abduction_isolation": {
@@ -953,7 +1041,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "shoulder_horizontal_abduction_isolation": {
@@ -976,7 +1065,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "elbow_flexion_isolation": {
@@ -1000,7 +1090,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "elbow_extension_isolation": {
@@ -1025,7 +1116,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "forearm_flexion_isolation": {
@@ -1047,7 +1139,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "forearm_extension_isolation": {
@@ -1069,7 +1162,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "grip_crush": {
@@ -1091,7 +1185,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "grip_support": {
@@ -1113,7 +1208,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "carry_bilateral": {
@@ -1145,7 +1241,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "carry_unilateral": {
@@ -1171,7 +1268,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "core_anti_extension": {
@@ -1192,7 +1290,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "core_anti_rotation": {
@@ -1214,7 +1313,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "core_anti_lateral_flexion": {
@@ -1235,7 +1335,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "trunk_flexion": {
@@ -1256,7 +1357,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "trunk_extension": {
@@ -1277,7 +1379,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "rotation": {
@@ -1299,7 +1402,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "locomotion_walk": {
@@ -1320,7 +1424,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "locomotion_run": {
@@ -1341,7 +1446,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "locomotion_crawl": {
@@ -1362,7 +1468,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "jump_vertical": {
@@ -1383,7 +1490,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "jump_horizontal": {
@@ -1404,7 +1512,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "sprint_acceleration": {
@@ -1424,7 +1533,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "sprint_max_velocity": {
@@ -1444,7 +1554,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "deceleration": {
@@ -1463,7 +1574,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "change_of_direction": {
@@ -1482,7 +1594,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "throw_slam": {
@@ -1503,7 +1616,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "conditioning_cyclical": {
@@ -1523,7 +1637,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "conditioning_row": {
@@ -1543,7 +1658,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         },
         "conditioning_sled": {
@@ -1565,7 +1681,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ]
         }
       }
@@ -2948,7 +3065,8 @@
           "primary_activity_applicability": "general_strength",
           "secondary_activity_applicability": [
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -8558,7 +8676,8 @@
           "secondary_activity_applicability": [
             "powerlifting",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -8665,7 +8784,8 @@
           "secondary_activity_applicability": [
             "powerlifting",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -10637,7 +10757,8 @@
           "equipment_alternatives": [],
           "primary_activity_applicability": "rugby_union",
           "secondary_activity_applicability": [
-            "general_strength"
+            "general_strength",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [
             "impact_landing",
@@ -12061,7 +12182,8 @@
           "equipment_alternatives": [],
           "primary_activity_applicability": "rugby_union",
           "secondary_activity_applicability": [
-            "general_strength"
+            "general_strength",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [
             "high_speed_execution"
@@ -12310,7 +12432,8 @@
           "equipment_alternatives": [],
           "primary_activity_applicability": "rugby_union",
           "secondary_activity_applicability": [
-            "general_strength"
+            "general_strength",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -12411,7 +12534,8 @@
           "equipment_alternatives": [],
           "primary_activity_applicability": "rugby_union",
           "secondary_activity_applicability": [
-            "general_strength"
+            "general_strength",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -12462,7 +12586,8 @@
           "equipment_alternatives": [],
           "primary_activity_applicability": "rugby_union",
           "secondary_activity_applicability": [
-            "general_strength"
+            "general_strength",
+            "hyrox"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14041,6 +14166,203 @@
             "no_medical_claims",
             "no_performance_guarantees"
           ]
+        },
+        "ski_erg": {
+          "exercise_id": "ski_erg",
+          "display_label": "Ski erg",
+          "movement_pattern_id": "conditioning_row",
+          "stimulus_intent": "strength",
+          "rom": "task_defined",
+          "stability": "dynamic",
+          "equipment_tier": "TIER_2",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow",
+            "hip",
+            "knee"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Ski erg: Drive the pull from the lats through the trunk to the arms at the prescribed pace, then recover for the next stroke.",
+          "instruction_detail_text": [
+            "Set up the cardio machine general securely and establish the prescribed starting position before the first repetition.",
+            "Drive the pull from the lats through the trunk to the arms at the prescribed pace, then recover for the next stroke.",
+            "Reset ski erg deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Drive down and back with the arms",
+            "Hinge from the hips on the pull",
+            "Keep the stroke repeatable"
+          ],
+          "common_faults": [
+            "Pulling with the arms before the hips hinge",
+            "Rushing the recovery",
+            "Losing a consistent pace"
+          ],
+          "fast_execution": true,
+          "equipment_requirements": [
+            "cardio_machine_general"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "hyrox",
+          "secondary_activity_applicability": [],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "burpee_broad_jump": {
+          "exercise_id": "burpee_broad_jump",
+          "display_label": "Burpee broad jump",
+          "movement_pattern_id": "jump_horizontal",
+          "stimulus_intent": "strength",
+          "rom": "task_defined",
+          "stability": "dynamic",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Burpee broad jump: Drop to a chest-to-floor burpee, stand, then project the body horizontally before absorbing the landing.",
+          "instruction_detail_text": [
+            "Set up the bodyweight, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Drop to a chest-to-floor burpee, stand, then project the body horizontally before absorbing the landing.",
+            "Reset burpee broad jump deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the burpee chest to floor",
+            "Stand fully before jumping",
+            "Stick the landing before resetting"
+          ],
+          "common_faults": [
+            "Skipping full chest-to-floor contact",
+            "Jumping before standing tall",
+            "Knees collapsing on landing"
+          ],
+          "fast_execution": true,
+          "equipment_requirements": [
+            "bodyweight",
+            "open_floor_space"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "hyrox",
+          "secondary_activity_applicability": [],
+          "contraindication_or_exclusion_tags": [
+            "impact_landing",
+            "high_speed_execution"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "sandbag_lunge": {
+          "exercise_id": "sandbag_lunge",
+          "display_label": "Sandbag lunge",
+          "movement_pattern_id": "single_leg_squat",
+          "stimulus_intent": "strength",
+          "rom": "full",
+          "stability": "unstable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "hip",
+            "knee",
+            "ankle"
+          ],
+          "tempo_capability": "tempo",
+          "instruction_short_text": "Sandbag lunge: Brace the sandbag load and control the working leg through the prescribed depth, then drive back to the start.",
+          "instruction_detail_text": [
+            "Set up the sandbag securely and establish the prescribed starting position before the first repetition.",
+            "Brace the sandbag load and control the working leg through the prescribed depth, then drive back to the start.",
+            "Reset sandbag lunge deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Keep the working knee tracking over the foot",
+            "Brace against the shifting load",
+            "Use the whole working foot"
+          ],
+          "common_faults": [
+            "Letting the sandbag shift the trunk off line",
+            "Knee collapsing inward",
+            "Rushing the descent"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "sandbag"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "hyrox",
+          "secondary_activity_applicability": [],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "wall_ball": {
+          "exercise_id": "wall_ball",
+          "display_label": "Wall ball",
+          "movement_pattern_id": "throw_slam",
+          "stimulus_intent": "strength",
+          "rom": "task_defined",
+          "stability": "dynamic",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "intermediate",
+          "joint_stress_tags": [
+            "shoulder",
+            "elbow",
+            "hip",
+            "knee"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Wall ball: Squat to the prescribed depth then drive the medicine ball to the target with coordinated hip and arm extension.",
+          "instruction_detail_text": [
+            "Set up the medicine ball, open floor space securely and establish the prescribed starting position before the first repetition.",
+            "Squat to the prescribed depth then drive the medicine ball to the target with coordinated hip and arm extension.",
+            "Reset wall ball deliberately between repetitions so range, alignment and load position remain repeatable."
+          ],
+          "coaching_cues": [
+            "Squat to full depth every rep",
+            "Drive through the hips first",
+            "Catch and absorb before the next rep"
+          ],
+          "common_faults": [
+            "Shortening the squat depth as fatigue rises",
+            "Throwing with the arms before the hips",
+            "Losing the catch position"
+          ],
+          "fast_execution": true,
+          "equipment_requirements": [
+            "medicine_ball",
+            "open_floor_space"
+          ],
+          "equipment_alternatives": [],
+          "primary_activity_applicability": "hyrox",
+          "secondary_activity_applicability": [],
+          "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
         }
       }
     },
@@ -14185,7 +14507,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -14207,7 +14530,8 @@
           "equipment_class": "free_weight",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -14265,7 +14589,8 @@
           "equipment_class": "bodyweight",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -14321,7 +14646,8 @@
           "equipment_class": "free_weight",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -14338,7 +14664,8 @@
           "display_label": "Sled",
           "equipment_class": "conditioning_tool",
           "activity_applicability": [
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "sprint_acceleration",
@@ -14393,7 +14720,8 @@
           "equipment_class": "conditioning_machine",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "conditioning_general"
@@ -14409,7 +14737,8 @@
           "equipment_class": "space",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "sprint_acceleration",
@@ -14685,7 +15014,8 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
-            "strongman"
+            "strongman",
+            "hyrox"
           ],
           "movement_pattern_applicability": [
             "carry",
@@ -39524,6 +39854,438 @@
           "applicability_id": "push_up__strongman__competition",
           "exercise_id": "push_up",
           "activity_id": "strongman",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "ski_erg__hyrox__training": {
+          "applicability_id": "ski_erg__hyrox__training",
+          "exercise_id": "ski_erg",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "ski_erg__hyrox__testing": {
+          "applicability_id": "ski_erg__hyrox__testing",
+          "exercise_id": "ski_erg",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "ski_erg__hyrox__competition": {
+          "applicability_id": "ski_erg__hyrox__competition",
+          "exercise_id": "ski_erg",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "burpee_broad_jump__hyrox__training": {
+          "applicability_id": "burpee_broad_jump__hyrox__training",
+          "exercise_id": "burpee_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "burpee_broad_jump__hyrox__testing": {
+          "applicability_id": "burpee_broad_jump__hyrox__testing",
+          "exercise_id": "burpee_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "burpee_broad_jump__hyrox__competition": {
+          "applicability_id": "burpee_broad_jump__hyrox__competition",
+          "exercise_id": "burpee_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_lunge__hyrox__training": {
+          "applicability_id": "sandbag_lunge__hyrox__training",
+          "exercise_id": "sandbag_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_lunge__hyrox__testing": {
+          "applicability_id": "sandbag_lunge__hyrox__testing",
+          "exercise_id": "sandbag_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sandbag_lunge__hyrox__competition": {
+          "applicability_id": "sandbag_lunge__hyrox__competition",
+          "exercise_id": "sandbag_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wall_ball__hyrox__training": {
+          "applicability_id": "wall_ball__hyrox__training",
+          "exercise_id": "wall_ball",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wall_ball__hyrox__testing": {
+          "applicability_id": "wall_ball__hyrox__testing",
+          "exercise_id": "wall_ball",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wall_ball__hyrox__competition": {
+          "applicability_id": "wall_ball__hyrox__competition",
+          "exercise_id": "wall_ball",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_push__hyrox__training": {
+          "applicability_id": "sled_push__hyrox__training",
+          "exercise_id": "sled_push",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_push__hyrox__testing": {
+          "applicability_id": "sled_push__hyrox__testing",
+          "exercise_id": "sled_push",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_push__hyrox__competition": {
+          "applicability_id": "sled_push__hyrox__competition",
+          "exercise_id": "sled_push",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_drag__hyrox__training": {
+          "applicability_id": "sled_drag__hyrox__training",
+          "exercise_id": "sled_drag",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_drag__hyrox__testing": {
+          "applicability_id": "sled_drag__hyrox__testing",
+          "exercise_id": "sled_drag",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "sled_drag__hyrox__competition": {
+          "applicability_id": "sled_drag__hyrox__competition",
+          "exercise_id": "sled_drag",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rowing_ergometer__hyrox__training": {
+          "applicability_id": "rowing_ergometer__hyrox__training",
+          "exercise_id": "rowing_ergometer",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rowing_ergometer__hyrox__testing": {
+          "applicability_id": "rowing_ergometer__hyrox__testing",
+          "exercise_id": "rowing_ergometer",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rowing_ergometer__hyrox__competition": {
+          "applicability_id": "rowing_ergometer__hyrox__competition",
+          "exercise_id": "rowing_ergometer",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__hyrox__training": {
+          "applicability_id": "farmers_carry__hyrox__training",
+          "exercise_id": "farmers_carry",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__hyrox__testing": {
+          "applicability_id": "farmers_carry__hyrox__testing",
+          "exercise_id": "farmers_carry",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__hyrox__competition": {
+          "applicability_id": "farmers_carry__hyrox__competition",
+          "exercise_id": "farmers_carry",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "standing_broad_jump__hyrox__training": {
+          "applicability_id": "standing_broad_jump__hyrox__training",
+          "exercise_id": "standing_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "standing_broad_jump__hyrox__testing": {
+          "applicability_id": "standing_broad_jump__hyrox__testing",
+          "exercise_id": "standing_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "standing_broad_jump__hyrox__competition": {
+          "applicability_id": "standing_broad_jump__hyrox__competition",
+          "exercise_id": "standing_broad_jump",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "backward_overhead_medicine_ball_throw__hyrox__training": {
+          "applicability_id": "backward_overhead_medicine_ball_throw__hyrox__training",
+          "exercise_id": "backward_overhead_medicine_ball_throw",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "backward_overhead_medicine_ball_throw__hyrox__testing": {
+          "applicability_id": "backward_overhead_medicine_ball_throw__hyrox__testing",
+          "exercise_id": "backward_overhead_medicine_ball_throw",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "backward_overhead_medicine_ball_throw__hyrox__competition": {
+          "applicability_id": "backward_overhead_medicine_ball_throw__hyrox__competition",
+          "exercise_id": "backward_overhead_medicine_ball_throw",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_lunge__hyrox__training": {
+          "applicability_id": "reverse_lunge__hyrox__training",
+          "exercise_id": "reverse_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_lunge__hyrox__testing": {
+          "applicability_id": "reverse_lunge__hyrox__testing",
+          "exercise_id": "reverse_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "reverse_lunge__hyrox__competition": {
+          "applicability_id": "reverse_lunge__hyrox__competition",
+          "exercise_id": "reverse_lunge",
+          "activity_id": "hyrox",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__hyrox__training": {
+          "applicability_id": "kettlebell_farmers_carry__hyrox__training",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "hyrox",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__hyrox__testing": {
+          "applicability_id": "kettlebell_farmers_carry__hyrox__testing",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "hyrox",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__hyrox__competition": {
+          "applicability_id": "kettlebell_farmers_carry__hyrox__competition",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "hyrox",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

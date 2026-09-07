@@ -28,7 +28,7 @@ if (!mode) {
 // ids in their current order), not on a field name, since the same array
 // shape appears under different key names (`enum`, `const`,
 // `supported_activity_scope`) across these files.
-const ACTIVITY_ARRAY_PATTERN = /\[\s*"powerlifting"\s*,\s*"general_strength"\s*,\s*"rugby_union"\s*,\s*"strongman"\s*\]/g;
+const ACTIVITY_ARRAY_PATTERN = /\[\s*"powerlifting"\s*,\s*"general_strength"\s*,\s*"rugby_union"\s*,\s*"strongman"\s*,\s*"hyrox"\s*\]/g;
 
 /**
  * Rebuild an activity-id JSON array, preserving the matched text's own
@@ -57,8 +57,8 @@ function syncActivityArrays(text) {
 
 function syncMinMaxItemsPair(text) {
   return text
-    .replace(/("minItems":\s*)4\b/g, `$1${V1_ACTIVITY_IDS.length}`)
-    .replace(/("maxItems":\s*)4\b/g, `$1${V1_ACTIVITY_IDS.length}`);
+    .replace(/("minItems":\s*)5\b/g, `$1${V1_ACTIVITY_IDS.length}`)
+    .replace(/("maxItems":\s*)5\b/g, `$1${V1_ACTIVITY_IDS.length}`);
 }
 
 function syncSupportedActivityCount(text) {

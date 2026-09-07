@@ -6,11 +6,11 @@
   "entries": [
     {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "f81fea595e812b66d0d62bf12b354276b05c33d7cfc5819af5ddfd64d8bd6fa9"
+      "sha256": "b203fd9111fed71fa3f9690904462fb027c45a6e21c5b66f8cf3b56567e3cefa"
     },
     {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "4062b4589bfcde928112200ec4a795a549ded735d41a0de905ed303130857e21"
+      "sha256": "e169acc470577d797451c674c090a5d5348183bec34410ddaa2777f022a2e1fb"
     },
     {
       "path": "registries/exercise/exercise_substitution_graph.json",
@@ -22,7 +22,7 @@
     },
     {
       "path": "registries/movement/movement.registry.json",
-      "sha256": "31594103e741b8ec47e61cf6fb4e922156238a96ad29b4707550934a2cdc7c42"
+      "sha256": "104650a34b1ad43141b8903f747f33d4bdbcdf2175d349f4267e391e16f1400e"
     },
     {
       "path": "registries/program/program.registry.json",
@@ -30,7 +30,7 @@
     },
     {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "f54a36035907c39e61cf22418bde352dc6b4cf833b8bfadfb81bd72648eca462"
+      "sha256": "ea7c65d3634ae980b548f02547116910994156eb00db63e0114f3562e6df59c1"
     },
     {
       "path": "registries/sport_subdivision/sport_subdivision.registry.json",
@@ -58,7 +58,7 @@
     },
     {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "5672d1244df4e66cff68738681ee4f67c0571199e6b0fb0e86fd2c573a3878e5"
+      "sha256": "51ae761f4dbff7f538d6bf5e6af3121963b01514d23c73731a92a0d8bcf7e34a"
     }
   ]
 }

@@ -89,6 +89,21 @@ const V1_ACTIVITIES = Object.freeze([
       "strongman_intermediate",
       "strongman_low_equipment"
     ])
+  }),
+  Object.freeze({
+    activity_id: "hyrox",
+    display_label: "Hyrox",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "hyrox_race", display_label: "Hyrox race" }),
+      Object.freeze({ event_type_id: "hyrox_simulation", display_label: "Hyrox simulation" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "hyrox_novice",
+      "hyrox_intermediate",
+      "hyrox_race_prep"
+    ])
   })
 ]);
 

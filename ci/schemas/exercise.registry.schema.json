@@ -164,7 +164,8 @@
               "powerlifting",
               "general_strength",
               "rugby_union",
-              "strongman"
+              "strongman",
+              "hyrox"
             ]
           },
           "secondary_activity_applicability": {
@@ -176,7 +177,8 @@
                 "powerlifting",
                 "general_strength",
                 "rugby_union",
-                "strongman"
+                "strongman",
+                "hyrox"
               ]
             },
             "uniqueItems": true

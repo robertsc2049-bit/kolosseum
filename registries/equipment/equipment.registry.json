@@ -87,7 +87,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -109,7 +110,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -167,7 +169,8 @@
       "equipment_class": "bodyweight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -223,7 +226,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -240,7 +244,8 @@
       "display_label": "Sled",
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
@@ -295,7 +300,8 @@
       "equipment_class": "conditioning_machine",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "conditioning_general"
@@ -311,7 +317,8 @@
       "equipment_class": "space",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
@@ -587,7 +594,8 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "hyrox"
       ],
       "movement_pattern_applicability": [
         "carry",

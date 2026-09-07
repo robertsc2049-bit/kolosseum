@@ -156,3 +156,7 @@ S20 should harden schema expectations before registry expansion content begins.
 ## Amendment - strongman activated as v1's fourth locked activity
 
 The locked activity set is now exactly powerlifting, general_strength, rugby_union, and strongman (length 4), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` and `rejectedExamples` were updated accordingly, and "strongman" was removed from the "Excluded examples" list above since it is no longer an excluded activity.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, strongman, and hyrox (length 5), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` was updated accordingly.

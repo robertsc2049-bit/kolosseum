@@ -50,7 +50,8 @@
       "powerlifting",
       "general_strength",
       "rugby_union",
-      "strongman"
+      "strongman",
+      "hyrox"
     ],
     "source": "REG-FULL-09 supported_activity_scope",
     "closed_world": true
