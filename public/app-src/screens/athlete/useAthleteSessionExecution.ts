@@ -76,6 +76,11 @@ export type AthleteSessionExecutionState = {
   rpeValue: number;
   borgValue: number;
   cr10Value: number;
+  extraSetTargetExerciseId: string | null;
+  extraSetReps: number;
+  extraSetLoadValue: string;
+  extraSetLoadUnit: "kg" | "lb";
+  extraSetJustLoggedExerciseId: string | null;
   substitutionUnavailableEquipment: string[];
   substitutionResult: SubstitutionResultState;
   substitutionChecking: boolean;
@@ -97,6 +102,11 @@ const initialState: AthleteSessionExecutionState = {
   rpeValue: 8,
   borgValue: 13,
   cr10Value: 5,
+  extraSetTargetExerciseId: null,
+  extraSetReps: 1,
+  extraSetLoadValue: "",
+  extraSetLoadUnit: "kg",
+  extraSetJustLoggedExerciseId: null,
   substitutionUnavailableEquipment: [],
   substitutionResult: null,
   substitutionChecking: false,
@@ -159,6 +169,9 @@ export function useAthleteSessionExecution() {
         rpeValue: 8,
         borgValue: 13,
         cr10Value: 5,
+        extraSetTargetExerciseId: null,
+        extraSetReps: 1,
+        extraSetLoadValue: "",
         substitutionUnavailableEquipment: [],
         substitutionResult: null,
         videoError: null,
@@ -360,6 +373,62 @@ export function useAthleteSessionExecution() {
     }, true);
   }, [runMutation, state.sessionState, state.cr10Value]);
 
+  const openExtraSetPanel = useCallback((exerciseId: string) => {
+    if (!exerciseId) return;
+    setState((current) => ({
+      ...current,
+      extraSetTargetExerciseId: exerciseId,
+      extraSetReps: 1,
+      extraSetLoadValue: "",
+      extraSetJustLoggedExerciseId: null
+    }));
+  }, []);
+
+  const closeExtraSetPanel = useCallback(() => {
+    setState((current) => ({ ...current, extraSetTargetExerciseId: null }));
+  }, []);
+
+  const setExtraSetReps = useCallback((value: number) => {
+    setState((current) => ({ ...current, extraSetReps: value }));
+  }, []);
+
+  const setExtraSetLoadValue = useCallback((value: string) => {
+    setState((current) => ({ ...current, extraSetLoadValue: value }));
+  }, []);
+
+  const setExtraSetLoadUnit = useCallback((value: "kg" | "lb") => {
+    setState((current) => ({ ...current, extraSetLoadUnit: value }));
+  }, []);
+
+  const confirmExtraSetReport = useCallback(async () => {
+    const exerciseId = state.extraSetTargetExerciseId;
+    if (!exerciseId) return false;
+
+    const reps = state.extraSetReps;
+    const trimmedLoad = state.extraSetLoadValue.trim();
+    const loadValue = trimmedLoad.length > 0 ? Number(trimmedLoad) : null;
+    if (!Number.isInteger(reps) || reps < 1) return false;
+    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) <= 0)) return false;
+
+    const event: JsonRecord = { type: "EXTRA_SET_REPORT", exercise_id: exerciseId, reps };
+    if (loadValue !== null) {
+      event.load_value = loadValue;
+      event.load_unit = state.extraSetLoadUnit;
+    }
+
+    setState((current) => ({ ...current, extraSetTargetExerciseId: null }));
+
+    const ok = await runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, event, csrfToken);
+    }, true);
+
+    if (ok) {
+      setState((current) => ({ ...current, extraSetJustLoggedExerciseId: exerciseId }));
+    }
+
+    return ok;
+  }, [runMutation, state.extraSetTargetExerciseId, state.extraSetReps, state.extraSetLoadValue, state.extraSetLoadUnit]);
+
   const toggleSubstitutionEquipment = useCallback((equipmentId: string) => {
     setState((current) => {
       const has = current.substitutionUnavailableEquipment.includes(equipmentId);
@@ -505,6 +574,12 @@ export function useAthleteSessionExecution() {
     confirmBorgReport,
     setCr10Value,
     confirmCr10Report,
+    openExtraSetPanel,
+    closeExtraSetPanel,
+    setExtraSetReps,
+    setExtraSetLoadValue,
+    setExtraSetLoadUnit,
+    confirmExtraSetReport,
     toggleSubstitutionEquipment,
     checkSubstitution,
     applySubstitution,

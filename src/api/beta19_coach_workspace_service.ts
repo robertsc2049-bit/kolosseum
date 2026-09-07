@@ -1380,6 +1380,20 @@ export async function loadCoachAthleteDetail(
           ),
           '[]'::json
         ) AS session_cr10_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'reps', (re.event->>'reps')::int,
+              'load_value', (re.event->>'load_value')::numeric,
+              'load_unit', re.event->>'load_unit'
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'EXTRA_SET_REPORT'
+              AND re.event->>'reps' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_extra_set_reports,
         bool_or(
           re.event->>'type' = 'SPLIT_SESSION'
         ) AS session_split_entered,
@@ -1634,6 +1648,17 @@ export async function loadCoachAthleteDetail(
                     isRecord(entry) &&
                     typeof entry.exercise_id === "string" &&
                     Number.isFinite(entry.cr10_value)
+                )
+              : [],
+          extra_set_reports:
+            Array.isArray(
+              row.session_extra_set_reports
+            )
+              ? row.session_extra_set_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.reps)
                 )
               : [],
           split_entered:

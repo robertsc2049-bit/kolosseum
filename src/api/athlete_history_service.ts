@@ -412,6 +412,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const rpeReports = new Map<string, number>();
   const borgReports = new Map<string, number>();
   const cr10Reports = new Map<string, number>();
+  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -436,6 +437,18 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
     if (type === "CR10_REPORT" && typeof event.exercise_id === "string" && Number.isFinite(event.cr10_value)) {
       cr10Reports.set(event.exercise_id, event.cr10_value as number);
+    }
+
+    if (type === "EXTRA_SET_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.reps)) {
+      const list = extraSetReports.get(event.exercise_id) ?? [];
+      list.push({
+        reps: event.reps as number,
+        load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
+        load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        seq,
+        created_at
+      });
+      extraSetReports.set(event.exercise_id, list);
     }
 
     if (
@@ -482,6 +495,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       rpe_reported: rpeReports.get(exerciseId) ?? null,
       borg_reported: borgReports.get(exerciseId) ?? null,
       cr10_reported: cr10Reports.get(exerciseId) ?? null,
+      extra_sets: Object.freeze(extraSetReports.get(exerciseId) ?? []),
       substitution: substitutions.get(exerciseId) ?? null
     });
   });

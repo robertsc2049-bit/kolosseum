@@ -112,6 +112,18 @@ test("the athlete's own recorded Borg and CR10 reports are surfaced back on thei
   assert.match(historyPanel, /exercise\.cr10_reported/u);
 });
 
+test("athlete-added extra sets on an already-resolved exercise are surfaced back on their session history detail", () => {
+  // EXTRA_SET_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureExtraSetReportShapeValid, scoped
+  // to exercises already in completed_ids/dropped_ids (not remaining_ids),
+  // and are allowed even once the whole session is terminal - see
+  // ensureTerminalSessionEventRejected's EXTRA_SET_REPORT exemption.
+  assert.match(historyService, /extra_sets/u);
+  assert.match(historyService, /EXTRA_SET_REPORT/u);
+
+  assert.match(historyPanel, /exercise\.extra_sets/u);
+});
+
 test("programme, assignment and event provenance are derived from immutable stored records, not inferred", () => {
   assert.match(historyService, /beta17_assignment_trigger/u);
   assert.match(historyService, /beta18_programme_template|loadExecutableCoachTemplateById/u);

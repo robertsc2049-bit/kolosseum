@@ -304,6 +304,23 @@ test(
       /session\.cr10_reports/u
     );
 
+    // Same gap for extra-set reports: an athlete's own logged extra work
+    // (EXTRA_SET_REPORT) on an already-resolved exercise was validated and
+    // persisted but read back nowhere - not even to the athlete themselves,
+    // let alone the coach's session history.
+    assert.match(
+      service,
+      /session_extra_set_reports/u
+    );
+    assert.match(
+      service,
+      /extra_set_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.extra_set_reports/u
+    );
+
     // Same gap for split/return: the athlete's own history detail already
     // exposes split_entered/split_return_decision/split_return_events, but
     // the coach's session history never surfaced whether an athlete split a

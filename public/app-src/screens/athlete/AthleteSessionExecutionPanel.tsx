@@ -457,6 +457,10 @@ export function AthleteSessionExecutionPanel() {
           {rows.length ? rows.map(({ exercise: row, status }, index) => {
             const statusLabel = status === "complete" ? "Completed" : status === "dropped" ? "Dropped" : status === "current" ? "Current" : "Upcoming";
             const segment = String(row?.segment ?? "working");
+            const exerciseId = String(row?.exercise_id ?? row?.item_id ?? "");
+            const canAddExtraSet = exerciseId.length > 0 && (status === "complete" || status === "dropped");
+            const extraSetPanelOpen = canAddExtraSet && session.extraSetTargetExerciseId === exerciseId;
+            const justLoggedExtraSet = canAddExtraSet && session.extraSetJustLoggedExerciseId === exerciseId;
             return (
               <div className={`exercise-row ${status} ${row?.group_id ? "exercise-row-grouped" : ""}`} key={`${row?.exercise_id ?? row?.item_id ?? index}_${index}`}>
                 <span className="exercise-order">{index + 1}</span>
@@ -466,6 +470,54 @@ export function AthleteSessionExecutionPanel() {
                   {row?.group_id ? <span className="badge neutral">{titleCase(row?.group_type)}</span> : null}
                   <small>{exerciseDetails(row).join(" · ") || "Recorded exercise"}</small>
                   {String(row?.coaching_notes ?? "").trim() ? <small className="exercise-coaching-note">{String(row?.coaching_notes).trim()}</small> : null}
+                  {canAddExtraSet && !extraSetPanelOpen ? (
+                    <button
+                      className="button secondary small"
+                      type="button"
+                      onClick={() => session.openExtraSetPanel(exerciseId)}
+                    >
+                      Add extra set
+                    </button>
+                  ) : null}
+                  {justLoggedExtraSet ? <small className="extra-set-confirmation">Extra set logged.</small> : null}
+                  {extraSetPanelOpen ? (
+                    <div className="extra-set-panel">
+                      <label className="field">
+                        <span>Reps</span>
+                        <input
+                          type="number"
+                          min={1}
+                          step={1}
+                          value={session.extraSetReps}
+                          onChange={(event) => session.setExtraSetReps(Math.max(1, Math.round(Number(event.target.value) || 1)))}
+                        />
+                      </label>
+                      <label className="field">
+                        <span>Weight (optional)</span>
+                        <input
+                          type="number"
+                          min={0}
+                          step="any"
+                          value={session.extraSetLoadValue}
+                          onChange={(event) => session.setExtraSetLoadValue(event.target.value)}
+                        />
+                      </label>
+                      <label className="field">
+                        <span>Unit</span>
+                        <select
+                          value={session.extraSetLoadUnit}
+                          onChange={(event) => session.setExtraSetLoadUnit(event.target.value === "lb" ? "lb" : "kg")}
+                        >
+                          <option value="kg">kg</option>
+                          <option value="lb">lb</option>
+                        </select>
+                      </label>
+                      <div className="extra-set-actions">
+                        <button className="button secondary" type="button" disabled={session.busy} onClick={() => session.closeExtraSetPanel()}>Cancel</button>
+                        <button className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmExtraSetReport()}>Log extra set</button>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
                 <span className={`badge ${status === "complete" ? "complete" : status === "dropped" ? "partial" : status === "current" ? "active" : "neutral"}`}>{statusLabel}</span>
               </div>
