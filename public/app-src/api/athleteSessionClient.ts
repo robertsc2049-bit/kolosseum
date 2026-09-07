@@ -53,6 +53,10 @@ export async function requestSessionSubstitution(
   );
 }
 
+export async function loadExerciseCatalog(): Promise<JsonRecord> {
+  return request("GET", "/templates/exercises");
+}
+
 export async function loadExerciseContent(exerciseId: string): Promise<JsonRecord> {
   return request("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`);
 }

@@ -196,6 +196,13 @@ export function AthleteSessionExecutionPanel() {
     ...counts.dropped.map((row) => ({ exercise: row, status: "dropped" as const }))
   ];
 
+  const prescribedExerciseIds = new Set(
+    rows.map(({ exercise: row }) => String(row?.exercise_id ?? row?.item_id ?? ""))
+  );
+  const addableExercises = session.exerciseCatalog.filter(
+    (option) => !prescribedExerciseIds.has(String(option.exercise_id))
+  );
+
   return (
     <>
       <div className="page-heading session-heading">
@@ -524,6 +531,82 @@ export function AthleteSessionExecutionPanel() {
             );
           }) : <div className="empty-state"><p>No exercise records are available.</p></div>}
         </div>
+      </article>
+
+      <article className="panel">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">Extra work</p>
+            <h3>Extra exercise</h3>
+          </div>
+        </div>
+        {!session.addExercisePanelOpen ? (
+          <button
+            className="button secondary"
+            type="button"
+            onClick={() => session.openAddExercisePanel(String(addableExercises[0]?.exercise_id ?? ""))}
+          >
+            Add exercise
+          </button>
+        ) : (
+          <div className="extra-set-panel">
+            <label className="field">
+              <span>Exercise</span>
+              <select
+                value={session.addExerciseSelectedId}
+                onChange={(event) => session.setAddExerciseSelectedId(event.target.value)}
+              >
+                {addableExercises.map((option) => (
+                  <option key={String(option.exercise_id)} value={String(option.exercise_id)}>
+                    {String(option.display_name ?? option.exercise_id)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
+              <span>Reps</span>
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={session.addExerciseReps}
+                onChange={(event) => session.setAddExerciseReps(Math.max(1, Math.round(Number(event.target.value) || 1)))}
+              />
+            </label>
+            <label className="field">
+              <span>Weight (optional)</span>
+              <input
+                type="number"
+                min={0}
+                step="any"
+                value={session.addExerciseLoadValue}
+                onChange={(event) => session.setAddExerciseLoadValue(event.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span>Unit</span>
+              <select
+                value={session.addExerciseLoadUnit}
+                onChange={(event) => session.setAddExerciseLoadUnit(event.target.value === "lb" ? "lb" : "kg")}
+              >
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+              </select>
+            </label>
+            <div className="extra-set-actions">
+              <button className="button secondary" type="button" disabled={session.busy} onClick={() => session.closeAddExercisePanel()}>Cancel</button>
+              <button
+                className="button primary"
+                type="button"
+                disabled={session.busy}
+                onClick={() => session.confirmAddExercise()}
+              >
+                Log exercise
+              </button>
+            </div>
+          </div>
+        )}
+        {session.addExerciseJustLoggedLabel ? <small className="extra-set-confirmation">{session.addExerciseJustLoggedLabel} added.</small> : null}
       </article>
     </>
   );

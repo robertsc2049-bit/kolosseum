@@ -104,6 +104,7 @@ export function AthleteHistoryPanel() {
   const event = detail?.provenance ? ((detail.provenance as JsonRecord).event as JsonRecord | undefined) : undefined;
   const canContinue = detail?.execution_status === "ready" || detail?.execution_status === "in_progress";
   const exercises = Array.isArray(detail?.exercises) ? (detail!.exercises as JsonRecord[]) : [];
+  const addedExercises = Array.isArray(detail?.added_exercises) ? (detail!.added_exercises as JsonRecord[]) : [];
   const splitReturnEvents = Array.isArray(detail?.split_return_events) ? (detail!.split_return_events as JsonRecord[]) : [];
 
   return (
@@ -279,6 +280,28 @@ export function AthleteHistoryPanel() {
                   );
                 })}
               </div>
+
+              {addedExercises.length > 0 ? (
+                <>
+                  <div className="panel-header"><div><p className="eyebrow">Extra work</p><h4>Added exercises</h4></div></div>
+                  <div>
+                    {addedExercises.map((added, index) => {
+                      const sets = Array.isArray(added.sets) ? (added.sets as JsonRecord[]) : [];
+                      return (
+                        <div className="history-exercise-row" key={String(added.exercise_id ?? index)}>
+                          <strong>{String(added.exercise_id)}</strong>
+                          {sets.map((set, setIndex) => (
+                            <small key={setIndex}>
+                              {String(set.reps)} reps
+                              {set.load_value !== null && set.load_value !== undefined ? ` @ ${String(set.load_value)}${String(set.load_unit ?? "")}` : ""}
+                            </small>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : null}
 
               {detailVideoSubmissions.length > 0 ? (
                 <>

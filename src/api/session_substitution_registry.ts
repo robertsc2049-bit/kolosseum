@@ -192,6 +192,14 @@ function projectExercise(
   };
 }
 
+export function isKnownExerciseRegistryId(exerciseId: string): boolean {
+  const id = typeof exerciseId === "string" ? exerciseId.trim() : "";
+  if (!id) return false;
+  const exercises = readEntries<ExerciseRow>(EXERCISE_REGISTRY_PATH, "exercise");
+  const row = exercises[id];
+  return !!row && row.exercise_id === id;
+}
+
 export function isKnownSubstitutionExerciseId(exerciseId: string): boolean {
   const id = typeof exerciseId === "string" ? exerciseId.trim() : "";
   if (!id) return false;
