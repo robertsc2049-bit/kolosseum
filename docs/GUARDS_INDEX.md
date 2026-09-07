@@ -185,6 +185,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_u_05_session_execution_polish_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
+| `ci/guards/v1_activity_surfaces_sync_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. Proves the static JSON layer (JSON Schema |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
 | `ci/guards/v1_registry_content_production_contract_guard.mjs` | Registry Law | high | registry | @law v1_registry_content_production_contract |

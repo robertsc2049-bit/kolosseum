@@ -21,6 +21,7 @@ import {
   eventWeekCalendar,
   EventProgrammeCompilerError
 } from "./event_programme_compiler_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -39,12 +40,7 @@ export class Beta19CoachEventError extends Error {
   }
 }
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);

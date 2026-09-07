@@ -11,23 +11,9 @@ import {
   buildRegFull07Evidence,
   loadRegFull07SourceDocuments
 } from "../../scripts/reg_full_07_materialize_programme_templates.mjs";
+import { V1_ACTIVITIES } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
-const EXPECTED_FAMILY_IDS = Object.freeze([
-  "powerlifting_novice",
-  "powerlifting_intermediate",
-  "powerlifting_maintenance",
-  "powerlifting_meet_prep",
-  "general_strength_novice",
-  "general_strength_intermediate",
-  "general_strength_low_equipment",
-  "rugby_union_off_season",
-  "rugby_union_pre_season",
-  "rugby_union_in_season",
-  "rugby_union_low_equipment",
-  "strongman_novice",
-  "strongman_intermediate",
-  "strongman_low_equipment"
-]);
+const EXPECTED_FAMILY_IDS = Object.freeze(V1_ACTIVITIES.flatMap((activity) => activity.programme_template_family_ids));
 
 const EXPECTED_LEGACY_PROGRAM = Object.freeze({
   registry_id: "program",
@@ -127,9 +113,10 @@ export function auditRegFull07Documents(docs, repoRoot = process.cwd()) {
   const familyIds = templates.map((row) => row?.template_id);
   if (!same(familyIds, EXPECTED_FAMILY_IDS)) push(errors, "FAMILY_INVENTORY", familyIds);
 
-  const activityCounts = { powerlifting: 0, general_strength: 0, rugby_union: 0, strongman: 0 };
+  const activityCounts = Object.fromEntries(V1_ACTIVITIES.map((activity) => [activity.activity_id, 0]));
   for (const template of templates) if (Object.hasOwn(activityCounts, template?.activity_id)) activityCounts[template.activity_id] += 1;
-  if (!same(activityCounts, { powerlifting: 4, general_strength: 3, rugby_union: 4, strongman: 3 })) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
+  const expectedActivityCounts = Object.fromEntries(V1_ACTIVITIES.map((activity) => [activity.activity_id, activity.programme_template_family_ids.length]));
+  if (!same(activityCounts, expectedActivityCounts)) push(errors, "FAMILY_ACTIVITY_COUNTS", activityCounts);
 
   const exerciseRows = entries(docs.exercise);
   const equipmentRows = entries(docs.equipment);

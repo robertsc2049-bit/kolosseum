@@ -3,9 +3,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 export const TOKEN = "CI_REG_FULL_02_ACTIVITY_MOVEMENT_COMPLETION";
-export const REQUIRED_ACTIVITIES = Object.freeze(["powerlifting", "general_strength", "rugby_union", "strongman"]);
+export const REQUIRED_ACTIVITIES = V1_ACTIVITY_IDS;
 export const REQUIRED_MOVEMENTS = Object.freeze([
   "squat", "hinge", "single_leg_squat", "single_leg_hinge",
   "knee_extension_isolation", "knee_flexion_isolation", "hip_abduction_isolation",

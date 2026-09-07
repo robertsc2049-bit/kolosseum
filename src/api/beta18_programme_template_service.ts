@@ -25,6 +25,7 @@ import {
   compileEventProgrammeCalendar,
   eventWeekCalendar
 } from "./event_programme_compiler_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -40,12 +41,7 @@ export class Beta18ProgrammeTemplateError
 }
 
 const supportedActivities =
-  new Set([
-    "powerlifting",
-    "general_strength",
-    "rugby_union",
-    "strongman"
-  ]);
+  new Set(V1_ACTIVITY_IDS);
 
 const templateStatuses =
   new Set([

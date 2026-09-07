@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 
 import { useConnectAthlete } from "./useConnectAthlete";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from index.html's #connectAthleteForm ("Relationship
 // record / Add athlete") - the manual, account-code-based relationship
 // form. See useConnectAthlete.ts for the mutation + cross-stack refresh
 // wiring.
-const ACTIVITIES = [
-  ["powerlifting", "Powerlifting"],
-  ["general_strength", "General strength"],
-  ["rugby_union", "Rugby union"],
-  ["strongman", "Strongman"]
-] as const;
+const ACTIVITIES = V1_ACTIVITIES.map((activity) => [activity.activity_id, activity.display_label] as const);
 
 export function ConnectAthletePanel() {
   const { submitting, error, connect } = useConnectAthlete();

@@ -15,6 +15,7 @@ import {
 import {
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 type ActorType = "athlete" | "coach";
@@ -150,12 +151,7 @@ function validateActivity(
 ): string {
   const activity = cleanString(value);
 
-  if (
-    activity !== "powerlifting" &&
-    activity !== "general_strength" &&
-    activity !== "rugby_union" &&
-    activity !== "strongman"
-  ) {
+  if (!V1_ACTIVITY_IDS.includes(activity)) {
     throw new ProductAccountError(
       "account_activity_invalid"
     );

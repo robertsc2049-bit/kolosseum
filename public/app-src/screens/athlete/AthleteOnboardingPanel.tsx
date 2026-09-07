@@ -9,6 +9,8 @@ import {
   STAGES,
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported field-for-field from public/app/athlete_onboarding_ui.js's
@@ -134,10 +136,9 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
           <span>Activity</span>
           <select value={String(draft.activity_id ?? "")} onChange={(event) => onChange({ ...draft, activity_id: event.target.value })}>
             <option value="">Choose</option>
-            <option value="powerlifting">Powerlifting</option>
-            <option value="general_strength">General strength</option>
-            <option value="rugby_union">Rugby union</option>
-            <option value="strongman">Strongman</option>
+            {V1_ACTIVITIES.map((activity) => (
+              <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+            ))}
           </select>
         </label>
       </>

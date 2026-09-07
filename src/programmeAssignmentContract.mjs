@@ -5,15 +5,11 @@
 // team/org scope, database state, or billing state.
 
 import crypto from "node:crypto";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const TOKEN_PREFIX = "v1_programme_assignment_contract_";
 
-const LOCKED_ACTIVITY_IDS = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const LOCKED_ACTIVITY_IDS = V1_ACTIVITY_IDS;
 
 const REQUIRED_ROOT_KEYS = Object.freeze([
   "request_id",

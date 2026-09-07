@@ -226,7 +226,7 @@ if (!Array.isArray(guards.V1_SUPPORTED_ACTIVITIES)) {
   fail("V1_SUPPORTED_ACTIVITIES export is not an array");
 }
 
-for (const activityId of ["powerlifting", "general_strength", "rugby_union", "strongman"]) {
+for (const activityId of guards.V1_SUPPORTED_ACTIVITIES) {
   guards.assertActivityIsV1Supported(activityId);
 }
 

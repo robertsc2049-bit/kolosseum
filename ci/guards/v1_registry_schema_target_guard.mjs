@@ -13,15 +13,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repoRoot = process.cwd();
 
-const expectedActivities = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const expectedActivities = V1_ACTIVITY_IDS;
 
 const requiredDomains = Object.freeze([
   "activity_registry",

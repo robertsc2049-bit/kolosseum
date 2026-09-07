@@ -29,6 +29,7 @@ const requiredDocs = Object.freeze([
 // later surface yet; existing files must document each exported entrypoint.
 const criticalFiles = Object.freeze([
   "shared/v1-boundary/v1BoundaryGuards.mjs",
+  "shared/v1-boundary/v1ActivityRegistry.mjs",
   "server/api/coachNotes.ts",
   "server/api/sessionArtefactViewer.ts",
   "server/history/historyCounts.access.ts",

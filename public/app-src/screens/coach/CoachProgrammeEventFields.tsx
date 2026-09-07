@@ -2,6 +2,8 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
+// eslint-disable-next-line import/no-unresolved
+import { getV1ActivityConfig } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-05B programme builder event-plan detail fields (name/
 // type/programme start date/event date/location/timezone/notes) - ported
@@ -18,38 +20,9 @@ import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
 // entanglement than a clean render-only port could easily separate out
 // in one slice.
 //
-// EVENT_TYPES_BY_ACTIVITY is duplicated here from app.js's own copy
-// (kept in sync by convention, matching this migration's other
-// duplicated-not-shared helpers e.g. newTemplateBlock()) since the
-// activity-scoped <option> list needs to render correctly in React.
-const EVENT_TYPES_BY_ACTIVITY: Record<string, [string, string][]> = {
-  powerlifting: [
-    ["powerlifting_meet", "Powerlifting meet"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other event"]
-  ],
-  general_strength: [
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other event"]
-  ],
-  rugby_union: [
-    ["rugby_match", "Rugby match"],
-    ["rugby_tournament", "Rugby tournament"],
-    ["test_day", "Test day"],
-    ["other", "Other event"]
-  ],
-  strongman: [
-    ["strongman_competition", "Strongman competition"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other event"]
-  ]
-};
-
 function eventTypesForActivity(activityId: string): [string, string][] {
-  return EVENT_TYPES_BY_ACTIVITY[activityId] ?? EVENT_TYPES_BY_ACTIVITY.general_strength;
+  const activity = getV1ActivityConfig(activityId) ?? getV1ActivityConfig("general_strength");
+  return activity.event_types.map((eventType) => [eventType.event_type_id, eventType.display_label]);
 }
 
 export function CoachProgrammeEventFields() {

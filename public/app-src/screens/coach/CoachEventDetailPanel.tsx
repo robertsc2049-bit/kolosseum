@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useCoachEventDetail } from "./useCoachEventDetail";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-09C event detail/lifecycle - see useCoachEventDetail.ts.
 // Ported field-for-field from the now-deleted event_lifecycle_ui.js's
@@ -233,10 +235,9 @@ export function CoachEventDetailPanel() {
                   value={versionFields.activityId}
                   onChange={(fieldEvent) => setVersionFields({ ...versionFields, activityId: fieldEvent.target.value })}
                 >
-                  <option value="powerlifting">Powerlifting</option>
-                  <option value="general_strength">General strength</option>
-                  <option value="rugby_union">Rugby union</option>
-                  <option value="strongman">Strongman</option>
+                  {V1_ACTIVITIES.map((activity) => (
+                    <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+                  ))}
                 </select>
               </label>
               <label className="field">

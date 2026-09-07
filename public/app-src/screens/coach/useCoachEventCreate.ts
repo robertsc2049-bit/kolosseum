@@ -3,6 +3,8 @@ import { useCallback, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { createCoachEvent } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+// eslint-disable-next-line import/no-unresolved
+import { getV1ActivityConfig } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from app.js's (removed) COACH_EVENT_TYPES/
 // syncCoachEventTypeOptions()/renderCoachEventPreview()/createCoachEvent().
@@ -14,34 +16,9 @@ import { type JsonRecord } from "../../api/transport";
 // not part of it.
 const CHANGED_EVENT = "kolosseum:coach-events-changed";
 
-const EVENT_TYPES_BY_ACTIVITY: Record<string, ReadonlyArray<readonly [string, string]>> = {
-  powerlifting: [
-    ["powerlifting_meet", "Powerlifting meet"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  general_strength: [
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  rugby_union: [
-    ["rugby_match", "Rugby match"],
-    ["rugby_tournament", "Rugby tournament"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ],
-  strongman: [
-    ["strongman_competition", "Strongman competition"],
-    ["strength_event", "Strength event"],
-    ["test_day", "Test day"],
-    ["other", "Other"]
-  ]
-};
-
 export function eventTypesForActivity(activityId: string): ReadonlyArray<readonly [string, string]> {
-  return EVENT_TYPES_BY_ACTIVITY[activityId] ?? EVENT_TYPES_BY_ACTIVITY.powerlifting;
+  const activity = getV1ActivityConfig(activityId) ?? getV1ActivityConfig("general_strength");
+  return activity.event_types.map((eventType) => [eventType.event_type_id, eventType.display_label] as const);
 }
 
 function dateOnlyEpochDay(value: string): number | null {

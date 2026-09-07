@@ -4,6 +4,7 @@
 // alter deterministic engine decisions.
 
 import crypto from "node:crypto";
+import { V1_ACTIVITIES } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -17,50 +18,14 @@ export class EventProgrammeCompilerError extends Error {
   }
 }
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union",
-  "strongman"
-]);
+const supportedActivities = new Set(V1_ACTIVITIES.map((activity) => activity.activity_id));
 
-const eventTypesByActivity = new Map<string, ReadonlySet<string>>([
-  [
-    "powerlifting",
-    new Set([
-      "powerlifting_meet",
-      "strength_event",
-      "test_day",
-      "other"
-    ])
-  ],
-  [
-    "general_strength",
-    new Set([
-      "strength_event",
-      "test_day",
-      "other"
-    ])
-  ],
-  [
-    "rugby_union",
-    new Set([
-      "rugby_match",
-      "rugby_tournament",
-      "test_day",
-      "other"
-    ])
-  ],
-  [
-    "strongman",
-    new Set([
-      "strongman_competition",
-      "strength_event",
-      "test_day",
-      "other"
-    ])
-  ]
-]);
+const eventTypesByActivity = new Map<string, ReadonlySet<string>>(
+  V1_ACTIVITIES.map((activity) => [
+    activity.activity_id,
+    new Set(activity.event_types.map((eventType) => eventType.event_type_id))
+  ])
+);
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
 import { useEntryAuth } from "./useEntryAuth";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: see useEntryAuth.ts's own DEV NOTE for the full port mapping and
 // the cross-stack bridge protocol. This file owns the raw form field state
@@ -207,10 +209,9 @@ export function EntryAuthPanel() {
                 <label className="field">
                   <span>Primary activity</span>
                   <select value={activityId} onChange={(event) => setActivityId(event.target.value)}>
-                    <option value="powerlifting">Powerlifting</option>
-                    <option value="general_strength">General strength</option>
-                    <option value="rugby_union">Rugby union</option>
-                    <option value="strongman">Strongman</option>
+                    {V1_ACTIVITIES.map((activity) => (
+                      <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+                    ))}
                   </select>
                 </label>
               ) : null}

@@ -2,6 +2,8 @@ import React, { useRef } from "react";
 
 import { countdownLabel } from "../../utils/format";
 import { availableWeeksLabel, eventTypesForActivity, useCoachEventCreate } from "./useCoachEventCreate";
+// eslint-disable-next-line import/no-unresolved
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from index.html's #eventForm ("Compile event"). The
 // event library (metric cards + event list) is React already - see
@@ -59,10 +61,9 @@ export function CoachEventCreatePanel() {
       <label className="field">
         <span>Activity</span>
         <select value={activityId} onChange={(event) => setActivityId(event.target.value)}>
-          <option value="powerlifting">Powerlifting</option>
-          <option value="general_strength">General strength</option>
-          <option value="rugby_union">Rugby union</option>
-          <option value="strongman">Strongman</option>
+          {V1_ACTIVITIES.map((activity) => (
+            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+          ))}
         </select>
       </label>
 

@@ -9,6 +9,7 @@ import {
   createBeta16AcknowledgementRecord,
   createBeta16Phase1DeclarationRecord
 } from "./beta16_app_path_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -18,9 +19,7 @@ export const ATHLETE_ONBOARDING_STAGES = Object.freeze([
   "accessibility", "instruction_density", "review"
 ] as const);
 export type AthleteOnboardingStage = (typeof ATHLETE_ONBOARDING_STAGES)[number];
-export const ATHLETE_ACTIVITY_IDS = Object.freeze([
-  "powerlifting", "general_strength", "rugby_union", "strongman"
-] as const);
+export const ATHLETE_ACTIVITY_IDS = V1_ACTIVITY_IDS;
 export const ATHLETE_EXECUTION_SCOPES = Object.freeze([
   "individual", "coach_managed"
 ] as const);
