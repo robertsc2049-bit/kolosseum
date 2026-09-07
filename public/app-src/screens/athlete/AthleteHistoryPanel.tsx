@@ -256,6 +256,7 @@ export function AthleteHistoryPanel() {
                   const planned = exercise.planned as JsonRecord | undefined;
                   const recordedState = String(exercise.recorded_state ?? "");
                   const substitution = exercise.substitution as JsonRecord | undefined;
+                  const extraSets = Array.isArray(exercise.extra_sets) ? (exercise.extra_sets as JsonRecord[]) : [];
                   return (
                     <div className="history-exercise-row" key={String(exercise.exercise_id ?? index)}>
                       <strong>{exerciseName(planned)}</strong>
@@ -267,6 +268,12 @@ export function AthleteHistoryPanel() {
                       {exercise.rpe_reported ? <small>RPE reported: {String(exercise.rpe_reported)}</small> : null}
                       {exercise.borg_reported ? <small>Borg reported: {String(exercise.borg_reported)}</small> : null}
                       {exercise.cr10_reported !== null && exercise.cr10_reported !== undefined ? <small>CR10 reported: {String(exercise.cr10_reported)}</small> : null}
+                      {extraSets.map((extraSet, extraSetIndex) => (
+                        <small key={extraSetIndex}>
+                          Extra set: {String(extraSet.reps)} reps
+                          {extraSet.load_value !== null && extraSet.load_value !== undefined ? ` @ ${String(extraSet.load_value)}${String(extraSet.load_unit ?? "")}` : ""}
+                        </small>
+                      ))}
                       {substitution ? <small>Substituted with {String(substitution.substituted_exercise_id)}</small> : null}
                     </div>
                   );

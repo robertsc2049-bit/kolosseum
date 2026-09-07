@@ -603,6 +603,80 @@ function ensureCr10ReportShapeValid(event: unknown, planned: PlannedSession, sum
   }
 }
 
+const EXTRA_SET_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
+const EXTRA_SET_LOAD_UNITS = new Set(["kg", "lb"]);
+
+function ensureExtraSetReportShapeValid(event: unknown, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "EXTRA_SET_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!EXTRA_SET_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (extra set report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing extra set report exercise_id)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const reps = obj.reps;
+  if (!Number.isInteger(reps) || (reps as number) < 1) {
+    throw badRequest("Runtime event rejected (extra set report reps must be a positive whole number)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: reps"
+    });
+  }
+
+  const hasLoadValue = obj.load_value !== undefined;
+  const hasLoadUnit = obj.load_unit !== undefined;
+  if (hasLoadValue !== hasLoadUnit) {
+    throw badRequest("Runtime event rejected (extra set report load_value and load_unit must both be present or both absent)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load"
+    });
+  }
+
+  if (hasLoadValue) {
+    const loadValue = obj.load_value;
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue <= 0) {
+      throw badRequest("Runtime event rejected (extra set report load_value must be a positive finite number)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load_value"
+      });
+    }
+
+    const loadUnit = obj.load_unit;
+    if (typeof loadUnit !== "string" || !EXTRA_SET_LOAD_UNITS.has(loadUnit)) {
+      throw badRequest("Runtime event rejected (extra set report load_unit must be kg or lb)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load_unit"
+      });
+    }
+  }
+
+  const trace = readSummaryTrace(summary);
+  const resolvedIds = new Set<string>([
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+
+  if (!resolvedIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra set report exercise_id is not an already-resolved exercise in this session)", {
+      failure_token: "phase6_runtime_extra_set_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_EXTRA_SET_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
 function ensureSubstitutionTagValid(event: unknown): void {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
@@ -634,7 +708,11 @@ function ensureSubstitutionTagValid(event: unknown): void {
 
 function ensureTerminalSessionEventRejected(summary: any, raw: unknown): void {
   const t = rawEventType(raw);
-  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t)) return;
+  // EXTRA_SET_REPORT is deliberately exempt: an athlete may log extra work
+  // against an already-resolved exercise even after the whole session is
+  // terminal - see ensureExtraSetReportShapeValid, which independently
+  // requires the exercise_id to already be completed/dropped.
+  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t) || t === "EXTRA_SET_REPORT") return;
 
   const trace = readSummaryTrace(summary);
   const started = trace?.started === true;
@@ -866,6 +944,7 @@ export async function appendRuntimeEventMutation(
     ensureRpeReportShapeValid(event, planned, workingSummary);
     ensureBorgReportShapeValid(event, planned, workingSummary);
     ensureCr10ReportShapeValid(event, planned, workingSummary);
+    ensureExtraSetReportShapeValid(event, workingSummary);
     ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);

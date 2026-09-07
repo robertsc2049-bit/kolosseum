@@ -355,6 +355,7 @@ export function AthleteSessionHistoryList() {
         const rpeReports = Array.isArray(session.rpe_reports) ? (session.rpe_reports as JsonRecord[]) : [];
         const borgReports = Array.isArray(session.borg_reports) ? (session.borg_reports as JsonRecord[]) : [];
         const cr10Reports = Array.isArray(session.cr10_reports) ? (session.cr10_reports as JsonRecord[]) : [];
+        const extraSetReports = Array.isArray(session.extra_set_reports) ? (session.extra_set_reports as JsonRecord[]) : [];
 
         return (
           <article className="record-card" key={String(session.session_id ?? index)}>
@@ -387,6 +388,14 @@ export function AthleteSessionHistoryList() {
               {cr10Reports.length > 0 ? (
                 <p className="muted small">
                   CR10: {cr10Reports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.cr10_value)}`).join(", ")}
+                </p>
+              ) : null}
+              {extraSetReports.length > 0 ? (
+                <p className="muted small">
+                  Extra sets:{" "}
+                  {extraSetReports
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}`)
+                    .join(", ")}
                 </p>
               ) : null}
               {session.split_return_decision ? (
