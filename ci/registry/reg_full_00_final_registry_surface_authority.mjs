@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 export const TOKEN = "CI_REG_FULL_00_FINAL_REGISTRY_SURFACE_AUTHORITY";
 export const CLASSIFICATIONS = Object.freeze(["required_active", "derived_generated", "retained_legacy", "dormant", "prohibited"]);
@@ -50,7 +51,7 @@ export function validateManifest(manifest) {
   if (manifest.manifest_id !== "kolosseum_final_registry_surface_authority") fail("MANIFEST_ID", manifest.manifest_id);
   if (manifest.manifest_version !== "1.0.0" || manifest.slice_id !== "REG-FULL-00" || manifest.status !== "authoritative" || manifest.scope !== "registry_architecture_only") fail("MANIFEST_HEADER", "header mismatch");
   if (!Array.isArray(manifest.classification_enum) || JSON.stringify(manifest.classification_enum) !== JSON.stringify(CLASSIFICATIONS)) fail("CLASSIFICATION_ENUM", manifest.classification_enum);
-  if (JSON.stringify(manifest.supported_activity_scope) !== JSON.stringify(["powerlifting", "general_strength", "rugby_union", "strongman"])) fail("ACTIVITY_SCOPE", manifest.supported_activity_scope);
+  if (JSON.stringify(manifest.supported_activity_scope) !== JSON.stringify(V1_ACTIVITY_IDS)) fail("ACTIVITY_SCOPE", manifest.supported_activity_scope);
   const entities = Array.isArray(manifest.entities) ? manifest.entities : [];
   if (entities.length === 0) fail("ENTITIES_EMPTY", "entities required");
   const ids = new Set(); const canonical = new Set(); const pos = new Set();
