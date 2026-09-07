@@ -26,7 +26,7 @@ import {
   normalizeSummary,
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
-import { findSubstitutionRegistryEdge } from "./session_substitution_registry.js";
+import { findSubstitutionRegistryEdge, isKnownExerciseRegistryId } from "./session_substitution_registry.js";
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -677,6 +677,91 @@ function ensureExtraSetReportShapeValid(event: unknown, summary: any): void {
   }
 }
 
+const EXTRA_EXERCISE_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
+
+function ensureExtraExerciseReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "EXTRA_EXERCISE_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!EXTRA_EXERCISE_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (extra exercise report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing extra exercise report exercise_id)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const reps = obj.reps;
+  if (!Number.isInteger(reps) || (reps as number) < 1) {
+    throw badRequest("Runtime event rejected (extra exercise report reps must be a positive whole number)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: reps"
+    });
+  }
+
+  const hasLoadValue = obj.load_value !== undefined;
+  const hasLoadUnit = obj.load_unit !== undefined;
+  if (hasLoadValue !== hasLoadUnit) {
+    throw badRequest("Runtime event rejected (extra exercise report load_value and load_unit must both be present or both absent)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load"
+    });
+  }
+
+  if (hasLoadValue) {
+    const loadValue = obj.load_value;
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue <= 0) {
+      throw badRequest("Runtime event rejected (extra exercise report load_value must be a positive finite number)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load_value"
+      });
+    }
+
+    const loadUnit = obj.load_unit;
+    if (typeof loadUnit !== "string" || !EXTRA_SET_LOAD_UNITS.has(loadUnit)) {
+      throw badRequest("Runtime event rejected (extra exercise report load_unit must be kg or lb)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load_unit"
+      });
+    }
+  }
+
+  const trace = readSummaryTrace(summary);
+  const prescribedIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) prescribedIds.add(id);
+  }
+
+  if (prescribedIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra exercise report exercise_id is already part of this session's prescribed plan)", {
+      failure_token: "phase6_runtime_extra_exercise_report_already_prescribed",
+      cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_ALREADY_PRESCRIBED: ${exerciseId}`
+    });
+  }
+
+  if (!isKnownExerciseRegistryId(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra exercise report exercise_id is not a recognized exercise)", {
+      failure_token: "phase6_runtime_extra_exercise_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
 function ensureSubstitutionTagValid(event: unknown): void {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
@@ -708,11 +793,13 @@ function ensureSubstitutionTagValid(event: unknown): void {
 
 function ensureTerminalSessionEventRejected(summary: any, raw: unknown): void {
   const t = rawEventType(raw);
-  // EXTRA_SET_REPORT is deliberately exempt: an athlete may log extra work
-  // against an already-resolved exercise even after the whole session is
-  // terminal - see ensureExtraSetReportShapeValid, which independently
-  // requires the exercise_id to already be completed/dropped.
-  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t) || t === "EXTRA_SET_REPORT") return;
+  // EXTRA_SET_REPORT/EXTRA_EXERCISE_REPORT are deliberately exempt: an
+  // athlete may log extra work (against an already-resolved prescribed
+  // exercise, or a brand-new one entirely) even after the whole session is
+  // terminal - see ensureExtraSetReportShapeValid/
+  // ensureExtraExerciseReportShapeValid, which independently scope which
+  // exercise_ids are eligible for each.
+  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t) || t === "EXTRA_SET_REPORT" || t === "EXTRA_EXERCISE_REPORT") return;
 
   const trace = readSummaryTrace(summary);
   const started = trace?.started === true;
@@ -945,6 +1032,7 @@ export async function appendRuntimeEventMutation(
     ensureBorgReportShapeValid(event, planned, workingSummary);
     ensureCr10ReportShapeValid(event, planned, workingSummary);
     ensureExtraSetReportShapeValid(event, workingSummary);
+    ensureExtraExerciseReportShapeValid(event, planned, workingSummary);
     ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);

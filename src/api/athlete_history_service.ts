@@ -413,6 +413,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const borgReports = new Map<string, number>();
   const cr10Reports = new Map<string, number>();
   const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; seq: number; created_at: string | null }>>();
+  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -449,6 +450,18 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         created_at
       });
       extraSetReports.set(event.exercise_id, list);
+    }
+
+    if (type === "EXTRA_EXERCISE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.reps)) {
+      const list = addedExercises.get(event.exercise_id) ?? [];
+      list.push({
+        reps: event.reps as number,
+        load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
+        load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        seq,
+        created_at
+      });
+      addedExercises.set(event.exercise_id, list);
     }
 
     if (
@@ -503,6 +516,10 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const summary = projected.session_execution_summary?.[0] as JsonRecord | undefined;
   const provenance = await loadProvenanceForAssignment(cleanString(row.beta_assignment_id) || null);
 
+  const addedExercisesList = Array.from(addedExercises, ([exerciseId, sets]) =>
+    Object.freeze({ exercise_id: exerciseId, sets: Object.freeze(sets) })
+  );
+
   return Object.freeze({
     status: 200,
     body: Object.freeze({
@@ -517,6 +534,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       execution_status: projected.execution_status,
       started: projected.started === true,
       exercises: Object.freeze(exercises),
+      added_exercises: Object.freeze(addedExercisesList),
       split_entered: Boolean(summary?.split_entered),
       split_return_decision: (summary?.split_return_decision as "continue" | "skip" | null) ?? null,
       split_return_events: Object.freeze(splitReturnEvents),

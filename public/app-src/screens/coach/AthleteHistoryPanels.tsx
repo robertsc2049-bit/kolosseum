@@ -356,6 +356,7 @@ export function AthleteSessionHistoryList() {
         const borgReports = Array.isArray(session.borg_reports) ? (session.borg_reports as JsonRecord[]) : [];
         const cr10Reports = Array.isArray(session.cr10_reports) ? (session.cr10_reports as JsonRecord[]) : [];
         const extraSetReports = Array.isArray(session.extra_set_reports) ? (session.extra_set_reports as JsonRecord[]) : [];
+        const extraExerciseReports = Array.isArray(session.extra_exercise_reports) ? (session.extra_exercise_reports as JsonRecord[]) : [];
 
         return (
           <article className="record-card" key={String(session.session_id ?? index)}>
@@ -394,6 +395,14 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Extra sets:{" "}
                   {extraSetReports
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}`)
+                    .join(", ")}
+                </p>
+              ) : null}
+              {extraExerciseReports.length > 0 ? (
+                <p className="muted small">
+                  Added exercises:{" "}
+                  {extraExerciseReports
                     .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}`)
                     .join(", ")}
                 </p>

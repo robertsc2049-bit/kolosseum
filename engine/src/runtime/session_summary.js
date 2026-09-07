@@ -438,6 +438,7 @@ export function deriveTrace(summary) {
  *  | { type: "BORG_REPORT", exercise_id: string, borg_value: number }
  *  | { type: "CR10_REPORT", exercise_id: string, cr10_value: number }
  *  | { type: "EXTRA_SET_REPORT", exercise_id: string, reps: number, load_value?: number, load_unit?: "kg"|"lb" }
+ *  | { type: "EXTRA_EXERCISE_REPORT", exercise_id: string, reps: number, load_value?: number, load_unit?: "kg"|"lb" }
  *  | ({ type: string } & JsonRecord)
  * )} WireRuntimeEvent
  */
@@ -472,9 +473,9 @@ export function toEngineEvent(w) {
       return { type: "split_return_continue" };
     case "RETURN_SKIP":
       return { type: "split_return_skip" };
-    // RPE_REPORT/PAIN_REPORT/BORG_REPORT/CR10_REPORT/EXTRA_SET_REPORT
-    // deliberately fall through to default: reports never mutate reducer
-    // truth.
+    // RPE_REPORT/PAIN_REPORT/BORG_REPORT/CR10_REPORT/EXTRA_SET_REPORT/
+    // EXTRA_EXERCISE_REPORT deliberately fall through to default: reports
+    // never mutate reducer truth.
     default:
       return null;
   }

@@ -102,6 +102,15 @@ function installMocks(options: {
         }
       });
     }
+    if (path.startsWith("/templates/exercises")) {
+      return jsonResponse({
+        ok: true,
+        exercises: [
+          { exercise_id: "bicep_curl", display_name: "Bicep curl" },
+          { exercise_id: "tricep_pushdown", display_name: "Tricep pushdown" }
+        ]
+      });
+    }
     if (/\/exercises\/[^/]+\/content$/u.test(path)) {
       return jsonResponse({ instruction: { detailed: ["Brace and descend."] }, coaching_cues: ["Chest up"], common_faults: [] });
     }
@@ -349,6 +358,38 @@ test("adding an extra set to an already-completed exercise posts EXTRA_SET_REPOR
   assert.equal(posted?.load_unit, "kg");
 
   await waitFor(() => screen.getByText("Extra set logged."));
+});
+
+test("adding a brand-new exercise not on the prescribed plan posts EXTRA_EXERCISE_REPORT with reps and load", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Add exercise"));
+
+  fireEvent.click(screen.getByText("Add exercise"));
+  await waitFor(() => screen.getByRole("option", { name: "Tricep pushdown" }));
+
+  fireEvent.change(screen.getByLabelText("Exercise"), { target: { value: "tricep_pushdown" } });
+  fireEvent.change(screen.getByLabelText("Reps"), { target: { value: "12" } });
+  fireEvent.change(screen.getByLabelText("Weight (optional)"), { target: { value: "15" } });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log exercise"));
+  });
+
+  await waitFor(() => assert.equal((lastEventBody as { type?: string } | null)?.type, "EXTRA_EXERCISE_REPORT"));
+  const posted = lastEventBody as { exercise_id?: string; reps?: number; load_value?: number; load_unit?: string } | null;
+  assert.equal(posted?.exercise_id, "tricep_pushdown");
+  assert.equal(posted?.reps, 12);
+  assert.equal(posted?.load_value, 15);
+  assert.equal(posted?.load_unit, "kg");
+
+  await waitFor(() => screen.getByText("Tricep pushdown added."));
 });
 
 test("substitution check offers a lawful substitute which can be completed", async () => {

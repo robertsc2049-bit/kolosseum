@@ -557,6 +557,218 @@ test("appendRuntimeEventMutation rejects EXTRA_SET_REPORT with load_value but no
   assert.equal(err.meta?.failure_token, "phase6_runtime_extra_set_report_invalid_shape");
 });
 
+test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT for a catalog exercise not on the plan, even after the session is fully terminal", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_terminal",
+    status: "completed",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: [],
+        completed_ids: ["back_squat"],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const out = await appendRuntimeEventMutation("s_extra_exercise_terminal", {
+    type: "EXTRA_EXERCISE_REPORT",
+    exercise_id: "front_squat",
+    reps: 8,
+    load_value: 100,
+    load_unit: "kg"
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_extra_exercise_terminal", seq: 1 });
+  assert.equal(insertedEvents.length, 1);
+  assert.equal(insertedEvents[0].event.type, "EXTRA_EXERCISE_REPORT");
+  assert.equal(insertedEvents[0].event.exercise_id, "front_squat");
+  assert.equal(insertedEvents[0].event.reps, 8);
+  assert.equal(insertedEvents[0].event.load_value, 100);
+  assert.equal(insertedEvents[0].event.load_unit, "kg");
+  assert.equal(commitCalls, 1);
+  assert.equal(rollbackCalls, 0);
+});
+
+test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT without load, mid-session", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_midsession",
+    status: "in_progress",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["back_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const out = await appendRuntimeEventMutation("s_extra_exercise_midsession", {
+    type: "EXTRA_EXERCISE_REPORT",
+    exercise_id: "front_squat",
+    reps: 5
+  });
+
+  assert.equal(out.ok, true);
+  assert.equal(insertedEvents[0].event.reps, 5);
+  assert.equal("load_value" in insertedEvents[0].event, false);
+});
+
+test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT for an exercise already on this session's prescribed plan", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_prescribed",
+    status: "in_progress",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["back_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_extra_exercise_prescribed", { type: "EXTRA_EXERCISE_REPORT", exercise_id: "back_squat", reps: 5 });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_extra_exercise_report_already_prescribed");
+  assert.equal(insertedEvents.length, 0);
+});
+
+test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT for an exercise_id that isn't a recognized catalog exercise", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_unknown",
+    status: "in_progress",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["back_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_extra_exercise_unknown", { type: "EXTRA_EXERCISE_REPORT", exercise_id: "not_a_real_exercise_zzz", reps: 5 });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_extra_exercise_report_unknown_exercise");
+  assert.equal(insertedEvents.length, 0);
+});
+
+test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT with a non-positive-integer reps value", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_bad_reps",
+    status: "in_progress",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["back_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_extra_exercise_bad_reps", { type: "EXTRA_EXERCISE_REPORT", exercise_id: "front_squat", reps: 0 });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_extra_exercise_report_invalid_shape");
+});
+
+test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT with load_value but no load_unit", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_bad_load",
+    status: "in_progress",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["back_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_extra_exercise_bad_load", { type: "EXTRA_EXERCISE_REPORT", exercise_id: "front_squat", reps: 5, load_value: 100 });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_extra_exercise_report_invalid_shape");
+});
+
 test("appendRuntimeEventMutation maps COMPLETE_STEP to COMPLETE_EXERCISE for first remaining id", async () => {
   resetState();
 

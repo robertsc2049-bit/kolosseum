@@ -124,6 +124,19 @@ test("athlete-added extra sets on an already-resolved exercise are surfaced back
   assert.match(historyPanel, /exercise\.extra_sets/u);
 });
 
+test("athlete-added exercises not on the prescribed plan are surfaced back on their session history detail", () => {
+  // EXTRA_EXERCISE_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureExtraExerciseReportShapeValid,
+  // scoped to catalog exercise_ids that are NOT already part of this
+  // session's own prescribed plan (the inverse of EXTRA_SET_REPORT's
+  // scoping), and are allowed even once the whole session is terminal - see
+  // ensureTerminalSessionEventRejected's EXTRA_EXERCISE_REPORT exemption.
+  assert.match(historyService, /added_exercises/u);
+  assert.match(historyService, /EXTRA_EXERCISE_REPORT/u);
+
+  assert.match(historyPanel, /detail\?\.added_exercises/u);
+});
+
 test("programme, assignment and event provenance are derived from immutable stored records, not inferred", () => {
   assert.match(historyService, /beta17_assignment_trigger/u);
   assert.match(historyService, /beta18_programme_template|loadExecutableCoachTemplateById/u);

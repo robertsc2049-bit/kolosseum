@@ -321,6 +321,23 @@ test(
       /session\.extra_set_reports/u
     );
 
+    // Same gap for added exercises: an athlete-added exercise not on the
+    // prescribed plan (EXTRA_EXERCISE_REPORT) was validated and persisted
+    // but read back nowhere - not even to the athlete themselves, let alone
+    // the coach's session history.
+    assert.match(
+      service,
+      /session_extra_exercise_reports/u
+    );
+    assert.match(
+      service,
+      /extra_exercise_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.extra_exercise_reports/u
+    );
+
     // Same gap for split/return: the athlete's own history detail already
     // exposes split_entered/split_return_decision/split_return_events, but
     // the coach's session history never surfaced whether an athlete split a

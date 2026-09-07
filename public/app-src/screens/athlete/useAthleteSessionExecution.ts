@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import {
   loadAthleteSessionState,
+  loadExerciseCatalog,
   loadExerciseContent,
   loadExerciseReferenceMedia,
   postAthleteSessionEvent,
@@ -81,6 +82,13 @@ export type AthleteSessionExecutionState = {
   extraSetLoadValue: string;
   extraSetLoadUnit: "kg" | "lb";
   extraSetJustLoggedExerciseId: string | null;
+  exerciseCatalog: JsonRecord[];
+  addExercisePanelOpen: boolean;
+  addExerciseSelectedId: string;
+  addExerciseReps: number;
+  addExerciseLoadValue: string;
+  addExerciseLoadUnit: "kg" | "lb";
+  addExerciseJustLoggedLabel: string | null;
   substitutionUnavailableEquipment: string[];
   substitutionResult: SubstitutionResultState;
   substitutionChecking: boolean;
@@ -107,6 +115,13 @@ const initialState: AthleteSessionExecutionState = {
   extraSetLoadValue: "",
   extraSetLoadUnit: "kg",
   extraSetJustLoggedExerciseId: null,
+  exerciseCatalog: [],
+  addExercisePanelOpen: false,
+  addExerciseSelectedId: "",
+  addExerciseReps: 1,
+  addExerciseLoadValue: "",
+  addExerciseLoadUnit: "kg",
+  addExerciseJustLoggedLabel: null,
   substitutionUnavailableEquipment: [],
   substitutionResult: null,
   substitutionChecking: false,
@@ -172,6 +187,10 @@ export function useAthleteSessionExecution() {
         extraSetTargetExerciseId: null,
         extraSetReps: 1,
         extraSetLoadValue: "",
+        addExercisePanelOpen: false,
+        addExerciseSelectedId: "",
+        addExerciseReps: 1,
+        addExerciseLoadValue: "",
         substitutionUnavailableEquipment: [],
         substitutionResult: null,
         videoError: null,
@@ -188,6 +207,21 @@ export function useAthleteSessionExecution() {
     document.addEventListener(TODAY_CHANGED_EVENT, refresh);
     return () => document.removeEventListener(TODAY_CHANGED_EVENT, refresh);
   }, [refresh]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const catalog = await loadExerciseCatalog();
+        const exercises = Array.isArray(catalog.exercises) ? (catalog.exercises as JsonRecord[]) : [];
+        setState((current) => ({ ...current, exerciseCatalog: exercises }));
+      }
+      catch {
+        // Exercise catalog is optional decoration for the "Add exercise"
+        // picker - leave it empty on failure rather than blocking the
+        // session view.
+      }
+    })();
+  }, []);
 
   const stopRestTimer = useCallback(() => {
     if (restIntervalRef.current !== null) {
@@ -429,6 +463,69 @@ export function useAthleteSessionExecution() {
     return ok;
   }, [runMutation, state.extraSetTargetExerciseId, state.extraSetReps, state.extraSetLoadValue, state.extraSetLoadUnit]);
 
+  const openAddExercisePanel = useCallback((defaultExerciseId: string) => {
+    setState((current) => ({
+      ...current,
+      addExercisePanelOpen: true,
+      addExerciseSelectedId: defaultExerciseId,
+      addExerciseReps: 1,
+      addExerciseLoadValue: "",
+      addExerciseJustLoggedLabel: null
+    }));
+  }, []);
+
+  const closeAddExercisePanel = useCallback(() => {
+    setState((current) => ({ ...current, addExercisePanelOpen: false }));
+  }, []);
+
+  const setAddExerciseSelectedId = useCallback((value: string) => {
+    setState((current) => ({ ...current, addExerciseSelectedId: value }));
+  }, []);
+
+  const setAddExerciseReps = useCallback((value: number) => {
+    setState((current) => ({ ...current, addExerciseReps: value }));
+  }, []);
+
+  const setAddExerciseLoadValue = useCallback((value: string) => {
+    setState((current) => ({ ...current, addExerciseLoadValue: value }));
+  }, []);
+
+  const setAddExerciseLoadUnit = useCallback((value: "kg" | "lb") => {
+    setState((current) => ({ ...current, addExerciseLoadUnit: value }));
+  }, []);
+
+  const confirmAddExercise = useCallback(async () => {
+    const exerciseId = state.addExerciseSelectedId;
+    if (!exerciseId) return false;
+
+    const reps = state.addExerciseReps;
+    const trimmedLoad = state.addExerciseLoadValue.trim();
+    const loadValue = trimmedLoad.length > 0 ? Number(trimmedLoad) : null;
+    if (!Number.isInteger(reps) || reps < 1) return false;
+    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) <= 0)) return false;
+
+    const catalogEntry = state.exerciseCatalog.find((exercise) => String(exercise.exercise_id) === exerciseId);
+    const label = String(catalogEntry?.display_name ?? exerciseId);
+
+    const event: JsonRecord = { type: "EXTRA_EXERCISE_REPORT", exercise_id: exerciseId, reps };
+    if (loadValue !== null) {
+      event.load_value = loadValue;
+      event.load_unit = state.addExerciseLoadUnit;
+    }
+
+    setState((current) => ({ ...current, addExercisePanelOpen: false }));
+
+    const ok = await runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, event, csrfToken);
+    }, true);
+
+    if (ok) {
+      setState((current) => ({ ...current, addExerciseJustLoggedLabel: label }));
+    }
+
+    return ok;
+  }, [runMutation, state.addExerciseSelectedId, state.addExerciseReps, state.addExerciseLoadValue, state.addExerciseLoadUnit, state.exerciseCatalog]);
+
   const toggleSubstitutionEquipment = useCallback((equipmentId: string) => {
     setState((current) => {
       const has = current.substitutionUnavailableEquipment.includes(equipmentId);
@@ -580,6 +677,13 @@ export function useAthleteSessionExecution() {
     setExtraSetLoadValue,
     setExtraSetLoadUnit,
     confirmExtraSetReport,
+    openAddExercisePanel,
+    closeAddExercisePanel,
+    setAddExerciseSelectedId,
+    setAddExerciseReps,
+    setAddExerciseLoadValue,
+    setAddExerciseLoadUnit,
+    confirmAddExercise,
     toggleSubstitutionEquipment,
     checkSubstitution,
     applySubstitution,
