@@ -17,6 +17,7 @@
 // completion and history come from the server.
 
 import { loadCoachOnboardingState } from "./account_ui.js";
+import { applyAccessibilityPreferences } from "./accessibility_preferences_ui.js";
 
 function visible() {
   for (const section of document.querySelectorAll(".view")) section.hidden = section.id !== "view-coach-onboarding";
@@ -31,7 +32,9 @@ export function installCoachOnboardingUi() {
 
 export async function resolveCoachOnboardingGate() {
   try {
-    return await loadCoachOnboardingState();
+    const result = await loadCoachOnboardingState();
+    applyAccessibilityPreferences(result?.accessibility_preferences);
+    return result;
   }
   catch (error) {
     if (error?.status === 401) return null;

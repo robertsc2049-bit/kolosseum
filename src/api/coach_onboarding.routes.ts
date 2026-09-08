@@ -18,6 +18,7 @@ import {
   acceptCoachOnboardingTerms,
   completeCoachOnboarding,
   getCoachOnboardingState,
+  saveCoachOnboardingAccessibilityPreferences,
   saveCoachOnboardingProfile
 } from "./coach_onboarding_service.js";
 
@@ -189,6 +190,34 @@ coachOnboardingRouter.post(
 
       const result =
         await acceptCoachOnboardingTerms(
+          token,
+          request.body
+        );
+
+      return response
+        .status(200)
+        .json(result);
+    }
+  )
+);
+
+coachOnboardingRouter.patch(
+  "/accessibility",
+  asyncHandler(
+    async (
+      request,
+      response
+    ) => {
+      const token =
+        sessionToken(request);
+
+      assertMutationAuthorised(
+        request,
+        token
+      );
+
+      const result =
+        await saveCoachOnboardingAccessibilityPreferences(
           token,
           request.body
         );

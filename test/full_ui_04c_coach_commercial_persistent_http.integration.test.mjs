@@ -1246,6 +1246,62 @@ test(
     assert.equal(
       terms.json
         .current_stage,
+      "accessibility"
+    );
+
+    const accessibility =
+      await requestJson(
+        server.baseUrl,
+        "PATCH",
+        "/account/coach-onboarding/accessibility",
+        {
+          cookie,
+          csrf,
+          body: {
+            accessibility_preferences: {
+              reduced_motion:
+                true,
+              high_contrast:
+                false,
+              larger_text:
+                true,
+              screen_reader_optimised:
+                false
+            }
+          }
+        }
+      );
+
+    assertStatus(
+      accessibility,
+      200,
+      "save coach accessibility preferences"
+    );
+
+    assert.equal(
+      accessibility.json
+        .accessibility_saved,
+      true
+    );
+
+    assert.deepEqual(
+      accessibility.json
+        .accessibility_preferences,
+      {
+        reduced_motion:
+          true,
+        high_contrast:
+          false,
+        larger_text:
+          true,
+        screen_reader_optimised:
+          false
+      }
+    );
+
+    assert.equal(
+      accessibility.json
+        .current_stage,
       "review"
     );
 
@@ -1931,6 +1987,21 @@ test(
         .profile
         .email,
       updatedEmail
+    );
+
+    assert.deepEqual(
+      restartedOnboarding.json
+        .accessibility_preferences,
+      {
+        reduced_motion:
+          true,
+        high_contrast:
+          false,
+        larger_text:
+          true,
+        screen_reader_optimised:
+          false
+      }
     );
 
     const restartedCommercial =

@@ -53,6 +53,19 @@ const onboardingClient =
     "utf8"
   );
 
+// DEV NOTE: shared with athlete onboarding (test/full_ui_03c_athlete_onboarding
+// .test.mjs) - see accessibility_preferences_ui.js's own DEV NOTE for why a
+// declared-but-never-applied preference (PR #865) is checked directly
+// against this shared module rather than trusting the per-file wrapper alone.
+const accessibilityUi =
+  fs.readFileSync(
+    new URL(
+      "../public/app/accessibility_preferences_ui.js",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
 // The coach-onboarding-view page-heading (title/description copy) is
 // static markup in index.html, matching every other migrated screen -
 // only the interactive body below it is React.
@@ -241,6 +254,42 @@ test(
       true
     );
 
+    assert.deepEqual(
+      service
+        .validateCoachOnboardingAccessibilityInput({
+          accessibility_preferences: {
+            reduced_motion: true,
+            high_contrast: false,
+            larger_text: true,
+            screen_reader_optimised:
+              false
+          }
+        }),
+      {
+        accessibility_preferences: {
+          reduced_motion: true,
+          high_contrast: false,
+          larger_text: true,
+          screen_reader_optimised:
+            false
+        }
+      }
+    );
+
+    assert.throws(
+      () =>
+        service
+          .validateCoachOnboardingAccessibilityInput({
+            accessibility_preferences: {
+              reduced_motion:
+                "yes"
+            }
+          }),
+      (error) =>
+        error.code ===
+        "coach_onboarding_accessibility_invalid"
+    );
+
     assert.throws(
       () =>
         service
@@ -275,6 +324,7 @@ test(
       '"/"',
       '"/profile"',
       '"/terms"',
+      '"/accessibility"',
       '"/complete"'
     ]) {
       assert.ok(
@@ -314,6 +364,7 @@ test(
       "/account/coach-onboarding",
       "/account/coach-onboarding/profile",
       "/account/coach-onboarding/terms",
+      "/account/coach-onboarding/accessibility",
       "/account/coach-onboarding/complete"
     ]) {
       assert.ok(
@@ -326,6 +377,7 @@ test(
       "Incomplete onboarding",
       "Coach profile",
       "Coach terms",
+      "Accessibility preferences",
       "Completed onboarding",
       "Open coach workspace",
       "Update coach profile"
@@ -350,6 +402,33 @@ test(
     assert.doesNotMatch(
       onboardingPanel,
       /localStorage|sessionStorage/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-04C declared accessibility preferences are actually applied, not just stored",
+  () => {
+    // Same bug class as PR #865 on the athlete side (a declared, validated,
+    // stored preference with no downstream effect) - checked here directly
+    // against the shared module's own source, and against the coach route
+    // gate's call site, rather than trusting that persistence alone implies
+    // a visible effect.
+    for (const line of [
+      "root.dataset.a11yReducedMotion",
+      "root.dataset.a11yHighContrast",
+      "root.dataset.a11yLargerText",
+      "root.dataset.a11yScreenReaderOptimised"
+    ]) {
+      assert.ok(
+        accessibilityUi.includes(line),
+        `Missing accessibility effect ${line}`
+      );
+    }
+
+    assert.match(
+      onboardingUi,
+      /applyAccessibilityPreferences\(/u
     );
   }
 );
@@ -469,7 +548,7 @@ test(
 
     assert.equal(
       area.functions.length,
-      9
+      10
     );
 
     assert.equal(

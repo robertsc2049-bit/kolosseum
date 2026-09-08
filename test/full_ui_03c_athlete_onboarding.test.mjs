@@ -48,6 +48,20 @@ const css = fs.readFileSync(
   new URL("../public/app/styles.css", import.meta.url),
   "utf8"
 );
+// The 4 data-a11y-* attribute assignments now live in a shared module (also
+// used by coach onboarding) rather than duplicated in athlete_onboarding_ui.js/
+// useAthleteOnboarding.ts directly - those two files keep a same-named
+// applyAccessibilityPreferences() wrapper that delegates here, so the
+// function-exists/call-site checks below still read `ui`/`hook`, but the
+// "real effect" attribute-assignment checks read these instead.
+const sharedA11yUi = fs.readFileSync(
+  new URL("../public/app/accessibility_preferences_ui.js", import.meta.url),
+  "utf8"
+);
+const sharedA11yUtils = fs.readFileSync(
+  new URL("../public/app-src/utils/accessibilityPreferences.ts", import.meta.url),
+  "utf8"
+);
 const functionManifest = JSON.parse(
   fs.readFileSync(
     new URL("../product/ui/function_manifest.json", import.meta.url),
@@ -204,15 +218,18 @@ test("FULL-UI-03C declared accessibility preferences are actually applied to the
   // public/app-src/__tests__/AthleteOnboardingPanel.test.tsx's own
   // behavioral proof that the effect actually lands on document.documentElement.
   assert.match(ui, /function applyAccessibilityPreferences/u);
-  assert.match(ui, /root\.dataset\.a11yReducedMotion/u);
-  assert.match(ui, /root\.dataset\.a11yHighContrast/u);
-  assert.match(ui, /root\.dataset\.a11yLargerText/u);
-  assert.match(ui, /root\.dataset\.a11yScreenReaderOptimised/u);
   assert.match(hook, /function applyAccessibilityPreferences/u);
-  assert.match(hook, /root\.dataset\.a11yReducedMotion/u);
-  assert.match(hook, /root\.dataset\.a11yHighContrast/u);
-  assert.match(hook, /root\.dataset\.a11yLargerText/u);
-  assert.match(hook, /root\.dataset\.a11yScreenReaderOptimised/u);
+  // The actual data-attribute assignments live in the shared modules both
+  // wrappers delegate to - shared because coach onboarding now applies the
+  // exact same 4 preferences and must not carry a third duplicate copy.
+  assert.match(sharedA11yUi, /root\.dataset\.a11yReducedMotion/u);
+  assert.match(sharedA11yUi, /root\.dataset\.a11yHighContrast/u);
+  assert.match(sharedA11yUi, /root\.dataset\.a11yLargerText/u);
+  assert.match(sharedA11yUi, /root\.dataset\.a11yScreenReaderOptimised/u);
+  assert.match(sharedA11yUtils, /root\.dataset\.a11yReducedMotion/u);
+  assert.match(sharedA11yUtils, /root\.dataset\.a11yHighContrast/u);
+  assert.match(sharedA11yUtils, /root\.dataset\.a11yLargerText/u);
+  assert.match(sharedA11yUtils, /root\.dataset\.a11yScreenReaderOptimised/u);
 
   // Applied on every athlete route resolution (covers page load and normal
   // navigation), not only inside the onboarding view itself.

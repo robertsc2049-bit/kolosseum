@@ -22,6 +22,10 @@ export function acceptCoachOnboardingTerms(input: JsonRecord, csrfToken: string)
   return request("POST", "/account/coach-onboarding/terms", input, csrfToken);
 }
 
+export function saveCoachOnboardingAccessibilityPreferences(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("PATCH", "/account/coach-onboarding/accessibility", input, csrfToken);
+}
+
 export function completeCoachOnboarding(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/coach-onboarding/complete", input, csrfToken);
 }

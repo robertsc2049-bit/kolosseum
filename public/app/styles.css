@@ -2081,11 +2081,12 @@ button:focus-visible,
   }
 }
 
-/* Athlete-declared accessibility preferences (accessibility_preferences on the
-   athlete onboarding declaration - see athlete_onboarding_ui.js's
-   applyAccessibilityPreferences). Applied via data attributes on <html> so
-   the effect follows the account's own declared choice rather than only the
-   OS-level prefers-* media features above. */
+/* Athlete- and coach-declared accessibility preferences (accessibility_preferences
+   on the athlete and coach onboarding declarations - see
+   accessibility_preferences_ui.js's applyAccessibilityPreferences, shared by
+   athlete_onboarding_ui.js and coach_onboarding_ui.js). Applied via data
+   attributes on <html> so the effect follows the account's own declared
+   choice rather than only the OS-level prefers-* media features above. */
 html[data-a11y-reduced-motion="true"] *,
 html[data-a11y-reduced-motion="true"] *::before,
 html[data-a11y-reduced-motion="true"] *::after {
