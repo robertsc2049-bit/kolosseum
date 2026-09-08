@@ -799,6 +799,24 @@ button:focus-visible,
   padding-left: 1.2rem;
 }
 
+.plate-calc-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.plate-calc-plates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+@media (max-width: 620px) {
+  .plate-calc-inputs { grid-template-columns: 1fr; }
+}
+
 .exercise-reference-media-link {
   display: flex;
   align-items: center;

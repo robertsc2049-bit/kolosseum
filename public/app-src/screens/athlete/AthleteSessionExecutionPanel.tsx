@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
@@ -245,6 +246,7 @@ export function AthleteSessionExecutionPanel() {
                 {currentId ? (
                   <ExerciseHowto exerciseId={currentId} howto={session.howto} onOpen={session.loadHowto} />
                 ) : null}
+                <PlateWarmupCalculator exercise={exercise} />
               </div>
             )}
           </div>
