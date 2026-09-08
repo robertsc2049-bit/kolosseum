@@ -488,7 +488,12 @@ export function AthleteSessionExecutionPanel() {
                       Add extra set
                     </button>
                   ) : null}
-                  {justLoggedExtraSet ? <small className="extra-set-confirmation">Extra set logged.</small> : null}
+                  {justLoggedExtraSet ? (
+                    <small className="extra-set-confirmation">
+                      Extra set logged.{" "}
+                      {session.extraSetJustLoggedIsPr ? <span className="badge active">PR</span> : null}
+                    </small>
+                  ) : null}
                   {extraSetPanelOpen ? (
                     <div className="extra-set-panel">
                       <label className="field">
@@ -608,7 +613,12 @@ export function AthleteSessionExecutionPanel() {
             </div>
           </div>
         )}
-        {session.addExerciseJustLoggedLabel ? <small className="extra-set-confirmation">{session.addExerciseJustLoggedLabel} added.</small> : null}
+        {session.addExerciseJustLoggedLabel ? (
+          <small className="extra-set-confirmation">
+            {session.addExerciseJustLoggedLabel} added.{" "}
+            {session.addExerciseJustLoggedIsPr ? <span className="badge active">PR</span> : null}
+          </small>
+        ) : null}
       </article>
     </>
   );

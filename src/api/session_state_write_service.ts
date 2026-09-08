@@ -27,6 +27,7 @@ import {
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
 import { findSubstitutionRegistryEdge, isKnownExerciseRegistryId } from "./session_substitution_registry.js";
+import { convertStrengthValue } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -253,13 +254,49 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
 
 async function loadSessionForUpdate(client: any, session_id: string) {
   const r = await client.query(
-    `SELECT session_id, status, planned_session, session_state_summary
+    `SELECT session_id, status, planned_session, session_state_summary, beta_subject_user_id
      FROM sessions
      WHERE session_id = $1
      FOR UPDATE`,
     [session_id]
   );
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
+}
+
+// A logged extra set/exercise is a personal record when it beats every prior
+// logged weight for the same exercise - not an estimated-1RM/rep-max claim,
+// just the heaviest single weight this athlete has ever recorded. No prior
+// weight to beat means no PR (a first-ever entry has nothing to compare to).
+async function computeIsPersonalRecord(
+  client: any,
+  athleteUserId: string | null,
+  exerciseId: string,
+  newLoadValue: number,
+  newLoadUnit: "kg" | "lb"
+): Promise<boolean> {
+  if (!athleteUserId) return false;
+
+  const result = await client.query(
+    `SELECT re.event->>'load_value' AS load_value, re.event->>'load_unit' AS load_unit
+     FROM runtime_events re
+     JOIN sessions s ON s.session_id = re.session_id
+     WHERE s.beta_subject_user_id = $1
+       AND re.event->>'exercise_id' = $2
+       AND re.event->>'type' IN ('EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT')
+       AND re.event->>'load_value' IS NOT NULL`,
+    [athleteUserId, exerciseId]
+  );
+
+  if ((result.rowCount ?? 0) === 0) return false;
+
+  const newLoadKg = convertStrengthValue(newLoadValue, newLoadUnit, "kg");
+  const priorMaxKg = Math.max(
+    ...result.rows.map((row: any) =>
+      convertStrengthValue(Number(row.load_value), row.load_unit === "lb" ? "lb" : "kg", "kg")
+    )
+  );
+
+  return newLoadKg > priorMaxKg;
 }
 
 function rawEventType(raw: unknown): string | null {
@@ -913,7 +950,7 @@ export async function appendRuntimeEventMutation(
   session_id: string,
   raw: unknown,
   clientRequestId?: string | null
-) {
+): Promise<{ ok: boolean; session_id: string; seq: number; replayed?: boolean; is_pr?: boolean }> {
   if (!raw) throw badRequest("Missing/invalid event");
 
   if (rawEventType(raw) === "START_SESSION") {
@@ -1038,6 +1075,21 @@ export async function appendRuntimeEventMutation(
     ensureExerciseReplayRejected(workingSummary, event);
     ensureTerminalSessionEventRejected(workingSummary, event);
 
+    let isPrResult: boolean | undefined;
+    if (
+      (event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT") &&
+      typeof event.load_value === "number"
+    ) {
+      isPrResult = await computeIsPersonalRecord(
+        client,
+        s.beta_subject_user_id ?? null,
+        event.exercise_id,
+        event.load_value,
+        event.load_unit === "lb" ? "lb" : "kg"
+      );
+      event = { ...event, is_pr: isPrResult };
+    }
+
     const seq = await allocNextSeq(client, session_id);
 
     await client.query(
@@ -1107,7 +1159,12 @@ export async function appendRuntimeEventMutation(
     await client.query("COMMIT");
     invalidateSessionStateCache(session_id);
 
-    return { ok: true, session_id, seq };
+    return {
+      ok: true,
+      session_id,
+      seq,
+      ...(typeof isPrResult === "boolean" ? { is_pr: isPrResult } : {})
+    };
   } catch (err: unknown) {
     try { await client.query("ROLLBACK"); } catch {}
     throw err;

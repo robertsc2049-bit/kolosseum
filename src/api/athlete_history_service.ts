@@ -412,8 +412,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const rpeReports = new Map<string, number>();
   const borgReports = new Map<string, number>();
   const cr10Reports = new Map<string, number>();
-  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; seq: number; created_at: string | null }>>();
-  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; seq: number; created_at: string | null }>>();
+  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
+  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -446,6 +446,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         reps: event.reps as number,
         load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
         load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        is_pr: event.is_pr === true,
         seq,
         created_at
       });
@@ -458,6 +459,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         reps: event.reps as number,
         load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
         load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        is_pr: event.is_pr === true,
         seq,
         created_at
       });

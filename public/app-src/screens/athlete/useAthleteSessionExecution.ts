@@ -82,6 +82,7 @@ export type AthleteSessionExecutionState = {
   extraSetLoadValue: string;
   extraSetLoadUnit: "kg" | "lb";
   extraSetJustLoggedExerciseId: string | null;
+  extraSetJustLoggedIsPr: boolean;
   exerciseCatalog: JsonRecord[];
   addExercisePanelOpen: boolean;
   addExerciseSelectedId: string;
@@ -89,6 +90,7 @@ export type AthleteSessionExecutionState = {
   addExerciseLoadValue: string;
   addExerciseLoadUnit: "kg" | "lb";
   addExerciseJustLoggedLabel: string | null;
+  addExerciseJustLoggedIsPr: boolean;
   substitutionUnavailableEquipment: string[];
   substitutionResult: SubstitutionResultState;
   substitutionChecking: boolean;
@@ -115,6 +117,7 @@ const initialState: AthleteSessionExecutionState = {
   extraSetLoadValue: "",
   extraSetLoadUnit: "kg",
   extraSetJustLoggedExerciseId: null,
+  extraSetJustLoggedIsPr: false,
   exerciseCatalog: [],
   addExercisePanelOpen: false,
   addExerciseSelectedId: "",
@@ -122,6 +125,7 @@ const initialState: AthleteSessionExecutionState = {
   addExerciseLoadValue: "",
   addExerciseLoadUnit: "kg",
   addExerciseJustLoggedLabel: null,
+  addExerciseJustLoggedIsPr: false,
   substitutionUnavailableEquipment: [],
   substitutionResult: null,
   substitutionChecking: false,
@@ -414,7 +418,8 @@ export function useAthleteSessionExecution() {
       extraSetTargetExerciseId: exerciseId,
       extraSetReps: 1,
       extraSetLoadValue: "",
-      extraSetJustLoggedExerciseId: null
+      extraSetJustLoggedExerciseId: null,
+      extraSetJustLoggedIsPr: false
     }));
   }, []);
 
@@ -452,12 +457,14 @@ export function useAthleteSessionExecution() {
 
     setState((current) => ({ ...current, extraSetTargetExerciseId: null }));
 
+    let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, event, csrfToken);
+      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      isPr = response?.is_pr === true;
     }, true);
 
     if (ok) {
-      setState((current) => ({ ...current, extraSetJustLoggedExerciseId: exerciseId }));
+      setState((current) => ({ ...current, extraSetJustLoggedExerciseId: exerciseId, extraSetJustLoggedIsPr: isPr }));
     }
 
     return ok;
@@ -470,7 +477,8 @@ export function useAthleteSessionExecution() {
       addExerciseSelectedId: defaultExerciseId,
       addExerciseReps: 1,
       addExerciseLoadValue: "",
-      addExerciseJustLoggedLabel: null
+      addExerciseJustLoggedLabel: null,
+      addExerciseJustLoggedIsPr: false
     }));
   }, []);
 
@@ -515,12 +523,14 @@ export function useAthleteSessionExecution() {
 
     setState((current) => ({ ...current, addExercisePanelOpen: false }));
 
+    let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, event, csrfToken);
+      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      isPr = response?.is_pr === true;
     }, true);
 
     if (ok) {
-      setState((current) => ({ ...current, addExerciseJustLoggedLabel: label }));
+      setState((current) => ({ ...current, addExerciseJustLoggedLabel: label, addExerciseJustLoggedIsPr: isPr }));
     }
 
     return ok;
