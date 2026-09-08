@@ -2326,6 +2326,14 @@ async function openAthleteProfile(athleteUserId) {
     );
   }
 
+  // Reset the athlete-detail tab group to its default tab whenever a
+  // profile is opened, so reviewing several athletes in a row always
+  // starts from the same view instead of inheriting whichever tab the
+  // previously-viewed athlete was left on.
+  document
+    .querySelector('.section-tabs[data-tab-group="athlete-detail"] .section-tab[data-tab-target="training-log"]')
+    ?.click();
+
   closeAthleteRelationshipDetail();
 
   const profile =
