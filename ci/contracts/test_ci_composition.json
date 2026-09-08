@@ -405,6 +405,10 @@
       "value": "node test/full_ui_history_section_tabs_surface.test.mjs"
     },
     {
+      "kind": "command",
+      "value": "node test/full_ui_coach_athlete_detail_tabs_surface.test.mjs"
+    },
+    {
       "kind": "npm_command",
       "value": "test:react"
     },

@@ -536,7 +536,13 @@
                 </article>
               </div>
 
-              <div class="athlete-detail-history-grid">
+              <div class="section-tabs" role="tablist" aria-label="Athlete detail sections" data-tab-group="athlete-detail">
+                <button type="button" role="tab" class="section-tab active" aria-selected="true" data-tab-target="training-log">Training log</button>
+                <button type="button" role="tab" class="section-tab" aria-selected="false" data-tab-target="notes-messages">Notes &amp; messages</button>
+                <button type="button" role="tab" class="section-tab" aria-selected="false" data-tab-target="wellbeing">Wellbeing</button>
+              </div>
+
+              <div class="athlete-detail-history-grid" data-tab-group="athlete-detail" data-tab-panel="training-log">
                 <article class="panel">
                   <div class="panel-header">
                     <div>
@@ -606,7 +612,9 @@
                     class="record-list athlete-detail-list"
                   ></div>
                 </article>
+              </div>
 
+              <div class="athlete-detail-history-grid" data-tab-group="athlete-detail" data-tab-panel="notes-messages" hidden>
                 <article class="panel athlete-detail-notes-panel">
                   <div class="panel-header">
                     <div>
@@ -638,7 +646,9 @@
                     class="record-list athlete-detail-list"
                   ></div>
                 </article>
+              </div>
 
+              <div class="athlete-detail-history-grid" data-tab-group="athlete-detail" data-tab-panel="wellbeing" hidden>
                 <article class="panel athlete-detail-progress-insights-panel">
                   <div class="panel-header">
                     <div>
