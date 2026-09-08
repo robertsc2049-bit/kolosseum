@@ -21,6 +21,7 @@ let invalidatedSessionIds = [];
 let insertedEvents = [];
 let sessionUpdates = [];
 let currentSessionRow = null;
+let priorLoadRows = [];
 let validateWireRuntimeEventImpl = (x) => x;
 let applyWireEventImpl = (summary, ev) => ({ ...summary, runtime: { ...(summary?.runtime ?? {}) } });
 
@@ -35,6 +36,7 @@ function resetState() {
   insertedEvents = [];
   sessionUpdates = [];
   currentSessionRow = null;
+  priorLoadRows = [];
   validateWireRuntimeEventImpl = (x) => x;
   applyWireEventImpl = (summary, ev) => ({ ...summary, runtime: { ...(summary?.runtime ?? {}) } });
 }
@@ -59,9 +61,17 @@ function makeClient() {
         return { rowCount: 0, rows: [] };
       }
 
-      if (/SELECT session_id, status, planned_session, session_state_summary\s+FROM sessions\s+WHERE session_id = \$1\s+FOR UPDATE/i.test(s)) {
+      if (/SELECT session_id, status, planned_session, session_state_summary, beta_subject_user_id\s+FROM sessions\s+WHERE session_id = \$1\s+FOR UPDATE/i.test(s)) {
         if (!currentSessionRow) return { rowCount: 0, rows: [] };
         return { rowCount: 1, rows: [currentSessionRow] };
+      }
+
+      if (/SELECT re\.event->>'load_value' AS load_value, re\.event->>'load_unit' AS load_unit\s+FROM runtime_events re\s+JOIN sessions s ON s\.session_id = re\.session_id\s+WHERE s\.beta_subject_user_id = \$1/i.test(s)) {
+        const [athleteUserId, exerciseId] = params ?? [];
+        const rows = priorLoadRows.filter(
+          (row) => row.athlete_user_id === athleteUserId && row.exercise_id === exerciseId
+        );
+        return { rowCount: rows.length, rows: rows.map((row) => ({ load_value: String(row.load_value), load_unit: row.load_unit })) };
       }
 
       if (/INSERT INTO session_event_seq\(session_id, next_seq\)/i.test(s)) {
@@ -410,7 +420,7 @@ test("appendRuntimeEventMutation accepts EXTRA_SET_REPORT for a completed exerci
     load_unit: "kg"
   });
 
-  assert.deepEqual(out, { ok: true, session_id: "s_extra_set_terminal", seq: 1 });
+  assert.deepEqual(out, { ok: true, session_id: "s_extra_set_terminal", seq: 1, is_pr: false });
   assert.equal(insertedEvents.length, 1);
   assert.equal(insertedEvents[0].event.type, "EXTRA_SET_REPORT");
   assert.equal(insertedEvents[0].event.exercise_id, "ex1");
@@ -452,6 +462,120 @@ test("appendRuntimeEventMutation accepts EXTRA_SET_REPORT without load for a dro
   assert.equal(out.ok, true);
   assert.equal(insertedEvents[0].event.reps, 5);
   assert.equal("load_value" in insertedEvents[0].event, false);
+  assert.equal("is_pr" in insertedEvents[0].event, false);
+  assert.equal("is_pr" in out, false);
+});
+
+function terminalSessionRow(sessionId, athleteUserId, exerciseId) {
+  return {
+    session_id: sessionId,
+    status: "completed",
+    beta_subject_user_id: athleteUserId,
+    planned_session: {
+      exercises: [{ exercise_id: exerciseId, source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: [],
+        completed_ids: [exerciseId],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+}
+
+test("appendRuntimeEventMutation: a first-ever logged weight for an exercise is not a personal record", async () => {
+  resetState();
+  currentSessionRow = terminalSessionRow("s_pr_first", "athlete_pr_1", "ex1");
+
+  const out = await appendRuntimeEventMutation("s_pr_first", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 5,
+    load_value: 100,
+    load_unit: "kg"
+  });
+
+  assert.equal(out.is_pr, false);
+  assert.equal(insertedEvents[0].event.is_pr, false);
+});
+
+test("appendRuntimeEventMutation: a heavier logged weight than any prior is a personal record", async () => {
+  resetState();
+  currentSessionRow = terminalSessionRow("s_pr_higher", "athlete_pr_2", "ex1");
+  priorLoadRows = [{ athlete_user_id: "athlete_pr_2", exercise_id: "ex1", load_value: 90, load_unit: "kg" }];
+
+  const out = await appendRuntimeEventMutation("s_pr_higher", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 5,
+    load_value: 100,
+    load_unit: "kg"
+  });
+
+  assert.equal(out.is_pr, true);
+  assert.equal(insertedEvents[0].event.is_pr, true);
+});
+
+test("appendRuntimeEventMutation: a lower or equal logged weight than a prior best is not a personal record", async () => {
+  resetState();
+  currentSessionRow = terminalSessionRow("s_pr_lower", "athlete_pr_3", "ex1");
+  priorLoadRows = [{ athlete_user_id: "athlete_pr_3", exercise_id: "ex1", load_value: 100, load_unit: "kg" }];
+
+  const lower = await appendRuntimeEventMutation("s_pr_lower", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 5,
+    load_value: 90,
+    load_unit: "kg"
+  });
+  assert.equal(lower.is_pr, false);
+
+  const equal = await appendRuntimeEventMutation("s_pr_lower", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 5,
+    load_value: 100,
+    load_unit: "kg"
+  });
+  assert.equal(equal.is_pr, false);
+});
+
+test("appendRuntimeEventMutation: personal-record comparison normalises across kg/lb before comparing", async () => {
+  resetState();
+  currentSessionRow = terminalSessionRow("s_pr_units", "athlete_pr_4", "ex1");
+  priorLoadRows = [{ athlete_user_id: "athlete_pr_4", exercise_id: "ex1", load_value: 100, load_unit: "kg" }];
+
+  // 200lb is roughly 90.7kg - lighter than the prior 100kg best, so not a PR.
+  const out = await appendRuntimeEventMutation("s_pr_units", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 5,
+    load_value: 200,
+    load_unit: "lb"
+  });
+
+  assert.equal(out.is_pr, false);
+});
+
+test("appendRuntimeEventMutation: EXTRA_SET_REPORT and EXTRA_EXERCISE_REPORT share one personal-record pool per exercise", async () => {
+  resetState();
+  currentSessionRow = terminalSessionRow("s_pr_pooled", "athlete_pr_5", "back_squat");
+  priorLoadRows = [{ athlete_user_id: "athlete_pr_5", exercise_id: "front_squat", load_value: 80, load_unit: "kg" }];
+
+  const out = await appendRuntimeEventMutation("s_pr_pooled", {
+    type: "EXTRA_EXERCISE_REPORT",
+    exercise_id: "front_squat",
+    reps: 5,
+    load_value: 90,
+    load_unit: "kg"
+  });
+
+  assert.equal(out.is_pr, true);
 });
 
 test("appendRuntimeEventMutation rejects EXTRA_SET_REPORT for an exercise that is still remaining", async () => {
@@ -587,7 +711,7 @@ test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT for a catalog exe
     load_unit: "kg"
   });
 
-  assert.deepEqual(out, { ok: true, session_id: "s_extra_exercise_terminal", seq: 1 });
+  assert.deepEqual(out, { ok: true, session_id: "s_extra_exercise_terminal", seq: 1, is_pr: false });
   assert.equal(insertedEvents.length, 1);
   assert.equal(insertedEvents[0].event.type, "EXTRA_EXERCISE_REPORT");
   assert.equal(insertedEvents[0].event.exercise_id, "front_squat");
@@ -629,6 +753,8 @@ test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT without load, mid
   assert.equal(out.ok, true);
   assert.equal(insertedEvents[0].event.reps, 5);
   assert.equal("load_value" in insertedEvents[0].event, false);
+  assert.equal("is_pr" in insertedEvents[0].event, false);
+  assert.equal("is_pr" in out, false);
 });
 
 test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT for an exercise already on this session's prescribed plan", async () => {

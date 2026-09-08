@@ -912,6 +912,30 @@ test(
       { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId, rpe_exercise_id: rpeReportedExerciseId }
     );
 
+    // --- Step 14c: logging a heavier extra set than any prior logged
+    //     weight for the same exercise is flagged as a personal record; a
+    //     first-ever logged weight is not. ---
+    const prExerciseId = exercises[0].exercise_id;
+
+    const firstExtraSet = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+      event: { type: "EXTRA_SET_REPORT", exercise_id: prExerciseId, reps: 5, load_value: 100, load_unit: "kg" }
+    });
+    assertStatus(firstExtraSet, 201, "first extra set report");
+    assert.equal(firstExtraSet.json?.is_pr, false, "a first-ever logged weight has nothing to beat, so it is not a personal record");
+
+    const secondExtraSet = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+      event: { type: "EXTRA_SET_REPORT", exercise_id: prExerciseId, reps: 5, load_value: 110, load_unit: "kg" }
+    });
+    assertStatus(secondExtraSet, 201, "second, heavier extra set report");
+    assert.equal(secondExtraSet.json?.is_pr, true, "a heavier logged weight than any prior is a personal record");
+
+    record(
+      "step_14c_personal_record_detected",
+      "A heavier logged extra set than any prior weight for the same exercise is flagged as a personal record, and a first-ever logged weight is not",
+      firstExtraSet.json?.is_pr === false && secondExtraSet.json?.is_pr === true,
+      { session_id: sessionId, exercise_id: prExerciseId }
+    );
+
     // --- Step 15: coach sees the factual completed-session record. ---
     const reviewQueue = await request(
       baseUrl, "GET",
@@ -1071,10 +1095,20 @@ test(
       coachRefreshBefore.assignments?.assignments?.find((entry) => entry.assignment_id === assignmentId)
     );
     assert.deepEqual(athleteTodayRefetch, athleteRefreshBefore.today);
+
+    const sessionSummaryAfterRefresh = coachProfileRefetch.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    const personalRecordSurvivedRefresh = Array.isArray(sessionSummaryAfterRefresh?.extra_set_reports) &&
+      sessionSummaryAfterRefresh.extra_set_reports.some(
+        (entry) => entry.exercise_id === prExerciseId && entry.load_value === 110 && entry.is_pr === true
+      );
+    assert.ok(personalRecordSurvivedRefresh, "expected the personal-record fact to survive a refresh of the coach's session history");
+
     record(
       "step_18_refresh_reconstruction",
       "Refreshing both actor contexts reconstructs the same server-backed state",
-      true,
+      personalRecordSurvivedRefresh,
       { assignment_id: assignmentId }
     );
 
@@ -1117,11 +1151,22 @@ test(
     );
     assert.equal(reviewedRecordAfterRestart?.review_status, "reviewed");
     assert.deepEqual(athleteTodayAfterRestart.json, athleteTodayRefetch);
+
+    const sessionSummaryAfterRestart = coachProfileAfterRestart.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    const personalRecordSurvivedRestart = Array.isArray(sessionSummaryAfterRestart?.extra_set_reports) &&
+      sessionSummaryAfterRestart.extra_set_reports.some(
+        (entry) => entry.exercise_id === prExerciseId && entry.load_value === 110 && entry.is_pr === true
+      );
+    assert.ok(personalRecordSurvivedRestart, "expected the personal-record fact to survive a fresh-process restart");
+
     record(
       "step_19_fresh_process_restart",
       "A fresh operating-system process reconstructs the same state",
       coachProfileAfterRestart.json?.detail?.current_assignment?.assignment_id === assignmentId &&
-        reviewedRecordAfterRestart?.review_status === "reviewed",
+        reviewedRecordAfterRestart?.review_status === "reviewed" &&
+        personalRecordSurvivedRestart,
       { first_pid: firstProcessId, restarted_pid: restarted.child.pid }
     );
 

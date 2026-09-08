@@ -273,6 +273,7 @@ export function AthleteHistoryPanel() {
                         <small key={extraSetIndex}>
                           Extra set: {String(extraSet.reps)} reps
                           {extraSet.load_value !== null && extraSet.load_value !== undefined ? ` @ ${String(extraSet.load_value)}${String(extraSet.load_unit ?? "")}` : ""}
+                          {extraSet.is_pr === true ? <> <span className="badge active">PR</span></> : null}
                         </small>
                       ))}
                       {substitution ? <small>Substituted with {String(substitution.substituted_exercise_id)}</small> : null}
@@ -294,6 +295,7 @@ export function AthleteHistoryPanel() {
                             <small key={setIndex}>
                               {String(set.reps)} reps
                               {set.load_value !== null && set.load_value !== undefined ? ` @ ${String(set.load_value)}${String(set.load_unit ?? "")}` : ""}
+                              {set.is_pr === true ? <> <span className="badge active">PR</span></> : null}
                             </small>
                           ))}
                         </div>

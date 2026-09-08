@@ -243,6 +243,48 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
   assert.equal(screen.queryByText("Back Squat"), null);
 });
 
+test("shows a PR badge only on the extra set and added exercise that were actually a personal record", async () => {
+  installMocks({
+    sessions: [{ session_id: "s1", execution_status: "in_progress", created_at: "2026-01-05T10:00:00.000Z" }],
+    detail: {
+      session_id: "s1",
+      execution_status: "in_progress",
+      created_at: "2026-01-05T10:00:00.000Z",
+      split_entered: false,
+      split_return_decision: null,
+      exercises: [
+        {
+          exercise_id: "ex1",
+          planned: { display_name: "Back Squat" },
+          recorded_state: "completed",
+          extra_sets: [
+            { reps: 5, load_value: 90, load_unit: "kg", is_pr: false, seq: 1, created_at: null },
+            { reps: 3, load_value: 120, load_unit: "kg", is_pr: true, seq: 2, created_at: null }
+          ]
+        }
+      ],
+      added_exercises: [
+        {
+          exercise_id: "front_squat",
+          sets: [{ reps: 5, load_value: 60, load_unit: "kg", is_pr: true, seq: 3, created_at: null }]
+        }
+      ],
+      provenance: {},
+      split_return_events: []
+    }
+  });
+
+  render(<AthleteHistoryPanel />);
+  await waitFor(() => screen.getByText("Training session"));
+
+  await act(async () => {
+    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+
+  await waitFor(() => screen.getByText("Back Squat"));
+  assert.equal(screen.getAllByText("PR").length, 2);
+});
+
 test("video feedback submissions render in the detail panel, inert to markup", async () => {
   installMocks({
     sessions: [{ session_id: "s1", execution_status: "completed", created_at: "2026-01-05T10:00:00.000Z" }],

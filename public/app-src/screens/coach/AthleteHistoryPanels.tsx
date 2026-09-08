@@ -395,7 +395,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Extra sets:{" "}
                   {extraSetReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}`)
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}
@@ -403,7 +403,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Added exercises:{" "}
                   {extraExerciseReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}`)
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}

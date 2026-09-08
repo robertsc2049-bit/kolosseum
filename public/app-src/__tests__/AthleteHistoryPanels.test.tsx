@@ -294,6 +294,30 @@ test("displays a session with its recorded event count and every bespoke fact - 
   assert.ok(screen.getByText("Add note"));
 });
 
+test("marks a logged extra set or added exercise as a personal record only when the server flagged it", async () => {
+  installStandardMocks({
+    session_history: [
+      {
+        session_id: "session_1",
+        artefact_id: "artefact_1",
+        updated_at: "2026-08-01T00:00:00.000Z",
+        runtime_event_count: 4,
+        session_status: "completed",
+        extra_set_reports: [{ exercise_id: "back_squat", reps: 5, load_value: 120, load_unit: "kg", is_pr: true }],
+        extra_exercise_reports: [{ exercise_id: "front_squat", reps: 5, load_value: 60, load_unit: "kg", is_pr: false }]
+      }
+    ]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+
+  await waitFor(() => screen.getByText("Training session"));
+
+  assert.match(document.body.textContent ?? "", /Extra sets: Back Squat 5 reps @ 120kg \(PR\)/u);
+  assert.match(document.body.textContent ?? "", /Added exercises: Front Squat 5 reps @ 60kg/u);
+  assert.doesNotMatch(document.body.textContent ?? "", /Front Squat 5 reps @ 60kg \(PR\)/u);
+});
+
 test("the Review button dispatches kolosseum:open-session-review with the open athlete's id", async () => {
   installStandardMocks({
     session_history: [{ session_id: "session_1", artefact_id: "artefact_1", updated_at: "2026-08-01T00:00:00.000Z", runtime_event_count: 1 }]

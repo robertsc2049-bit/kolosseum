@@ -53,8 +53,10 @@ function installMocks(options: {
   sessionState?: Record<string, unknown> | null;
   sessionFails?: boolean;
   onEvent?: (path: string, method: string, body: unknown) => void;
+  extraSetIsPr?: boolean;
+  addExerciseIsPr?: boolean;
 }) {
-  const { sessionState = baseSessionState(), sessionFails = false, onEvent } = options;
+  const { sessionState = baseSessionState(), sessionFails = false, onEvent, extraSetIsPr, addExerciseIsPr } = options;
   let currentSessionState = sessionState;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -90,6 +92,12 @@ function installMocks(options: {
           dropped_exercises: [baseExercise()],
           execution_status: "partial"
         } as Record<string, unknown>;
+      }
+      if (body?.type === "EXTRA_SET_REPORT") {
+        return jsonResponse({ ok: true, is_pr: extraSetIsPr === true });
+      }
+      if (body?.type === "EXTRA_EXERCISE_REPORT") {
+        return jsonResponse({ ok: true, is_pr: addExerciseIsPr === true });
       }
       return jsonResponse({ ok: true });
     }
@@ -358,6 +366,34 @@ test("adding an extra set to an already-completed exercise posts EXTRA_SET_REPOR
   assert.equal(posted?.load_unit, "kg");
 
   await waitFor(() => screen.getByText("Extra set logged."));
+});
+
+test("logging an extra set that is a personal record shows a PR badge alongside the confirmation", async () => {
+  seedActiveSession("session_1");
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      completed_exercises: [baseExercise({ exercise_id: "back_squat", display_name: "Back squat" })],
+      remaining_exercises: [baseExercise({ exercise_id: "bench_press", display_name: "Bench press" })],
+      current_step: { type: "EXERCISE", exercise: baseExercise({ exercise_id: "bench_press", display_name: "Bench press" }) }
+    }),
+    extraSetIsPr: true
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Add extra set"));
+
+  fireEvent.click(screen.getByText("Add extra set"));
+  await waitFor(() => screen.getByText("Log extra set"));
+
+  fireEvent.change(screen.getByLabelText("Reps"), { target: { value: "3" } });
+  fireEvent.change(screen.getByLabelText("Weight (optional)"), { target: { value: "120" } });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log extra set"));
+  });
+
+  await waitFor(() => screen.getByText("Extra set logged."));
+  assert.ok(screen.getByText("PR"));
 });
 
 test("adding a brand-new exercise not on the prescribed plan posts EXTRA_EXERCISE_REPORT with reps and load", async () => {

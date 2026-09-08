@@ -1387,7 +1387,8 @@ export async function loadCoachAthleteDetail(
               'exercise_id', re.event->>'exercise_id',
               'reps', (re.event->>'reps')::int,
               'load_value', (re.event->>'load_value')::numeric,
-              'load_unit', re.event->>'load_unit'
+              'load_unit', re.event->>'load_unit',
+              'is_pr', (re.event->>'is_pr')::boolean
             )
           ) FILTER (
             WHERE re.event->>'type' = 'EXTRA_SET_REPORT'
@@ -1401,7 +1402,8 @@ export async function loadCoachAthleteDetail(
               'exercise_id', re.event->>'exercise_id',
               'reps', (re.event->>'reps')::int,
               'load_value', (re.event->>'load_value')::numeric,
-              'load_unit', re.event->>'load_unit'
+              'load_unit', re.event->>'load_unit',
+              'is_pr', (re.event->>'is_pr')::boolean
             )
           ) FILTER (
             WHERE re.event->>'type' = 'EXTRA_EXERCISE_REPORT'
