@@ -814,6 +814,11 @@ CREATE TABLE IF NOT EXISTS product_coach_notes (
     DEFAULT now()
 );
 
+-- Additive migration safety for existing DBs (if product_coach_notes was
+-- created earlier without the column).
+ALTER TABLE product_coach_notes
+  ADD COLUMN IF NOT EXISTS exercise_id TEXT;
+
 CREATE INDEX IF NOT EXISTS
   idx_product_coach_notes_coach_athlete_created
 ON product_coach_notes (

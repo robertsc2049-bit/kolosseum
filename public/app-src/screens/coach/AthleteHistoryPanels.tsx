@@ -330,9 +330,9 @@ function openSessionReview(athleteUserId: string) {
   );
 }
 
-function openSessionNoteForm(sessionId: string, artefactId: string) {
+function openSessionNoteForm(sessionId: string, artefactId: string, exerciseIds: string[]) {
   document.dispatchEvent(
-    new CustomEvent("kolosseum:open-session-note-form", { detail: { session_id: sessionId, artefact_id: artefactId } })
+    new CustomEvent("kolosseum:open-session-note-form", { detail: { session_id: sessionId, artefact_id: artefactId, exercise_ids: exerciseIds } })
   );
 }
 
@@ -426,7 +426,11 @@ export function AthleteSessionHistoryList() {
               <button
                 className="button secondary small-button"
                 type="button"
-                onClick={() => openSessionNoteForm(String(session.session_id ?? ""), String(session.artefact_id ?? ""))}
+                onClick={() => openSessionNoteForm(
+                  String(session.session_id ?? ""),
+                  String(session.artefact_id ?? ""),
+                  Array.isArray(session.exercise_ids) ? (session.exercise_ids as string[]) : []
+                )}
               >
                 Add note
               </button>

@@ -77,11 +77,13 @@ export function useCoachReview() {
 
       const athleteNamesById: Record<string, string> = {};
       const relationshipsById: Record<string, JsonRecord> = {};
-      for (const relationship of relationships) {
-        const athleteUserId = String(relationship.athlete_user_id ?? "");
+      for (const entry of relationships) {
+        const athleteUserId = String(entry.athlete_user_id ?? "");
         if (!athleteUserId) continue;
-        athleteNamesById[athleteUserId] = String(relationship.display_name ?? athleteUserId);
-        relationshipsById[athleteUserId] = relationship;
+        athleteNamesById[athleteUserId] = String(entry.display_name ?? athleteUserId);
+        if (entry.relationship && typeof entry.relationship === "object") {
+          relationshipsById[athleteUserId] = entry.relationship as JsonRecord;
+        }
       }
 
       setAthleteRelationshipsById(relationshipsById);
@@ -130,7 +132,7 @@ export function useCoachReview() {
     }
   }, [refresh]);
 
-  const recordNote = useCallback(async (record: ReviewRecord, noteText: string, visibility: string): Promise<boolean> => {
+  const recordNote = useCallback(async (record: ReviewRecord, noteText: string, visibility: string, exerciseId: string): Promise<boolean> => {
     const relationship = athleteRelationshipsById[String(record.athlete_user_id ?? "")];
     if (!relationship) {
       setState((current) => ({ ...current, noteError: "An accepted athlete relationship is required to record a note." }));
@@ -150,6 +152,7 @@ export function useCoachReview() {
           athlete_user_id: record.athlete_user_id,
           session_id: record.session_id,
           artefact_id: record.artefact_id,
+          exercise_id: exerciseId || null,
           note_text: noteText.trim(),
           visibility
         },

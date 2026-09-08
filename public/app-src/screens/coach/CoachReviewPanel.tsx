@@ -187,6 +187,7 @@ function ReviewDetail({
                   <span className="muted small">{formatDate(note.created_at)}</span>
                 </div>
                 <p>{String(note.note_text ?? "")}</p>
+                {note.exercise_id ? <p className="muted small">Exercise: {titleCase(String(note.exercise_id))}</p> : null}
                 <p className="muted small">Non-binding product note · not included in engine input</p>
               </article>
             ))}
@@ -221,6 +222,7 @@ export function CoachReviewPanel() {
   const [noteRecord, setNoteRecord] = useState<ReviewRecord | null>(null);
   const [noteText, setNoteText] = useState("");
   const [noteVisibility, setNoteVisibility] = useState("coach_private");
+  const [noteExerciseId, setNoteExerciseId] = useState("");
 
   const normalizedSearch = search.trim().toLowerCase();
   const filtered = reviews
@@ -259,13 +261,14 @@ export function CoachReviewPanel() {
   function handleOpenNote(record: ReviewRecord) {
     setNoteRecord(record);
     setNoteText("");
+    setNoteExerciseId("");
     dispatchNoteDirty(false);
   }
 
   async function handleSubmitNote(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!noteRecord) return;
-    const ok = await recordNote(noteRecord, noteText, noteVisibility);
+    const ok = await recordNote(noteRecord, noteText, noteVisibility, noteExerciseId);
     if (ok) setNoteRecord(null);
   }
 
@@ -378,6 +381,15 @@ export function CoachReviewPanel() {
                 dispatchNoteDirty(true);
               }}
             />
+          </label>
+          <label className="field">
+            <span>Exercise</span>
+            <select value={noteExerciseId} onChange={(event) => setNoteExerciseId(event.target.value)}>
+              <option value="">Whole session</option>
+              {(Array.isArray(noteRecord.exercise_ids) ? (noteRecord.exercise_ids as string[]) : []).map((exerciseId) => (
+                <option key={exerciseId} value={exerciseId}>{titleCase(exerciseId)}</option>
+              ))}
+            </select>
           </label>
           <label className="field">
             <span>Visibility</span>

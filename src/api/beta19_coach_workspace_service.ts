@@ -1314,6 +1314,7 @@ export async function loadCoachAthleteDetail(
         s.block_id,
         s.status,
         s.beta_assignment_id,
+        s.planned_session,
         s.created_at,
         s.updated_at,
         count(re.seq)::integer
@@ -1430,6 +1431,7 @@ export async function loadCoachAthleteDetail(
         s.block_id,
         s.status,
         s.beta_assignment_id,
+        s.planned_session,
         s.created_at,
         s.updated_at
       ORDER BY
@@ -1586,14 +1588,34 @@ export async function loadCoachAthleteDetail(
 
   const sessionHistory =
     sessionResult.rows.map(
-      (row) =>
-        deepFreeze({
+      (row) => {
+        const plannedSession =
+          isRecord(row.planned_session)
+            ? row.planned_session
+            : {};
+        const workItems =
+          Array.isArray(plannedSession.work_items)
+            ? plannedSession.work_items
+            : Array.isArray(plannedSession.exercises)
+              ? plannedSession.exercises
+              : [];
+        const exerciseIds =
+          workItems
+            .map((item: unknown) =>
+              isRecord(item)
+                ? cleanString(item.exercise_id ?? item.item_id)
+                : ""
+            )
+            .filter(Boolean);
+
+        return deepFreeze({
           session_id:
             String(row.session_id),
           artefact_id:
             `beta_e2e_artefact_${String(
               row.session_id
             )}`,
+          exercise_ids: exerciseIds,
           block_id:
             String(row.block_id ?? ""),
           session_status:
@@ -1704,7 +1726,8 @@ export async function loadCoachAthleteDetail(
             new Date(
               row.updated_at
             ).toISOString()
-        })
+        });
+      }
     );
 
   const noteHistory =

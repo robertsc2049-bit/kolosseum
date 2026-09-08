@@ -411,6 +411,7 @@ test(
         athlete_user_id: athleteA.userId,
         session_id: "not_applicable",
         artefact_id: "not_applicable",
+        exercise_id: null,
         note_text: "Great tempo control today.",
         visibility: "athlete_visible"
       }), 201, "athlete-visible note");
@@ -421,6 +422,7 @@ test(
         athlete_user_id: athleteA.userId,
         session_id: "not_applicable",
         artefact_id: "not_applicable",
+        exercise_id: null,
         note_text: "Consider a deload if grip keeps failing.",
         visibility: "coach_private"
       }), 201, "coach-private note");

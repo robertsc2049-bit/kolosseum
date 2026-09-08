@@ -214,7 +214,7 @@ test("choosing 'Visible to athlete' sends athlete_visible", async () => {
   });
 
   fireEvent.change(screen.getByRole("textbox"), { target: { value: "Visible note." } });
-  fireEvent.change(screen.getByRole("combobox"), { target: { value: "athlete_visible" } });
+  fireEvent.change(screen.getByRole("combobox", { name: "Visibility" }), { target: { value: "athlete_visible" } });
 
   await act(async () => {
     fireEvent.submit(screen.getByText("Record note").closest("form")!);
@@ -223,6 +223,73 @@ test("choosing 'Visible to athlete' sends athlete_visible", async () => {
   const createCall = calls.find((entry) => entry.path === "/sessions/beta-coach-notes");
   const body = JSON.parse(String(createCall?.init?.body));
   assert.equal(body.visibility, "athlete_visible");
+});
+
+test("a note can be scoped to a specific exercise on the session", async () => {
+  const calls = installMocks({});
+  render(<AthleteCoachNotesPanel />);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPENED_EVENT, { detail: { athlete_user_id: "athlete_test123" } }));
+  });
+  await screen.findByText("No coach notes");
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPEN_NOTE_FORM_EVENT, {
+      detail: { session_id: "session_1", artefact_id: "artefact_1", exercise_ids: ["back_squat", "bench_press"] }
+    }));
+  });
+
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Depth was shallow on the last set." } });
+  fireEvent.change(screen.getByRole("combobox", { name: "Exercise" }), { target: { value: "back_squat" } });
+
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Record note").closest("form")!);
+  });
+
+  const createCall = calls.find((entry) => entry.path === "/sessions/beta-coach-notes");
+  const body = JSON.parse(String(createCall?.init?.body));
+  assert.equal(body.exercise_id, "back_squat");
+});
+
+test("a whole-session note (no exercise selected) posts a null exercise_id", async () => {
+  const calls = installMocks({});
+  render(<AthleteCoachNotesPanel />);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPENED_EVENT, { detail: { athlete_user_id: "athlete_test123" } }));
+  });
+  await screen.findByText("No coach notes");
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPEN_NOTE_FORM_EVENT, {
+      detail: { session_id: "session_1", artefact_id: "artefact_1", exercise_ids: ["back_squat"] }
+    }));
+  });
+
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Great effort today." } });
+
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Record note").closest("form")!);
+  });
+
+  const createCall = calls.find((entry) => entry.path === "/sessions/beta-coach-notes");
+  const body = JSON.parse(String(createCall?.init?.body));
+  assert.equal(body.exercise_id, null);
+});
+
+test("an existing note's exercise tag is rendered when present", async () => {
+  await openPanel([
+    {
+      note_id: "note_1",
+      visibility: "coach_private",
+      note_text: "Depth was shallow.",
+      session_id: "session_abc",
+      exercise_id: "back_squat",
+      created_at: "2026-08-20T10:00:00.000Z"
+    }
+  ]);
+
+  await screen.findByText("Depth was shallow.");
+  assert.match(document.body.textContent ?? "", /Exercise: Back Squat/u);
 });
 
 test("an empty note shows a validation error and never sends", async () => {
