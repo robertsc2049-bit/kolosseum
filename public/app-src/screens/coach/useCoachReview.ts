@@ -77,11 +77,13 @@ export function useCoachReview() {
 
       const athleteNamesById: Record<string, string> = {};
       const relationshipsById: Record<string, JsonRecord> = {};
-      for (const relationship of relationships) {
-        const athleteUserId = String(relationship.athlete_user_id ?? "");
+      for (const entry of relationships) {
+        const athleteUserId = String(entry.athlete_user_id ?? "");
         if (!athleteUserId) continue;
-        athleteNamesById[athleteUserId] = String(relationship.display_name ?? athleteUserId);
-        relationshipsById[athleteUserId] = relationship;
+        athleteNamesById[athleteUserId] = String(entry.display_name ?? athleteUserId);
+        if (entry.relationship && typeof entry.relationship === "object") {
+          relationshipsById[athleteUserId] = entry.relationship as JsonRecord;
+        }
       }
 
       setAthleteRelationshipsById(relationshipsById);
