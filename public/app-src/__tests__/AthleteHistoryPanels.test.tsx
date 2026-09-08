@@ -314,9 +314,15 @@ test("the Review button dispatches kolosseum:open-session-review with the open a
   assert.deepEqual(received, { athlete_user_id: "athlete_test123" });
 });
 
-test("the Add note button dispatches kolosseum:open-session-note-form with the session and artefact id", async () => {
+test("the Add note button dispatches kolosseum:open-session-note-form with the session, artefact id and the session's exercise ids", async () => {
   installStandardMocks({
-    session_history: [{ session_id: "session_1", artefact_id: "artefact_1", updated_at: "2026-08-01T00:00:00.000Z", runtime_event_count: 1 }]
+    session_history: [{
+      session_id: "session_1",
+      artefact_id: "artefact_1",
+      updated_at: "2026-08-01T00:00:00.000Z",
+      runtime_event_count: 1,
+      exercise_ids: ["back_squat", "bench_press"]
+    }]
   });
   render(<AthleteSessionHistoryList />);
   openProfile();
@@ -331,7 +337,7 @@ test("the Add note button dispatches kolosseum:open-session-note-form with the s
     screen.getByText("Add note").click();
   });
 
-  assert.deepEqual(received, { session_id: "session_1", artefact_id: "artefact_1" });
+  assert.deepEqual(received, { session_id: "session_1", artefact_id: "artefact_1", exercise_ids: ["back_squat", "bench_press"] });
 });
 
 test("a skip reason containing markup is rendered as inert text, never as HTML", async () => {

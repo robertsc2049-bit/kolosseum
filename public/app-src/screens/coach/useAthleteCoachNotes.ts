@@ -20,6 +20,7 @@ export type AthleteCoachNotesState = {
   composing: boolean;
   sessionId: string;
   artefactId: string;
+  exerciseIds: string[];
   submitting: boolean;
   submitError: string | null;
 };
@@ -31,6 +32,7 @@ const initialState: AthleteCoachNotesState = {
   composing: false,
   sessionId: "",
   artefactId: "",
+  exerciseIds: [],
   submitting: false,
   submitError: null
 };
@@ -59,12 +61,13 @@ export function useAthleteCoachNotes() {
 
   useEffect(() => {
     function handleOpenNoteForm(event: Event) {
-      const detail = (event as CustomEvent).detail as { session_id?: string; artefact_id?: string } | undefined;
+      const detail = (event as CustomEvent).detail as { session_id?: string; artefact_id?: string; exercise_ids?: string[] } | undefined;
       setState((current) => ({
         ...current,
         composing: true,
         sessionId: detail?.session_id ?? "",
         artefactId: detail?.artefact_id ?? "",
+        exerciseIds: Array.isArray(detail?.exercise_ids) ? detail!.exercise_ids : [],
         submitError: null
       }));
     }
@@ -112,7 +115,7 @@ export function useAthleteCoachNotes() {
   // state.coachAthletes[].relationship used to hold. Mirrors
   // useCoachReview.ts's recordNote() exactly, just scoped to the currently
   // open athlete profile instead of a review record.
-  const submit = useCallback(async (noteText: string, visibility: string) => {
+  const submit = useCallback(async (noteText: string, visibility: string, exerciseId: string) => {
     if (!athleteUserId) return false;
 
     const trimmed = noteText.trim();
@@ -149,6 +152,7 @@ export function useAthleteCoachNotes() {
           athlete_user_id: athleteUserId,
           session_id: state.sessionId,
           artefact_id: state.artefactId,
+          exercise_id: exerciseId || null,
           note_text: trimmed,
           visibility
         },

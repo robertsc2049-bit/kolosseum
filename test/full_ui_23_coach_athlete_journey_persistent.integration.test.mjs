@@ -960,6 +960,7 @@ test(
       athlete_user_id: athleteUserId,
       session_id: "not_applicable",
       artefact_id: "not_applicable",
+      exercise_id: null,
       note_text: athleteVisibleNoteText,
       visibility: "athlete_visible"
     }), 201, "athlete-visible note");
@@ -970,6 +971,7 @@ test(
       athlete_user_id: athleteUserId,
       session_id: "not_applicable",
       artefact_id: "not_applicable",
+      exercise_id: null,
       note_text: coachPrivateNoteText,
       visibility: "coach_private"
     }), 201, "coach-private note");
@@ -978,6 +980,47 @@ test(
       "Coach adds a non-binding athlete-visible note",
       true,
       { athlete_visible_note: athleteVisibleNoteText }
+    );
+
+    // --- Step 16b: a note can be scoped to a specific exercise on a real,
+    //     completed session - and is rejected if the exercise_id was never
+    //     part of that session's own prescribed plan. ---
+    const firstSessionExerciseId = exercises[0]?.exercise_id;
+    assert.ok(firstSessionExerciseId, "expected a real exercise_id from the first session's plan");
+
+    const exerciseNoteText = "Bar path drifted forward on the last two reps.";
+    const exerciseScopedNote = await request(baseUrl, "POST", "/sessions/beta-coach-notes", {
+      coach_profile: coachProfileForNotes,
+      relationship: persistedRelationship,
+      athlete_user_id: athleteUserId,
+      session_id: sessionId,
+      artefact_id: `beta_e2e_artefact_${sessionId}`,
+      exercise_id: firstSessionExerciseId,
+      note_text: exerciseNoteText,
+      visibility: "coach_private"
+    });
+    assertStatus(exerciseScopedNote, 201, "exercise-scoped note");
+    assert.equal(exerciseScopedNote.json?.coach_note?.exercise_id, firstSessionExerciseId);
+
+    const rejectedExerciseNote = await request(baseUrl, "POST", "/sessions/beta-coach-notes", {
+      coach_profile: coachProfileForNotes,
+      relationship: persistedRelationship,
+      athlete_user_id: athleteUserId,
+      session_id: sessionId,
+      artefact_id: `beta_e2e_artefact_${sessionId}`,
+      exercise_id: "not_a_real_exercise_on_this_session",
+      note_text: "This should never persist.",
+      visibility: "coach_private"
+    });
+    assertStatus(rejectedExerciseNote, 400, "note with an exercise_id not on the session's plan");
+    assert.equal(rejectedExerciseNote.json?.failure_token, "beta17_coach_note_exercise_id_not_in_session");
+
+    record(
+      "step_16b_coach_note_scoped_to_exercise",
+      "A coach note can be scoped to a real exercise on the session, and is rejected for an exercise_id not on that session's plan",
+      exerciseScopedNote.json?.coach_note?.exercise_id === firstSessionExerciseId &&
+        rejectedExerciseNote.status === 400,
+      { session_id: sessionId, exercise_id: firstSessionExerciseId }
     );
 
     // --- Step 17: athlete sees that note, and only that note - no engine or

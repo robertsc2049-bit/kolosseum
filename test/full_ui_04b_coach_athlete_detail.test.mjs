@@ -338,6 +338,22 @@ test(
       /session\.extra_exercise_reports/u
     );
 
+    // A coach note can be scoped to a specific exercise, not just the whole
+    // session - the session's own prescribed exercise ids must reach the
+    // "Add note" flow so the note-composer's exercise picker can offer them.
+    assert.match(
+      service,
+      /s\.planned_session/u
+    );
+    assert.match(
+      service,
+      /exercise_ids: exerciseIds/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.exercise_ids/u
+    );
+
     // Same gap for split/return: the athlete's own history detail already
     // exposes split_entered/split_return_decision/split_return_events, but
     // the coach's session history never surfaced whether an athlete split a

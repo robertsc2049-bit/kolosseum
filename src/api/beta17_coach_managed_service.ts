@@ -124,6 +124,7 @@ const noteInputKeys = new Set([
   "athlete_user_id",
   "session_id",
   "artefact_id",
+  "exercise_id",
   "note_text",
   "visibility"
 ]);
@@ -1272,6 +1273,21 @@ export function createBeta17CoachNoteRecord(
     const artefactId =
       cleanString(input.artefact_id);
 
+    if (
+      input.exercise_id !== null &&
+      typeof input.exercise_id !==
+        "string"
+    ) {
+      throw new Beta17CoachManagedError(
+        "coach_note_exercise_id_invalid"
+      );
+    }
+
+    const exerciseId =
+      cleanString(
+        input.exercise_id
+      );
+
     const noteText =
       typeof input.note_text ===
         "string"
@@ -1308,6 +1324,7 @@ export function createBeta17CoachNoteRecord(
         access.relationship_id,
       session_id: sessionId,
       artefact_id: artefactId,
+      exercise_id: exerciseId || null,
       note_text: noteText,
       visibility: input.visibility
     };

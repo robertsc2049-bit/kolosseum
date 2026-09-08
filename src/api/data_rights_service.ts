@@ -98,7 +98,7 @@ async function loadBetaProductRecordsByType(
 async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT note_id, coach_user_id, athlete_user_id, relationship_id, session_id,
-            artefact_id, visibility, created_at
+            artefact_id, exercise_id, visibility, created_at
      FROM product_coach_notes
      WHERE coach_user_id = $1
      ORDER BY created_at ASC`,
@@ -112,6 +112,7 @@ async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
     relationship_id: row.relationship_id,
     session_id: row.session_id,
     artefact_id: row.artefact_id,
+    exercise_id: row.exercise_id,
     visibility: row.visibility,
     created_at_iso8601: isoString(row.created_at)
   }));

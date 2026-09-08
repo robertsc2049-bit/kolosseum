@@ -32,6 +32,7 @@ function baseRecord(overrides: Record<string, unknown> = {}) {
     session_status: "recorded",
     runtime_event_count: 12,
     planned_work_item_count: 5,
+    exercise_ids: ["bench_press", "overhead_press"],
     assignment_id: "assignment_1",
     assignment_provenance: { template_id: "template_1", template_name: "Strength block", template_version: 2, activity_id: "powerlifting" },
     event_provenance: null,
@@ -49,12 +50,14 @@ function installMocks(options: {
   relationships?: Record<string, unknown>[];
   markFails?: boolean;
   noteFails?: boolean;
+  onNoteSubmit?: (body: Record<string, unknown>) => void;
 }) {
   const {
     records = [baseRecord()],
     relationships = [{ athlete_user_id: "athlete_1", display_name: "Jordan Athlete", relationship: { relationship_id: "rel_1" } }],
     markFails = false,
-    noteFails = false
+    noteFails = false,
+    onNoteSubmit
   } = options;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -76,6 +79,7 @@ function installMocks(options: {
     }
     if (path === "/sessions/beta-coach-notes") {
       if (noteFails) return jsonResponse({ error: "coach_note_text_required" }, false, 400);
+      if (onNoteSubmit && typeof init?.body === "string") onNoteSubmit(JSON.parse(init.body));
       return jsonResponse({ ok: true, coach_note: { note_id: "note_1" } }, true, 201);
     }
     return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
@@ -230,6 +234,41 @@ test("adding a note requires an accepted relationship, submits, and clears the f
   });
 
   await waitFor(() => assert.equal(screen.queryByText("Add note for Jordan Athlete"), null));
+});
+
+test("a note can be scoped to a specific exercise on the session", async () => {
+  let postedBody: Record<string, unknown> | null = null;
+  installMocks({ onNoteSubmit: (body) => { postedBody = body; } });
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+
+  fireEvent.click(screen.getAllByText("Add note")[0]);
+  await waitFor(() => screen.getByText("Add note for Jordan Athlete"));
+
+  fireEvent.change(screen.getByText("Exercise").closest("label")!.querySelector("select")!, { target: { value: "overhead_press" } });
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Depth was shallow on the last set." } });
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Record note").closest("form")!);
+  });
+
+  await waitFor(() => assert.equal(postedBody?.exercise_id, "overhead_press"));
+});
+
+test("a whole-session note (no exercise selected) posts a null exercise_id", async () => {
+  let postedBody: Record<string, unknown> | null = null;
+  installMocks({ onNoteSubmit: (body) => { postedBody = body; } });
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+
+  fireEvent.click(screen.getAllByText("Add note")[0]);
+  await waitFor(() => screen.getByText("Add note for Jordan Athlete"));
+
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Great effort today." } });
+  await act(async () => {
+    fireEvent.submit(screen.getByText("Record note").closest("form")!);
+  });
+
+  await waitFor(() => assert.equal(postedBody?.exercise_id, null));
 });
 
 test("shows an error when the note fails to submit", async () => {

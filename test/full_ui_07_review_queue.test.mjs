@@ -249,3 +249,34 @@ test(
     );
   }
 );
+
+test(
+  "FULL-UI-07 a coach note can be scoped to a specific exercise on the session, not just the whole session",
+  () => {
+    // product_review.routes.ts already computes workItems from the session's
+    // planned_session for planned_work_item_count - exercise_ids exposes the
+    // actual ids instead of discarding them after only counting them.
+    assert.match(
+      routes,
+      /exercise_ids:/u
+    );
+
+    assert.match(
+      hook,
+      /recordNote = useCallback\(async \(record: ReviewRecord, noteText: string, visibility: string, exerciseId: string\)/u
+    );
+
+    assert.match(
+      panel,
+      /noteExerciseId/u
+    );
+    assert.match(
+      panel,
+      />Whole session</u
+    );
+    assert.match(
+      panel,
+      /Exercise: \{titleCase\(String\(note\.exercise_id\)\)\}/u
+    );
+  }
+);

@@ -130,7 +130,7 @@ export function useCoachReview() {
     }
   }, [refresh]);
 
-  const recordNote = useCallback(async (record: ReviewRecord, noteText: string, visibility: string): Promise<boolean> => {
+  const recordNote = useCallback(async (record: ReviewRecord, noteText: string, visibility: string, exerciseId: string): Promise<boolean> => {
     const relationship = athleteRelationshipsById[String(record.athlete_user_id ?? "")];
     if (!relationship) {
       setState((current) => ({ ...current, noteError: "An accepted athlete relationship is required to record a note." }));
@@ -150,6 +150,7 @@ export function useCoachReview() {
           athlete_user_id: record.athlete_user_id,
           session_id: record.session_id,
           artefact_id: record.artefact_id,
+          exercise_id: exerciseId || null,
           note_text: noteText.trim(),
           visibility
         },
