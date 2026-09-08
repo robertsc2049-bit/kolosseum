@@ -186,23 +186,33 @@
             </div>
           </div>
 
-          <div id="athlete-history-root"></div>
+          <div class="section-tabs" role="tablist" aria-label="History sections" data-tab-group="history">
+            <button type="button" role="tab" class="section-tab active" aria-selected="true" data-tab-target="record">History</button>
+            <button type="button" role="tab" class="section-tab" aria-selected="false" data-tab-target="wellbeing">Wellbeing</button>
+          </div>
 
-          <div id="athlete-self-progress-insights-root"></div>
+          <div data-tab-group="history" data-tab-panel="record">
+            <div id="athlete-history-root"></div>
+          </div>
 
-          <div id="athlete-self-progress-photos-root"></div>
+          <div data-tab-group="history" data-tab-panel="wellbeing" hidden>
 
-          <div id="athlete-self-body-metrics-root"></div>
+            <div id="athlete-self-progress-insights-root"></div>
 
-          <div id="athlete-self-nutrition-root"></div>
+            <div id="athlete-self-progress-photos-root"></div>
 
-          <div id="athlete-self-habits-root"></div>
+            <div id="athlete-self-body-metrics-root"></div>
 
-          <div id="athlete-self-goals-root"></div>
+            <div id="athlete-self-nutrition-root"></div>
 
-          <div id="athlete-self-weekly-checkins-root"></div>
+            <div id="athlete-self-habits-root"></div>
 
-          <div id="athlete-self-device-sync-root"></div>
+            <div id="athlete-self-goals-root"></div>
+
+            <div id="athlete-self-weekly-checkins-root"></div>
+
+            <div id="athlete-self-device-sync-root"></div>
+          </div>
         </section>
 
         <section id="view-onboarding" class="view" hidden>
@@ -1040,5 +1050,6 @@
   <script type="module" src="/app/route_bootstrap.js"></script>
   <script type="module" src="/app/react-dist/kolosseum-react.js"></script>
   <script type="module" src="/app/pwa_bootstrap.js"></script>
+  <script type="module" src="/app/section_tabs_bootstrap.js"></script>
 </body>
 </html>
