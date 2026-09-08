@@ -292,7 +292,7 @@ test("skipping an exercise requires a reason and posts SKIP_EXERCISE", async () 
   fireEvent.click(screen.getByText("Skip exercise"));
   await waitFor(() => screen.getByText("Skip this exercise?"));
 
-  fireEvent.change(screen.getByRole("combobox"), { target: { value: "pain_or_discomfort" } });
+  fireEvent.change(document.getElementById("skipReasonSelect") as HTMLSelectElement, { target: { value: "pain_or_discomfort" } });
   await act(async () => {
     fireEvent.click(screen.getByText("Confirm skip"));
   });
