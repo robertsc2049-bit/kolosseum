@@ -397,6 +397,14 @@
       "value": "node test/full_ui_08c_strength_reference_lifecycle.test.mjs"
     },
     {
+      "kind": "command",
+      "value": "node test/full_ui_pwa_installability_surface.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/full_ui_history_section_tabs_surface.test.mjs"
+    },
+    {
       "kind": "npm_command",
       "value": "test:react"
     },

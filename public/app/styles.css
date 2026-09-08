@@ -2152,6 +2152,27 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   background: var(--ink-3);
 }
 
+.section-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.section-tab {
+  border: 1px solid var(--line);
+  border-radius: 0.7rem;
+  background: var(--ink-2);
+  color: var(--stone);
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+}
+
+.section-tab.active {
+  border-color: var(--bronze);
+  background: var(--ink-3);
+}
+
 .compact-entry-form {
   margin-top: 1rem;
 }
