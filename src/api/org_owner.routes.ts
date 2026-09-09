@@ -20,9 +20,18 @@ import {
   ORG_OWNER_SESSION_MAX_AGE_SECONDS,
   OrgOwnerAuthError,
   registerAndSignInOrgOwnerAccount,
+  requestOrgOwnerAccountClosure,
   signInOrgOwnerAccount,
   signOutOrgOwnerSession
 } from "./org_owner_account_service.js";
+import {
+  confirmOrgOwnerDataDeletion,
+  downloadOrgOwnerDataExport,
+  getOrgOwnerDataDeletionStatus,
+  getOrgOwnerDataExportStatus,
+  previewOrgOwnerDataDeletion,
+  requestOrgOwnerDataExport
+} from "./org_owner_data_rights_service.js";
 import { authenticatedOrgOwner, orgOwnerCookieValue } from "./org_owner_auth.js";
 import {
   OrgBillingError,
@@ -72,6 +81,7 @@ import {
   sendAttachmentFile,
   validateStagedUpload
 } from "./message_attachment_storage.js";
+import { badRequest } from "./http_errors.js";
 import { AttendanceEventError } from "./attendance_event_service.js";
 import {
   AttendanceEventGymRosterError,
@@ -507,6 +517,109 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const status = await getOrgAthleteBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
     return response.status(200).json({ ok: true, ...status });
+  })
+);
+
+// FULL-UI-79 data rights and closure: org-owner self-service export,
+// deletion-request and account closure - mirrors FULL-UI-19's exact
+// productAccountRouter shapes (product_account.routes.ts), reusing this
+// router's own authenticatedOrgOwner(request, mutation) pattern instead of
+// resolveProductSession, since an org owner is never a row in
+// product_accounts. Rate-limited like the broadcast routes above, for the
+// same CodeQL js/missing-rate-limiting reason.
+const orgOwnerDataRightsRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.post(
+  "/closure",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await requestOrgOwnerAccountClosure(user_id, request.body);
+    clearOrgOwnerSessionCookie(response);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/export",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await requestOrgOwnerDataExport(user_id);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/export",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const result = await getOrgOwnerDataExportStatus(user_id);
+    return response.status(200).json({ ok: true, exports: result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/export/:export_request_id/download",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const payload = await downloadOrgOwnerDataExport(user_id, String(request.params.export_request_id));
+
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="kolosseum-org-owner-data-export-${encodeURIComponent(String(request.params.export_request_id))}.json"`
+    );
+
+    return response.status(200).json(payload);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/deletion/preview",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await previewOrgOwnerDataDeletion(user_id);
+    return response.status(200).json(result);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/deletion",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const body: Record<string, unknown> =
+      request.body !== null && typeof request.body === "object" && !Array.isArray(request.body)
+        ? request.body
+        : {};
+
+    const clientRequestId = typeof body.client_request_id === "string" ? body.client_request_id.trim() : "";
+    if (!clientRequestId) {
+      throw badRequest("Missing client_request_id", {
+        failure_token: "org_owner_data_rights_deletion_client_request_id_required"
+      });
+    }
+
+    const result = await confirmOrgOwnerDataDeletion(user_id, body.confirmation, body.reason_code, clientRequestId);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/deletion",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const result = await getOrgOwnerDataDeletionStatus(user_id);
+    return response.status(200).json({ ok: true, deletion_requests: result });
   })
 );
 

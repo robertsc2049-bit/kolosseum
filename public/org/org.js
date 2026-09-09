@@ -77,6 +77,7 @@ function showSignedOut() {
   el("orgSignInSection").hidden = false;
   el("orgRegisterSection").hidden = false;
   el("orgWorkspaceSection").hidden = true;
+  el("orgAccountSection").hidden = true;
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
 }
@@ -85,11 +86,19 @@ async function showWorkspace(displayName) {
   el("orgSignInSection").hidden = true;
   el("orgRegisterSection").hidden = true;
   el("orgWorkspaceSection").hidden = false;
+  el("orgAccountSection").hidden = false;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
   el("orgDisplayName").textContent = displayName;
 
-  await refreshOrganisations();
+  el("orgAccountExportResult").hidden = true;
+  el("orgAccountDeletionReview").hidden = true;
+  el("orgAccountDeletionResult").hidden = true;
+  el("orgAccountExportError").hidden = true;
+  el("orgAccountDeletionError").hidden = true;
+  el("orgAccountClosureError").hidden = true;
+
+  await Promise.all([refreshOrganisations(), refreshAccountDataRights().catch(console.error)]);
 }
 
 function visibilityModeLabel(mode) {
@@ -1502,6 +1511,228 @@ async function createOrganisation(event) {
   }
 }
 
+// FULL-UI-79 data rights and closure - ported from useAccountDataRights.ts's
+// exact behavior (refresh via Promise.allSettled so one failing status read
+// never hides the other's real data; a real client_request_id idempotency
+// key kept in localStorage across a failed deletion submit, cleared only on
+// success) into this file's own vanilla state/el()/api() idiom, mirroring
+// the broadcast composer's own precedent from the prior slice. The
+// deletion-confirm form only exists in the DOM after a successful preview
+// fetch, so there is no client-side substitute for the server's own
+// "Type DELETE" check to bypass.
+const ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY = "kolosseum.org_owner.data_rights.deletion_client_request_id";
+
+function newOrgOwnerClientRequestId() {
+  if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+function exportStatusLabel(status) {
+  if (status === "ready") return "Ready";
+  if (status === "expired") return "Expired";
+  if (status === "failed") return "Failed";
+  return "Pending";
+}
+
+function renderAccountExports(exportRequests) {
+  const container = el("orgAccountExportList");
+  if (exportRequests.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No exports requested yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = exportRequests.map((exportRequest) => `
+    <article class="record-card">
+      <div>
+        <h3>Requested ${escapeHtml(formatDate(exportRequest.requested_at_iso8601))}</h3>
+        ${exportRequest.downloaded_at_iso8601 ? `<p class="muted small">Downloaded ${escapeHtml(formatDate(exportRequest.downloaded_at_iso8601))}</p>` : ""}
+      </div>
+      <div class="record-meta">
+        <span class="badge ${exportRequest.status === "ready" ? "active" : "neutral"}">${exportStatusLabel(exportRequest.status)}</span>
+        ${exportRequest.status === "ready"
+          ? `<button class="button secondary small-button" type="button" data-download-export="${escapeHtml(exportRequest.export_request_id)}">Download</button>`
+          : ""}
+      </div>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-download-export]")) {
+    button.addEventListener("click", () => {
+      downloadAccountExport(button.getAttribute("data-download-export")).catch(console.error);
+    });
+  }
+}
+
+function deletionStatusLabel(status) {
+  return status === "queued_for_review" ? "Queued for review" : status;
+}
+
+function renderAccountDeletionRequests(deletionRequests) {
+  const container = el("orgAccountDeletionList");
+  if (deletionRequests.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No deletion requests yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = deletionRequests.map((request) => `
+    <article class="record-card">
+      <div>
+        <h3>Requested ${escapeHtml(formatDate(request.requested_at_iso8601))}</h3>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(deletionStatusLabel(request.queue_status))}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAccountDataRights() {
+  const [exportResult, deletionResult] = await Promise.allSettled([
+    api("GET", "/org/data-rights/export"),
+    api("GET", "/org/data-rights/deletion")
+  ]);
+
+  if (exportResult.status === "fulfilled") {
+    renderAccountExports(Array.isArray(exportResult.value.exports) ? exportResult.value.exports : []);
+  }
+  if (deletionResult.status === "fulfilled") {
+    renderAccountDeletionRequests(Array.isArray(deletionResult.value.deletion_requests) ? deletionResult.value.deletion_requests : []);
+  }
+  if (exportResult.status === "rejected" && deletionResult.status === "rejected") {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "Could not load data-rights status.";
+  }
+}
+
+async function requestAccountExport() {
+  el("orgAccountExportError").hidden = true;
+  el("orgAccountExportResult").hidden = true;
+
+  try {
+    const result = await api("POST", "/org/data-rights/export", {});
+    el("orgAccountExportResult").hidden = false;
+    el("orgAccountExportResult").textContent = `Export ready: ${result.export_request_id}`;
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "The export request could not be completed.";
+    console.error(error);
+  }
+}
+
+async function downloadAccountExport(exportRequestId) {
+  el("orgAccountExportError").hidden = true;
+
+  try {
+    const payload = await api("GET", `/org/data-rights/export/${encodeURIComponent(exportRequestId)}/download`);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kolosseum-org-owner-data-export-${exportRequestId}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "Could not download that export.";
+    console.error(error);
+  }
+}
+
+function renderDeletionRetentionNotices(notices) {
+  const container = el("orgAccountDeletionRetentionList");
+  container.innerHTML = notices.map((notice) => `
+    <article class="record-card">
+      <div>
+        <p>${escapeHtml(notice.copy)}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(notice.record_count)} record(s)</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function reviewAccountDeletion() {
+  el("orgAccountDeletionError").hidden = true;
+  el("orgAccountDeletionResult").hidden = true;
+
+  try {
+    const preview = await api("POST", "/org/data-rights/deletion/preview", {});
+    el("orgAccountDeletionNotice").textContent = preview.factual_notice || "";
+    renderDeletionRetentionNotices(Array.isArray(preview.retention_notices) ? preview.retention_notices : []);
+    el("orgAccountDeletionConfirmText").value = "";
+    el("orgAccountDeletionReview").hidden = false;
+  }
+  catch (error) {
+    el("orgAccountDeletionError").hidden = false;
+    el("orgAccountDeletionError").textContent = "Could not load deletion consequences.";
+    console.error(error);
+  }
+}
+
+async function confirmAccountDeletion(event) {
+  event.preventDefault();
+  el("orgAccountDeletionError").hidden = true;
+
+  const clientRequestId = window.localStorage.getItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY) || newOrgOwnerClientRequestId();
+  window.localStorage.setItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY, clientRequestId);
+
+  try {
+    const result = await api("POST", "/org/data-rights/deletion", {
+      confirmation: el("orgAccountDeletionConfirmText").value.trim(),
+      reason_code: "user_requested_erasure",
+      client_request_id: clientRequestId
+    });
+
+    window.localStorage.removeItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY);
+    el("orgAccountDeletionConfirmForm").reset();
+    el("orgAccountDeletionReview").hidden = true;
+    el("orgAccountDeletionResult").hidden = false;
+    el("orgAccountDeletionResult").textContent = result.replayed
+      ? `Deletion already requested: ${result.deletion_request_id}`
+      : `Deletion requested: ${result.deletion_request_id}`;
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountDeletionError").hidden = false;
+    el("orgAccountDeletionError").textContent = error.message === "Type DELETE to confirm this request"
+      ? 'Type "DELETE" to confirm.'
+      : "The deletion request could not be completed.";
+    console.error(error);
+  }
+}
+
+async function closeAccount(event) {
+  event.preventDefault();
+  el("orgAccountClosureError").hidden = true;
+
+  try {
+    await api("POST", "/org/closure", { confirmation: el("orgAccountClosureConfirmText").value.trim() });
+    location.reload();
+  }
+  catch (error) {
+    el("orgAccountClosureError").hidden = false;
+    el("orgAccountClosureError").textContent = error.message === "org_owner_account_closure_confirmation_required"
+      ? 'Type "CLOSE" to confirm.'
+      : "Could not close the account.";
+    console.error(error);
+  }
+}
+
 function boot() {
   // No session-resume-on-load, matching public/admin/admin.js's own
   // precedent exactly - GET /org/session only confirms the cookie
@@ -1535,6 +1766,10 @@ function boot() {
   el("orgBroadcastRefreshButton").addEventListener("click", () => refreshBroadcastReadStatus().catch(console.error));
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));
+  el("orgAccountExportRequestButton").addEventListener("click", () => requestAccountExport().catch(console.error));
+  el("orgAccountDeletionReviewButton").addEventListener("click", () => reviewAccountDeletion().catch(console.error));
+  el("orgAccountDeletionConfirmForm").addEventListener("submit", (event) => confirmAccountDeletion(event).catch(console.error));
+  el("orgAccountClosureForm").addEventListener("submit", (event) => closeAccount(event).catch(console.error));
 }
 
 boot();
