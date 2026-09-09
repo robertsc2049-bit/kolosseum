@@ -401,3 +401,23 @@ test("every new interactive admin control is a real focusable button/form, not a
     assert.match(html, re, `${id} must be a real <button type="button">`);
   }
 });
+
+test("every table in the founder/admin surface is wrapped in a horizontally-scrollable container, so wide tables scroll instead of squashing illegibly on narrow viewports", () => {
+  const tableOpenTags = [...html.matchAll(/<table\b[^>]*>/gu)];
+  assert.equal(tableOpenTags.length, 7, "expected exactly 7 <table> elements in the admin surface");
+
+  // Every <table> must be the very first thing inside a div.table-scroll
+  // wrapper - not just present somewhere on the page - so a future table
+  // can't be added (or an existing one un-wrapped) without this failing.
+  const wrappedTables = [...html.matchAll(/<div class="table-scroll(?: table-scroll--wide)?">\s*<table\b/gu)];
+  assert.equal(
+    wrappedTables.length,
+    tableOpenTags.length,
+    "every <table> must be immediately wrapped in a `table-scroll` div, not left to overflow/squash on narrow viewports"
+  );
+
+  // The wrapper class is meaningless without the CSS rule that actually
+  // makes it scroll instead of squash.
+  assert.match(html, /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/u);
+  assert.match(html, /\.table-scroll table\s*\{[^}]*min-width:/u);
+});
