@@ -7,6 +7,8 @@ import {
   type Response
 } from "express";
 
+import { rateLimit } from "express-rate-limit";
+
 import {
   PRODUCT_SESSION_COOKIE,
   ProductAccountError,
@@ -201,8 +203,22 @@ coachOnboardingRouter.post(
   )
 );
 
+// DEV NOTE: rate-limited (unlike the sibling /profile, /terms, /complete
+// mutation routes above, which predate this) because CodeQL's
+// js/missing-rate-limiting query flags newly-added authorising routes -
+// this keeps the new route from introducing a fresh instance of a gap
+// that already exists, unremediated, on its neighbours.
+const accessibilityPreferencesRateLimit =
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false
+  });
+
 coachOnboardingRouter.patch(
   "/accessibility",
+  accessibilityPreferencesRateLimit,
   asyncHandler(
     async (
       request,

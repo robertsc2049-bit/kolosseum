@@ -202,3 +202,22 @@ This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 backend behaviour - the backend REST API surface is unchanged; React is
 purely a new consumer of the same existing routes.
+
+## Coach accessibility preferences: add express-rate-limit dependency
+
+Commit subject: feat(onboarding): add accessibility preferences to coach onboarding
+
+package-lock.json changed because a new direct dependency was added:
+
+- `express-rate-limit` (`^8.7.0`) added to `dependencies`.
+
+`express-rate-limit` is the standard Express rate-limiting middleware,
+applied only to the new `PATCH /account/coach-onboarding/accessibility`
+route added in this change, to satisfy CodeQL's `js/missing-rate-limiting`
+query on a newly-added authorising route. No other route in the codebase
+was modified. No other dependency versions were intentionally changed;
+any other lockfile movement is transitive resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour - it is purely additive.
