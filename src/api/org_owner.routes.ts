@@ -13,6 +13,7 @@ import {
   type Response
 } from "express";
 import { MulterError } from "multer";
+import { rateLimit } from "express-rate-limit";
 
 import {
   ORG_OWNER_SESSION_COOKIE,
@@ -456,8 +457,22 @@ orgOwnerRouter.get(
   })
 );
 
+// DEV NOTE: rate-limited (unlike this file's older routes, which predate
+// this) because CodeQL's js/missing-rate-limiting query flags newly-added
+// authorising routes - one shared limiter across all four broadcast routes
+// keeps a fan-out capability (naturally more expensive per call than a
+// single-recipient send) from being hammered, without adding four separate
+// limiter instances for what is one logical capability.
+const orgBroadcastRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 orgOwnerRouter.post(
   "/organisations/:org_id/broadcast/coaches",
+  orgBroadcastRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
     const result = await sendOrgCoachBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
@@ -467,6 +482,7 @@ orgOwnerRouter.post(
 
 orgOwnerRouter.get(
   "/organisations/:org_id/broadcast/coaches/:broadcast_id/read-status",
+  orgBroadcastRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const status = await getOrgCoachBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
@@ -476,6 +492,7 @@ orgOwnerRouter.get(
 
 orgOwnerRouter.post(
   "/organisations/:org_id/broadcast/athletes",
+  orgBroadcastRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
     const result = await sendOrgAthleteBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
@@ -485,6 +502,7 @@ orgOwnerRouter.post(
 
 orgOwnerRouter.get(
   "/organisations/:org_id/broadcast/athletes/:broadcast_id/read-status",
+  orgBroadcastRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const status = await getOrgAthleteBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
