@@ -686,8 +686,9 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           }
           else if (loadMode === "fixed_weight") {
             const weight = workItem.weight_value;
-            if (!Number.isFinite(weight) || weight < 0.25 || weight > 1000) {
-              addIssue("weight_value_invalid", `${itemPath} fixed load must be between 0.25 and 1,000.`, itemPath);
+            const weightMagnitude = Math.abs(weight);
+            if (!Number.isFinite(weight) || weightMagnitude < 0.25 || weightMagnitude > 1000) {
+              addIssue("weight_value_invalid", `${itemPath} fixed load magnitude must be between 0.25 and 1,000 (negative values represent assisted exercises).`, itemPath);
             }
             if (!["kg", "lb"].includes(workItem.weight_unit)) {
               addIssue("weight_unit_invalid", `${itemPath} requires kilograms or pounds.`, itemPath);

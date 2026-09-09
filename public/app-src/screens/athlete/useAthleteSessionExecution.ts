@@ -447,7 +447,7 @@ export function useAthleteSessionExecution() {
     const trimmedLoad = state.extraSetLoadValue.trim();
     const loadValue = trimmedLoad.length > 0 ? Number(trimmedLoad) : null;
     if (!Number.isInteger(reps) || reps < 1) return false;
-    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) <= 0)) return false;
+    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) === 0)) return false;
 
     const event: JsonRecord = { type: "EXTRA_SET_REPORT", exercise_id: exerciseId, reps };
     if (loadValue !== null) {
@@ -510,7 +510,7 @@ export function useAthleteSessionExecution() {
     const trimmedLoad = state.addExerciseLoadValue.trim();
     const loadValue = trimmedLoad.length > 0 ? Number(trimmedLoad) : null;
     if (!Number.isInteger(reps) || reps < 1) return false;
-    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) <= 0)) return false;
+    if (trimmedLoad.length > 0 && (!Number.isFinite(loadValue) || (loadValue as number) === 0)) return false;
 
     const catalogEntry = state.exerciseCatalog.find((exercise) => String(exercise.exercise_id) === exerciseId);
     const label = String(catalogEntry?.display_name ?? exerciseId);

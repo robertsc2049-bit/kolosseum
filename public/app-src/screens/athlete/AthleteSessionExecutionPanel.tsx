@@ -510,8 +510,8 @@ export function AthleteSessionExecutionPanel() {
                         <span>Weight (optional)</span>
                         <input
                           type="number"
-                          min={0}
                           step="any"
+                          title="Use a negative value to record assisted reps (e.g. band or machine assistance)"
                           value={session.extraSetLoadValue}
                           onChange={(event) => session.setExtraSetLoadValue(event.target.value)}
                         />
@@ -584,8 +584,8 @@ export function AthleteSessionExecutionPanel() {
               <span>Weight (optional)</span>
               <input
                 type="number"
-                min={0}
                 step="any"
+                title="Use a negative value to record assisted reps (e.g. band or machine assistance)"
                 value={session.addExerciseLoadValue}
                 onChange={(event) => session.setAddExerciseLoadValue(event.target.value)}
               />

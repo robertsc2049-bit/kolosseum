@@ -207,7 +207,7 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
-            <label><span>Weight</span><input type="number" min={0.25} max={1000} step={0.25} defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+            <label><span>Weight</span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
             <label>
               <span>Unit</span>
               <select defaultValue={workItem.weight_unit} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}>
