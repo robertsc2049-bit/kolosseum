@@ -25,14 +25,14 @@ test("both sealed GDPR contracts' actor-type allow-lists were widened to include
   assert.match(deleteQueueContract, /GDPR_DELETE_ALLOWED_ACTOR_TYPES = Object\.freeze\(\[\s*"athlete",\s*"coach",\s*"org_owner"\s*\]\)/u);
 });
 
-test("the closure and data-rights routes are mounted org-owner-only, mutation-gated where they mutate, and rate-limited", () => {
+test("the closure and data-rights routes are mounted org-owner-only, rate-limited (every route here performs authorization, matching CodeQL's own missing-rate-limiting expectation for GET routes too), and mutation-gated where they mutate", () => {
   assert.match(routes, /orgOwnerRouter\.post\(\s*\n\s*"\/closure",\s*\n\s*orgOwnerDataRightsRateLimit/u);
   assert.match(routes, /orgOwnerRouter\.post\(\s*\n\s*"\/data-rights\/export",\s*\n\s*orgOwnerDataRightsRateLimit/u);
-  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/export",/u);
-  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/export\/:export_request_id\/download",/u);
+  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/export",\s*\n\s*orgOwnerDataRightsRateLimit/u);
+  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/export\/:export_request_id\/download",\s*\n\s*orgOwnerDataRightsRateLimit/u);
   assert.match(routes, /orgOwnerRouter\.post\(\s*\n\s*"\/data-rights\/deletion\/preview",\s*\n\s*orgOwnerDataRightsRateLimit/u);
   assert.match(routes, /orgOwnerRouter\.post\(\s*\n\s*"\/data-rights\/deletion",\s*\n\s*orgOwnerDataRightsRateLimit/u);
-  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/deletion",/u);
+  assert.match(routes, /orgOwnerRouter\.get\(\s*\n\s*"\/data-rights\/deletion",\s*\n\s*orgOwnerDataRightsRateLimit/u);
 
   assert.match(routes, /const \{ user_id \} = await authenticatedOrgOwner\(request, true\);\s*\n\s*const result = await requestOrgOwnerAccountClosure/u);
   assert.match(routes, /const \{ user_id \} = await authenticatedOrgOwner\(request, true\);\s*\n\s*const result = await requestOrgOwnerDataExport/u);

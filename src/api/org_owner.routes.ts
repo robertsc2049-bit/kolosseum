@@ -557,6 +557,7 @@ orgOwnerRouter.post(
 
 orgOwnerRouter.get(
   "/data-rights/export",
+  orgOwnerDataRightsRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const result = await getOrgOwnerDataExportStatus(user_id);
@@ -566,6 +567,7 @@ orgOwnerRouter.get(
 
 orgOwnerRouter.get(
   "/data-rights/export/:export_request_id/download",
+  orgOwnerDataRightsRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const payload = await downloadOrgOwnerDataExport(user_id, String(request.params.export_request_id));
@@ -613,6 +615,7 @@ orgOwnerRouter.post(
 
 orgOwnerRouter.get(
   "/data-rights/deletion",
+  orgOwnerDataRightsRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const result = await getOrgOwnerDataDeletionStatus(user_id);
