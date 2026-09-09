@@ -334,6 +334,29 @@
         <button id="orgMessagesBackButton" class="button secondary" type="button">Back to organisations</button>
       </div>
 
+      <p class="eyebrow">Broadcast</p>
+      <form id="orgBroadcastForm">
+        <label class="field">
+          <span>Audience</span>
+          <select id="orgBroadcastAudience">
+            <option value="coaches">All coaches</option>
+            <option value="athletes" id="orgBroadcastAudienceAthletesOption">All athletes</option>
+          </select>
+        </label>
+        <p id="orgBroadcastAthleteHint" class="muted small" hidden>Athletes can only be broadcast to in shared-visibility organisations.</p>
+        <label class="field">
+          <span>Message</span>
+          <textarea id="orgBroadcastText" required maxlength="4000"></textarea>
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Send broadcast</button>
+        </div>
+      </form>
+      <p id="orgBroadcastError" class="muted small" hidden></p>
+      <p id="orgBroadcastResult" class="muted small" hidden></p>
+      <div id="orgBroadcastReadStatus" class="record-list" hidden></div>
+      <button id="orgBroadcastRefreshButton" class="button secondary" type="button" hidden>Refresh read status</button>
+
       <p class="eyebrow">Coach threads</p>
       <div id="orgCoachThreadList" class="record-list"></div>
 

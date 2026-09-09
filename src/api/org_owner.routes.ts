@@ -59,6 +59,13 @@ import {
   sendOrgAthleteMessageFromOwner
 } from "./org_athlete_messaging_service.js";
 import {
+  OrgBroadcastMessagingError,
+  getOrgAthleteBroadcastReadStatus,
+  getOrgCoachBroadcastReadStatus,
+  sendOrgAthleteBroadcastMessage,
+  sendOrgCoachBroadcastMessage
+} from "./org_broadcast_messaging_service.js";
+import {
   MessageAttachmentError,
   attachmentUpload,
   sendAttachmentFile,
@@ -449,14 +456,51 @@ orgOwnerRouter.get(
   })
 );
 
+orgOwnerRouter.post(
+  "/organisations/:org_id/broadcast/coaches",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await sendOrgCoachBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/broadcast/coaches/:broadcast_id/read-status",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const status = await getOrgCoachBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/broadcast/athletes",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await sendOrgAthleteBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/broadcast/athletes/:broadcast_id/read-status",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const status = await getOrgAthleteBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
-// OrgCoachMessagingError/OrgAthleteMessagingError/MessageAttachmentError/
-// AttendanceEventGymRosterError/AttendanceEventError are not ApiError, so
-// without this router-scoped handler they would otherwise reach the
-// generic error mapper, which mistakes the string message for a Postgres
-// error code and returns a misleading 500 instead of the correct status
-// (mirrors the identical, deliberate pattern in product_admin.routes.ts).
-// MulterError is mapped the same way, for the same reason.
+// OrgCoachMessagingError/OrgAthleteMessagingError/OrgBroadcastMessagingError/
+// MessageAttachmentError/AttendanceEventGymRosterError/AttendanceEventError
+// are not ApiError, so without this router-scoped handler they would
+// otherwise reach the generic error mapper, which mistakes the string
+// message for a Postgres error code and returns a misleading 500 instead
+// of the correct status (mirrors the identical, deliberate pattern in
+// product_admin.routes.ts). MulterError is mapped the same way, for the
+// same reason.
 orgOwnerRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
@@ -466,6 +510,7 @@ orgOwnerRouter.use(
       error instanceof OrgVisibilityError ||
       error instanceof OrgCoachMessagingError ||
       error instanceof OrgAthleteMessagingError ||
+      error instanceof OrgBroadcastMessagingError ||
       error instanceof MessageAttachmentError ||
       error instanceof AttendanceEventGymRosterError ||
       error instanceof AttendanceEventError

@@ -28,7 +28,12 @@ const state = {
   selectedCounterpartId: null,
   selectedCounterpartName: "",
   selectedAttendanceEventId: null,
-  reschedulingOccurrenceId: null
+  reschedulingOccurrenceId: null,
+  orgHasSharedVisibility: false,
+  coachCounterparts: [],
+  athleteCounterparts: [],
+  lastBroadcastAudience: null,
+  lastBroadcastId: null
 };
 
 function el(id) {
@@ -1095,11 +1100,14 @@ async function refreshMessages() {
   // individual-mode org's visibility call below always resolves to
   // visibility_mode "individual" and simply yields no athlete counterparts
   // to message - matching the same boundary org_athlete_messaging_service.ts
-  // enforces server-side.
+  // enforces server-side. state.orgHasSharedVisibility drives the broadcast
+  // audience selector's "All athletes" option the same way.
   const athleteCounterparts = [];
+  let orgHasSharedVisibility = false;
   try {
     const visibilityResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-visibility`);
     if (visibilityResult.visibility.visibility_mode === "shared") {
+      orgHasSharedVisibility = true;
       for (const coach of visibilityResult.visibility.coaches) {
         for (const athlete of coach.athletes) {
           if (athlete.relationship_state === "accepted") {
@@ -1113,6 +1121,11 @@ async function refreshMessages() {
     console.error(error);
   }
 
+  state.coachCounterparts = coachCounterparts;
+  state.athleteCounterparts = athleteCounterparts;
+  state.orgHasSharedVisibility = orgHasSharedVisibility;
+  updateBroadcastAudienceAvailability();
+
   const coachThreadsByCoachId = new Map();
   for (const thread of Array.isArray(coachThreadsResult.threads) ? coachThreadsResult.threads : []) {
     coachThreadsByCoachId.set(thread.coach_user_id, thread);
@@ -1124,6 +1137,97 @@ async function refreshMessages() {
 
   renderThreadList(el("orgCoachThreadList"), buildCombinedThreadList(coachCounterparts, coachThreadsByCoachId), "coach");
   renderThreadList(el("orgAthleteThreadList"), buildCombinedThreadList(athleteCounterparts, athleteThreadsByAthleteId), "athlete");
+}
+
+// Kept separate from renderThreadList's counterpart names (which are only
+// current the moment refreshMessages() ran) - this reads state.*Counterparts
+// fresh each time it's called, so a broadcast sent moments after a roster
+// change still resolves the read-status list's display names correctly.
+function broadcastCounterpartName(audience, userId) {
+  const counterparts = audience === "coaches" ? state.coachCounterparts : state.athleteCounterparts;
+  return counterparts.find((entry) => entry.id === userId)?.name || userId;
+}
+
+function updateBroadcastAudienceAvailability() {
+  const athleteOption = el("orgBroadcastAudienceAthletesOption");
+  athleteOption.disabled = !state.orgHasSharedVisibility;
+  el("orgBroadcastAthleteHint").hidden = state.orgHasSharedVisibility;
+  if (!state.orgHasSharedVisibility && el("orgBroadcastAudience").value === "athletes") {
+    el("orgBroadcastAudience").value = "coaches";
+  }
+}
+
+function broadcastSendRoute(audience) {
+  return `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/broadcast/${audience}`;
+}
+
+function broadcastReadStatusRoute(audience, broadcastId) {
+  return `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/broadcast/${audience}/${encodeURIComponent(broadcastId)}/read-status`;
+}
+
+function renderBroadcastReadStatus(status, audience) {
+  const container = el("orgBroadcastReadStatus");
+  const entries = audience === "coaches" ? status.coaches : status.athletes;
+  const idKey = audience === "coaches" ? "coach_user_id" : "athlete_user_id";
+
+  container.hidden = entries.length === 0;
+  container.innerHTML = entries.map((entry) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(broadcastCounterpartName(audience, entry[idKey]))}</h3>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${entry.read ? "active" : "neutral"}">${entry.read ? "Read" : "Unread"}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshBroadcastReadStatus() {
+  if (!state.lastBroadcastId || !state.lastBroadcastAudience) return;
+  const status = await api("GET", broadcastReadStatusRoute(state.lastBroadcastAudience, state.lastBroadcastId));
+  el("orgBroadcastResult").textContent = `Sent to ${status.sent_count} ${state.lastBroadcastAudience === "coaches" ? "coach(es)" : "athlete(s)"}. Read by ${status.read_count} of ${status.sent_count}.`;
+  renderBroadcastReadStatus(status, state.lastBroadcastAudience);
+}
+
+async function sendBroadcast(event) {
+  event.preventDefault();
+  el("orgBroadcastError").hidden = true;
+  el("orgBroadcastResult").hidden = true;
+  el("orgBroadcastRefreshButton").hidden = true;
+  el("orgBroadcastReadStatus").hidden = true;
+
+  const audience = el("orgBroadcastAudience").value;
+  try {
+    const result = await api("POST", broadcastSendRoute(audience), { body_text: el("orgBroadcastText").value });
+    el("orgBroadcastForm").reset();
+
+    const label = audience === "coaches" ? "coach(es)" : "athlete(s)";
+    el("orgBroadcastResult").hidden = false;
+    el("orgBroadcastResult").textContent = `Sent to ${result.sent_count} ${label}.`;
+
+    if (result.sent_count > 0) {
+      state.lastBroadcastAudience = audience;
+      state.lastBroadcastId = result.broadcast_id;
+      el("orgBroadcastRefreshButton").hidden = false;
+      await refreshBroadcastReadStatus();
+    }
+    else {
+      state.lastBroadcastAudience = null;
+      state.lastBroadcastId = null;
+    }
+
+    // A broadcast lazily creates a real thread per recipient, same as any
+    // other first send - refresh the coach/athlete thread-list previews so
+    // their "No messages yet" placeholders and unread badges reflect that
+    // immediately, matching hideThreadDetailSection()'s own precedent.
+    await refreshMessages();
+  }
+  catch (error) {
+    el("orgBroadcastError").hidden = false;
+    el("orgBroadcastError").textContent = "Could not send that broadcast.";
+    console.error(error);
+  }
 }
 
 function showMessagesSection(orgId, orgName) {
@@ -1141,6 +1245,13 @@ function showMessagesSection(orgId, orgName) {
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
+  el("orgBroadcastForm").reset();
+  el("orgBroadcastError").hidden = true;
+  el("orgBroadcastResult").hidden = true;
+  el("orgBroadcastRefreshButton").hidden = true;
+  el("orgBroadcastReadStatus").hidden = true;
+  state.lastBroadcastAudience = null;
+  state.lastBroadcastId = null;
   refreshMessages().catch((error) => {
     el("orgMessagesError").hidden = false;
     el("orgMessagesError").textContent = "Could not load messages.";
@@ -1420,6 +1531,8 @@ function boot() {
   el("orgAttendanceRescheduleCancelButton").addEventListener("click", () => closeRescheduleForm());
   el("orgAttendanceCancelEventButton").addEventListener("click", () => cancelAttendanceEventFromDetail().catch(console.error));
   el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
+  el("orgBroadcastForm").addEventListener("submit", (event) => sendBroadcast(event).catch(console.error));
+  el("orgBroadcastRefreshButton").addEventListener("click", () => refreshBroadcastReadStatus().catch(console.error));
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));
 }

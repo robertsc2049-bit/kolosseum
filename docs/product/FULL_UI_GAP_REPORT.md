@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 318
+- implemented: 320
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -481,7 +481,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 15 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -496,6 +496,8 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `coach_org_roster_visibility` — Coach reads fellow coaches in a shared (team) org they're an active member of - individual (gym) orgs stay coach-private
 - `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only - each thread carries a live unread count for its viewer, cleared when that viewer opens it
 - `org_athlete_messaging` — Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only - each thread carries a live unread count for its owner/athlete viewer, cleared when that viewer opens it
+- `org_coach_broadcast_message` — Org owner sends the same message into every active coach's thread at once, with a live read-by-N-of-M receipt for that broadcast
+- `org_athlete_broadcast_message` — Org owner sends the same message into every accepted athlete's thread at once, gated to team (shared-visibility) orgs only, with a live read-by-N-of-M receipt for that broadcast
 - `athlete_org_context` — Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster
 - `org_owner_attendance_events` — Org owner creates a gym-wide attendance event (with no athlete picker - every currently-accepted athlete across every active coach is auto-invited server-side) for an individual-visibility ('gym') organisation they own, views full real identity and RSVP state on the roster for that one event, cancels it, and skips or reschedules a single occurrence - the fourth, narrowly-scoped exception to org_visibility_service.ts's gym-mode identity-hiding invariant
 
@@ -772,6 +774,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-75: implemented
 - FULL-UI-76: implemented
 - FULL-UI-77: implemented
+- FULL-UI-78: implemented
 
 ## Prohibited capabilities
 
