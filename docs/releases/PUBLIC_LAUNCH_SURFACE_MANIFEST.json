@@ -10,16 +10,16 @@
   },
   "sources": {
     "launch_00_boundary": "docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json",
-    "launch_00_boundary_blob_sha": "53736d3177f715673f86001f81b20896d2fb34c6",
+    "launch_00_boundary_blob_sha": "0b63e256b2f31f0b4a916c1f91582d5bcf169050",
     "ui_function_manifest": "product/ui/function_manifest.json",
-    "ui_function_manifest_blob_sha": "b020c1db272f2d75221c490a452452819f790f96",
+    "ui_function_manifest_blob_sha": "6c77536e6fb73928da399895fc8f305547f6f1ca",
     "full_ui_gap_report": "docs/product/FULL_UI_GAP_REPORT.md",
     "full_ui_ship_record": "docs/product/FULL_UI_25_SHIP_RECORD.json"
   },
   "closed_world": {
     "enabled": true,
     "expected_product_area_count": 35,
-    "expected_function_count": 317,
+    "expected_function_count": 318,
     "unknown_areas_fail": true,
     "unknown_functions_fail": true,
     "function_overrides": {}
@@ -125,6 +125,7 @@
     "function_ids": [
       "coach_profile_setup",
       "coach_terms",
+      "coach_accessibility_preferences",
       "subscription_state",
       "seat_allowance",
       "checkout_entry",
