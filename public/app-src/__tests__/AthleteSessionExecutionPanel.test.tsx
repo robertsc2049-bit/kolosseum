@@ -368,6 +368,41 @@ test("adding an extra set to an already-completed exercise posts EXTRA_SET_REPOR
   await waitFor(() => screen.getByText("Extra set logged."));
 });
 
+test("adding an extra set with a negative load (assisted exercise) posts EXTRA_SET_REPORT with a negative load_value", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      completed_exercises: [baseExercise({ exercise_id: "back_squat", display_name: "Back squat" })],
+      remaining_exercises: [baseExercise({ exercise_id: "bench_press", display_name: "Bench press" })],
+      current_step: { type: "EXERCISE", exercise: baseExercise({ exercise_id: "bench_press", display_name: "Bench press" }) }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Add extra set"));
+
+  fireEvent.click(screen.getByText("Add extra set"));
+  await waitFor(() => screen.getByText("Log extra set"));
+
+  fireEvent.change(screen.getByLabelText("Reps"), { target: { value: "3" } });
+  fireEvent.change(screen.getByLabelText("Weight (optional)"), { target: { value: "-20" } });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log extra set"));
+  });
+
+  await waitFor(() => assert.equal((lastEventBody as { type?: string } | null)?.type, "EXTRA_SET_REPORT"));
+  const posted = lastEventBody as { exercise_id?: string; reps?: number; load_value?: number; load_unit?: string } | null;
+  assert.equal(posted?.load_value, -20);
+  assert.equal(posted?.load_unit, "kg");
+
+  await waitFor(() => screen.getByText("Extra set logged."));
+});
+
 test("logging an extra set that is a personal record shows a PR badge alongside the confirmation", async () => {
   seedActiveSession("session_1");
   installMocks({

@@ -684,8 +684,8 @@ function ensureExtraSetReportShapeValid(event: unknown, summary: any): void {
 
   if (hasLoadValue) {
     const loadValue = obj.load_value;
-    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue <= 0) {
-      throw badRequest("Runtime event rejected (extra set report load_value must be a positive finite number)", {
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue === 0) {
+      throw badRequest("Runtime event rejected (extra set report load_value must be a non-zero finite number)", {
         failure_token: "phase6_runtime_extra_set_report_invalid_shape",
         cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load_value"
       });
@@ -757,8 +757,8 @@ function ensureExtraExerciseReportShapeValid(event: unknown, planned: PlannedSes
 
   if (hasLoadValue) {
     const loadValue = obj.load_value;
-    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue <= 0) {
-      throw badRequest("Runtime event rejected (extra exercise report load_value must be a positive finite number)", {
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue === 0) {
+      throw badRequest("Runtime event rejected (extra exercise report load_value must be a non-zero finite number)", {
         failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
         cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load_value"
       });

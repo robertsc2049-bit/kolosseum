@@ -197,6 +197,43 @@ function numberInRange(
   return normalised;
 }
 
+// Same shape as numberInRange, but bounds the value's magnitude rather than
+// the value itself - used only for fixed_weight, where a negative value is
+// meaningful (assisted exercises) and the floor/ceiling apply symmetrically
+// on either side of zero.
+function numberInSymmetricRange(
+  value: unknown,
+  minimumMagnitude: number,
+  maximumMagnitude: number,
+  reason: string
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    Math.abs(value) < minimumMagnitude ||
+    Math.abs(value) > maximumMagnitude
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+
+  const normalised =
+    Number(value.toFixed(3));
+
+  if (
+    Math.abs(
+      value - normalised
+    ) > 0.0000001
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      `${reason}_precision_invalid`
+    );
+  }
+
+  return normalised;
+}
+
 function cr10ValueInRange(
   value: unknown,
   reason: string
@@ -418,7 +455,7 @@ function loadingReferenceFromInput(
 
   if (loadMode === "fixed_weight") {
     const value =
-      numberInRange(
+      numberInSymmetricRange(
         workItem.weight_value,
         0.25,
         1000,
@@ -786,7 +823,7 @@ function loadingReferenceFromStored(
     return deepFreeze({
       type: "load",
       value:
-        numberInRange(
+        numberInSymmetricRange(
           raw.value,
           0.25,
           1000,

@@ -1049,6 +1049,64 @@ test(
       "weight_value_invalid"
     );
 
+    const assistedWeightItems =
+      mixedPrescriptionWorkItems(
+        exerciseIds.slice(
+          0,
+          4
+        )
+      );
+
+    assistedWeightItems[1] = {
+      ...assistedWeightItems[1],
+      weight_value: -20
+    };
+
+    const assistedWeight =
+      await request(
+        server.baseUrl,
+        "POST",
+        "/templates",
+        {
+          coach_user_id:
+            coachUserId,
+          template_version: 1,
+          template_name:
+            "Assisted Weight Template",
+          description:
+            "Negative (assisted) weight acceptance proof.",
+          activity_id:
+            "powerlifting",
+          weeks: [
+            {
+              week_id: "",
+              order_index: 1,
+              sessions: [
+                {
+                  session_id: "",
+                  order_index: 1,
+                  title:
+                    "Assisted Weight",
+                  coaching_notes:
+                    "",
+                  work_items:
+                    assistedWeightItems
+                }
+              ]
+            }
+          ],
+          updated_at_iso8601:
+            new Date()
+              .toISOString()
+        }
+      );
+
+    assertStatus(
+      assistedWeight,
+      201,
+      "assisted (negative) fixed weight"
+    );
+
     const unbalancedDraft =
       await request(
         server.baseUrl,

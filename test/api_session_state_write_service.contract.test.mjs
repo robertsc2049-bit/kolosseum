@@ -431,6 +431,44 @@ test("appendRuntimeEventMutation accepts EXTRA_SET_REPORT for a completed exerci
   assert.equal(rollbackCalls, 0);
 });
 
+test("appendRuntimeEventMutation accepts EXTRA_SET_REPORT with a negative load_value (assisted exercise)", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_set_assisted",
+    status: "completed",
+    planned_session: {
+      exercises: [{ exercise_id: "ex1", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: [],
+        completed_ids: ["ex1"],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const out = await appendRuntimeEventMutation("s_extra_set_assisted", {
+    type: "EXTRA_SET_REPORT",
+    exercise_id: "ex1",
+    reps: 8,
+    load_value: -20,
+    load_unit: "kg"
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_extra_set_assisted", seq: 1, is_pr: false });
+  assert.equal(insertedEvents.length, 1);
+  assert.equal(insertedEvents[0].event.load_value, -20);
+  assert.equal(insertedEvents[0].event.load_unit, "kg");
+  assert.equal(commitCalls, 1);
+  assert.equal(rollbackCalls, 0);
+});
+
 test("appendRuntimeEventMutation accepts EXTRA_SET_REPORT without load for a dropped exercise mid-session", async () => {
   resetState();
 
@@ -681,6 +719,40 @@ test("appendRuntimeEventMutation rejects EXTRA_SET_REPORT with load_value but no
   assert.equal(err.meta?.failure_token, "phase6_runtime_extra_set_report_invalid_shape");
 });
 
+test("appendRuntimeEventMutation rejects EXTRA_SET_REPORT with a zero load_value", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_set_zero_load",
+    status: "completed",
+    planned_session: {
+      exercises: [{ exercise_id: "ex1", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: [],
+        completed_ids: ["ex1"],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_extra_set_zero_load", { type: "EXTRA_SET_REPORT", exercise_id: "ex1", reps: 5, load_value: 0, load_unit: "kg" });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_extra_set_report_invalid_shape");
+});
+
 test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT for a catalog exercise not on the plan, even after the session is fully terminal", async () => {
   resetState();
 
@@ -717,6 +789,44 @@ test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT for a catalog exe
   assert.equal(insertedEvents[0].event.exercise_id, "front_squat");
   assert.equal(insertedEvents[0].event.reps, 8);
   assert.equal(insertedEvents[0].event.load_value, 100);
+  assert.equal(insertedEvents[0].event.load_unit, "kg");
+  assert.equal(commitCalls, 1);
+  assert.equal(rollbackCalls, 0);
+});
+
+test("appendRuntimeEventMutation accepts EXTRA_EXERCISE_REPORT with a negative load_value (assisted exercise)", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_extra_exercise_assisted",
+    status: "completed",
+    planned_session: {
+      exercises: [{ exercise_id: "back_squat", source: "program" }],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: [],
+        completed_ids: ["back_squat"],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const out = await appendRuntimeEventMutation("s_extra_exercise_assisted", {
+    type: "EXTRA_EXERCISE_REPORT",
+    exercise_id: "front_squat",
+    reps: 8,
+    load_value: -15,
+    load_unit: "kg"
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_extra_exercise_assisted", seq: 1, is_pr: false });
+  assert.equal(insertedEvents.length, 1);
+  assert.equal(insertedEvents[0].event.load_value, -15);
   assert.equal(insertedEvents[0].event.load_unit, "kg");
   assert.equal(commitCalls, 1);
   assert.equal(rollbackCalls, 0);
