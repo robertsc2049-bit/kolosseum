@@ -112,6 +112,7 @@
     "permitted_existing_function_ids": [
       "coach_profile_setup",
       "coach_terms",
+      "coach_accessibility_preferences",
       "subscription_state",
       "seat_allowance",
       "checkout_entry",

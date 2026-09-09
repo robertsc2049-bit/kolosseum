@@ -7,6 +7,8 @@ import {
   type Response
 } from "express";
 
+import { rateLimit } from "express-rate-limit";
+
 import {
   PRODUCT_SESSION_COOKIE,
   ProductAccountError,
@@ -18,6 +20,7 @@ import {
   acceptCoachOnboardingTerms,
   completeCoachOnboarding,
   getCoachOnboardingState,
+  saveCoachOnboardingAccessibilityPreferences,
   saveCoachOnboardingProfile
 } from "./coach_onboarding_service.js";
 
@@ -189,6 +192,48 @@ coachOnboardingRouter.post(
 
       const result =
         await acceptCoachOnboardingTerms(
+          token,
+          request.body
+        );
+
+      return response
+        .status(200)
+        .json(result);
+    }
+  )
+);
+
+// DEV NOTE: rate-limited (unlike the sibling /profile, /terms, /complete
+// mutation routes above, which predate this) because CodeQL's
+// js/missing-rate-limiting query flags newly-added authorising routes -
+// this keeps the new route from introducing a fresh instance of a gap
+// that already exists, unremediated, on its neighbours.
+const accessibilityPreferencesRateLimit =
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false
+  });
+
+coachOnboardingRouter.patch(
+  "/accessibility",
+  accessibilityPreferencesRateLimit,
+  asyncHandler(
+    async (
+      request,
+      response
+    ) => {
+      const token =
+        sessionToken(request);
+
+      assertMutationAuthorised(
+        request,
+        token
+      );
+
+      const result =
+        await saveCoachOnboardingAccessibilityPreferences(
           token,
           request.body
         );

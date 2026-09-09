@@ -33,9 +33,10 @@ function installMocks(options: {
   initialState?: ServerState;
   onSaveProfile?: (body: Record<string, unknown>) => ServerState;
   onAcceptTerms?: (body: Record<string, unknown>) => ServerState;
+  onSaveAccessibility?: (body: Record<string, unknown>) => ServerState;
   onComplete?: () => ServerState;
 }) {
-  const { initialState = baseState(), onSaveProfile, onAcceptTerms, onComplete } = options;
+  const { initialState = baseState(), onSaveProfile, onAcceptTerms, onSaveAccessibility, onComplete } = options;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
@@ -50,9 +51,18 @@ function installMocks(options: {
     if (path === "/account/coach-onboarding/terms") {
       const body = JSON.parse(String(init?.body ?? "{}"));
       const result = onAcceptTerms ? onAcceptTerms(body) : baseState({
-        current_stage: "review",
+        current_stage: "accessibility",
         terms_accepted: true,
         accepted_terms_version: body.terms_version
+      });
+      return jsonResponse(result);
+    }
+    if (path === "/account/coach-onboarding/accessibility") {
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      const result = onSaveAccessibility ? onSaveAccessibility(body) : baseState({
+        current_stage: "review",
+        terms_accepted: true,
+        accessibility_preferences: body.accessibility_preferences
       });
       return jsonResponse(result);
     }
@@ -66,6 +76,10 @@ function installMocks(options: {
 
 test.afterEach(() => {
   cleanup();
+  delete document.documentElement.dataset.a11yReducedMotion;
+  delete document.documentElement.dataset.a11yHighContrast;
+  delete document.documentElement.dataset.a11yLargerText;
+  delete document.documentElement.dataset.a11yScreenReaderOptimised;
 });
 
 test("shows the incomplete-onboarding status and the profile stage on first load", async () => {
@@ -143,13 +157,58 @@ test("accepting terms sends the current terms version and moves to the review st
   assert.ok(screen.getByText("Confirm coach onboarding"));
 });
 
-test("the review stage shows the saved profile and accepted terms, and completing shows the completed panel", async () => {
+test("saving accessibility preferences moves to the review stage and shows a confirmation", async () => {
+  installMocks({
+    initialState: baseState({ current_stage: "accessibility", terms_accepted: true })
+  });
+  render(<CoachOnboardingPanel />);
+  await screen.findByText("Presentation preferences");
+
+  fireEvent.click(screen.getByText("Higher contrast"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save accessibility preferences"));
+  });
+
+  await screen.findByText("Accessibility preferences saved.");
+  assert.ok(screen.getByText("Confirm coach onboarding"));
+});
+
+test("declared accessibility preferences are actually applied to the page immediately after saving", async () => {
+  // Same bug class as PR #865: a declared, validated, stored preference
+  // with no downstream effect. Must be visible on <html> right after
+  // save, not only after the next route resolution.
+  installMocks({
+    initialState: baseState({ current_stage: "accessibility", terms_accepted: true }),
+    onSaveAccessibility: (body) => baseState({
+      current_stage: "review",
+      terms_accepted: true,
+      accessibility_preferences: body.accessibility_preferences
+    })
+  });
+  render(<CoachOnboardingPanel />);
+  await screen.findByText("Presentation preferences");
+
+  fireEvent.click(screen.getByText("Reduce motion"));
+  fireEvent.click(screen.getByText("Screen-reader optimised"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save accessibility preferences"));
+  });
+
+  await screen.findByText("Accessibility preferences saved.");
+  assert.equal(document.documentElement.dataset.a11yReducedMotion, "true");
+  assert.equal(document.documentElement.dataset.a11yHighContrast, "false");
+  assert.equal(document.documentElement.dataset.a11yLargerText, "false");
+  assert.equal(document.documentElement.dataset.a11yScreenReaderOptimised, "true");
+});
+
+test("the review stage shows the saved profile, accepted terms and accessibility preferences, and completing shows the completed panel", async () => {
   installMocks({
     initialState: baseState({
       current_stage: "review",
       profile: { display_name: "Coach Review Test", email: "review@example.test" },
       terms_accepted: true,
-      accepted_terms_version: "terms_v3"
+      accepted_terms_version: "terms_v3",
+      accessibility_preferences: { reduced_motion: true, high_contrast: false, larger_text: false, screen_reader_optimised: false }
     }),
     onComplete: () => baseState({
       onboarding_status: "completed",
@@ -162,6 +221,7 @@ test("the review stage shows the saved profile and accepted terms, and completin
   await screen.findByText("Confirm coach onboarding");
   assert.ok(screen.getByText("Coach Review Test"));
   assert.ok(screen.getByText("terms_v3"));
+  assert.ok(screen.getByText("reduced motion"));
 
   await act(async () => {
     fireEvent.click(screen.getByText("Complete coach onboarding"));
@@ -190,11 +250,13 @@ test("completing onboarding navigates to the coach workspace route", async () =>
   window.location.hash = "";
 });
 
-test("the completed view keeps the profile form visible for editing, alongside the completed panel", async () => {
+test("the completed view keeps the profile and accessibility forms visible for editing, alongside the completed panel", async () => {
   installMocks({
     initialState: baseState({
       onboarding_status: "completed",
-      profile: { display_name: "Coach Completed", email: "completed@example.test" }
+      profile: { display_name: "Coach Completed", email: "completed@example.test" },
+      terms_accepted: true,
+      accessibility_preferences: { reduced_motion: true, high_contrast: false, larger_text: false, screen_reader_optimised: false }
     })
   });
   render(<CoachOnboardingPanel />);
@@ -202,6 +264,7 @@ test("the completed view keeps the profile form visible for editing, alongside t
 
   assert.ok(screen.getByText("Identity details"));
   assert.equal((screen.getByLabelText("Display name") as HTMLInputElement).value, "Coach Completed");
+  assert.ok(screen.getByText("Presentation preferences"));
 });
 
 test("a validation failure on saving the profile shows a mapped error and does not advance the stage", async () => {

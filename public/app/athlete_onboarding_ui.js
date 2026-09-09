@@ -15,6 +15,8 @@
 // is static. Browser state is presentation-only; completion and history
 // come from the server.
 
+import { applyAccessibilityPreferences as applySharedAccessibilityPreferences } from "./accessibility_preferences_ui.js";
+
 const STORAGE_KEY = "kolosseum.product.app.v1";
 const ROUTE = "#/athlete/onboarding";
 const RELOAD_KEY = "kolosseum.athlete_onboarding.reload_required";
@@ -51,31 +53,23 @@ async function request(method, path, body) {
 
 export const loadAthleteOnboardingState = () => request("GET", "/account/onboarding/");
 
-function accessibility(value = {}) {
-  return {
-    reduced_motion: value.reduced_motion === true,
-    high_contrast: value.high_contrast === true,
-    larger_text: value.larger_text === true,
-    screen_reader_optimised: value.screen_reader_optimised === true
-  };
-}
-
 // Applies the athlete's declared presentation preferences to the live page via
 // data attributes on <html>, matched by CSS in styles.css (accessibility) and
 // read directly by app.js's exercise-howto renderer (instruction density).
 // This is the only place a declared preference is allowed to change how
 // anything is styled or how much written content is shown - it never reads
-// or writes ability/safety/readiness fields. AthleteOnboardingPanel.tsx has
-// its own copy of this same function, applied immediately after a same-tab
-// confirm/save rather than waiting for the next route resolution.
+// or writes ability/safety/readiness fields. The 4 accessibility fields
+// themselves are delegated to the shared accessibility_preferences_ui.js
+// module (also used by coach onboarding) - this wrapper keeps its own name/
+// call site so it stays the file-local "declared preference has a real
+// downstream reader" proof point. AthleteOnboardingPanel.tsx/
+// useAthleteOnboarding.ts have their own React copy of this same wrapper
+// pattern, applied immediately after a same-tab confirm/save rather than
+// waiting for the next route resolution.
 function applyAccessibilityPreferences(fields) {
   if (typeof document === "undefined") return;
-  const a = accessibility(fields?.accessibility_preferences);
+  applySharedAccessibilityPreferences(fields?.accessibility_preferences);
   const root = document.documentElement;
-  root.dataset.a11yReducedMotion = String(a.reduced_motion);
-  root.dataset.a11yHighContrast = String(a.high_contrast);
-  root.dataset.a11yLargerText = String(a.larger_text);
-  root.dataset.a11yScreenReaderOptimised = String(a.screen_reader_optimised);
   root.dataset.instructionDensity = INSTRUCTION_DENSITIES.includes(fields?.instruction_density)
     ? fields.instruction_density
     : "standard";

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import {
   accessibilityLabel,
   accessibilityOf,
-  type AccessibilityPreferences,
+  type AccessibilityPreferences
+} from "../../utils/accessibilityPreferences";
+import {
   STAGE_TITLES,
   STAGES,
   useAthleteOnboarding
@@ -101,29 +104,6 @@ function ValidationErrors({ error }: { error: { message: string; payload: unknow
         <p>{error.message}</p>
       )}
     </div>
-  );
-}
-
-function AccessibilityCheckboxes({ value, onChange }: { value: AccessibilityPreferences; onChange: (next: AccessibilityPreferences) => void }) {
-  const rows: [keyof AccessibilityPreferences, string][] = [
-    ["reduced_motion", "Reduce motion"],
-    ["high_contrast", "Higher contrast"],
-    ["larger_text", "Larger text"],
-    ["screen_reader_optimised", "Screen-reader optimised"]
-  ];
-  return (
-    <>
-      {rows.map(([key, text]) => (
-        <label className="onboarding-choice" key={key}>
-          <input
-            type="checkbox"
-            checked={value[key]}
-            onChange={(event) => onChange({ ...value, [key]: event.target.checked })}
-          />
-          <span>{text}</span>
-        </label>
-      ))}
-    </>
   );
 }
 

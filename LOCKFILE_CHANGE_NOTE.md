@@ -202,3 +202,55 @@ This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 backend behaviour - the backend REST API surface is unchanged; React is
 purely a new consumer of the same existing routes.
+
+## Coach accessibility preferences: add express-rate-limit dependency
+
+Commit subject: feat(onboarding): add accessibility preferences to coach onboarding
+
+package-lock.json changed because a new direct dependency was added:
+
+- `express-rate-limit` (`^8.7.0`) added to `dependencies`.
+
+`express-rate-limit` is the standard Express rate-limiting middleware,
+applied only to the new `PATCH /account/coach-onboarding/accessibility`
+route added in this change, to satisfy CodeQL's `js/missing-rate-limiting`
+query on a newly-added authorising route. No other route in the codebase
+was modified. No other dependency versions were intentionally changed;
+any other lockfile movement is transitive resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour - it is purely additive.
+
+## Coach accessibility preferences: multer dependency audit refresh
+
+Commit subject: fix(deps): resolve multer high-severity advisory
+
+Production dependency audit totals before remediation:
+
+- high: 1;
+- critical: 0;
+- affected audit entries: multer.
+
+package-lock.json was refreshed through:
+
+`npm audit fix --package-lock-only --omit=dev --audit-level=high`
+
+- `multer` resolved version moved from `2.2.0` to `2.3.0`, within the
+  existing declared `^2.2.0` range in `package.json` - no direct
+  dependency declaration was added to, removed from, or changed in
+  `package.json` by this remediation.
+
+This advisory newly applied to the already-committed `2.2.0` pin between
+main's last green CI run and this PR's CI run - it predates and is
+unrelated to this PR's own change, but is fixed here because it blocks
+the same required CI dependency-audit gate this PR must pass through.
+
+Verified totals after remediation:
+
+- high: 0;
+- critical: 0.
+
+This refresh does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, runtime
+scope, or intended user-facing behaviour.

@@ -10,6 +10,10 @@ import {
   createBeta16Phase1DeclarationRecord
 } from "./beta16_app_path_service.js";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import {
+  type AccessibilityPreferences,
+  parseAccessibilityPreferences
+} from "./accessibility_preferences_service.js";
 
 type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -30,9 +34,6 @@ export const ATHLETE_INSTRUCTION_DENSITIES = Object.freeze([
   "minimal", "standard", "detailed"
 ] as const);
 
-const ACCESSIBILITY_KEYS = [
-  "reduced_motion", "high_contrast", "larger_text", "screen_reader_optimised"
-] as const;
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
   "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
@@ -48,7 +49,7 @@ const BETA_VERSION = "september_beta_2026";
 const JURISDICTION_VERSION = "jurisdiction_v1";
 const SCHEMA_VERSION = "full_ui_03c_v1";
 
-type Accessibility = Readonly<Record<(typeof ACCESSIBILITY_KEYS)[number], boolean>>;
+type Accessibility = AccessibilityPreferences;
 type Fields = Readonly<{
   activity_id?: string;
   execution_scope?: string;
@@ -149,20 +150,7 @@ export function validateAthleteInstructionDensity(value: unknown): string {
   return enumValue(value, ATHLETE_INSTRUCTION_DENSITIES, "instruction_density", "Choose an instruction-density preference.");
 }
 export function validateAthleteAccessibilityPreferences(value: unknown): Accessibility {
-  if (!record(value)) fail("accessibility_preferences", "Choose your accessibility preferences.");
-  for (const key of Object.keys(value)) {
-    if (!(ACCESSIBILITY_KEYS as readonly string[]).includes(key)) {
-      fail(`accessibility_preferences.${key}`, "This accessibility preference is not supported.");
-    }
-  }
-  const result = {} as Record<string, boolean>;
-  for (const key of ACCESSIBILITY_KEYS) {
-    if (typeof value[key] !== "boolean") {
-      fail(`accessibility_preferences.${key}`, "Select yes or no for this preference.");
-    }
-    result[key] = value[key] as boolean;
-  }
-  return Object.freeze(result) as Accessibility;
+  return parseAccessibilityPreferences(value, fail);
 }
 
 function stage(value: unknown): AthleteOnboardingStage {

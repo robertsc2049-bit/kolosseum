@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
+import { accessibilityLabel, accessibilityOf, type AccessibilityPreferences } from "../../utils/accessibilityPreferences";
 import { useCoachOnboarding } from "./useCoachOnboarding";
 
 // DEV NOTE: FULL-UI-04C coach onboarding profile/terms/completion view -
@@ -28,6 +30,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   coach_onboarding_profile_invalid: "Check the coach profile details.",
   coach_onboarding_profile_required: "Save the coach profile before accepting coach terms.",
   coach_terms_invalid: "The current coach terms must be explicitly accepted.",
+  coach_onboarding_accessibility_invalid: "Check the accessibility preferences.",
+  coach_onboarding_terms_required: "Accept coach terms before saving accessibility preferences.",
   coach_onboarding_incomplete: "Complete every coach onboarding step.",
   account_email_already_registered: "That email address is already registered."
 };
@@ -101,10 +105,40 @@ function TermsForm({ termsVersion, busy, onAccept }: { termsVersion: string; bus
   );
 }
 
-function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, busy, onComplete }: {
+function AccessibilityForm({ preferences, busy, onSave }: {
+  preferences: AccessibilityPreferences;
+  busy: boolean;
+  onSave: (input: JsonRecord) => void;
+}) {
+  const [value, setValue] = useState(preferences);
+
+  useEffect(() => {
+    setValue(preferences);
+  }, [preferences]);
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    onSave({ accessibility_preferences: value });
+  }
+
+  return (
+    <form className="panel form-panel" onSubmit={handleSubmit}>
+      <div>
+        <p className="eyebrow">Accessibility preferences</p>
+        <h3>Presentation preferences</h3>
+        <p className="muted">These control how the app looks and behaves for this account. They are not engine inputs.</p>
+      </div>
+      <AccessibilityCheckboxes value={value} onChange={setValue} />
+      <button className="button primary" type="submit" disabled={busy}>Save accessibility preferences</button>
+    </form>
+  );
+}
+
+function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, accessibilityPreferences, busy, onComplete }: {
   profile: JsonRecord;
   termsAccepted: boolean;
   acceptedTermsVersion: string;
+  accessibilityPreferences: AccessibilityPreferences;
   busy: boolean;
   onComplete: () => void;
 }) {
@@ -115,6 +149,7 @@ function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, busy, onCom
       <div className="commercial-fact-grid">
         <div className="commercial-fact"><span>Profile</span><strong>{clean(profile.display_name) || "Not saved"}</strong></div>
         <div className="commercial-fact"><span>Coach terms</span><strong>{termsAccepted ? acceptedTermsVersion : "Not accepted"}</strong></div>
+        <div className="commercial-fact"><span>Accessibility</span><strong>{accessibilityLabel(accessibilityPreferences)}</strong></div>
         <div className="commercial-fact"><span>Workspace</span><strong>Coach overview</strong></div>
       </div>
       <p className="muted">Completion grants access to existing coach product surfaces only. It does not grant registry, compile, legality or engine authority.</p>
@@ -167,7 +202,7 @@ function HistoryList({ items }: { items: JsonRecord[] }) {
 }
 
 export function CoachOnboardingPanel() {
-  const { loading, unavailableError, serverState, busy, validationError, refresh, saveProfile, acceptTerms, complete } = useCoachOnboarding();
+  const { loading, unavailableError, serverState, busy, validationError, refresh, saveProfile, acceptTerms, saveAccessibilityPreferences, complete } = useCoachOnboarding();
   const profileFormRef = useRef<HTMLFormElement>(null);
   const [confirmation, setConfirmation] = useState<string | null>(null);
 
@@ -187,6 +222,12 @@ export function CoachOnboardingPanel() {
     setConfirmation(null);
     const result = await acceptTerms();
     if (result) setConfirmation("Coach terms accepted.");
+  }
+
+  async function handleSaveAccessibilityPreferences(input: JsonRecord) {
+    setConfirmation(null);
+    const result = await saveAccessibilityPreferences(input);
+    if (result) setConfirmation("Accessibility preferences saved.");
   }
 
   async function handleComplete() {
@@ -217,6 +258,7 @@ export function CoachOnboardingPanel() {
   const stage = clean(serverState.current_stage) || "profile";
   const profile = serverState.profile && typeof serverState.profile === "object" ? (serverState.profile as JsonRecord) : {};
   const termsAccepted = serverState.terms_accepted === true;
+  const accessibilityPreferences = accessibilityOf(serverState.accessibility_preferences);
   const history = Array.isArray(serverState.history) ? (serverState.history as JsonRecord[]) : [];
 
   function handleEditProfile() {
@@ -237,11 +279,15 @@ export function CoachOnboardingPanel() {
       {stage === "terms" ? (
         <TermsForm termsVersion={clean(serverState.current_terms_version)} busy={busy} onAccept={handleAcceptTerms} />
       ) : null}
+      {(stage === "accessibility" || completed) ? (
+        <AccessibilityForm preferences={accessibilityPreferences} busy={busy} onSave={handleSaveAccessibilityPreferences} />
+      ) : null}
       {stage === "review" ? (
         <ReviewPanel
           profile={profile}
           termsAccepted={termsAccepted}
           acceptedTermsVersion={clean(serverState.accepted_terms_version)}
+          accessibilityPreferences={accessibilityPreferences}
           busy={busy}
           onComplete={handleComplete}
         />

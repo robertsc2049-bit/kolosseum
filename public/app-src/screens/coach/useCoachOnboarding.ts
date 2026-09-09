@@ -5,9 +5,11 @@ import {
   acceptCoachOnboardingTerms,
   completeCoachOnboarding,
   loadCoachOnboardingState,
+  saveCoachOnboardingAccessibilityPreferences,
   saveCoachOnboardingProfile
 } from "../../api/coachOnboardingClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
+import { applyAccessibilityPreferences } from "../../utils/accessibilityPreferences";
 
 // DEV NOTE: FULL-UI-04C coach onboarding profile/terms/completion - ported
 // from public/app/coach_onboarding_ui.js's state machine (state/busy
@@ -47,6 +49,7 @@ export function useCoachOnboarding() {
     setState((current) => ({ ...current, loading: true, unavailableError: null }));
     try {
       const serverState = await loadCoachOnboardingState();
+      applyAccessibilityPreferences(serverState.accessibility_preferences);
       setState({ loading: false, unavailableError: null, serverState, busy: false, validationError: null });
     }
     catch (error) {
@@ -101,6 +104,26 @@ export function useCoachOnboarding() {
     }
   }, [state.busy, state.serverState]);
 
+  const saveAccessibilityPreferences = useCallback(async (input: JsonRecord): Promise<JsonRecord | null> => {
+    if (state.busy) return null;
+    setState((current) => ({ ...current, busy: true, validationError: null }));
+    try {
+      const token = await csrfToken();
+      const serverState = await saveCoachOnboardingAccessibilityPreferences(input, token);
+      applyAccessibilityPreferences(serverState.accessibility_preferences);
+      setState((current) => ({ ...current, busy: false, serverState }));
+      return serverState;
+    }
+    catch (error) {
+      setState((current) => ({
+        ...current,
+        busy: false,
+        validationError: error instanceof ApiRequestError ? error : new ApiRequestError("coach_onboarding_request_failed", 0, null)
+      }));
+      return null;
+    }
+  }, [state.busy]);
+
   const complete = useCallback(async (): Promise<JsonRecord | null> => {
     if (state.busy) return null;
     setState((current) => ({ ...current, busy: true, validationError: null }));
@@ -120,5 +143,5 @@ export function useCoachOnboarding() {
     }
   }, [state.busy]);
 
-  return { ...state, refresh, saveProfile, acceptTerms, complete };
+  return { ...state, refresh, saveProfile, acceptTerms, saveAccessibilityPreferences, complete };
 }

@@ -8,6 +8,7 @@ import {
   updateAthleteOnboardingPreferences
 } from "../../api/athleteOnboardingClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
+import { applyAccessibilityPreferences as applySharedAccessibilityPreferences } from "../../utils/accessibilityPreferences";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported from public/app/athlete_onboarding_ui.js's state machine
@@ -39,41 +40,17 @@ export const STAGE_TITLES: Record<OnboardingStage, string> = {
 const RELOAD_KEY = "kolosseum.athlete_onboarding.reload_required";
 const INSTRUCTION_DENSITIES = ["minimal", "standard", "detailed"];
 
-export type AccessibilityPreferences = {
-  reduced_motion: boolean;
-  high_contrast: boolean;
-  larger_text: boolean;
-  screen_reader_optimised: boolean;
-};
-
-export function accessibilityOf(value: unknown): AccessibilityPreferences {
-  const record = (value ?? {}) as JsonRecord;
-  return {
-    reduced_motion: record.reduced_motion === true,
-    high_contrast: record.high_contrast === true,
-    larger_text: record.larger_text === true,
-    screen_reader_optimised: record.screen_reader_optimised === true
-  };
-}
-
-export function accessibilityLabel(value: unknown): string {
-  const chosen = Object.entries(accessibilityOf(value))
-    .filter(([, enabled]) => enabled)
-    .map(([key]) => key.replaceAll("_", " "));
-  return chosen.length ? chosen.join(", ") : "No additional presentation preferences";
-}
-
 // DEV NOTE: same effect as route_bootstrap.js's own copy (via
 // athlete_onboarding_ui.js's resolveAthleteOnboardingGate()) - applied here
 // too so the effect is visible immediately after a same-tab confirm/save,
-// without waiting for the next route resolution.
+// without waiting for the next route resolution. The 4 accessibility fields
+// themselves are delegated to the shared public/app-src/utils/
+// accessibilityPreferences.ts module (also used by coach onboarding) - this
+// wrapper keeps its own name/call sites so it stays the file-local
+// "declared preference has a real downstream reader" proof point.
 function applyAccessibilityPreferences(fields: JsonRecord | undefined) {
-  const a = accessibilityOf(fields?.accessibility_preferences);
+  applySharedAccessibilityPreferences(fields?.accessibility_preferences);
   const root = document.documentElement;
-  root.dataset.a11yReducedMotion = String(a.reduced_motion);
-  root.dataset.a11yHighContrast = String(a.high_contrast);
-  root.dataset.a11yLargerText = String(a.larger_text);
-  root.dataset.a11yScreenReaderOptimised = String(a.screen_reader_optimised);
   root.dataset.instructionDensity = INSTRUCTION_DENSITIES.includes(String(fields?.instruction_density ?? ""))
     ? String(fields?.instruction_density)
     : "standard";

@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 317
+- implemented: 318
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -64,12 +64,13 @@ Slice: FULL-UI-04
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `coach_profile_setup` — Create coach profile
 - `coach_terms` — Accept coach terms
+- `coach_accessibility_preferences` — Declare accessibility preferences
 - `subscription_state` — Display current subscription state
 - `seat_allowance` — Display seat allowance and usage
 - `checkout_entry` — Open checkout

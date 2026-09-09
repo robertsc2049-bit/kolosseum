@@ -26,12 +26,19 @@ import {
   updateProductAccountProfile
 } from "./product_account_service.js";
 
+import {
+  accessibilityPreferencesOf,
+  parseAccessibilityPreferences,
+  type AccessibilityPreferences
+} from "./accessibility_preferences_service.js";
+
 type JsonRecord =
   Record<string, unknown>;
 
 type CoachOnboardingEventType =
   | "coach_onboarding_profile_saved"
   | "coach_terms_accepted"
+  | "coach_accessibility_preferences_saved"
   | "coach_onboarding_completed";
 
 type CoachIdentity = Readonly<{
@@ -43,6 +50,7 @@ const COACH_ONBOARDING_EVENT_TYPES =
   Object.freeze([
     "coach_onboarding_profile_saved",
     "coach_terms_accepted",
+    "coach_accessibility_preferences_saved",
     "coach_onboarding_completed"
   ] as const);
 
@@ -250,6 +258,32 @@ export function validateCoachTermsInput(
     accepted: true,
     terms_version:
       CURRENT_TERMS_VERSION
+  });
+}
+
+export function validateCoachOnboardingAccessibilityInput(
+  inputValue: unknown
+): Readonly<{ accessibility_preferences: AccessibilityPreferences }> {
+  const input = assertExactKeys(
+    inputValue,
+    [
+      "accessibility_preferences"
+    ]
+  );
+
+  const accessibilityPreferences = parseAccessibilityPreferences(
+    input.accessibility_preferences,
+    (field, message) => {
+      throw new CoachOnboardingError(
+        "coach_onboarding_accessibility_invalid",
+        422,
+        { [field]: message }
+      );
+    }
+  );
+
+  return Object.freeze({
+    accessibility_preferences: accessibilityPreferences
   });
 }
 
@@ -531,6 +565,12 @@ async function reconstructedState(
       );
     }) ?? null;
 
+  const accessibilityEvent =
+    latestEvent(
+      events,
+      "coach_accessibility_preferences_saved"
+    );
+
   const completionEvent =
     latestEvent(
       events,
@@ -546,12 +586,16 @@ async function reconstructedState(
   const termsAccepted =
     Boolean(termsEvent);
 
+  const accessibilitySaved =
+    Boolean(accessibilityEvent);
+
   const completionPersisted =
     Boolean(completionEvent);
 
   const completed =
     profileSaved &&
     termsAccepted &&
+    accessibilitySaved &&
     completionPersisted;
 
   const currentStage =
@@ -561,7 +605,9 @@ async function reconstructedState(
         ? "profile"
         : !termsAccepted
           ? "terms"
-          : "review";
+          : !accessibilitySaved
+            ? "accessibility"
+            : "review";
 
   return Object.freeze({
     ok: true,
@@ -576,6 +622,14 @@ async function reconstructedState(
       profileSaved,
     terms_accepted:
       termsAccepted,
+    accessibility_saved:
+      accessibilitySaved,
+    accessibility_preferences:
+      accessibilityPreferencesOf(
+        isRecord(accessibilityEvent?.event_payload)
+          ? accessibilityEvent?.event_payload.accessibility_preferences
+          : null
+      ),
     completion_persisted:
       completionPersisted,
     current_terms_version:
@@ -778,6 +832,57 @@ acceptCoachOnboardingTerms(
 }
 
 export async function
+saveCoachOnboardingAccessibilityPreferences(
+  rawSessionToken: string,
+  inputValue: unknown
+): Promise<Readonly<JsonRecord>> {
+  const identity =
+    await coachIdentity(
+      rawSessionToken
+    );
+
+  const input =
+    validateCoachOnboardingAccessibilityInput(
+      inputValue
+    );
+
+  const current =
+    await reconstructedState(
+      identity
+    );
+
+  if (
+    current.terms_accepted !==
+    true
+  ) {
+    throw new CoachOnboardingError(
+      "coach_onboarding_terms_required",
+      422,
+      {
+        terms:
+          "Accept coach terms before saving accessibility preferences."
+      }
+    );
+  }
+
+  await appendEvent(
+    identity.user_id,
+    "coach_accessibility_preferences_saved",
+    {
+      accessibility_preferences:
+        input.accessibility_preferences,
+      product_account_state_only:
+        true,
+      engine_visible: false
+    }
+  );
+
+  return reconstructedState(
+    identity
+  );
+}
+
+export async function
 completeCoachOnboarding(
   rawSessionToken: string,
   inputValue: unknown
@@ -813,6 +918,14 @@ completeCoachOnboarding(
   ) {
     fieldErrors.terms =
       "Accept the current coach terms.";
+  }
+
+  if (
+    current.accessibility_saved !==
+    true
+  ) {
+    fieldErrors.accessibility =
+      "Save accessibility preferences.";
   }
 
   if (
