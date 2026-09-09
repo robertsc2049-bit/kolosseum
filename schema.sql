@@ -1436,6 +1436,90 @@ ON product_org_owner_sessions (
   expires_at DESC
 );
 
+-- Org-owner self-service closure/GDPR data rights. Mirrors
+-- product_account_closure_requests/data_export_requests/data_deletion_requests
+-- exactly (same columns, same CHECK constraints), but FK'd to
+-- product_org_owner_accounts instead of product_accounts - an org owner is
+-- never a row in that table, by the same physical-separation design already
+-- documented above.
+CREATE TABLE IF NOT EXISTS org_owner_closure_requests (
+  closure_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  request_state text NOT NULL
+    CHECK (
+      request_state IN (
+        'requested',
+        'completed',
+        'cancelled'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  completed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_closure_requests_user_idx
+ON org_owner_closure_requests(
+  user_id,
+  requested_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS org_owner_data_export_requests (
+  export_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (
+      status IN (
+        'pending',
+        'ready',
+        'expired',
+        'failed'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  ready_at timestamptz,
+  expires_at timestamptz,
+  export_payload jsonb,
+  export_payload_hash text,
+  included_category_counts jsonb,
+  downloaded_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_data_export_requests_user_idx
+ON org_owner_data_export_requests(
+  user_id,
+  requested_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS org_owner_data_deletion_requests (
+  deletion_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  reason_code text NOT NULL,
+  queue_status text NOT NULL DEFAULT 'queued_for_review',
+  request_hash text NOT NULL,
+  retained_records jsonb NOT NULL DEFAULT '[]'::jsonb,
+  retention_boundary jsonb NOT NULL,
+  client_request_id text NOT NULL,
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, client_request_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_data_deletion_requests_user_idx
+ON org_owner_data_deletion_requests(
+  user_id,
+  requested_at DESC
+);
+
 CREATE TABLE IF NOT EXISTS product_organisations (
   org_id        TEXT PRIMARY KEY,
   owner_user_id TEXT NOT NULL

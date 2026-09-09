@@ -5956,6 +5956,160 @@
           }
         },
         {
+          "function_id": "org_owner_account_closure",
+          "label": "Org owner requests self-service closure of their own owner account - a synchronous, non-cascading state flip; organisation(s) they own are untouched",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/closure"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_request",
+          "label": "Org owner requests a personal-data export covering their account, owned organisations, coach memberships, sent messages and audit records",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_status",
+          "label": "Display org owner export status",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_download",
+          "label": "Download available org owner export",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export/:export_request_id/download"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_review",
+          "label": "Org owner reviews deletion consequences before confirming - which of their own records would be retained pending audit-integrity review",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion/preview"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_confirm",
+          "label": "Org owner confirms a deletion request, queuing it for review - never an immediate hard delete",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_status",
+          "label": "Display org owner deletion-request status",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "athlete_org_context",
           "label": "Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster",
           "actors": [
@@ -7742,6 +7896,10 @@
     },
     {
       "slice_id": "FULL-UI-78",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-79",
       "state": "implemented"
     }
   ],

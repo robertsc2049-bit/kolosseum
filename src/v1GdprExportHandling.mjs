@@ -15,7 +15,8 @@ export const GDPR_EXPORT_ALLOWED_REQUEST_TYPES = Object.freeze([
 
 export const GDPR_EXPORT_ALLOWED_ACTOR_TYPES = Object.freeze([
   "athlete",
-  "coach"
+  "coach",
+  "org_owner"
 ]);
 
 export const GDPR_EXPORT_ALLOWED_INPUT_KEYS = Object.freeze([
@@ -45,7 +46,11 @@ export const GDPR_EXPORT_ALLOWED_DATA_CATEGORIES = Object.freeze([
   "habit_completions",
   "device_connections",
   "device_metric_entries",
-  "athlete_goals"
+  "athlete_goals",
+  "organisations_owned",
+  "org_coach_memberships",
+  "org_messages_sent",
+  "org_audit_records"
 ]);
 
 export const GDPR_EXPORT_COPY_IDS = Object.freeze([

@@ -66,6 +66,54 @@
       </div>
     </section>
 
+    <section id="orgAccountSection" class="panel" hidden>
+      <p class="eyebrow">Account</p>
+      <h2>Data rights &amp; account closure</h2>
+
+      <h3>Data export</h3>
+      <p class="muted small">Download a copy of your account, organisation, coach-membership, sent-message and audit data.</p>
+      <div class="button-row">
+        <button id="orgAccountExportRequestButton" class="button secondary" type="button">Request data export</button>
+      </div>
+      <p id="orgAccountExportResult" class="muted small" hidden></p>
+      <div id="orgAccountExportList" class="record-list"></div>
+      <p id="orgAccountExportError" class="muted small" hidden></p>
+
+      <h3>Delete my data</h3>
+      <div class="button-row">
+        <button id="orgAccountDeletionReviewButton" class="button secondary" type="button">Review deletion consequences</button>
+      </div>
+      <div id="orgAccountDeletionReview" hidden>
+        <p id="orgAccountDeletionNotice" class="muted small"></p>
+        <div id="orgAccountDeletionRetentionList" class="record-list"></div>
+        <form id="orgAccountDeletionConfirmForm">
+          <label class="field">
+            <span>Type DELETE to confirm</span>
+            <input id="orgAccountDeletionConfirmText" type="text" autocomplete="off" required />
+          </label>
+          <div class="button-row">
+            <button class="button danger" type="submit">Request deletion</button>
+          </div>
+        </form>
+      </div>
+      <p id="orgAccountDeletionResult" class="muted small" hidden></p>
+      <div id="orgAccountDeletionList" class="record-list"></div>
+      <p id="orgAccountDeletionError" class="muted small" hidden></p>
+
+      <h3>Close account</h3>
+      <p class="muted small">This closes your own owner account. Organisations you own are not deleted or handed off automatically.</p>
+      <form id="orgAccountClosureForm">
+        <label class="field">
+          <span>Type CLOSE to confirm</span>
+          <input id="orgAccountClosureConfirmText" type="text" autocomplete="off" required />
+        </label>
+        <div class="button-row">
+          <button class="button danger" type="submit">Close account</button>
+        </div>
+      </form>
+      <p id="orgAccountClosureError" class="muted small" hidden></p>
+    </section>
+
     <section id="orgListSection" class="panel" hidden>
       <p class="eyebrow">Organisations</p>
       <h2>Your organisations</h2>
