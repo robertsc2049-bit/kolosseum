@@ -14504,8 +14504,6 @@
           "difficulty_tier": "advanced",
           "joint_stress_tags": [
             "shoulder",
-            "hip",
-            "knee",
             "elbow"
           ],
           "tempo_capability": "tempo",
@@ -14656,7 +14654,6 @@
           "difficulty_tier": "advanced",
           "joint_stress_tags": [
             "shoulder",
-            "knee",
             "elbow"
           ],
           "tempo_capability": "not_applicable",
@@ -14755,8 +14752,6 @@
           "equipment_tier": "TIER_4",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder",
-            "lumbar_low",
             "hip"
           ],
           "tempo_capability": "tempo",
@@ -14949,7 +14944,6 @@
           "equipment_tier": "TIER_4",
           "difficulty_tier": "intermediate",
           "joint_stress_tags": [
-            "shoulder",
             "hip",
             "knee",
             "ankle"
@@ -41043,10 +41037,10 @@
           "exercise_id": "thruster",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41079,10 +41073,10 @@
           "exercise_id": "power_clean",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41115,10 +41109,10 @@
           "exercise_id": "snatch",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41151,10 +41145,10 @@
           "exercise_id": "push_jerk",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41187,11 +41181,11 @@
           "exercise_id": "muscle_up",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "toes_to_bar__crossfit__training": {
@@ -41211,11 +41205,11 @@
           "exercise_id": "toes_to_bar",
           "activity_id": "crossfit",
           "activity_context": "testing",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "toes_to_bar__crossfit__competition": {
@@ -41223,11 +41217,11 @@
           "exercise_id": "toes_to_bar",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "double_under__crossfit__training": {
@@ -41259,11 +41253,11 @@
           "exercise_id": "double_under",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "rope_climb__crossfit__training": {
@@ -41295,10 +41289,10 @@
           "exercise_id": "rope_climb",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41331,10 +41325,10 @@
           "exercise_id": "handstand_push_up",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
@@ -41367,11 +41361,11 @@
           "exercise_id": "burpee",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "air_squat__crossfit__training": {
@@ -41403,11 +41397,11 @@
           "exercise_id": "air_squat",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "pull_up__crossfit__training": {
@@ -41439,11 +41433,11 @@
           "exercise_id": "pull_up",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "curl_up__crossfit__training": {
@@ -41463,11 +41457,11 @@
           "exercise_id": "curl_up",
           "activity_id": "crossfit",
           "activity_context": "testing",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "curl_up__crossfit__competition": {
@@ -41475,11 +41469,11 @@
           "exercise_id": "curl_up",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "dumbbell_overhead_press__crossfit__training": {
@@ -41511,11 +41505,11 @@
           "exercise_id": "dumbbell_overhead_press",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "kettlebell_deadlift__crossfit__training": {
@@ -41547,11 +41541,11 @@
           "exercise_id": "kettlebell_deadlift",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "bike_ergometer__crossfit__training": {
@@ -41583,11 +41577,11 @@
           "exercise_id": "bike_ergometer",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "pike_push_up__crossfit__training": {
@@ -41619,11 +41613,11 @@
           "exercise_id": "pike_push_up",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "box_jump__crossfit__training": {
@@ -41655,11 +41649,11 @@
           "exercise_id": "box_jump",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "goblet_squat__crossfit__training": {
@@ -41691,11 +41685,11 @@
           "exercise_id": "goblet_squat",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         }
       }
