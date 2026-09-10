@@ -132,6 +132,40 @@
     </div>
   </section>
 
+  <section id="orgOwnerAccountSearchSection" hidden>
+    <h2>Org owner account search</h2>
+    <form id="orgOwnerAccountSearchForm">
+      <input id="orgOwnerAccountSearchQuery" type="text" placeholder="Search by user id, email or name" />
+      <button type="submit" class="primary">Search</button>
+    </form>
+    <div class="table-scroll">
+      <table id="orgOwnerAccountSearchTable">
+        <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>State</th></tr></thead>
+        <tbody id="orgOwnerAccountSearchResults"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="orgOwnerAccountDetailSection" hidden>
+    <h2>Org owner account detail: <span id="orgOwnerAccountDetailUserId"></span></h2>
+    <p>State: <strong id="orgOwnerAccountDetailState"></strong></p>
+    <p>Email: <strong id="orgOwnerAccountDetailEmail"></strong></p>
+
+    <div class="row-actions">
+      <button id="orgOwnerAccountToggleStateButton" type="button">Toggle active/suspended</button>
+      <button id="orgOwnerAccountToggleStateConfirmButton" type="button" class="confirm" hidden>Confirm state change</button>
+    </div>
+    <p id="orgOwnerAccountActionResult" class="muted" hidden></p>
+
+    <h3>Organisations owned</h3>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Org ID</th><th>Name</th><th>State</th><th>Seat limit</th><th>Visibility</th></tr></thead>
+        <tbody id="orgOwnerOrganisationsOwned"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section id="entitlementSection" hidden>
     <h2>Coach entitlement and payment review</h2>
     <label>Search entitlement records<br /><input id="commercialRecordsSearch" type="search" placeholder="User ID, record type or billing state" /></label>
@@ -170,6 +204,26 @@
       <table>
         <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
         <tbody id="deletionRequestsList"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="orgOwnerDataRightsReviewSection" hidden>
+    <h2>Org owner export-request review</h2>
+    <label>Search export requests<br /><input id="orgOwnerExportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
+    <div class="table-scroll table-scroll--wide">
+      <table>
+        <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
+        <tbody id="orgOwnerExportRequestsList"></tbody>
+      </table>
+    </div>
+
+    <h2>Org owner deletion-request review</h2>
+    <label>Search deletion requests<br /><input id="orgOwnerDeletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
+        <tbody id="orgOwnerDeletionRequestsList"></tbody>
       </table>
     </div>
   </section>

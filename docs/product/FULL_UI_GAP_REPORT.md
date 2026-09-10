@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 327
+- implemented: 330
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -460,7 +460,7 @@ Slice: FULL-UI-21
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -474,6 +474,9 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `admin_data_requests` — Review export and deletion requests, searchable by request ID, user ID, status or reason
 - `admin_audit_action` — Record operational action audit, searchable by actor, action type, target or correlation id
 - `admin_no_engine_override` — Prevent admin engine override
+- `admin_org_owner_account_search` — Search org owner accounts and review one account's identity and organisations owned
+- `admin_org_owner_account_state` — Change an org owner account's state between active and suspended, with an audited before/after record
+- `admin_org_owner_data_requests` — Review org owner GDPR export and deletion requests
 
 ### Organisation owner billing and roster (v1 shell)
 
@@ -783,6 +786,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-77: implemented
 - FULL-UI-78: implemented
 - FULL-UI-79: implemented
+- FULL-UI-80: implemented
 
 ## Prohibited capabilities
 
