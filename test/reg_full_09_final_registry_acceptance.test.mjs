@@ -73,9 +73,10 @@ test("REG-FULL-09 reports production totals from the centralized accepted-count 
     general_strength: 3,
     rugby_union: 4,
     strongman: 3,
-    hyrox: 3
+    hyrox: 3,
+    crossfit: 3
   });
-  assert.equal(c.low_equipment_template_count, 3);
+  assert.equal(c.low_equipment_template_count, 4);
   assert.equal(c.programme_template_coverage_gap_count, 0);
   assert.equal(c.substitution_edge_count, expectedCounts.substitution_edge_count);
   assert.equal(c.substitution_source_count, expectedCounts.substitution_source_count);
