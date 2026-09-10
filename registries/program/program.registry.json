@@ -47,6 +47,16 @@
         "deadlift",
         "farmers_carry"
       ]
+    },
+    {
+      "activity_id": "crossfit",
+      "template_id": "PROGRAM_CROSSFIT_V1",
+      "exercise_eligibility": [
+        "thruster",
+        "power_clean",
+        "toes_to_bar",
+        "pull_up"
+      ]
     }
   ]
 }
