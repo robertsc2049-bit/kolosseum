@@ -129,6 +129,7 @@ No additional status values are permitted.
 
 ## Derivation rules
 
+- `run_id` = `session_id` (no separate engine-run identity is currently tracked at the session level; reusing the session's own id keeps this field present and stable rather than inferring or fabricating one)
 - `prescribed_items_total` = total prescribed executable work items in session truth
 - `prescribed_items_completed` = count of prescribed work items completed in runtime truth
 - `prescribed_items_skipped` = count of prescribed work items skipped or dropped in runtime truth

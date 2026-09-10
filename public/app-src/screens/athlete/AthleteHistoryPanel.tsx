@@ -63,7 +63,7 @@ type DraftFilters = {
 const EMPTY_FILTERS: DraftFilters = { status: "", dateFrom: "", dateTo: "", activityId: "", templateId: "", eventId: "" };
 
 export function AthleteHistoryPanel() {
-  const { loading, error, sessions, unfilteredSessions, selectedSessionId, detail, detailVideoSubmissions, detailLoading, detailError, applyFilters, clearFilters, refresh, openDetail, closeDetail } = useTrainingHistory();
+  const { loading, error, sessions, unfilteredSessions, selectedSessionId, detail, detailVideoSubmissions, detailSummary, detailLoading, detailError, applyFilters, clearFilters, refresh, openDetail, closeDetail } = useTrainingHistory();
   const [draft, setDraft] = useState<DraftFilters>(EMPTY_FILTERS);
 
   const filterOptions = useMemo(() => {
@@ -250,6 +250,17 @@ export function AthleteHistoryPanel() {
                 <div><span>Assignment</span><strong>{String(assignment?.assignment_id || "Not recorded")}</strong></div>
                 <div><span>Event</span><strong>{String(event?.event_name || "No linked event")}</strong></div>
               </div>
+
+              {detailSummary ? (
+                <div className="history-facts">
+                  <div><span>Items completed</span><strong>{String(detailSummary.prescribed_items_completed)}</strong></div>
+                  <div><span>Items skipped</span><strong>{String(detailSummary.prescribed_items_skipped)}</strong></div>
+                  <div><span>Items remaining</span><strong>{String(detailSummary.prescribed_items_remaining)}</strong></div>
+                  <div><span>Splits recorded</span><strong>{String(detailSummary.split_event_count)}</strong></div>
+                  <div><span>Return - continue</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
+                  <div><span>Return - skip</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
+                </div>
+              ) : null}
 
               <div className="panel-header"><div><p className="eyebrow">Planned versus recorded</p><h4>Exercises</h4></div></div>
               <div>

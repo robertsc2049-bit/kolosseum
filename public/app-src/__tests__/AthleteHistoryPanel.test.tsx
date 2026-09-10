@@ -26,9 +26,10 @@ function installMocks(options: {
   filteredSessions?: Record<string, unknown>[];
   detail?: Record<string, unknown>;
   submissions?: Record<string, unknown>[];
+  summary?: Record<string, unknown>;
   historyFails?: boolean;
 }) {
-  const { sessions = [], filteredSessions, detail, submissions = [], historyFails = false } = options;
+  const { sessions = [], filteredSessions, detail, submissions = [], summary, historyFails = false } = options;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
@@ -43,6 +44,9 @@ function installMocks(options: {
       return jsonResponse({ ok: true, sessions: hasFilters && filteredSessions ? filteredSessions : sessions });
     }
     if (path.startsWith("/video-feedback/submissions")) return jsonResponse({ ok: true, submissions });
+    if (/^\/sessions\/[^/]+\/summary$/u.test(path)) {
+      return summary ? jsonResponse(summary) : jsonResponse({ error: "not_found" }, false, 404);
+    }
     return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
   }) as typeof fetch;
 }
@@ -241,6 +245,51 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
   });
 
   assert.equal(screen.queryByText("Back Squat"), null);
+});
+
+test("opening a session shows the neutral session summary facts fetched from GET /sessions/:sessionId/summary", async () => {
+  installMocks({
+    sessions: [{ session_id: "s1", execution_status: "in_progress", created_at: "2026-01-05T10:00:00.000Z" }],
+    detail: {
+      session_id: "s1",
+      execution_status: "in_progress",
+      created_at: "2026-01-05T10:00:00.000Z",
+      exercises: [],
+      provenance: {},
+      split_return_events: []
+    },
+    summary: {
+      session_id: "s1",
+      run_id: "s1",
+      status: "in_progress",
+      prescribed_items_total: 8,
+      prescribed_items_completed: 5,
+      prescribed_items_skipped: 2,
+      prescribed_items_remaining: 1,
+      extra_work_event_count: 3,
+      split_event_count: 4,
+      return_continue_count: 6,
+      return_skip_count: 0,
+      runtime_event_count: 9,
+      started_at_utc: "2026-01-05T10:05:00.000Z",
+      completed_at_utc: null
+    }
+  });
+
+  render(<AthleteHistoryPanel />);
+  await waitFor(() => screen.getByText("Training session"));
+
+  await act(async () => {
+    document.querySelector(".record-card")!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+
+  await waitFor(() => screen.getByText("5"));
+  const factValues = Array.from(document.querySelectorAll(".history-facts strong")).map((el) => el.textContent);
+  assert.deepEqual(
+    factValues.slice(-6),
+    ["5", "2", "1", "4", "6", "0"],
+    "prescribed_items_completed/skipped/remaining, split_event_count, return_continue_count and return_skip_count should all render in order"
+  );
 });
 
 test("shows a PR badge only on the extra set and added exercise that were actually a personal record", async () => {
