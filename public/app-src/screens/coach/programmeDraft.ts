@@ -434,6 +434,20 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 rpe_value: workItem.rpe_value,
                 borg_value: workItem.borg_value,
                 cr10_value: workItem.cr10_value,
+                // templateRecordToDraft() re-derives load_mode from a nested
+                // loading_reference (matching the real persisted record
+                // shape), not from these flat fields - without this, the
+                // draft -> record -> draft round trip programmeActivationIssues()
+                // does internally would silently reset every work item's
+                // load_mode to percent_1rm before any load-mode-dependent
+                // check (e.g. a complex's same-fixed-weight rule) ever runs.
+                loading_reference:
+                  workItem.load_mode === "fixed_weight" ? { type: "load", value: workItem.weight_value, unit: workItem.weight_unit }
+                  : workItem.load_mode === "bodyweight" ? { type: "bodyweight" }
+                  : workItem.load_mode === "rpe" ? { type: "rpe", value: workItem.rpe_value }
+                  : workItem.load_mode === "borg" ? { type: "borg", value: workItem.borg_value }
+                  : workItem.load_mode === "cr10" ? { type: "cr10", value: workItem.cr10_value }
+                  : { type: "percent_1rm", value: workItem.percent_1rm },
                 rest_seconds: workItem.rest_seconds,
                 role: workItem.role,
                 coaching_notes: workItem.coaching_notes,

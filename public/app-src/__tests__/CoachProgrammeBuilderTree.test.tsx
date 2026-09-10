@@ -328,6 +328,56 @@ test("a grouped work item shows the grouping-type select and an Ungroup button, 
   assert.equal(screen.queryByText("Group with next"), null);
 });
 
+test("the grouping-type select offers Complex, AMRAP, EMOM and For time alongside the existing Superset/Circuit options", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ group_id: "group_1", group_type: "superset" }));
+
+  const groupTypeSelect = container.querySelector('select[data-field="group_type"]') as HTMLSelectElement;
+  const optionValues = [...groupTypeSelect.querySelectorAll("option")].map((option) => option.getAttribute("value"));
+  assert.deepEqual(optionValues, ["superset", "circuit", "complex", "amrap", "emom", "for_time"]);
+});
+
+test("a complex-grouped work item shows informational same-weight text, not a new numeric input", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ group_id: "group_1", group_type: "complex" }));
+
+  assert.ok(screen.getByText(/complex: every exercise in this group must use the same fixed weight/iu));
+  assert.equal(container.querySelector('input[data-field="group_time_cap_seconds"]'), null);
+  assert.equal(container.querySelector('input[data-field="group_round_seconds"]'), null);
+});
+
+test("an amrap-grouped work item shows a shared time-cap input", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ group_id: "group_1", group_type: "amrap", group_time_cap_seconds: 600 }));
+
+  const timeCapInput = container.querySelector('input[data-field="group_time_cap_seconds"]') as HTMLInputElement;
+  assert.ok(timeCapInput);
+  assert.equal(timeCapInput.value, "600");
+  assert.equal(container.querySelector('input[data-field="group_round_seconds"]'), null);
+});
+
+test("a for_time-grouped work item also shows the shared time-cap input", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ group_id: "group_1", group_type: "for_time", group_time_cap_seconds: 480 }));
+
+  const timeCapInput = container.querySelector('input[data-field="group_time_cap_seconds"]') as HTMLInputElement;
+  assert.ok(timeCapInput);
+  assert.equal(timeCapInput.value, "480");
+});
+
+test("an emom-grouped work item shows round-length and total-rounds inputs instead of a time cap", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ group_id: "group_1", group_type: "emom", group_round_seconds: 60, group_total_rounds: 10 }));
+
+  const roundSecondsInput = container.querySelector('input[data-field="group_round_seconds"]') as HTMLInputElement;
+  const totalRoundsInput = container.querySelector('input[data-field="group_total_rounds"]') as HTMLInputElement;
+  assert.ok(roundSecondsInput);
+  assert.ok(totalRoundsInput);
+  assert.equal(roundSecondsInput.value, "60");
+  assert.equal(totalRoundsInput.value, "10");
+  assert.equal(container.querySelector('input[data-field="group_time_cap_seconds"]'), null);
+});
+
 test("the sole block/week/session cannot be removed, but a second one can", async () => {
   render(<CoachProgrammeBuilderTree />);
   await broadcast(draftWithWorkItem());
