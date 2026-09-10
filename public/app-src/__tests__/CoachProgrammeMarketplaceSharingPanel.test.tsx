@@ -161,14 +161,15 @@ test("shows a factual empty state when the programme has never been released", a
   await screen.findByText("Not released to any coach yet.");
 });
 
-test("shows release history with the buyer coach id and release date", async () => {
+test("shows release history with the release date, never the buyer's raw internal account id", async () => {
   installMocks({
     templates: [template()],
     releases: [{ buyer_coach_user_id: "coach_buyer_1", released_at_iso8601: "2026-08-01T00:00:00.000Z" }]
   });
   render(<CoachProgrammeMarketplaceSharingPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText("Released to coach_buyer_1");
+  await screen.findByText("Released to another coach");
+  assert.equal(screen.queryByText(/coach_buyer_1/u), null);
 });
 
 test("releasing to a buyer account code posts the code, clears the field and refreshes history on success", async () => {
@@ -189,7 +190,7 @@ test("releasing to a buyer account code posts the code, clears the field and ref
 
   await screen.findByText("Released to coach_buyer_2.");
   assert.equal(input.value, "");
-  await screen.findByText("Released to coach_buyer_2");
+  await screen.findByText("Released to another coach");
 });
 
 test("a failed release shows a factual error and keeps the entered account code", async () => {

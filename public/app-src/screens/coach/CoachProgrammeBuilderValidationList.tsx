@@ -27,7 +27,7 @@ export function CoachProgrammeBuilderValidationList() {
   if (issues.length === 0) {
     return (
       <li className="template-builder-validation-pass">
-        All visible completion checks pass. The server remains authoritative.
+        All checks pass.
       </li>
     );
   }
@@ -39,7 +39,6 @@ export function CoachProgrammeBuilderValidationList() {
           <button className="template-validation-link" type="button" data-builder-validation-index={index}>
             <span>{issue.path}</span>
             <strong>{issue.message}</strong>
-            <code>{issue.code}</code>
           </button>
         </li>
       ))}

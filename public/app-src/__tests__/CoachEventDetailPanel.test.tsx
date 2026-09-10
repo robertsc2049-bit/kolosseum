@@ -219,7 +219,7 @@ test("a cancelled event hides cancel/archive actions but keeps the archive actio
 
   assert.equal(screen.queryByText("Cancel event"), null);
   assert.ok(screen.getByText("Archive event"));
-  assert.ok(screen.getByText("This event no longer accepts factual edits."));
+  assert.ok(screen.getByText("This event can no longer be edited."));
 });
 
 test("closing the panel resets the hash away from the event route", async () => {

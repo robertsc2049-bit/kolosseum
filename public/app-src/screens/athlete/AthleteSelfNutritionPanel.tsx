@@ -95,6 +95,7 @@ export function AthleteSelfNutritionPanel() {
         <div>
           <p className="eyebrow">Nutrition</p>
           <h3>Nutrition</h3>
+          <p className="muted">Log meals and nutrition notes to keep a record alongside your training.</p>
         </div>
       </div>
 

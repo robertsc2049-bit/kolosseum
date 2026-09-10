@@ -38,7 +38,7 @@ export function CoachProgrammeValidationPanel() {
     const displayState = programmeDisplayState(template, templates);
     return (
       <div className="assignment-requirements neutral">
-        This persisted version is {displayState}. Completion checks apply to draft versions only.
+        This saved version is {displayState}. Completion checks apply to draft versions only.
       </div>
     );
   }
@@ -48,7 +48,7 @@ export function CoachProgrammeValidationPanel() {
   if (issues.length === 0) {
     return (
       <div className="assignment-requirements complete">
-        All visible completion checks pass. The server remains authoritative when the template is marked complete.
+        All checks pass. Marking this complete will double-check on the server.
       </div>
     );
   }
@@ -63,7 +63,6 @@ export function CoachProgrammeValidationPanel() {
           <li key={index}>
             <strong>{issue.path}</strong>
             <span>{issue.message}</span>
-            <code>{issue.code}</code>
           </li>
         ))}
       </ol>

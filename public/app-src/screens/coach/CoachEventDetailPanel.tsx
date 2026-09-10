@@ -133,7 +133,6 @@ export function CoachEventDetailPanel() {
         <div>
           <p className="eyebrow">Event detail</p>
           <h3>{String(plan.event_name ?? "Event")}</h3>
-          <p className="muted">Stable route · {eventId}</p>
         </div>
         <button className="button secondary" type="button" onClick={close}>Close detail</button>
       </div>
@@ -150,7 +149,7 @@ export function CoachEventDetailPanel() {
         <div><span>Type</span><strong>{titleCase(plan.event_type)}</strong></div>
         <div><span>Location</span><strong>{String(plan.location || "Not recorded")}</strong></div>
         <div><span>Timezone</span><strong>{String(plan.timezone || "Not recorded")}</strong></div>
-        <div><span>Lifecycle records</span><strong>{Array.isArray(detail.lifecycle_records) ? detail.lifecycle_records.length : 0}</strong></div>
+        <div><span>Change history</span><strong>{Array.isArray(detail.lifecycle_records) ? detail.lifecycle_records.length : 0}</strong></div>
       </div>
 
       <p>{String(plan.notes || "No event notes recorded.")}</p>
@@ -219,7 +218,7 @@ export function CoachEventDetailPanel() {
         <article>
           {active ? (
             <form className="form-panel" onSubmit={handleVersionSubmit}>
-              <p className="eyebrow">New immutable version</p>
+              <p className="eyebrow">New version</p>
               <label className="field">
                 <span>Event name</span>
                 <input
@@ -295,7 +294,7 @@ export function CoachEventDetailPanel() {
               <button className="button primary" type="submit" disabled={actionPending}>Create new version</button>
             </form>
           ) : (
-            <div className="empty-state compact-empty"><p>This event no longer accepts factual edits.</p></div>
+            <div className="empty-state compact-empty"><p>This event can no longer be edited.</p></div>
           )}
         </article>
       </div>

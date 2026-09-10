@@ -17,7 +17,6 @@ function requestOpenProfile(athleteUserId: string) {
 // Matches legacy's exact fact order, with the derived "Effective state"
 // spliced in after the second (stored) entry.
 const FACTS_BEFORE_EFFECTIVE: Array<[string, keyof JsonRecord]> = [
-  ["Relationship ID", "relationship_id"],
   ["Stored state", "relationship_state"]
 ];
 const FACTS_AFTER_EFFECTIVE: Array<[string, keyof JsonRecord]> = [
@@ -66,7 +65,7 @@ export function AthleteRelationshipDetailPanel() {
           <p className="eyebrow">Relationship audit</p>
           <h3>{loading ? "Loading…" : displayName}</h3>
           {!loading && !notFound ? (
-            <p className="muted">{titleCase(effectiveState)} · {titleCase(activityId)} · {athleteUserId}</p>
+            <p className="muted">{titleCase(effectiveState)} · {titleCase(activityId)}</p>
           ) : null}
         </div>
 
@@ -81,7 +80,7 @@ export function AthleteRelationshipDetailPanel() {
             {FACTS_BEFORE_EFFECTIVE.map(([label, key]) => (
               <FactRow key={label} label={label} value={factValue(label, relationship[key])} />
             ))}
-            <FactRow label="Effective state" value={effectiveState} />
+            <FactRow label="Effective state" value={titleCase(effectiveState)} />
             {FACTS_AFTER_EFFECTIVE.map(([label, key]) => (
               <FactRow key={label} label={label} value={factValue(label, relationship[key])} />
             ))}

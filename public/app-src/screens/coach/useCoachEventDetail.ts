@@ -12,7 +12,7 @@ import {
   unlinkStandaloneEventAthlete
 } from "../../api/coachWorkspaceClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
-import { titleCase } from "../../utils/format";
+import { FRIENDLY_ERROR_MESSAGES, genericFriendlyMessageForStatus } from "../../utils/friendlyError";
 
 // DEV NOTE: FULL-UI-09C event detail/lifecycle (cancel/archive/re-version/
 // link/unlink an athlete) - ported from the now-deleted event_lifecycle_ui.js
@@ -35,7 +35,7 @@ function actionErrorMessage(error: unknown): string {
     const payload = error.payload as JsonRecord | undefined;
     const details = payload?.details as JsonRecord | undefined;
     const reason = String(details?.reason ?? payload?.error ?? "event_action_failed");
-    return titleCase(reason);
+    return FRIENDLY_ERROR_MESSAGES[reason] ?? genericFriendlyMessageForStatus(error.status);
   }
   return "Event action failed";
 }

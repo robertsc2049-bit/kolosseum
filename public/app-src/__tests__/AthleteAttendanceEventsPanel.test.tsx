@@ -129,5 +129,5 @@ test("a failed RSVP shows a factual error message", async () => {
     screen.getByText("Attending").click();
   });
 
-  await waitFor(() => screen.getByText("attendance_event_not_invited"));
+  await waitFor(() => screen.getByText("This action is not available for this account."));
 });

@@ -121,9 +121,10 @@ test("the marketplace browse card renders the coach-supplied price label and pay
   assert.match(marketplacePanel, /template\.payment_methods_note/u);
 });
 
-test("the release history renders the buyer account code as React text, never raw HTML", () => {
+test("the release history never renders the buyer's raw internal account id, and uses no raw HTML anywhere", () => {
   assert.doesNotMatch(sharingPanel, /dangerouslySetInnerHTML/u);
-  assert.match(sharingPanel, /\{String\(release\.buyer_coach_user_id \?\? ""\)\}/u);
+  assert.doesNotMatch(sharingPanel, /<strong>[^<]*\{String\(release\.buyer_coach_user_id/u);
+  assert.match(sharingPanel, /Released to another coach/u);
 });
 
 test("the FULL-UI-68 manifest functions are declared as implemented with real tests inside the existing programme_marketplace area", () => {

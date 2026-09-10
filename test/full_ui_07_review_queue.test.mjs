@@ -181,7 +181,7 @@ test(
     for (const token of [
       "Athlete visible",
       "Coach only",
-      "Non-binding product note"
+      "Private note"
     ]) {
       assert.match(
         panel,
@@ -191,7 +191,7 @@ test(
 
     assert.match(
       panel,
-      /cannot alter engine output or session facts/u
+      /can't change the recorded session/u
     );
   }
 );

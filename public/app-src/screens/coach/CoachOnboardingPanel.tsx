@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import { accessibilityLabel, accessibilityOf, type AccessibilityPreferences } from "../../utils/accessibilityPreferences";
+import { FRIENDLY_ERROR_MESSAGES } from "../../utils/friendlyError";
 import { useCoachOnboarding } from "./useCoachOnboarding";
 
 // DEV NOTE: FULL-UI-04C coach onboarding profile/terms/completion view -
@@ -39,7 +40,7 @@ const ERROR_MESSAGES: Record<string, string> = {
 function errorMessage(error: { message: string; payload: unknown } | null): string {
   if (!error) return "";
   const code = clean((error.payload as JsonRecord | undefined)?.error ?? error.message);
-  return ERROR_MESSAGES[code] ?? humanise(code);
+  return ERROR_MESSAGES[code] ?? FRIENDLY_ERROR_MESSAGES[code] ?? humanise(code);
 }
 
 function ProfileForm({ profile, busy, onSave, formRef }: {
@@ -66,7 +67,7 @@ function ProfileForm({ profile, busy, onSave, formRef }: {
       <div>
         <p className="eyebrow">Coach profile</p>
         <h3>Identity details</h3>
-        <p className="muted">This profile is product identity state. It is not an engine input.</p>
+        <p className="muted">This is your account profile. It doesn't affect how training is calculated.</p>
       </div>
       <label className="field">
         <span>Display name</span>
@@ -126,7 +127,7 @@ function AccessibilityForm({ preferences, busy, onSave }: {
       <div>
         <p className="eyebrow">Accessibility preferences</p>
         <h3>Presentation preferences</h3>
-        <p className="muted">These control how the app looks and behaves for this account. They are not engine inputs.</p>
+        <p className="muted">These control how the app looks and behaves for you. They don't affect how training is calculated.</p>
       </div>
       <AccessibilityCheckboxes value={value} onChange={setValue} />
       <button className="button primary" type="submit" disabled={busy}>Save accessibility preferences</button>
@@ -152,7 +153,7 @@ function ReviewPanel({ profile, termsAccepted, acceptedTermsVersion, accessibili
         <div className="commercial-fact"><span>Accessibility</span><strong>{accessibilityLabel(accessibilityPreferences)}</strong></div>
         <div className="commercial-fact"><span>Workspace</span><strong>Coach overview</strong></div>
       </div>
-      <p className="muted">Completion grants access to existing coach product surfaces only. It does not grant registry, compile, legality or engine authority.</p>
+      <p className="muted">Completing this gives you access to the coach workspace. It doesn't change any training, eligibility or legal rules.</p>
       <button className="button primary" type="button" disabled={busy} onClick={onComplete}>Complete coach onboarding</button>
     </section>
   );
@@ -212,7 +213,7 @@ export function CoachOnboardingPanel() {
     if (result) {
       setConfirmation(
         result.onboarding_status === "completed"
-          ? "Coach profile updated. Completion remains persisted."
+          ? "Coach profile updated. Your completed setup is still saved."
           : "Coach profile saved."
       );
     }
@@ -246,7 +247,7 @@ export function CoachOnboardingPanel() {
   if (unavailableError) {
     return (
       <div className="panel">
-        <p>{errorMessage({ message: unavailableError, payload: null })}</p>
+        <p>{errorMessage(unavailableError)}</p>
         <button className="button primary" type="button" onClick={() => refresh()}>Retry</button>
       </div>
     );
@@ -269,7 +270,7 @@ export function CoachOnboardingPanel() {
     <>
       <span className={`badge ${completed ? "success" : "warning"}`}>{completed ? "Completed onboarding" : "Incomplete onboarding"}</span>
       <div className="panel coach-onboarding-progress">
-        {completed ? "Coach profile saved · Coach terms accepted · Completion persisted" : `Current step: ${humanise(stage)}`}
+        {completed ? "Coach profile saved · Coach terms accepted · Setup complete" : `Current step: ${humanise(stage)}`}
       </div>
       {validationError ? <p className="inline-result" data-tone="error">{errorMessage(validationError)}</p> : null}
       {!validationError && confirmation ? <p className="inline-result" data-tone="success">{confirmation}</p> : null}

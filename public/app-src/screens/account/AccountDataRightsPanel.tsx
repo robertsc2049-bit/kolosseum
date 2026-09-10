@@ -7,6 +7,17 @@ import { useAccountDataRights } from "./useAccountDataRights";
 // DEV NOTE: FULL-UI-19 data rights - ported from app.js's #dataRightsPanel
 // rendering. Shared (not role-gated) - both athlete and coach accounts can
 // export or request deletion of their own data.
+const RETENTION_REASON_LABELS: Record<string, string> = {
+  audit_integrity_review_required: "Audit records",
+  engine_truth_immutability_boundary: "Training history",
+  billing_retention_review_required: "Billing records",
+  legal_retention_review_required: "Terms and consent records"
+};
+
+function retentionReasonLabel(reason: unknown): string {
+  return RETENTION_REASON_LABELS[String(reason)] ?? titleCase(reason);
+}
+
 function exportStatusClass(status: unknown): string {
   if (status === "ready") return "complete";
   if (status === "expired") return "partial";
@@ -81,7 +92,7 @@ export function AccountDataRightsPanel() {
       <div>
         <p className="eyebrow">Data rights</p>
         <h3>Export and deletion</h3>
-        <p className="muted">Request a complete copy of your personal data, or request deletion. Some records are retained for audit, legal or billing reasons before any deletion decision is made - see the factual notice below.</p>
+        <p className="muted">Request a complete copy of your personal data, or request deletion. Some records are retained for audit, legal or billing reasons before any deletion decision is made - see the notice below.</p>
       </div>
 
       {loading ? (
@@ -127,7 +138,7 @@ export function AccountDataRightsPanel() {
                 deletionRetentionPreview.retention_notices.map((notice, index) => (
                   <div className="record-card" key={`${String(notice.retention_reason)}-${index}`}>
                     <div>
-                      <h3>{titleCase(notice.retention_reason)}</h3>
+                      <h3>{retentionReasonLabel(notice.retention_reason)}</h3>
                       <p>{String(notice.copy)}</p>
                     </div>
                     <div className="record-meta"><span className="badge neutral">{Number(notice.record_count)} records</span></div>

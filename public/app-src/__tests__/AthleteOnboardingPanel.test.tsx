@@ -99,7 +99,7 @@ test.afterEach(() => {
 test("shows the incomplete-onboarding status and stage 1 of 7 on first load, with Back disabled", async () => {
   installMocks({});
   render(<AthleteOnboardingPanel />);
-  await screen.findByText("Incomplete onboarding");
+  await screen.findByText("Set up your account");
   assert.ok(screen.getByText("Stage 1 of 7"));
   assert.ok(screen.getByText("Activity declaration"));
   assert.equal((screen.getByText("Back") as HTMLButtonElement).disabled, true);
@@ -124,7 +124,7 @@ test("shows the unavailable state on a load failure, with a working retry", asyn
     screen.getByText("Retry").click();
   });
 
-  await screen.findByText("Incomplete onboarding");
+  await screen.findByText("Set up your account");
 });
 
 test("advancing a stage saves the draft and moves forward, showing a saved-draft status", async () => {
@@ -137,7 +137,7 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
     fireEvent.click(screen.getByText("Save and continue"));
   });
 
-  await screen.findByText("Saved draft state");
+  await screen.findByText("Draft saved");
   assert.ok(screen.getByText("Execution-scope declaration"));
   assert.ok(screen.getByText("Stage 2 of 7"));
 });
@@ -170,7 +170,7 @@ test("a validation failure shows field errors and does not advance the stage", a
   });
 
   await screen.findByText(/activity_id is required/u);
-  assert.equal(screen.getAllByText("Validation failure").length, 2);
+  assert.equal(screen.getAllByText("Check your answers").length, 2);
   assert.ok(screen.getByText("Activity declaration"));
 });
 
@@ -190,18 +190,18 @@ test("reaching the review stage shows all six declared facts, and confirming sho
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Review and confirmation");
 
-  assert.ok(screen.getByText("powerlifting"));
-  assert.ok(screen.getByText("individual"));
+  assert.ok(screen.getByText("Powerlifting"));
+  assert.ok(screen.getByText("Individual"));
   assert.ok(screen.getByText("Accepted"));
-  assert.ok(screen.getByText("england wales"));
+  assert.ok(screen.getByText("England wales"));
   assert.ok(screen.getByText("reduced motion"));
-  assert.ok(screen.getByText("detailed"));
+  assert.ok(screen.getByText("Detailed"));
 
   await act(async () => {
     fireEvent.click(screen.getByText("Confirm declaration"));
   });
 
-  await screen.findByText("Completed onboarding");
+  await screen.findByText("Setup complete");
   assert.ok(screen.getByText("Current effective declaration"));
 });
 
@@ -225,7 +225,7 @@ test("declared accessibility preferences are actually applied to the page immedi
     fireEvent.click(screen.getByText("Confirm declaration"));
   });
 
-  await screen.findByText("Completed onboarding");
+  await screen.findByText("Setup complete");
   assert.equal(document.documentElement.dataset.a11yReducedMotion, "true");
   assert.equal(document.documentElement.dataset.a11yHighContrast, "true");
   assert.equal(document.documentElement.dataset.a11yLargerText, "false");
@@ -246,11 +246,11 @@ test("sets the reload-required flag after confirmation", async () => {
     fireEvent.click(screen.getByText("Confirm declaration"));
   });
 
-  await screen.findByText("Completed onboarding");
+  await screen.findByText("Setup complete");
   assert.equal(sessionStorage.getItem("kolosseum.athlete_onboarding.reload_required"), "1");
 });
 
-test("the completed view shows historical (superseded) declarations as immutable records", async () => {
+test("the completed view shows historical (superseded) declarations, never their raw internal id", async () => {
   installMocks({
     initialState: completedState(
       { activity_id: "powerlifting" },
@@ -265,8 +265,8 @@ test("the completed view shows historical (superseded) declarations as immutable
   await screen.findByText("Historical declarations");
 
   assert.ok(screen.getByText("Superseded declaration"));
-  assert.ok(screen.getByText("general strength"));
-  assert.ok(screen.getByText(/Immutable declaration decl_old/u));
+  assert.ok(screen.getByText("General strength"));
+  assert.equal(screen.queryByText(/decl_old/u), null, "the raw internal declaration id must never be shown");
 });
 
 test("editing preferences pre-fills the current values, and saving applies the new density to the page immediately", async () => {

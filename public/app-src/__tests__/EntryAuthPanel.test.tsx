@@ -98,7 +98,7 @@ test("a successful registration dispatches the session bridge event with the raw
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/factual product records/));
+  fireEvent.click(screen.getByLabelText(/activity records/));
 
   let captured: { response?: JsonRecordLike; mode?: string } | null = null;
   document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
@@ -131,7 +131,7 @@ test("a rejected registration (account already exists) shows the mapped factual 
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/factual product records/));
+  fireEvent.click(screen.getByLabelText(/activity records/));
 
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));

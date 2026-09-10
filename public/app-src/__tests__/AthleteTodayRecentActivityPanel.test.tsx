@@ -50,7 +50,7 @@ test("shows a session's status and event count", async () => {
   render(<AthleteTodayRecentActivityList />);
   await screen.findByText("Training session");
   assert.ok(screen.getByText("In Progress"));
-  assert.ok(screen.getByText("3 events"));
+  assert.ok(screen.getByText("3 actions recorded"));
 });
 
 test("caps the preview at the 4 most recent sessions, newest first", async () => {
@@ -62,10 +62,10 @@ test("caps the preview at the 4 most recent sessions, newest first", async () =>
   }));
   installMocks(sessions);
   render(<AthleteTodayRecentActivityList />);
-  await screen.findByText("5 events");
+  await screen.findByText("5 actions recorded");
   assert.equal(document.querySelectorAll(".record-card").length, 4);
-  assert.equal(screen.queryByText("0 events"), null);
-  assert.equal(screen.queryByText("1 events"), null);
+  assert.equal(screen.queryByText("0 actions recorded"), null);
+  assert.equal(screen.queryByText("1 actions recorded"), null);
 });
 
 test("clicking a session card dispatches kolosseum:continue-history-session with the session id", async () => {

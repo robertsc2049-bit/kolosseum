@@ -92,7 +92,7 @@ export function CoachEventsListPanel() {
     return (
       <div className="empty-state">
         <div className="empty-icon">E</div>
-        <h3>No events compiled</h3>
+        <h3>No events created</h3>
         <p>Create an event date anchor, then link athletes and programmes from each athlete profile.</p>
       </div>
     );

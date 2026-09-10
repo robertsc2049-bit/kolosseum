@@ -237,7 +237,7 @@ export function EntryAuthPanel() {
                     onChange={(event) => setDeclarationConsent(event.target.checked)}
                   />
                   <span>
-                    I consent to the account and factual product records being stored
+                    I consent to my account and activity records being stored
                     (<strong>{terms?.current_consent_version ? String(terms.current_consent_version) : "unavailable"}</strong>).
                   </span>
                 </label>

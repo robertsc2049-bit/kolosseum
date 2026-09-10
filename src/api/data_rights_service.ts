@@ -449,7 +449,7 @@ async function buildRetentionRecords(userId: string): Promise<JsonRecord[]> {
 
 const RETENTION_REASON_COPY: Record<string, string> = {
   audit_integrity_review_required: "Session and training records are kept for audit integrity review before any deletion decision.",
-  engine_truth_immutability_boundary: "Recorded runtime events are immutable engine history and cannot be deleted; they can only be reviewed for retention.",
+  engine_truth_immutability_boundary: "Your session activity is kept as a permanent record and can't be deleted outright; it can only be reviewed for retention.",
   billing_retention_review_required: "Billing records are kept pending legal and financial retention review.",
   legal_retention_review_required: "Terms and consent acknowledgement records are kept pending legal retention review."
 };

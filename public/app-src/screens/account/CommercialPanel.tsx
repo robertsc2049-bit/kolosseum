@@ -49,7 +49,7 @@ export function CommercialPanel() {
         <div>
           <p className="eyebrow">Controlled-launch commercial access</p>
           <h3 id="commercialHeading">Subscription and billing</h3>
-          <p className="muted">Factual product-access and billing records only. Commercial state cannot alter engine truth.</p>
+          <p className="muted">This shows your product access and billing records. It doesn't affect how training is calculated.</p>
         </div>
         <div className="badge-row">
           <span className="badge neutral">{loading ? "Loading" : humanise(commercial.subscription_state)}</span>
@@ -59,7 +59,7 @@ export function CommercialPanel() {
 
       <div className="commercial-fact-grid">
         <div className="commercial-fact">
-          <span>Factual state</span>
+          <span>Account status</span>
           <strong>{humanise(commercial.factual_state)}</strong>
         </div>
         <div className="commercial-fact">
@@ -93,7 +93,7 @@ export function CommercialPanel() {
         </button>
       </div>
 
-      <p className="muted commercial-boundary-copy">Checkout and portal actions create controlled-launch provider requests. No live provider SDK call is performed by this product slice.</p>
+      <p className="muted commercial-boundary-copy">Checkout and billing-portal actions are limited during the controlled launch - no live payment provider call is made yet.</p>
       {entitlementText ? <p className="inline-result commercial-entitlement-error" data-tone={entitlementTone}>{entitlementText}</p> : null}
       {resultText ? <p className="inline-result" data-tone={resultTone}>{resultText}</p> : null}
 

@@ -113,7 +113,7 @@ test("displays a coach-only note and an athlete-visible note with their session 
 test("shows a factual empty state when the athlete has no coach notes yet", async () => {
   await openPanel([]);
   await screen.findByText("No coach notes");
-  assert.ok(screen.getByText("Non-binding notes recorded against sessions will appear here."));
+  assert.ok(screen.getByText("Private notes you record against sessions will appear here."));
 });
 
 test("closing the profile clears the panel back to rendering nothing", async () => {
@@ -351,7 +351,7 @@ test("a rejected creation request shows the server's factual error and keeps the
     fireEvent.submit(screen.getByText("Record note").closest("form")!);
   });
 
-  await screen.findByText("coach_note_fields_required");
+  await screen.findByText("That request could not be completed. Try again, or report this problem if it continues.");
   assert.ok(screen.getByText("Record note"));
 });
 

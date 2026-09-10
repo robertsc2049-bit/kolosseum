@@ -46,7 +46,7 @@ export function AthleteCoachNotesPanel() {
       ) : notes.length === 0 ? (
         <div className="empty-state compact-empty">
           <h4>No coach notes</h4>
-          <p>Non-binding notes recorded against sessions will appear here.</p>
+          <p>Private notes you record against sessions will appear here.</p>
         </div>
       ) : (
         notes.map((note, index) => <NoteCard key={String(note.note_id ?? index)} note={note} />)
@@ -55,7 +55,7 @@ export function AthleteCoachNotesPanel() {
       {composing ? (
         <form className="athlete-detail-note-form" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
           <label className="field">
-            <span>Non-binding note</span>
+            <span>Private note</span>
             <textarea ref={textareaRef} required maxLength={2000}></textarea>
           </label>
 
@@ -84,7 +84,7 @@ export function AthleteCoachNotesPanel() {
             <button className="button primary" type="submit" disabled={submitting}>Record note</button>
           </div>
 
-          <p className="muted small">Notes are stored separately and do not alter session facts or engine output.</p>
+          <p className="muted small">Notes are private and can't change the recorded session.</p>
         </form>
       ) : null}
     </>

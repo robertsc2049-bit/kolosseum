@@ -153,8 +153,8 @@ export function AthleteDirectoryPanel() {
               <article className="record-card athlete-record-card relationship-directory-card" key={athleteUserId || index}>
                 <div>
                   <p className="eyebrow">{titleCase(record.activity_id ?? "powerlifting")}</p>
-                  <h3>{String(record.display_name ?? athleteUserId)}</h3>
-                  <p>{String(record.email || athleteUserId)}</p>
+                  <h3>{String(record.display_name || "Connected athlete")}</h3>
+                  <p>{String(record.email || "No email on file")}</p>
                   <p className="muted small">{programmeLabelFor(athleteUserId, assignments, templates)}</p>
                 </div>
 
