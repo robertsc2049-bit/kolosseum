@@ -46,9 +46,16 @@ export type Phase6SessionExercise = {
   } | null;
   rest_seconds?: number;
 
-  // Grouping trace (ONLY if the item belongs to a superset/circuit group)
+  // Grouping trace (ONLY if the item belongs to a group)
   group_id?: string;
-  group_type?: "superset" | "circuit";
+  group_type?: "superset" | "circuit" | "complex" | "amrap" | "emom" | "for_time";
+
+  // Timed-group parameters (ONLY if the group type declares them - amrap/
+  // for_time carry a time cap, emom carries a round length and round count;
+  // complex needs neither since it is a single pass through the exercises)
+  group_time_cap_seconds?: number;
+  group_round_seconds?: number;
+  group_total_rounds?: number;
 
   // Session-structure annotation (always present; defaults to "working")
   segment?: "warm_up" | "working" | "cool_down";
@@ -94,6 +101,8 @@ type Phase5Like =
   | undefined;
 
 type SubRule = { target: string; sub: string };
+
+const GROUP_TYPE_VALUES = new Set(["superset", "circuit", "complex", "amrap", "emom", "for_time"]);
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
@@ -300,7 +309,16 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     const groupId = typeof it.group_id === "string" ? it.group_id : "";
     if (groupId) {
       ex.group_id = groupId;
-      ex.group_type = it.group_type === "circuit" ? "circuit" : "superset";
+      ex.group_type = GROUP_TYPE_VALUES.has(it.group_type as string) ? (it.group_type as Phase6SessionExercise["group_type"]) : "superset";
+
+      // Timed-group parameters only exist for the group types that need them
+      // (ONLY if the coach declared them - complex groups need neither).
+      const timeCapSeconds = typeof it.group_time_cap_seconds === "number" ? it.group_time_cap_seconds : 0;
+      if (timeCapSeconds > 0) ex.group_time_cap_seconds = timeCapSeconds;
+      const roundSeconds = typeof it.group_round_seconds === "number" ? it.group_round_seconds : 0;
+      if (roundSeconds > 0) ex.group_round_seconds = roundSeconds;
+      const totalRounds = typeof it.group_total_rounds === "number" ? it.group_total_rounds : 0;
+      if (totalRounds > 0) ex.group_total_rounds = totalRounds;
     }
 
     // Segment always carries a value (defaults to "working", same as the builder).

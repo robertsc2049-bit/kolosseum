@@ -77,7 +77,14 @@ function installMocks(options: {
       return jsonResponse({ ok: true });
     }
     if (/\/sessions\/[^/]+\/events$/u.test(path)) {
-      if (body?.type === "COMPLETE_STEP" || body?.type === "COMPLETE_EXERCISE") {
+      if (
+        body?.type === "COMPLETE_STEP" ||
+        body?.type === "COMPLETE_EXERCISE" ||
+        body?.type === "COMPLETE_GROUP" ||
+        body?.type === "AMRAP_RESULT_REPORT" ||
+        body?.type === "EMOM_RESULT_REPORT" ||
+        body?.type === "FOR_TIME_RESULT_REPORT"
+      ) {
         currentSessionState = {
           ...currentSessionState,
           completed_exercises: [baseExercise()],
@@ -539,6 +546,212 @@ test("the return-decision step shows continue/finish controls instead of the usu
   assert.ok(screen.getByText("Continue remaining work"));
   assert.ok(screen.getByText("Finish without remaining work"));
   assert.equal(screen.queryByText("Mark exercise complete"), null);
+});
+
+function groupExercise(overrides: Record<string, unknown> = {}) {
+  return {
+    exercise_id: "power_clean",
+    display_name: "Power clean",
+    segment: "working",
+    ...overrides
+  };
+}
+
+test("a complex GROUP_WORKOUT step shows every member exercise and a single Mark complex complete button, posting COMPLETE_GROUP once", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT",
+        group_id: "complex1",
+        group_type: "complex",
+        exercises: [groupExercise(), groupExercise({ exercise_id: "thruster", display_name: "Thruster" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Power clean + Thruster"));
+  assert.ok(screen.getByText("Complex"));
+  assert.equal(screen.queryByText("Mark exercise complete"), null);
+  assert.ok(screen.getByText("Mark complex complete"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Mark complex complete"));
+  });
+
+  await waitFor(() => screen.getByText("Session complete"));
+  assert.equal((lastEventBody as { type?: string } | null)?.type, "COMPLETE_GROUP");
+  assert.equal((lastEventBody as { group_id?: string } | null)?.group_id, "complex1");
+});
+
+test("an amrap GROUP_WORKOUT step shows the shared time cap, rounds/extra-reps inputs, and posts AMRAP_RESULT_REPORT with the entered values", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT",
+        group_id: "amrapA",
+        group_type: "amrap",
+        time_cap_seconds: 720,
+        exercises: [groupExercise({ exercise_id: "toes_to_bar", display_name: "Toes to bar" }), groupExercise({ exercise_id: "pull_up", display_name: "Pull-up" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Toes to bar + Pull-up"));
+  assert.ok(screen.getByText("AMRAP"));
+  assert.ok(screen.getByText("Time cap: 12 minutes"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Rounds completed"), { target: { value: "6" } });
+    fireEvent.change(screen.getByLabelText("Extra reps"), { target: { value: "4" } });
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record AMRAP result"));
+  });
+
+  await waitFor(() => screen.getByText("Session complete"));
+  const amrapBody = lastEventBody as { type?: string; group_id?: string; rounds_completed?: number; extra_reps?: number } | null;
+  assert.equal(amrapBody?.type, "AMRAP_RESULT_REPORT");
+  assert.equal(amrapBody?.group_id, "amrapA");
+  assert.equal(amrapBody?.rounds_completed, 6);
+  assert.equal(amrapBody?.extra_reps, 4);
+});
+
+test("an emom GROUP_WORKOUT step shows round-length/total-rounds and posts EMOM_RESULT_REPORT with the entered rounds completed/missed", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT",
+        group_id: "emom1",
+        group_type: "emom",
+        round_seconds: 60,
+        total_rounds: 10,
+        exercises: [groupExercise({ exercise_id: "kettlebell_deadlift", display_name: "Kettlebell deadlift" }), groupExercise({ exercise_id: "goblet_squat", display_name: "Goblet squat" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Kettlebell deadlift + Goblet squat"));
+  assert.ok(screen.getByText("EMOM"));
+  assert.ok(screen.getByText("10 rounds, one every 60 seconds"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Rounds completed"), { target: { value: "9" } });
+    fireEvent.change(screen.getByLabelText("Rounds missed"), { target: { value: "1" } });
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record EMOM result"));
+  });
+
+  await waitFor(() => screen.getByText("Session complete"));
+  const emomBody = lastEventBody as { type?: string; group_id?: string; rounds_completed?: number; rounds_missed?: number } | null;
+  assert.equal(emomBody?.type, "EMOM_RESULT_REPORT");
+  assert.equal(emomBody?.group_id, "emom1");
+  assert.equal(emomBody?.rounds_completed, 9);
+  assert.equal(emomBody?.rounds_missed, 1);
+});
+
+test("a for_time GROUP_WORKOUT step shows an elapsed-time input by default and posts FOR_TIME_RESULT_REPORT with it", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT",
+        group_id: "fortime1",
+        group_type: "for_time",
+        time_cap_seconds: 600,
+        exercises: [groupExercise({ exercise_id: "toes_to_bar", display_name: "Toes to bar" }), groupExercise({ exercise_id: "pull_up", display_name: "Pull-up" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Toes to bar + Pull-up"));
+  assert.ok(screen.getByText("For time"));
+  assert.ok(screen.getByText("Time cap: 10 minutes"));
+  assert.ok(screen.getByLabelText("Elapsed time (seconds)"));
+
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Elapsed time (seconds)"), { target: { value: "480" } });
+  });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record for-time result"));
+  });
+
+  await waitFor(() => screen.getByText("Session complete"));
+  const forTimeBody = lastEventBody as { type?: string; group_id?: string; elapsed_seconds?: number; hit_time_cap?: boolean } | null;
+  assert.equal(forTimeBody?.type, "FOR_TIME_RESULT_REPORT");
+  assert.equal(forTimeBody?.group_id, "fortime1");
+  assert.equal(forTimeBody?.elapsed_seconds, 480);
+  assert.equal(forTimeBody?.hit_time_cap, false);
+});
+
+test("checking 'hit the time cap' on a for_time step hides the elapsed-time input and reports the group's own time cap as elapsed_seconds", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT",
+        group_id: "fortime1",
+        group_type: "for_time",
+        time_cap_seconds: 600,
+        exercises: [groupExercise({ exercise_id: "toes_to_bar", display_name: "Toes to bar" }), groupExercise({ exercise_id: "pull_up", display_name: "Pull-up" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Toes to bar + Pull-up"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Hit the time cap before finishing"));
+  });
+
+  assert.equal(screen.queryByLabelText("Elapsed time (seconds)"), null);
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record for-time result"));
+  });
+
+  await waitFor(() => screen.getByText("Session complete"));
+  const forTimeCapBody = lastEventBody as { type?: string; group_id?: string; elapsed_seconds?: number; hit_time_cap?: boolean } | null;
+  assert.equal(forTimeCapBody?.type, "FOR_TIME_RESULT_REPORT");
+  assert.equal(forTimeCapBody?.group_id, "fortime1");
+  assert.equal(forTimeCapBody?.elapsed_seconds, 600);
+  assert.equal(forTimeCapBody?.hit_time_cap, true);
 });
 
 test("expanding how-to loads written instructions for the current exercise", async () => {

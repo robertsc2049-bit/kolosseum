@@ -484,7 +484,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -1216,7 +1217,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3922,7 +3924,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -4026,7 +4029,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -4739,7 +4743,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7951,7 +7956,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8909,7 +8915,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "impact_landing",
@@ -10545,7 +10552,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -12665,6 +12673,544 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "thruster": {
+      "exercise_id": "thruster",
+      "display_label": "Thruster",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Thruster: Descend into a front squat, then drive up and continue the momentum into an overhead press in one continuous motion.",
+      "instruction_detail_text": [
+        "Set up the barbell in a front rack position and establish the prescribed starting position before the first repetition.",
+        "Descend into a front squat, then drive up and continue the momentum into an overhead press in one continuous motion.",
+        "Reset thruster deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep elbows high in the rack",
+        "Drive the press from the squat's momentum",
+        "Finish with the bar fully overhead"
+      ],
+      "common_faults": [
+        "Dropping the elbows during the squat",
+        "Pausing between the squat and the press",
+        "Finishing without full elbow lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "power_clean": {
+      "exercise_id": "power_clean",
+      "display_label": "Power clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Power clean: Pull the barbell from the floor with an extending hip drive, then receive it at the shoulders in a partial-depth catch.",
+      "instruction_detail_text": [
+        "Set up the barbell on the floor and establish the prescribed starting position before the first repetition.",
+        "Pull the barbell from the floor with an extending hip drive, then receive it at the shoulders in a partial-depth catch.",
+        "Reset power clean deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep the bar close through the pull",
+        "Extend the hips fully before the catch",
+        "Receive the bar with elbows fast around the bar"
+      ],
+      "common_faults": [
+        "Pulling early with the arms",
+        "Incomplete hip extension",
+        "Catching in too deep a squat"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "snatch": {
+      "exercise_id": "snatch",
+      "display_label": "Snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Snatch: Pull the barbell from the floor to full extension in one continuous motion, then receive it overhead in a single catch.",
+      "instruction_detail_text": [
+        "Set up the barbell on the floor with a wide grip and establish the prescribed starting position before the first repetition.",
+        "Pull the barbell from the floor to full extension in one continuous motion, then receive it overhead in a single catch.",
+        "Reset snatch deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep the bar close through the pull",
+        "Extend the hips fully before dropping under",
+        "Lock the bar out directly overhead"
+      ],
+      "common_faults": [
+        "Pulling early with the arms",
+        "Incomplete hip extension",
+        "Receiving the bar out in front of the body"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "push_jerk": {
+      "exercise_id": "push_jerk",
+      "display_label": "Push jerk",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Push jerk: Dip and drive the barbell from the shoulders overhead, then re-bend the knees to receive it in a short catch.",
+      "instruction_detail_text": [
+        "Set up the barbell at the shoulders in a front rack position and establish the prescribed starting position before the first repetition.",
+        "Dip and drive the barbell from the shoulders overhead, then re-bend the knees to receive it in a short catch.",
+        "Reset push jerk deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Keep the dip short and vertical",
+        "Drive straight up through the drive phase",
+        "Receive the bar with locked-out arms"
+      ],
+      "common_faults": [
+        "Dipping forward instead of straight down",
+        "Pressing out the lockout with the arms alone",
+        "Missing the re-bend on the catch"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "muscle_up": {
+      "exercise_id": "muscle_up",
+      "display_label": "Muscle-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Muscle-up: Pull from a dead hang through the transition, then press out above the support to a full lockout.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, gymnastics rings securely and establish the prescribed starting position before the first repetition.",
+        "Pull from a dead hang through the transition, then press out above the support to a full lockout.",
+        "Reset muscle-up deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Pull the rings or bar to the lower chest",
+        "Drive the transition forward over the hands",
+        "Finish with full arm lockout"
+      ],
+      "common_faults": [
+        "Kipping without a clean pulling phase",
+        "Stalling at the transition",
+        "Finishing without full lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "gymnastics_rings"
+      ],
+      "equipment_alternatives": [
+        "pull_up_bar"
+      ],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "toes_to_bar": {
+      "exercise_id": "toes_to_bar",
+      "display_label": "Toes-to-bar",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Toes-to-bar: Hang from the bar, then raise the feet to make contact with the bar under control and return to a full hang.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, pull up bar securely and establish the prescribed starting position before the first repetition.",
+        "Hang from the bar, then raise the feet to make contact with the bar under control and return to a full hang.",
+        "Reset toes-to-bar deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before initiating the raise",
+        "Drive from the hips, not just the legs",
+        "Return to a full hang each repetition"
+      ],
+      "common_faults": [
+        "Swinging excessively for momentum",
+        "Stopping short of bar contact",
+        "Losing the brace on the return"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "double_under": {
+      "exercise_id": "double_under",
+      "display_label": "Double-under",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "ankle",
+        "knee",
+        "hip"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Double-under: Turn the rope twice per jump with quick wrist rotation at the prescribed cyclical pace.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, jump rope securely and establish the prescribed starting position before the first repetition.",
+        "Turn the rope twice per jump with quick wrist rotation at the prescribed cyclical pace.",
+        "Reset double-under deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Turn the rope from the wrists",
+        "Keep jumps low and quick",
+        "Maintain a consistent rhythm"
+      ],
+      "common_faults": [
+        "Jumping too high per turn",
+        "Turning the rope from the shoulders",
+        "Losing rhythm under fatigue"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "jump_rope"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "rope_climb": {
+      "exercise_id": "rope_climb",
+      "display_label": "Rope climb",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Rope climb: Pull and step up the rope to the prescribed height, then descend under control.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, climbing rope securely and establish the prescribed starting position before the first repetition.",
+        "Pull and step up the rope to the prescribed height, then descend under control.",
+        "Reset rope climb deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Lock the rope with the feet between pulls",
+        "Pull with the arms, stand with the legs",
+        "Descend under control, not a free slide"
+      ],
+      "common_faults": [
+        "Pulling with the arms alone",
+        "Losing the foot lock between pulls",
+        "Descending too fast to control"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "climbing_rope"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "handstand_push_up": {
+      "exercise_id": "handstand_push_up",
+      "display_label": "Handstand push-up",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Handstand push-up: Lower the head toward the floor from an inverted support, then press back to full arm lockout.",
+      "instruction_detail_text": [
+        "Set up the bodyweight against a wall for support and establish the prescribed starting position before the first repetition.",
+        "Lower the head toward the floor from an inverted support, then press back to full arm lockout.",
+        "Reset handstand push-up deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace the trunk in the inverted position",
+        "Lower under control to the prescribed depth",
+        "Press to full lockout each repetition"
+      ],
+      "common_faults": [
+        "Losing trunk alignment during the descent",
+        "Shortening the range under fatigue",
+        "Finishing without full elbow lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "burpee": {
+      "exercise_id": "burpee",
+      "display_label": "Burpee",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Burpee: Drop to a chest-to-floor position, return to standing, then finish with a vertical jump.",
+      "instruction_detail_text": [
+        "Set up the bodyweight, open floor space securely and establish the prescribed starting position before the first repetition.",
+        "Drop to a chest-to-floor position, return to standing, then finish with a vertical jump.",
+        "Reset burpee deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Control the drop to the floor",
+        "Drive the feet back underneath the hips",
+        "Finish with full hip and knee extension"
+      ],
+      "common_faults": [
+        "Shortening the chest-to-floor contact",
+        "Stepping instead of jumping the feet back",
+        "Skipping the finishing jump"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "air_squat": {
+      "exercise_id": "air_squat",
+      "display_label": "Air squat",
+      "movement_pattern_id": "squat",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Air squat: Descend to the prescribed depth under bodyweight alone, then drive to full standing extension.",
+      "instruction_detail_text": [
+        "Set up the bodyweight securely and establish the prescribed starting position before the first repetition.",
+        "Descend to the prescribed depth under bodyweight alone, then drive to full standing extension.",
+        "Reset air squat deliberately between repetitions so range, alignment and load position remain repeatable."
+      ],
+      "coaching_cues": [
+        "Brace before the descent",
+        "Track the knees with the toes",
+        "Keep pressure through the whole foot"
+      ],
+      "common_faults": [
+        "Losing trunk position during the descent",
+        "Knees collapsing inward under load",
+        "Shifting onto the toes and losing balance"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
       "secondary_activity_applicability": [],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",

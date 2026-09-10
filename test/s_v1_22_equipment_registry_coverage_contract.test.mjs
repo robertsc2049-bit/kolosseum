@@ -276,7 +276,8 @@ function makeEquipmentRecord(equipmentId, overrides = {}) {
       "general_strength",
       "rugby_union",
       "strongman",
-      "hyrox"
+      "hyrox",
+      "crossfit"
     ],
     movement_pattern_applicability: [
       "squat",
@@ -306,7 +307,8 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
     "general_strength",
     "rugby_union",
     "strongman",
-    "hyrox"
+    "hyrox",
+    "crossfit"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [
@@ -406,7 +408,7 @@ test("S-V1-22 real active equipment and exercise registries satisfy the coverage
   });
 
   assert.equal(result.ok, true);
-  assert.equal(result.equipment_count, 36);
+  assert.equal(result.equipment_count, 39);
   assert.deepEqual(result.locked_activity_ids, lockedActivityIds);
 });
 

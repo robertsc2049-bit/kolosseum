@@ -66,7 +66,8 @@
               "general_strength",
               "rugby_union",
               "strongman",
-              "hyrox"
+              "hyrox",
+              "crossfit"
             ]
           },
           "assignment_scope": {
@@ -267,7 +268,8 @@
                   "general_strength",
                   "rugby_union",
                   "strongman",
-                  "hyrox"
+                  "hyrox",
+                  "crossfit"
                 ]
               },
               "exercise_ids": {

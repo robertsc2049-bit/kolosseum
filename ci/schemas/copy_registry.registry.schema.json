@@ -88,7 +88,8 @@
                 "general_strength",
                 "rugby_union",
                 "strongman",
-                "hyrox"
+                "hyrox",
+                "crossfit"
               ]
             },
             "uniqueItems": true

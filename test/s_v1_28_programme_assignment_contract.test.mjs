@@ -32,7 +32,8 @@ test("S-V1-28 exposes a closed programme assignment contract surface", () => {
     "general_strength",
     "rugby_union",
     "strongman",
-    "hyrox"
+    "hyrox",
+    "crossfit"
   ]);
 
   for (const field of [

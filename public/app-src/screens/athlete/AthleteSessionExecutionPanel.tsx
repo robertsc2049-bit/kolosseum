@@ -113,6 +113,94 @@ function ExerciseHowtoBody({ content, referenceMedia }: { content: JsonRecord; r
   );
 }
 
+const GROUP_TYPE_LABELS: Record<string, string> = {
+  complex: "Complex",
+  amrap: "AMRAP",
+  emom: "EMOM",
+  for_time: "For time"
+};
+
+// DEV NOTE: a complex/AMRAP/EMOM/for-time group executes as one continuous
+// unit, so this replaces the plain single-exercise focus view (never both
+// at once) - see useAthleteSessionExecution.ts's currentStepGroup() and
+// session_state_read_model.ts's deriveCurrentStepFromRemaining() for where
+// this step shape comes from. No in-app countdown timer is shown here
+// deliberately - the athlete times themselves, exactly like RPE/Borg/CR10
+// are logged after the fact rather than enforced in real time.
+function GroupWorkoutFocus({ step }: { step: JsonRecord }) {
+  const groupType = String(step.group_type ?? "");
+  const exercises = Array.isArray(step.exercises) ? (step.exercises as JsonRecord[]) : [];
+  const timeCapSeconds = Number(step.time_cap_seconds ?? 0);
+  const roundSeconds = Number(step.round_seconds ?? 0);
+  const totalRounds = Number(step.total_rounds ?? 0);
+
+  return (
+    <div className="exercise-focus group-workout-focus">
+      <p className="eyebrow">{GROUP_TYPE_LABELS[groupType] ?? "Group"}</p>
+      <h3>{exercises.map((exercise) => exerciseName(exercise)).join(" + ")}</h3>
+      {timeCapSeconds > 0 ? <p className="muted">{`Time cap: ${Math.round(timeCapSeconds / 60)} minute${timeCapSeconds === 60 ? "" : "s"}`}</p> : null}
+      {roundSeconds > 0 && totalRounds > 0 ? (
+        <p className="muted">{`${totalRounds} rounds, one every ${roundSeconds} second${roundSeconds === 1 ? "" : "s"}`}</p>
+      ) : null}
+      <ul className="group-workout-exercise-list">
+        {exercises.map((exercise, index) => (
+          <li key={String(exercise.exercise_id ?? index)}>
+            <span>{exerciseName(exercise)}</span>
+            {exerciseDetails(exercise).map((detail, detailIndex) => <span className="exercise-detail" key={detailIndex}>{detail}</span>)}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: ReturnType<typeof useAthleteSessionExecution> }) {
+  const groupType = String(step.group_type ?? "");
+
+  if (groupType === "complex") {
+    return (
+      <button id="completeGroupButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmCompleteGroup()}>Mark complex complete</button>
+    );
+  }
+
+  if (groupType === "amrap") {
+    return (
+      <div className="group-workout-result-form">
+        <label><span>Rounds completed</span><input type="number" min={0} step={1} value={session.groupAmrapRoundsCompleted} onChange={(event) => session.setGroupAmrapRoundsCompleted(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <label><span>Extra reps</span><input type="number" min={0} step={1} value={session.groupAmrapExtraReps} onChange={(event) => session.setGroupAmrapExtraReps(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <button id="confirmAmrapResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmAmrapResult()}>Record AMRAP result</button>
+      </div>
+    );
+  }
+
+  if (groupType === "emom") {
+    return (
+      <div className="group-workout-result-form">
+        <label><span>Rounds completed</span><input type="number" min={0} step={1} value={session.groupEmomRoundsCompleted} onChange={(event) => session.setGroupEmomRoundsCompleted(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <label><span>Rounds missed</span><input type="number" min={0} step={1} value={session.groupEmomRoundsMissed} onChange={(event) => session.setGroupEmomRoundsMissed(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <button id="confirmEmomResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmEmomResult()}>Record EMOM result</button>
+      </div>
+    );
+  }
+
+  if (groupType === "for_time") {
+    return (
+      <div className="group-workout-result-form">
+        <label className="check-line">
+          <input type="checkbox" checked={session.groupForTimeHitTimeCap} onChange={(event) => session.setGroupForTimeHitTimeCap(event.target.checked)} />
+          <span>Hit the time cap before finishing</span>
+        </label>
+        {!session.groupForTimeHitTimeCap ? (
+          <label><span>Elapsed time (seconds)</span><input type="number" min={1} step={1} value={session.groupForTimeElapsedSeconds} onChange={(event) => session.setGroupForTimeElapsedSeconds(Math.max(0, Number(event.target.value) || 0))} /></label>
+        ) : null}
+        <button id="confirmForTimeResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmForTimeResult()}>Record for-time result</button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function AthleteSessionExecutionPanel() {
   const session = useAthleteSessionExecution();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -230,7 +318,9 @@ export function AthleteSessionExecutionPanel() {
                 <h3>Session record complete</h3>
                 <p className="muted">No further exercise is currently recorded.</p>
               </div>
-            ) : step.type === "RETURN_DECISION" ? null : (
+            ) : step.type === "RETURN_DECISION" ? null : step.type === "GROUP_WORKOUT" ? (
+              <GroupWorkoutFocus step={step} />
+            ) : (
               <div className="exercise-focus">
                 <p className="eyebrow">Current exercise</p>
                 <h3>{exerciseName(exercise)}</h3>
@@ -410,6 +500,11 @@ export function AthleteSessionExecutionPanel() {
             <div className="session-actions">
               {!started ? (
                 <button id="startSessionButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.startSession()}>Start session</button>
+              ) : step.type === "GROUP_WORKOUT" ? (
+                <>
+                  <GroupWorkoutActions step={step} session={session} />
+                  <button id="splitSessionButton" className="button secondary wide" type="button" disabled={session.busy} onClick={() => session.splitSession()}>Stop and return later</button>
+                </>
               ) : (
                 <>
                   <button id="completeExerciseButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.completeStep()}>Mark exercise complete</button>

@@ -86,6 +86,62 @@ test("draftToValidationRecord round-trip flags a missing programme name, matchin
   assert.ok(issues.some((issue) => issue.code === "template_name_required"));
 });
 
+// A barbell complex's whole point is that the bar never gets reloaded
+// between movements - these two tests cover programmeActivationIssues()'s
+// enforcement of that invariant on a "complex" group_type.
+function draftWithGroupedWorkItems(memberOverrides: Record<string, unknown>[]): ProgrammeDraft {
+  const items = memberOverrides.map((overrides, index) => storedWorkItemToDraft({ exercise_id: "back_squat", order_index: index + 1, ...overrides }, index));
+  const block = newTemplateBlock(1);
+  block.weeks[0] = { ...block.weeks[0], sessions: [{ ...newTemplateSession(1), work_items: items }] };
+  return draft({ blocks: [block] });
+}
+
+test("flags a complex group whose members prescribe different fixed weights", () => {
+  const record = draftToValidationRecord(draftWithGroupedWorkItems([
+    { exercise_id: "power_clean", group_id: "g1", group_type: "complex", loading_reference: { type: "load", value: 40, unit: "kg" } },
+    { exercise_id: "thruster", group_id: "g1", group_type: "complex", loading_reference: { type: "load", value: 60, unit: "kg" } }
+  ]));
+  const issues = programmeActivationIssues(record, [{ exercise_id: "power_clean" }, { exercise_id: "thruster" }]);
+  assert.ok(issues.some((issue) => issue.code === "work_item_group_complex_weight_mismatch"));
+});
+
+test("flags a complex group with a non-fixed-weight member", () => {
+  const record = draftToValidationRecord(draftWithGroupedWorkItems([
+    { exercise_id: "power_clean", group_id: "g1", group_type: "complex", loading_reference: { type: "load", value: 40, unit: "kg" } },
+    { exercise_id: "thruster", group_id: "g1", group_type: "complex", loading_reference: { type: "percent_1rm", value: 70 } }
+  ]));
+  const issues = programmeActivationIssues(record, [{ exercise_id: "power_clean" }, { exercise_id: "thruster" }]);
+  assert.ok(issues.some((issue) => issue.code === "work_item_group_complex_requires_fixed_weight"));
+});
+
+test("a complex group whose members all prescribe the same fixed weight raises no complex-specific issue", () => {
+  const record = draftToValidationRecord(draftWithGroupedWorkItems([
+    { exercise_id: "power_clean", group_id: "g1", group_type: "complex", loading_reference: { type: "load", value: 40, unit: "kg" } },
+    { exercise_id: "thruster", group_id: "g1", group_type: "complex", loading_reference: { type: "load", value: 40, unit: "kg" } }
+  ]));
+  const issues = programmeActivationIssues(record, [{ exercise_id: "power_clean" }, { exercise_id: "thruster" }]);
+  assert.ok(!issues.some((issue) => issue.code === "work_item_group_complex_weight_mismatch"));
+  assert.ok(!issues.some((issue) => issue.code === "work_item_group_complex_requires_fixed_weight"));
+});
+
+test("flags an amrap group whose members carry different (or missing) time caps", () => {
+  const record = draftToValidationRecord(draftWithGroupedWorkItems([
+    { exercise_id: "toes_to_bar", group_id: "g2", group_type: "amrap", group_time_cap_seconds: 720 },
+    { exercise_id: "pull_up", group_id: "g2", group_type: "amrap", group_time_cap_seconds: 600 }
+  ]));
+  const issues = programmeActivationIssues(record, [{ exercise_id: "toes_to_bar" }, { exercise_id: "pull_up" }]);
+  assert.ok(issues.some((issue) => issue.code === "work_item_group_time_cap_invalid"));
+});
+
+test("flags an emom group whose members carry different round parameters", () => {
+  const record = draftToValidationRecord(draftWithGroupedWorkItems([
+    { exercise_id: "kettlebell_deadlift", group_id: "g3", group_type: "emom", group_round_seconds: 60, group_total_rounds: 10 },
+    { exercise_id: "goblet_squat", group_id: "g3", group_type: "emom", group_round_seconds: 45, group_total_rounds: 10 }
+  ]));
+  const issues = programmeActivationIssues(record, [{ exercise_id: "kettlebell_deadlift" }, { exercise_id: "goblet_squat" }]);
+  assert.ok(issues.some((issue) => issue.code === "work_item_group_emom_params_invalid"));
+});
+
 test("renders nothing until the legacy builder broadcasts an open draft", () => {
   installMocks();
   const { container } = render(<CoachProgrammeBuilderValidationList />);

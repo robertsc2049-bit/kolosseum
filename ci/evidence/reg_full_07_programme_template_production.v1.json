@@ -4,35 +4,35 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "e3db371dcf7f4abc6d139df76eb8487d48cbacd4e0d16f1b5fb9e06234cb1eff",
+  "canonical_registry_sha256": "057960b620fe320c5588d247e5639c39819fa9beacee50fa226ca099148ea3a8",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "b203fd9111fed71fa3f9690904462fb027c45a6e21c5b66f8cf3b56567e3cefa"
+      "sha256": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "e169acc470577d797451c674c090a5d5348183bec34410ddaa2777f022a2e1fb"
+      "sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "ea7c65d3634ae980b548f02547116910994156eb00db63e0114f3562e6df59c1"
+      "sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
-      "sha256": "52e12238b58f583d2a8dbde97af3038b3657d96cd693659b73b60db9341655ab"
+      "sha256": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb"
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "51ae761f4dbff7f538d6bf5e6af3121963b01514d23c73731a92a0d8bcf7e34a"
+      "sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "6bf0d9a0ce465b97c1ad1bccbf792977ec98f80095f2eba7f5e22ec00860778c"
+      "sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "000d2cc8fa2bd43ac962cacb268f0414eb5908bea0396b6012e8e3433645b6ff"
+      "sha256": "cad3961089756bca2fb4a8ed83eff11e1efbeb377a97685d1ca5b6284e6bf4e0"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -40,7 +40,7 @@
     },
     "surfaceManifest": {
       "path": "registries/final_registry_surface_manifest.json",
-      "sha256": "c600101efc9ba21efc41267489a0cb748c4998bc9d14a2e142f0e3109224d616"
+      "sha256": "6195555058c51f8599bf0fe35cce1b076275b42153ee31ce347cae7f3eb9e8c4"
     },
     "schemaManifest": {
       "path": "registries/final_registry_schema_manifest.json",
@@ -48,17 +48,18 @@
     }
   },
   "counts": {
-    "template_count": 17,
+    "template_count": 20,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
-      "hyrox": 3
+      "hyrox": 3,
+      "crossfit": 3
     },
-    "low_equipment_templates": 3,
-    "unique_scheduled_exercises": 23,
-    "scheduled_work_items": 588
+    "low_equipment_templates": 4,
+    "unique_scheduled_exercises": 30,
+    "scheduled_work_items": 604
   },
   "family_ids": [
     "powerlifting_novice",
@@ -77,7 +78,10 @@
     "strongman_low_equipment",
     "hyrox_novice",
     "hyrox_intermediate",
-    "hyrox_race_prep"
+    "hyrox_race_prep",
+    "crossfit_novice",
+    "crossfit_intermediate",
+    "crossfit_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,

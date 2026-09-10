@@ -104,6 +104,21 @@ const V1_ACTIVITIES = Object.freeze([
       "hyrox_intermediate",
       "hyrox_race_prep"
     ])
+  }),
+  Object.freeze({
+    activity_id: "crossfit",
+    display_label: "CrossFit",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "crossfit_competition", display_label: "CrossFit competition" }),
+      Object.freeze({ event_type_id: "wod_event", display_label: "WOD event" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "crossfit_novice",
+      "crossfit_intermediate",
+      "crossfit_low_equipment"
+    ])
   })
 ]);
 

@@ -75,6 +75,39 @@ function toPlannedExercisesFromIds(planned: PlannedSession, ids: string[]): Plan
   return out;
 }
 
+const GROUP_WORKOUT_TYPES = new Set(["complex", "amrap", "emom", "for_time"]);
+
+// DEV NOTE: a complex/AMRAP/EMOM/for-time group executes and completes as
+// one unit, not one exercise at a time - when the next unfinished exercise
+// belongs to such a group, the step bundles every remaining member of that
+// group together instead of surfacing just remaining_exercises[0] alone.
+function deriveCurrentStepFromRemaining(remaining_exercises: PlannedExercise[]): unknown {
+  if (remaining_exercises.length === 0) return null;
+
+  const first = remaining_exercises[0];
+  const groupType = typeof first.group_type === "string" ? first.group_type : "";
+  const groupId = typeof first.group_id === "string" ? first.group_id : "";
+
+  if (!groupId || !GROUP_WORKOUT_TYPES.has(groupType)) {
+    return { type: "EXERCISE", exercise: first };
+  }
+
+  const members = remaining_exercises.filter((exercise) => exercise.group_id === groupId);
+  const timeCapSeconds = Number(first.group_time_cap_seconds ?? 0);
+  const roundSeconds = Number(first.group_round_seconds ?? 0);
+  const totalRounds = Number(first.group_total_rounds ?? 0);
+
+  return {
+    type: "GROUP_WORKOUT",
+    group_id: groupId,
+    group_type: groupType,
+    exercises: members,
+    ...(timeCapSeconds > 0 ? { time_cap_seconds: timeCapSeconds } : {}),
+    ...(roundSeconds > 0 ? { round_seconds: roundSeconds } : {}),
+    ...(totalRounds > 0 ? { total_rounds: totalRounds } : {})
+  };
+}
+
 export function ensureReturnDecisionContract(
   summary: any,
   deriveTraceFn: (summary: any) => any
@@ -419,7 +452,7 @@ export function projectSessionStatePayload(
   const current_step =
     return_decision_required === true
       ? { type: "RETURN_DECISION", options: return_decision_options }
-      : (remaining_exercises.length > 0 ? { type: "EXERCISE", exercise: remaining_exercises[0] } : null);
+      : deriveCurrentStepFromRemaining(remaining_exercises);
 
   const execution_status = deriveExecutionStatus(
     remainingIds,

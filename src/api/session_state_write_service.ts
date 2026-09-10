@@ -799,6 +799,173 @@ function ensureExtraExerciseReportShapeValid(event: unknown, planned: PlannedSes
   }
 }
 
+// DEV NOTE: complex/AMRAP/EMOM/for-time work items execute and complete as
+// one group, not one exercise at a time. These helpers resolve a reported
+// group_id back to its member exercise_ids (and the group's own declared
+// group_type) from the frozen planned session - the only source of truth
+// for which work items belong to which group, since runtime state itself
+// only ever tracks flat exercise_id lists.
+function groupMembersFromPlanned(planned: PlannedSession, groupId: string): { exerciseIds: string[]; groupType: string | null } {
+  const exerciseIds: string[] = [];
+  let groupType: string | null = null;
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const record = ex as Record<string, unknown>;
+    if (typeof record?.exercise_id === "string" && record.group_id === groupId) {
+      exerciseIds.push(record.exercise_id);
+      if (typeof record.group_type === "string") groupType = record.group_type;
+    }
+  }
+  return { exerciseIds, groupType };
+}
+
+function ensureGroupResultReportShapeValid(
+  event: unknown,
+  planned: PlannedSession,
+  summary: any,
+  eventType: string,
+  allowedKeys: Set<string>,
+  expectedGroupType: string
+): void {
+  const t = rawEventType(event);
+  if (t !== eventType) return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!allowedKeys.has(key)) {
+      throw badRequest(`Runtime event rejected (${eventType} must record only the permitted factual input)`, {
+        failure_token: "phase6_runtime_group_result_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const groupId = typeof obj.group_id === "string" ? obj.group_id.trim() : "";
+  if (!groupId) {
+    throw badRequest(`Runtime event rejected (missing ${eventType} group_id)`, {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: group_id"
+    });
+  }
+
+  const { exerciseIds, groupType } = groupMembersFromPlanned(planned, groupId);
+  if (exerciseIds.length === 0 || groupType !== expectedGroupType) {
+    throw badRequest(`Runtime event rejected (${eventType} group_id does not match a ${expectedGroupType} group in this session)`, {
+      failure_token: "phase6_runtime_group_result_report_unknown_group",
+      cause: `PHASE6_RUNTIME_GROUP_RESULT_REPORT_UNKNOWN_GROUP: ${groupId}`
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const remainingIds = uniqStable(trace?.remaining_ids);
+  const stillRemaining = exerciseIds.some((id) => remainingIds.includes(id));
+  if (!stillRemaining) {
+    throw conflict(`Runtime event rejected (${eventType} group already resolved)`, {
+      failure_token: "phase6_runtime_resolved_group_replay",
+      cause: `PHASE6_RUNTIME_RESOLVED_GROUP_REPLAY: ${groupId}`
+    });
+  }
+}
+
+const COMPLETE_GROUP_ALLOWED_KEYS = new Set(["type", "group_id", "client_request_id"]);
+
+function ensureCompleteGroupShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "COMPLETE_GROUP", COMPLETE_GROUP_ALLOWED_KEYS, "complex");
+}
+
+const AMRAP_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "extra_reps", "client_request_id"]);
+
+function ensureAmrapResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "AMRAP_RESULT_REPORT", AMRAP_RESULT_REPORT_ALLOWED_KEYS, "amrap");
+  const t = rawEventType(event);
+  if (t !== "AMRAP_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const roundsCompleted = obj.rounds_completed;
+  if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
+    throw badRequest("Runtime event rejected (AMRAP result rounds_completed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_completed"
+    });
+  }
+  const extraReps = obj.extra_reps;
+  if (!Number.isInteger(extraReps) || (extraReps as number) < 0) {
+    throw badRequest("Runtime event rejected (AMRAP result extra_reps must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: extra_reps"
+    });
+  }
+}
+
+const EMOM_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "rounds_missed", "client_request_id"]);
+
+function ensureEmomResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "EMOM_RESULT_REPORT", EMOM_RESULT_REPORT_ALLOWED_KEYS, "emom");
+  const t = rawEventType(event);
+  if (t !== "EMOM_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const roundsCompleted = obj.rounds_completed;
+  if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
+    throw badRequest("Runtime event rejected (EMOM result rounds_completed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_completed"
+    });
+  }
+  const roundsMissed = obj.rounds_missed;
+  if (!Number.isInteger(roundsMissed) || (roundsMissed as number) < 0) {
+    throw badRequest("Runtime event rejected (EMOM result rounds_missed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_missed"
+    });
+  }
+}
+
+const FOR_TIME_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "elapsed_seconds", "hit_time_cap", "client_request_id"]);
+
+function ensureForTimeResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "FOR_TIME_RESULT_REPORT", FOR_TIME_RESULT_REPORT_ALLOWED_KEYS, "for_time");
+  const t = rawEventType(event);
+  if (t !== "FOR_TIME_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const elapsedSeconds = obj.elapsed_seconds;
+  if (!Number.isInteger(elapsedSeconds) || (elapsedSeconds as number) <= 0) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must be a positive whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds"
+    });
+  }
+  const hitTimeCap = obj.hit_time_cap;
+  if (typeof hitTimeCap !== "boolean") {
+    throw badRequest("Runtime event rejected (for-time result hit_time_cap must be a boolean)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: hit_time_cap"
+    });
+  }
+
+  const groupId = String(obj.group_id ?? "");
+  const { exerciseIds } = groupMembersFromPlanned(planned, groupId);
+  const capSeconds = exerciseIds.length > 0 ? Number((planned?.exercises ?? []).find((ex: any) => ex?.group_id === groupId)?.group_time_cap_seconds ?? 0) : 0;
+  if (hitTimeCap === true && capSeconds > 0 && elapsedSeconds !== capSeconds) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must equal the group's time cap when hit_time_cap is true)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds_vs_time_cap"
+    });
+  }
+  if (hitTimeCap === false && capSeconds > 0 && (elapsedSeconds as number) >= capSeconds) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must be less than the group's time cap when hit_time_cap is false)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds_vs_time_cap"
+    });
+  }
+}
+
+const GROUP_COMPLETION_EVENT_TYPES = new Set(["COMPLETE_GROUP", "AMRAP_RESULT_REPORT", "EMOM_RESULT_REPORT", "FOR_TIME_RESULT_REPORT"]);
+
+function isGroupCompletionEventType(t: string | null): boolean {
+  return typeof t === "string" && GROUP_COMPLETION_EVENT_TYPES.has(t);
+}
+
 function ensureSubstitutionTagValid(event: unknown): void {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
@@ -1070,6 +1237,10 @@ export async function appendRuntimeEventMutation(
     ensureCr10ReportShapeValid(event, planned, workingSummary);
     ensureExtraSetReportShapeValid(event, workingSummary);
     ensureExtraExerciseReportShapeValid(event, planned, workingSummary);
+    ensureCompleteGroupShapeValid(event, planned, workingSummary);
+    ensureAmrapResultReportShapeValid(event, planned, workingSummary);
+    ensureEmomResultReportShapeValid(event, planned, workingSummary);
+    ensureForTimeResultReportShapeValid(event, planned, workingSummary);
     ensureSubstitutionTagValid(event);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);
@@ -1101,7 +1272,30 @@ export async function appendRuntimeEventMutation(
     let nextSummary: any;
     try {
       __kolosseumWireSentinel(event as any);
-      nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+
+      if (isGroupCompletionEventType(rawEventType(event))) {
+        // The one persisted runtime_events row above is the athlete's own
+        // reported fact (a complex mark-complete, or an AMRAP/EMOM/for-time
+        // result) - it never mutates reducer truth on its own (matching
+        // every other *_REPORT type, see toEngineEvent's default case).
+        // Completion is instead driven from here: every group member still
+        // in remaining_ids is folded through the exact same COMPLETE_EXERCISE
+        // path a single exercise already uses, so no new engine reducer
+        // case or export is needed for this.
+        const groupId = typeof (event as any)?.group_id === "string" ? (event as any).group_id : "";
+        const { exerciseIds: groupExerciseIds } = groupMembersFromPlanned(planned, groupId);
+        const trace0: any = deriveTrace(workingSummary as any) as any;
+        const remaining0 = new Set(uniqStable(trace0?.remaining_ids));
+
+        let folded = workingSummary;
+        for (const memberId of groupExerciseIds) {
+          if (!remaining0.has(memberId)) continue;
+          folded = applyWireEvent(folded, { type: "COMPLETE_EXERCISE", exercise_id: memberId } as any, planned as any) as any;
+        }
+        nextSummary = folded;
+      } else {
+        nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+      }
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }

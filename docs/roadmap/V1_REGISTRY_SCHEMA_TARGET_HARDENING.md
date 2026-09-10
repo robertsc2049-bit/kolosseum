@@ -190,7 +190,7 @@ S20 is accepted when:
 - lint:fast invokes the S20 guard
 - required registry domains are listed
 - required field groups are listed
-- locked activities remain powerlifting, general_strength, rugby_union, strongman, and hyrox
+- locked activities remain powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit
 - excluded schema drift examples are rejected
 - no registry content is added
 - no template content is added
@@ -251,3 +251,7 @@ Exact forbidden drift tokens checked by CI:
 ## Amendment - Hyrox activated as v1's fifth locked activity
 
 The locked activity set is now powerlifting, general_strength, rugby_union, strongman, and hyrox, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.
+
+## Amendment - CrossFit activated as v1's sixth locked activity
+
+The locked activity set is now powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.

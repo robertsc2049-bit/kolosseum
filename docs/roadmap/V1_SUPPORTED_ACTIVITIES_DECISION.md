@@ -191,3 +191,24 @@ Authorisation: explicit direct chat instruction from the product owner ("we need
 Rationale: this is the first activity added on top of the generalized v1 activity-set foundation (see `shared/v1-boundary/v1ActivityRegistry.mjs`), chosen specifically to prove that foundation handles a genuinely new programme-template shape (a fixed-order station/circuit format, not the periodized block/week/session model every prior activity uses) rather than only a cheap relabelling of existing content. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition.
 
 Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, and Hyrox. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.
+
+## Amendment - CrossFit activated as v1's sixth locked activity
+
+Status: Accepted.
+
+This amendment does not rewrite the "Explicit v1 exclusions" listing above (CrossFit was not itself a named exclusion there); it records a new activity added to the locked set under "additional individual sports," and it is the first activation to also build real completion/scoring semantics for grouped work items rather than only registry/template content.
+
+v1 supported activities are now locked to:
+
+1. powerlifting
+2. general_strength
+3. rugby_union
+4. strongman
+5. hyrox
+6. crossfit
+
+Authorisation: explicit direct chat instruction from the product owner ("we need to allow complexes. barbell complexes, crossfit workouts etc."), followed by an explicit choice via clarifying question for the full-scope option ("Full CrossFit activity with AMRAP/EMOM/for-time scoring" over a complexes-only or scoring-deferred cut), and a second explicit choice to build the activity unlock and the new completion model in one slice rather than sequencing them ("Everything in one slice") after being shown that Hyrox's own activation had promised but never built the equivalent new programme-template shape. A full implementation plan naming this scope specifically was presented and approved via Plan Mode before this slice began.
+
+Rationale: this is the first activity addition to also close the gap Hyrox's own amendment left open - a genuinely new completion model (grouped "complex"/AMRAP/EMOM/for-time work items, sharing one weight or one clock across several exercises) rather than only a periodized block/week/session template dressed in new registry content. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition, and additionally extends the existing work-item grouping mechanism (`group_id`/`group_type`) with real execution semantics instead of introducing a parallel one.
+
+Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, Hyrox, and CrossFit. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.

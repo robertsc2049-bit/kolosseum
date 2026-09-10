@@ -131,6 +131,16 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
       work("sandbag_lunge", 1, 12),
       work("wall_ball", 1, 15)
     ])
+  ]) }),
+  Object.freeze({ template_id: "crossfit_novice", activity_id: "crossfit", weeks: 2, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("thruster", 4, 6), work("toes_to_bar", 3, 8)])
+  ]) }),
+  Object.freeze({ template_id: "crossfit_intermediate", activity_id: "crossfit", weeks: 2, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("power_clean", 5, 3), work("muscle_up", 3, 5)]),
+    Object.freeze([work("snatch", 5, 3), work("push_jerk", 5, 3)])
+  ]) }),
+  Object.freeze({ template_id: "crossfit_low_equipment", activity_id: "crossfit", weeks: 2, low_equipment: true, days: Object.freeze([
+    Object.freeze([work("toes_to_bar", 3, 8), work("handstand_push_up", 3, 5)])
   ]) })
 ]);
 
@@ -163,7 +173,14 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   burpee_broad_jump: "burpee_broad_jump__to__standing_broad_jump",
   rowing_ergometer: "rowing_ergometer__to__ski_erg",
   sandbag_lunge: "sandbag_lunge__to__reverse_lunge",
-  wall_ball: "wall_ball__to__backward_overhead_medicine_ball_throw"
+  wall_ball: "wall_ball__to__backward_overhead_medicine_ball_throw",
+  thruster: "thruster__to__dumbbell_overhead_press",
+  power_clean: "power_clean__to__kettlebell_deadlift",
+  snatch: "snatch__to__kettlebell_deadlift",
+  push_jerk: "push_jerk__to__dumbbell_overhead_press",
+  muscle_up: "muscle_up__to__pull_up",
+  toes_to_bar: "toes_to_bar__to__curl_up",
+  handstand_push_up: "handstand_push_up__to__pike_push_up"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);
@@ -180,6 +197,7 @@ function assert(condition, message) { if (!condition) throw new Error(`REG_FULL_
 
 function loadingReference(exerciseId) {
   if (exerciseId === "box_jump" || exerciseId === "bulgarian_split_squat" || exerciseId === "burpee_broad_jump") return "bodyweight";
+  if (exerciseId === "muscle_up" || exerciseId === "toes_to_bar" || exerciseId === "handstand_push_up") return "bodyweight";
   if (exerciseId === "backward_overhead_medicine_ball_throw" || exerciseId === "wall_ball") return "coach_declared_implement_load";
   return "coach_declared_load";
 }

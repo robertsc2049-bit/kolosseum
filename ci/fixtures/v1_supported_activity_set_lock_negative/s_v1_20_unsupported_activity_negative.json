@@ -7,7 +7,8 @@
     "general_strength",
     "rugby_union",
     "strongman",
-    "hyrox"
+    "hyrox",
+    "crossfit"
   ],
   "unsupported_activity_ids": [
     "bodybuilding",

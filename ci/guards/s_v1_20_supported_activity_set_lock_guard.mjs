@@ -20,7 +20,8 @@ const expectedActivities = Object.freeze([
   "general_strength",
   "rugby_union",
   "strongman",
-  "hyrox"
+  "hyrox",
+  "crossfit"
 ]);
 
 const requiredFiles = Object.freeze([
