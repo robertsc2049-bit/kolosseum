@@ -1005,6 +1005,420 @@ test("appendRuntimeEventMutation rejects EXTRA_EXERCISE_REPORT with load_value b
   assert.equal(err.meta?.failure_token, "phase6_runtime_extra_exercise_report_invalid_shape");
 });
 
+test("appendRuntimeEventMutation accepts COMPLETE_GROUP for a complex and folds every remaining member through COMPLETE_EXERCISE, with exactly one runtime_events row", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_complete_group",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "power_clean", source: "program", group_id: "complex1", group_type: "complex" },
+        { exercise_id: "push_jerk", source: "program", group_id: "complex1", group_type: "complex" },
+        { exercise_id: "thruster", source: "program", group_id: "complex1", group_type: "complex" }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["power_clean", "push_jerk", "thruster"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const foldedEvents = [];
+  applyWireEventImpl = (summary, ev) => {
+    foldedEvents.push(ev);
+    const rt = summary?.runtime ?? {};
+    const remaining = rt.remaining_ids.filter((id) => id !== ev.exercise_id);
+    return {
+      ...summary,
+      started: true,
+      runtime: {
+        ...rt,
+        remaining_ids: remaining,
+        completed_ids: [...rt.completed_ids, ev.exercise_id]
+      }
+    };
+  };
+
+  const out = await appendRuntimeEventMutation("s_complete_group", { type: "COMPLETE_GROUP", group_id: "complex1" });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_complete_group", seq: 1 });
+
+  assert.equal(insertedEvents.length, 1, "COMPLETE_GROUP must insert exactly one runtime_events row, not one per member");
+  assert.deepEqual(insertedEvents[0].event, { type: "COMPLETE_GROUP", group_id: "complex1" });
+
+  assert.deepEqual(
+    foldedEvents,
+    [
+      { type: "COMPLETE_EXERCISE", exercise_id: "power_clean" },
+      { type: "COMPLETE_EXERCISE", exercise_id: "push_jerk" },
+      { type: "COMPLETE_EXERCISE", exercise_id: "thruster" }
+    ],
+    "every remaining group member must be folded through COMPLETE_EXERCISE"
+  );
+});
+
+test("appendRuntimeEventMutation rejects COMPLETE_GROUP for an unknown group_id", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_complete_group_unknown",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "power_clean", source: "program", group_id: "complex1", group_type: "complex" },
+        { exercise_id: "push_jerk", source: "program", group_id: "complex1", group_type: "complex" }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["power_clean", "push_jerk"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_complete_group_unknown", { type: "COMPLETE_GROUP", group_id: "not_a_real_group" });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_group_result_report_unknown_group");
+});
+
+test("appendRuntimeEventMutation rejects a group result report carrying an unlisted key", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_complete_group_bad_shape",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "power_clean", source: "program", group_id: "complex1", group_type: "complex" },
+        { exercise_id: "push_jerk", source: "program", group_id: "complex1", group_type: "complex" }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["power_clean", "push_jerk"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_complete_group_bad_shape", {
+      type: "COMPLETE_GROUP",
+      group_id: "complex1",
+      notes: "felt heavy"
+    });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_group_result_report_invalid_shape");
+});
+
+test("appendRuntimeEventMutation accepts AMRAP_RESULT_REPORT and folds every remaining member through COMPLETE_EXERCISE, with exactly one runtime_events row", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_amrap_result",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "toes_to_bar", source: "program", group_id: "amrapA", group_type: "amrap", group_time_cap_seconds: 720 },
+        { exercise_id: "pull_up", source: "program", group_id: "amrapA", group_type: "amrap", group_time_cap_seconds: 720 }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["toes_to_bar", "pull_up"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const foldedEvents = [];
+  applyWireEventImpl = (summary, ev) => {
+    foldedEvents.push(ev);
+    const rt = summary?.runtime ?? {};
+    return {
+      ...summary,
+      started: true,
+      runtime: {
+        ...rt,
+        remaining_ids: rt.remaining_ids.filter((id) => id !== ev.exercise_id),
+        completed_ids: [...rt.completed_ids, ev.exercise_id]
+      }
+    };
+  };
+
+  const out = await appendRuntimeEventMutation("s_amrap_result", {
+    type: "AMRAP_RESULT_REPORT",
+    group_id: "amrapA",
+    rounds_completed: 6,
+    extra_reps: 4
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_amrap_result", seq: 1 });
+  assert.equal(insertedEvents.length, 1, "AMRAP_RESULT_REPORT must insert exactly one runtime_events row, not one per member");
+  assert.deepEqual(insertedEvents[0].event, {
+    type: "AMRAP_RESULT_REPORT",
+    group_id: "amrapA",
+    rounds_completed: 6,
+    extra_reps: 4
+  });
+  assert.deepEqual(
+    foldedEvents,
+    [
+      { type: "COMPLETE_EXERCISE", exercise_id: "toes_to_bar" },
+      { type: "COMPLETE_EXERCISE", exercise_id: "pull_up" }
+    ]
+  );
+});
+
+test("appendRuntimeEventMutation rejects AMRAP_RESULT_REPORT with a negative rounds_completed", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_amrap_bad_rounds",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "toes_to_bar", source: "program", group_id: "amrapA", group_type: "amrap", group_time_cap_seconds: 720 },
+        { exercise_id: "pull_up", source: "program", group_id: "amrapA", group_type: "amrap", group_time_cap_seconds: 720 }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["toes_to_bar", "pull_up"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_amrap_bad_rounds", {
+      type: "AMRAP_RESULT_REPORT",
+      group_id: "amrapA",
+      rounds_completed: -1,
+      extra_reps: 0
+    });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_group_result_report_invalid_shape");
+});
+
+test("appendRuntimeEventMutation accepts EMOM_RESULT_REPORT and folds every remaining member through COMPLETE_EXERCISE, with exactly one runtime_events row", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_emom_result",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "kettlebell_deadlift", source: "program", group_id: "emom1", group_type: "emom", group_round_seconds: 60, group_total_rounds: 10 },
+        { exercise_id: "goblet_squat", source: "program", group_id: "emom1", group_type: "emom", group_round_seconds: 60, group_total_rounds: 10 }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["kettlebell_deadlift", "goblet_squat"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const foldedEvents = [];
+  applyWireEventImpl = (summary, ev) => {
+    foldedEvents.push(ev);
+    const rt = summary?.runtime ?? {};
+    return {
+      ...summary,
+      started: true,
+      runtime: {
+        ...rt,
+        remaining_ids: rt.remaining_ids.filter((id) => id !== ev.exercise_id),
+        completed_ids: [...rt.completed_ids, ev.exercise_id]
+      }
+    };
+  };
+
+  const out = await appendRuntimeEventMutation("s_emom_result", {
+    type: "EMOM_RESULT_REPORT",
+    group_id: "emom1",
+    rounds_completed: 9,
+    rounds_missed: 1
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_emom_result", seq: 1 });
+  assert.equal(insertedEvents.length, 1, "EMOM_RESULT_REPORT must insert exactly one runtime_events row, not one per member");
+  assert.deepEqual(insertedEvents[0].event, {
+    type: "EMOM_RESULT_REPORT",
+    group_id: "emom1",
+    rounds_completed: 9,
+    rounds_missed: 1
+  });
+  assert.deepEqual(
+    foldedEvents,
+    [
+      { type: "COMPLETE_EXERCISE", exercise_id: "kettlebell_deadlift" },
+      { type: "COMPLETE_EXERCISE", exercise_id: "goblet_squat" }
+    ]
+  );
+});
+
+test("appendRuntimeEventMutation accepts FOR_TIME_RESULT_REPORT and folds every remaining member through COMPLETE_EXERCISE, with exactly one runtime_events row", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_for_time_result",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "toes_to_bar", source: "program", group_id: "fortime1", group_type: "for_time", group_time_cap_seconds: 600 },
+        { exercise_id: "pull_up", source: "program", group_id: "fortime1", group_type: "for_time", group_time_cap_seconds: 600 }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["toes_to_bar", "pull_up"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  const foldedEvents = [];
+  applyWireEventImpl = (summary, ev) => {
+    foldedEvents.push(ev);
+    const rt = summary?.runtime ?? {};
+    return {
+      ...summary,
+      started: true,
+      runtime: {
+        ...rt,
+        remaining_ids: rt.remaining_ids.filter((id) => id !== ev.exercise_id),
+        completed_ids: [...rt.completed_ids, ev.exercise_id]
+      }
+    };
+  };
+
+  const out = await appendRuntimeEventMutation("s_for_time_result", {
+    type: "FOR_TIME_RESULT_REPORT",
+    group_id: "fortime1",
+    elapsed_seconds: 480,
+    hit_time_cap: false
+  });
+
+  assert.deepEqual(out, { ok: true, session_id: "s_for_time_result", seq: 1 });
+  assert.equal(insertedEvents.length, 1, "FOR_TIME_RESULT_REPORT must insert exactly one runtime_events row, not one per member");
+  assert.deepEqual(insertedEvents[0].event, {
+    type: "FOR_TIME_RESULT_REPORT",
+    group_id: "fortime1",
+    elapsed_seconds: 480,
+    hit_time_cap: false
+  });
+  assert.deepEqual(
+    foldedEvents,
+    [
+      { type: "COMPLETE_EXERCISE", exercise_id: "toes_to_bar" },
+      { type: "COMPLETE_EXERCISE", exercise_id: "pull_up" }
+    ]
+  );
+});
+
+test("appendRuntimeEventMutation rejects FOR_TIME_RESULT_REPORT whose elapsed_seconds equals the time cap but hit_time_cap is false", async () => {
+  resetState();
+
+  currentSessionRow = {
+    session_id: "s_for_time_cap_mismatch",
+    status: "in_progress",
+    planned_session: {
+      exercises: [
+        { exercise_id: "toes_to_bar", source: "program", group_id: "fortime1", group_type: "for_time", group_time_cap_seconds: 600 },
+        { exercise_id: "pull_up", source: "program", group_id: "fortime1", group_type: "for_time", group_time_cap_seconds: 600 }
+      ],
+      notes: []
+    },
+    session_state_summary: {
+      started: true,
+      runtime: {
+        remaining_ids: ["toes_to_bar", "pull_up"],
+        completed_ids: [],
+        dropped_ids: [],
+        return_decision_required: false,
+        return_decision_options: []
+      }
+    }
+  };
+
+  let err;
+  try {
+    await appendRuntimeEventMutation("s_for_time_cap_mismatch", {
+      type: "FOR_TIME_RESULT_REPORT",
+      group_id: "fortime1",
+      elapsed_seconds: 600,
+      hit_time_cap: false
+    });
+  } catch (e) {
+    err = e;
+  }
+
+  assert.ok(err);
+  assert.equal(err.status ?? err.statusCode, 400);
+  assert.equal(err.meta?.failure_token, "phase6_runtime_group_result_report_invalid_shape");
+});
+
 test("appendRuntimeEventMutation maps COMPLETE_STEP to COMPLETE_EXERCISE for first remaining id", async () => {
   resetState();
 
