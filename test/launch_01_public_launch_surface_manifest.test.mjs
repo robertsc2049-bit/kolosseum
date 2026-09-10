@@ -97,8 +97,8 @@ test("LAUNCH-01 materializes every current function with the required release re
     const payload = readJson(emitted);
     const surface = readJson(surfacePath);
     const launch00 = readJson(launch00Path);
-    assert.equal(payload.records.length, 332);
-    assert.equal(new Set(payload.records.map((record) => record.function_id)).size, 332);
+    assert.equal(payload.records.length, 334);
+    assert.equal(new Set(payload.records.map((record) => record.function_id)).size, 334);
     const activeAreas = new Set(surface.area_classifications.launch_active);
     const activeRecords = payload.records.filter((record) => record.launch_classification === "launch_active");
     assert.deepEqual(
