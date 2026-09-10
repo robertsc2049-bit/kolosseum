@@ -104,7 +104,7 @@ export function AthleteDirectoryPanel() {
     <>
       <div className="metric-cards relationship-metric-cards" role="status" aria-live="polite">
         {COUNT_LABELS.map(([label, key]) => (
-          <article className="metric-card relationship-metric-card" key={key}>
+          <article className="panel metric-card relationship-metric-card" key={key}>
             <span>{label}</span>
             <strong>{counts[key]}</strong>
           </article>
