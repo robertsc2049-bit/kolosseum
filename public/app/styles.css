@@ -732,6 +732,7 @@ button:focus-visible,
   border-radius: var(--k-radius-m);
   background: rgba(0, 0, 0, 0.13);
 }
+.today-resolved-load > span { display: block; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
 .today-resolved-load-value { margin: 0 0 0.2rem; font-size: 1.2rem; font-weight: 700; }
 
 .today-notes { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--line-soft); }
@@ -3694,6 +3695,74 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
     bottom: 1rem;
     width: auto;
     max-height: 60vh;
+  }
+}
+
+/* Click-to-open info tooltips - shared components/InfoTooltip.tsx, reused
+   inline next to field labels/headings across athlete and coach screens.
+   Trigger icon mirrors .avatar/.empty-icon's circular-glyph treatment;
+   popover mirrors .notification-panel's positioning/shadow/mobile pin. */
+.info-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.info-tooltip-trigger {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  margin-left: var(--k-space-1);
+  padding: 0;
+  border: 1px solid rgba(126, 184, 0, 0.5);
+  border-radius: 50%;
+  place-items: center;
+  cursor: pointer;
+  background: rgba(126, 184, 0, 0.12);
+  color: var(--bronze-light);
+  font-family: var(--k-font-display);
+  font-size: 0.7rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* The glyph is CSS-generated content, not a text node - see the DEV NOTE in
+   InfoTooltip.tsx for why the trigger must contain no literal DOM text. */
+.info-tooltip-trigger::after {
+  content: "i";
+}
+
+.info-tooltip-trigger:focus-visible {
+  box-shadow: var(--k-focus-ring);
+  outline: none;
+}
+
+.info-tooltip-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 55;
+  width: max(200px, min(280px, calc(100vw - 2rem)));
+  padding: var(--k-space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--k-radius-m);
+  background: var(--ink-2);
+  box-shadow: var(--shadow);
+  color: var(--stone-dim);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+}
+
+@media (max-width: 620px) {
+  .info-tooltip-popover {
+    position: fixed;
+    top: auto;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    width: auto;
   }
 }
 

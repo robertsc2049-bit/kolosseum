@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { formatDate } from "../../utils/format";
 import { useCoachProgrammeMarketplaceSharing } from "./useCoachProgrammeMarketplaceSharing";
 
@@ -60,7 +61,7 @@ export function CoachProgrammeMarketplaceSharingPanel() {
       >
         <label className="check-line">
           <input type="checkbox" checked={sharedPublicly} onChange={(event) => setSharedPublicly(event.target.checked)} />
-          <span>Share this programme publicly with other coaches</span>
+          <span>Share this programme publicly with other coaches<InfoTooltip label="About sharing publicly">When enabled, the full programme structure is listed read-only for any coach to view in the marketplace. No athlete data is included.</InfoTooltip></span>
         </label>
 
         <label className="field">

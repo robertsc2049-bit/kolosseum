@@ -90,6 +90,7 @@ test("loads and displays factual subscription, access, billing and seat state", 
   assert.ok(screen.getByText("10"));
   assert.ok(screen.getByText("3"));
   assert.ok(screen.getByText("7"));
+  assert.ok(screen.getByLabelText("About seat allowance"));
 });
 
 test("shows a factual empty state when there is no commercial record history", async () => {

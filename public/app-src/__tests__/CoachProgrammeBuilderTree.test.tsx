@@ -120,6 +120,15 @@ test("defaults to reps prescription and percent-1RM loading, showing the matchin
   const legends = [...container.querySelectorAll("fieldset legend")].map((el) => el.textContent);
   assert.deepEqual(legends, ["Repetitions", "Loading"]);
   assert.ok(screen.getByText("% 1RM"));
+  assert.ok(screen.getByLabelText("About % 1RM"));
+  assert.ok(screen.getAllByLabelText("About method").length > 0);
+});
+
+test("a fixed-weight work item shows the Weight field's info tooltip alongside its existing negative-value hint", async () => {
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ loading_reference: { type: "load" } }));
+
+  assert.ok(screen.getByLabelText("About negative weight values"));
 });
 
 test("a duration-prescribed work item shows the duration fieldset instead of reps", async () => {

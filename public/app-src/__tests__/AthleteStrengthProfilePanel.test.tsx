@@ -134,6 +134,8 @@ test("loads the opened athlete's profile with prefilled settings and benchmarks,
   assert.equal((screen.getByLabelText("Reference load") as HTMLInputElement).value, "150");
   assert.equal(screen.getByText("Tested 1RM · 150 kg · Effective 2026-07-01 · Source: Meet PR", { exact: false }) !== null, true);
   assert.ok(screen.getByText("Current"));
+  assert.ok(screen.getByLabelText("About load rounding increment"));
+  assert.ok(screen.getByLabelText("About record type"));
 
   await act(async () => {
     fireEvent.submit(screen.getByText("Save athlete profile").closest("form")!);

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { formatDate, titleCase } from "../../utils/format";
 import { useTrainingHistory } from "./useTrainingHistory";
 
@@ -245,8 +246,8 @@ export function AthleteHistoryPanel() {
 
               <div className="history-facts">
                 <div><span>Status</span><strong>{titleCase(detail.execution_status)}</strong></div>
-                <div><span>Split entered</span><strong>{detail.split_entered ? "Yes" : "No"}</strong></div>
-                <div><span>Return decision</span><strong>{titleCase(detail.split_return_decision || "None")}</strong></div>
+                <div><span>Split entered<InfoTooltip label="About split entered">A split happens when this session was stopped part-way through with "Stop and return later," then resumed or finished afterward.</InfoTooltip></span><strong>{detail.split_entered ? "Yes" : "No"}</strong></div>
+                <div><span>Return decision<InfoTooltip label="About return decision">Records whether you continued the remaining work when you came back, or ended the session there.</InfoTooltip></span><strong>{titleCase(detail.split_return_decision || "None")}</strong></div>
                 <div><span>Programme</span><strong>{programme ? `${String(programme.template_name)} (v${String(programme.template_version)})` : "Not recorded"}</strong></div>
                 <div><span>Assignment</span><strong>{assignment?.assignment_status ? titleCase(assignment.assignment_status) : "Not recorded"}</strong></div>
                 <div><span>Event</span><strong>{String(event?.event_name || "No linked event")}</strong></div>

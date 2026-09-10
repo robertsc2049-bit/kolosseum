@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 
@@ -209,6 +210,7 @@ export function AthleteTodaySessionCard() {
           </div>
           {resolvedLoad ? (
             <div className="today-resolved-load">
+              <span>Today's working weight<InfoTooltip label="About today's working weight">This is calculated from your recorded strength reference and the programme's prescribed percentage for today's session.</InfoTooltip></span>
               <p className="today-resolved-load-value">{`${resolvedLoad.value} ${resolvedLoad.unit}`}</p>
               <p className="muted">
                 {resolvedLoadSource

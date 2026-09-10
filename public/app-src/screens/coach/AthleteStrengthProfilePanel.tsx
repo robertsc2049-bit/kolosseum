@@ -10,6 +10,7 @@ import React, { useEffect, useState } from "react";
 import { projectStrengthReferenceLifecycle } from "../../../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { useAthleteStrengthProfile } from "./useAthleteStrengthProfile";
 
 type Unit = "kg" | "lb";
@@ -231,7 +232,7 @@ export function AthleteStrengthProfilePanel() {
           </select>
         </label>
         <label className="field">
-          <span>Load rounding increment</span>
+          <span>Load rounding increment<InfoTooltip label="About load rounding increment">Rounds calculated percentage-of-1RM working weights to a plate-loadable increment, so prescribed loads are always a weight the athlete can actually set up.</InfoTooltip></span>
           <input
             type="number"
             min={0.25}
@@ -329,7 +330,7 @@ export function AthleteStrengthProfilePanel() {
                   </select>
                 </label>
                 <label className="field benchmark-basis-field">
-                  <span>Record type</span>
+                  <span>Record type<InfoTooltip label="About record type">Tested 1RM is a directly tested max, Estimated 1RM is calculated from a lighter set, and Training max is a deliberately conservative figure. Whichever you pick affects every percentage-based load calculated from it.</InfoTooltip></span>
                   <select
                     disabled={row.persisted}
                     value={row.basis}
