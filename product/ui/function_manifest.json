@@ -5623,6 +5623,74 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "admin_org_owner_account_search",
+          "label": "Search org owner accounts and review one account's identity and organisations owned",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-accounts",
+            "/admin/org-owner-accounts/:user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "admin_org_owner_account_state",
+          "label": "Change an org owner account's state between active and suspended, with an audited before/after record",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-accounts/:user_id/state"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "admin_org_owner_data_requests",
+          "label": "Review org owner GDPR export and deletion requests",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-data-rights/exports",
+            "/admin/org-owner-data-rights/deletions"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -7901,6 +7969,10 @@
     {
       "slice_id": "FULL-UI-79",
       "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-80",
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -8146,6 +8218,36 @@
     {
       "method": "GET",
       "path": "/admin/audit-records",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-accounts",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-accounts/:user_id",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/org-owner-accounts/:user_id/state",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-data-rights/exports",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-data-rights/deletions",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

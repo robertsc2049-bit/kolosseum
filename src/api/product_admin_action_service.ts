@@ -212,6 +212,66 @@ export async function changeAccountState(
   });
 }
 
+// DEV NOTE: FULL-UI-80 - mirrors changeAccountState exactly, targeting
+// product_org_owner_accounts instead of product_accounts. Deliberately
+// reuses the existing "account_state_change" action_type (target_record_type
+// is what distinguishes it) rather than adding a new enum value, since
+// product_admin_audit_records.action_type's CHECK constraint would
+// otherwise need a schema migration for no real benefit.
+export async function changeOrgOwnerAccountState(
+  adminUserId: string,
+  correlationId: string,
+  targetUserId: string,
+  newState: string
+): Promise<AuditOutcome> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanTargetUserId = cleanString(targetUserId);
+  const cleanState = cleanString(newState);
+
+  if (!cleanCorrelationId || !cleanTargetUserId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+  // Deliberately closed to active/suspended only, matching
+  // changeAccountState's own reasoning - an org owner's account moving to
+  // closed must go through their own sealed self-service closure flow
+  // (requestOrgOwnerAccountClosure), never this lever.
+  if (!ADMIN_ACCOUNT_STATES.has(cleanState)) {
+    throw new AdminActionError("admin_account_state_invalid", 400);
+  }
+
+  return withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const current = await client.query(
+      `SELECT user_id, account_state FROM product_org_owner_accounts WHERE user_id = $1 FOR UPDATE`,
+      [cleanTargetUserId]
+    );
+    if (!current.rows[0]) {
+      throw new AdminActionError("admin_account_not_found", 404);
+    }
+
+    const beforeState = { account_state: cleanString(current.rows[0].account_state) };
+
+    await client.query(
+      `UPDATE product_org_owner_accounts SET account_state = $2 WHERE user_id = $1`,
+      [cleanTargetUserId, cleanState]
+    );
+
+    const afterState = { account_state: cleanState };
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "account_state_change",
+      targetRecordType: "product_org_owner_accounts",
+      targetRecordId: cleanTargetUserId,
+      beforeState,
+      afterState
+    });
+  });
+}
+
 export async function setTestAccountMarking(
   adminUserId: string,
   correlationId: string,

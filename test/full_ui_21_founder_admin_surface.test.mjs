@@ -65,7 +65,7 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
   // once: 12 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 10, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 15, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -88,9 +88,19 @@ test("explicit prevention of engine override: no admin file imports any engine-t
   assert.doesNotMatch(reviewService, /FROM\s+blocks\b|FROM\s+sessions\b|FROM\s+runtime_events\b/iu);
 });
 
-test("no organisation, gym, team or roster administration exists anywhere in this slice", () => {
+test("no organisation, gym, team or roster ADMINISTRATION exists anywhere in this slice - read-only org-owner oversight (FULL-UI-80) is the sole, deliberate exception", () => {
+  // gym/team/roster stay banned everywhere - admin never gains any org
+  // administration capability (create/invite/roster-manage), only the
+  // read-only oversight added below.
   for (const source of [accountService, auth, reviewService, actionService, routes, html, js]) {
-    assert.doesNotMatch(source, /organisation|organization|\bgym\b|\bteam\b|\broster\b/iu);
+    assert.doesNotMatch(source, /\bgym\b|\bteam\b|\broster\b/iu);
+  }
+  // "organisation" itself stays banned everywhere except the FULL-UI-80
+  // read-only org-owner visibility layer (reviewService's organisations_owned
+  // read and its rendering in html/js) - identity/auth/action/routing files
+  // must still never reference it.
+  for (const source of [accountService, auth, actionService, routes]) {
+    assert.doesNotMatch(source, /organisation|organization/iu);
   }
 });
 
@@ -187,7 +197,7 @@ test("a repeated correlation_id replays the existing audit record instead of rep
   // same transaction as the mutation and the audit write - returning the
   // existing record as a replay rather than performing the mutation again.
   const replayCallCount = [...actionService.matchAll(/if \(existingAudit\) return toAuditOutcome\(existingAudit, true\);/gu)].length;
-  assert.equal(replayCallCount, 3, "each of the 3 mutating actions must check for and replay an existing audit record");
+  assert.equal(replayCallCount, 4, "each of the 4 mutating actions must check for and replay an existing audit record");
 });
 
 test("confirmed operational actions require an explicit second confirmation click before the request is sent", () => {
@@ -404,7 +414,7 @@ test("every new interactive admin control is a real focusable button/form, not a
 
 test("every table in the founder/admin surface is wrapped in a horizontally-scrollable container, so wide tables scroll instead of squashing illegibly on narrow viewports", () => {
   const tableOpenTags = [...html.matchAll(/<table\b[^>]*>/gu)];
-  assert.equal(tableOpenTags.length, 7, "expected exactly 7 <table> elements in the admin surface");
+  assert.equal(tableOpenTags.length, 11, "expected exactly 11 <table> elements in the admin surface");
 
   // Every <table> must be the very first thing inside a div.table-scroll
   // wrapper - not just present somewhere on the page - so a future table

@@ -172,7 +172,7 @@ function main() {
   const missing = functions.filter((fn) => fn.state === "missing");
   if (partial.length) fail("FULL_UI_PARTIAL", String(partial.length));
   if (missing.length) fail("FULL_UI_MISSING", String(missing.length));
-  if (!gapReport.includes("- implemented: 327") || !gapReport.includes("- partial: 0") || !gapReport.includes("- missing: 0")) {
+  if (!gapReport.includes("- implemented: 330") || !gapReport.includes("- partial: 0") || !gapReport.includes("- missing: 0")) {
     fail("FULL_UI_REPORT_DRIFT");
   }
 

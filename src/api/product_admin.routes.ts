@@ -10,6 +10,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import {
   ADMIN_SESSION_COOKIE,
@@ -21,18 +22,23 @@ import {
 import { adminCookieValue, authenticatedAdmin } from "./product_admin_auth.js";
 import {
   changeAccountState,
+  changeOrgOwnerAccountState,
   changeSupportRequestStatus,
   AdminActionError,
   setTestAccountMarking
 } from "./product_admin_action_service.js";
 import {
   getAdminAccountDetail,
+  getAdminOrgOwnerAccountDetail,
   listAdminAuditRecords,
   listAdminCommercialRecords,
   listAdminDataDeletionRequests,
   listAdminDataExportRequests,
+  listAdminOrgOwnerDataDeletionRequests,
+  listAdminOrgOwnerDataExportRequests,
   listAdminSupportRequests,
-  searchAdminAccounts
+  searchAdminAccounts,
+  searchAdminOrgOwnerAccounts
 } from "./product_admin_review_service.js";
 import { badRequest, conflict, notFound } from "./http_errors.js";
 
@@ -218,6 +224,84 @@ productAdminRouter.get(
   asyncHandler(async (request, response) => {
     await authenticatedAdmin(request, false);
     const requests = await listAdminDataDeletionRequests(request.query.user_id);
+    return response.status(200).json({ requests });
+  })
+);
+
+// DEV NOTE: FULL-UI-80 - org-owner is a wholly separate identity surface,
+// mirrored here as its own parallel set of routes rather than folding into
+// the /accounts endpoints above, matching product_admin_review_service.ts's
+// own reasoning for the parallel read functions. Rate-limited (unlike this
+// file's older routes, which predate this and are grandfathered) because
+// CodeQL's js/missing-rate-limiting query flags newly-added authorising
+// routes - one shared limiter across all five keeps a single new instance
+// from being added per route for what is one logical capability.
+const orgOwnerAdminRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+productAdminRouter.get(
+  "/org-owner-accounts",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    const accounts = await searchAdminOrgOwnerAccounts(request.query.query);
+    return response.status(200).json({ accounts });
+  })
+);
+
+productAdminRouter.get(
+  "/org-owner-accounts/:user_id",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    const detail = await getAdminOrgOwnerAccountDetail(String(request.params.user_id));
+    if (!detail) throw notFound("ADMIN_ORG_OWNER_ACCOUNT_NOT_FOUND", { failure_token: "admin_org_owner_account_not_found" });
+    return response.status(200).json({ account: detail });
+  })
+);
+
+productAdminRouter.post(
+  "/org-owner-accounts/:user_id/state",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    const body = request.body ?? {};
+
+    try {
+      const outcome = await changeOrgOwnerAccountState(
+        admin.user_id,
+        String(body.correlation_id ?? ""),
+        String(request.params.user_id),
+        String(body.account_state ?? "")
+      );
+      return response.status(200).json({ ok: true, audit: outcome });
+    }
+    catch (error) {
+      rethrowActionError(error);
+    }
+  })
+);
+
+productAdminRouter.get(
+  "/org-owner-data-rights/exports",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    const requests = await listAdminOrgOwnerDataExportRequests(request.query.user_id);
+    return response.status(200).json({ requests });
+  })
+);
+
+productAdminRouter.get(
+  "/org-owner-data-rights/deletions",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    const requests = await listAdminOrgOwnerDataDeletionRequests(request.query.user_id);
     return response.status(200).json({ requests });
   })
 );
