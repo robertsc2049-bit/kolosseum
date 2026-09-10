@@ -22,32 +22,54 @@
       --k-accent-bright: #9AD600;
       --k-danger: #D85B4A;
       --k-danger-deep: #7D332B;
+      --k-danger-text: #F1B1A5;
       --k-font-body: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --k-font-display: Rajdhani, "Roboto Condensed", "Arial Narrow", sans-serif;
+      --k-space-1: 4px;
+      --k-space-2: 8px;
+      --k-space-3: 12px;
+      --k-space-4: 16px;
+      --k-space-5: 20px;
+      --k-space-6: 24px;
+      --k-radius-xs: 4px;
+      --k-radius-s: 8px;
+      --k-radius-m: 12px;
+      --k-radius-l: 16px;
+      --k-shadow-1: 0 8px 24px rgba(0, 0, 0, 0.28);
     }
+    *, *::before, *::after { box-sizing: border-box; }
     body { font-family: var(--k-font-body); max-width: 960px; margin: 2rem auto; padding: 0 1rem; background: var(--k-canvas); color: var(--k-text); }
-    section { border: 1px solid var(--k-border); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; background: var(--k-surface-1); }
-    h1, h2 { font-family: var(--k-font-display); font-weight: 600; }
-    h1 { font-size: 1.5rem; }
-    h2 { font-size: 1.2rem; }
+    section { border: 1px solid rgba(232, 238, 230, 0.12); border-radius: var(--k-radius-l); padding: 1.2rem; margin-bottom: 1.5rem; background: var(--k-surface-1); box-shadow: var(--k-shadow-1); }
+    h1, h2 { letter-spacing: -0.025em; line-height: 1.08; margin-top: 0; }
+    h1 { font-family: var(--k-font-display); font-weight: 600; font-size: 1.5rem; }
+    h2 { font-weight: 700; font-size: 1.15rem; }
     table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
     th, td { text-align: left; padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--k-border); font-size: 0.9rem; }
     th { color: var(--k-text-secondary); }
-    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; border: 1px solid var(--k-border); border-radius: 8px; background: var(--k-surface-2); color: var(--k-text); min-height: 44px; }
-    button { padding: 0.4rem 0.8rem; min-height: 44px; cursor: pointer; border: 1px solid var(--k-border); border-radius: 12px; background: var(--k-surface-2); color: var(--k-text); font: inherit; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .table-scroll table { min-width: 34rem; }
+    .table-scroll--wide table { min-width: 50rem; }
+    input, select, textarea { padding: 0.4rem; margin: 0.2rem 0; border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: var(--k-surface-1); color: var(--k-text); min-height: 44px; max-width: 100%; }
+    input:focus, select:focus, textarea:focus { border-color: var(--k-accent); box-shadow: 0 0 0 3px rgba(126, 184, 0, 0.45); outline: none; }
+    button { padding: 0.65rem 1rem; min-height: 44px; cursor: pointer; border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: var(--k-surface-2); color: var(--k-text); font: inherit; font-weight: 800; letter-spacing: 0.01em; }
     button:focus-visible { outline: 3px solid var(--k-accent-bright); outline-offset: 2px; }
+    button.primary { background: var(--k-accent); border-color: var(--k-accent); color: var(--k-canvas); }
     button.danger { background: var(--k-danger); color: var(--k-canvas); border: none; }
     button.confirm { background: var(--k-danger-deep); color: var(--k-text); border: none; }
-    .muted { color: var(--k-text-secondary); font-size: 0.85rem; }
+    .muted { color: var(--k-text-secondary); }
     .error-text { color: var(--k-danger); }
     [hidden] { display: none !important; }
-    .row-actions { display: flex; gap: 0.4rem; align-items: center; }
+    .row-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
     .support-detail-row td { background: var(--k-surface-2); font-size: 0.85rem; }
     .support-detail-row dl { margin: 0 0 0.5rem; }
     .support-detail-row dt { font-weight: 600; float: left; clear: left; margin-right: 0.4rem; }
     .support-detail-row dd { margin: 0 0 0.2rem; }
     .support-detail-row ul { margin: 0 0 0.5rem; padding-left: 1.2rem; }
     .support-detail-row p { margin: 0.4rem 0 0.2rem; font-weight: 600; }
+    @media (max-width: 620px) {
+      body { margin: 1rem auto; padding: 0 0.5rem; }
+      th, td { padding: 0.3rem 0.35rem; font-size: 0.82rem; }
+    }
   </style>
 </head>
 <body>
@@ -59,7 +81,7 @@
     <form id="adminSignInForm">
       <label>Email<br /><input id="adminSignInEmail" type="email" required autocomplete="username" /></label><br />
       <label>Password<br /><input id="adminSignInPassword" type="password" required autocomplete="current-password" /></label><br />
-      <button type="submit">Sign in</button>
+      <button type="submit" class="primary">Sign in</button>
     </form>
     <p id="adminSignInError" class="error-text" hidden></p>
   </section>
@@ -75,12 +97,14 @@
     <h2>Account search</h2>
     <form id="accountSearchForm">
       <input id="accountSearchQuery" type="text" placeholder="Search by user id, email or name" />
-      <button type="submit">Search</button>
+      <button type="submit" class="primary">Search</button>
     </form>
-    <table id="accountSearchTable">
-      <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>Actor</th><th>State</th></tr></thead>
-      <tbody id="accountSearchResults"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table id="accountSearchTable">
+        <thead><tr><th>User ID</th><th>Email</th><th>Name</th><th>Actor</th><th>State</th></tr></thead>
+        <tbody id="accountSearchResults"></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="accountDetailSection" hidden>
@@ -100,53 +124,65 @@
     <p id="accountActionResult" class="muted" hidden></p>
 
     <h3>Account event history</h3>
-    <table>
-      <thead><tr><th>Event</th><th>Occurred</th></tr></thead>
-      <tbody id="accountEventHistory"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Event</th><th>Occurred</th></tr></thead>
+        <tbody id="accountEventHistory"></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="entitlementSection" hidden>
     <h2>Coach entitlement and payment review</h2>
     <label>Search entitlement records<br /><input id="commercialRecordsSearch" type="search" placeholder="User ID, record type or billing state" /></label>
-    <table>
-      <thead><tr><th>User ID</th><th>Record type</th><th>Billing access state</th><th>Effective at</th></tr></thead>
-      <tbody id="commercialRecordsList"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>User ID</th><th>Record type</th><th>Billing access state</th><th>Effective at</th></tr></thead>
+        <tbody id="commercialRecordsList"></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="supportSection" hidden>
     <h2>Support and error-record review</h2>
     <label>Search support requests<br /><input id="supportRequestsSearch" type="search" placeholder="Correlation ID, user ID, description or status" /></label>
-    <table>
-      <thead><tr><th>Correlation ID</th><th>User</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="supportRequestsList"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Correlation ID</th><th>User</th><th>Description</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="supportRequestsList"></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="dataRightsReviewSection" hidden>
     <h2>Export-request review</h2>
     <label>Search export requests<br /><input id="exportRequestsSearch" type="search" placeholder="Request ID, user ID or status" /></label>
-    <table>
-      <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
-      <tbody id="exportRequestsList"></tbody>
-    </table>
+    <div class="table-scroll table-scroll--wide">
+      <table>
+        <thead><tr><th>Export request</th><th>User</th><th>Status</th><th>Requested</th><th>Ready</th><th>Expires</th><th>Downloaded</th></tr></thead>
+        <tbody id="exportRequestsList"></tbody>
+      </table>
+    </div>
 
     <h2>Deletion-request review</h2>
     <label>Search deletion requests<br /><input id="deletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
-    <table>
-      <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
-      <tbody id="deletionRequestsList"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
+        <tbody id="deletionRequestsList"></tbody>
+      </table>
+    </div>
   </section>
 
   <section id="auditSection" hidden>
     <h2>Operational audit records</h2>
     <label>Search audit records<br /><input id="auditRecordsSearch" type="search" placeholder="Actor, action, target or correlation id" /></label>
-    <table>
-      <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Before</th><th>After</th><th>Correlation</th><th>When</th></tr></thead>
-      <tbody id="auditRecordsList"></tbody>
-    </table>
+    <div class="table-scroll table-scroll--wide">
+      <table>
+        <thead><tr><th>Actor</th><th>Action</th><th>Target</th><th>Before</th><th>After</th><th>Correlation</th><th>When</th></tr></thead>
+        <tbody id="auditRecordsList"></tbody>
+      </table>
+    </div>
   </section>
 
   <script type="module" src="/admin/admin.js"></script>
