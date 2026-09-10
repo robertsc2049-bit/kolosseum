@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
@@ -295,7 +296,7 @@ export function AthleteSessionExecutionPanel() {
                 <div className="pain-report-panel">
                   <h3>Report RPE for this exercise?</h3>
                   <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
-                  <label><span>RPE (1-10)</span><input type="number" min={1} max={10} step={1} value={session.rpeValue} onChange={(event) => session.setRpeValue(Number(event.target.value))} /></label>
+                  <label><span>RPE (1-10)<InfoTooltip label="About RPE">RPE stands for Rate of Perceived Exertion - how hard this set felt to you, on a 1-10 scale.</InfoTooltip></span><input type="number" min={1} max={10} step={1} value={session.rpeValue} onChange={(event) => session.setRpeValue(Number(event.target.value))} /></label>
                   <p className="muted small">RPE {session.rpeValue} - {rpeReserveLabel(session.rpeValue)}</p>
                   <div className="button-row">
                     <button id="confirmRpeReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmRpeReport()}>Record RPE</button>
@@ -308,7 +309,7 @@ export function AthleteSessionExecutionPanel() {
                 <div className="pain-report-panel">
                   <h3>Report Borg rating for this exercise?</h3>
                   <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
-                  <label><span>Borg (6-20)</span><input type="number" min={6} max={20} step={1} value={session.borgValue} onChange={(event) => session.setBorgValue(Number(event.target.value))} /></label>
+                  <label><span>Borg (6-20)<InfoTooltip label="About the Borg scale">Borg is a separate perceived-exertion scale from RPE, not a conversion of it - 6 means no exertion at all, 20 means maximal effort.</InfoTooltip></span><input type="number" min={6} max={20} step={1} value={session.borgValue} onChange={(event) => session.setBorgValue(Number(event.target.value))} /></label>
                   <p className="muted small">Borg {session.borgValue} - {borgAnchorLabel(session.borgValue)}</p>
                   <div className="button-row">
                     <button id="confirmBorgReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmBorgReport()}>Record Borg</button>
@@ -321,7 +322,7 @@ export function AthleteSessionExecutionPanel() {
                 <div className="pain-report-panel">
                   <h3>Report modified Borg / CR10 rating for this exercise?</h3>
                   <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
-                  <label><span>Modified Borg / CR10 (0-10)</span><input type="number" min={0} max={10} step={0.5} value={session.cr10Value} onChange={(event) => session.setCr10Value(Number(event.target.value))} /></label>
+                  <label><span>Modified Borg / CR10 (0-10)<InfoTooltip label="About CR10">CR10 is its own 0-10, half-point scale for perceived exertion - it's not a conversion of RPE or the Borg scale.</InfoTooltip></span><input type="number" min={0} max={10} step={0.5} value={session.cr10Value} onChange={(event) => session.setCr10Value(Number(event.target.value))} /></label>
                   <p className="muted small">CR10 {session.cr10Value} - {cr10AnchorLabel(session.cr10Value)}</p>
                   <div className="button-row">
                     <button id="confirmCr10ReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmCr10Report()}>Record CR10</button>
@@ -509,7 +510,7 @@ export function AthleteSessionExecutionPanel() {
                         />
                       </label>
                       <label className="field">
-                        <span>Weight (optional)</span>
+                        <span>Weight (optional)<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span>
                         <input
                           type="number"
                           step="any"
@@ -583,7 +584,7 @@ export function AthleteSessionExecutionPanel() {
               />
             </label>
             <label className="field">
-              <span>Weight (optional)</span>
+              <span>Weight (optional)<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span>
               <input
                 type="number"
                 step="any"

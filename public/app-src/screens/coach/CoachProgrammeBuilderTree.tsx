@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import {
@@ -193,7 +194,7 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
       <legend>Loading</legend>
       <div className="template-prescription-fields">
         <label className="template-method-field">
-          <span>Method</span>
+          <span>Method<InfoTooltip label="About method">A percentage of the athlete's recorded 1RM, a fixed weight, bodyweight, or one of three independent perceived-exertion scales - RPE, Borg and CR10 aren't interchangeable with each other.</InfoTooltip></span>
           <select defaultValue={loadMode} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "load_mode")}>
             <option value="percent_1rm">% of athlete 1RM</option>
             <option value="fixed_weight">Fixed weight</option>
@@ -207,7 +208,7 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
-            <label><span>Weight</span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+            <label><span>Weight<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
             <label>
               <span>Unit</span>
               <select defaultValue={workItem.weight_unit} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}>
@@ -248,7 +249,7 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
   return (
     <>
       <label>
-        <span>% 1RM</span>
+        <span>% 1RM<InfoTooltip label="About % 1RM">1RM means one-rep max - the heaviest weight the athlete could lift once. It's resolved from their own recorded strength reference.</InfoTooltip></span>
         <input
           type="number"
           min={1}

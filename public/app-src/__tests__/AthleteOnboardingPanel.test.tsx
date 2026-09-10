@@ -196,6 +196,8 @@ test("reaching the review stage shows all six declared facts, and confirming sho
   assert.ok(screen.getByText("England wales"));
   assert.ok(screen.getByText("reduced motion"));
   assert.ok(screen.getByText("Detailed"));
+  assert.ok(screen.getByLabelText("About execution scope"));
+  assert.ok(screen.getByLabelText("About jurisdiction"));
 
   await act(async () => {
     fireEvent.click(screen.getByText("Confirm declaration"));

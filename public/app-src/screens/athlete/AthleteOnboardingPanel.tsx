@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import {
   accessibilityLabel,
   accessibilityOf,
@@ -83,9 +84,9 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
   return (
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
-      <div className="declaration-fact"><span>Execution scope</span><strong>{label(fields.execution_scope)}</strong></div>
+      <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
-      <div className="declaration-fact"><span>Jurisdiction</span><strong>{label(fields.jurisdiction_code)}</strong></div>
+      <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
       <div className="declaration-fact"><span>Accessibility</span><strong>{accessibilityLabel(fields.accessibility_preferences)}</strong></div>
       <div className="declaration-fact"><span>Instruction density</span><strong>{label(fields.instruction_density)}</strong></div>
     </div>

@@ -162,6 +162,7 @@ test("an active session shows activity, title, real completed/remaining/dropped 
   assert.ok(screen.getByText("120 kg"));
   assert.match(document.body.textContent ?? "", /Training max · effective/u);
   assert.ok(screen.getByText("In progress"));
+  assert.ok(screen.getByLabelText("About today's working weight"));
 });
 
 test("the 'Open session' button clicks the sidebar's session nav item rather than reimplementing navigation", async () => {

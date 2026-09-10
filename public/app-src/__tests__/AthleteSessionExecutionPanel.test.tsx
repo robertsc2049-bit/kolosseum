@@ -570,3 +570,38 @@ test("an exercise name containing markup renders as inert text, never as HTML", 
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll(".exercise-focus img").length, 0);
 });
+
+test("the RPE, Borg and CR10 panels and both Weight (optional) fields each show an info tooltip trigger", async () => {
+  seedActiveSession("session_1");
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      completed_exercises: [baseExercise({ exercise_id: "back_squat", display_name: "Back squat" })],
+      remaining_exercises: [baseExercise({ exercise_id: "bench_press", display_name: "Bench press" })],
+      current_step: { type: "EXERCISE", exercise: baseExercise({ exercise_id: "bench_press", display_name: "Bench press" }) }
+    })
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+
+  fireEvent.click(screen.getByText("Report RPE"));
+  await waitFor(() => screen.getByLabelText("About RPE"));
+  fireEvent.click(screen.getByText("Cancel"));
+
+  fireEvent.click(screen.getByText("Report Borg"));
+  await waitFor(() => screen.getByLabelText("About the Borg scale"));
+  fireEvent.click(screen.getByText("Cancel"));
+
+  fireEvent.click(screen.getByText("Report CR10"));
+  await waitFor(() => screen.getByLabelText("About CR10"));
+  fireEvent.click(screen.getByText("Cancel"));
+
+  fireEvent.click(screen.getByText("Add extra set"));
+  await waitFor(() => screen.getByText("Log extra set"));
+  assert.ok(screen.getByLabelText("About negative weight values"));
+  fireEvent.click(screen.getByText("Cancel"));
+
+  fireEvent.click(screen.getByText("Add exercise"));
+  await waitFor(() => screen.getByLabelText("Reps"));
+  assert.ok(screen.getByLabelText("About negative weight values"));
+});

@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 
@@ -407,14 +408,22 @@ export function AthleteSessionHistoryList() {
                 </p>
               ) : null}
               {session.split_return_decision ? (
-                <p className="muted small">Return decision: {titleCase(session.split_return_decision)}</p>
+                <p className="muted small">
+                  Return decision: {titleCase(session.split_return_decision)}
+                  <InfoTooltip label="About return decision">Records whether the athlete continued the remaining work when they came back, or ended the session there.</InfoTooltip>
+                </p>
               ) : null}
             </div>
 
             <div className="record-meta">
               <span className="badge neutral">{titleCase(session.session_status ?? "recorded")}</span>
               {session.pain_reported ? <span className="badge partial">Pain reported</span> : null}
-              {session.split_entered ? <span className="badge partial">Split session</span> : null}
+              {session.split_entered ? (
+                <span className="badge partial">
+                  Split session
+                  <InfoTooltip label="About split session">A split happens when this session was stopped part-way through with "Stop and return later," then resumed or finished afterward.</InfoTooltip>
+                </span>
+              ) : null}
               <button
                 className="button secondary small-button"
                 type="button"

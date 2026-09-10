@@ -99,6 +99,7 @@ test("shows the sharing form for a complete template, prefilled with the stored 
   await screen.findByText("Share this programme publicly with other coaches");
   const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
   assert.equal(checkbox.checked, true);
+  assert.ok(screen.getByLabelText("About sharing publicly"));
   assert.equal((screen.getByPlaceholderText("e.g. £49") as HTMLInputElement).value, "£49");
   assert.equal((screen.getByPlaceholderText("e.g. Venmo @handle, PayPal") as HTMLInputElement).value, "Venmo @handle");
 });

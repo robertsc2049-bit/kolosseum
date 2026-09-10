@@ -289,6 +289,8 @@ test("displays a session with its recorded event count and every bespoke fact - 
   assert.match(document.body.textContent ?? "", /Borg: Deadlift 15/u);
   assert.match(document.body.textContent ?? "", /CR10: Overhead Press 7\.5/u);
   assert.match(document.body.textContent ?? "", /Return decision: Continue Remaining Work/u);
+  assert.ok(screen.getByLabelText("About split session"));
+  assert.ok(screen.getByLabelText("About return decision"));
   assert.ok(screen.getByText("Review"));
   assert.ok(screen.getByText("Add note"));
 });

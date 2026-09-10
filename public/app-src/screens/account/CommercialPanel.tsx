@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { InfoTooltip } from "../../components/InfoTooltip";
 import { useCommercialAccount } from "./useCommercialAccount";
 
 // DEV NOTE: FULL-UI-08 commercial/billing - ported from commercial_ui.js's
@@ -71,7 +72,7 @@ export function CommercialPanel() {
           <strong>{clean(commercial.plan_id) || "—"}</strong>
         </div>
         <div className="commercial-fact">
-          <span>Seat allowance</span>
+          <span>Seat allowance<InfoTooltip label="About seat allowance">A seat is a licensed athlete slot on your plan. Seat usage and seats available are both derived from this number.</InfoTooltip></span>
           <strong>{integerOrDash(commercial.seat_limit)}</strong>
         </div>
         <div className="commercial-fact">
