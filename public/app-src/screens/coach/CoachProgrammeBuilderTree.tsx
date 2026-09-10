@@ -476,6 +476,13 @@ function BuilderWorkItem({
   equipmentCatalog
 }: WorkItemControlProps & { workItemCount: number; templateExercises: JsonRecord[]; equipmentCatalog: JsonRecord[] }) {
   const grouped = Boolean(workItem.group_id);
+  // DEV NOTE: local-only state so the timed-group inputs (time cap for
+  // amrap/for_time, round length/count for emom) show or hide immediately
+  // when the coach changes the Grouping select - independent of the actual
+  // data-mutating value, which still flows through the legacy delegated
+  // change handler via workItemAttrs' data-field attribute, matching this
+  // file's own established uncontrolled-input convention.
+  const [groupTypeHint, setGroupTypeHint] = React.useState(workItem.group_type);
 
   return (
     <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`}>
@@ -533,11 +540,40 @@ function BuilderWorkItem({
           <>
             <label className="template-group-type-field">
               <span>Grouping</span>
-              <select defaultValue={workItem.group_type} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_type")}>
+              <select
+                defaultValue={workItem.group_type}
+                onChange={(event) => setGroupTypeHint(event.target.value as ProgrammeWorkItemDraft["group_type"])}
+                {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_type")}
+              >
                 <option value="superset">Superset</option>
                 <option value="circuit">Circuit</option>
+                <option value="complex">Complex</option>
+                <option value="amrap">AMRAP</option>
+                <option value="emom">EMOM</option>
+                <option value="for_time">For time</option>
               </select>
             </label>
+            {groupTypeHint === "amrap" || groupTypeHint === "for_time" ? (
+              <label className="template-group-time-cap-field">
+                <span>Time cap (seconds)</span>
+                <input type="number" min={1} max={7200} step={1} defaultValue={workItem.group_time_cap_seconds || 720} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_time_cap_seconds")} />
+              </label>
+            ) : null}
+            {groupTypeHint === "emom" ? (
+              <>
+                <label className="template-group-round-seconds-field">
+                  <span>Round length (seconds)</span>
+                  <input type="number" min={1} max={600} step={1} defaultValue={workItem.group_round_seconds || 60} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_round_seconds")} />
+                </label>
+                <label className="template-group-total-rounds-field">
+                  <span>Total rounds</span>
+                  <input type="number" min={1} max={100} step={1} defaultValue={workItem.group_total_rounds || 10} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "group_total_rounds")} />
+                </label>
+              </>
+            ) : null}
+            {groupTypeHint === "complex" ? (
+              <p className="muted small">Complex: every exercise in this group must use the same fixed weight.</p>
+            ) : null}
             <button className="button secondary small-button ungroup-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Ungroup</button>
           </>
         ) : workItemIndex < workItemCount - 1 ? (

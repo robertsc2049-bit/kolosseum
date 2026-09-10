@@ -100,6 +100,12 @@ export type AthleteSessionExecutionState = {
   restRemainingSeconds: number | null;
   restDone: boolean;
   howto: HowtoState;
+  groupAmrapRoundsCompleted: number;
+  groupAmrapExtraReps: number;
+  groupEmomRoundsCompleted: number;
+  groupEmomRoundsMissed: number;
+  groupForTimeElapsedSeconds: number;
+  groupForTimeHitTimeCap: boolean;
 };
 
 const initialState: AthleteSessionExecutionState = {
@@ -135,7 +141,13 @@ const initialState: AthleteSessionExecutionState = {
   mutationError: null,
   restRemainingSeconds: null,
   restDone: false,
-  howto: null
+  howto: null,
+  groupAmrapRoundsCompleted: 0,
+  groupAmrapExtraReps: 0,
+  groupEmomRoundsCompleted: 0,
+  groupEmomRoundsMissed: 0,
+  groupForTimeElapsedSeconds: 0,
+  groupForTimeHitTimeCap: false
 };
 
 export function currentStepExercise(sessionState: JsonRecord | null): JsonRecord | null {
@@ -148,6 +160,16 @@ export function currentExerciseId(sessionState: JsonRecord | null): string | nul
   const exercise = currentStepExercise(sessionState);
   const id = exercise?.exercise_id ?? exercise?.item_id;
   return id ? String(id) : null;
+}
+
+// DEV NOTE: a complex/AMRAP/EMOM/for-time work-item group surfaces as its
+// own current_step shape (see session_state_read_model.ts's
+// deriveCurrentStepFromRemaining) instead of the plain single-exercise step
+// - this reads that shape back out, mirroring currentStepExercise() above.
+export function currentStepGroup(sessionState: JsonRecord | null): JsonRecord | null {
+  const step = sessionState?.current_step as JsonRecord | undefined;
+  if (!step || step.type !== "GROUP_WORKOUT") return null;
+  return step;
 }
 
 const howtoCache = new Map<string, { content: JsonRecord; referenceMedia: JsonRecord | null }>();
@@ -202,7 +224,13 @@ export function useAthleteSessionExecution() {
         substitutionResult: null,
         videoError: null,
         mutationError: null,
-        howto: null
+        howto: null,
+        groupAmrapRoundsCompleted: 0,
+        groupAmrapExtraReps: 0,
+        groupEmomRoundsCompleted: 0,
+        groupEmomRoundsMissed: 0,
+        groupForTimeElapsedSeconds: 0,
+        groupForTimeHitTimeCap: false
       }));
     }
     catch {
@@ -418,6 +446,73 @@ export function useAthleteSessionExecution() {
       await postAthleteSessionEvent(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState, state.cr10Value]);
+
+  const confirmCompleteGroup = useCallback(async () => {
+    const group = currentStepGroup(state.sessionState);
+    if (!group?.group_id) return false;
+    const groupId = String(group.group_id);
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "COMPLETE_GROUP", group_id: groupId }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState]);
+
+  const setGroupAmrapRoundsCompleted = useCallback((value: number) => {
+    setState((current) => ({ ...current, groupAmrapRoundsCompleted: value }));
+  }, []);
+
+  const setGroupAmrapExtraReps = useCallback((value: number) => {
+    setState((current) => ({ ...current, groupAmrapExtraReps: value }));
+  }, []);
+
+  const confirmAmrapResult = useCallback(async () => {
+    const group = currentStepGroup(state.sessionState);
+    if (!group?.group_id) return false;
+    const groupId = String(group.group_id);
+    const roundsCompleted = state.groupAmrapRoundsCompleted;
+    const extraReps = state.groupAmrapExtraReps;
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "AMRAP_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, extra_reps: extraReps }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState, state.groupAmrapRoundsCompleted, state.groupAmrapExtraReps]);
+
+  const setGroupEmomRoundsCompleted = useCallback((value: number) => {
+    setState((current) => ({ ...current, groupEmomRoundsCompleted: value }));
+  }, []);
+
+  const setGroupEmomRoundsMissed = useCallback((value: number) => {
+    setState((current) => ({ ...current, groupEmomRoundsMissed: value }));
+  }, []);
+
+  const confirmEmomResult = useCallback(async () => {
+    const group = currentStepGroup(state.sessionState);
+    if (!group?.group_id) return false;
+    const groupId = String(group.group_id);
+    const roundsCompleted = state.groupEmomRoundsCompleted;
+    const roundsMissed = state.groupEmomRoundsMissed;
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "EMOM_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, rounds_missed: roundsMissed }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState, state.groupEmomRoundsCompleted, state.groupEmomRoundsMissed]);
+
+  const setGroupForTimeElapsedSeconds = useCallback((value: number) => {
+    setState((current) => ({ ...current, groupForTimeElapsedSeconds: value }));
+  }, []);
+
+  const setGroupForTimeHitTimeCap = useCallback((value: boolean) => {
+    setState((current) => ({ ...current, groupForTimeHitTimeCap: value }));
+  }, []);
+
+  const confirmForTimeResult = useCallback(async () => {
+    const group = currentStepGroup(state.sessionState);
+    if (!group?.group_id) return false;
+    const groupId = String(group.group_id);
+    const timeCapSeconds = Number(group.time_cap_seconds ?? 0);
+    const hitTimeCap = state.groupForTimeHitTimeCap;
+    const elapsedSeconds = hitTimeCap && timeCapSeconds > 0 ? timeCapSeconds : state.groupForTimeElapsedSeconds;
+    return runMutation(async (sessionId, csrfToken) => {
+      await postAthleteSessionEvent(sessionId, { type: "FOR_TIME_RESULT_REPORT", group_id: groupId, elapsed_seconds: elapsedSeconds, hit_time_cap: hitTimeCap }, csrfToken);
+    }, true);
+  }, [runMutation, state.sessionState, state.groupForTimeElapsedSeconds, state.groupForTimeHitTimeCap]);
 
   const openExtraSetPanel = useCallback((exerciseId: string) => {
     if (!exerciseId) return;
@@ -689,6 +784,16 @@ export function useAthleteSessionExecution() {
     confirmBorgReport,
     setCr10Value,
     confirmCr10Report,
+    confirmCompleteGroup,
+    setGroupAmrapRoundsCompleted,
+    setGroupAmrapExtraReps,
+    confirmAmrapResult,
+    setGroupEmomRoundsCompleted,
+    setGroupEmomRoundsMissed,
+    confirmEmomResult,
+    setGroupForTimeElapsedSeconds,
+    setGroupForTimeHitTimeCap,
+    confirmForTimeResult,
     openExtraSetPanel,
     closeExtraSetPanel,
     setExtraSetReps,
