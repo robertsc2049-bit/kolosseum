@@ -8,27 +8,27 @@
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "b203fd9111fed71fa3f9690904462fb027c45a6e21c5b66f8cf3b56567e3cefa"
+      "sha256": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "e169acc470577d797451c674c090a5d5348183bec34410ddaa2777f022a2e1fb"
+      "sha256": "74adc160988df85e53441c77bd3c409138bfc9350305d4348856d63560a91e4d"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "ea7c65d3634ae980b548f02547116910994156eb00db63e0114f3562e6df59c1"
+      "sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
-      "sha256": "52e12238b58f583d2a8dbde97af3038b3657d96cd693659b73b60db9341655ab"
+      "sha256": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb"
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "51ae761f4dbff7f538d6bf5e6af3121963b01514d23c73731a92a0d8bcf7e34a"
+      "sha256": "df7b42431be0f42d423f8dd706a5e160518c0cd54505b9237a37c481db7ba53a"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "6bf0d9a0ce465b97c1ad1bccbf792977ec98f80095f2eba7f5e22ec00860778c"
+      "sha256": "8879677d7552f0dccd5e7b9ef8f811a4116a829e62167048591bfded593bf9d1"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
@@ -54,7 +54,8 @@
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
-      "hyrox": 3
+      "hyrox": 3,
+      "crossfit": 0
     },
     "low_equipment_templates": 3,
     "unique_scheduled_exercises": 23,

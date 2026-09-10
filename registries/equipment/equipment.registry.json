@@ -196,7 +196,8 @@
       ],
       "movement_pattern_applicability": [
         "vertical_pull",
-        "brace"
+        "brace",
+        "trunk_flexion"
       ],
       "substitution_relevance": "required_or_lateral_swap",
       "template_relevance": "template_selectable",

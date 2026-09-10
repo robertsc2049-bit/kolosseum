@@ -484,7 +484,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -1216,7 +1217,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3922,7 +3924,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -4026,7 +4029,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -4739,7 +4743,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7951,7 +7956,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8909,7 +8915,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "impact_landing",
@@ -10545,7 +10552,8 @@
       "equipment_alternatives": [],
       "primary_activity_applicability": "rugby_union",
       "secondary_activity_applicability": [
-        "general_strength"
+        "general_strength",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -12687,7 +12695,8 @@
       "joint_stress_tags": [
         "shoulder",
         "hip",
-        "knee"
+        "knee",
+        "elbow"
       ],
       "tempo_capability": "tempo",
       "instruction_short_text": "Thruster: Descend into a front squat, then drive up and continue the momentum into an overhead press in one continuous motion.",
@@ -12837,7 +12846,8 @@
       "difficulty_tier": "advanced",
       "joint_stress_tags": [
         "shoulder",
-        "knee"
+        "knee",
+        "elbow"
       ],
       "tempo_capability": "not_applicable",
       "instruction_short_text": "Push jerk: Dip and drive the barbell from the shoulders overhead, then re-bend the knees to receive it in a short catch.",
@@ -12936,7 +12946,8 @@
       "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "shoulder",
-        "lumbar_low"
+        "lumbar_low",
+        "hip"
       ],
       "tempo_capability": "tempo",
       "instruction_short_text": "Toes-to-bar: Hang from the bar, then raise the feet to make contact with the bar under control and return to a full hang.",
@@ -12983,7 +12994,8 @@
       "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "ankle",
-        "knee"
+        "knee",
+        "hip"
       ],
       "tempo_capability": "not_applicable",
       "instruction_short_text": "Double-under: Turn the rope twice per jump with quick wrist rotation at the prescribed cyclical pace.",
@@ -13129,7 +13141,8 @@
       "joint_stress_tags": [
         "shoulder",
         "hip",
-        "knee"
+        "knee",
+        "ankle"
       ],
       "tempo_capability": "not_applicable",
       "instruction_short_text": "Burpee: Drop to a chest-to-floor position, return to standing, then finish with a vertical jump.",

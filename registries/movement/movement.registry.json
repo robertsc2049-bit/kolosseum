@@ -1068,7 +1068,8 @@
         "resistance_band",
         "medicine_ball",
         "plate",
-        "open_floor_space"
+        "open_floor_space",
+        "pull_up_bar"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
