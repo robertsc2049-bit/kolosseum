@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 332
+- implemented: 334
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -220,7 +220,7 @@ Slice: FULL-UI-11
 
 Area state: implemented
 
-Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 26 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -249,6 +249,7 @@ Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_save_feedback` — Display save state and confirmation
 - `builder_validation_links` — Link validation failures to fields
 - `builder_keyboard_mobile` — Operate builder by keyboard and phone
+- `builder_group_workout` — Author complex, AMRAP, EMOM or for-time exercise groups
 
 ### Event-to-programme calendar
 
@@ -321,7 +322,7 @@ Slice: FULL-UI-15
 
 Area state: implemented
 
-Implemented: 19 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -344,6 +345,7 @@ Implemented: 19 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `session_idempotent_retry` — Display idempotent retry state
 - `session_reload_recovery` — Recover session after refresh
 - `session_terminal_guard` — Prevent terminal-session resurrection
+- `session_group_workout` — Execute and record a complex, AMRAP, EMOM or for-time group
 
 ### Athlete history
 
@@ -790,6 +792,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-79: implemented
 - FULL-UI-80: implemented
 - FULL-UI-81: implemented
+- FULL-UI-82: implemented
 
 ## Prohibited capabilities
 
