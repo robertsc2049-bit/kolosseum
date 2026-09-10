@@ -68,7 +68,11 @@ const workItemGroupTypes =
   new Set([
     "straight",
     "superset",
-    "circuit"
+    "circuit",
+    "complex",
+    "amrap",
+    "emom",
+    "for_time"
   ]);
 
 const MAX_WORK_ITEMS_PER_SESSION = 12;
@@ -660,6 +664,10 @@ function validateWorkItemGrouping(
       order_index: number;
       group_id: string;
       group_type: string;
+      group_time_cap_seconds?: number;
+      group_round_seconds?: number;
+      group_total_rounds?: number;
+      loading_reference?: Readonly<{ type?: string; value?: number; unit?: string }>;
     }>
   >
 ): void {
@@ -667,6 +675,8 @@ function validateWorkItemGrouping(
     new Map<string, number[]>();
   const groupTypes =
     new Map<string, string>();
+  const groupMembers =
+    new Map<string, typeof workItems[number][]>();
 
   for (const workItem of workItems) {
     if (workItem.group_id === "") continue;
@@ -697,6 +707,11 @@ function validateWorkItemGrouping(
       workItem.group_id,
       workItem.group_type
     );
+
+    const members =
+      groupMembers.get(workItem.group_id) ?? [];
+    members.push(workItem);
+    groupMembers.set(workItem.group_id, members);
   }
 
   for (const [
@@ -725,6 +740,57 @@ function validateWorkItemGrouping(
       ) {
         throw new Beta18ProgrammeTemplateError(
           "work_item_group_not_contiguous"
+        );
+      }
+    }
+  }
+
+  for (const [groupId, members] of groupMembers) {
+    const groupType = groupTypes.get(groupId);
+
+    if (groupType === "complex") {
+      const allFixedWeight = members.every(
+        (member) => member.loading_reference?.type === "load"
+      );
+      if (!allFixedWeight) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_complex_requires_fixed_weight"
+        );
+      }
+      const first = members[0].loading_reference;
+      const sameWeight = members.every(
+        (member) =>
+          member.loading_reference?.value === first?.value &&
+          member.loading_reference?.unit === first?.unit
+      );
+      if (!sameWeight) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_complex_weight_mismatch"
+        );
+      }
+    }
+    else if (groupType === "amrap" || groupType === "for_time") {
+      const cap = members[0].group_time_cap_seconds ?? 0;
+      const sameCap = members.every(
+        (member) => (member.group_time_cap_seconds ?? 0) === cap
+      );
+      if (!(cap > 0) || !sameCap) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_time_cap_invalid"
+        );
+      }
+    }
+    else if (groupType === "emom") {
+      const roundSeconds = members[0].group_round_seconds ?? 0;
+      const totalRounds = members[0].group_total_rounds ?? 0;
+      const sameParams = members.every(
+        (member) =>
+          (member.group_round_seconds ?? 0) === roundSeconds &&
+          (member.group_total_rounds ?? 0) === totalRounds
+      );
+      if (!(roundSeconds > 0) || !(totalRounds > 0) || !sameParams) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_emom_params_invalid"
         );
       }
     }
@@ -1781,7 +1847,10 @@ function normaliseTemplateStructure(
                               "coaching_notes",
                               "segment",
                               "group_id",
-                              "group_type"
+                              "group_type",
+                              "group_time_cap_seconds",
+                              "group_round_seconds",
+                              "group_total_rounds"
                             ],
                             "work_item"
                           );
@@ -2013,6 +2082,57 @@ function normaliseTemplateStructure(
                             );
                           }
 
+                          const groupTimeCapSecondsRaw =
+                            rawWorkItem.group_time_cap_seconds;
+                          const groupTimeCapSeconds =
+                            groupTimeCapSecondsRaw === undefined ||
+                            groupTimeCapSecondsRaw === null
+                              ? 0
+                              : Number(groupTimeCapSecondsRaw);
+                          if (
+                            !Number.isInteger(groupTimeCapSeconds) ||
+                            groupTimeCapSeconds < 0 ||
+                            groupTimeCapSeconds > 7200
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_time_cap_invalid"
+                            );
+                          }
+
+                          const groupRoundSecondsRaw =
+                            rawWorkItem.group_round_seconds;
+                          const groupRoundSeconds =
+                            groupRoundSecondsRaw === undefined ||
+                            groupRoundSecondsRaw === null
+                              ? 0
+                              : Number(groupRoundSecondsRaw);
+                          if (
+                            !Number.isInteger(groupRoundSeconds) ||
+                            groupRoundSeconds < 0 ||
+                            groupRoundSeconds > 600
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_round_seconds_invalid"
+                            );
+                          }
+
+                          const groupTotalRoundsRaw =
+                            rawWorkItem.group_total_rounds;
+                          const groupTotalRounds =
+                            groupTotalRoundsRaw === undefined ||
+                            groupTotalRoundsRaw === null
+                              ? 0
+                              : Number(groupTotalRoundsRaw);
+                          if (
+                            !Number.isInteger(groupTotalRounds) ||
+                            groupTotalRounds < 0 ||
+                            groupTotalRounds > 100
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_total_rounds_invalid"
+                            );
+                          }
+
                           const workItemId =
                             cleanString(
                               rawWorkItem
@@ -2078,7 +2198,13 @@ function normaliseTemplateStructure(
                             group_id:
                               groupId,
                             group_type:
-                              groupType
+                              groupType,
+                            group_time_cap_seconds:
+                              groupTimeCapSeconds,
+                            group_round_seconds:
+                              groupRoundSeconds,
+                            group_total_rounds:
+                              groupTotalRounds
                           });
                         }
                       );
@@ -2596,7 +2722,22 @@ export function templateRecordInput(
                                         workItem
                                           .group_type
                                       )
-                                    : "straight"
+                                    : "straight",
+                                group_time_cap_seconds:
+                                  Number(
+                                    workItem
+                                      .group_time_cap_seconds ?? 0
+                                  ),
+                                group_round_seconds:
+                                  Number(
+                                    workItem
+                                      .group_round_seconds ?? 0
+                                  ),
+                                group_total_rounds:
+                                  Number(
+                                    workItem
+                                      .group_total_rounds ?? 0
+                                  )
                               };
                             }
                           );
@@ -4608,6 +4749,12 @@ export async function materialiseNextCoachTemplateProgram(
             )
               ? cleanString(workItem.group_type)
               : "straight",
+          group_time_cap_seconds:
+            Number(workItem.group_time_cap_seconds ?? 0),
+          group_round_seconds:
+            Number(workItem.group_round_seconds ?? 0),
+          group_total_rounds:
+            Number(workItem.group_total_rounds ?? 0),
           prescription_mode:
             prescriptionMode,
           tempo:

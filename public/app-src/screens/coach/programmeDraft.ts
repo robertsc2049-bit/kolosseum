@@ -56,8 +56,13 @@ export type ProgrammeWorkItemDraft = {
   coaching_notes: string;
   segment: "warm_up" | "working" | "cool_down";
   group_id: string;
-  group_type: "straight" | "superset" | "circuit";
+  group_type: "straight" | "superset" | "circuit" | "complex" | "amrap" | "emom" | "for_time";
+  group_time_cap_seconds: number;
+  group_round_seconds: number;
+  group_total_rounds: number;
 };
+
+export const GROUP_TYPES = Object.freeze(["straight", "superset", "circuit", "complex", "amrap", "emom", "for_time"] as const);
 
 export type ProgrammeSessionDraft = {
   session_id: string;
@@ -273,7 +278,12 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
     coaching_notes: String(workItem?.coaching_notes ?? ""),
     segment: ["warm_up", "cool_down"].includes(String(workItem?.segment ?? "")) ? (workItem!.segment as "warm_up" | "cool_down") : "working",
     group_id: String(workItem?.group_id ?? ""),
-    group_type: ["superset", "circuit"].includes(String(workItem?.group_type ?? "")) ? (workItem!.group_type as "superset" | "circuit") : "straight"
+    group_type: GROUP_TYPES.includes(String(workItem?.group_type ?? "") as (typeof GROUP_TYPES)[number])
+      ? (workItem!.group_type as ProgrammeWorkItemDraft["group_type"])
+      : "straight",
+    group_time_cap_seconds: Number(workItem?.group_time_cap_seconds ?? 0),
+    group_round_seconds: Number(workItem?.group_round_seconds ?? 0),
+    group_total_rounds: Number(workItem?.group_total_rounds ?? 0)
   };
 }
 
@@ -429,7 +439,10 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 coaching_notes: workItem.coaching_notes,
                 segment: workItem.segment,
                 group_id: workItem.group_id,
-                group_type: workItem.group_type
+                group_type: workItem.group_type,
+                group_time_cap_seconds: workItem.group_time_cap_seconds,
+                group_round_seconds: workItem.group_round_seconds,
+                group_total_rounds: workItem.group_total_rounds
               }))
             }]
           }))
@@ -525,6 +538,7 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
 
         const groupOrderIndices = new Map<string, number[]>();
         const groupTypes = new Map<string, Set<string>>();
+        const groupMembers = new Map<string, ProgrammeWorkItemDraft[]>();
         workItems.forEach((workItem, workItemIndex) => {
           const groupId = workItem.group_id;
           if (!groupId) return;
@@ -533,6 +547,8 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           groupOrderIndices.set(groupId, orderIndices);
           groupTypes.set(groupId, groupTypes.get(groupId) ?? new Set());
           groupTypes.get(groupId)!.add(workItem.group_type);
+          groupMembers.set(groupId, groupMembers.get(groupId) ?? []);
+          groupMembers.get(groupId)!.push(workItem);
         });
 
         for (const [, orderIndices] of groupOrderIndices) {
@@ -551,6 +567,39 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
         for (const [groupId] of groupOrderIndices) {
           if (groupTypes.get(groupId)!.size > 1) {
             addIssue("work_item_group_type_mismatch", `${sessionPath} has a group with mismatched grouping types.`, sessionPath);
+          }
+        }
+        for (const [groupId, members] of groupMembers) {
+          const groupType = [...(groupTypes.get(groupId) ?? [])][0];
+          if (groupType === "complex") {
+            const allFixedWeight = members.every((member) => member.load_mode === "fixed_weight");
+            if (!allFixedWeight) {
+              addIssue("work_item_group_complex_requires_fixed_weight", `${sessionPath} complex requires every exercise to use a fixed weight.`, sessionPath);
+            }
+            else {
+              const first = members[0];
+              const sameWeight = members.every((member) => member.weight_value === first.weight_value && member.weight_unit === first.weight_unit);
+              if (!sameWeight) {
+                addIssue("work_item_group_complex_weight_mismatch", `${sessionPath} complex requires every exercise to use the same weight.`, sessionPath);
+              }
+            }
+          }
+          else if (groupType === "amrap" || groupType === "for_time") {
+            const first = members[0];
+            const cap = first.group_time_cap_seconds;
+            const sameCap = members.every((member) => member.group_time_cap_seconds === cap);
+            if (!(cap > 0) || !sameCap) {
+              addIssue("work_item_group_time_cap_invalid", `${sessionPath} ${groupType === "amrap" ? "AMRAP" : "for-time"} group requires the same positive time cap on every exercise.`, sessionPath);
+            }
+          }
+          else if (groupType === "emom") {
+            const first = members[0];
+            const roundSeconds = first.group_round_seconds;
+            const totalRounds = first.group_total_rounds;
+            const sameParams = members.every((member) => member.group_round_seconds === roundSeconds && member.group_total_rounds === totalRounds);
+            if (!(roundSeconds > 0) || !(totalRounds > 0) || !sameParams) {
+              addIssue("work_item_group_emom_params_invalid", `${sessionPath} EMOM group requires the same positive round length and round count on every exercise.`, sessionPath);
+            }
           }
         }
 
@@ -574,7 +623,7 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           }
 
           const groupType = workItem.group_type;
-          if (!["straight", "superset", "circuit"].includes(groupType)) {
+          if (!GROUP_TYPES.includes(groupType as (typeof GROUP_TYPES)[number])) {
             addIssue("work_item_group_type_invalid", `${itemPath} has an unsupported grouping type.`, itemPath);
           }
           else if (!workItem.group_id && groupType !== "straight") {
