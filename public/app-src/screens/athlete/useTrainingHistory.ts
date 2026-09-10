@@ -7,6 +7,7 @@ import {
   loadAthleteHistoryList,
   loadVideoFeedbackSubmissions
 } from "../../api/athleteHistoryClient";
+import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
 
 // DEV NOTE: FULL-UI-16C athlete training history (list, server-side filters,
@@ -35,6 +36,7 @@ export type TrainingHistoryState = {
   selectedSessionId: string | null;
   detail: JsonRecord | null;
   detailVideoSubmissions: JsonRecord[];
+  detailSummary: JsonRecord | null;
   detailLoading: boolean;
   detailError: string | null;
 };
@@ -47,6 +49,7 @@ const initialState: TrainingHistoryState = {
   selectedSessionId: null,
   detail: null,
   detailVideoSubmissions: [],
+  detailSummary: null,
   detailLoading: false,
   detailError: null
 };
@@ -103,17 +106,20 @@ export function useTrainingHistory() {
       selectedSessionId: sessionId,
       detail: null,
       detailVideoSubmissions: [],
+      detailSummary: null,
       detailLoading: true,
       detailError: null
     }));
 
     let detail: JsonRecord;
     let submissions: JsonRecord[];
+    let summary: JsonRecord | null;
     try {
       const athleteUserId = await currentAthleteUserId();
-      [detail, submissions] = await Promise.all([
+      [detail, submissions, summary] = await Promise.all([
         loadAthleteHistoryDetail(athleteUserId, sessionId),
-        loadVideoFeedbackSubmissions(sessionId).catch(() => [])
+        loadVideoFeedbackSubmissions(sessionId).catch(() => []),
+        loadSessionSummary(sessionId).catch(() => null)
       ]);
     }
     catch {
@@ -129,6 +135,7 @@ export function useTrainingHistory() {
       ...current,
       detail,
       detailVideoSubmissions: submissions,
+      detailSummary: summary,
       detailLoading: false
     }));
   }, []);
@@ -139,6 +146,7 @@ export function useTrainingHistory() {
       selectedSessionId: null,
       detail: null,
       detailVideoSubmissions: [],
+      detailSummary: null,
       detailError: null
     }));
     if (window.location.hash.startsWith("#/athlete/history/")) {

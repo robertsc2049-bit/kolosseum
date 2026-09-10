@@ -51,13 +51,15 @@ function installMocks(options: {
   markFails?: boolean;
   noteFails?: boolean;
   onNoteSubmit?: (body: Record<string, unknown>) => void;
+  summariesBySessionId?: Record<string, Record<string, unknown>>;
 }) {
   const {
     records = [baseRecord()],
     relationships = [{ athlete_user_id: "athlete_1", display_name: "Jordan Athlete", relationship: { relationship_id: "rel_1" } }],
     markFails = false,
     noteFails = false,
-    onNoteSubmit
+    onNoteSubmit,
+    summariesBySessionId = {}
   } = options;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -81,6 +83,11 @@ function installMocks(options: {
       if (noteFails) return jsonResponse({ error: "coach_note_text_required" }, false, 400);
       if (onNoteSubmit && typeof init?.body === "string") onNoteSubmit(JSON.parse(init.body));
       return jsonResponse({ ok: true, coach_note: { note_id: "note_1" } }, true, 201);
+    }
+    const summaryMatch = /^\/sessions\/([^/]+)\/summary$/u.exec(path);
+    if (summaryMatch) {
+      const summary = summariesBySessionId[summaryMatch[1]];
+      return summary ? jsonResponse(summary) : jsonResponse({ error: "not_found" }, false, 404);
     }
     return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
   }) as typeof fetch;
@@ -298,4 +305,39 @@ test("an athlete name and session title containing markup render as inert text, 
   assert.ok(document.querySelector(".review-record-card")?.textContent?.includes('<img src=y onerror="window.pwned=true">'));
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll(".review-record-card img").length, 0);
+});
+
+test("the open review record's detail shows the neutral session summary facts fetched from GET /sessions/:sessionId/summary", async () => {
+  installMocks({
+    summariesBySessionId: {
+      session_1: {
+        session_id: "session_1",
+        run_id: "session_1",
+        status: "completed",
+        prescribed_items_total: 5,
+        prescribed_items_completed: 4,
+        prescribed_items_skipped: 1,
+        prescribed_items_remaining: 0,
+        extra_work_event_count: 2,
+        split_event_count: 3,
+        return_continue_count: 7,
+        return_skip_count: 1,
+        runtime_event_count: 12,
+        started_at_utc: "2026-08-20T09:00:00.000Z",
+        completed_at_utc: "2026-08-20T10:00:00.000Z"
+      }
+    }
+  });
+  render(<CoachReviewPanel />);
+
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+
+  const factGrids = await waitFor(() => {
+    const grids = document.querySelectorAll(".review-detail .review-fact-grid");
+    assert.equal(grids.length, 3, "expected the session facts grid, the new neutral session summary grid, then the provenance grid");
+    return grids;
+  });
+
+  const summaryFacts = Array.from(factGrids[1].querySelectorAll("dd")).map((el) => el.textContent);
+  assert.deepEqual(summaryFacts, ["4", "1", "0", "3", "7", "1"]);
 });

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
 import { formatDate, titleCase } from "../../utils/format";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
@@ -118,12 +119,14 @@ function ReviewDetail({
   record,
   athleteName,
   marking,
+  summary,
   onMark,
   onNote
 }: {
   record: ReviewRecord;
   athleteName: string;
   marking: boolean;
+  summary: JsonRecord | null;
   onMark: (record: ReviewRecord, status: "reviewed" | "unreviewed") => void;
   onNote: (record: ReviewRecord) => void;
 }) {
@@ -151,6 +154,17 @@ function ReviewDetail({
         <div><dt>Block</dt><dd>{String(record.block_id || "Not recorded")}</dd></div>
         <div><dt>Updated</dt><dd>{formatDate(reviewRecordDate(record))}</dd></div>
       </dl>
+
+      {summary ? (
+        <dl className="review-fact-grid">
+          <div><dt>Items completed</dt><dd>{Number(summary.prescribed_items_completed ?? 0)}</dd></div>
+          <div><dt>Items skipped</dt><dd>{Number(summary.prescribed_items_skipped ?? 0)}</dd></div>
+          <div><dt>Items remaining</dt><dd>{Number(summary.prescribed_items_remaining ?? 0)}</dd></div>
+          <div><dt>Splits recorded</dt><dd>{Number(summary.split_event_count ?? 0)}</dd></div>
+          <div><dt>Return - continue</dt><dd>{Number(summary.return_continue_count ?? 0)}</dd></div>
+          <div><dt>Return - skip</dt><dd>{Number(summary.return_skip_count ?? 0)}</dd></div>
+        </dl>
+      ) : null}
 
       <section className="review-provenance">
         <h4>Provenance</h4>
@@ -242,6 +256,30 @@ export function CoachReviewPanel() {
   if (selected && selected.session_id !== selectedSessionId) {
     setSelectedSessionId(String(selected.session_id));
   }
+
+  const [summary, setSummary] = useState<JsonRecord | null>(null);
+  const selectedSessionIdForSummary = selected ? String(selected.session_id) : "";
+
+  useEffect(() => {
+    if (!selectedSessionIdForSummary) {
+      setSummary(null);
+      return;
+    }
+
+    let cancelled = false;
+    setSummary(null);
+    loadSessionSummary(selectedSessionIdForSummary)
+      .then((result) => {
+        if (!cancelled) setSummary(result);
+      })
+      .catch(() => {
+        if (!cancelled) setSummary(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSessionIdForSummary]);
 
   const counts = {
     all: reviews.length,
@@ -358,6 +396,7 @@ export function CoachReviewPanel() {
             record={selected}
             athleteName={reviewAthleteName(selected, athleteNamesById)}
             marking={marking}
+            summary={summary}
             onMark={handleMark}
             onNote={handleOpenNote}
           />

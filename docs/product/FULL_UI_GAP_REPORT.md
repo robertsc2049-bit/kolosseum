@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 330
+- implemented: 332
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -351,7 +351,7 @@ Slice: FULL-UI-16
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -364,6 +364,7 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `history_provenance` — Display programme, assignment and event provenance
 - `history_export` — Export athlete history
 - `history_empty_unavailable` — Display empty and unavailable states
+- `history_session_summary` — Display neutral session summary facts
 
 ### Coach review and live status
 
@@ -371,7 +372,7 @@ Slice: FULL-UI-17
 
 Area state: implemented
 
-Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -387,6 +388,7 @@ Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `review_nonbinding_copy` — Display exact non-binding note copy
 - `review_no_override` — Prevent coach override of engine truth
 - `review_state` — Store reviewed or unreviewed product state
+- `review_session_summary` — Display neutral session summary facts
 
 ### Notifications and task state
 
@@ -787,6 +789,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-78: implemented
 - FULL-UI-79: implemented
 - FULL-UI-80: implemented
+- FULL-UI-81: implemented
 
 ## Prohibited capabilities
 
