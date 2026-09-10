@@ -3050,6 +3050,26 @@
             "error": "incomplete",
             "recovery": "incomplete"
           }
+        },
+        {
+          "function_id": "builder_group_workout",
+          "label": "Author complex, AMRAP, EMOM or for-time exercise groups",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_82_crossfit_group_workouts_surface.test.mjs",
+          "integration_test": "test/full_ui_82c_crossfit_group_workouts_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -4153,6 +4173,28 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_15c_session_execution_surface.test.mjs",
           "integration_test": "test/full_ui_15c_session_execution_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_group_workout",
+          "label": "Execute and record a complex, AMRAP, EMOM or for-time group",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_82_crossfit_group_workouts_surface.test.mjs",
+          "integration_test": "test/full_ui_82c_crossfit_group_workouts_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -8020,6 +8062,10 @@
     },
     {
       "slice_id": "FULL-UI-81",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-82",
       "state": "implemented"
     }
   ],
