@@ -15,9 +15,10 @@ import { useTrainingHistory } from "./useTrainingHistory";
 // fetch, no round-trip, also matching legacy.
 
 function exerciseName(exercise: JsonRecord | undefined): string {
-  return String(
-    exercise?.display_name ?? exercise?.exercise_name ?? exercise?.exercise_id ?? exercise?.item_id ?? "Exercise"
-  );
+  if (exercise?.display_name) return String(exercise.display_name);
+  if (exercise?.exercise_name) return String(exercise.exercise_name);
+  const id = exercise?.exercise_id ?? exercise?.item_id;
+  return id ? titleCase(id) : "Exercise";
 }
 
 function historyRecordStatusClass(executionStatus: string): string {
@@ -159,7 +160,7 @@ export function AthleteHistoryPanel() {
         <div className="panel empty-state">
           <div className="empty-icon">…</div>
           <h3>Loading history…</h3>
-          <p>Fetching persisted session facts.</p>
+          <p>Fetching your session history.</p>
         </div>
       ) : null}
 
@@ -178,7 +179,7 @@ export function AthleteHistoryPanel() {
             <div className="panel empty-state">
               <div className="empty-icon">H</div>
               <h3>No sessions recorded</h3>
-              <p>Your persisted session history will appear here.</p>
+              <p>Your session history will appear here.</p>
             </div>
           ) : null
         ) : (
@@ -247,7 +248,7 @@ export function AthleteHistoryPanel() {
                 <div><span>Split entered</span><strong>{detail.split_entered ? "Yes" : "No"}</strong></div>
                 <div><span>Return decision</span><strong>{titleCase(detail.split_return_decision || "None")}</strong></div>
                 <div><span>Programme</span><strong>{programme ? `${String(programme.template_name)} (v${String(programme.template_version)})` : "Not recorded"}</strong></div>
-                <div><span>Assignment</span><strong>{String(assignment?.assignment_id || "Not recorded")}</strong></div>
+                <div><span>Assignment</span><strong>{assignment?.assignment_status ? titleCase(assignment.assignment_status) : "Not recorded"}</strong></div>
                 <div><span>Event</span><strong>{String(event?.event_name || "No linked event")}</strong></div>
               </div>
 
@@ -301,7 +302,7 @@ export function AthleteHistoryPanel() {
                       const sets = Array.isArray(added.sets) ? (added.sets as JsonRecord[]) : [];
                       return (
                         <div className="history-exercise-row" key={String(added.exercise_id ?? index)}>
-                          <strong>{String(added.exercise_id)}</strong>
+                          <strong>{exerciseName(added)}</strong>
                           {sets.map((set, setIndex) => (
                             <small key={setIndex}>
                               {String(set.reps)} reps

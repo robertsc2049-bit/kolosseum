@@ -353,7 +353,7 @@ export function AthleteStrengthProfilePanel() {
                   <span>Source note</span>
                   <input
                     maxLength={240}
-                    placeholder="Optional factual source"
+                    placeholder="Optional note"
                     disabled={row.persisted}
                     value={row.source_note}
                     onChange={(event) => updateBenchmark(row.draftKey, { source_note: event.target.value })}
@@ -367,7 +367,7 @@ export function AthleteStrengthProfilePanel() {
                   disabled={row.persisted}
                   onClick={() => removeBenchmark(row.draftKey)}
                 >
-                  {row.persisted ? "Immutable record" : "Remove"}
+                  {row.persisted ? "Locked" : "Remove"}
                 </button>
               </article>
             );

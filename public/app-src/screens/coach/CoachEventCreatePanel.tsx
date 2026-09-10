@@ -5,7 +5,7 @@ import { availableWeeksLabel, eventTypesForActivity, useCoachEventCreate } from 
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
-// DEV NOTE: ported from index.html's #eventForm ("Compile event"). The
+// DEV NOTE: ported from index.html's #eventForm ("Create event"). The
 // event library (metric cards + event list) is React already - see
 // CoachEventsLibraryPanel.tsx - and refetches once this form dispatches
 // kolosseum:coach-events-changed after a successful compile.
@@ -50,7 +50,7 @@ export function CoachEventCreatePanel() {
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
         <p className="eyebrow">New event</p>
-        <h3>Compile event</h3>
+        <h3>Create event</h3>
       </div>
 
       <label className="field">
@@ -99,7 +99,7 @@ export function CoachEventCreatePanel() {
 
       <label className="field">
         <span>Notes</span>
-        <textarea ref={notesRef} maxLength={1000} placeholder="Factual event details only"></textarea>
+        <textarea ref={notesRef} maxLength={1000} placeholder="Optional notes about this event"></textarea>
       </label>
 
       <div className="event-compiler-summary standalone-event-summary">
@@ -110,7 +110,7 @@ export function CoachEventCreatePanel() {
       {error ? <p role="status" className="muted small error">{error}</p> : null}
       {resultMessage ? <p role="status" className="muted small">{resultMessage}</p> : null}
 
-      <button className="button primary" type="submit" disabled={submitting}>Compile event</button>
+      <button className="button primary" type="submit" disabled={submitting}>Create event</button>
     </form>
   );
 }

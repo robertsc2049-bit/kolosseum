@@ -225,7 +225,7 @@ test("selecting a shared team switches the picker to the org roster and submits 
   assert.deepEqual((received as { athlete_user_ids?: string[] })?.athlete_user_ids, ["athlete_team"]);
 });
 
-test("a rejected create shows a factual error message, not a generic one", async () => {
+test("a rejected create shows a plain error message, never the raw server code", async () => {
   installMocks({
     relationships: [],
     createResult: { ok: false, body: { error: "attendance_event_title_invalid" } }
@@ -241,5 +241,6 @@ test("a rejected create shows a factual error message, not a generic one", async
     fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
   });
 
-  await waitFor(() => screen.getByText("attendance_event_title_invalid"));
+  assert.equal(screen.queryByText("attendance_event_title_invalid"), null);
+  await waitFor(() => screen.getByText("That request could not be completed. Try again, or report this problem if it continues."));
 });

@@ -196,7 +196,6 @@ test("displays a bodyweight record with its value, unit and date", async () => {
   openProfile();
 
   await waitFor(() => screen.getByText("82.5 kg"));
-  assert.ok(screen.getByText("Factual recorded bodyweight"));
 });
 
 test("displays event-link history with the linked event name and link state", async () => {

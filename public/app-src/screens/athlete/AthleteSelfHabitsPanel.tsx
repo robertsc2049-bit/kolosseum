@@ -72,6 +72,7 @@ export function AthleteSelfHabitsPanel() {
         <div>
           <p className="eyebrow">Habits</p>
           <h3>Habits</h3>
+          <p className="muted">Track daily habits and see your streaks build over time.</p>
         </div>
       </div>
 

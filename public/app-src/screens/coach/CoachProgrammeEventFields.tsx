@@ -104,7 +104,7 @@ export function CoachProgrammeEventFields() {
         <span>Event notes</span>
         <textarea
           maxLength={1000}
-          placeholder="Factual event details only"
+          placeholder="Optional event details"
           defaultValue={String(eventPlan.notes ?? "")}
           disabled={bound}
           data-template-kind="event"

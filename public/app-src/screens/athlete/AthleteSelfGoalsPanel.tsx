@@ -112,6 +112,7 @@ export function AthleteSelfGoalsPanel() {
         <div>
           <p className="eyebrow">Goals</p>
           <h3>Goals</h3>
+          <p className="muted">Set a target and track your progress toward it over time.</p>
         </div>
       </div>
 

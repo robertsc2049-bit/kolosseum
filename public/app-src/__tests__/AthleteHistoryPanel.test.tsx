@@ -59,7 +59,7 @@ test("shows a factual empty state when no sessions are recorded", async () => {
   installMocks({ sessions: [] });
   render(<AthleteHistoryPanel />);
   await waitFor(() => screen.getByText("No sessions recorded"));
-  assert.ok(screen.getByText("Your persisted session history will appear here."));
+  assert.ok(screen.getByText("Your session history will appear here."));
 });
 
 test("shows the unavailable panel with a working retry on fetch failure", async () => {
@@ -206,7 +206,7 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
       ],
       provenance: {
         programme: { template_name: "Peak Block", template_version: 2 },
-        assignment: { assignment_id: "assign_1" },
+        assignment: { assignment_id: "assign_1", assignment_status: "active" },
         event: { event_name: "Regional Meet" }
       },
       split_return_events: []
@@ -223,7 +223,8 @@ test("opening a session shows its detail: facts, exercises, and a continue-sessi
   await waitFor(() => screen.getByText("Back Squat"));
   assert.ok(screen.getByText("Bench Press"));
   assert.ok(screen.getByText("Peak Block (v2)"));
-  assert.ok(screen.getByText("assign_1"));
+  assert.ok(screen.getByText("Active"));
+  assert.equal(screen.queryByText("assign_1"), null, "the raw internal assignment id must never be shown to the athlete");
   assert.ok(screen.getByText("Regional Meet"));
   assert.ok(screen.getByText("Yes"));
 

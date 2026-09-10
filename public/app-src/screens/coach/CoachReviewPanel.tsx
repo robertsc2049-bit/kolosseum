@@ -74,7 +74,7 @@ function ReviewActions({
       ) : status === "reviewed" ? (
         <button className={`button secondary${size}`} type="button" disabled={marking} onClick={() => onMark(record, "unreviewed")}>Mark unreviewed</button>
       ) : null}
-      <button className={`button secondary${size}`} type="button" onClick={() => onNote(record)}>{compact ? "Add note" : "Add non-binding note"}</button>
+      <button className={`button secondary${size}`} type="button" onClick={() => onNote(record)}>{compact ? "Add note" : "Add private note"}</button>
     </>
   );
 }
@@ -103,7 +103,6 @@ function ReviewCard({
         <p className="eyebrow">{athleteName}</p>
         <h3>{String(record.session_title ?? "Training session")}</h3>
         <p>{formatDate(reviewRecordDate(record))} · {Number(record.runtime_event_count ?? 0)} recorded events</p>
-        <p className="muted small">Session {String(record.session_id)}</p>
       </div>
       <div className="record-meta review-record-actions">
         <StatusBadge record={record} />
@@ -139,7 +138,7 @@ function ReviewDetail({
     <aside className="panel review-detail">
       <div className="review-detail-heading">
         <div>
-          <p className="eyebrow">Factual session detail</p>
+          <p className="eyebrow">Session detail</p>
           <h3>{athleteName}</h3>
           <p>{String(record.session_title ?? "Training session")}</p>
         </div>
@@ -147,7 +146,6 @@ function ReviewDetail({
       </div>
 
       <dl className="review-fact-grid">
-        <div><dt>Session</dt><dd>{String(record.session_id)}</dd></div>
         <div><dt>Status</dt><dd>{titleCase(record.session_status ?? "recorded")}</dd></div>
         <div><dt>Recorded events</dt><dd>{Number(record.runtime_event_count ?? 0)}</dd></div>
         <div><dt>Planned work items</dt><dd>{Number(record.planned_work_item_count ?? 0)}</dd></div>
@@ -174,14 +172,13 @@ function ReviewDetail({
           <div><dt>Programme version</dt><dd>{Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
           <div><dt>Activity</dt><dd>{titleCase(assignment.activity_id ?? "not recorded")}</dd></div>
           <div><dt>Event</dt><dd>{String(eventLink.event_id ?? "No event link")}</dd></div>
-          <div><dt>Artefact</dt><dd>{String(record.artefact_id)}</dd></div>
         </dl>
       </section>
 
       <p className={`review-boundary-copy${status === "open" ? " live" : ""}`}>
         {status === "open"
-          ? "Live status is read-only. This surface displays recorded session facts and cannot control or override the active session."
-          : "Review state is product metadata only. Marking a record reviewed or unreviewed does not change the session artefact, programme, assignment or engine truth."}
+          ? "Live status is read-only. This screen shows recorded session facts and can't control or change the active session."
+          : "Marking a session reviewed or unreviewed is for your own tracking only - it doesn't change the session record, programme, assignment, or how the training itself was calculated."}
       </p>
 
       <div className="assignment-action-row">
@@ -202,7 +199,7 @@ function ReviewDetail({
                 </div>
                 <p>{String(note.note_text ?? "")}</p>
                 {note.exercise_id ? <p className="muted small">Exercise: {titleCase(String(note.exercise_id))}</p> : null}
-                <p className="muted small">Non-binding product note · not included in engine input</p>
+                <p className="muted small">Private note · doesn't affect training calculations</p>
               </article>
             ))}
           </div>
@@ -324,7 +321,7 @@ export function CoachReviewPanel() {
         <div>
           <p className="eyebrow">Coach workspace</p>
           <h2>Review</h2>
-          <p className="muted">Factual completed-session review, live read-only status and non-binding coach notes.</p>
+          <p className="muted">Review completed sessions, track live read-only status, and add private notes.</p>
         </div>
         <div className="review-toolbar">
           <label className="field compact-field">
@@ -406,7 +403,7 @@ export function CoachReviewPanel() {
       {noteRecord ? (
         <form className="panel form-panel narrow" onSubmit={handleSubmitNote}>
           <div>
-            <p className="eyebrow">Non-binding note</p>
+            <p className="eyebrow">Private note</p>
             <h3>Add note for {reviewAthleteName(noteRecord, athleteNamesById)}</h3>
           </div>
           <label className="field">
@@ -437,7 +434,7 @@ export function CoachReviewPanel() {
               <option value="athlete_visible">Visible to athlete</option>
             </select>
           </label>
-          <p className="muted small">This note is non-binding, stored separately from the session artefact and cannot alter engine output or session facts.</p>
+          <p className="muted small">This note is private to you (unless marked visible to the athlete) and can't change the recorded session.</p>
           {noteError ? <p className="dashboard-status" role="status" aria-live="polite">{noteError}</p> : null}
           <button className="button primary" type="submit" disabled={noteSubmitting}>Record note</button>
         </form>

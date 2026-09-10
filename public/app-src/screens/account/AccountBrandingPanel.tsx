@@ -43,7 +43,7 @@ export function AccountBrandingPanel() {
           <input
             type="text"
             maxLength={120}
-            placeholder="Strength coaching, factual and simple."
+            placeholder="Strength coaching, straightforward and simple."
             value={brandTagline}
             onChange={(event) => setBrandTagline(event.target.value)}
           />

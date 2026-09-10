@@ -84,8 +84,9 @@ test("opening for an accepted athlete shows the audit facts and both action butt
   await openAudit();
   await screen.findByText("Jordan Athlete");
 
-  assert.ok(screen.getByText("Accepted · Powerlifting · athlete_1"));
-  assert.ok(screen.getByText("rel_1"));
+  assert.ok(screen.getByText("Accepted · Powerlifting"));
+  assert.equal(screen.queryByText("athlete_1"), null, "the raw internal athlete id must never be shown");
+  assert.equal(screen.queryByText("rel_1"), null, "the raw internal relationship id must never be shown");
   assert.ok(screen.getByText("Open training profile"));
   assert.ok(screen.getByText("Revoke relationship"));
 });

@@ -72,7 +72,7 @@ export function CoachProgrammeIdentityFields() {
         <span>Description</span>
         <textarea
           maxLength={1000}
-          placeholder="Factual description of this programme"
+          placeholder="Optional description of this programme"
           defaultValue={draft.description}
           data-template-kind="header"
           data-field="description"

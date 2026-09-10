@@ -179,13 +179,13 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
 
 test("FULL-UI-03C UI distinguishes all required product states", () => {
   for (const token of [
-    "Incomplete onboarding",
-    "Validation failure",
-    "Saved draft state",
-    "Completed onboarding",
+    "Set up your account",
+    "Check your answers",
+    "Draft saved",
+    "Setup complete",
     "Current declaration",
     "Superseded declaration",
-    "Unavailable service state",
+    "Not available right now",
     "Only accessibility and instruction-density preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {

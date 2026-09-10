@@ -738,7 +738,7 @@ function BuilderBlock({
         </label>
         <label className="field template-block-description-field">
           <span>Block description</span>
-          <input defaultValue={block.description} maxLength={500} data-template-kind="block" data-block-index={blockIndex} data-field="description" placeholder="Optional factual purpose or phase label" />
+          <input defaultValue={block.description} maxLength={500} data-template-kind="block" data-block-index={blockIndex} data-field="description" placeholder="Optional purpose or phase label" />
         </label>
       </div>
 

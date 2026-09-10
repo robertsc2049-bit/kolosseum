@@ -52,7 +52,7 @@ test("renders the compile-event form with default activity, event type options, 
   installMocks();
   render(<CoachEventCreatePanel />);
 
-  assert.ok(screen.getByRole("heading", { name: "Compile event" }));
+  assert.ok(screen.getByRole("heading", { name: "Create event" }));
   const activitySelect = screen.getByDisplayValue("Powerlifting") as HTMLSelectElement;
   assert.equal(activitySelect.value, "powerlifting");
   assert.ok(screen.getByText("Powerlifting meet"));
@@ -104,11 +104,11 @@ test("submitting posts the CSRF-guarded event, dispatches the change event, rese
   fireEvent.change(screen.getByPlaceholderText("Optional venue or town"), { target: { value: "Birmingham" } });
 
   await act(async () => {
-    fireEvent.submit(screen.getByRole("button", { name: "Compile event" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Create event" }).closest("form")!);
   });
 
   assert.equal(changed, true);
-  await screen.findByText("British Championships compiled.");
+  await screen.findByText("British Championships created.");
 
   const createCall = calls.find((entry) => entry.path === "/coach-workspace/events");
   assert.ok(createCall);
@@ -136,9 +136,9 @@ test("a rejected creation request shows the server's factual error and keeps the
   fireEvent.change(dateInputs[1], { target: { value: "2027-01-01" } });
 
   await act(async () => {
-    fireEvent.submit(screen.getByRole("button", { name: "Compile event" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Create event" }).closest("form")!);
   });
 
-  await screen.findByText("event_date_invalid");
+  await screen.findByText("Enter a valid event date.");
   assert.equal((screen.getByPlaceholderText("British Championships") as HTMLInputElement).value, "Bad Event");
 });

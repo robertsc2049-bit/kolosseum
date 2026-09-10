@@ -12,6 +12,7 @@ import {
   STAGES,
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
+import { titleCase } from "../../utils/format";
 // eslint-disable-next-line import/no-unresolved
 import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
@@ -33,7 +34,8 @@ function formatDate(value: unknown): string {
 }
 
 function label(value: unknown): string {
-  return String(value ?? "not selected").replaceAll("_", " ");
+  const text = String(value ?? "").replaceAll("_", " ").trim();
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : "not selected";
 }
 
 function StatusBanner({ state, hasError, forceKind }: { state: JsonRecord | null; hasError: boolean; forceKind?: string }) {
@@ -47,18 +49,18 @@ function StatusBanner({ state, hasError, forceKind }: { state: JsonRecord | null
         : "incomplete");
 
   const heading: Record<string, string> = {
-    incomplete: "Incomplete onboarding",
-    saved_draft: "Saved draft state",
-    validation_failure: "Validation failure",
-    completed: "Completed onboarding",
-    unavailable: "Unavailable service state"
+    incomplete: "Set up your account",
+    saved_draft: "Draft saved",
+    validation_failure: "Check your answers",
+    completed: "Setup complete",
+    unavailable: "Not available right now"
   };
 
   const detail = actual === "saved_draft" ? `Saved ${formatDate(state?.saved_draft_at_iso8601)}.`
-    : actual === "completed" ? "The current effective declaration is persisted on the server."
-    : actual === "validation_failure" ? "Correct the declaration fields before continuing."
-    : actual === "unavailable" ? "No completion state has been assumed."
-    : "Complete each stage and confirm the review.";
+    : actual === "completed" ? "Your answers are saved."
+    : actual === "validation_failure" ? "Fix the highlighted fields below and try again."
+    : actual === "unavailable" ? "We couldn't check your setup status. Try again."
+    : "Complete each step, then review and confirm.";
 
   return (
     <div className="onboarding-status" data-state={actual}>
@@ -95,10 +97,10 @@ function ValidationErrors({ error }: { error: { message: string; payload: unknow
   const entries = Object.entries(fieldErrors ?? {});
   return (
     <div className="onboarding-errors">
-      <strong>Validation failure</strong>
+      <strong>Check your answers</strong>
       {entries.length ? (
         <ul>
-          {entries.map(([key, value]) => <li key={key}><strong>{key}:</strong> {String(value)}</li>)}
+          {entries.map(([key, value]) => <li key={key}><strong>{titleCase(key)}:</strong> {String(value)}</li>)}
         </ul>
       ) : (
         <p>{error.message}</p>
@@ -291,7 +293,6 @@ function HistoricalDeclarations({ items }: { items: JsonRecord[] }) {
           <strong>Superseded declaration</strong>
           <span> · {formatDate(item.effective_at_iso8601)}</span>
           <DeclarationFacts fields={(item.fields as JsonRecord) ?? {}} />
-          <small>Immutable declaration {String(item.declaration_id)}</small>
         </article>
       ))}
     </div>
@@ -319,7 +320,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         <h3>Current effective declaration</h3>
         <p>Version {String(current.declaration_version)} · effective {formatDate(current.effective_at_iso8601)}</p>
         <DeclarationFacts fields={fields} />
-        <p className="onboarding-boundary">This factual declaration does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
+        <p className="onboarding-boundary">This declaration does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
         <div className="onboarding-actions">
           <button className="button primary" type="button" onClick={openWorkspace}>Open training workspace</button>
           <button className="button secondary" type="button" onClick={startEditing}>Edit accessibility and instruction density</button>
@@ -328,7 +329,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       <article className="onboarding-card">
         <h3>Historical declarations</h3>
-        <p>Superseded declarations remain immutable.</p>
+        <p>Superseded declarations can't be changed.</p>
         <HistoricalDeclarations items={history} />
       </article>
     </>

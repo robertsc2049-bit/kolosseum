@@ -85,6 +85,7 @@ export function AthleteSelfBodyMetricsPanel() {
         <div>
           <p className="eyebrow">Body metrics</p>
           <h3>Body measurements</h3>
+          <p className="muted">Log measurements like bodyweight to track how they change over time.</p>
         </div>
       </div>
 

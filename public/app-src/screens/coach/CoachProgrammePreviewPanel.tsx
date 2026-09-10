@@ -50,7 +50,7 @@ export function CoachProgrammePreviewPanel() {
   if (blocks.length === 0) {
     return (
       <div className="empty-state compact-empty">
-        <p>No persisted programme structure is available.</p>
+        <p>No programme structure is available.</p>
       </div>
     );
   }

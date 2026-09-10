@@ -109,7 +109,7 @@ test("FULL-UI-08 displays factual subscription and seat state", () => {
   }
 
   assert.match(panel, /id="accountCommercialPanel"/u);
-  assert.match(panel, /No live provider SDK call is performed by this product slice/u);
+  assert.match(panel, /no live payment provider call is made yet/u);
   assert.match(css, /\.commercial-fact-grid/u);
   assert.match(css, /min-height: 44px/u);
 });

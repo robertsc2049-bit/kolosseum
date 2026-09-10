@@ -96,7 +96,7 @@ export function CoachOverviewReviewQueuePanel() {
     return (
       <div className="empty-state dashboard-empty-state">
         <h4>No completed session records</h4>
-        <p>Completed athlete sessions will appear here when factual artefacts are available.</p>
+        <p>Completed athlete sessions will appear here once they're recorded.</p>
       </div>
     );
   }

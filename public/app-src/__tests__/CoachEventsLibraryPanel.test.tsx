@@ -56,7 +56,7 @@ test("the metric cards show total, upcoming and linked-athlete counts", async ()
 test("shows a factual empty state when the coach has no compiled events", async () => {
   installMocks([]);
   render(<CoachEventsListPanel />);
-  await waitFor(() => screen.getByText("No events compiled"));
+  await waitFor(() => screen.getByText("No events created"));
   assert.ok(screen.getByText("Create an event date anchor, then link athletes and programmes from each athlete profile."));
 });
 
@@ -136,7 +136,7 @@ test("an event name and notes containing markup are rendered as inert text, neve
 test("refetches when kolosseum:coach-events-changed fires", async () => {
   installMocks([]);
   render(<CoachEventsListPanel />);
-  await waitFor(() => screen.getByText("No events compiled"));
+  await waitFor(() => screen.getByText("No events created"));
 
   installMocks([
     { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }

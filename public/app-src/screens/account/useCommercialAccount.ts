@@ -8,6 +8,7 @@ import {
 } from "../../api/commercialClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { FRIENDLY_ERROR_MESSAGES } from "../../utils/friendlyError";
 
 // DEV NOTE: FULL-UI-08 commercial/billing - ported from commercial_ui.js's
 // refreshCommercial()/openCheckout()/openBillingPortal()/
@@ -69,7 +70,7 @@ function errorMessage(error: unknown): string {
     commercial_payment_return_invalid: "The payment return status is invalid."
   };
 
-  return messages[code] ?? humanise(code);
+  return messages[code] ?? FRIENDLY_ERROR_MESSAGES[code] ?? humanise(code);
 }
 
 export type CommercialAccountState = {

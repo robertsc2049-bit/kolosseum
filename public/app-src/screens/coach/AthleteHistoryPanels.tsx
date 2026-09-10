@@ -127,7 +127,7 @@ export function AthleteCurrentProgrammeCard() {
       : null;
 
   if (!currentAssignment) {
-    return <EmptyState heading="No programme assignment" detail="No persisted programme assignment exists for this athlete." />;
+    return <EmptyState heading="No programme assignment" detail="No programme assignment exists for this athlete." />;
   }
 
   const template = findTemplate(currentAssignment.template_id, templates);
@@ -161,7 +161,7 @@ export function AthleteCurrentEventCard() {
       : null;
 
   if (!currentEventLink) {
-    return <EmptyState heading="No event link" detail="The current assignment is not linked to a persisted event." />;
+    return <EmptyState heading="No event link" detail="The current assignment is not linked to an event." />;
   }
 
   const linkedEvent = findEvent(currentEventLink.event_id, events);
@@ -282,7 +282,6 @@ export function AthleteBodyweightHistoryList() {
             <h4>
               {Number(record.bodyweight)} {String(record.unit ?? "")}
             </h4>
-            <p>Factual recorded bodyweight</p>
           </div>
           <span className="badge neutral">{formatDate(record.effective_at as string | undefined)}</span>
         </article>
@@ -299,7 +298,7 @@ export function AthleteEventLinkHistoryList() {
   if (loading && !detail) return null;
 
   if (records.length === 0) {
-    return <EmptyState heading="No event-link history" detail="Event links will appear here after this athlete is linked to a persisted event." />;
+    return <EmptyState heading="No event-link history" detail="Event links will appear here after this athlete is linked to an event." />;
   }
 
   return (

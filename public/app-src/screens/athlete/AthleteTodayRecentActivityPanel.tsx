@@ -58,7 +58,7 @@ export function AthleteTodayRecentActivityList() {
             </div>
             <div className="record-meta">
               <span className="badge neutral">{status}</span>
-              <span className="badge neutral">{Number(session.runtime_event_count ?? 0)} events</span>
+              <span className="badge neutral">{Number(session.runtime_event_count ?? 0)} actions recorded</span>
             </div>
           </article>
         );

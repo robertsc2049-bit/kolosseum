@@ -96,18 +96,17 @@ test("shows a clean pass message for a fully valid draft", async () => {
   installMocks();
   render(<CoachProgrammeBuilderValidationList />);
   await broadcast(draftWithWorkItem());
-  await screen.findByText(/All visible completion checks pass/u);
+  await screen.findByText(/All checks pass/u);
 });
 
-test("lists every issue with its path, message and code, as clickable builder-validation-index buttons", async () => {
+test("lists every issue with its path and message, as clickable builder-validation-index buttons", async () => {
   installMocks();
   render(<CoachProgrammeBuilderValidationList />);
   await broadcast(draftWithWorkItem({}, { template_name: "" }));
 
   await screen.findByText("Programme name is required.");
   assert.ok(screen.getByText("programme name"));
-  assert.ok(screen.getByText("template_name_required"));
-  const button = screen.getByText("template_name_required").closest("button") as HTMLElement;
+  const button = screen.getByText("Programme name is required.").closest("button") as HTMLElement;
   assert.equal(button.getAttribute("data-builder-validation-index"), "0");
 });
 
@@ -115,17 +114,17 @@ test("re-renders when the legacy builder broadcasts an updated (now-fixed) draft
   installMocks();
   render(<CoachProgrammeBuilderValidationList />);
   await broadcast(draftWithWorkItem({}, { template_name: "" }));
-  await screen.findByText("template_name_required");
+  await screen.findByText("Programme name is required.");
 
   await broadcast(draftWithWorkItem({}, { template_name: "Now Named" }));
-  await screen.findByText(/All visible completion checks pass/u);
+  await screen.findByText(/All checks pass/u);
 });
 
 test("clears back to nothing once the legacy builder broadcasts a null draft (closed)", async () => {
   installMocks();
   const { container } = render(<CoachProgrammeBuilderValidationList />);
   await broadcast(draftWithWorkItem());
-  await screen.findByText(/All visible completion checks pass/u);
+  await screen.findByText(/All checks pass/u);
 
   await broadcast(null);
   assert.equal(container.innerHTML, "");

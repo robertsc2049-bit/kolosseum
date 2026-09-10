@@ -80,6 +80,7 @@ export function AthleteSelfWeeklyCheckinsPanel() {
         <div>
           <p className="eyebrow">Weekly check-in</p>
           <h3>Weekly check-in</h3>
+          <p className="muted">Rate your energy, motivation and sleep each week to track how they trend.</p>
         </div>
       </div>
 

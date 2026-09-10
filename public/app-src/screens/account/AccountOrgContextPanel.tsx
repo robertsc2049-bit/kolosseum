@@ -56,7 +56,7 @@ export function AccountOrgContextPanel() {
               <div className="record-list">
                 {entry.roster.map((fellow: JsonRecord, fellowIndex) => (
                   <p className="muted small" key={String(fellow.coach_user_id ?? fellowIndex)}>
-                    {String(fellow.coach_display_name || fellow.coach_user_id)}
+                    {String(fellow.coach_display_name || "A connected coach")}
                     {fellow.coach_user_id === ownCoachUserId ? " (You)" : ""}
                     {fellow.coach_email ? ` - ${String(fellow.coach_email)}` : ""}
                     {fellow.activated_at_iso8601 ? ` · Joined ${formatDate(fellow.activated_at_iso8601)}` : ""}

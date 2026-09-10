@@ -23,7 +23,7 @@ import { applyAccessibilityPreferences } from "../../utils/accessibilityPreferen
 
 export type CoachOnboardingState = {
   loading: boolean;
-  unavailableError: string | null;
+  unavailableError: ApiRequestError | null;
   serverState: JsonRecord | null;
   busy: boolean;
   validationError: ApiRequestError | null;
@@ -56,7 +56,7 @@ export function useCoachOnboarding() {
       setState((current) => ({
         ...current,
         loading: false,
-        unavailableError: error instanceof Error ? error.message : "coach_onboarding_request_failed"
+        unavailableError: error instanceof ApiRequestError ? error : new ApiRequestError("coach_onboarding_request_failed", 0, null)
       }));
     }
   }, []);

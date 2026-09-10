@@ -21,7 +21,7 @@ function ReleaseHistoryList({ releases }: { releases: JsonRecord[] }) {
       {releases.map((release, index) => (
         <article className="record-row" key={String(release.buyer_coach_user_id ?? index)}>
           <div>
-            <strong>Released to {String(release.buyer_coach_user_id ?? "")}</strong>
+            <strong>Released to another coach</strong>
             <p className="muted small">{formatDate(release.released_at_iso8601)}</p>
           </div>
         </article>

@@ -96,6 +96,7 @@ export type AthleteSessionExecutionState = {
   substitutionChecking: boolean;
   videoUploading: boolean;
   videoError: string | null;
+  mutationError: string | null;
   restRemainingSeconds: number | null;
   restDone: boolean;
   howto: HowtoState;
@@ -131,6 +132,7 @@ const initialState: AthleteSessionExecutionState = {
   substitutionChecking: false,
   videoUploading: false,
   videoError: null,
+  mutationError: null,
   restRemainingSeconds: null,
   restDone: false,
   howto: null
@@ -168,6 +170,7 @@ export function useAthleteSessionExecution() {
         actionPanel: null,
         substitutionResult: null,
         videoError: null,
+        mutationError: null,
         howto: null
       }));
       return;
@@ -198,6 +201,7 @@ export function useAthleteSessionExecution() {
         substitutionUnavailableEquipment: [],
         substitutionResult: null,
         videoError: null,
+        mutationError: null,
         howto: null
       }));
     }
@@ -308,7 +312,7 @@ export function useAthleteSessionExecution() {
     const sessionId = readActiveSessionId();
     if (!sessionId) return false;
 
-    setState((current) => ({ ...current, busy: true }));
+    setState((current) => ({ ...current, busy: true, mutationError: null }));
     try {
       const account = await loadAccountDetail();
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
@@ -318,8 +322,12 @@ export function useAthleteSessionExecution() {
       setState((current) => ({ ...current, busy: false }));
       return true;
     }
-    catch {
-      setState((current) => ({ ...current, busy: false }));
+    catch (error) {
+      setState((current) => ({
+        ...current,
+        busy: false,
+        mutationError: error instanceof Error ? error.message : "This action could not be completed. Try again."
+      }));
       return false;
     }
   }, [refresh]);

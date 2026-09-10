@@ -208,7 +208,7 @@ test("shows a factual error when sending fails without free text", async () => {
     fireEvent.submit(screen.getByText("Send").closest("form")!);
   });
 
-  await screen.findByText("message_send_failed");
+  await screen.findByText("That request could not be completed. Try again, or report this problem if it continues.");
 });
 
 test("a live-pushed message for the current thread is appended without a manual refresh", async () => {

@@ -5,17 +5,24 @@
 // avoids the two clients' security-relevant header/credentials logic
 // silently diverging over time.
 
+import { friendlyErrorMessage } from "../utils/friendlyError";
+
 export type JsonRecord = Record<string, unknown>;
 
 export class ApiRequestError extends Error {
   readonly payload: unknown;
   readonly status: number;
+  // The raw internal error/reason/failure_token from the response body -
+  // what `.message` used to hold before it became friendly text. Kept for
+  // the handful of screens that do their own extra-specific mapping.
+  readonly code: string;
 
-  constructor(message: string, status: number, payload: unknown) {
-    super(message);
+  constructor(code: string, status: number, payload: unknown) {
+    super(friendlyErrorMessage(payload, status));
     this.name = "ApiRequestError";
     this.status = status;
     this.payload = payload;
+    this.code = code;
   }
 }
 
@@ -60,10 +67,10 @@ export async function request(
 
   if (!response.ok) {
     const record = isRecord(payload) ? payload : {};
-    const message = String(
+    const code = String(
       record.error ?? record.reason ?? record.failure_token ?? `api_request_${response.status}`
     );
-    throw new ApiRequestError(message, response.status, payload);
+    throw new ApiRequestError(code, response.status, payload);
   }
 
   return isRecord(payload) ? payload : {};

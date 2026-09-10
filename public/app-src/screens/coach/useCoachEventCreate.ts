@@ -91,13 +91,13 @@ export function useCoachEventCreate() {
       setSubmitting(false);
       setProgrammeStartDate("");
       setEventDate("");
-      setResultMessage(`${String(eventPlan?.event_name ?? "Event")} compiled.`);
+      setResultMessage(`${String(eventPlan?.event_name ?? "Event")} created.`);
       document.dispatchEvent(new CustomEvent(CHANGED_EVENT));
       return true;
     }
     catch (error_) {
       setSubmitting(false);
-      setError(error_ instanceof Error ? error_.message : "The event could not be compiled.");
+      setError(error_ instanceof Error ? error_.message : "The event could not be created.");
       return false;
     }
   }, [activityId, eventType, programmeStartDate, eventDate]);

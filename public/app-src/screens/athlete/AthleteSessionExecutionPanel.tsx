@@ -265,7 +265,7 @@ export function AthleteSessionExecutionPanel() {
               {session.actionPanel === "skip" ? (
                 <div className="skip-reason-panel">
                   <h3>Skip this exercise?</h3>
-                  <p>Choose the factual reason for the skip.</p>
+                  <p>Choose the reason for the skip.</p>
                   <select id="skipReasonSelect" value={session.skipReasonCode} onChange={(event) => session.setSkipReasonCode(event.target.value)}>
                     <option value="equipment_unavailable">Equipment unavailable</option>
                     <option value="time_constraint">Time constraint</option>
@@ -294,7 +294,7 @@ export function AthleteSessionExecutionPanel() {
               {session.actionPanel === "rpe" ? (
                 <div className="pain-report-panel">
                   <h3>Report RPE for this exercise?</h3>
-                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
                   <label><span>RPE (1-10)</span><input type="number" min={1} max={10} step={1} value={session.rpeValue} onChange={(event) => session.setRpeValue(Number(event.target.value))} /></label>
                   <p className="muted small">RPE {session.rpeValue} - {rpeReserveLabel(session.rpeValue)}</p>
                   <div className="button-row">
@@ -307,7 +307,7 @@ export function AthleteSessionExecutionPanel() {
               {session.actionPanel === "borg" ? (
                 <div className="pain-report-panel">
                   <h3>Report Borg rating for this exercise?</h3>
-                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
                   <label><span>Borg (6-20)</span><input type="number" min={6} max={20} step={1} value={session.borgValue} onChange={(event) => session.setBorgValue(Number(event.target.value))} /></label>
                   <p className="muted small">Borg {session.borgValue} - {borgAnchorLabel(session.borgValue)}</p>
                   <div className="button-row">
@@ -320,7 +320,7 @@ export function AthleteSessionExecutionPanel() {
               {session.actionPanel === "cr10" ? (
                 <div className="pain-report-panel">
                   <h3>Report modified Borg / CR10 rating for this exercise?</h3>
-                  <p>This records only your own factual effort rating for this exercise. It does not infer readiness, risk, or optimisation.</p>
+                  <p>This only records your own effort rating for this exercise. It doesn't judge your readiness or risk, or change your programme.</p>
                   <label><span>Modified Borg / CR10 (0-10)</span><input type="number" min={0} max={10} step={0.5} value={session.cr10Value} onChange={(event) => session.setCr10Value(Number(event.target.value))} /></label>
                   <p className="muted small">CR10 {session.cr10Value} - {cr10AnchorLabel(session.cr10Value)}</p>
                   <div className="button-row">
@@ -424,6 +424,8 @@ export function AthleteSessionExecutionPanel() {
               )}
             </div>
           ) : null}
+
+          {session.mutationError ? <p className="muted" role="status" aria-live="polite">{session.mutationError}</p> : null}
         </article>
 
         <aside className="panel session-summary">

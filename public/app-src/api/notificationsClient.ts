@@ -50,7 +50,7 @@ export function resolveNotificationSubject(
   if (record.athlete_user_id) {
     const athleteUserId = String(record.athlete_user_id);
     const athlete = context.coachRelationships.find((entry) => String(entry.athlete_user_id) === athleteUserId);
-    return String(athlete?.display_name ?? athleteUserId);
+    return String(athlete?.display_name ?? "A connected athlete");
   }
 
   if (record.coach_user_id) {
@@ -58,7 +58,7 @@ export function resolveNotificationSubject(
     const accepted = context.athleteRelationships.find((entry) => String(entry.coach_user_id) === coachUserId);
     if (accepted?.coach_display_name) return String(accepted.coach_display_name);
     const pending = context.pendingInvitations.find((entry) => String(entry.coach_user_id) === coachUserId);
-    return String(pending?.coach_display_name ?? coachUserId);
+    return String(pending?.coach_display_name ?? "A connected coach");
   }
 
   return null;

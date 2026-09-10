@@ -182,11 +182,11 @@ test("adding a new strength record posts it alongside the existing persisted ben
   assert.equal(body.benchmarks[1].value, 205);
 });
 
-test("a persisted benchmark row is immutable and shows Immutable record instead of a remove control", async () => {
+test("a persisted benchmark row is locked and shows Locked instead of a remove control", async () => {
   await openPanel(baseProfile());
 
   const row = screen.getByText("Meet PR", { exact: false }).closest(".benchmark-row") as HTMLElement;
-  const removeButton = within(row).getByText("Immutable record") as HTMLButtonElement;
+  const removeButton = within(row).getByText("Locked") as HTMLButtonElement;
   assert.equal(removeButton.disabled, true);
 });
 

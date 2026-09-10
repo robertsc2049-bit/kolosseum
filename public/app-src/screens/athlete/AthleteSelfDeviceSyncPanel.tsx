@@ -90,6 +90,7 @@ export function AthleteSelfDeviceSyncPanel() {
         <div>
           <p className="eyebrow">Device sync</p>
           <h3>Connected devices</h3>
+          <p className="muted">Connect a fitness tracker or app to bring in metrics alongside your training.</p>
         </div>
       </div>
 
@@ -124,6 +125,7 @@ export function AthleteSelfDeviceSyncPanel() {
       <div className="panel-header">
         <div>
           <h3>Synced metrics</h3>
+          <p className="muted">The latest values brought in from your connected devices.</p>
         </div>
       </div>
 

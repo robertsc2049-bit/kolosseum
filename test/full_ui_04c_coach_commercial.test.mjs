@@ -391,7 +391,7 @@ test(
     }
 
     assert.ok(
-      indexHtml.includes("cannot alter engine truth"),
+      indexHtml.includes("doesn't affect how training is calculated"),
       "Missing coach onboarding engine-truth boundary copy in index.html"
     );
 

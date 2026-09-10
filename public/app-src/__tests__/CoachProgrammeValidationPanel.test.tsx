@@ -243,25 +243,24 @@ test("shows the factual persisted-state message for a non-draft version", async 
   installMocks([template({ template_status: "complete" })]);
   render(<CoachProgrammeValidationPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText("This persisted version is complete. Completion checks apply to draft versions only.");
+  await screen.findByText("This saved version is complete. Completion checks apply to draft versions only.");
 });
 
 test("shows a clean pass message for a fully valid draft, with no edit button", async () => {
   installMocks([template()]);
   render(<CoachProgrammeValidationPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText(/All visible completion checks pass/u);
+  await screen.findByText(/All checks pass/u);
   assert.equal(screen.queryByText("Open draft builder"), null);
 });
 
-test("lists every issue with its path, message and code, and offers Open draft builder", async () => {
+test("lists every issue with its path and message, and offers Open draft builder", async () => {
   installMocks([template({ template_name: "" })]);
   render(<CoachProgrammeValidationPanel />);
   await openDetail("tmpl_1_v1");
 
   await screen.findByText("1 completion issue recorded.");
   assert.ok(screen.getByText("Programme name is required."));
-  assert.ok(screen.getByText("template_name_required"));
   assert.ok(screen.getByText("Open draft builder"));
 });
 
@@ -301,12 +300,12 @@ test("refetches when a legacy kolosseum:templates-changed event fires for the cu
   installMocks([template({ template_name: "" })]);
   render(<CoachProgrammeValidationPanel />);
   await openDetail("tmpl_1_v1");
-  await screen.findByText("template_name_required");
+  await screen.findByText("Programme name is required.");
 
   installMocks([template({ template_name: "Now Named" })]);
   await act(async () => {
     document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"));
   });
 
-  await screen.findByText(/All visible completion checks pass/u);
+  await screen.findByText(/All checks pass/u);
 });

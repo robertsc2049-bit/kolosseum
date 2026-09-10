@@ -91,7 +91,7 @@ test("Review queue shows a factual empty state when nothing is awaiting review",
   installMocks({ records: [] });
   render(<CoachOverviewReviewQueuePanel />);
   await screen.findByText("No completed session records");
-  assert.ok(screen.getByText("Completed athlete sessions will appear here when factual artefacts are available."));
+  assert.ok(screen.getByText("Completed athlete sessions will appear here once they're recorded."));
 });
 
 test("Review queue lists only records with awaiting_review true, excluding open and already-reviewed sessions", async () => {

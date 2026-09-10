@@ -141,7 +141,7 @@ test("shows a factual error when sending fails", async () => {
     fireEvent.submit(screen.getByText("Send").closest("form")!);
   });
 
-  await screen.findByText("message_send_failed");
+  await screen.findByText("That request could not be completed. Try again, or report this problem if it continues.");
 });
 
 test("a live-pushed message for a brand new org thread creates a new entry", async () => {
