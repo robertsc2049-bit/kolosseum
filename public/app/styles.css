@@ -3216,6 +3216,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin: var(--k-space-4) 0;
 }
 
+.stat-card span,
+.stat-card strong { display: block; }
+.stat-card span { color: var(--stone-dim); font-size: 0.78rem; }
+.stat-card strong { margin-top: 0.4rem; font-family: var(--k-font-display); font-size: 1.8rem; font-weight: 500; }
+
 .review-layout {
   display: grid;
   grid-template-columns:
