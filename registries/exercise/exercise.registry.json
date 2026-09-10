@@ -12694,8 +12694,6 @@
       "difficulty_tier": "advanced",
       "joint_stress_tags": [
         "shoulder",
-        "hip",
-        "knee",
         "elbow"
       ],
       "tempo_capability": "tempo",
@@ -12846,7 +12844,6 @@
       "difficulty_tier": "advanced",
       "joint_stress_tags": [
         "shoulder",
-        "knee",
         "elbow"
       ],
       "tempo_capability": "not_applicable",
@@ -12945,8 +12942,6 @@
       "equipment_tier": "TIER_4",
       "difficulty_tier": "intermediate",
       "joint_stress_tags": [
-        "shoulder",
-        "lumbar_low",
         "hip"
       ],
       "tempo_capability": "tempo",
@@ -13139,7 +13134,6 @@
       "equipment_tier": "TIER_4",
       "difficulty_tier": "intermediate",
       "joint_stress_tags": [
-        "shoulder",
         "hip",
         "knee",
         "ankle"

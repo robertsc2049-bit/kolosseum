@@ -4,7 +4,7 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "e3db371dcf7f4abc6d139df76eb8487d48cbacd4e0d16f1b5fb9e06234cb1eff",
+  "canonical_registry_sha256": "057960b620fe320c5588d247e5639c39819fa9beacee50fa226ca099148ea3a8",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
@@ -12,7 +12,7 @@
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "74adc160988df85e53441c77bd3c409138bfc9350305d4348856d63560a91e4d"
+      "sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
@@ -24,11 +24,11 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "df7b42431be0f42d423f8dd706a5e160518c0cd54505b9237a37c481db7ba53a"
+      "sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "8879677d7552f0dccd5e7b9ef8f811a4116a829e62167048591bfded593bf9d1"
+      "sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
@@ -48,18 +48,18 @@
     }
   },
   "counts": {
-    "template_count": 17,
+    "template_count": 20,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
       "hyrox": 3,
-      "crossfit": 0
+      "crossfit": 3
     },
-    "low_equipment_templates": 3,
-    "unique_scheduled_exercises": 23,
-    "scheduled_work_items": 588
+    "low_equipment_templates": 4,
+    "unique_scheduled_exercises": 30,
+    "scheduled_work_items": 604
   },
   "family_ids": [
     "powerlifting_novice",
@@ -78,7 +78,10 @@
     "strongman_low_equipment",
     "hyrox_novice",
     "hyrox_intermediate",
-    "hyrox_race_prep"
+    "hyrox_race_prep",
+    "crossfit_novice",
+    "crossfit_intermediate",
+    "crossfit_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,

@@ -20,11 +20,11 @@
     "applicability_row_count": 2121
   },
   "sha256": {
-    "exercise_registry": "74adc160988df85e53441c77bd3c409138bfc9350305d4348856d63560a91e4d",
+    "exercise_registry": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b",
     "movement_registry": "cbe2fb53d9260f31e81a8e1ba4330fb738da5ee0f87945f4beb882eb697159d8",
     "equipment_registry": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d",
     "activity_registry": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc",
-    "exercise_activity_applicability_registry": "df7b42431be0f42d423f8dd706a5e160518c0cd54505b9237a37c481db7ba53a",
+    "exercise_activity_applicability_registry": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f",
     "exercise_equipment_compatibility_registry": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb"
   }
 }

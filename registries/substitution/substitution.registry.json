@@ -1743,6 +1743,22 @@
       "deterministic_ordering_key": "block_pull|02|00|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "box_jump__to__burpee": {
+      "substitution_edge_id": "box_jump__to__burpee",
+      "source_exercise_id": "box_jump",
+      "target_exercise_id": "burpee",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "box_jump|02|00|burpee",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "box_jump__to__countermovement_jump": {
       "substitution_edge_id": "box_jump__to__countermovement_jump",
       "source_exercise_id": "box_jump",
