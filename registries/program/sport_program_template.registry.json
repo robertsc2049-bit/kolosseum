@@ -11703,6 +11703,729 @@
         "no_royalty_scope",
         "registry_bound"
       ]
+    },
+    {
+      "template_id": "crossfit_novice",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "crossfit",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_crossfit_novice",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "crossfit_novice_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "crossfit_novice_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "crossfit_novice_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_novice_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_novice_w01_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "air_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "air_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "crossfit_novice_w01_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "burpee",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee__to__box_jump"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_novice_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_novice_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_novice_w01_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "double_under",
+                            "planned_sets": 3,
+                            "planned_reps": 20,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "jump_rope"
+                            ],
+                            "substitution_policy_id": "double_under__to__bike_ergometer"
+                          },
+                          {
+                            "work_item_id": "crossfit_novice_w01_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "toes_to_bar",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "toes_to_bar__to__curl_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "crossfit_novice_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "crossfit_novice_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_novice_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_novice_w02_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "air_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "air_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "crossfit_novice_w02_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "burpee",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee__to__box_jump"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_novice_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_novice_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_novice_w02_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "double_under",
+                            "planned_sets": 3,
+                            "planned_reps": 25,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "jump_rope"
+                            ],
+                            "substitution_policy_id": "double_under__to__bike_ergometer"
+                          },
+                          {
+                            "work_item_id": "crossfit_novice_w02_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "toes_to_bar",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "toes_to_bar__to__curl_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "crossfit",
+        "exercise_ids": [
+          "air_squat",
+          "burpee",
+          "double_under",
+          "toes_to_bar"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "jump_rope",
+          "open_floor_space",
+          "pull_up_bar"
+        ],
+        "substitution_edge_ids": [
+          "air_squat__to__goblet_squat",
+          "burpee__to__box_jump",
+          "double_under__to__bike_ergometer",
+          "toes_to_bar__to__curl_up"
+        ],
+        "applicability_ids": [
+          "air_squat__crossfit__training",
+          "burpee__crossfit__training",
+          "double_under__crossfit__training",
+          "toes_to_bar__crossfit__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "crossfit_intermediate",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "crossfit",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_crossfit_intermediate",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "crossfit_intermediate_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "crossfit_intermediate_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "crossfit_intermediate_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_intermediate_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_intermediate_w01_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "thruster",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "thruster__to__dumbbell_overhead_press"
+                          },
+                          {
+                            "work_item_id": "crossfit_intermediate_w01_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "power_clean",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "power_clean__to__kettlebell_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_intermediate_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_intermediate_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_intermediate_w01_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          },
+                          {
+                            "work_item_id": "crossfit_intermediate_w01_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "toes_to_bar",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "toes_to_bar__to__curl_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "crossfit_intermediate_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "crossfit_intermediate_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_intermediate_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_intermediate_w02_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "thruster",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "thruster__to__dumbbell_overhead_press"
+                          },
+                          {
+                            "work_item_id": "crossfit_intermediate_w02_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "snatch",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "snatch__to__power_clean"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_intermediate_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_intermediate_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_intermediate_w02_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          },
+                          {
+                            "work_item_id": "crossfit_intermediate_w02_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "push_jerk",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "push_jerk__to__dumbbell_overhead_press"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "crossfit",
+        "exercise_ids": [
+          "muscle_up",
+          "power_clean",
+          "push_jerk",
+          "snatch",
+          "thruster",
+          "toes_to_bar"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "bodyweight",
+          "gymnastics_rings",
+          "pull_up_bar"
+        ],
+        "substitution_edge_ids": [
+          "muscle_up__to__pull_up",
+          "power_clean__to__kettlebell_deadlift",
+          "push_jerk__to__dumbbell_overhead_press",
+          "snatch__to__power_clean",
+          "thruster__to__dumbbell_overhead_press",
+          "toes_to_bar__to__curl_up"
+        ],
+        "applicability_ids": [
+          "muscle_up__crossfit__training",
+          "power_clean__crossfit__training",
+          "push_jerk__crossfit__training",
+          "snatch__crossfit__training",
+          "thruster__crossfit__training",
+          "toes_to_bar__crossfit__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "crossfit_low_equipment",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "crossfit",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_crossfit_low_equipment",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "crossfit_low_equipment_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "crossfit_low_equipment_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "crossfit_low_equipment_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_low_equipment_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_low_equipment_w01_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "air_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 15,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "air_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "crossfit_low_equipment_w01_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "burpee",
+                            "planned_sets": 4,
+                            "planned_reps": 10,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee__to__box_jump"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_low_equipment_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_low_equipment_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_low_equipment_w01_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "double_under",
+                            "planned_sets": 4,
+                            "planned_reps": 30,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "jump_rope"
+                            ],
+                            "substitution_policy_id": "double_under__to__bike_ergometer"
+                          },
+                          {
+                            "work_item_id": "crossfit_low_equipment_w01_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "handstand_push_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "handstand_push_up__to__pike_push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "crossfit_low_equipment_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "crossfit_low_equipment_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_low_equipment_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_low_equipment_w02_d01_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "air_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 18,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "air_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "crossfit_low_equipment_w02_d01_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "burpee",
+                            "planned_sets": 4,
+                            "planned_reps": 12,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "open_floor_space"
+                            ],
+                            "substitution_policy_id": "burpee__to__box_jump"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "crossfit_low_equipment_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "crossfit_low_equipment_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "crossfit_low_equipment_w02_d02_s01_i01",
+                            "order_index": 1,
+                            "exercise_id": "double_under",
+                            "planned_sets": 4,
+                            "planned_reps": 35,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "jump_rope"
+                            ],
+                            "substitution_policy_id": "double_under__to__bike_ergometer"
+                          },
+                          {
+                            "work_item_id": "crossfit_low_equipment_w02_d02_s01_i02",
+                            "order_index": 2,
+                            "exercise_id": "handstand_push_up",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight"
+                            ],
+                            "substitution_policy_id": "handstand_push_up__to__pike_push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "crossfit",
+        "exercise_ids": [
+          "air_squat",
+          "burpee",
+          "double_under",
+          "handstand_push_up"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "jump_rope",
+          "open_floor_space"
+        ],
+        "substitution_edge_ids": [
+          "air_squat__to__goblet_squat",
+          "burpee__to__box_jump",
+          "double_under__to__bike_ergometer",
+          "handstand_push_up__to__pike_push_up"
+        ],
+        "applicability_ids": [
+          "air_squat__crossfit__training",
+          "burpee__crossfit__training",
+          "double_under__crossfit__training",
+          "handstand_push_up__crossfit__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
     }
   ]
 }

@@ -165,7 +165,8 @@
               "general_strength",
               "rugby_union",
               "strongman",
-              "hyrox"
+              "hyrox",
+              "crossfit"
             ]
           },
           "secondary_activity_applicability": {
@@ -178,7 +179,8 @@
                 "general_strength",
                 "rugby_union",
                 "strongman",
-                "hyrox"
+                "hyrox",
+                "crossfit"
               ]
             },
             "uniqueItems": true

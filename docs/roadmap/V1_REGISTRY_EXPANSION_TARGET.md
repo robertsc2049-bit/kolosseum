@@ -447,3 +447,11 @@ Status: Accepted.
 docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to five activities: powerlifting, general_strength, rugby_union, strongman, and hyrox.
 
 The v1 registry expansion target now also covers hyrox: activity registry entry, exercise and equipment applicability for its eight fixed stations, movement pattern coverage, substitution edge coverage, three programme templates (hyrox_novice, hyrox_intermediate, hyrox_race_prep), and copy/legal boundary review, matching the same target already defined above for the prior activities.
+
+## Amendment - CrossFit activated as v1's sixth locked activity
+
+Status: Accepted.
+
+docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to six activities: powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit.
+
+The v1 registry expansion target now also covers crossfit: activity registry entry, new exercise and equipment content for its benchmark movements (thruster, clean and jerk, snatch, muscle-up, toes-to-bar, double-under, rope climb, handstand push-up, burpee, air squat), movement pattern coverage, substitution edge coverage, three programme templates (crossfit_novice, crossfit_intermediate, crossfit_low_equipment), and copy/legal boundary review, matching the same target already defined above for the prior activities. This activation is also the first to add real completion/scoring semantics for grouped work items (complex/AMRAP/EMOM/for-time), a programme-shape investment Hyrox's own activation named but did not build.

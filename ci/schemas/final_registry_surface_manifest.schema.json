@@ -95,7 +95,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "classification_enum": {

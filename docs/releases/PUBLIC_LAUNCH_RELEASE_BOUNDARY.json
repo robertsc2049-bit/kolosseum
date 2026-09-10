@@ -51,7 +51,8 @@
       "general_strength",
       "rugby_union",
       "strongman",
-      "hyrox"
+      "hyrox",
+      "crossfit"
     ],
     "source": "REG-FULL-09 supported_activity_scope",
     "closed_world": true

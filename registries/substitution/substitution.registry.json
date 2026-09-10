@@ -16060,6 +16060,182 @@
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "zottman_curl|00|01|hammer_curl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "muscle_up__to__pull_up": {
+      "substitution_edge_id": "muscle_up__to__pull_up",
+      "source_exercise_id": "muscle_up",
+      "target_exercise_id": "pull_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "lateral",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "muscle_up|00|01|pull_up"
+    },
+    "rope_climb__to__pull_up": {
+      "substitution_edge_id": "rope_climb__to__pull_up",
+      "source_exercise_id": "rope_climb",
+      "target_exercise_id": "pull_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "rope_climb|00|01|pull_up"
+    },
+    "toes_to_bar__to__curl_up": {
+      "substitution_edge_id": "toes_to_bar__to__curl_up",
+      "source_exercise_id": "toes_to_bar",
+      "target_exercise_id": "curl_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "toes_to_bar|00|01|curl_up"
+    },
+    "thruster__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "thruster__to__dumbbell_overhead_press",
+      "source_exercise_id": "thruster",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "thruster|00|01|dumbbell_overhead_press"
+    },
+    "power_clean__to__kettlebell_deadlift": {
+      "substitution_edge_id": "power_clean__to__kettlebell_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "power_clean|00|01|kettlebell_deadlift"
+    },
+    "snatch__to__power_clean": {
+      "substitution_edge_id": "snatch__to__power_clean",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "power_clean",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "lateral",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "snatch|00|01|power_clean"
+    },
+    "push_jerk__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "push_jerk__to__dumbbell_overhead_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "push_jerk|00|01|dumbbell_overhead_press"
+    },
+    "double_under__to__bike_ergometer": {
+      "substitution_edge_id": "double_under__to__bike_ergometer",
+      "source_exercise_id": "double_under",
+      "target_exercise_id": "bike_ergometer",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "lateral",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "double_under|00|01|bike_ergometer"
+    },
+    "handstand_push_up__to__pike_push_up": {
+      "substitution_edge_id": "handstand_push_up__to__pike_push_up",
+      "source_exercise_id": "handstand_push_up",
+      "target_exercise_id": "pike_push_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "downgrade",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "handstand_push_up|00|01|pike_push_up"
+    },
+    "burpee__to__box_jump": {
+      "substitution_edge_id": "burpee__to__box_jump",
+      "source_exercise_id": "burpee",
+      "target_exercise_id": "box_jump",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "lateral",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "burpee|00|01|box_jump"
+    },
+    "air_squat__to__goblet_squat": {
+      "substitution_edge_id": "air_squat__to__goblet_squat",
+      "source_exercise_id": "air_squat",
+      "target_exercise_id": "goblet_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "difficulty_tier_compatibility": "same_or_lower",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee",
+      "equipment_change_type": "lateral",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "deterministic_ordering_key": "air_squat|00|01|goblet_squat"
     }
   }
 }

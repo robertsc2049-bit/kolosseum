@@ -43,7 +43,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "hinge": {
@@ -88,7 +89,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "single_leg_squat": {
@@ -116,7 +118,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "single_leg_hinge": {
@@ -145,7 +148,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "knee_extension_isolation": {
@@ -167,7 +171,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "knee_flexion_isolation": {
@@ -190,7 +195,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "hip_abduction_isolation": {
@@ -212,7 +218,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "hip_adduction_isolation": {
@@ -234,7 +241,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "hip_extension_isolation": {
@@ -261,7 +269,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "hip_flexion_isolation": {
@@ -283,7 +292,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "calf_raise": {
@@ -306,7 +316,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "tibialis_raise": {
@@ -329,7 +340,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "horizontal_push": {
@@ -370,7 +382,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "incline_push": {
@@ -398,7 +411,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "decline_push": {
@@ -414,7 +428,8 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "dip_bars"
+        "dip_bars",
+        "gymnastics_rings"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -427,7 +442,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "vertical_push": {
@@ -470,7 +486,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "angled_push": {
@@ -500,7 +517,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "horizontal_pull": {
@@ -532,7 +550,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "vertical_pull": {
@@ -548,7 +567,9 @@
         "pull_up_bar",
         "plate",
         "cable_lat_bar_attachment",
-        "bench"
+        "bench",
+        "climbing_rope",
+        "gymnastics_rings"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -561,7 +582,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "scapular_retraction": {
@@ -584,7 +606,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "scapular_protraction": {
@@ -606,7 +629,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "scapular_upward_rotation": {
@@ -630,7 +654,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "scapular_depression": {
@@ -652,7 +677,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "shoulder_external_rotation": {
@@ -675,7 +701,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "shoulder_internal_rotation": {
@@ -698,7 +725,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "shoulder_abduction_isolation": {
@@ -722,7 +750,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "shoulder_horizontal_abduction_isolation": {
@@ -746,7 +775,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "elbow_flexion_isolation": {
@@ -771,7 +801,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "elbow_extension_isolation": {
@@ -797,7 +828,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "forearm_flexion_isolation": {
@@ -820,7 +852,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "forearm_extension_isolation": {
@@ -843,7 +876,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "grip_crush": {
@@ -866,7 +900,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "grip_support": {
@@ -889,7 +924,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "carry_bilateral": {
@@ -922,7 +958,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "carry_unilateral": {
@@ -949,7 +986,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "core_anti_extension": {
@@ -971,7 +1009,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "core_anti_rotation": {
@@ -994,7 +1033,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "core_anti_lateral_flexion": {
@@ -1016,7 +1056,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "trunk_flexion": {
@@ -1038,7 +1079,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "trunk_extension": {
@@ -1060,7 +1102,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "rotation": {
@@ -1083,7 +1126,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "locomotion_walk": {
@@ -1105,7 +1149,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "locomotion_run": {
@@ -1127,7 +1172,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "locomotion_crawl": {
@@ -1149,7 +1195,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "jump_vertical": {
@@ -1171,7 +1218,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "jump_horizontal": {
@@ -1193,7 +1241,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "sprint_acceleration": {
@@ -1214,7 +1263,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "sprint_max_velocity": {
@@ -1235,7 +1285,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "deceleration": {
@@ -1255,7 +1306,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "change_of_direction": {
@@ -1275,7 +1327,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "throw_slam": {
@@ -1297,7 +1350,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "conditioning_cyclical": {
@@ -1305,7 +1359,8 @@
       "equipment_vocab": [
         "cardio_machine_general",
         "bodyweight",
-        "open_floor_space"
+        "open_floor_space",
+        "jump_rope"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1318,7 +1373,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "conditioning_row": {
@@ -1339,7 +1395,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     },
     "conditioning_sled": {
@@ -1362,7 +1419,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ]
     }
   }

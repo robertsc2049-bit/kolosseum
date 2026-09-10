@@ -677,6 +677,52 @@
       "template_relevance": "template_selectable",
       "low_equipment_alternative_relevance": "not_low_equipment",
       "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "jump_rope": {
+      "equipment_id": "jump_rope",
+      "display_label": "Jump rope",
+      "equipment_class": "portable_resistance",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "movement_pattern_applicability": [
+        "conditioning_cyclical"
+      ],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "primary_low_equipment_option",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "climbing_rope": {
+      "equipment_id": "climbing_rope",
+      "display_label": "Climbing rope",
+      "equipment_class": "fixed_support",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "movement_pattern_applicability": [
+        "vertical_pull"
+      ],
+      "substitution_relevance": "required_or_lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "gymnastics_rings": {
+      "equipment_id": "gymnastics_rings",
+      "display_label": "Gymnastics rings",
+      "equipment_class": "fixed_support",
+      "activity_applicability": [
+        "crossfit"
+      ],
+      "movement_pattern_applicability": [
+        "vertical_pull",
+        "decline_push"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     }
   }
 }
