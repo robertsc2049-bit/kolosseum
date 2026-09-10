@@ -42,9 +42,9 @@ test("S-V1-G-02 records real execution workability closure evidence", () => {
 test("S-V1-G-02 records current active registry law counts", () => {
   const record = readJson(recordPath);
 
-  assert.equal(record.registry_law_counts.activity, 5);
+  assert.equal(record.registry_law_counts.activity, 6);
   assert.equal(record.registry_law_counts.movement, 54);
-  assert.equal(record.registry_law_counts.exercise, 248);
+  assert.equal(record.registry_law_counts.exercise, 259);
   assert.equal(record.registry_law_counts.program, 4);
 });
 

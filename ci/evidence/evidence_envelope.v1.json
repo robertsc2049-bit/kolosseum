@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "1C94ECBD39BDAE5008BA6C86F5AC8AC6EBDFE3B40383184903D3B311CA819536",
+    "registry_bundle_sha256": "BB1757456120BBFFA926F69694279BE94CBD84E372EA9509C9FD0BA1737C3BD9",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -39,7 +39,7 @@
       },
       {
         "path": "ci/schemas/activity.registry.schema.json",
-        "sha256": "629C675514B5951CCB78DC53E06A5E983E23F56AE9BD4178AABC27572ECCDD09"
+        "sha256": "4F7AE6D84A25063F8B7FF59C419F32D33776AF7626B8B21F93A0CE2AF1CCA31C"
       },
       {
         "path": "ci/schemas/biomechanics_registry_4.registry.schema.json",
@@ -47,7 +47,7 @@
       },
       {
         "path": "ci/schemas/copy_registry.registry.schema.json",
-        "sha256": "A6D0AAA107DC6D0FFD3DEAFF8DC8827AB0526FA15041BB4D0110B9A83887A147"
+        "sha256": "6ED5407C7F6DBC3A2BB83BAE15DCEC37AA507D02CA1D31D3CD40AF7785BD6A27"
       },
       {
         "path": "ci/schemas/equipment_environment_registry_3e.registry.schema.json",
@@ -55,7 +55,7 @@
       },
       {
         "path": "ci/schemas/equipment.registry.schema.json",
-        "sha256": "39F22784CB61FD1CB605F5EDADDEB8E823CCCCE4470E497403B089DFEE9969EF"
+        "sha256": "84225C69452A755F04D3CD1955A2429FD488558D031C4E4989363172E5AB1945"
       },
       {
         "path": "ci/schemas/event_metric_registry_1d.registry.schema.json",
@@ -99,7 +99,7 @@
       },
       {
         "path": "ci/schemas/exercise_token.registry.schema.json",
-        "sha256": "05A14C970D16F24383F99FE44DFD82862563042B0117AE96462B55D4524F4556"
+        "sha256": "69E1F37C8C628AAAD68E661EB7684849BC575C78E53434EE90C282BD9D4DC330"
       },
       {
         "path": "ci/schemas/exercise_variant_applicability_registry_3d.registry.schema.json",
@@ -111,7 +111,7 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "59F7FB550EBACF0BCAC1E57F1AA6EA23F0C4EB920F449F85303883960536EDA3"
+        "sha256": "77BD515DC08BE89A14BEB96E008AAE739479B538E874B1CF96463EBC41979AFD"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
@@ -127,7 +127,7 @@
       },
       {
         "path": "ci/schemas/final_registry_surface_manifest.schema.json",
-        "sha256": "5CE162211ABC6EFCC2DDECBD5AC109E031945130002CE77388441C32A681B2D2"
+        "sha256": "50D2B6CFAA1F97A760FD65D534BA65F98414A8E07AFAF7DD8A30BF8F734A5BA0"
       },
       {
         "path": "ci/schemas/metric_exercise_link_registry_1c_a.registry.schema.json",
@@ -143,7 +143,7 @@
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",
-        "sha256": "B56070C5CA93CB1EF487266665F374A7D2843AE73C62660BF831803F2FC09E8E"
+        "sha256": "CE5B83CA2275B208DA799688E02D8CAD16E0844F26DD09FE7877424D9DA10127"
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
@@ -163,7 +163,7 @@
       },
       {
         "path": "ci/schemas/program.registry.schema.json",
-        "sha256": "F671033FA5CA444B08C87830B8AC90BCC571DD6D7FA3B724B63DA938E096F1CA"
+        "sha256": "219C74DBE1AFEF885DD7057268182EFAA742EF06491F87C706C887BB1732418B"
       },
       {
         "path": "ci/schemas/registry_entry.schema.json",
@@ -215,7 +215,7 @@
       },
       {
         "path": "ci/schemas/sport_program_template_registry_5f.registry.schema.json",
-        "sha256": "1B1C1B27D49FFF8A1EDBBCF86F2C72064BBD24C204DF6A436D2F96A1AFF5C65E"
+        "sha256": "1021F7B82BFB41971C8903F495601B8683CD51FBB1FD88B1B409F919ECCBEE21"
       },
       {
         "path": "ci/schemas/sport_role_registry_2.registry.schema.json",
@@ -239,7 +239,7 @@
       },
       {
         "path": "ci/schemas/substitution_registry.registry.schema.json",
-        "sha256": "7D9CB7FE2B338E67D57A3EA6389AC74436260E4F8A708B397C3F5CF841BB41E0"
+        "sha256": "839F53C3AB9E4FFFA86D0EE5FAC68298DB41E928FA36B6A8124B687507B4BDC9"
       },
       {
         "path": "ci/schemas/threshold_marker.registry.schema.json",

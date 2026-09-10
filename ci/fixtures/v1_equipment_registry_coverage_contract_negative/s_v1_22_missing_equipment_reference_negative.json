@@ -25,7 +25,8 @@
         "general_strength",
         "rugby_union",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "crossfit"
       ],
       "movement_pattern_applicability": [
         "squat",
