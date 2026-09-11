@@ -149,7 +149,7 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Activity declaration");
 
-  fireEvent.change(screen.getByLabelText("Activity"), { target: { value: "powerlifting" } });
+  fireEvent.change(screen.getByLabelText("Activity (optional)"), { target: { value: "powerlifting" } });
   await act(async () => {
     fireEvent.click(screen.getByText("Save and continue"));
   });
@@ -157,6 +157,33 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
   await screen.findByText("Draft saved");
   assert.ok(screen.getByText("Execution-scope declaration"));
   assert.ok(screen.getByText("Stage 2 of 7"));
+});
+
+test("sport is optional - Save and continue proceeds from the activity stage with nothing chosen", async () => {
+  let savedFields: Record<string, unknown> | null = null;
+  installMocks({
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({
+        current_stage: body.current_stage,
+        draft: { fields: body.fields },
+        saved_draft_state: true,
+        saved_draft_at_iso8601: "2026-08-28T00:00:00.000Z"
+      });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Activity declaration");
+
+  assert.equal((screen.getByLabelText("Activity (optional)") as HTMLSelectElement).value, "");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save and continue"));
+  });
+
+  await screen.findByText("Draft saved");
+  assert.ok(screen.getByText("Execution-scope declaration"));
+  assert.equal(Object.prototype.hasOwnProperty.call(savedFields ?? {}, "activity_id"), false);
 });
 
 test("the Back button is enabled past the first stage and moves backward", async () => {
@@ -337,6 +364,38 @@ test("the completed view offers a change-activity control, and submitting it pos
   fireEvent.change(screen.getByLabelText("New activity"), { target: { value: "crossfit" } });
   await act(async () => {
     fireEvent.click(screen.getByText("Change activity", { selector: "button" }));
+  });
+
+  await waitFor(() => assert.ok(lastBody));
+  assert.equal((lastBody as Record<string, unknown>).new_activity_id, "crossfit");
+  assert.equal((lastBody as Record<string, unknown>).apply_at, "immediately");
+});
+
+test("an athlete who completed onboarding without declaring an activity sees 'Declare activity' instead of 'Change activity'", async () => {
+  let lastBody: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: completedState({}),
+    onActivityChange: (body) => {
+      lastBody = body;
+      return { request_state: "applied" };
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Declare activity", { selector: "h3" });
+
+  assert.equal(screen.queryByText("Change activity", { selector: "h3" }), null);
+  assert.ok(screen.getByText("You haven't declared an activity yet - do so whenever you're ready."));
+
+  const sportSelect = screen.getByLabelText("Activity") as HTMLSelectElement;
+  assert.equal(sportSelect.value, "");
+  assert.ok(screen.getByText("Choose"));
+
+  const declareButton = screen.getByText("Declare activity", { selector: "button" }) as HTMLButtonElement;
+  assert.equal(declareButton.disabled, true);
+
+  fireEvent.change(sportSelect, { target: { value: "crossfit" } });
+  await act(async () => {
+    fireEvent.click(declareButton);
   });
 
   await waitFor(() => assert.ok(lastBody));

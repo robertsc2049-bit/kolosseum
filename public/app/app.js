@@ -1155,17 +1155,21 @@ function applyAccountSession(
 
     if (
       !state.authRecord ||
-      !state.acknowledgementRecord ||
-      !state.declarationRecord ||
-      !state.phase1Input
+      !state.acknowledgementRecord
     ) {
       throw new Error(
         "The athlete declaration could not be restored."
       );
     }
 
+    // A missing declarationRecord/phase1Input is a real, supported state
+    // now - sport is optional at signup and can be declared later (see
+    // the self-service activity-change flow). Compile itself already
+    // rejects a missing activity_id with a clear error; the app shell
+    // must still load so the athlete can reach that self-service flow.
     state.profile.activityId =
-      state.phase1Input.activity_id;
+      state.phase1Input?.activity_id ??
+      null;
 
     state.view =
       state.view === "account"

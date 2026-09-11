@@ -157,12 +157,27 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   );
   assert.deepEqual(service.validateCompleteAthleteDeclaration(complete), complete);
 
-  assert.throws(
-    () => service.validateAthleteOnboardingDraftInput({
+  // activity_id is optional - it never gates progression to a later stage,
+  // and a declaration can complete without it (declared later via the
+  // self-service activity-change flow).
+  assert.deepEqual(
+    service.validateAthleteOnboardingDraftInput({
       current_stage: "execution_scope",
       fields: {}
-    }),
-    (error) => Boolean(error.field_errors.activity_id)
+    }).fields,
+    {}
+  );
+  const completeWithoutActivity = { ...complete };
+  delete completeWithoutActivity.activity_id;
+  assert.deepEqual(
+    service.validateCompleteAthleteDeclaration(completeWithoutActivity),
+    completeWithoutActivity
+  );
+  assert.equal(
+    Object.prototype.hasOwnProperty.call(
+      service.validateCompleteAthleteDeclaration(completeWithoutActivity), "activity_id"
+    ),
+    false
   );
   assert.throws(
     () => service.validateAthleteOnboardingDraftInput({

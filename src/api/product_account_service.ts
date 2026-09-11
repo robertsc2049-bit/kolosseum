@@ -146,10 +146,14 @@ function validateActorType(value: unknown): ActorType {
   return value;
 }
 
-function validateActivity(
+// Sport is optional at signup - an empty/absent value means "not declared
+// yet," not an error. A non-empty but unsupported value is still rejected.
+function validateActivityOptional(
   value: unknown
-): string {
+): string | null {
   const activity = cleanString(value);
+
+  if (!activity) return null;
 
   if (!V1_ACTIVITY_IDS.includes(activity)) {
     throw new ProductAccountError(
@@ -695,9 +699,6 @@ async function persistInitialProductRecords(
     return;
   }
 
-  const athleteActivity =
-    validateActivity(activity);
-
   if (
     !isRecord(
       existing.auth_record
@@ -765,7 +766,14 @@ async function persistInitialProductRecords(
     );
   }
 
+  // No activity declared yet - the beta16 compile-admission records
+  // (which require a real, supported activity_id, per the sealed
+  // assertPhase1Input validator) are deferred until the athlete declares
+  // one, either here or later via the self-service activity-change flow.
+  // Registration/onboarding completion itself never depends on these
+  // records existing - see athlete_onboarding_service.ts's state().
   if (
+    activity &&
     !isRecord(
       existing.declaration_record
     )
@@ -777,7 +785,7 @@ async function persistInitialProductRecords(
         user_id: userId,
         phase1_input:
           phase1Input(
-            athleteActivity
+            activity
           ),
         jurisdiction_acknowledged: true,
         declared_at_iso8601:
@@ -821,7 +829,7 @@ export async function registerProductAccount(
   const password = validatePassword(input.password);
   const activity =
     actor === "athlete"
-      ? validateActivity(input.activity_id)
+      ? validateActivityOptional(input.activity_id)
       : null;
 
   if (

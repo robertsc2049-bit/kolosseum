@@ -113,11 +113,11 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
   if (stage === "activity") {
     return (
       <>
-        <p>Declare the activity used by this account. This is not an assessment.</p>
+        <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
         <ActivityCategoryFilter
           value={String(draft.activity_id ?? "")}
           onChange={(activityId) => onChange({ ...draft, activity_id: activityId })}
-          sportLabel="Activity"
+          sportLabel="Activity (optional)"
           allowEmptySport
         />
       </>
@@ -366,27 +366,40 @@ function ActivityChangeCard({ api, currentActivityId }: { api: OnboardingApi; cu
     );
   }
 
+  const hasDeclaredActivity = Boolean(currentActivityId);
+
   return (
     <article className="onboarding-card">
-      <h3>Change activity</h3>
-      <p>Priorities change - you can move to a different activity at any time.</p>
+      <h3>{hasDeclaredActivity ? "Change activity" : "Declare activity"}</h3>
+      <p>
+        {hasDeclaredActivity
+          ? "Priorities change - you can move to a different activity at any time."
+          : "You haven't declared an activity yet - do so whenever you're ready."}
+      </p>
       {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
-      <ActivityCategoryFilter value={selected} onChange={setSelected} sportLabel="New activity" />
-      <label className="field">
-        <span>When should this take effect?</span>
-        <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
-          <option value="immediately">Immediately</option>
-          <option value="after_current_session">After my current session finishes</option>
-        </select>
-      </label>
+      <ActivityCategoryFilter
+        value={selected}
+        onChange={setSelected}
+        sportLabel={hasDeclaredActivity ? "New activity" : "Activity"}
+        allowEmptySport={!hasDeclaredActivity}
+      />
+      {hasDeclaredActivity ? (
+        <label className="field">
+          <span>When should this take effect?</span>
+          <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
+            <option value="immediately">Immediately</option>
+            <option value="after_current_session">After my current session finishes</option>
+          </select>
+        </label>
+      ) : null}
       <div className="onboarding-actions">
         <button
           className="button secondary"
           type="button"
-          disabled={activityChangeBusy || selected === currentActivityId}
-          onClick={() => changeActivity(selected, applyAt).catch(() => {})}
+          disabled={activityChangeBusy || !selected || selected === currentActivityId}
+          onClick={() => changeActivity(selected, hasDeclaredActivity ? applyAt : "immediately").catch(() => {})}
         >
-          {activityChangeBusy ? "Changing…" : "Change activity"}
+          {activityChangeBusy ? "Changing…" : hasDeclaredActivity ? "Change activity" : "Declare activity"}
         </button>
       </div>
     </article>
