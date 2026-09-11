@@ -46,7 +46,7 @@ test("renders create mode by default with role, activity and consent fields", as
   await screen.findByText("v3");
 
   assert.ok(screen.getByText("Create your account"));
-  assert.ok(screen.getByText("Primary activity"));
+  assert.ok(screen.getByText("Primary activity (optional)"));
   assert.ok(screen.getByLabelText(/controlled-beta terms/));
 });
 
@@ -57,7 +57,7 @@ test("switching to the sign-in tab hides create-only fields and changes the subm
 
   fireEvent.click(screen.getByRole("tab", { name: "Sign in" }));
 
-  assert.equal(screen.queryByText("Primary activity"), null);
+  assert.equal(screen.queryByText("Primary activity (optional)"), null);
   assert.ok(screen.getByRole("button", { name: "Sign in" }));
   assert.ok(screen.getByText("Forgot password?"));
 });
@@ -69,7 +69,7 @@ test("choosing the coach role hides the primary activity field", async () => {
 
   fireEvent.click(screen.getByRole("radio", { name: /Coach/ }));
 
-  assert.equal(screen.queryByText("Primary activity"), null);
+  assert.equal(screen.queryByText("Primary activity (optional)"), null);
 });
 
 test("the create-account submit button is disabled while terms are unavailable", async () => {
@@ -112,6 +112,37 @@ test("a successful registration dispatches the session bridge event with the raw
 
   assert.equal(captured?.mode, "create");
   assert.equal((captured?.response as JsonRecordLike)?.csrf_token, "csrf1");
+});
+
+test("registering an athlete with no activity chosen succeeds - the activity picker starts on 'All sports'/no selection and sport is optional", async () => {
+  installMocks();
+  let requestBody: JsonRecordLike | null = null;
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(input) === "/account/register") {
+      requestBody = JSON.parse(String(init?.body ?? "{}"));
+      return jsonResponse({ account: { user_id: "u1", actor_type: "athlete" }, csrf_token: "csrf1", bootstrap: {} });
+    }
+    return originalFetch(input, init);
+  }) as typeof fetch;
+
+  render(<EntryAuthPanel />);
+  await screen.findByText("v3");
+
+  assert.equal((screen.getByLabelText("Primary activity (optional)") as HTMLSelectElement).value, "");
+
+  fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Alex" } });
+  fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
+  fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
+  fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
+  fireEvent.click(screen.getByLabelText(/activity records/));
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Create account" }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(requestBody?.activity_id, "");
 });
 
 test("a rejected registration (account already exists) shows the mapped factual message", async () => {

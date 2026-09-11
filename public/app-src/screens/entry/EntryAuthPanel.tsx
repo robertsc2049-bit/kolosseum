@@ -72,7 +72,7 @@ export function EntryAuthPanel() {
 
   const [role, setRole] = useState("athlete");
   const [displayName, setDisplayName] = useState("");
-  const [activityId, setActivityId] = useState("powerlifting");
+  const [activityId, setActivityId] = useState("");
   const [betaConsent, setBetaConsent] = useState(false);
   const [declarationConsent, setDeclarationConsent] = useState(false);
   const [email, setEmail] = useState("");
@@ -205,7 +205,15 @@ export function EntryAuthPanel() {
               </label>
 
               {role === "athlete" ? (
-                <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Primary activity" />
+                <>
+                  <ActivityCategoryFilter
+                    value={activityId}
+                    onChange={setActivityId}
+                    sportLabel="Primary activity (optional)"
+                    allowEmptySport
+                  />
+                  <p className="muted small">You can leave this blank and declare it later.</p>
+                </>
               ) : null}
 
               <div className="consent-box">

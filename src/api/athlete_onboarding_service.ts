@@ -169,7 +169,14 @@ function fields(value: unknown, partial: boolean): Fields {
     if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
     else if (!partial) fail(key, missing);
   };
-  add("activity_id", validateAthleteActivityId, "Choose an activity.");
+  // Sport is optional - validated if present, but never required, even for
+  // a complete (partial=false) declaration. An athlete can finish onboarding
+  // without one and declare it later via the self-service activity-change
+  // flow (src/api/athlete_activity_change_service.ts).
+  const addOptional = (key: string, validator: (entry: unknown) => unknown) => {
+    if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
+  };
+  addOptional("activity_id", validateAthleteActivityId);
   add("execution_scope", validateAthleteExecutionScope, "Choose an execution scope.");
   add("product_acknowledged", (entry) => trueValue(
     entry, "product_acknowledged", "Acknowledge the controlled-beta product boundary."
@@ -182,21 +189,23 @@ function fields(value: unknown, partial: boolean): Fields {
   add("instruction_density", validateAthleteInstructionDensity, "Choose an instruction-density preference.");
   return Object.freeze(out) as Fields;
 }
+// activity_id is deliberately never listed here - it's optional and must
+// never gate progression to a later stage (see addOptional above).
 const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   activity: [],
-  execution_scope: ["activity_id"],
-  product_acknowledgement: ["activity_id", "execution_scope"],
-  jurisdiction: ["activity_id", "execution_scope", "product_acknowledged"],
+  execution_scope: [],
+  product_acknowledgement: ["execution_scope"],
+  jurisdiction: ["execution_scope", "product_acknowledged"],
   accessibility: [
-    "activity_id", "execution_scope", "product_acknowledged",
+    "execution_scope", "product_acknowledged",
     "jurisdiction_code", "jurisdiction_acknowledged"
   ],
   instruction_density: [
-    "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences"
   ],
   review: [
-    "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
   ]
 };
@@ -447,7 +456,15 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
       declaration_source: "athlete_confirmed_onboarding", immutable: true,
       user_declared_factual_state: true, engine_visible: false
     };
-    await effectiveBetaDeclaration(client, userId, declared, at);
+    // The beta16 compile-admission records require a real activity_id
+    // (assertPhase1Input rejects a missing one) - skip creating them until
+    // the athlete actually declares one, here or later via the
+    // self-service activity-change flow. Onboarding still completes from
+    // the product's own perspective either way (see state() above, which
+    // derives onboarding_status from this DECLARATION_EVENT alone).
+    if (declared.activity_id) {
+      await effectiveBetaDeclaration(client, userId, declared, at);
+    }
     await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
     await client.query("COMMIT");
     return state(await events(client, userId));
