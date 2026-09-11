@@ -241,7 +241,7 @@ test(
     // Shared-mode ("team") org, coachA and coachB both ACTIVE members.
     // ============================================================
     const teamOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Attendance Org Shared Team", visibility_mode: "shared"
+      org_name: "Attendance Org Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(teamOrg, 201, "create shared-mode org");
     const teamOrgId = teamOrg.json?.organisation?.org_id;
@@ -276,7 +276,7 @@ test(
     // outright.
     // ============================================================
     const gymOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Attendance Org Individual Gym", visibility_mode: "individual"
+      org_name: "Attendance Org Individual Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(gymOrg, 201, "create individual-mode org");
     const gymOrgId = gymOrg.json?.organisation?.org_id;

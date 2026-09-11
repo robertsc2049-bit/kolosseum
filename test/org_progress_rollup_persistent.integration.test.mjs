@@ -381,7 +381,7 @@ test(
     // most important guarantee of this whole feature.
     // ============================================================
     const gymOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Prog Individual Gym", visibility_mode: "individual"
+      org_name: "Org Prog Individual Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(gymOrg, 201, "create individual-mode org");
     const gymOrgId = gymOrg.json?.organisation?.org_id;
@@ -475,7 +475,7 @@ test(
     athleteUserIds.push(athlete3.userId);
 
     const teamOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Prog Shared Team", visibility_mode: "shared"
+      org_name: "Org Prog Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(teamOrg, 201, "create shared-mode org");
     const teamOrgId = teamOrg.json?.organisation?.org_id;

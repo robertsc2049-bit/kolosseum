@@ -129,6 +129,19 @@
           <input id="orgCreateName" type="text" required />
         </label>
         <label class="field">
+          <span>Sport</span>
+          <select id="orgCreateActivityId" required>
+            <option value="" selected disabled>Choose</option>
+            <option value="powerlifting">Powerlifting</option>
+            <option value="general_strength">General strength</option>
+            <option value="rugby_union">Rugby union</option>
+            <option value="strongman">Strongman</option>
+            <option value="hyrox">Hyrox</option>
+            <option value="crossfit">CrossFit</option>
+          </select>
+          <span class="muted small">Purely informational - this doesn't restrict any athlete's own declared sport or position.</span>
+        </label>
+        <label class="field">
           <span>Type</span>
           <select id="orgCreateVisibilityMode">
             <option value="individual" selected>Gym — independent coaches, each athlete relationship stays private to their own coach</option>

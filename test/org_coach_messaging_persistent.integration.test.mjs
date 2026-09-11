@@ -301,7 +301,7 @@ test(
     const coachA = await registerCoach(baseUrl, nonce, "a");
     coachUserIds.push(coachA.userId);
 
-    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Org Msg Test Gym" }, {
+    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Org Msg Test Gym", activity_id: "powerlifting" }, {
       cookie: owner.cookie, csrf: owner.csrf
     });
     assertStatus(org, 201, "create organisation");
@@ -566,7 +566,7 @@ test(
     const strangerCoach = await registerCoach(baseUrl, nonce, "attachstranger");
     coachUserIds.push(strangerCoach.userId);
 
-    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Attach Test Gym" }, {
+    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Attach Test Gym", activity_id: "powerlifting" }, {
       cookie: owner.cookie, csrf: owner.csrf
     });
     assertStatus(org, 201, "create organisation");

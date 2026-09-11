@@ -229,7 +229,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Current declaration",
     "Superseded declaration",
     "Not available right now",
-    "Only accessibility, instruction-density and training-focus preferences can be changed after confirmation",
+    "Only accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
     assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
@@ -357,7 +357,7 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
   const onboarding = areas?.find((entry) => entry?.area_id === "athlete_onboarding");
   assert.ok(onboarding, "athlete_onboarding area is required");
   assert.equal(onboarding.state, "implemented");
-  assert.equal(onboarding.functions.length, 11);
+  assert.equal(onboarding.functions.length, 12);
   assert.equal(onboarding.functions.every((entry) => entry.state === "implemented"), true);
   assert.equal(JSON.stringify(onboarding).includes('"partial"'), false);
   assert.equal(JSON.stringify(onboarding).includes('"missing"'), false);

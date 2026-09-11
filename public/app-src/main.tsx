@@ -10,6 +10,7 @@ import { AccountDataRightsPanel } from "./screens/account/AccountDataRightsPanel
 import { AccountIdentityPanel } from "./screens/account/AccountIdentityPanel";
 import { NotificationBellPanel } from "./screens/account/NotificationBellPanel";
 import { AccountOrgContextPanel } from "./screens/account/AccountOrgContextPanel";
+import { TeamRosterPanel } from "./screens/account/TeamRosterPanel";
 import { AccountOrgMessagesPanel } from "./screens/account/AccountOrgMessagesPanel";
 import { AccountSupportPanel } from "./screens/account/AccountSupportPanel";
 import { CommercialPanel } from "./screens/account/CommercialPanel";
@@ -107,6 +108,7 @@ mount("account-coach-relationship-root", <AccountCoachRelationshipPanel />);
 mount("account-coach-code-root", <AccountCoachCodePanel />);
 mount("account-org-messages-root", <AccountOrgMessagesPanel />);
 mount("account-org-context-root", <AccountOrgContextPanel />);
+mount("account-team-roster-root", <TeamRosterPanel />);
 mount("athlete-profile-editor-root", <AthleteStrengthProfilePanel />);
 mount("athlete-profile-assignment-root", <AthleteProfileAssignmentPanel />);
 mount("coach-athlete-message-root", <CoachAthleteMessagePanel />);

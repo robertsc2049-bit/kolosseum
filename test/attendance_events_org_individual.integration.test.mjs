@@ -249,7 +249,7 @@ test(
     // Individual-mode ("gym") org, coachA and coachB both ACTIVE members.
     // ============================================================
     const gymOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Attendance Gym Individual", visibility_mode: "individual"
+      org_name: "Attendance Gym Individual", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(gymOrg, 201, "create individual-mode org");
     const gymOrgId = gymOrg.json?.organisation?.org_id;
@@ -283,7 +283,7 @@ test(
     // a shared-mode org rejects gym-wide creation outright.
     // ============================================================
     const teamOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Attendance Gym Shared Team", visibility_mode: "shared"
+      org_name: "Attendance Gym Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(teamOrg, 201, "create shared-mode org");
     const teamOrgId = teamOrg.json?.organisation?.org_id;

@@ -17,6 +17,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { assertOrgSeatCapacity } from "./org_billing_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -53,6 +54,19 @@ function cleanVisibilityMode(value: unknown): "individual" | "shared" {
   if (value === undefined || value === null || value === "") return "individual";
   if (value === "individual" || value === "shared") return value;
   throw new OrgRosterError("org_roster_visibility_mode_invalid", 400);
+}
+
+// Slice 3 - a team's own declared sport, required at creation (purely
+// informational; mirrors org_name's own required-field validator exactly).
+function cleanRequiredActivityId(value: unknown): string {
+  const activityId = cleanString(value);
+  if (!activityId) {
+    throw new OrgRosterError("org_roster_activity_required", 400);
+  }
+  if (!V1_ACTIVITY_IDS.includes(activityId)) {
+    throw new OrgRosterError("org_roster_activity_invalid", 400);
+  }
+  return activityId;
 }
 
 function canonicalJson(value: unknown): string {
@@ -110,7 +124,7 @@ function toAuditOutcome(row: JsonRecord, replayed: boolean): AuditOutcome {
   });
 }
 
-async function writeAuditRecord(
+export async function writeAuditRecord(
   client: PoolClient,
   args: {
     orgId: string;
@@ -195,6 +209,7 @@ export type OrganisationRow = Readonly<{
   org_state: "active" | "suspended" | "closed";
   seat_limit: number | null;
   visibility_mode: "individual" | "shared";
+  activity_id: string | null;
   created_at_iso8601: string;
 }>;
 
@@ -210,6 +225,7 @@ function mapOrganisationRow(value: unknown): OrganisationRow | null {
     org_state: state,
     seat_limit: Number.isInteger(value.seat_limit) ? (value.seat_limit as number) : null,
     visibility_mode: value.visibility_mode === "shared" ? "shared" : "individual",
+    activity_id: typeof value.activity_id === "string" && value.activity_id ? value.activity_id : null,
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
   });
 }
@@ -225,12 +241,14 @@ function defaultSeatLimitFromEnv(): number | null {
 export async function createOrganisation(
   ownerUserId: string,
   orgName: unknown,
+  activityIdInput: unknown,
   visibilityModeInput?: unknown
 ): Promise<Readonly<{ organisation: OrganisationRow }>> {
   const cleanOrgName = cleanString(orgName);
   if (!cleanOrgName) {
     throw new OrgRosterError("org_roster_org_name_required", 400);
   }
+  const activityId = cleanRequiredActivityId(activityIdInput);
   const visibilityMode = cleanVisibilityMode(visibilityModeInput);
 
   const client = await pool.connect();
@@ -240,11 +258,11 @@ export async function createOrganisation(
     const orgId = randomId("org");
     const inserted = await client.query(
       `
-      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit, visibility_mode)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit, visibility_mode, activity_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
       `,
-      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv(), visibilityMode]
+      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv(), visibilityMode, activityId]
     );
 
     await writeAuditRecord(client, {

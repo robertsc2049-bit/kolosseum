@@ -20,8 +20,11 @@ import {
 import {
   AthleteActivityChangeError,
   getAthleteActivityChangeState,
-  proposeAthleteActivityChangeForCoach
+  getAthletePositionChangeState,
+  proposeAthleteActivityChangeForCoach,
+  proposeAthletePositionChangeForCoach
 } from "./athlete_activity_change_service.js";
+import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
 import {
   badRequest,
   conflict,
@@ -123,6 +126,13 @@ function rethrowWorkspaceError(error: unknown): never {
       throw conflict("ACTIVITY_CHANGE_REQUEST_CONFLICT", { failure_token: error.code });
     }
     throw badRequest("ACTIVITY_CHANGE_REQUEST_INVALID", { failure_token: error.code });
+  }
+
+  // A coach-proposed position change can fail assertPositionMatchesActivity's
+  // own cross-check (athlete_onboarding_service.ts) - surface it the same
+  // way every other validation failure in this file is surfaced.
+  if (error instanceof AthleteOnboardingError) {
+    throw badRequest("POSITION_CHANGE_REQUEST_INVALID", { failure_token: error.code, field_errors: error.field_errors });
   }
 
   throw error;
@@ -322,6 +332,49 @@ export async function proposeAthleteActivityChangeHandler(
   try {
     const coachUserId = await authenticatedCoach(req, true);
     const proposal = await proposeAthleteActivityChangeForCoach(coachUserId, req.body);
+
+    return res.status(201).json({
+      ok: true,
+      proposal
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function getAthletePositionChangeStateHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const athleteUserId = cleanString(req.query.athlete_user_id);
+    if (!athleteUserId) {
+      throw badRequest("ATHLETE_ACTIVITY_CHANGE_ATHLETE_REQUIRED", {
+        failure_token: "athlete_activity_change_athlete_required"
+      });
+    }
+    await requireCoachAthleteAccess(coachUserId, athleteUserId);
+    const positionChange = await getAthletePositionChangeState(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      position_change: positionChange
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function proposeAthletePositionChangeHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, true);
+    const proposal = await proposeAthletePositionChangeForCoach(coachUserId, req.body);
 
     return res.status(201).json({
       ok: true,

@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { POSITION_OPTIONS_BY_ACTIVITY, PositionSelect } from "../../components/PositionSelect";
 import { TRAINING_FOCUS_OPTIONS, TrainingFocusCheckboxes } from "../../components/TrainingFocusCheckboxes";
 import {
   accessibilityLabel,
@@ -46,6 +47,12 @@ function trainingFocusLabel(value: unknown): string {
     .filter((option) => selected.includes(option.id))
     .map((option) => option.label)
     .join(", ");
+}
+
+function positionLabel(activityId: unknown, position: unknown): string {
+  if (!position) return "Not selected";
+  const options = POSITION_OPTIONS_BY_ACTIVITY[String(activityId ?? "")] ?? [];
+  return options.find((option) => option.id === position)?.label ?? label(position);
 }
 
 function StatusBanner({ state, hasError, forceKind }: { state: JsonRecord | null; hasError: boolean; forceKind?: string }) {
@@ -93,6 +100,7 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
   return (
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
+      <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
       <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
       <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
@@ -122,15 +130,23 @@ function ValidationErrors({ error }: { error: { message: string; payload: unknow
 
 function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRecord; onChange: (fields: JsonRecord) => void }) {
   if (stage === "activity") {
+    const activityId = String(draft.activity_id ?? "");
     return (
       <>
         <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
         <ActivityCategoryFilter
-          value={String(draft.activity_id ?? "")}
-          onChange={(activityId) => onChange({ ...draft, activity_id: activityId })}
+          value={activityId}
+          onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined })}
           sportLabel="Activity (optional)"
           allowEmptySport
         />
+        {activityId ? (
+          <PositionSelect
+            activityId={activityId}
+            value={String(draft.position ?? "")}
+            onChange={(position) => onChange({ ...draft, position })}
+          />
+        ) : null}
       </>
     );
   }
@@ -268,16 +284,25 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
   const [trainingFocus, setTrainingFocus] = useState<string[]>(() =>
     Array.isArray(fields.training_focus) ? fields.training_focus.map((entry) => String(entry)) : []
   );
+  const [position, setPosition] = useState(() => String(fields.position ?? ""));
+  const activityId = String(fields.activity_id ?? "");
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    savePreferences({ accessibility_preferences: accessibility, instruction_density: density, training_focus: trainingFocus });
+    savePreferences({
+      accessibility_preferences: accessibility, instruction_density: density,
+      training_focus: trainingFocus,
+      // Only send position once a real selection exists - an empty value
+      // fails validateAthletePosition (position, unlike training_focus, is
+      // never a valid "cleared" empty state) and would block the whole save.
+      ...(activityId && position ? { position } : {})
+    });
   }
 
   return (
     <form className="onboarding-card" onSubmit={handleSubmit}>
       <h3>Edit preferences</h3>
-      <p>Only accessibility, instruction-density and training-focus preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <p>Only accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
         <span>Instruction density</span>
@@ -288,6 +313,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
         </select>
       </label>
       <TrainingFocusCheckboxes value={trainingFocus} onChange={setTrainingFocus} />
+      {activityId ? <PositionSelect activityId={activityId} value={position} onChange={setPosition} /> : null}
       <div className="onboarding-actions">
         <button className="button secondary" type="button" onClick={cancelEditing}>Cancel</button>
         <button className="button primary" type="submit" disabled={busy}>Save new declaration</button>
@@ -421,6 +447,76 @@ function ActivityChangeCard({ api, currentActivityId }: { api: OnboardingApi; cu
   );
 }
 
+// DEV NOTE: mirrors ActivityChangeCard's proposed/queued states, but has no
+// idle "declare/change" state of its own - self-service position changes
+// are immediate-only, straight through PreferenceEditor's PositionSelect
+// above. This card only ever appears for a coach-proposed change.
+function PositionChangeCard({ api }: { api: OnboardingApi }) {
+  const { positionChange, activityChangeBusy, activityChangeError, respondToProposal, cancelPendingActivityChange } = api;
+  const [applyAt, setApplyAt] = useState<"immediately" | "after_current_session">("immediately");
+  const requestState = String(positionChange?.request_state ?? "");
+  if (!requestState) return null;
+
+  const newPosition = String(positionChange?.new_position ?? "");
+
+  if (requestState === "proposed") {
+    return (
+      <article className="onboarding-card">
+        <h3>Position change proposed</h3>
+        <p>{`Your coach proposed changing your position to ${label(newPosition)}.`}</p>
+        {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
+        <label className="field">
+          <span>When should this take effect?</span>
+          <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
+            <option value="immediately">Immediately</option>
+            <option value="after_current_session">After my current session finishes</option>
+          </select>
+        </label>
+        <div className="onboarding-actions">
+          <button
+            className="button primary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => respondToProposal(String(positionChange?.request_id ?? ""), "confirmed", applyAt).catch(() => {})}
+          >
+            Confirm
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => respondToProposal(String(positionChange?.request_id ?? ""), "declined").catch(() => {})}
+          >
+            Decline
+          </button>
+        </div>
+      </article>
+    );
+  }
+
+  if (requestState === "queued") {
+    return (
+      <article className="onboarding-card">
+        <h3>Position change pending</h3>
+        <p>{`Your position will change to ${label(newPosition)} once your current session finishes.`}</p>
+        {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
+        <div className="onboarding-actions">
+          <button
+            className="button secondary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => cancelPendingActivityChange(String(positionChange?.request_id ?? ""), "position").catch(() => {})}
+          >
+            Cancel this change
+          </button>
+        </div>
+      </article>
+    );
+  }
+
+  return null;
+}
+
 function openWorkspace() {
   sessionStorage.removeItem("kolosseum.athlete_onboarding.reload_required");
   location.assign("/app/#/athlete/today");
@@ -450,6 +546,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
+      <PositionChangeCard api={api} />
       <article className="onboarding-card">
         <h3>Historical declarations</h3>
         <p>Superseded declarations can't be changed.</p>

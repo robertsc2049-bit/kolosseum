@@ -2,6 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
+import { PositionSelect } from "../../components/PositionSelect";
 import { formatDate, titleCase } from "../../utils/format";
 import { useAthleteRelationshipDetail } from "./useAthleteRelationshipDetail";
 
@@ -98,11 +99,70 @@ function ActivityChangeSection({
   );
 }
 
+// Mirrors ActivityChangeSection exactly - a coach can only ever propose a
+// position change here, never apply it directly, unless they're also an
+// active member of the athlete's shared-visibility team (TeamRosterPanel.tsx,
+// a direct-override tier this 1:1 relationship view never exposes).
+function PositionChangeSection({
+  currentActivityId,
+  currentPosition,
+  positionChange,
+  proposing,
+  error,
+  onPropose
+}: {
+  currentActivityId: string;
+  currentPosition: string;
+  positionChange: JsonRecord | null;
+  proposing: boolean;
+  error: string | null;
+  onPropose: (position: string) => void;
+}) {
+  const [selected, setSelected] = React.useState(currentPosition);
+
+  if (!currentActivityId) return null;
+
+  if (positionChange) {
+    const requestState = String(positionChange.request_state ?? "");
+    const newPosition = String(positionChange.new_position ?? "");
+    if (requestState === "proposed") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Awaiting the athlete's response to change position to ${titleCase(newPosition)}.`}</p>
+        </div>
+      );
+    }
+    if (requestState === "queued") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Will change position to ${titleCase(newPosition)} once the athlete's current session finishes.`}</p>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div className="relationship-activity-change">
+      <PositionSelect activityId={currentActivityId} value={selected} onChange={setSelected} label="Propose a new position" />
+      {error ? <p role="status" className="muted small error">{error}</p> : null}
+      <button
+        className="button secondary"
+        type="button"
+        disabled={proposing || !selected || selected === currentPosition}
+        onClick={() => onPropose(selected)}
+      >
+        {proposing ? "Proposing…" : "Propose position change"}
+      </button>
+    </div>
+  );
+}
+
 export function AthleteRelationshipDetailPanel() {
   const {
-    open, loading, notFound, athleteUserId, displayName, activityId, effectiveState, relationship,
+    open, loading, notFound, athleteUserId, displayName, activityId, position, effectiveState, relationship,
     transitioning, transitionError, close, transition,
-    activityChange, proposingActivityChange, proposeActivityChangeError, proposeActivityChange
+    activityChange, proposingActivityChange, proposeActivityChangeError, proposeActivityChange,
+    positionChange, proposingPositionChange, proposePositionChangeError, proposePositionChange
   } = useAthleteRelationshipDetail();
 
   if (!open) return null;
@@ -177,6 +237,17 @@ export function AthleteRelationshipDetailPanel() {
               proposing={proposingActivityChange}
               error={proposeActivityChangeError}
               onPropose={(newActivityId) => proposeActivityChange(newActivityId).catch(() => {})}
+            />
+          ) : null}
+
+          {accepted ? (
+            <PositionChangeSection
+              currentActivityId={activityId}
+              currentPosition={position}
+              positionChange={positionChange}
+              proposing={proposingPositionChange}
+              error={proposePositionChangeError}
+              onPropose={(newPosition) => proposePositionChange(newPosition).catch(() => {})}
             />
           ) : null}
         </>

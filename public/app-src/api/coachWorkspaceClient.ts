@@ -28,6 +28,17 @@ export function proposeAthleteActivityChange(input: JsonRecord, csrfToken: strin
   return request("POST", "/coach-workspace/athlete-activity-change-proposal", input, csrfToken);
 }
 
+export function loadAthletePositionChangeState(athleteUserId: string): Promise<JsonRecord> {
+  return request(
+    "GET",
+    `/coach-workspace/athlete-position-change?athlete_user_id=${encodeURIComponent(athleteUserId)}`
+  );
+}
+
+export function proposeAthletePositionChange(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/athlete-position-change-proposal", input, csrfToken);
+}
+
 export async function loadTemplateExercises(): Promise<JsonRecord[]> {
   const response = await request("GET", "/templates/exercises");
   return Array.isArray(response.exercises) ? (response.exercises as JsonRecord[]) : [];
