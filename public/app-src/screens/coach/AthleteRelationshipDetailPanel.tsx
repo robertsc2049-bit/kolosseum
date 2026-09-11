@@ -1,9 +1,9 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { formatDate, titleCase } from "../../utils/format";
 import { useAthleteRelationshipDetail } from "./useAthleteRelationshipDetail";
-import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from index.html's #athleteRelationshipDetailPanel
 // ("Relationship audit"). See useAthleteRelationshipDetail.ts for the
@@ -84,14 +84,7 @@ function ActivityChangeSection({
 
   return (
     <div className="relationship-activity-change">
-      <label className="field">
-        <span>Propose a new activity</span>
-        <select value={selected} onChange={(event) => setSelected(event.target.value)}>
-          {V1_ACTIVITIES.map((activity) => (
-            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
-          ))}
-        </select>
-      </label>
+      <ActivityCategoryFilter value={selected} onChange={setSelected} sportLabel="Propose a new activity" />
       {error ? <p role="status" className="muted small error">{error}</p> : null}
       <button
         className="button secondary"
