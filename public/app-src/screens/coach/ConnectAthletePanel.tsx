@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 
+import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { useConnectAthlete } from "./useConnectAthlete";
-// eslint-disable-next-line import/no-unresolved
-import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from index.html's #connectAthleteForm ("Relationship
 // record / Add athlete") - the manual, account-code-based relationship
 // form. See useConnectAthlete.ts for the mutation + cross-stack refresh
 // wiring.
-const ACTIVITIES = V1_ACTIVITIES.map((activity) => [activity.activity_id, activity.display_label] as const);
 
 export function ConnectAthletePanel() {
   const { submitting, error, connect } = useConnectAthlete();
@@ -72,12 +70,7 @@ export function ConnectAthletePanel() {
         />
       </label>
 
-      <label className="field">
-        <span>Activity</span>
-        <select value={activityId} onChange={(event) => setActivityId(event.target.value)}>
-          {ACTIVITIES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-      </label>
+      <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Activity" />
 
       <label className="field">
         <span>Relationship state</span>

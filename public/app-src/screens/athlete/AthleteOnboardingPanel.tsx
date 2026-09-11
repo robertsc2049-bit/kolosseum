@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
+import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import {
   accessibilityLabel,
@@ -14,8 +15,6 @@ import {
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
 import { titleCase } from "../../utils/format";
-// eslint-disable-next-line import/no-unresolved
-import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported field-for-field from public/app/athlete_onboarding_ui.js's
@@ -115,15 +114,12 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
     return (
       <>
         <p>Declare the activity used by this account. This is not an assessment.</p>
-        <label className="field">
-          <span>Activity</span>
-          <select value={String(draft.activity_id ?? "")} onChange={(event) => onChange({ ...draft, activity_id: event.target.value })}>
-            <option value="">Choose</option>
-            {V1_ACTIVITIES.map((activity) => (
-              <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
-            ))}
-          </select>
-        </label>
+        <ActivityCategoryFilter
+          value={String(draft.activity_id ?? "")}
+          onChange={(activityId) => onChange({ ...draft, activity_id: activityId })}
+          sportLabel="Activity"
+          allowEmptySport
+        />
       </>
     );
   }
@@ -375,14 +371,7 @@ function ActivityChangeCard({ api, currentActivityId }: { api: OnboardingApi; cu
       <h3>Change activity</h3>
       <p>Priorities change - you can move to a different activity at any time.</p>
       {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
-      <label className="field">
-        <span>New activity</span>
-        <select value={selected} onChange={(event) => setSelected(event.target.value)}>
-          {V1_ACTIVITIES.map((activity) => (
-            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
-          ))}
-        </select>
-      </label>
+      <ActivityCategoryFilter value={selected} onChange={setSelected} sportLabel="New activity" />
       <label className="field">
         <span>When should this take effect?</span>
         <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
