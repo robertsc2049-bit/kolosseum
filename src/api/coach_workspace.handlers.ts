@@ -14,8 +14,14 @@ import {
   listCoachAthleteRelationships,
   listConnectedCoachAthletes,
   loadAthleteStrengthProfile,
+  requireCoachAthleteAccess,
   saveAthleteStrengthProfile
 } from "./beta19_coach_workspace_service.js";
+import {
+  AthleteActivityChangeError,
+  getAthleteActivityChangeState,
+  proposeAthleteActivityChangeForCoach
+} from "./athlete_activity_change_service.js";
 import {
   badRequest,
   conflict,
@@ -107,6 +113,16 @@ function rethrowWorkspaceError(error: unknown): never {
       failure_token: "beta19_coach_workspace_invalid",
       reason: error.reason
     });
+  }
+
+  if (error instanceof AthleteActivityChangeError) {
+    if (error.status === 404) {
+      throw notFound("ACTIVITY_CHANGE_PROPOSAL_NOT_FOUND", { failure_token: error.code });
+    }
+    if (error.status === 409) {
+      throw conflict("ACTIVITY_CHANGE_REQUEST_CONFLICT", { failure_token: error.code });
+    }
+    throw badRequest("ACTIVITY_CHANGE_REQUEST_INVALID", { failure_token: error.code });
   }
 
   throw error;
@@ -267,6 +283,49 @@ export async function saveAthleteStrengthProfileHandler(
         profile
           .strength_reference_lifecycle ??
         null
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function getAthleteActivityChangeStateHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const athleteUserId = cleanString(req.query.athlete_user_id);
+    if (!athleteUserId) {
+      throw badRequest("ATHLETE_ACTIVITY_CHANGE_ATHLETE_REQUIRED", {
+        failure_token: "athlete_activity_change_athlete_required"
+      });
+    }
+    await requireCoachAthleteAccess(coachUserId, athleteUserId);
+    const activityChange = await getAthleteActivityChangeState(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      activity_change: activityChange
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function proposeAthleteActivityChangeHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, true);
+    const proposal = await proposeAthleteActivityChangeForCoach(coachUserId, req.body);
+
+    return res.status(201).json({
+      ok: true,
+      proposal
     });
   }
   catch (error) {

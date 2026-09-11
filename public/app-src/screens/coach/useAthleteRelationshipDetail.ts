@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
-import { loadCoachRelationships, upsertCoachRelationship } from "../../api/coachWorkspaceClient";
+import {
+  loadAthleteActivityChangeState,
+  loadCoachRelationships,
+  proposeAthleteActivityChange,
+  upsertCoachRelationship
+} from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
 import { COACH_RELATIONSHIP_MUTATED_EVENT } from "./useConnectAthlete";
 
@@ -44,6 +49,9 @@ export type AthleteRelationshipDetailState = {
   relationship: JsonRecord;
   transitioning: boolean;
   transitionError: string | null;
+  activityChange: JsonRecord | null;
+  proposingActivityChange: boolean;
+  proposeActivityChangeError: string | null;
 };
 
 const initialState: AthleteRelationshipDetailState = {
@@ -56,7 +64,10 @@ const initialState: AthleteRelationshipDetailState = {
   effectiveState: "unknown",
   relationship: {},
   transitioning: false,
-  transitionError: null
+  transitionError: null,
+  activityChange: null,
+  proposingActivityChange: false,
+  proposeActivityChangeError: null
 };
 
 export function useAthleteRelationshipDetail() {
@@ -84,6 +95,15 @@ export function useAthleteRelationshipDetail() {
         effectiveState: relationshipEffectiveState(entry),
         relationship: (entry.relationship as JsonRecord | undefined) ?? {}
       }));
+
+      loadAthleteActivityChangeState(athleteUserId)
+        .then((result) => {
+          setState((current) => ({
+            ...current,
+            activityChange: (result.activity_change as JsonRecord | null | undefined) ?? null
+          }));
+        })
+        .catch(() => {});
     }
     catch {
       setState((current) => ({ ...current, loading: false, notFound: true }));
@@ -150,5 +170,33 @@ export function useAthleteRelationshipDetail() {
     }
   }, [state.athleteUserId, state.relationship]);
 
-  return { ...state, close, transition };
+  const proposeActivityChange = useCallback(async (newActivityId: string) => {
+    setState((current) => ({ ...current, proposingActivityChange: true, proposeActivityChangeError: null }));
+    try {
+      const account = await loadAccountDetail();
+      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+
+      const result = await proposeAthleteActivityChange(
+        { athlete_user_id: state.athleteUserId, activity_id: newActivityId },
+        csrfToken
+      );
+
+      setState((current) => ({
+        ...current,
+        proposingActivityChange: false,
+        activityChange: (result.proposal as JsonRecord | undefined) ?? null
+      }));
+      return true;
+    }
+    catch {
+      setState((current) => ({
+        ...current,
+        proposingActivityChange: false,
+        proposeActivityChangeError: "The activity change could not be proposed."
+      }));
+      return false;
+    }
+  }, [state.athleteUserId]);
+
+  return { ...state, close, transition, proposeActivityChange };
 }

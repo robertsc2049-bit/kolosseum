@@ -1,6 +1,7 @@
 // DEV NOTE: BETA-19 coach programme workspace routes.
 
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import { asyncHandler } from "./async_handler.js";
 import {
@@ -21,7 +22,9 @@ import {
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
+  getAthleteActivityChangeStateHandler,
   previewEventProgrammeCalendar,
+  proposeAthleteActivityChangeHandler,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 import {
@@ -131,6 +134,29 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/athlete-strength-profile",
   asyncHandler(saveAthleteStrengthProfileHandler)
+);
+
+// DEV NOTE: rate-limited (unlike this file's older neighbours) because
+// CodeQL's js/missing-rate-limiting query flags newly-added authorising
+// routes - see coach_onboarding.routes.ts's own accessibilityPreferencesRateLimit
+// for the identical precedent this mirrors.
+const athleteActivityChangeRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachWorkspaceRouter.get(
+  "/athlete-activity-change",
+  athleteActivityChangeRateLimit,
+  asyncHandler(getAthleteActivityChangeStateHandler)
+);
+
+coachWorkspaceRouter.post(
+  "/athlete-activity-change-proposal",
+  athleteActivityChangeRateLimit,
+  asyncHandler(proposeAthleteActivityChangeHandler)
 );
 
 coachWorkspaceRouter.post(

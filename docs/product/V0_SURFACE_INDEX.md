@@ -27,7 +27,7 @@ Use these surfaces in order:
 1. `docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md` and the release records it points to classify scope.
 2. `docs/v1/V1_RELEASE_BOUNDARY.md`, `docs/v1/V1_NOT_IN_SCOPE.md`, and `docs/v1/V1_ACCEPTANCE_GATE.md` distinguish v1, controlled-launch support, and post-v1 scope.
 3. `product/ui/function_manifest.json` records implemented product functions, actors, persistence, routes, tests, and delivery slices.
-4. `docs/product/FULL_UI_GAP_REPORT.md` is the generated UI-completion report. Its current result is 334 implemented, zero partial, zero missing, and zero prohibited.
+4. `docs/product/FULL_UI_GAP_REPORT.md` is the generated UI-completion report. Its current result is 336 implemented, zero partial, zero missing, and zero prohibited.
 5. `docs/roadmap/REG_FULL_09_FINAL_REGISTRY_ACCEPTANCE_GATE.md` and `ci/evidence/reg_full_09_final_registry_acceptance.v1.json` own current registry acceptance.
 6. `docs/product/CURRENT_PROJECT_DOCS_STATUS.md` is the current documentation pointer. Historical slice records remain evidence for their named work, not current classification authority.
 

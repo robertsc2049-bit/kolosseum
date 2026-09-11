@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 334
+- implemented: 336
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -44,7 +44,7 @@ Slice: FULL-UI-03
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -57,6 +57,7 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `onboarding_review` — Review and confirm onboarding declarations
 - `onboarding_completion` — Persist onboarding completion state
 - `declaration_history` — Display current and historical declarations
+- `athlete_activity_change` — Change declared activity - self-service or coach-proposed, immediate or deferred
 
 ### Coach onboarding and commercial state
 
@@ -85,7 +86,7 @@ Slice: FULL-UI-05
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -99,6 +100,7 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts
 - `relationship_history_preserved` — Preserve historical records after relationship closure
+- `coach_activity_change_proposal` — Propose a new activity for a connected athlete
 
 ### Coach overview
 
@@ -793,6 +795,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-80: implemented
 - FULL-UI-81: implemented
 - FULL-UI-82: implemented
+- FULL-UI-83: implemented
 
 ## Prohibited capabilities
 

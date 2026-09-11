@@ -23,3 +23,19 @@ export function confirmAthleteOnboarding(csrfToken: string): Promise<JsonRecord>
 export function updateAthleteOnboardingPreferences(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("PATCH", "/account/onboarding/preferences", input, csrfToken);
 }
+
+export function loadActivityChangeState(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/activity-change");
+}
+
+export function requestActivityChange(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("PATCH", "/account/onboarding/activity", input, csrfToken);
+}
+
+export function respondToActivityChangeProposal(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/activity-proposal-response", input, csrfToken);
+}
+
+export function cancelActivityChange(requestId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/activity-proposal-cancel", { request_id: requestId }, csrfToken);
+}

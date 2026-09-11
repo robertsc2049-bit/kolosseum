@@ -49,11 +49,28 @@ function installMocks(options: {
   onDraftSave?: (body: Record<string, unknown>) => ServerState | { fail: true; fieldErrors?: Record<string, string> };
   onConfirm?: () => ServerState | { fail: true };
   onPreferences?: (body: Record<string, unknown>) => ServerState;
+  activityChange?: Record<string, unknown> | null;
+  onActivityChange?: (body: Record<string, unknown>) => Record<string, unknown>;
+  onActivityProposalResponse?: (body: Record<string, unknown>) => Record<string, unknown>;
 }) {
-  const { initialState = draftState(), onDraftSave, onConfirm, onPreferences } = options;
+  const { initialState = draftState(), onDraftSave, onConfirm, onPreferences, activityChange = null, onActivityChange, onActivityProposalResponse } = options;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "athlete_1" }, csrf_token: "csrf" });
+    if (path === "/account/onboarding/activity-change" && (!init || init.method === undefined || init.method === "GET")) {
+      return jsonResponse({ activity_change: activityChange });
+    }
+    if (path === "/account/onboarding/activity") {
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      return jsonResponse(onActivityChange ? onActivityChange(body) : { request_state: "applied" });
+    }
+    if (path === "/account/onboarding/activity-proposal-response") {
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      return jsonResponse(onActivityProposalResponse ? onActivityProposalResponse(body) : { request_state: "applied" });
+    }
+    if (path === "/account/onboarding/activity-proposal-cancel") {
+      return jsonResponse({ request_state: "cancelled" });
+    }
     if (path === "/account/onboarding/" && (!init || init.method === undefined || init.method === "GET")) {
       return jsonResponse(initialState);
     }
@@ -263,11 +280,11 @@ test("the completed view shows historical (superseded) declarations, never their
       }
     )
   });
-  render(<AthleteOnboardingPanel />);
+  const { container } = render(<AthleteOnboardingPanel />);
   await screen.findByText("Historical declarations");
 
   assert.ok(screen.getByText("Superseded declaration"));
-  assert.ok(screen.getByText("General strength"));
+  assert.ok(container.querySelector(".declaration-history")?.textContent?.includes("General strength"));
   assert.equal(screen.queryByText(/decl_old/u), null, "the raw internal declaration id must never be shown");
 });
 
@@ -303,6 +320,84 @@ test("editing preferences pre-fills the current values, and saving applies the n
   await waitFor(() => assert.equal(document.documentElement.dataset.instructionDensity, "detailed"));
   assert.equal(document.documentElement.dataset.a11yLargerText, "true");
   assert.equal(screen.queryByText("Edit lawful preferences"), null);
+});
+
+test("the completed view offers a change-activity control, and submitting it posts the new activity and timing", async () => {
+  let lastBody: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    onActivityChange: (body) => {
+      lastBody = body;
+      return { request_state: "applied" };
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Change activity", { selector: "h3" });
+
+  fireEvent.change(screen.getByLabelText("New activity"), { target: { value: "crossfit" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Change activity", { selector: "button" }));
+  });
+
+  await waitFor(() => assert.ok(lastBody));
+  assert.equal((lastBody as Record<string, unknown>).new_activity_id, "crossfit");
+  assert.equal((lastBody as Record<string, unknown>).apply_at, "immediately");
+});
+
+test("a coach-proposed activity change shows Confirm/Decline, and confirming posts the response", async () => {
+  let lastBody: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    activityChange: { request_id: "req_1", requested_by: "coach", new_activity_id: "crossfit", request_state: "proposed" },
+    onActivityProposalResponse: (body) => {
+      lastBody = body;
+      return { request_state: "applied" };
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Activity change proposed");
+  assert.ok(screen.getByText(/coach proposed changing your activity to Crossfit/iu));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Confirm"));
+  });
+
+  await waitFor(() => assert.ok(lastBody));
+  assert.equal((lastBody as Record<string, unknown>).request_id, "req_1");
+  assert.equal((lastBody as Record<string, unknown>).response, "confirmed");
+});
+
+test("declining a coach-proposed activity change posts a decline and never applies it", async () => {
+  let lastBody: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    activityChange: { request_id: "req_1", requested_by: "coach", new_activity_id: "crossfit", request_state: "proposed" },
+    onActivityProposalResponse: (body) => {
+      lastBody = body;
+      return { request_state: "declined" };
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Activity change proposed");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Decline"));
+  });
+
+  await waitFor(() => assert.ok(lastBody));
+  assert.equal((lastBody as Record<string, unknown>).response, "declined");
+  assert.equal((lastBody as Record<string, unknown>).apply_at, undefined, "a decline must never carry a timing choice");
+});
+
+test("a queued (deferred) activity change shows pending status with a cancel action", async () => {
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    activityChange: { request_id: "req_2", requested_by: "athlete", new_activity_id: "hyrox", request_state: "queued" }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Activity change pending");
+  assert.ok(screen.getByText(/change to Hyrox once your current session finishes/iu));
+  assert.ok(screen.getByText("Cancel this change"));
 });
 
 test("cancelling the preference editor discards changes without saving", async () => {
