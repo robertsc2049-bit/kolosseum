@@ -314,7 +314,7 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
   const onboarding = areas?.find((entry) => entry?.area_id === "athlete_onboarding");
   assert.ok(onboarding, "athlete_onboarding area is required");
   assert.equal(onboarding.state, "implemented");
-  assert.equal(onboarding.functions.length, 9);
+  assert.equal(onboarding.functions.length, 10);
   assert.equal(onboarding.functions.every((entry) => entry.state === "implemented"), true);
   assert.equal(JSON.stringify(onboarding).includes('"partial"'), false);
   assert.equal(JSON.stringify(onboarding).includes('"missing"'), false);
