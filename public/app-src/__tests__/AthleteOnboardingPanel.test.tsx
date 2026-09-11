@@ -218,7 +218,7 @@ test("a validation failure shows field errors and does not advance the stage", a
   assert.ok(screen.getByText("Activity declaration"));
 });
 
-test("reaching the review stage shows all six declared facts, and confirming shows the completed declaration", async () => {
+test("reaching the review stage shows all declared facts, and confirming shows the completed declaration", async () => {
   const fields = {
     activity_id: "powerlifting",
     execution_scope: "individual",
@@ -319,26 +319,32 @@ test("editing preferences pre-fills the current values, and saving applies the n
   const fields = {
     activity_id: "powerlifting",
     accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
-    instruction_density: "standard"
+    instruction_density: "standard",
+    training_focus: ["strength"]
   };
   installMocks({
     initialState: completedState(fields),
     onPreferences: (body) => completedState({
       ...fields,
       accessibility_preferences: body.accessibility_preferences,
-      instruction_density: body.instruction_density
+      instruction_density: body.instruction_density,
+      training_focus: body.training_focus
     })
   });
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Current effective declaration");
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Edit accessibility and instruction density"));
+    fireEvent.click(screen.getByText("Edit preferences"));
   });
 
-  await screen.findByText("Edit lawful preferences");
+  await screen.findByText("Edit preferences", { selector: "h3" });
+  // Pre-filled from the current declaration's training_focus.
+  assert.equal((screen.getByLabelText("Strength") as HTMLInputElement).checked, true);
+
   fireEvent.click(screen.getByText("Larger text"));
   fireEvent.change(screen.getByLabelText("Instruction density"), { target: { value: "detailed" } });
+  fireEvent.click(screen.getByLabelText("Power"));
 
   await act(async () => {
     fireEvent.click(screen.getByText("Save new declaration"));
@@ -346,7 +352,39 @@ test("editing preferences pre-fills the current values, and saving applies the n
 
   await waitFor(() => assert.equal(document.documentElement.dataset.instructionDensity, "detailed"));
   assert.equal(document.documentElement.dataset.a11yLargerText, "true");
-  assert.equal(screen.queryByText("Edit lawful preferences"), null);
+  assert.equal(screen.queryByText("Edit preferences", { selector: "h3" }), null);
+  assert.ok(screen.getByText("Strength, Power"));
+});
+
+test("training focus defaults to 'None selected' and can be set from empty, then cleared back to empty", async () => {
+  const fields = { activity_id: "powerlifting" };
+  let lastBody: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: completedState(fields),
+    onPreferences: (body) => {
+      lastBody = body;
+      return completedState({ ...fields, training_focus: body.training_focus });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Current effective declaration");
+
+  assert.ok(screen.getByText("None selected"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Edit preferences"));
+  });
+  await screen.findByText("Edit preferences", { selector: "h3" });
+
+  fireEvent.click(screen.getByLabelText("Conditioning"));
+  fireEvent.click(screen.getByLabelText("Plyometric"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save new declaration"));
+  });
+
+  await waitFor(() => assert.ok(screen.queryByText("Conditioning, Plyometric")));
+  assert.deepEqual(lastBody?.training_focus, ["conditioning", "plyometric"]);
 });
 
 test("the completed view offers a change-activity control, and submitting it posts the new activity and timing", async () => {
@@ -465,10 +503,10 @@ test("cancelling the preference editor discards changes without saving", async (
   await screen.findByText("Current effective declaration");
 
   await act(async () => {
-    fireEvent.click(screen.getByText("Edit accessibility and instruction density"));
+    fireEvent.click(screen.getByText("Edit preferences"));
   });
-  await screen.findByText("Edit lawful preferences");
+  await screen.findByText("Edit preferences", { selector: "h3" });
 
   fireEvent.click(screen.getByText("Cancel"));
-  assert.equal(screen.queryByText("Edit lawful preferences"), null);
+  assert.equal(screen.queryByText("Edit preferences", { selector: "h3" }), null);
 });

@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 336
+- implemented: 337
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -44,7 +44,7 @@ Slice: FULL-UI-03
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 11 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -54,6 +54,7 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `beta_acknowledgement` — Accept product acknowledgement
 - `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
 - `accessibility_preferences` — Set accessibility and instruction-density preferences
+- `training_focus_preferences` — Set zero or more training focus areas
 - `onboarding_review` — Review and confirm onboarding declarations
 - `onboarding_completion` — Persist onboarding completion state
 - `declaration_history` — Display current and historical declarations
@@ -796,6 +797,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-81: implemented
 - FULL-UI-82: implemented
 - FULL-UI-83: implemented
+- FULL-UI-84: implemented
 
 ## Prohibited capabilities
 

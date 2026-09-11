@@ -127,6 +127,34 @@ test("FULL-UI-03C validates every declaration field directly", () => {
   }
 });
 
+test("FULL-UI-03C training focus is a zero-or-more, deduped, allowed-set-validated string array", () => {
+  assert.deepEqual(service.validateAthleteTrainingFocus([]), []);
+  assert.deepEqual(
+    service.validateAthleteTrainingFocus(["strength", "power"]),
+    ["strength", "power"]
+  );
+  // Duplicates (including case-insensitive) are deduped.
+  assert.deepEqual(
+    service.validateAthleteTrainingFocus(["strength", "Strength", "power", "power"]),
+    ["strength", "power"]
+  );
+  assert.deepEqual(
+    [...service.ATHLETE_TRAINING_FOCUS_OPTIONS].sort(),
+    ["body_composition", "conditioning", "plyometric", "power", "strength", "strength_and_conditioning"]
+  );
+
+  for (const invalid of [["not_a_real_focus"], "strength", null, 42]) {
+    assert.throws(
+      () => service.validateAthleteTrainingFocus(invalid),
+      (error) => {
+        assert.equal(error.code, "athlete_onboarding_validation_failed");
+        assert.ok(error.field_errors.training_focus);
+        return true;
+      }
+    );
+  }
+});
+
 test("FULL-UI-03C validates progression review and inference boundaries", () => {
   const accessibility = {
     reduced_motion: false,
@@ -201,7 +229,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Current declaration",
     "Superseded declaration",
     "Not available right now",
-    "Only accessibility and instruction-density preferences can be changed after confirmation",
+    "Only accessibility, instruction-density and training-focus preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
     assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
@@ -329,7 +357,7 @@ test("FULL-UI-03C manifest and closure contain no partial or missing onboarding 
   const onboarding = areas?.find((entry) => entry?.area_id === "athlete_onboarding");
   assert.ok(onboarding, "athlete_onboarding area is required");
   assert.equal(onboarding.state, "implemented");
-  assert.equal(onboarding.functions.length, 10);
+  assert.equal(onboarding.functions.length, 11);
   assert.equal(onboarding.functions.every((entry) => entry.state === "implemented"), true);
   assert.equal(JSON.stringify(onboarding).includes('"partial"'), false);
   assert.equal(JSON.stringify(onboarding).includes('"missing"'), false);
