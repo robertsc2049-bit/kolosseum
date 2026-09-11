@@ -50,6 +50,12 @@ test("the coach proposal path calls requireCoachAthleteAccess before writing any
   assert.match(service, /await requireCoachAthleteAccess\(coachUserId, athleteUserId\);/u);
 });
 
+test("the coach-proposal routes are rate-limited, matching the coach_onboarding.routes.ts precedent for newly-added authorising routes", () => {
+  assert.match(coachRoutes, /rateLimit\(/u);
+  assert.match(coachRoutes, /coachWorkspaceRouter\.get\(\s*\n?\s*"\/athlete-activity-change",\s*\n?\s*athleteActivityChangeRateLimit/u);
+  assert.match(coachRoutes, /coachWorkspaceRouter\.post\(\s*\n?\s*"\/athlete-activity-change-proposal",\s*\n?\s*athleteActivityChangeRateLimit/u);
+});
+
 test("the coach's own write is only ever a proposal - amendAthleteDeclaration is never called from the propose function", () => {
   const start = service.indexOf("export async function proposeAthleteActivityChangeForCoach");
   const end = service.indexOf("export async function respondToActivityChangeProposal");
