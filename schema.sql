@@ -587,6 +587,52 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_83_type_migration
+-- Additive FULL-UI-83 athlete_activity_change_request. Tracks a single
+-- request/response timeline for changing an athlete's declared activity_id
+-- after onboarding - self-service (requested_by='athlete') or coach-proposed
+-- (requested_by='coach', requires the athlete's own confirm/decline before
+-- anything is applied). request_state transitions proposed -> declined |
+-- cancelled | queued | applied, or straight to queued|applied for
+-- self-service. Append-only, "current" = latest row by effective_at,
+-- matching every other record type in this table (e.g.
+-- beta17_coach_relationship's invited/accepted/declined shape).
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp',
+        'athlete_activity_change_request'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
@@ -1201,6 +1247,48 @@ ALTER TABLE product_notifications
         'attendance_event_invited',
         'attendance_event_cancelled',
         'attendance_event_occurrence_changed'
+      )
+    );
+
+-- product_notifications_full_ui_83_type_migration
+-- Additive FULL-UI-83 activity_change_proposed/activity_change_applied -
+-- same DROP/ADD pattern as every migration above. activity_change_proposed
+-- alerts the athlete a coach proposed changing their declared activity and
+-- is awaiting their confirm/decline; activity_change_applied is a courtesy
+-- factual notice once a change (immediate or deferred) actually takes
+-- effect, matching session_completed's existing precedent.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied'
       )
     );
 

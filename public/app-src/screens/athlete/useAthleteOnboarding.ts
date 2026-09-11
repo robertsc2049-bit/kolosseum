@@ -2,8 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import {
+  cancelActivityChange,
   confirmAthleteOnboarding,
+  loadActivityChangeState,
   loadAthleteOnboardingState,
+  requestActivityChange,
+  respondToActivityChangeProposal,
   saveAthleteOnboardingDraft,
   updateAthleteOnboardingPreferences
 } from "../../api/athleteOnboardingClient";
@@ -64,6 +68,9 @@ export type AthleteOnboardingState = {
   busy: boolean;
   editing: boolean;
   validationError: ApiRequestError | null;
+  activityChange: JsonRecord | null;
+  activityChangeBusy: boolean;
+  activityChangeError: string | null;
 };
 
 const initialState: AthleteOnboardingState = {
@@ -73,7 +80,10 @@ const initialState: AthleteOnboardingState = {
   draft: {},
   busy: false,
   editing: false,
-  validationError: null
+  validationError: null,
+  activityChange: null,
+  activityChangeBusy: false,
+  activityChangeError: null
 };
 
 async function csrfToken(): Promise<string> {
@@ -92,7 +102,20 @@ export function useAthleteOnboarding() {
         ?? (serverState.current_effective_declaration as JsonRecord | undefined)?.fields
         ?? {};
       applyAccessibilityPreferences((serverState.current_effective_declaration as JsonRecord | undefined)?.fields as JsonRecord | undefined);
-      setState({ loading: false, unavailableError: null, serverState, draft: { ...draft }, busy: false, editing: false, validationError: null });
+
+      let activityChange: JsonRecord | null = null;
+      if (serverState.onboarding_status === "completed") {
+        try {
+          const activityChangeState = await loadActivityChangeState();
+          activityChange = (activityChangeState.activity_change as JsonRecord | null | undefined) ?? null;
+        }
+        catch { /* non-fatal - the onboarding view itself still loaded fine */ }
+      }
+
+      setState({
+        loading: false, unavailableError: null, serverState, draft: { ...draft }, busy: false,
+        editing: false, validationError: null, activityChange, activityChangeBusy: false, activityChangeError: null
+      });
     }
     catch (error) {
       setState((current) => ({
@@ -177,5 +200,72 @@ export function useAthleteOnboarding() {
     }
   }, [state.busy]);
 
-  return { ...state, currentStage: currentStage(), refresh, move, confirm, startEditing, cancelEditing, savePreferences };
+  const changeActivity = useCallback(async (newActivityId: string, applyAt: "immediately" | "after_current_session") => {
+    if (state.activityChangeBusy) return false;
+    setState((current) => ({ ...current, activityChangeBusy: true, activityChangeError: null }));
+    try {
+      const token = await csrfToken();
+      const result = await requestActivityChange({ new_activity_id: newActivityId, apply_at: applyAt }, token);
+      const requestState = String(result.request_state ?? "");
+      setState((current) => ({
+        ...current,
+        activityChangeBusy: false,
+        activityChange: requestState === "queued" ? result : null
+      }));
+      if (requestState === "applied") await refresh();
+      return true;
+    }
+    catch {
+      setState((current) => ({ ...current, activityChangeBusy: false, activityChangeError: "The activity change could not be requested." }));
+      return false;
+    }
+  }, [state.activityChangeBusy, refresh]);
+
+  const respondToProposal = useCallback(async (
+    requestId: string,
+    response: "confirmed" | "declined",
+    applyAt?: "immediately" | "after_current_session"
+  ) => {
+    if (state.activityChangeBusy) return false;
+    setState((current) => ({ ...current, activityChangeBusy: true, activityChangeError: null }));
+    try {
+      const token = await csrfToken();
+      const result = await respondToActivityChangeProposal(
+        { request_id: requestId, response, ...(applyAt ? { apply_at: applyAt } : {}) },
+        token
+      );
+      const requestState = String(result.request_state ?? "");
+      setState((current) => ({
+        ...current,
+        activityChangeBusy: false,
+        activityChange: requestState === "queued" ? result : null
+      }));
+      if (requestState === "applied") await refresh();
+      return true;
+    }
+    catch {
+      setState((current) => ({ ...current, activityChangeBusy: false, activityChangeError: "The proposal response could not be recorded." }));
+      return false;
+    }
+  }, [state.activityChangeBusy, refresh]);
+
+  const cancelPendingActivityChange = useCallback(async (requestId: string) => {
+    if (state.activityChangeBusy) return false;
+    setState((current) => ({ ...current, activityChangeBusy: true, activityChangeError: null }));
+    try {
+      const token = await csrfToken();
+      await cancelActivityChange(requestId, token);
+      setState((current) => ({ ...current, activityChangeBusy: false, activityChange: null }));
+      return true;
+    }
+    catch {
+      setState((current) => ({ ...current, activityChangeBusy: false, activityChangeError: "The pending change could not be cancelled." }));
+      return false;
+    }
+  }, [state.activityChangeBusy]);
+
+  return {
+    ...state, currentStage: currentStage(), refresh, move, confirm, startEditing, cancelEditing, savePreferences,
+    changeActivity, respondToProposal, cancelPendingActivityChange
+  };
 }

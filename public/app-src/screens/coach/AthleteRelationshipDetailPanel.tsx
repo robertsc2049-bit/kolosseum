@@ -3,6 +3,7 @@ import React from "react";
 import { type JsonRecord } from "../../api/transport";
 import { formatDate, titleCase } from "../../utils/format";
 import { useAthleteRelationshipDetail } from "./useAthleteRelationshipDetail";
+import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 // DEV NOTE: ported from index.html's #athleteRelationshipDetailPanel
 // ("Relationship audit"). See useAthleteRelationshipDetail.ts for the
@@ -43,8 +44,73 @@ function FactRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+// DEV NOTE: FULL-UI-83 coach-proposed activity change - a coach can only
+// ever propose here, never apply directly; the athlete's own confirm
+// action (in AthleteOnboardingPanel.tsx) is what actually amends their
+// declaration. See src/api/athlete_activity_change_service.ts.
+function ActivityChangeSection({
+  currentActivityId,
+  activityChange,
+  proposing,
+  error,
+  onPropose
+}: {
+  currentActivityId: string;
+  activityChange: JsonRecord | null;
+  proposing: boolean;
+  error: string | null;
+  onPropose: (activityId: string) => void;
+}) {
+  const [selected, setSelected] = React.useState(currentActivityId);
+
+  if (activityChange) {
+    const requestState = String(activityChange.request_state ?? "");
+    const newActivityId = String(activityChange.new_activity_id ?? "");
+    if (requestState === "proposed") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Awaiting the athlete's response to change to ${titleCase(newActivityId)}.`}</p>
+        </div>
+      );
+    }
+    if (requestState === "queued") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Will change to ${titleCase(newActivityId)} once the athlete's current session finishes.`}</p>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div className="relationship-activity-change">
+      <label className="field">
+        <span>Propose a new activity</span>
+        <select value={selected} onChange={(event) => setSelected(event.target.value)}>
+          {V1_ACTIVITIES.map((activity) => (
+            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+          ))}
+        </select>
+      </label>
+      {error ? <p role="status" className="muted small error">{error}</p> : null}
+      <button
+        className="button secondary"
+        type="button"
+        disabled={proposing || selected === currentActivityId}
+        onClick={() => onPropose(selected)}
+      >
+        {proposing ? "Proposing…" : "Propose activity change"}
+      </button>
+    </div>
+  );
+}
+
 export function AthleteRelationshipDetailPanel() {
-  const { open, loading, notFound, athleteUserId, displayName, activityId, effectiveState, relationship, transitioning, transitionError, close, transition } = useAthleteRelationshipDetail();
+  const {
+    open, loading, notFound, athleteUserId, displayName, activityId, effectiveState, relationship,
+    transitioning, transitionError, close, transition,
+    activityChange, proposingActivityChange, proposeActivityChangeError, proposeActivityChange
+  } = useAthleteRelationshipDetail();
 
   if (!open) return null;
 
@@ -110,6 +176,16 @@ export function AthleteRelationshipDetailPanel() {
               </button>
             ) : null}
           </div>
+
+          {accepted ? (
+            <ActivityChangeSection
+              currentActivityId={activityId}
+              activityChange={activityChange}
+              proposing={proposingActivityChange}
+              error={proposeActivityChangeError}
+              onPropose={(newActivityId) => proposeActivityChange(newActivityId).catch(() => {})}
+            />
+          ) : null}
         </>
       ) : null}
     </article>

@@ -21,7 +21,9 @@ import {
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
+  getAthleteActivityChangeStateHandler,
   previewEventProgrammeCalendar,
+  proposeAthleteActivityChangeHandler,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 import {
@@ -131,6 +133,16 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/athlete-strength-profile",
   asyncHandler(saveAthleteStrengthProfileHandler)
+);
+
+coachWorkspaceRouter.get(
+  "/athlete-activity-change",
+  asyncHandler(getAthleteActivityChangeStateHandler)
+);
+
+coachWorkspaceRouter.post(
+  "/athlete-activity-change-proposal",
+  asyncHandler(proposeAthleteActivityChangeHandler)
 );
 
 coachWorkspaceRouter.post(

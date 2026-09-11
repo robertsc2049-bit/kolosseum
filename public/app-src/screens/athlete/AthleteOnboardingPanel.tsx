@@ -300,6 +300,110 @@ function HistoricalDeclarations({ items }: { items: JsonRecord[] }) {
   );
 }
 
+// DEV NOTE: FULL-UI-83 self-service/coach-proposed activity change. Applies
+// immediately or defers until the athlete's one active in-progress session
+// finishes - see src/api/athlete_activity_change_service.ts. A coach can
+// only ever propose (AthleteRelationshipDetailPanel.tsx); this is the only
+// place a coach-proposed change actually takes effect, via the athlete's
+// own confirm action.
+function ActivityChangeCard({ api, currentActivityId }: { api: OnboardingApi; currentActivityId: string }) {
+  const { activityChange, activityChangeBusy, activityChangeError, changeActivity, respondToProposal, cancelPendingActivityChange } = api;
+  const [selected, setSelected] = useState(currentActivityId);
+  const [applyAt, setApplyAt] = useState<"immediately" | "after_current_session">("immediately");
+
+  const requestState = String(activityChange?.request_state ?? "");
+
+  if (requestState === "proposed") {
+    const newActivityId = String(activityChange?.new_activity_id ?? "");
+    return (
+      <article className="onboarding-card">
+        <h3>Activity change proposed</h3>
+        <p>{`Your coach proposed changing your activity to ${label(newActivityId)}.`}</p>
+        {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
+        <label className="field">
+          <span>When should this take effect?</span>
+          <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
+            <option value="immediately">Immediately</option>
+            <option value="after_current_session">After my current session finishes</option>
+          </select>
+        </label>
+        <div className="onboarding-actions">
+          <button
+            className="button primary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => respondToProposal(String(activityChange?.request_id ?? ""), "confirmed", applyAt).catch(() => {})}
+          >
+            Confirm
+          </button>
+          <button
+            className="button secondary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => respondToProposal(String(activityChange?.request_id ?? ""), "declined").catch(() => {})}
+          >
+            Decline
+          </button>
+        </div>
+      </article>
+    );
+  }
+
+  if (requestState === "queued") {
+    const newActivityId = String(activityChange?.new_activity_id ?? "");
+    return (
+      <article className="onboarding-card">
+        <h3>Activity change pending</h3>
+        <p>{`Your activity will change to ${label(newActivityId)} once your current session finishes.`}</p>
+        {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
+        <div className="onboarding-actions">
+          <button
+            className="button secondary"
+            type="button"
+            disabled={activityChangeBusy}
+            onClick={() => cancelPendingActivityChange(String(activityChange?.request_id ?? "")).catch(() => {})}
+          >
+            Cancel this change
+          </button>
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article className="onboarding-card">
+      <h3>Change activity</h3>
+      <p>Priorities change - you can move to a different activity at any time.</p>
+      {activityChangeError ? <p className="muted small error">{activityChangeError}</p> : null}
+      <label className="field">
+        <span>New activity</span>
+        <select value={selected} onChange={(event) => setSelected(event.target.value)}>
+          {V1_ACTIVITIES.map((activity) => (
+            <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
+          ))}
+        </select>
+      </label>
+      <label className="field">
+        <span>When should this take effect?</span>
+        <select value={applyAt} onChange={(event) => setApplyAt(event.target.value as "immediately" | "after_current_session")}>
+          <option value="immediately">Immediately</option>
+          <option value="after_current_session">After my current session finishes</option>
+        </select>
+      </label>
+      <div className="onboarding-actions">
+        <button
+          className="button secondary"
+          type="button"
+          disabled={activityChangeBusy || selected === currentActivityId}
+          onClick={() => changeActivity(selected, applyAt).catch(() => {})}
+        >
+          {activityChangeBusy ? "Changing…" : "Change activity"}
+        </button>
+      </div>
+    </article>
+  );
+}
+
 function openWorkspace() {
   sessionStorage.removeItem("kolosseum.athlete_onboarding.reload_required");
   location.assign("/app/#/athlete/today");
@@ -328,6 +432,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         </div>
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
+      <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <article className="onboarding-card">
         <h3>Historical declarations</h3>
         <p>Superseded declarations can't be changed.</p>

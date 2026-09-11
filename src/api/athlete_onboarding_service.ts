@@ -512,3 +512,45 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   }
   finally { client.release(); }
 }
+
+// DEV NOTE: shared primitive for any caller that needs to amend an athlete's
+// declaration outside the plain preferences-editing flow above (e.g.
+// FULL-UI-83's activity-change request/response/deferred-apply state
+// machine in athlete_activity_change_service.ts). Takes an already-open
+// client/transaction - it never manages its own BEGIN/COMMIT, matching
+// effectiveBetaDeclaration()'s own convention - and does not re-verify
+// account state itself; the caller is responsible for whatever
+// authorization/locking its own context requires before calling this.
+export async function amendAthleteDeclaration(
+  client: QueryClient,
+  userId: string,
+  changes: Partial<Pick<Fields, "activity_id" | "instruction_density" | "accessibility_preferences">>,
+  declarationSource: string
+): Promise<Readonly<Json>> {
+  const existing = state(await events(client, userId));
+  const current = record(existing.current_effective_declaration)
+    ? existing.current_effective_declaration : null;
+  if (!current || !record(current.fields)) {
+    throw new AthleteOnboardingError("athlete_onboarding_completion_required", 409);
+  }
+  const previous = validateCompleteAthleteDeclaration(current.fields);
+  const declared = Object.freeze({ ...previous, ...changes });
+  const at = new Date().toISOString();
+  const core = {
+    declaration_id: id("athlete_declaration"),
+    declaration_version: Number(current.declaration_version ?? 1) + 1,
+    supersedes_declaration_id: text(current.declaration_id),
+    effective_at_iso8601: at, fields: clone(declared),
+    product_acknowledgement_version: BETA_VERSION,
+    jurisdiction_acknowledgement_version: JURISDICTION_VERSION,
+    declaration_schema_version: SCHEMA_VERSION,
+    declaration_source: declarationSource, immutable: true,
+    user_declared_factual_state: true, engine_visible: false
+  };
+  // activity_id and instruction_density are the only fields effectiveBetaDeclaration()
+  // projects into the engine-facing phase1 input - see its own call site above for
+  // the identical condition on instruction_density alone.
+  await effectiveBetaDeclaration(client, userId, declared, at);
+  await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
+  return state(await events(client, userId));
+}

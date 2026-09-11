@@ -21,6 +21,13 @@ import {
   saveAthleteOnboardingDraft,
   updateAthleteOnboardingPreferences
 } from "./athlete_onboarding_service.js";
+import {
+  AthleteActivityChangeError,
+  cancelQueuedActivityChange,
+  getAthleteActivityChangeState,
+  requestAthleteActivityChange,
+  respondToActivityChangeProposal
+} from "./athlete_activity_change_service.js";
 
 export const athleteOnboardingRouter = Router();
 
@@ -115,6 +122,52 @@ athleteOnboardingRouter.patch(
   })
 );
 
+athleteOnboardingRouter.get(
+  "/activity-change",
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    const state = await getAthleteActivityChangeState(session.account_row.user_id);
+    return response.status(200).json({ activity_change: state });
+  })
+);
+
+athleteOnboardingRouter.patch(
+  "/activity",
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    const result = await requestAthleteActivityChange(
+      session.account_row.user_id,
+      request.body
+    );
+    return response.status(200).json(result);
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/activity-proposal-response",
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    const result = await respondToActivityChangeProposal(
+      session.account_row.user_id,
+      request.body
+    );
+    return response.status(200).json(result);
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/activity-proposal-cancel",
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    const requestId = String((request.body as Record<string, unknown> | null)?.request_id ?? "");
+    const result = await cancelQueuedActivityChange(session.account_row.user_id, requestId);
+    return response.status(200).json(result);
+  })
+);
+
 athleteOnboardingRouter.use(
   (
     error: unknown,
@@ -127,6 +180,11 @@ athleteOnboardingRouter.use(
         error: error.code,
         field_errors: error.field_errors
       });
+      return;
+    }
+
+    if (error instanceof AthleteActivityChangeError) {
+      response.status(error.status).json({ error: error.code });
       return;
     }
 

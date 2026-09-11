@@ -17,6 +17,17 @@ export function saveAthleteStrengthProfile(input: JsonRecord, csrfToken: string)
   return request("POST", "/coach-workspace/athlete-strength-profile", input, csrfToken);
 }
 
+export function loadAthleteActivityChangeState(athleteUserId: string): Promise<JsonRecord> {
+  return request(
+    "GET",
+    `/coach-workspace/athlete-activity-change?athlete_user_id=${encodeURIComponent(athleteUserId)}`
+  );
+}
+
+export function proposeAthleteActivityChange(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-workspace/athlete-activity-change-proposal", input, csrfToken);
+}
+
 export async function loadTemplateExercises(): Promise<JsonRecord[]> {
   const response = await request("GET", "/templates/exercises");
   return Array.isArray(response.exercises) ? (response.exercises as JsonRecord[]) : [];

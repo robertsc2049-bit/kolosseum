@@ -2578,6 +2578,19 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-top: var(--k-space-4);
 }
 
+.relationship-activity-change {
+  display: flex;
+  flex-direction: column;
+  gap: var(--k-space-3);
+  margin-top: var(--k-space-4);
+  padding-top: var(--k-space-4);
+  border-top: 1px solid var(--border);
+}
+
+.relationship-activity-change .button {
+  align-self: flex-end;
+}
+
 @media (max-width: 920px) {
   .relationship-metric-cards {
     grid-template-columns:

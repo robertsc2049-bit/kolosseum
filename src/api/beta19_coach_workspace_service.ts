@@ -196,7 +196,7 @@ async function requireActiveCoachAccount(
   return profile;
 }
 
-async function requireCoachAthleteAccess(
+export async function requireCoachAthleteAccess(
   coachUserId: string,
   athleteUserId: string
 ): Promise<void> {

@@ -761,6 +761,31 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_activity_change",
+          "label": "Change declared activity - self-service or coach-proposed, immediate or deferred",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_onboarding",
+          "api_routes": [
+            "/account/onboarding/activity-change",
+            "/account/onboarding/activity",
+            "/account/onboarding/activity-proposal-response",
+            "/account/onboarding/activity-proposal-cancel"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_83_athlete_activity_change_surface.test.mjs",
+          "integration_test": "test/full_ui_83_athlete_activity_change_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -1217,6 +1242,29 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
           "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_activity_change_proposal",
+          "label": "Propose a new activity for a connected athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/athlete-activity-change",
+            "/coach-workspace/athlete-activity-change-proposal"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_83_athlete_activity_change_surface.test.mjs",
+          "integration_test": "test/full_ui_83_athlete_activity_change_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -8067,6 +8115,10 @@
     {
       "slice_id": "FULL-UI-82",
       "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-83",
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -9070,6 +9122,18 @@
       "path": "/attendance-events/occurrences/:occurrence_id/rsvp",
       "source": "src/api/attendance_event.routes.ts",
       "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-activity-change",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-activity-change-proposal",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
     }
   ],
   "completion_rules": [

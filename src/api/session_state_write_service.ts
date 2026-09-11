@@ -28,6 +28,7 @@ import {
 } from "@kolosseum/engine/runtime/session_summary.js";
 import { findSubstitutionRegistryEdge, isKnownExerciseRegistryId } from "./session_substitution_registry.js";
 import { convertStrengthValue } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { applyQueuedActivityChangeIfDue } from "./athlete_activity_change_service.js";
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -1336,6 +1337,14 @@ export async function appendRuntimeEventMutation(
          WHERE session_id = $1`,
         [session_id, JSON.stringify(nextSummary), terminalStatus]
       );
+
+      // FULL-UI-83: apply any activity change the athlete or their coach
+      // deferred until this session finished - same transaction, so it
+      // commits atomically with the session reaching its terminal state.
+      // Cheap no-op the overwhelming majority of the time.
+      if (s.beta_subject_user_id) {
+        await applyQueuedActivityChangeIfDue(client, s.beta_subject_user_id, session_id);
+      }
     } else {
       await client.query(
         `UPDATE sessions

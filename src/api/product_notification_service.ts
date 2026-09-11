@@ -52,7 +52,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "marketplace_template_sold",
   "attendance_event_invited",
   "attendance_event_cancelled",
-  "attendance_event_occurrence_changed"
+  "attendance_event_occurrence_changed",
+  "activity_change_proposed",
+  "activity_change_applied"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -831,11 +833,73 @@ async function deriveMarketplaceTemplateSoldNotifications(
   }
 }
 
+// --- Activity change proposed (coach) / applied (self-service or coach-confirmed) ---
+
+async function deriveActivityChangeNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const proposed = await client.query(
+    `
+    SELECT record_id, actor_user_id AS coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'athlete_activity_change_request'
+      AND subject_user_id = $1
+      AND record_payload->>'request_state' = 'proposed'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of proposed.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_proposed",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: {
+        coach_user_id: cleanString(row.coach_user_id),
+        new_activity_id: cleanString(row.record_payload?.new_activity_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+
+  // Only a change that was genuinely deferred (queued_for_session_id set)
+  // warrants a courtesy "this just took effect" notice - an immediate
+  // self-service change is synchronous and already obvious to the athlete
+  // who just requested it.
+  const applied = await client.query(
+    `
+    SELECT record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'athlete_activity_change_request'
+      AND subject_user_id = $1
+      AND record_payload->>'request_state' = 'applied'
+      AND record_payload->>'queued_for_session_id' IS NOT NULL
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of applied.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_applied",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: { new_activity_id: cleanString(row.record_payload?.new_activity_id) },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
 ): Promise<void> {
   await deriveRelationshipNotifications(client, recipientUserId);
+  await deriveActivityChangeNotifications(client, recipientUserId);
   await deriveAssignmentNotifications(client, recipientUserId);
   await deriveEventLinkNotifications(client, recipientUserId);
   await deriveEventCancelledNotifications(client, recipientUserId);

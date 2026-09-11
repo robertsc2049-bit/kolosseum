@@ -36,7 +36,8 @@ type SupportedRecordType =
   | "attendance_event"
   | "attendance_event_occurrence"
   | "attendance_event_invite"
-  | "attendance_event_rsvp";
+  | "attendance_event_rsvp"
+  | "athlete_activity_change_request";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -74,7 +75,8 @@ const supportedRecordTypes =
     "attendance_event",
     "attendance_event_occurrence",
     "attendance_event_invite",
-    "attendance_event_rsvp"
+    "attendance_event_rsvp",
+    "athlete_activity_change_request"
   ]);
 
 function isRecord(
@@ -886,6 +888,37 @@ function recordMetadata(
             record,
             "responded_at_iso8601",
             "attendance_event_rsvp_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "athlete_activity_change_request": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "request_id",
+            "activity_change_request_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "activity_change_request_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "actor_user_id",
+            "activity_change_request_actor_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "effective_at_iso8601",
+            "activity_change_request_effective_at_required"
           ),
         record_sha256: recordSha256
       };
