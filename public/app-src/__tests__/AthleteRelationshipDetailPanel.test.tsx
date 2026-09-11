@@ -33,8 +33,13 @@ function baseRelationshipEntry(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function installMocks(options: { relationships?: Record<string, unknown>[]; transitionFails?: boolean } = {}) {
-  const { relationships = [baseRelationshipEntry()], transitionFails = false } = options;
+function installMocks(options: {
+  relationships?: Record<string, unknown>[];
+  transitionFails?: boolean;
+  activityChange?: Record<string, unknown> | null;
+  onProposeActivityChange?: (body: Record<string, unknown>) => Record<string, unknown>;
+} = {}) {
+  const { relationships = [baseRelationshipEntry()], transitionFails = false, activityChange = null, onProposeActivityChange } = options;
   const calls: Array<{ path: string; init?: RequestInit }> = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -46,6 +51,16 @@ function installMocks(options: { relationships?: Record<string, unknown>[]; tran
     }
     if (path.startsWith("/coach-workspace/relationships")) {
       return jsonResponse({ relationships });
+    }
+    if (path.startsWith("/coach-workspace/athlete-activity-change-proposal")) {
+      const body = JSON.parse(String(init?.body ?? "{}"));
+      const proposal = onProposeActivityChange
+        ? onProposeActivityChange(body)
+        : { request_id: "req_1", requested_by: "coach", new_activity_id: body.activity_id, request_state: "proposed" };
+      return jsonResponse({ ok: true, proposal });
+    }
+    if (path.startsWith("/coach-workspace/athlete-activity-change")) {
+      return jsonResponse({ ok: true, activity_change: activityChange });
     }
     if (path === "/sessions/beta-coach-relationship") {
       if (transitionFails) return jsonResponse({ error: "relationship_input_invalid" }, false, 400);
@@ -200,6 +215,49 @@ test("the close-relationship-audit bridge event (dispatched by openAthleteProfil
   });
 
   assert.equal(screen.queryByText("Jordan Athlete"), null);
+});
+
+test("an accepted athlete shows a propose-activity-change control, and submitting it posts the new activity", async () => {
+  const calls = installMocks();
+  render(<AthleteRelationshipDetailPanel />);
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  await screen.findByText("Propose a new activity");
+  fireEvent.change(screen.getByLabelText("Propose a new activity"), { target: { value: "crossfit" } });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Propose activity change"));
+  });
+
+  const proposeCall = calls.find((entry) => entry.path.startsWith("/coach-workspace/athlete-activity-change-proposal"));
+  assert.ok(proposeCall);
+  const body = JSON.parse(String(proposeCall?.init?.body));
+  assert.equal(body.athlete_user_id, "athlete_1");
+  assert.equal(body.activity_id, "crossfit");
+});
+
+test("an outstanding proposed activity change shows its status instead of the propose control", async () => {
+  installMocks({
+    activityChange: { request_id: "req_1", requested_by: "coach", new_activity_id: "crossfit", request_state: "proposed" }
+  });
+  render(<AthleteRelationshipDetailPanel />);
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  await screen.findByText(/Awaiting the athlete's response to change to Crossfit/iu);
+  assert.equal(screen.queryByText("Propose activity change"), null);
+});
+
+test("a queued activity change shows the deferred-apply status", async () => {
+  installMocks({
+    activityChange: { request_id: "req_2", requested_by: "athlete", new_activity_id: "hyrox", request_state: "queued" }
+  });
+  render(<AthleteRelationshipDetailPanel />);
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  await screen.findByText(/Will change to Hyrox once the athlete's current session finishes/iu);
 });
 
 test("a display name containing markup renders as inert text, never as HTML", async () => {
