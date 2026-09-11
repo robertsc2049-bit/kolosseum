@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { TRAINING_FOCUS_OPTIONS, TrainingFocusCheckboxes } from "../../components/TrainingFocusCheckboxes";
 import {
   accessibilityLabel,
   accessibilityOf,
@@ -36,6 +37,15 @@ function formatDate(value: unknown): string {
 function label(value: unknown): string {
   const text = String(value ?? "").replaceAll("_", " ").trim();
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : "not selected";
+}
+
+function trainingFocusLabel(value: unknown): string {
+  const selected = Array.isArray(value) ? value.map((entry) => String(entry)) : [];
+  if (!selected.length) return "None selected";
+  return TRAINING_FOCUS_OPTIONS
+    .filter((option) => selected.includes(option.id))
+    .map((option) => option.label)
+    .join(", ");
 }
 
 function StatusBanner({ state, hasError, forceKind }: { state: JsonRecord | null; hasError: boolean; forceKind?: string }) {
@@ -88,6 +98,7 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
       <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
       <div className="declaration-fact"><span>Accessibility</span><strong>{accessibilityLabel(fields.accessibility_preferences)}</strong></div>
       <div className="declaration-fact"><span>Instruction density</span><strong>{label(fields.instruction_density)}</strong></div>
+      <div className="declaration-fact"><span>Training focus</span><strong>{trainingFocusLabel(fields.training_focus)}</strong></div>
     </div>
   );
 }
@@ -254,16 +265,19 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
   const { busy, cancelEditing, savePreferences } = api;
   const [accessibility, setAccessibility] = useState<AccessibilityPreferences>(() => accessibilityOf(fields.accessibility_preferences));
   const [density, setDensity] = useState(() => String(fields.instruction_density ?? "standard"));
+  const [trainingFocus, setTrainingFocus] = useState<string[]>(() =>
+    Array.isArray(fields.training_focus) ? fields.training_focus.map((entry) => String(entry)) : []
+  );
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    savePreferences({ accessibility_preferences: accessibility, instruction_density: density });
+    savePreferences({ accessibility_preferences: accessibility, instruction_density: density, training_focus: trainingFocus });
   }
 
   return (
     <form className="onboarding-card" onSubmit={handleSubmit}>
-      <h3>Edit lawful preferences</h3>
-      <p>Only accessibility and instruction-density preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <h3>Edit preferences</h3>
+      <p>Only accessibility, instruction-density and training-focus preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
         <span>Instruction density</span>
@@ -273,6 +287,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
           <option value="detailed">Detailed</option>
         </select>
       </label>
+      <TrainingFocusCheckboxes value={trainingFocus} onChange={setTrainingFocus} />
       <div className="onboarding-actions">
         <button className="button secondary" type="button" onClick={cancelEditing}>Cancel</button>
         <button className="button primary" type="submit" disabled={busy}>Save new declaration</button>
@@ -430,7 +445,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         <p className="onboarding-boundary">This declaration does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
         <div className="onboarding-actions">
           <button className="button primary" type="button" onClick={openWorkspace}>Open training workspace</button>
-          <button className="button secondary" type="button" onClick={startEditing}>Edit accessibility and instruction density</button>
+          <button className="button secondary" type="button" onClick={startEditing}>Edit preferences</button>
         </div>
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}

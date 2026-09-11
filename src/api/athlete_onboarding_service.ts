@@ -33,10 +33,20 @@ export const ATHLETE_JURISDICTIONS = Object.freeze([
 export const ATHLETE_INSTRUCTION_DENSITIES = Object.freeze([
   "minimal", "standard", "detailed"
 ] as const);
+// Same ids/labels as public/app-src/components/ActivityCategoryFilter.tsx's
+// CATEGORIES - a deliberately unrelated, non-persisted sport-picker filter -
+// kept matching purely for consistent language across the app. Training
+// focus is a genuinely persisted, zero-or-more preference with no
+// connection to activity_id/compile at all.
+export const ATHLETE_TRAINING_FOCUS_OPTIONS = Object.freeze([
+  "strength", "body_composition", "conditioning", "strength_and_conditioning",
+  "power", "plyometric"
+] as const);
 
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
-  "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
+  "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density",
+  "training_focus"
 ]);
 const INFERENCE_KEYS = new Set([
   "ability", "ability_score", "readiness", "readiness_score", "safety",
@@ -58,6 +68,7 @@ type Fields = Readonly<{
   jurisdiction_acknowledged?: boolean;
   accessibility_preferences?: Accessibility;
   instruction_density?: string;
+  training_focus?: readonly string[];
 }>;
 type StoredEvent = Readonly<{
   event_id: string;
@@ -152,6 +163,18 @@ export function validateAthleteInstructionDensity(value: unknown): string {
 export function validateAthleteAccessibilityPreferences(value: unknown): Accessibility {
   return parseAccessibilityPreferences(value, fail);
 }
+// Zero or more selections from ATHLETE_TRAINING_FOCUS_OPTIONS - unlike
+// attendance_event_service.ts's weekdays (the closest existing precedent
+// for a persisted string[] tag array), an empty array is a valid,
+// meaningful state here ("no training focus declared"), not an error.
+export function validateAthleteTrainingFocus(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) fail("training_focus", "Choose zero or more training focus areas.");
+  const selected = [...new Set((value as unknown[]).map((entry) => text(entry).toLowerCase()))];
+  if (selected.some((token) => !ATHLETE_TRAINING_FOCUS_OPTIONS.includes(token as typeof ATHLETE_TRAINING_FOCUS_OPTIONS[number]))) {
+    fail("training_focus", "Choose zero or more training focus areas.");
+  }
+  return Object.freeze(selected);
+}
 
 function stage(value: unknown): AthleteOnboardingStage {
   return enumValue(
@@ -187,6 +210,9 @@ function fields(value: unknown, partial: boolean): Fields {
   ), "Acknowledge the selected jurisdiction.");
   add("accessibility_preferences", validateAthleteAccessibilityPreferences, "Choose your accessibility preferences.");
   add("instruction_density", validateAthleteInstructionDensity, "Choose an instruction-density preference.");
+  // Never required, even for a complete declaration - zero selections is a
+  // valid, meaningful state, not an incomplete one.
+  addOptional("training_focus", validateAthleteTrainingFocus);
   return Object.freeze(out) as Fields;
 }
 // activity_id is deliberately never listed here - it's optional and must
@@ -479,12 +505,18 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
 export async function updateAthleteOnboardingPreferences(userId: string, input: unknown): Promise<Readonly<Json>> {
   if (!record(input)) throw new AthleteOnboardingError("athlete_onboarding_preferences_invalid", 422);
   for (const key of Object.keys(input)) {
-    if (key !== "accessibility_preferences" && key !== "instruction_density") {
-      fail(key, "Only accessibility and instruction-density preferences are editable after confirmation.");
+    if (key !== "accessibility_preferences" && key !== "instruction_density" && key !== "training_focus") {
+      fail(key, "Only accessibility, instruction-density and training-focus preferences are editable after confirmation.");
     }
   }
   const accessibility = validateAthleteAccessibilityPreferences(input.accessibility_preferences);
   const density = validateAthleteInstructionDensity(input.instruction_density);
+  // training_focus is optional on this endpoint, unlike the other two - a
+  // caller that doesn't know about it yet (an older client, an existing
+  // integration) must not have it silently reset to empty; only a caller
+  // that actually supplies the key can change it.
+  const trainingFocusProvided = Object.prototype.hasOwnProperty.call(input, "training_focus");
+  const trainingFocusInput = trainingFocusProvided ? validateAthleteTrainingFocus(input.training_focus) : undefined;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -496,13 +528,16 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
       throw new AthleteOnboardingError("athlete_onboarding_completion_required", 409);
     }
     const previous = validateCompleteAthleteDeclaration(current.fields);
+    const trainingFocus = trainingFocusProvided ? trainingFocusInput as readonly string[] : (previous.training_focus ?? []);
     if (stable(previous.accessibility_preferences) === stable(accessibility) &&
-        previous.instruction_density === density) {
+        previous.instruction_density === density &&
+        stable(previous.training_focus ?? []) === stable(trainingFocus)) {
       await client.query("COMMIT");
       return existing;
     }
     const declared = Object.freeze({
-      ...previous, accessibility_preferences: accessibility, instruction_density: density
+      ...previous, accessibility_preferences: accessibility, instruction_density: density,
+      training_focus: trainingFocus
     });
     const at = new Date().toISOString();
     const core = {
