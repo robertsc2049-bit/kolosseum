@@ -12,14 +12,14 @@
     "launch_00_boundary": "docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json",
     "launch_00_boundary_blob_sha": "6098ba42fcf16f2458a871563c67dae3cd7ea236",
     "ui_function_manifest": "product/ui/function_manifest.json",
-    "ui_function_manifest_blob_sha": "0776d9daea73e01f3735c6a947d26261d2279d6a",
+    "ui_function_manifest_blob_sha": "03cd5277f2cd8add371961bf34b38fac53018662",
     "full_ui_gap_report": "docs/product/FULL_UI_GAP_REPORT.md",
     "full_ui_ship_record": "docs/product/FULL_UI_25_SHIP_RECORD.json"
   },
   "closed_world": {
     "enabled": true,
     "expected_product_area_count": 35,
-    "expected_function_count": 341,
+    "expected_function_count": 342,
     "unknown_areas_fail": true,
     "unknown_functions_fail": true,
     "function_overrides": {}

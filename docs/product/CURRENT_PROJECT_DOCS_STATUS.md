@@ -94,7 +94,7 @@ Its deterministic report is:
 
 The current report records:
 
-- implemented: 341
+- implemented: 342
 - partial: 0
 - missing: 0
 - prohibited: 0

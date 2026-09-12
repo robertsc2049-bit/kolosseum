@@ -54,7 +54,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "attendance_event_cancelled",
   "attendance_event_occurrence_changed",
   "activity_change_proposed",
-  "activity_change_applied"
+  "activity_change_applied",
+  "athlete_position_overridden"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -894,12 +895,48 @@ async function deriveActivityChangeNotifications(
   }
 }
 
+// --- Athlete position overridden (coach-team or org-owner direct override,
+// no athlete confirmation - unlike the propose/confirm tier above, this tier
+// previously left the athlete with no signal at all that their declared
+// position had changed) ---
+
+async function deriveAthletePositionOverrideNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT audit_record_id, actor_role, created_at, after_state
+    FROM product_org_audit_records
+    WHERE action_type = 'athlete_position_overridden'
+      AND after_state->>'athlete_user_id' = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_position_overridden",
+      sourceRecordType: "product_org_audit_records",
+      sourceRecordId: cleanString(row.audit_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: {
+        overridden_by_role: cleanString(row.actor_role),
+        new_position: cleanString(row.after_state?.position)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
 ): Promise<void> {
   await deriveRelationshipNotifications(client, recipientUserId);
   await deriveActivityChangeNotifications(client, recipientUserId);
+  await deriveAthletePositionOverrideNotifications(client, recipientUserId);
   await deriveAssignmentNotifications(client, recipientUserId);
   await deriveEventLinkNotifications(client, recipientUserId);
   await deriveEventCancelledNotifications(client, recipientUserId);
