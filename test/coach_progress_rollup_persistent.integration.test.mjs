@@ -110,6 +110,12 @@ async function registerCoach(baseUrl, nonce, label) {
   ), 200, `${label} coach onboarding terms`);
 
   assertStatus(await request(
+    baseUrl, "PATCH", "/account/coach-onboarding/accessibility",
+    { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } },
+    { cookie, csrf }
+  ), 200, `${label} coach onboarding accessibility`);
+
+  assertStatus(await request(
     baseUrl, "POST", "/account/coach-onboarding/complete",
     { completion_confirmed: true },
     { cookie, csrf }
