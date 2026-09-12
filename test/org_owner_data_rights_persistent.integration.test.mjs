@@ -237,7 +237,7 @@ test(
       assert.equal(download.json.ok, true);
       assert.equal(download.json.permission.permission_scope, "own_user_data_only");
       assert.equal(download.json.subject_data.organisations_owned[0].org_id, orgId);
-      assert.equal(download.json.subject_data.org_coach_memberships[0].coach_user_id, coach.userId);
+      assert.equal(download.json.subject_data.org_coach_memberships[0].parties.coach_user_id, coach.userId);
       assert.equal(download.json.subject_data.org_messages_sent[0].body_text, broadcastText);
 
       const statusAfterDownload = await request(baseUrl, "GET", "/org/data-rights/export", undefined, { cookie: owner.cookie });
