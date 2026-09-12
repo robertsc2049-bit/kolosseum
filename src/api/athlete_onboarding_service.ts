@@ -665,24 +665,30 @@ export async function amendAthleteDeclaration(
   return state(await events(client, userId));
 }
 
-// position is deliberately never projected into the phase1/engine record
-// (see effectiveBetaDeclaration above) - coach/org-roster views need a
-// dedicated read of the athlete's own current declaration to see it.
+// position and training_focus are deliberately never projected into the
+// phase1/engine record (see effectiveBetaDeclaration above) - coach/org-
+// roster views need a dedicated read of the athlete's own current
+// declaration to see them.
 export async function getAthleteDeclaredActivityAndPosition(
   userId: string
-): Promise<Readonly<{ activity_id: string | null; position: string | null }>> {
+): Promise<Readonly<{ activity_id: string | null; position: string | null; training_focus: readonly string[] }>> {
   const client = await pool.connect();
   try {
     const existing = state(await events(client, userId));
     const current = record(existing.current_effective_declaration)
       ? existing.current_effective_declaration : null;
     if (!current || !record(current.fields)) {
-      return Object.freeze({ activity_id: null, position: null });
+      return Object.freeze({ activity_id: null, position: null, training_focus: Object.freeze([]) });
     }
     const fieldsValue = current.fields as Json;
+    const trainingFocusRaw = fieldsValue.training_focus;
+    const trainingFocus = Array.isArray(trainingFocusRaw)
+      ? Object.freeze(trainingFocusRaw.filter((entry): entry is string => typeof entry === "string"))
+      : Object.freeze([]);
     return Object.freeze({
       activity_id: text(fieldsValue.activity_id) || null,
-      position: text(fieldsValue.position) || null
+      position: text(fieldsValue.position) || null,
+      training_focus: trainingFocus
     });
   }
   finally { client.release(); }

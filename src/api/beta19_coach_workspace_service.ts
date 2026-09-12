@@ -489,12 +489,15 @@ export async function listCoachAthleteRelationships(
       // along with it.
       let auth = null;
       let declaration = null;
-      // Slice 3 of the sport-declaration redesign - position is never
-      // itself projected into phase1Input below, so it needs its own read
-      // of the athlete's own current declaration.
+      // Slice 3 of the sport-declaration redesign - position (and, since
+      // #1082, training_focus) is never itself projected into phase1Input
+      // below, so it needs its own read of the athlete's own current
+      // declaration.
       let declaredPosition: string | null = null;
+      let declaredTrainingFocus: readonly string[] = [];
       try {
-        [auth, declaration, declaredPosition] =
+        let declared;
+        [auth, declaration, declared] =
           await Promise.all([
             loadLatestBetaProductRecord(
               "beta16_auth",
@@ -506,12 +509,15 @@ export async function listCoachAthleteRelationships(
               athleteUserId,
               athleteUserId
             ),
-            getAthleteDeclaredActivityAndPosition(athleteUserId).then((declared) => declared.position)
+            getAthleteDeclaredActivityAndPosition(athleteUserId)
           ]);
+        declaredPosition = declared.position;
+        declaredTrainingFocus = declared.training_focus;
       }
       catch {
-        // auth/declaration/declaredPosition stay null - handled identically
-        // to a legitimately-absent record by every read below.
+        // auth/declaration/declaredPosition/declaredTrainingFocus stay at
+        // their defaults - handled identically to a legitimately-absent
+        // record by every read below.
       }
 
       const phase1Input =
@@ -553,6 +559,8 @@ export async function listCoachAthleteRelationships(
             : null,
         position:
           declaredPosition,
+        training_focus:
+          declaredTrainingFocus,
         relationship_state:
           expired
             ? "expired"

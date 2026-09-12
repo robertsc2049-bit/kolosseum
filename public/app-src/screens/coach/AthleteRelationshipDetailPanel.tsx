@@ -3,8 +3,16 @@ import React from "react";
 import { type JsonRecord } from "../../api/transport";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { PositionSelect } from "../../components/PositionSelect";
+import { TRAINING_FOCUS_OPTIONS } from "../../components/TrainingFocusCheckboxes";
 import { formatDate, titleCase } from "../../utils/format";
 import { useAthleteRelationshipDetail } from "./useAthleteRelationshipDetail";
+
+// Read-only for the coach - training_focus has no coach-initiated change
+// path (unlike activity_id/position), it is a soft athlete-declared
+// preference the coach just needs visibility into.
+function trainingFocusLabel(id: string): string {
+  return TRAINING_FOCUS_OPTIONS.find((option) => option.id === id)?.label ?? titleCase(id);
+}
 
 // DEV NOTE: ported from index.html's #athleteRelationshipDetailPanel
 // ("Relationship audit"). See useAthleteRelationshipDetail.ts for the
@@ -159,7 +167,7 @@ function PositionChangeSection({
 
 export function AthleteRelationshipDetailPanel() {
   const {
-    open, loading, notFound, athleteUserId, displayName, activityId, position, effectiveState, relationship,
+    open, loading, notFound, athleteUserId, displayName, activityId, position, trainingFocus, effectiveState, relationship,
     transitioning, transitionError, close, transition,
     activityChange, proposingActivityChange, proposeActivityChangeError, proposeActivityChange,
     positionChange, proposingPositionChange, proposePositionChangeError, proposePositionChange
@@ -204,6 +212,10 @@ export function AthleteRelationshipDetailPanel() {
               <FactRow key={label} label={label} value={factValue(label, relationship[key])} />
             ))}
           </dl>
+
+          <p className="muted small">
+            Training focus: {trainingFocus.length > 0 ? trainingFocus.map(trainingFocusLabel).join(", ") : "None declared"}
+          </p>
 
           {transitionError ? <p role="status" className="muted small error">{transitionError}</p> : null}
 
