@@ -48,6 +48,7 @@ export type AthleteRelationshipDetailState = {
   displayName: string;
   activityId: string;
   position: string;
+  trainingFocus: readonly string[];
   effectiveState: EffectiveState;
   relationship: JsonRecord;
   transitioning: boolean;
@@ -68,6 +69,7 @@ const initialState: AthleteRelationshipDetailState = {
   displayName: "",
   activityId: "",
   position: "",
+  trainingFocus: [],
   effectiveState: "unknown",
   relationship: {},
   transitioning: false,
@@ -103,6 +105,7 @@ export function useAthleteRelationshipDetail() {
         displayName: String(entry.display_name ?? athleteUserId),
         activityId: String(entry.activity_id ?? "powerlifting"),
         position: String(entry.position ?? ""),
+        trainingFocus: Array.isArray(entry.training_focus) ? entry.training_focus.map(String) : [],
         effectiveState: relationshipEffectiveState(entry),
         relationship: (entry.relationship as JsonRecord | undefined) ?? {}
       }));

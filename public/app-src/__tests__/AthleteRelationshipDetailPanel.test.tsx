@@ -117,6 +117,26 @@ test("opening for a pending-invitation athlete shows Cancel invitation but not O
   assert.ok(screen.getByText("Cancel invitation"));
 });
 
+test("shows the athlete's declared training focus as a factual, read-only line", async () => {
+  installMocks({ relationships: [baseRelationshipEntry({ training_focus: ["strength", "strength_and_conditioning"] })] });
+  render(<AthleteRelationshipDetailPanel />);
+
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  assert.ok(screen.getByText("Training focus: Strength, Strength & conditioning"));
+});
+
+test("shows a factual 'none declared' line when the athlete declared no training focus", async () => {
+  installMocks();
+  render(<AthleteRelationshipDetailPanel />);
+
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  assert.ok(screen.getByText("Training focus: None declared"));
+});
+
 test("an unknown athlete shows a factual not-found notice", async () => {
   installMocks({ relationships: [] });
   render(<AthleteRelationshipDetailPanel />);
