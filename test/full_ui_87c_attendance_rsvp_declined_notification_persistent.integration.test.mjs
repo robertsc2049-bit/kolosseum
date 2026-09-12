@@ -1,12 +1,16 @@
-// DEV NOTE: Attendance events slice 5 - notification derivation proof.
-// Proves an invited athlete gets exactly one attendance_event_invited
-// notification (never an uninvited athlete), correctly deep-linking to
-// their own attendance view, unread by default; that skipping an
-// occurrence produces exactly one attendance_event_occurrence_changed
-// notification carrying the right occurrence/status; that cancelling a
-// DIFFERENT event produces exactly one attendance_event_cancelled
-// notification without disturbing the first event's own notifications;
-// that mark-read persists and repeated reads never duplicate; and that
+// DEV NOTE: FULL-UI-87 attendance-rsvp-declined notification persistent
+// proof. The symmetric reverse of attendance_events_notifications_
+// persistent.integration.test.mjs's athlete-facing trio: an invited
+// athlete's "not attending" RSVP previously left the organizing coach
+// with zero passive signal - only a manual roster check. Proves: an
+// invited athlete's not_attending RSVP creates exactly one notification
+// for the organizing coach, unread, correctly deep-linking to the
+// coach's own attendance view, carrying the declining athlete/event/
+// occurrence identity as factual payload; an "attending" RSVP from a
+// DIFFERENT athlete on the same occurrence never notifies; a coach not
+// organizing the event never receives it; mark-read persists without
+// duplication; a second, later flip back to not_attending on a
+// different occurrence produces a second independent notification; and
 // everything survives a fresh-process restart. Every step crosses only
 // public HTTP routes.
 
@@ -170,12 +174,12 @@ async function stopFreshServerProcess(server) {
 }
 
 async function registerCoach(baseUrl, nonce, label) {
-  const email = `attendance_notif_${label}_coach_${nonce}@example.com`;
+  const email = `rsvp_notif_${label}_coach_${nonce}@example.com`;
   const result = await request(baseUrl, "POST", "/account/register", {
     actor_type: "coach",
-    display_name: `Attendance Notif ${label} Coach`,
+    display_name: `Rsvp Notif ${label} Coach`,
     email,
-    password: `AttendanceNotif${label}Coach!2026`,
+    password: `RsvpNotif${label}Coach!2026`,
     accepted_terms: true,
     accepted_consent: true,
     accepted_terms_version: "terms_v1",
@@ -187,7 +191,7 @@ async function registerCoach(baseUrl, nonce, label) {
 
   assertStatus(await request(
     baseUrl, "PATCH", "/account/coach-onboarding/profile",
-    { display_name: `Attendance Notif ${label} Coach`, email },
+    { display_name: `Rsvp Notif ${label} Coach`, email },
     { cookie, csrf }
   ), 200, `${label} coach onboarding profile`);
   assertStatus(await request(
@@ -210,12 +214,12 @@ async function registerCoach(baseUrl, nonce, label) {
 }
 
 async function registerAthlete(baseUrl, nonce, label) {
-  const email = `attendance_notif_${label}_athlete_${nonce}@example.com`;
+  const email = `rsvp_notif_${label}_athlete_${nonce}@example.com`;
   const result = await request(baseUrl, "POST", "/account/register", {
     actor_type: "athlete",
-    display_name: `Attendance Notif ${label} Athlete`,
+    display_name: `Rsvp Notif ${label} Athlete`,
     email,
-    password: `AttendanceNotif${label}Athlete!2026`,
+    password: `RsvpNotif${label}Athlete!2026`,
     activity_id: "powerlifting",
     accepted_terms: true,
     accepted_consent: true,
@@ -248,8 +252,14 @@ async function seedRelationship(baseUrl, { relationshipId, coachUserId, athleteU
   assertStatus(result, 201, `seed ${state} relationship ${relationshipId}`);
 }
 
+async function getRsvpDeclinedNotifications(baseUrl, actor) {
+  const result = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: actor.cookie });
+  assertStatus(result, 200, "read notifications");
+  return result.json.notifications.filter((entry) => entry.notification_type === "attendance_rsvp_declined");
+}
+
 test(
-  "Attendance events notifications: invited athlete gets exactly one attendance_event_invited notification (never an uninvited athlete), skipping an occurrence produces attendance_event_occurrence_changed, cancelling a different event produces attendance_event_cancelled without disturbing the first, mark-read persists without duplication, fresh-process restart",
+  "FULL-UI-87 attendance-rsvp-declined notification: an invited athlete's not_attending RSVP notifies the organizing coach, an attending RSVP from another athlete never notifies, a non-organizing coach never receives it, correct deep link/payload, starts unread, mark-read persists without duplication, a second decline on a different occurrence produces a second independent notification, fresh-process restart",
   async (testContext) => {
     const root = repoRoot();
     const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
@@ -286,166 +296,120 @@ test(
     });
 
     server = await listen();
-    const address = server.address();
-    const baseUrl = `http://127.0.0.1:${address.port}`;
+    let address = server.address();
+    let baseUrl = `http://127.0.0.1:${address.port}`;
 
-    const coach = await registerCoach(baseUrl, nonce, "a");
-    coachUserIds.push(coach.userId);
+    const organizer = await registerCoach(baseUrl, nonce, "organizer");
+    coachUserIds.push(organizer.userId);
+    const otherCoach = await registerCoach(baseUrl, nonce, "other");
+    coachUserIds.push(otherCoach.userId);
+
     const athlete1 = await registerAthlete(baseUrl, nonce, "1");
     athleteUserIds.push(athlete1.userId);
-    const athlete2 = await registerAthlete(baseUrl, nonce, "2"); // never invited
+    const athlete2 = await registerAthlete(baseUrl, nonce, "2");
     athleteUserIds.push(athlete2.userId);
 
     await seedRelationship(baseUrl, {
-      relationshipId: `attendance_notif_rel_${nonce}_1`, coachUserId: coach.userId, athleteUserId: athlete1.userId, state: "accepted"
+      relationshipId: `rsvp_rel_${nonce}_1`, coachUserId: organizer.userId, athleteUserId: athlete1.userId, state: "accepted"
     });
     await seedRelationship(baseUrl, {
-      relationshipId: `attendance_notif_rel_${nonce}_2`, coachUserId: coach.userId, athleteUserId: athlete2.userId, state: "accepted"
+      relationshipId: `rsvp_rel_${nonce}_2`, coachUserId: organizer.userId, athleteUserId: athlete2.userId, state: "accepted"
     });
 
     // ============================================================
-    // Event A: a 2-occurrence weekly series, athlete1 invited.
+    // A 2-occurrence weekly series, both athletes invited.
     // ============================================================
-    const eventA = await request(baseUrl, "POST", "/attendance-events", {
-      title: "Event A", location: "Main gym", activity_label: "Powerlifting",
+    const event = await request(baseUrl, "POST", "/attendance-events", {
+      title: "RSVP Notif Event", location: "Main gym", activity_label: "Powerlifting",
       occurrence_date: "2026-09-07", start_time: "09:00", end_time: "10:00",
       recurrence_rule: { frequency: "weekly", interval: 1, weekdays: ["mon"], ends: { type: "after_count", value: 2 } },
-      athlete_user_ids: [athlete1.userId]
-    }, { cookie: coach.cookie, csrf: coach.csrf });
-    assertStatus(eventA, 201, "coach creates event A");
-    const eventAId = eventA.json?.event?.event_id;
-    const [eventAOcc0, eventAOcc1] = eventA.json.occurrences;
+      athlete_user_ids: [athlete1.userId, athlete2.userId]
+    }, { cookie: organizer.cookie, csrf: organizer.csrf });
+    assertStatus(event, 201, "organizer creates the event");
+    const eventId = event.json?.event?.event_id;
+    const [occurrence0, occurrence1] = event.json.occurrences;
 
     // ============================================================
-    // athlete1 sees exactly one attendance_event_invited notification,
-    // unread, deep-linking to their own attendance view. athlete2 (never
-    // invited) sees none.
+    // Before any RSVP, the organizer has zero of these notifications.
     // ============================================================
-    const athlete1Notifications = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete1.cookie });
-    assertStatus(athlete1Notifications, 200, "athlete1 reads own notifications");
-    const invitedNotifications = athlete1Notifications.json.notifications.filter(
-      (entry) => entry.notification_type === "attendance_event_invited"
+    const beforeAny = await getRsvpDeclinedNotifications(baseUrl, organizer);
+    assert.equal(beforeAny.length, 0, "expected no attendance_rsvp_declined notification before any RSVP");
+
+    // ============================================================
+    // athlete2 RSVPs "attending" to occurrence 0 - never notifies.
+    // ============================================================
+    assertStatus(
+      await request(baseUrl, "POST", `/attendance-events/occurrences/${encodeURIComponent(occurrence0.occurrence_id)}/rsvp`, { rsvp_state: "attending" }, { cookie: athlete2.cookie, csrf: athlete2.csrf }),
+      201,
+      "athlete2 RSVPs attending to occurrence 0"
     );
-    assert.equal(invitedNotifications.length, 1, "expected exactly one invited notification for athlete1");
-    const invitedNotification = invitedNotifications[0];
-    assert.equal(invitedNotification.deep_link.route_id, "athlete_attendance_events");
-    assert.equal(invitedNotification.notification_payload.event_id, eventAId);
-    assert.equal(invitedNotification.notification_payload.organizer_user_id, coach.userId);
-    assert.equal(invitedNotification.read_at_iso8601, null, "expected the notification to start unread");
-
-    const athlete2Notifications = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete2.cookie });
-    assertStatus(athlete2Notifications, 200, "athlete2 reads own notifications");
-    assert.equal(
-      athlete2Notifications.json.notifications.some((entry) => entry.notification_type === "attendance_event_invited"),
-      false,
-      "expected the uninvited athlete2 to never receive an invited notification"
-    );
+    const afterAttending = await getRsvpDeclinedNotifications(baseUrl, organizer);
+    assert.equal(afterAttending.length, 0, "an attending RSVP must never notify");
 
     // ============================================================
-    // Marking it read persists, and repeated reads never duplicate the
-    // derived notification.
+    // athlete1 RSVPs "not_attending" to occurrence 0 - the organizer
+    // gets exactly one notification, unread, deep-linking to their own
+    // attendance view, carrying the declining athlete/event/occurrence
+    // identity.
+    // ============================================================
+    assertStatus(
+      await request(baseUrl, "POST", `/attendance-events/occurrences/${encodeURIComponent(occurrence0.occurrence_id)}/rsvp`, { rsvp_state: "not_attending" }, { cookie: athlete1.cookie, csrf: athlete1.csrf }),
+      201,
+      "athlete1 RSVPs not_attending to occurrence 0"
+    );
+
+    const afterFirstDecline = await getRsvpDeclinedNotifications(baseUrl, organizer);
+    assert.equal(afterFirstDecline.length, 1, "expected exactly one notification after athlete1's decline");
+    const firstNotification = afterFirstDecline[0];
+    assert.equal(firstNotification.deep_link.route_id, "coach_attendance_events");
+    assert.equal(firstNotification.target_available, true);
+    assert.equal(firstNotification.notification_payload.athlete_user_id, athlete1.userId);
+    assert.equal(firstNotification.notification_payload.event_id, eventId);
+    assert.equal(firstNotification.notification_payload.occurrence_id, occurrence0.occurrence_id);
+    assert.equal(firstNotification.read_at_iso8601, null, "expected the notification to start unread");
+
+    // A coach not organizing this event never receives it.
+    const otherCoachNotifications = await getRsvpDeclinedNotifications(baseUrl, otherCoach);
+    assert.equal(otherCoachNotifications.length, 0, "expected a non-organizing coach to never receive this notification");
+
+    // ============================================================
+    // Marking it read persists, and repeated reads never duplicate
+    // the derived notification.
     // ============================================================
     const markRead = await request(
-      baseUrl, "POST", `/account/notifications/${encodeURIComponent(invitedNotification.notification_id)}/read`,
-      {}, { cookie: athlete1.cookie, csrf: athlete1.csrf }
+      baseUrl, "POST", `/account/notifications/${encodeURIComponent(firstNotification.notification_id)}/read`, {},
+      { cookie: organizer.cookie, csrf: organizer.csrf }
     );
-    assertStatus(markRead, 200, "athlete1 marks the invited notification read");
+    assertStatus(markRead, 200, "organizer marks the notification read");
 
-    const afterRead = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete1.cookie });
-    const invitedAfterRead = afterRead.json.notifications.filter((entry) => entry.notification_type === "attendance_event_invited");
-    assert.equal(invitedAfterRead.length, 1, "expected still exactly one invited notification after repeated reads");
-    assert.notEqual(invitedAfterRead[0].read_at_iso8601, null, "expected the notification to now be read");
+    const afterMarkRead = await getRsvpDeclinedNotifications(baseUrl, organizer);
+    assert.equal(afterMarkRead.length, 1, "expected still exactly one notification after repeated reads");
+    assert.notEqual(afterMarkRead[0].read_at_iso8601, null, "expected the notification to now be read");
 
     // ============================================================
-    // The coach skips occurrence 1 of event A - athlete1 gets exactly
-    // one attendance_event_occurrence_changed notification, carrying the
-    // right occurrence_id and status.
+    // athlete1 also declines occurrence 1 - a second, independent
+    // notification.
     // ============================================================
     assertStatus(
-      await request(baseUrl, "POST", `/attendance-events/${encodeURIComponent(eventAId)}/occurrences/${encodeURIComponent(eventAOcc1.occurrence_id)}/skip`, {}, { cookie: coach.cookie, csrf: coach.csrf }),
-      200,
-      "coach skips occurrence 1 of event A"
+      await request(baseUrl, "POST", `/attendance-events/occurrences/${encodeURIComponent(occurrence1.occurrence_id)}/rsvp`, { rsvp_state: "not_attending" }, { cookie: athlete1.cookie, csrf: athlete1.csrf }),
+      201,
+      "athlete1 RSVPs not_attending to occurrence 1"
     );
 
-    const afterSkip = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete1.cookie });
-    assertStatus(afterSkip, 200, "athlete1 re-reads notifications after skip");
-    const occurrenceChangedNotifications = afterSkip.json.notifications.filter(
-      (entry) => entry.notification_type === "attendance_event_occurrence_changed"
-    );
-    assert.equal(occurrenceChangedNotifications.length, 1, "expected exactly one occurrence-changed notification");
-    assert.equal(occurrenceChangedNotifications[0].notification_payload.event_id, eventAId);
-    assert.equal(occurrenceChangedNotifications[0].notification_payload.occurrence_id, eventAOcc1.occurrence_id);
-    assert.equal(occurrenceChangedNotifications[0].notification_payload.status, "skipped");
-    assert.equal(occurrenceChangedNotifications[0].deep_link.route_id, "athlete_attendance_events");
-
-    // Occurrence 0 was never skipped/rescheduled - no notification for it.
-    assert.equal(
-      occurrenceChangedNotifications.some((entry) => entry.notification_payload.occurrence_id === eventAOcc0.occurrence_id),
-      false,
-      "occurrence 0 was never changed, so it must never generate its own notification"
-    );
+    const afterSecondDecline = await getRsvpDeclinedNotifications(baseUrl, organizer);
+    assert.equal(afterSecondDecline.length, 2, "expected a second, independent notification for the second decline");
+    const secondNotification = afterSecondDecline.find((entry) => entry.notification_payload.occurrence_id === occurrence1.occurrence_id);
+    assert.ok(secondNotification, "expected a notification for occurrence 1's decline");
+    assert.equal(secondNotification.read_at_iso8601, null, "expected the second notification to start unread independently");
 
     // ============================================================
-    // Event B: a separate single-occurrence event, athlete1 invited.
-    // Cancelling it produces exactly one attendance_event_cancelled
-    // notification, and never touches event A's own notifications.
-    // ============================================================
-    const eventB = await request(baseUrl, "POST", "/attendance-events", {
-      title: "Event B", location: "Main gym", activity_label: "Powerlifting",
-      occurrence_date: "2026-09-10", start_time: "09:00", end_time: "10:00",
-      athlete_user_ids: [athlete1.userId]
-    }, { cookie: coach.cookie, csrf: coach.csrf });
-    assertStatus(eventB, 201, "coach creates event B");
-    const eventBId = eventB.json?.event?.event_id;
-
-    assertStatus(
-      await request(baseUrl, "POST", `/attendance-events/${encodeURIComponent(eventBId)}/cancel`, {}, { cookie: coach.cookie, csrf: coach.csrf }),
-      200,
-      "coach cancels event B"
-    );
-
-    const afterCancel = await request(baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete1.cookie });
-    assertStatus(afterCancel, 200, "athlete1 re-reads notifications after event B is cancelled");
-    const cancelledNotifications = afterCancel.json.notifications.filter(
-      (entry) => entry.notification_type === "attendance_event_cancelled"
-    );
-    assert.equal(cancelledNotifications.length, 1, "expected exactly one cancelled notification, for event B only");
-    assert.equal(cancelledNotifications[0].notification_payload.event_id, eventBId);
-    assert.equal(cancelledNotifications[0].notification_payload.title, "Event B");
-
-    // Event A's own invited/occurrence-changed notifications are
-    // completely unaffected by event B's cancellation - athlete1 is
-    // invited to BOTH events, so there are two "invited" notifications
-    // in total (one per event); this checks event A's own one
-    // specifically, not the total count across every event.
-    const invitedNotificationsAfterCancel = afterCancel.json.notifications.filter((entry) => entry.notification_type === "attendance_event_invited");
-    assert.equal(invitedNotificationsAfterCancel.length, 2, "expected one invited notification per event athlete1 is invited to");
-    const stillInvitedToA = invitedNotificationsAfterCancel.find((entry) => entry.notification_payload.event_id === eventAId);
-    assert.ok(stillInvitedToA, "event A's own invited notification must survive event B's cancellation");
-    const stillOccurrenceChanged = afterCancel.json.notifications.filter((entry) => entry.notification_type === "attendance_event_occurrence_changed");
-    assert.equal(stillOccurrenceChanged.length, 1);
-
-    // Event B's own occurrence was never individually skipped/
-    // rescheduled - only the whole event was cancelled - so it must
-    // never also generate a redundant occurrence-changed notification.
-    assert.equal(
-      stillOccurrenceChanged.some((entry) => entry.notification_payload.event_id === eventBId),
-      false,
-      "a cancelled event's untouched occurrence must never also fire its own occurrence-changed notification"
-    );
-
-    // ============================================================
-    // Fresh-process restart: every notification reconstructs
+    // Fresh-process restart: both notifications reconstruct
     // identically from Postgres, since nothing is cached in memory.
     // ============================================================
     restarted = await startFreshServerProcess(root, process.env);
-    const restartedNotifications = await request(restarted.baseUrl, "GET", "/account/notifications", undefined, { cookie: athlete1.cookie });
-    assertStatus(restartedNotifications, 200, "athlete1's notifications after fresh-process restart");
-    const restartedInvited = restartedNotifications.json.notifications.filter((entry) => entry.notification_type === "attendance_event_invited");
-    assert.equal(restartedInvited.length, 2, "one invited notification per event athlete1 is invited to");
-    assert.equal(restartedNotifications.json.notifications.filter((entry) => entry.notification_type === "attendance_event_occurrence_changed").length, 1);
-    assert.equal(restartedNotifications.json.notifications.filter((entry) => entry.notification_type === "attendance_event_cancelled").length, 1);
-    const restartedInvitedToA = restartedInvited.find((entry) => entry.notification_payload.event_id === eventAId);
-    assert.notEqual(restartedInvitedToA.read_at_iso8601, null, "event A's invited notification, marked read earlier, must survive the restart as read");
+    const restartedNotifications = await getRsvpDeclinedNotifications(restarted.baseUrl, organizer);
+    assert.equal(restartedNotifications.length, 2);
+    assert.ok(restartedNotifications.some((entry) => entry.notification_payload.occurrence_id === occurrence0.occurrence_id && entry.read_at_iso8601 !== null));
+    assert.ok(restartedNotifications.some((entry) => entry.notification_payload.occurrence_id === occurrence1.occurrence_id && entry.read_at_iso8601 === null));
   }
 );
