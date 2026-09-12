@@ -5215,6 +5215,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_attendance_rsvp_declined",
+          "label": "Notify the organizing coach when an invited athlete RSVPs not attending to one of their attendance events, deep-linking to the coach's own attendance view",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_87_attendance_rsvp_declined_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_87c_attendance_rsvp_declined_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8270,6 +8292,10 @@
     },
     {
       "slice_id": "FULL-UI-86",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-87",
       "state": "implemented"
     }
   ],
