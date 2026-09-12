@@ -42,6 +42,27 @@ export async function resolveCoachOrgMembershipAction(membershipId: string, acti
   return request("POST", `/coach-workspace/org-memberships/${encodeURIComponent(membershipId)}/${action}`, {}, csrfToken);
 }
 
+// Slice 3 of the sport-declaration redesign - team-coach direct position
+// override. Distinct from loadCoachOrgRoster above: that lists fellow
+// COACHES in the org, this lists the org's ATHLETES (via
+// resolveOrgActiveCoachAcceptedAthletes), enriched with each one's own
+// declared activity/position.
+export async function loadTeamAthleteRoster(orgId: string): Promise<JsonRecord[]> {
+  const response = await request("GET", `/coach-workspace/organisations/${encodeURIComponent(orgId)}/athlete-roster`);
+  return Array.isArray(response.roster) ? (response.roster as JsonRecord[]) : [];
+}
+
+export async function overrideTeamAthletePosition(
+  orgId: string, athleteUserId: string, position: string, csrfToken: string
+): Promise<JsonRecord> {
+  return request(
+    "POST",
+    `/coach-workspace/organisations/${encodeURIComponent(orgId)}/team-athletes/${encodeURIComponent(athleteUserId)}/position-override`,
+    { position },
+    csrfToken
+  );
+}
+
 export async function loadAthleteOrgContextMine(): Promise<JsonRecord[]> {
   const response = await request("GET", "/coach-workspace/org-context/mine").catch(() => ({ contexts: [] }));
   return Array.isArray(response.contexts) ? (response.contexts as JsonRecord[]) : [];

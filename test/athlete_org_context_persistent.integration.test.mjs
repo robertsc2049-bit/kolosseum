@@ -344,7 +344,7 @@ test(
     // individual-mode org with coachB as an ACTIVE member.
     // ============================================================
     const sharedOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Athlete Org Ctx Shared Team", visibility_mode: "shared"
+      org_name: "Athlete Org Ctx Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(sharedOrg, 201, "create shared-mode org");
     const sharedOrgId = sharedOrg.json?.organisation?.org_id;
@@ -357,7 +357,7 @@ test(
     await acceptOrgInvite(baseUrl, coachA, inviteA.json?.membership?.membership_id, `accept_${nonce}_a`);
 
     const individualOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Athlete Org Ctx Individual Gym", visibility_mode: "individual"
+      org_name: "Athlete Org Ctx Individual Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(individualOrg, 201, "create individual-mode org");
     const individualOrgId = individualOrg.json?.organisation?.org_id;

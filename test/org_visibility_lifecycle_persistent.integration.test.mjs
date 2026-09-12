@@ -333,7 +333,7 @@ test(
     // Invalid visibility_mode is rejected outright at creation.
     // ============================================================
     const invalidModeOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Vis Invalid Mode", visibility_mode: "everyone"
+      org_name: "Org Vis Invalid Mode", activity_id: "powerlifting", visibility_mode: "everyone"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(invalidModeOrg, 400, "invalid visibility_mode is rejected");
     assert.equal(invalidModeOrg.json?.error, "org_roster_visibility_mode_invalid");
@@ -342,7 +342,7 @@ test(
     // Create an "individual"-mode org, invite+accept coachA and coachB.
     // ============================================================
     const individualOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Vis Individual Gym", visibility_mode: "individual"
+      org_name: "Org Vis Individual Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(individualOrg, 201, "create individual-mode org");
     assert.equal(individualOrg.json?.organisation?.visibility_mode, "individual");
@@ -444,7 +444,7 @@ test(
     // full roster - athlete identity IS present here, by design.
     // ============================================================
     const sharedOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Vis Shared Team", visibility_mode: "shared"
+      org_name: "Org Vis Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(sharedOrg, 201, "create shared-mode org");
     assert.equal(sharedOrg.json?.organisation?.visibility_mode, "shared");

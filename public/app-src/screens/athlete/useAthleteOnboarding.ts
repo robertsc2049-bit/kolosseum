@@ -71,6 +71,7 @@ export type AthleteOnboardingState = {
   activityChange: JsonRecord | null;
   activityChangeBusy: boolean;
   activityChangeError: string | null;
+  positionChange: JsonRecord | null;
 };
 
 const initialState: AthleteOnboardingState = {
@@ -83,7 +84,8 @@ const initialState: AthleteOnboardingState = {
   validationError: null,
   activityChange: null,
   activityChangeBusy: false,
-  activityChangeError: null
+  activityChangeError: null,
+  positionChange: null
 };
 
 async function csrfToken(): Promise<string> {
@@ -104,17 +106,20 @@ export function useAthleteOnboarding() {
       applyAccessibilityPreferences((serverState.current_effective_declaration as JsonRecord | undefined)?.fields as JsonRecord | undefined);
 
       let activityChange: JsonRecord | null = null;
+      let positionChange: JsonRecord | null = null;
       if (serverState.onboarding_status === "completed") {
         try {
           const activityChangeState = await loadActivityChangeState();
           activityChange = (activityChangeState.activity_change as JsonRecord | null | undefined) ?? null;
+          positionChange = (activityChangeState.position_change as JsonRecord | null | undefined) ?? null;
         }
         catch { /* non-fatal - the onboarding view itself still loaded fine */ }
       }
 
       setState({
         loading: false, unavailableError: null, serverState, draft: { ...draft }, busy: false,
-        editing: false, validationError: null, activityChange, activityChangeBusy: false, activityChangeError: null
+        editing: false, validationError: null, activityChange, activityChangeBusy: false, activityChangeError: null,
+        positionChange
       });
     }
     catch (error) {
@@ -221,6 +226,10 @@ export function useAthleteOnboarding() {
     }
   }, [state.activityChangeBusy, refresh]);
 
+  // Both activity-change and position-change proposals flow through the
+  // same request_id-keyed respond/cancel endpoints (athlete_activity_change_
+  // service.ts is kind-agnostic here) - the returned record's own
+  // change_kind says which of the two pending-change slots to update.
   const respondToProposal = useCallback(async (
     requestId: string,
     response: "confirmed" | "declined",
@@ -235,10 +244,12 @@ export function useAthleteOnboarding() {
         token
       );
       const requestState = String(result.request_state ?? "");
+      const isPosition = String(result.change_kind ?? "activity") === "position";
       setState((current) => ({
         ...current,
         activityChangeBusy: false,
-        activityChange: requestState === "queued" ? result : null
+        activityChange: !isPosition ? (requestState === "queued" ? result : null) : current.activityChange,
+        positionChange: isPosition ? (requestState === "queued" ? result : null) : current.positionChange
       }));
       if (requestState === "applied") await refresh();
       return true;
@@ -249,13 +260,18 @@ export function useAthleteOnboarding() {
     }
   }, [state.activityChangeBusy, refresh]);
 
-  const cancelPendingActivityChange = useCallback(async (requestId: string) => {
+  const cancelPendingActivityChange = useCallback(async (requestId: string, kind: "activity" | "position" = "activity") => {
     if (state.activityChangeBusy) return false;
     setState((current) => ({ ...current, activityChangeBusy: true, activityChangeError: null }));
     try {
       const token = await csrfToken();
       await cancelActivityChange(requestId, token);
-      setState((current) => ({ ...current, activityChangeBusy: false, activityChange: null }));
+      setState((current) => ({
+        ...current,
+        activityChangeBusy: false,
+        activityChange: kind === "activity" ? null : current.activityChange,
+        positionChange: kind === "position" ? null : current.positionChange
+      }));
       return true;
     }
     catch {

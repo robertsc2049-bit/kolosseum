@@ -112,6 +112,7 @@ async function registerCoach(baseUrl, nonce, label) {
 async function createOrg(baseUrl, owner, name, visibilityMode) {
   const result = await request(baseUrl, "POST", "/org/organisations", {
     org_name: name,
+    activity_id: "powerlifting",
     visibility_mode: visibilityMode
   }, { cookie: owner.cookie, csrf: owner.csrf });
   assertStatus(result, 201, `create ${visibilityMode} organisation`);

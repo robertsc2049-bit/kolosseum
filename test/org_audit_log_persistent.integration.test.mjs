@@ -261,7 +261,7 @@ test(
     // this route existed, this fact was permanently write-only.
     // ============================================================
     const createdOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Audit Gym", visibility_mode: "individual"
+      org_name: "Org Audit Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(createdOrg, 201, "create org");
     const orgId = createdOrg.json?.organisation?.org_id;
@@ -343,7 +343,7 @@ test(
     // A freshly created org for the unrelated owner has zero audit records
     // of its own until they act - the empty-state path.
     const otherOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Org Audit Other Gym", visibility_mode: "individual"
+      org_name: "Org Audit Other Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: otherOwner.cookie, csrf: otherOwner.csrf });
     assertStatus(otherOrg, 201, "create unrelated org");
     const otherOrgId = otherOrg.json?.organisation?.org_id;

@@ -22,6 +22,7 @@ import {
   resolveStrengthReferenceLoad
 } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -488,8 +489,12 @@ export async function listCoachAthleteRelationships(
       // along with it.
       let auth = null;
       let declaration = null;
+      // Slice 3 of the sport-declaration redesign - position is never
+      // itself projected into phase1Input below, so it needs its own read
+      // of the athlete's own current declaration.
+      let declaredPosition: string | null = null;
       try {
-        [auth, declaration] =
+        [auth, declaration, declaredPosition] =
           await Promise.all([
             loadLatestBetaProductRecord(
               "beta16_auth",
@@ -500,12 +505,13 @@ export async function listCoachAthleteRelationships(
               "beta16_phase1_declaration",
               athleteUserId,
               athleteUserId
-            )
+            ),
+            getAthleteDeclaredActivityAndPosition(athleteUserId).then((declared) => declared.position)
           ]);
       }
       catch {
-        // auth/declaration stay null - handled identically to a
-        // legitimately-absent record by every read below.
+        // auth/declaration/declaredPosition stay null - handled identically
+        // to a legitimately-absent record by every read below.
       }
 
       const phase1Input =
@@ -545,6 +551,8 @@ export async function listCoachAthleteRelationships(
           supportedActivities.has(activityId)
             ? activityId
             : null,
+        position:
+          declaredPosition,
         relationship_state:
           expired
             ? "expired"

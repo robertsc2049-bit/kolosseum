@@ -14,6 +14,7 @@ import {
   type Response
 } from "express";
 import { MulterError } from "multer";
+import { rateLimit } from "express-rate-limit";
 
 import { authenticatedCoach } from "./coach_session_auth.js";
 import {
@@ -37,6 +38,12 @@ import {
   sendAttachmentFile,
   validateStagedUpload
 } from "./message_attachment_storage.js";
+import {
+  CoachTeamPositionOverrideError,
+  listOrgAthleteRosterForCoach,
+  overrideAthletePositionForCoach
+} from "./coach_team_position_override_service.js";
+import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
 
 export const coachOrgMembershipRouter = Router();
 
@@ -83,6 +90,42 @@ coachOrgMembershipRouter.get(
     const coachUserId = await authenticatedCoach(request, false);
     const roster = await listOrganisationRosterForCoach(coachUserId, String(request.params.org_id));
     return response.status(200).json({ ok: true, roster });
+  })
+);
+
+// DEV NOTE: rate-limited (unlike this file's older neighbours) because
+// CodeQL's js/missing-rate-limiting query flags newly-added authorising
+// routes - mirrors coach_workspace.routes.ts's own athleteActivityChangeRateLimit.
+const teamPositionOverrideRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Slice 3 of the sport-declaration redesign - a coach's own team roster,
+// enriched with each athlete's declared activity/position, for the new
+// team-override screen.
+coachOrgMembershipRouter.get(
+  "/organisations/:org_id/athlete-roster",
+  teamPositionOverrideRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const roster = await listOrgAthleteRosterForCoach(coachUserId, request.params.org_id);
+    return response.status(200).json({ ok: true, roster });
+  })
+);
+
+coachOrgMembershipRouter.post(
+  "/organisations/:org_id/team-athletes/:athlete_user_id/position-override",
+  teamPositionOverrideRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    const result = await overrideAthletePositionForCoach(coachUserId, request.params.org_id, {
+      athlete_user_id: request.params.athlete_user_id,
+      position: request.body?.position
+    });
+    return response.status(200).json({ ok: true, ...result });
   })
 );
 
@@ -163,8 +206,15 @@ coachOrgMembershipRouter.get(
 // the same way, for the same reason.
 coachOrgMembershipRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof OrgRosterError || error instanceof OrgCoachMessagingError || error instanceof MessageAttachmentError) {
+    if (
+      error instanceof OrgRosterError || error instanceof OrgCoachMessagingError ||
+      error instanceof MessageAttachmentError || error instanceof CoachTeamPositionOverrideError
+    ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof AthleteOnboardingError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.field_errors });
       return;
     }
     if (error instanceof MulterError) {

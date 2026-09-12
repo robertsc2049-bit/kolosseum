@@ -3,8 +3,10 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import {
   loadAthleteActivityChangeState,
+  loadAthletePositionChangeState,
   loadCoachRelationships,
   proposeAthleteActivityChange,
+  proposeAthletePositionChange,
   upsertCoachRelationship
 } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
@@ -45,6 +47,7 @@ export type AthleteRelationshipDetailState = {
   athleteUserId: string;
   displayName: string;
   activityId: string;
+  position: string;
   effectiveState: EffectiveState;
   relationship: JsonRecord;
   transitioning: boolean;
@@ -52,6 +55,9 @@ export type AthleteRelationshipDetailState = {
   activityChange: JsonRecord | null;
   proposingActivityChange: boolean;
   proposeActivityChangeError: string | null;
+  positionChange: JsonRecord | null;
+  proposingPositionChange: boolean;
+  proposePositionChangeError: string | null;
 };
 
 const initialState: AthleteRelationshipDetailState = {
@@ -61,13 +67,17 @@ const initialState: AthleteRelationshipDetailState = {
   athleteUserId: "",
   displayName: "",
   activityId: "",
+  position: "",
   effectiveState: "unknown",
   relationship: {},
   transitioning: false,
   transitionError: null,
   activityChange: null,
   proposingActivityChange: false,
-  proposeActivityChangeError: null
+  proposeActivityChangeError: null,
+  positionChange: null,
+  proposingPositionChange: false,
+  proposePositionChangeError: null
 };
 
 export function useAthleteRelationshipDetail() {
@@ -92,6 +102,7 @@ export function useAthleteRelationshipDetail() {
         notFound: false,
         displayName: String(entry.display_name ?? athleteUserId),
         activityId: String(entry.activity_id ?? "powerlifting"),
+        position: String(entry.position ?? ""),
         effectiveState: relationshipEffectiveState(entry),
         relationship: (entry.relationship as JsonRecord | undefined) ?? {}
       }));
@@ -101,6 +112,15 @@ export function useAthleteRelationshipDetail() {
           setState((current) => ({
             ...current,
             activityChange: (result.activity_change as JsonRecord | null | undefined) ?? null
+          }));
+        })
+        .catch(() => {});
+
+      loadAthletePositionChangeState(athleteUserId)
+        .then((result) => {
+          setState((current) => ({
+            ...current,
+            positionChange: (result.position_change as JsonRecord | null | undefined) ?? null
           }));
         })
         .catch(() => {});
@@ -198,5 +218,33 @@ export function useAthleteRelationshipDetail() {
     }
   }, [state.athleteUserId]);
 
-  return { ...state, close, transition, proposeActivityChange };
+  const proposePositionChange = useCallback(async (newPosition: string) => {
+    setState((current) => ({ ...current, proposingPositionChange: true, proposePositionChangeError: null }));
+    try {
+      const account = await loadAccountDetail();
+      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+
+      const result = await proposeAthletePositionChange(
+        { athlete_user_id: state.athleteUserId, position: newPosition },
+        csrfToken
+      );
+
+      setState((current) => ({
+        ...current,
+        proposingPositionChange: false,
+        positionChange: (result.proposal as JsonRecord | undefined) ?? null
+      }));
+      return true;
+    }
+    catch {
+      setState((current) => ({
+        ...current,
+        proposingPositionChange: false,
+        proposePositionChangeError: "The position change could not be proposed."
+      }));
+      return false;
+    }
+  }, [state.athleteUserId]);
+
+  return { ...state, close, transition, proposeActivityChange, proposePositionChange };
 }

@@ -25,6 +25,7 @@ import {
   AthleteActivityChangeError,
   cancelQueuedActivityChange,
   getAthleteActivityChangeState,
+  getAthletePositionChangeState,
   requestAthleteActivityChange,
   respondToActivityChangeProposal
 } from "./athlete_activity_change_service.js";
@@ -126,8 +127,11 @@ athleteOnboardingRouter.get(
   "/activity-change",
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
-    const state = await getAthleteActivityChangeState(session.account_row.user_id);
-    return response.status(200).json({ activity_change: state });
+    const [activityChange, positionChange] = await Promise.all([
+      getAthleteActivityChangeState(session.account_row.user_id),
+      getAthletePositionChangeState(session.account_row.user_id)
+    ]);
+    return response.status(200).json({ activity_change: activityChange, position_change: positionChange });
   })
 );
 

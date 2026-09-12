@@ -1637,6 +1637,22 @@ CREATE TABLE IF NOT EXISTS product_organisations (
     CHECK (
       visibility_mode IN ('individual', 'shared')
     ),
+  -- Slice 3 of the sport-declaration redesign - purely informational team
+  -- sport, independent of any athlete's own declared activity/position.
+  -- Nullable/no-default/no-backfill (mirrors seat_limit's own pattern
+  -- above, not visibility_mode's): existing/pre-migration orgs simply have
+  -- no declared sport; "required" is enforced at the application level for
+  -- new org creation only. The literal list is hand-synced with
+  -- V1_ACTIVITY_IDS (shared/v1-boundary/v1ActivityRegistry.mjs) - SQL
+  -- can't reference the JS constant, same limitation visibility_mode's own
+  -- CHECK already lives with.
+  activity_id   TEXT
+    CHECK (
+      activity_id IS NULL OR activity_id IN (
+        'powerlifting', 'general_strength', 'rugby_union',
+        'strongman', 'hyrox', 'crossfit'
+      )
+    ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -1675,6 +1691,30 @@ BEGIN
     ALTER TABLE product_organisations
       ADD CONSTRAINT product_organisations_visibility_mode_check
       CHECK (visibility_mode IN ('individual', 'shared'));
+  END IF;
+END;
+$$;
+
+-- Migration for environments that already applied the product_organisations
+-- shape from before slice 3 of the sport-declaration redesign (no
+-- activity_id column).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'product_organisations'
+      AND column_name = 'activity_id'
+  ) THEN
+    ALTER TABLE product_organisations ADD COLUMN activity_id TEXT;
+    ALTER TABLE product_organisations
+      ADD CONSTRAINT product_organisations_activity_id_check
+      CHECK (
+        activity_id IS NULL OR activity_id IN (
+          'powerlifting', 'general_strength', 'rugby_union',
+          'strongman', 'hyrox', 'crossfit'
+        )
+      );
   END IF;
 END;
 $$;
@@ -1771,7 +1811,8 @@ CREATE TABLE IF NOT EXISTS product_org_audit_records (
         'coach_membership_activated',
         'coach_membership_removed',
         'coach_membership_left',
-        'seat_plan_changed'
+        'seat_plan_changed',
+        'athlete_position_overridden'
       )
     ),
   before_state     JSONB NOT NULL
@@ -1847,7 +1888,40 @@ BEGIN
           'coach_membership_activated',
           'coach_membership_removed',
           'coach_membership_left',
-          'seat_plan_changed'
+          'seat_plan_changed',
+          'athlete_position_overridden'
+        )
+      );
+  END IF;
+END;
+$$;
+
+-- Migration for environments that already applied product_org_audit_records
+-- before slice 3 of the sport-declaration redesign (action_type enum
+-- missing 'athlete_position_overridden'). Runs unconditionally (the block
+-- above only fires once, the first time the actor_role column is added) so
+-- every subsequent schema apply keeps the constraint's value list current.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_org_audit_records'
+      AND constraint_name = 'product_org_audit_records_action_type_check'
+  ) THEN
+    ALTER TABLE product_org_audit_records
+      DROP CONSTRAINT product_org_audit_records_action_type_check;
+    ALTER TABLE product_org_audit_records
+      ADD CONSTRAINT product_org_audit_records_action_type_check
+      CHECK (
+        action_type IN (
+          'org_created',
+          'coach_invited',
+          'coach_membership_activated',
+          'coach_membership_removed',
+          'coach_membership_left',
+          'seat_plan_changed',
+          'athlete_position_overridden'
         )
       );
   END IF;

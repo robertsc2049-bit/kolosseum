@@ -77,8 +77,12 @@ test("amendAthleteDeclaration reuses the same declaration-amend mechanics as the
 });
 
 test("a fresh top-level request supersedes any still-pending proposed or queued request for that athlete", () => {
-  assert.match(service, /async function supersedeAnyPendingRequest/u);
-  assert.match(service, /if \(state !== "queued" && state !== "proposed"\) return;/u);
+  // Slice 3 of the sport-declaration redesign generalized this with a
+  // changeKind filter (COALESCE(record_payload->>'change_kind', 'activity'))
+  // so an activity-change and a position-change can be pending
+  // independently - see athlete_activity_change_service.ts's own DEV NOTE.
+  assert.match(service, /async function supersedeAnyPendingRequestOfKind/u);
+  assert.match(service, /if \(requestState !== "queued" && requestState !== "proposed"\) return;/u);
 });
 
 test("the deferred-apply hook is wired inside session_state_write_service.ts's own terminal-status transaction", () => {
@@ -91,9 +95,14 @@ test("the deferred-apply hook is wired inside session_state_write_service.ts's o
 });
 
 test("the deferred-apply hook is safe to call unconditionally - no-ops when nothing is queued for that session", () => {
-  const start = service.indexOf("export async function applyQueuedActivityChangeIfDue");
+  // Slice 3 of the sport-declaration redesign split the per-session-kind
+  // check into its own private helper (applyQueuedChangeOfKindIfDue),
+  // called once per change_kind from the still-exported
+  // applyQueuedActivityChangeIfDue - see its own DEV NOTE.
+  const start = service.indexOf("async function applyQueuedChangeOfKindIfDue");
   const body = service.slice(start, start + 1200);
   assert.match(body, /if \(!record\(queued\)\) return;/u);
+  assert.match(service, /export async function applyQueuedActivityChangeIfDue/u);
 });
 
 test("notifications: activity_change_proposed and activity_change_applied are derived lazily, matching the existing relationship-notification pattern", () => {

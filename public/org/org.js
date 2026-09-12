@@ -36,6 +36,39 @@ const state = {
   lastBroadcastId: null
 };
 
+// Slice 3 of the sport-declaration redesign - org-owner direct position
+// override, for athletes already visible on this owner's own
+// shared-visibility roster. Hand-synced with ATHLETE_POSITIONS_BY_ACTIVITY
+// (src/api/athlete_onboarding_service.ts) and PositionSelect.tsx's own
+// POSITION_OPTIONS_BY_ACTIVITY - this file shares no module with the React
+// bundle, matching its own established convention.
+const POSITION_OPTIONS_BY_ACTIVITY = {
+  rugby_union: [
+    ["prop", "Prop"], ["hooker", "Hooker"], ["lock", "Lock"], ["flanker", "Flanker"],
+    ["number8", "Number 8"], ["scrum_half", "Scrum-half"], ["fly_half", "Fly-half"],
+    ["centre", "Centre"], ["wing", "Wing"], ["fullback", "Fullback"]
+  ],
+  powerlifting: [["athlete", "Athlete"]],
+  general_strength: [["athlete", "Athlete"]],
+  strongman: [["athlete", "Athlete"]],
+  hyrox: [["athlete", "Athlete"]],
+  crossfit: [["athlete", "Athlete"]]
+};
+
+function positionSelectHtml(activityId, currentPosition, athleteUserId) {
+  const options = POSITION_OPTIONS_BY_ACTIVITY[activityId] || [];
+  if (options.length === 0) return "";
+  return `
+    <select data-position-select="${escapeHtml(athleteUserId)}">
+      <option value="">Choose</option>
+      ${options.map(([id, optionLabel]) => `
+        <option value="${escapeHtml(id)}" ${id === currentPosition ? "selected" : ""}>${escapeHtml(optionLabel)}</option>
+      `).join("")}
+    </select>
+    <button type="button" class="button secondary small-button" data-position-override="${escapeHtml(athleteUserId)}">Update position</button>
+  `;
+}
+
 function el(id) {
   return document.getElementById(id);
 }
@@ -342,15 +375,48 @@ function renderVisibility(visibility, coachNamesById) {
     <article class="record-card">
       <div>
         <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
-        <p>${coach.athletes.length === 0 ? "No athletes yet." : coach.athletes.map((athlete) => `
-          ${escapeHtml(athlete.display_name)} (${escapeHtml(athlete.email || "no email")}) - ${escapeHtml(relationshipStateLabel(athlete.relationship_state))}
-        `).join("<br />")}</p>
+        ${coach.athletes.length === 0 ? "<p>No athletes yet.</p>" : coach.athletes.map((athlete) => `
+          <div class="record-row">
+            <p>
+              ${escapeHtml(athlete.display_name)} (${escapeHtml(athlete.email || "no email")}) - ${escapeHtml(relationshipStateLabel(athlete.relationship_state))}
+              ${athlete.activity_id ? ` · ${escapeHtml(String(athlete.activity_id).replaceAll("_", " "))}` : " · No activity declared"}
+            </p>
+            ${athlete.activity_id ? positionSelectHtml(athlete.activity_id, athlete.position, athlete.athlete_user_id) : ""}
+          </div>
+        `).join("")}
       </div>
       <div class="record-meta">
         <span class="badge ${coach.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(coach.membership_status)}</span>
       </div>
     </article>
   `).join("");
+
+  for (const button of container.querySelectorAll("[data-position-override]")) {
+    button.addEventListener("click", () => {
+      const athleteUserId = button.getAttribute("data-position-override");
+      const select = container.querySelector(`[data-position-select="${CSS.escape(athleteUserId)}"]`);
+      const position = select ? select.value : "";
+      if (!position) return;
+      updateAthletePosition(athleteUserId, position).catch(console.error);
+    });
+  }
+}
+
+async function updateAthletePosition(athleteUserId, position) {
+  el("orgVisibilityError").hidden = true;
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athletes/${encodeURIComponent(athleteUserId)}/position-override`,
+      { position }
+    );
+    await refreshVisibility();
+  }
+  catch (error) {
+    el("orgVisibilityError").hidden = false;
+    el("orgVisibilityError").textContent = "Could not update the athlete's position.";
+    console.error(error);
+  }
 }
 
 async function refreshVisibility() {
@@ -1497,6 +1563,7 @@ async function createOrganisation(event) {
   try {
     await api("POST", "/org/organisations", {
       org_name: el("orgCreateName").value,
+      activity_id: el("orgCreateActivityId").value,
       visibility_mode: el("orgCreateVisibilityMode").value
     });
     el("orgCreateForm").reset();
@@ -1506,7 +1573,9 @@ async function createOrganisation(event) {
     el("orgCreateError").hidden = false;
     el("orgCreateError").textContent = error.message === "org_roster_org_name_required"
       ? "Enter an organisation name."
-      : "Could not create the organisation.";
+      : error.message === "org_roster_activity_required" || error.message === "org_roster_activity_invalid"
+        ? "Choose the organisation's sport."
+        : "Could not create the organisation.";
     console.error(error);
   }
 }

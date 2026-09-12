@@ -258,7 +258,7 @@ test(
     // Create the organisation, then set an explicit small seat plan so
     // this test is deterministic regardless of any env-var default.
     // ============================================================
-    const created = await request(baseUrl, "POST", "/org/organisations", { org_name: "Org Billing Test Gym" }, {
+    const created = await request(baseUrl, "POST", "/org/organisations", { org_name: "Org Billing Test Gym", activity_id: "powerlifting" }, {
       cookie: owner.cookie, csrf: owner.csrf
     });
     assertStatus(created, 201, "create organisation");

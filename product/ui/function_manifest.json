@@ -811,6 +811,31 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_position_change",
+          "label": "Declare or change position - self-service (immediate) or coach-proposed (immediate or deferred)",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_onboarding",
+          "api_routes": [
+            "/account/onboarding/preferences",
+            "/account/onboarding/activity-change",
+            "/account/onboarding/activity-proposal-response",
+            "/account/onboarding/activity-proposal-cancel"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -1290,6 +1315,29 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_83_athlete_activity_change_surface.test.mjs",
           "integration_test": "test/full_ui_83_athlete_activity_change_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_position_change_proposal",
+          "label": "Propose a new position for a connected athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/athlete-position-change",
+            "/coach-workspace/athlete-position-change-proposal"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -6383,6 +6431,51 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "coach_team_position_override",
+          "label": "Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/coach-workspace/organisations/:org_id/athlete-roster",
+            "/coach-workspace/organisations/:org_id/team-athletes/:athlete_user_id/position-override"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_position_override",
+          "label": "Org owner directly overrides the position of an athlete already visible on their own shared-visibility roster",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/athletes/:athlete_user_id/position-override"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8148,6 +8241,10 @@
     {
       "slice_id": "FULL-UI-84",
       "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-85",
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -9161,6 +9258,18 @@
     {
       "method": "POST",
       "path": "/coach-workspace/athlete-activity-change-proposal",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-position-change",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-position-change-proposal",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "relationships"
     }

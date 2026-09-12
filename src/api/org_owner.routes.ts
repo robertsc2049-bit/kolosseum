@@ -92,6 +92,11 @@ import {
   rescheduleGymWideAttendanceOccurrenceForOwner,
   skipGymWideAttendanceOccurrenceForOwner
 } from "./attendance_event_gym_roster_service.js";
+import {
+  OrgOwnerPositionOverrideError,
+  overrideAthletePositionForOrgOwner
+} from "./org_owner_position_override_service.js";
+import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -174,7 +179,12 @@ orgOwnerRouter.post(
   "/organisations",
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
-    const result = await createOrganisation(user_id, request.body?.org_name, request.body?.visibility_mode);
+    const result = await createOrganisation(
+      user_id,
+      request.body?.org_name,
+      request.body?.activity_id,
+      request.body?.visibility_mode
+    );
     return response.status(201).json({ ok: true, organisation: result.organisation });
   })
 );
@@ -623,6 +633,32 @@ orgOwnerRouter.get(
   })
 );
 
+// Slice 3 of the sport-declaration redesign - the one deliberate, narrowly
+// scoped exception to this router's own documented boundary that an org
+// owner has no schema path to any athlete-scoped data: direct position
+// override for an athlete already visible on the owner's own
+// shared-visibility roster. See org_owner_position_override_service.ts's
+// own DEV NOTE for the full authorization chain.
+const orgOwnerPositionOverrideRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/athletes/:athlete_user_id/position-override",
+  orgOwnerPositionOverrideRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await overrideAthletePositionForOrgOwner(user_id, request.params.org_id, {
+      athlete_user_id: request.params.athlete_user_id,
+      position: request.body?.position
+    });
+    return response.status(200).json({ ok: true, ...result });
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
 // OrgCoachMessagingError/OrgAthleteMessagingError/OrgBroadcastMessagingError/
 // MessageAttachmentError/AttendanceEventGymRosterError/AttendanceEventError
@@ -644,9 +680,14 @@ orgOwnerRouter.use(
       error instanceof OrgBroadcastMessagingError ||
       error instanceof MessageAttachmentError ||
       error instanceof AttendanceEventGymRosterError ||
-      error instanceof AttendanceEventError
+      error instanceof AttendanceEventError ||
+      error instanceof OrgOwnerPositionOverrideError
     ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof AthleteOnboardingError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.field_errors });
       return;
     }
     if (error instanceof MulterError) {

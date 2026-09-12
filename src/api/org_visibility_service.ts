@@ -40,6 +40,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { loadLatestBetaProductRecord } from "./beta_product_record_store.js";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -277,11 +278,28 @@ async function fullRosterForOrg(
             // absent record by the fallbacks below.
           }
 
+          // Slice 3 of the sport-declaration redesign - the team-coach and
+          // org-owner override screens both need each athlete's own
+          // declared activity/position on the roster view. Never itself
+          // projected into the phase1/engine record, so this is a
+          // dedicated read of the athlete's own current declaration.
+          // Same never-take-down-the-whole-roster fallback as the auth
+          // read above.
+          let declared: { activity_id: string | null; position: string | null } = { activity_id: null, position: null };
+          try {
+            declared = await getAthleteDeclaredActivityAndPosition(relationship.athlete_user_id);
+          }
+          catch {
+            // declared stays at the null defaults.
+          }
+
           return Object.freeze({
             athlete_user_id: relationship.athlete_user_id,
             display_name: cleanString(auth?.display_name) || relationship.athlete_user_id,
             email: cleanString(auth?.email) || null,
-            relationship_state: relationship.relationship_state
+            relationship_state: relationship.relationship_state,
+            activity_id: declared.activity_id,
+            position: declared.position
           });
         })
       );

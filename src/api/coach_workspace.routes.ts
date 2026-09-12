@@ -23,8 +23,10 @@ import {
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
   getAthleteActivityChangeStateHandler,
+  getAthletePositionChangeStateHandler,
   previewEventProgrammeCalendar,
   proposeAthleteActivityChangeHandler,
+  proposeAthletePositionChangeHandler,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 import {
@@ -157,6 +159,18 @@ coachWorkspaceRouter.post(
   "/athlete-activity-change-proposal",
   athleteActivityChangeRateLimit,
   asyncHandler(proposeAthleteActivityChangeHandler)
+);
+
+coachWorkspaceRouter.get(
+  "/athlete-position-change",
+  athleteActivityChangeRateLimit,
+  asyncHandler(getAthletePositionChangeStateHandler)
+);
+
+coachWorkspaceRouter.post(
+  "/athlete-position-change-proposal",
+  athleteActivityChangeRateLimit,
+  asyncHandler(proposeAthletePositionChangeHandler)
 );
 
 coachWorkspaceRouter.post(
