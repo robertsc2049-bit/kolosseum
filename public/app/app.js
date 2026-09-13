@@ -25,7 +25,6 @@ const DEFAULT_STATE = Object.freeze({
   coachRelationships: [],
   coachAssignments: [],
   coachEvents: [],
-  standaloneEventLibrary: [],
   templateEventBindingStatus: null,
   athleteToday: null,
   coachTemplates: [],
@@ -123,9 +122,6 @@ const elements = {
   templateBuilderValidationList: document.getElementById("templateBuilderValidationList"),
   templateBuilderTitle: document.getElementById("templateBuilderTitle"),
   templateIdentityRoot: document.getElementById("template-identity-root"),
-  templateEventBindingSelect: document.getElementById("templateEventBindingSelect"),
-  bindTemplateEventButton: document.getElementById("bindTemplateEventButton"),
-  templateEventBindingStatus: document.getElementById("templateEventBindingStatus"),
   templateEventEnabled: document.getElementById("templateEventEnabled"),
   templateEventFields: document.getElementById("templateEventFields"),
   templateEventFieldsRoot: document.getElementById("template-event-fields-root"),
@@ -4004,123 +4000,33 @@ function updateTemplateEventField(control) {
   saveState();
 }
 
-// FULL-UI-12C: when a template is bound to a standalone event, that event
-// remains the single event-date truth. The typed fields below become a
-// read-only display of the bound event's own facts - they are never a
-// second, independently-editable copy of the date. Only
-// bindSelectedEventToTemplate() (an explicit lawful action) may change what
-// the template is bound to or pull in a newer event version.
-function renderEventBindingPicker() {
-  const draft = state.templateDraft;
-  if (!draft) return;
-
-  const bound = Boolean(draft.bound_event_id);
-
-  // Preserve whatever the coach has currently picked in the dropdown (which
-  // may not be bound yet) across a re-render triggered by their own
-  // selection - only a real bind/rebind or a fresh library load should move
-  // the selection.
-  const previousValue = elements.templateEventBindingSelect.value;
-
-  const options = ['<option value="">— Type event details manually —</option>']
-    .concat(
-      state.standaloneEventLibrary.map((event) => {
-        const label = `${event.event_plan?.event_name ?? event.event_id} · ${formatDate(event.event_plan?.event_date)}`;
-        return `<option value="${escapeHtml(event.event_id)}">${escapeHtml(label)}</option>`;
-      })
-    );
-
-  if (bound && !state.standaloneEventLibrary.some((event) => event.event_id === draft.bound_event_id)) {
-    const boundName = draft.event_plan?.event_name || draft.bound_event_id;
-    options.push(`<option value="${escapeHtml(draft.bound_event_id)}">${escapeHtml(boundName)} (bound)</option>`);
-  }
-
-  elements.templateEventBindingSelect.innerHTML = options.join("");
-
-  const availableValues = new Set(Array.from(elements.templateEventBindingSelect.options).map((option) => option.value));
-  elements.templateEventBindingSelect.value = bound
-    ? draft.bound_event_id
-    : (availableValues.has(previousValue) ? previousValue : "");
-  elements.templateEventEnabled.disabled = bound;
-
-  const status = state.templateEventBindingStatus;
-  const selectedForBind = elements.templateEventBindingSelect.value;
-
-  if (!bound) {
-    elements.bindTemplateEventButton.textContent = "Bind event";
-    elements.bindTemplateEventButton.disabled = !selectedForBind;
-    elements.templateEventBindingStatus.hidden = true;
-    return;
-  }
-
-  elements.templateEventBindingStatus.hidden = false;
-
-  if (!status || status.event_id !== draft.bound_event_id) {
-    elements.bindTemplateEventButton.textContent = "Rebind event";
-    elements.bindTemplateEventButton.disabled = true;
-    elements.templateEventBindingStatus.className = "assignment-requirements neutral";
-    elements.templateEventBindingStatus.textContent = "Checking the bound event's current state…";
-    return;
-  }
-
-  if (!status.accessible) {
-    elements.bindTemplateEventButton.textContent = "Bind a different event";
-    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
-    elements.templateEventBindingStatus.className = "assignment-requirements warning";
-    elements.templateEventBindingStatus.textContent = "This event is no longer accessible. Select a different event to continue.";
-    return;
-  }
-
-  if (status.event_status === "cancelled") {
-    elements.bindTemplateEventButton.textContent = "Rebind event";
-    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
-    elements.templateEventBindingStatus.className = "assignment-requirements warning";
-    elements.templateEventBindingStatus.textContent = "The bound event has been cancelled. Activation is blocked until you rebind to another event.";
-    return;
-  }
-
-  if (status.event_status === "archived") {
-    elements.bindTemplateEventButton.textContent = "Rebind event";
-    elements.bindTemplateEventButton.disabled = !selectedForBind || selectedForBind === draft.bound_event_id;
-    elements.templateEventBindingStatus.className = "assignment-requirements warning";
-    elements.templateEventBindingStatus.textContent = "The bound event has been archived. Activation is blocked until you rebind to another event.";
-    return;
-  }
-
-  if (!status.is_current) {
-    elements.bindTemplateEventButton.textContent = "Rebind to latest version";
-    elements.bindTemplateEventButton.disabled = false;
-    elements.templateEventBindingStatus.className = "assignment-requirements warning";
-    elements.templateEventBindingStatus.textContent = "This event has a newer version. The programme still shows the date and details bound earlier - rebind to pull in the latest version.";
-    return;
-  }
-
-  elements.bindTemplateEventButton.textContent = "Bound";
-  elements.bindTemplateEventButton.disabled = true;
-  elements.templateEventBindingStatus.className = "assignment-requirements complete";
-  elements.templateEventBindingStatus.textContent = "This programme is bound to the current version of this event.";
-}
-
-// DEV NOTE: FULL-UI-05B the event-plan detail fields (name/type/
-// programme start date/event date/location/timezone/notes) moved to
-// React - see CoachProgrammeEventFields.tsx, mounted at
-// #template-event-fields-root, reusing the identity-fields slice's
-// delegated-listener-on-a-wrapper technique (see
-// updateTemplateEventField()'s own DEV NOTE below). Everything else this
-// function does - the binding picker, the enabled/hidden toggle, the
-// countdown/allocation summary display, the calendar-date mutation this
-// function still applies to draft.blocks[]/weeks[] - stays legacy; the
-// event-binding picker and the calendar math/mutation are a deeper
-// entanglement (render-triggered state mutation, real interactive
-// picker state) than a clean render-only port could easily separate out
-// in this slice.
+// DEV NOTE: FULL-UI-05B/FULL-UI-12C the event-plan detail fields (name/
+// type/programme start date/event date/location/timezone/notes) and the
+// event-binding picker (select/bind-button/status banner, formerly
+// renderEventBindingPicker() here) both moved to React - see
+// CoachProgrammeEventFields.tsx (#template-event-fields-root) and
+// CoachProgrammeEventBindingPicker.tsx (#template-event-binding-root).
+// The binding picker's own data comes from an independent fetch in
+// useCoachProgrammeEventBinding.ts (GET /coach-workspace/events/library,
+// GET /templates/:id/event-binding) - state.templateEventBindingStatus
+// below is a SEPARATE legacy-owned copy of the same binding-status GET,
+// kept because this function's own activation-gating logic (bottom of
+// this function) still reads it. bindSelectedEventToTemplate() (the
+// actual bind mutation) also stays legacy, unchanged, now reached via a
+// kolosseum:bind-template-event bridge event the React button dispatches
+// instead of a direct click listener. Everything else this function does
+// - the enabled/hidden toggle, the countdown/allocation summary display,
+// the calendar-date mutation this function still applies to
+// draft.blocks[]/weeks[] - stays legacy; the calendar math/mutation is a
+// deeper entanglement (render-triggered state mutation) than a clean
+// render-only port could easily separate out in this slice.
 function renderEventCompiler() {
   const draft = state.templateDraft;
   if (!draft) return;
 
-  renderEventBindingPicker();
-
   const bound = Boolean(draft.bound_event_id);
+  elements.templateEventEnabled.disabled = bound;
+
   const enabled = Boolean(draft.event_plan);
   elements.templateEventEnabled.checked = enabled;
   elements.templateEventFields.hidden = !enabled;
@@ -4199,26 +4105,6 @@ function renderEventCompiler() {
     bindingBlocksActivation;
 }
 
-async function loadStandaloneEventLibraryForBuilder() {
-  if (state.role !== "coach") return [];
-
-  try {
-    const response = await api("GET", "/coach-workspace/events/library?status=active");
-    state.standaloneEventLibrary = Array.isArray(response.events) ? response.events : [];
-  }
-  catch {
-    // The event library is a convenience picker; a load failure should not
-    // block the rest of the builder from working.
-    state.standaloneEventLibrary = [];
-  }
-
-  if (state.templateDraft) {
-    renderEventBindingPicker();
-  }
-
-  return state.standaloneEventLibrary;
-}
-
 async function loadTemplateEventBindingStatusForDraft() {
   const draft = state.templateDraft;
   if (!draft?.template_id || !draft?.bound_event_id) {
@@ -4243,11 +4129,10 @@ async function loadTemplateEventBindingStatusForDraft() {
   return state.templateEventBindingStatus;
 }
 
-async function bindSelectedEventToTemplate() {
+async function bindSelectedEventToTemplate(eventId) {
   const draft = state.templateDraft;
   if (!draft) return;
 
-  const eventId = elements.templateEventBindingSelect.value;
   if (!eventId) return;
 
   showBusy("Binding to the selected event…");
@@ -5007,7 +4892,6 @@ function openTemplateBuilder(draft, options = {}) {
   saveState();
   rerenderTemplateBuilder();
 
-  loadStandaloneEventLibraryForBuilder();
   loadTemplateEventBindingStatusForDraft();
 
   if (
@@ -6304,12 +6188,9 @@ elements.fitFinalBlockButton.addEventListener("click", () => {
   }
 });
 
-elements.templateEventBindingSelect.addEventListener("change", () => {
-  renderEventBindingPicker();
-});
-
-elements.bindTemplateEventButton.addEventListener("click", () => {
-  bindSelectedEventToTemplate().catch(handleError);
+document.addEventListener("kolosseum:bind-template-event", (event) => {
+  const eventId = event.detail?.event_id;
+  if (eventId) bindSelectedEventToTemplate(eventId).catch(handleError);
 });
 
 elements.templateBlocks.addEventListener("input", (event) => {
