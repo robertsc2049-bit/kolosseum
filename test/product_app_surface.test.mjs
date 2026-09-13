@@ -51,17 +51,17 @@ test("product application contains bounded athlete and coach workspaces", () => 
 test("athlete session view exposes a lazily-loaded, cached exercise how-to disclosure", () => {
   // DEV NOTE: the athlete session view itself (including this disclosure)
   // is React now - see AthleteSessionExecutionPanel.tsx - so its markup
-  // and toggle handler are checked there. app.js's exerciseContentCache/
-  // loadExerciseHowto/renderExerciseHowto stay - the coach's template-
-  // builder info panel still calls them directly.
+  // and toggle handler are checked there. The coach's template-builder
+  // info panel is React too now (useExerciseHowto.ts) - app.js has no
+  // exercise-howto code left at all.
   const sessionPanel = fs.readFileSync(
     path.join(root, "public", "app-src", "screens", "athlete", "AthleteSessionExecutionPanel.tsx"),
     "utf8"
   );
   assert.match(sessionPanel, /className="exercise-howto"/u);
   assert.match(sessionPanel, /summary>How to perform this exercise</u);
-  assert.match(js, /const exerciseContentCache = new Map\(\)/u);
   assert.match(sessionPanel, /onToggle=\{\(event\) => \{/u);
+  assert.doesNotMatch(js, /exerciseContentCache/u);
 });
 
 test("normal product surface does not expose diagnostic output panels", () => {

@@ -1335,100 +1335,6 @@ document.addEventListener("kolosseum:athlete-session-mutated", (event) => {
   if (shouldRefreshHistory) refreshHistory({ quiet: true }).catch(handleError);
 });
 
-// DEV NOTE: exerciseContentCache/exerciseReferenceMediaCache and
-// referenceMediaMarkup()/renderExerciseHowto()/loadExerciseHowto() below
-// stay legacy - the coach template builder's own exercise-preview panel
-// (search for "loadExerciseHowto(exerciseId, panel, false)") still calls
-// this trio with respectDensity=false to always show full instructional
-// content regardless of any athlete's accessibility preference. The
-// athlete Session view's own how-to display moved to React (see
-// AthleteSessionExecutionPanel.tsx's ExerciseHowto/ExerciseHowtoBody,
-// which fetch the same /exercises/:id/content and /reference-media routes
-// independently with their own cache).
-const exerciseContentCache = new Map();
-const exerciseReferenceMediaCache = new Map();
-
-function referenceMediaMarkup(referenceMedia) {
-  if (!referenceMedia?.video_url) return "";
-  return `
-    <p class="exercise-howto-heading">Reference video</p>
-    <a class="exercise-reference-media-link" href="${escapeHtml(referenceMedia.video_url)}" target="_blank" rel="noopener noreferrer">
-      ${referenceMedia.thumbnail_url ? `<img class="exercise-reference-media-thumbnail" src="${escapeHtml(referenceMedia.thumbnail_url)}" alt="Reference video thumbnail" loading="lazy" />` : ""}
-      <span>Watch reference video</span>
-    </a>
-  `;
-}
-
-function renderExerciseHowto(container, content, referenceMedia, respectDensity = true) {
-  const detailedSteps = Array.isArray(content?.instruction?.detailed) ? content.instruction.detailed : [];
-  // The athlete's declared instruction-density onboarding preference (applied
-  // to <html> by athlete_onboarding_ui.js's applyAccessibilityPreferences)
-  // controls how much written detail the athlete's own session view shows:
-  // "minimal" keeps steps only, "standard" adds coaching cues, "detailed"
-  // adds common faults too. It is an athlete-only declared preference, so
-  // the coach's template-builder call site passes respectDensity=false and
-  // always sees full content regardless of any athlete's setting.
-  const density = respectDensity ? (document.documentElement.dataset.instructionDensity || "standard") : "detailed";
-  const cues = density !== "minimal" && Array.isArray(content?.coaching_cues) ? content.coaching_cues : [];
-  const faults = density === "detailed" && Array.isArray(content?.common_faults) ? content.common_faults : [];
-  const referenceMediaHtml = referenceMediaMarkup(referenceMedia);
-
-  if (!detailedSteps.length && !cues.length && !faults.length && !referenceMediaHtml) {
-    container.innerHTML = '<p class="muted">No written instructions are available for this exercise yet.</p>';
-    return;
-  }
-
-  container.innerHTML = `
-    ${detailedSteps.length ? `
-      <ol class="exercise-howto-steps">
-        ${detailedSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
-      </ol>
-    ` : ""}
-    ${cues.length ? `
-      <p class="exercise-howto-heading">Coaching cues</p>
-      <ul class="exercise-howto-list">
-        ${cues.map((cue) => `<li>${escapeHtml(cue)}</li>`).join("")}
-      </ul>
-    ` : ""}
-    ${faults.length ? `
-      <p class="exercise-howto-heading">Common faults</p>
-      <ul class="exercise-howto-list">
-        ${faults.map((fault) => `<li>${escapeHtml(fault)}</li>`).join("")}
-      </ul>
-    ` : ""}
-    ${referenceMediaHtml}
-  `;
-}
-
-async function loadExerciseHowto(exerciseId, container, respectDensity = true) {
-  if (!exerciseId || !container) return;
-
-  if (exerciseContentCache.has(exerciseId) && exerciseReferenceMediaCache.has(exerciseId)) {
-    renderExerciseHowto(container, exerciseContentCache.get(exerciseId), exerciseReferenceMediaCache.get(exerciseId), respectDensity);
-    return;
-  }
-
-  container.innerHTML = '<p class="muted">Loading…</p>';
-
-  try {
-    const [content, referenceMediaResult] = await Promise.all([
-      exerciseContentCache.has(exerciseId)
-        ? Promise.resolve(exerciseContentCache.get(exerciseId))
-        : api("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`),
-      exerciseReferenceMediaCache.has(exerciseId)
-        ? Promise.resolve(exerciseReferenceMediaCache.get(exerciseId))
-        : api("GET", `/exercises/${encodeURIComponent(exerciseId)}/reference-media`).catch(() => null)
-    ]);
-    exerciseContentCache.set(exerciseId, content);
-    const referenceMedia = referenceMediaResult?.reference_media ?? null;
-    exerciseReferenceMediaCache.set(exerciseId, referenceMedia);
-    renderExerciseHowto(container, content, referenceMedia, respectDensity);
-  }
-  catch (error) {
-    container.innerHTML = '<p class="muted">Instructions could not be loaded right now.</p>';
-  }
-}
-
 // DEV NOTE: FULL-UI-15C session execution rendering/action-panel/rest-
 // timer logic (hideAllActionPanels/openSkipReasonPanel family/
 // confirmSkipWithReason family/renderSubstitutionResult/checkSubstitution/
@@ -5211,28 +5117,6 @@ function ungroupWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex) {
   rerenderTemplateBuilder();
 }
 
-function toggleTemplateWorkItemInfo(button, blockIndex, weekIndex, sessionIndex, workItemIndex) {
-  const panel = button.closest(".template-work-item")?.querySelector(".template-work-item-info");
-  if (!panel) return;
-
-  if (!panel.hidden) {
-    panel.hidden = true;
-    return;
-  }
-
-  const workItem = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex]?.work_items[workItemIndex];
-  const exerciseId = String(workItem?.exercise_id ?? "").trim();
-
-  panel.hidden = false;
-
-  if (!exerciseId) {
-    panel.innerHTML = '<p class="muted">Select an exercise to view instructions.</p>';
-    return;
-  }
-
-  loadExerciseHowto(exerciseId, panel, false);
-}
-
 function templatePayloadFromDraft() {
   const draft = state.templateDraft;
   if (!draft) throw new Error("No programme is open.");
@@ -6236,9 +6120,6 @@ elements.templateBlocks.addEventListener("click", (event) => {
   }
   else if (action.classList.contains("move-template-work-item")) {
     moveTemplateWorkItem(blockIndex, weekIndex, sessionIndex, workItemIndex, direction);
-  }
-  else if (action.classList.contains("template-work-item-info-toggle")) {
-    toggleTemplateWorkItemInfo(action, blockIndex, weekIndex, sessionIndex, workItemIndex);
   }
   else if (action.classList.contains("group-with-next-work-item")) {
     groupWorkItemWithNext(blockIndex, weekIndex, sessionIndex, workItemIndex);

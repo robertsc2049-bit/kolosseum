@@ -451,3 +451,173 @@ test("clears back to nothing once the legacy builder broadcasts a null draft (cl
   await broadcast(null);
   assert.equal(container.innerHTML, "");
 });
+
+// DEV NOTE: FULL-UI-35 coach programme builder exercise-info toggle -
+// covers useExerciseHowto.ts, the last remaining app.js render call site
+// (formerly toggleTemplateWorkItemInfo()/loadExerciseHowto()/
+// renderExerciseHowto(), now deleted). Each test below uses its own
+// unique exercise_id, since useExerciseHowto's howtoCache is a shared
+// module-level Map that persists across tests in this file.
+function installHowtoMock(routes: Record<string, unknown>) {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.includes("/templates/exercises")) {
+      return {
+        ok: true, status: 200,
+        json: async () => ({ ok: true, exercises: [], equipment_catalog: [] }),
+        text: async () => JSON.stringify({ ok: true, exercises: [], equipment_catalog: [] })
+      } as Response;
+    }
+    for (const [routeFragment, body] of Object.entries(routes)) {
+      if (path.includes(routeFragment)) {
+        return { ok: true, status: 200, json: async () => body, text: async () => JSON.stringify(body) } as Response;
+      }
+    }
+    throw new Error(`unexpected fetch in test: ${path}`);
+  }) as typeof fetch;
+}
+
+test("the exercise-info panel is collapsed by default and expands on click, fetching and showing content", async () => {
+  installHowtoMock({
+    "/content": {
+      instruction: { detailed: ["Set up under the bar.", "Brace and descend."] },
+      coaching_cues: ["Knees out"],
+      common_faults: ["Heels rising"]
+    },
+    "/reference-media": { reference_media: null }
+  });
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "howto_expand_1" }));
+
+  const panel = document.querySelector(".template-work-item-info") as HTMLElement;
+  assert.equal(panel.hidden, true);
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Exercise info" }));
+  });
+  await waitFor(() => assert.ok(screen.queryByText("Set up under the bar.")));
+
+  assert.equal(panel.hidden, false);
+  assert.ok(screen.getByText("Brace and descend."));
+  assert.ok(screen.getByText("Coaching cues"));
+  assert.ok(screen.getByText("Knees out"));
+  assert.ok(screen.getByText("Common faults"));
+  assert.ok(screen.getByText("Heels rising"));
+});
+
+test("the coach's builder call site always shows full content regardless of any athlete's declared instruction density", async () => {
+  document.documentElement.dataset.instructionDensity = "minimal";
+  installHowtoMock({
+    "/content": { instruction: { detailed: ["Step one."] }, coaching_cues: ["Cue one"], common_faults: ["Fault one"] },
+    "/reference-media": { reference_media: null }
+  });
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "howto_density_1" }));
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Exercise info" }));
+  });
+  await waitFor(() => assert.ok(screen.queryByText("Step one.")));
+
+  // "minimal" would normally suppress cues/faults for the athlete's own
+  // view - the coach's call site must never be gated by it.
+  assert.ok(screen.getByText("Cue one"));
+  assert.ok(screen.getByText("Fault one"));
+  delete document.documentElement.dataset.instructionDensity;
+});
+
+test("clicking Exercise info again while open collapses the panel", async () => {
+  installHowtoMock({
+    "/content": { instruction: { detailed: ["Step one."] } },
+    "/reference-media": { reference_media: null }
+  });
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "howto_collapse_1" }));
+
+  const panel = document.querySelector(".template-work-item-info") as HTMLElement;
+  const button = screen.getByRole("button", { name: "Exercise info" });
+
+  await act(async () => { fireEvent.click(button); });
+  await waitFor(() => assert.equal(panel.hidden, false));
+
+  await act(async () => { fireEvent.click(button); });
+  assert.equal(panel.hidden, true);
+});
+
+test("reopening after closing reuses the cached content instead of re-fetching", async () => {
+  let fetchCount = 0;
+  function textOf(body: unknown) {
+    return async () => JSON.stringify(body);
+  }
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.includes("/templates/exercises")) {
+      const body = { ok: true, exercises: [], equipment_catalog: [] };
+      return { ok: true, status: 200, json: async () => body, text: textOf(body) } as Response;
+    }
+    if (path.includes("/content")) {
+      fetchCount += 1;
+      const body = { instruction: { detailed: ["Cached step."] } };
+      return { ok: true, status: 200, json: async () => body, text: textOf(body) } as Response;
+    }
+    if (path.includes("/reference-media")) {
+      const body = { reference_media: null };
+      return { ok: true, status: 200, json: async () => body, text: textOf(body) } as Response;
+    }
+    throw new Error(`unexpected fetch in test: ${path}`);
+  }) as typeof fetch;
+
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "howto_cache_1" }));
+  const button = screen.getByRole("button", { name: "Exercise info" });
+
+  await act(async () => { fireEvent.click(button); });
+  await waitFor(() => assert.ok(screen.queryByText("Cached step.")));
+  await act(async () => { fireEvent.click(button); });
+  await act(async () => { fireEvent.click(button); });
+  await waitFor(() => assert.ok(screen.queryByText("Cached step.")));
+
+  assert.equal(fetchCount, 1);
+});
+
+test("shows a factual error state when the content fetch fails", async () => {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.includes("/templates/exercises")) {
+      return { ok: true, status: 200, json: async () => ({ ok: true, exercises: [], equipment_catalog: [] }), text: async () => "{}" } as Response;
+    }
+    if (path.includes("/content")) return { ok: false, status: 500, json: async () => ({}), text: async () => "" } as Response;
+    if (path.includes("/reference-media")) return { ok: true, status: 200, json: async () => ({ reference_media: null }), text: async () => "{}" } as Response;
+    throw new Error(`unexpected fetch in test: ${path}`);
+  }) as typeof fetch;
+
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "howto_error_1" }));
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Exercise info" }));
+  });
+  await waitFor(() => assert.ok(screen.queryByText("Instructions could not be loaded right now.")));
+});
+
+test("shows a prompt to select an exercise first, with no fetch, when the work item has none chosen", async () => {
+  let fetchedHowtoRoute = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.includes("/templates/exercises")) {
+      return { ok: true, status: 200, json: async () => ({ ok: true, exercises: [], equipment_catalog: [] }), text: async () => "{}" } as Response;
+    }
+    if (path.includes("/content") || path.includes("/reference-media")) fetchedHowtoRoute = true;
+    return { ok: true, status: 200, json: async () => ({}), text: async () => "{}" } as Response;
+  }) as typeof fetch;
+
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "" }));
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Exercise info" }));
+  });
+
+  assert.ok(screen.getByText("Select an exercise to view instructions."));
+  assert.equal(fetchedHowtoRoute, false);
+});

@@ -101,53 +101,45 @@ test("the builder and session-execution areas declare exercise-info lookup funct
   assert.deepEqual(sessionFn.api_routes, ["/exercises/:exercise_id/content"]);
 });
 
-test("app.js wires an exercise-content cache and shared render helper for the coach builder, and React wires its own toggle handler for the athlete session view", () => {
-  // DEV NOTE: the athlete session view's own exercise-howto toggle (the
-  // capture-phase elements.currentExercise listener this test used to
-  // check) moved to React with FULL-UI-15C session execution - see
-  // AthleteSessionExecutionPanel.tsx's <details onToggle={...}>, which
-  // needs no capture-phase workaround since React doesn't replace the DOM
-  // node on every re-render the way app.js's innerHTML-based rendering
-  // did. app.js's own cache/render helper (loadExerciseHowto/
-  // renderExerciseHowto) stay - the coach's template-builder info panel
-  // still calls them directly (see its own toggleTemplateWorkItemInfo
-  // mechanism below). The panel div itself moved to React with the rest
-  // of the builder tree (FULL-UI-05B) - see CoachProgrammeBuilderTree.tsx.
+test("both the athlete session view and the coach builder's exercise-info toggle are React now, sharing one render helper", () => {
+  // DEV NOTE: the athlete session view's own exercise-howto toggle moved
+  // to React with FULL-UI-15C session execution - see
+  // AthleteSessionExecutionPanel.tsx's <details onToggle={...}>. The
+  // coach's template-builder info panel (formerly app.js's
+  // exerciseContentCache/loadExerciseHowto/renderExerciseHowto/
+  // toggleTemplateWorkItemInfo, now fully deleted from app.js) moved to
+  // React too - see useExerciseHowto.ts (the hook, since
+  // CoachProgrammeBuilderTree.tsx's BuilderWorkItem needs its button and
+  // panel at two different DOM positions sharing one toggle state) and
+  // components/ExerciseHowtoBody.tsx (the render helper both call sites
+  // share).
   const appJs = read("public/app/app.js");
   const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
   const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
-  assert.match(appJs, /const exerciseContentCache = new Map\(\)/u);
-  assert.match(appJs, /function renderExerciseHowto\(/u);
-  assert.match(appJs, /function loadExerciseHowto\(/u);
+  const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");
+  assert.doesNotMatch(appJs, /exerciseContentCache|function renderExerciseHowto\(|function loadExerciseHowto\(|function toggleTemplateWorkItemInfo\(/u);
   assert.match(builderTree, /className="template-work-item-info"/u);
-  assert.match(appJs, /function toggleTemplateWorkItemInfo\(/u);
+  assert.match(howtoHook, /loadExerciseContent/u);
+  assert.match(howtoHook, /loadExerciseReferenceMedia/u);
 
   assert.match(sessionPanel, /className="exercise-howto"/u);
   assert.match(sessionPanel, /onToggle=\{\(event\) => \{/u);
   assert.match(sessionPanel, /onOpen\(exerciseId\)/u);
 });
 
-test("renderExerciseHowto gates coaching cues and common faults on the athlete's declared instruction-density preference, but never for the coach's builder call site", () => {
+test("ExerciseHowtoBody gates coaching cues and common faults on the athlete's declared instruction-density preference, but never for the coach's builder call site", () => {
   // instruction_density is an athlete-only onboarding preference. The howto
-  // renderer is a shared insertion point used by both the athlete's session
-  // focus panel and the coach's template-builder info panel, so the gate
-  // must be scoped with a respectDensity flag rather than applied globally -
+  // body is a shared component used by both the athlete's session focus
+  // panel and the coach's template-builder info panel, so the gate must be
+  // scoped with a respectDensity prop rather than applied globally -
   // otherwise a coach authoring a template would see content vary based on
   // whatever density some other athlete happened to declare.
-  const appJs = read("public/app/app.js");
-  assert.match(appJs, /function renderExerciseHowto\(container, content, referenceMedia, respectDensity = true\)/u);
-  assert.match(appJs, /respectDensity \? \(document\.documentElement\.dataset\.instructionDensity \|\| "standard"\) : "detailed"/u);
-  assert.match(appJs, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
-  assert.match(appJs, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
+  const howtoBody = read("public/app-src/components/ExerciseHowtoBody.tsx");
+  assert.match(howtoBody, /respectDensity \? \(document\.documentElement\.dataset\.instructionDensity \|\| "standard"\) : "detailed"/u);
+  assert.match(howtoBody, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
+  assert.match(howtoBody, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
 
-  // The coach's template-builder call site always sees full content.
-  assert.match(appJs, /loadExerciseHowto\(exerciseId, panel, false\)/u);
-  // The athlete's session focus panel is React now (see the previous test)
-  // and reads document.documentElement.dataset.instructionDensity directly
-  // in ExerciseHowtoBody, defaulting to "standard" the same way - it no
-  // longer calls into app.js's loadExerciseHowto() at all.
-  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
-  assert.match(sessionPanel, /document\.documentElement\.dataset\.instructionDensity \|\| "standard"/u);
-  assert.match(sessionPanel, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
-  assert.match(sessionPanel, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
+  // The coach's builder call site always sees full content.
+  const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+  assert.match(builderTree, /respectDensity=\{false\}/u);
 });

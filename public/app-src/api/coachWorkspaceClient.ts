@@ -49,6 +49,14 @@ export async function loadTemplateEquipmentCatalog(): Promise<JsonRecord[]> {
   return Array.isArray(response.equipment_catalog) ? (response.equipment_catalog as JsonRecord[]) : [];
 }
 
+export async function loadExerciseContent(exerciseId: string): Promise<JsonRecord> {
+  return request("GET", `/exercises/${encodeURIComponent(exerciseId)}/content`);
+}
+
+export async function loadExerciseReferenceMedia(exerciseId: string): Promise<JsonRecord> {
+  return request("GET", `/exercises/${encodeURIComponent(exerciseId)}/reference-media`);
+}
+
 export async function loadStandaloneEventLibrary(): Promise<JsonRecord[]> {
   const response = await request("GET", "/coach-workspace/events/library?status=active");
   return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
