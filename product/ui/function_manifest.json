@@ -2379,6 +2379,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_event_calendar_export",
+          "label": "Export the athlete's linked events as a downloadable RFC 5545 (.ics) calendar",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [
+            "/account/events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8402,6 +8424,12 @@
       "path": "/account/email-verification/request",
       "source": "src/api/product_account.routes.ts",
       "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/events/calendar.ics",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "events"
     },
     {
       "method": "GET",

@@ -275,6 +275,7 @@ export function AthleteTodayEventCard() {
         {formatDate(event.event_date)}
         {event.location ? ` · ${String(event.location)}` : ""}
       </p>
+      <a className="button secondary small-button" href="/account/events/calendar.ics">Export calendar (.ics)</a>
     </div>
   );
 }

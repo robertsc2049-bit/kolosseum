@@ -26,6 +26,8 @@ const coachEventsLibraryPanel = read("public/app-src/screens/coach/CoachEventsLi
 // AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts.
 const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 const assignmentClient = read("public/app-src/api/coachWorkspaceClient.ts");
+const accountRoutes = read("src/api/product_account.routes.ts");
+const athleteTodayPanel = read("public/app-src/screens/athlete/AthleteTodayPanel.tsx");
 
 test("events are a separate coach workspace section", () => {
   assert.match(index, /data-view="events"/u);
@@ -66,6 +68,17 @@ test("the coach event library offers a real .ics calendar export link, mounted b
   const paramRouteIndex = routes.indexOf('"/events/:event_id"');
   assert.ok(calendarRouteIndex >= 0 && paramRouteIndex >= 0, "expected both routes to be present");
   assert.ok(calendarRouteIndex < paramRouteIndex, "calendar.ics must be registered before the /:event_id param route");
+});
+
+test("the athlete's Today event card offers the symmetric .ics calendar export link", () => {
+  assert.match(athleteTodayPanel, /href="\/account\/events\/calendar\.ics"/u);
+
+  assert.match(accountRoutes, /"\/events\/calendar\.ics"/u);
+  assert.match(accountRoutes, /listAthleteLinkedEvents/u);
+  assert.match(accountRoutes, /buildCoachEventsCalendar/u);
+  assert.match(accountRoutes, /actor_type !== "athlete"/u);
+
+  assert.match(eventService, /export async function listAthleteLinkedEvents/u);
 });
 
 // DEV NOTE: event_lifecycle_ui.js (the legacy module this test used to

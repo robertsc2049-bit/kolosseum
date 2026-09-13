@@ -620,6 +620,41 @@ test(
       assert.equal(withEvent.event.status, "active");
       assert.equal(withEvent.event.event_name, "Full14c Fixture Meet");
 
+      // ============================================================
+      // The athlete's symmetric .ics calendar export (GET /account/events/
+      // calendar.ics) reaches the wire for a real, session-authenticated
+      // athlete - proof that listAthleteLinkedEvents/buildCoachEventsCalendar
+      // actually serve the athlete's own linked event, not just the coach's.
+      // Registering a real product account with the same email the beta-auth
+      // identity above used claims that identity (see existingBetaIdentity in
+      // product_account_service.ts), reusing athleteD.userId rather than
+      // minting a new one.
+      // ============================================================
+      const athleteDRegistration = await request(baseUrl, "POST", "/account/register", {
+        actor_type: "athlete",
+        display_name: "Full14c Athlete D",
+        email: `${athleteD.userId}@example.com`,
+        password: "Full14cAthleteD!2026",
+        accepted_terms: true,
+        accepted_consent: true,
+        accepted_terms_version: "terms_v1",
+        accepted_consent_version: "consent_v1"
+      });
+      assertStatus(athleteDRegistration, 201, "athlete D account registration");
+      assert.equal(athleteDRegistration.json?.claimed_existing_identity, true);
+      assert.equal(athleteDRegistration.json?.account?.user_id, athleteD.userId);
+      const athleteDCookie = sessionCookie(athleteDRegistration, "athlete D account registration");
+
+      const athleteCalendar = await request(baseUrl, "GET", "/account/events/calendar.ics", undefined, { cookie: athleteDCookie });
+      assertStatus(athleteCalendar, 200, "athlete events calendar export");
+      assert.match(athleteCalendar.response.headers.get("content-type") ?? "", /text\/calendar/u);
+      assert.match(athleteCalendar.response.headers.get("content-disposition") ?? "", /attachment; filename="kolosseum-events\.ics"/u);
+      assert.match(athleteCalendar.text, new RegExp(`UID:${eventD.event_id}@kolosseum\\.app`, "u"));
+      assert.match(athleteCalendar.text, /SUMMARY:Full14c Fixture Meet/u);
+
+      const athleteCalendarUnauthenticated = await request(baseUrl, "GET", "/account/events/calendar.ics");
+      assert.equal(athleteCalendarUnauthenticated.response.status, 401, "athlete calendar export requires an authenticated session");
+
       assertStatus(await request(
         baseUrl,
         "POST",
