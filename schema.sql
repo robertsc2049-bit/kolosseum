@@ -1380,6 +1380,51 @@ ALTER TABLE product_notifications
       )
     );
 
+-- product_notifications_full_ui_88_type_migration
+-- Additive FULL-UI-88 activity_change_declined - alerts the proposing coach
+-- when an athlete declines their coach-proposed activity or position
+-- change, the symmetric reverse of the existing activity_change_proposed/
+-- applied pair (athlete-facing) - the coach previously had zero signal that
+-- their proposal was rejected, only a manual re-check - same DROP/ADD
+-- pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined'
+      )
+    );
+
 -- FULL-UI-20 factual status, support and error-reporting.
 -- Every row stores only an explicit, narrow allowlist of caller-supplied
 -- context (never a raw error payload, stack trace, header set, cookie or
