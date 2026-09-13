@@ -29,11 +29,14 @@ const phase6 = read("engine/src/phases/phase6.ts");
 const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
 // DEV NOTE: the builder tree (block/week/session/work-item) moved to
 // React - see CoachProgrammeBuilderTree.tsx, mounted directly into the
-// still-legacy #templateBlocks. toggleTemplateWorkItemInfo() itself stays
-// in app.js (it still directly, imperatively toggles this div's hidden/
-// innerHTML outside React's reconciliation - see that component's own
-// DEV NOTE) - only the div's own class="..." markup moved.
+// still-legacy #templateBlocks. The per-exercise info toggle (formerly
+// app.js's toggleTemplateWorkItemInfo()) is React too now - see
+// useExerciseHowto.ts, a hook rather than part of this file since
+// BuilderWorkItem needs its button and panel at two different DOM
+// positions sharing one toggle state.
 const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 test("programme and athlete-reference routes are mounted", () => {
   assert.match(server, /import \{ templatesRouter \} from "\.\/api\/templates\.routes\.js";/u);
@@ -106,9 +109,9 @@ test("builder supports flexible session composition: variable exercise count, su
 
 test("builder exposes a per-exercise written instructions, cues and faults lookup", () => {
   assert.match(builderTree, /className="template-work-item-info"/u);
-  assert.match(js, /template-work-item-info-toggle/u);
-  assert.match(js, /function toggleTemplateWorkItemInfo\(/u);
-  assert.match(js, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
+  assert.match(builderTree, /onClick=\{howto\.toggle\}/u);
+  assert.match(howtoHook, /loadExerciseContent\(exerciseId\)/u);
+  assert.match(coachWorkspaceClient, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
 });
 
 test("athlete profile supports factual 1RM, estimated 1RM and training max records", () => {

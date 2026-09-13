@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
+import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import {
   EXERCISE_CATEGORY_ORDER,
   exerciseCategory,
@@ -13,6 +14,7 @@ import {
   type ProgrammeWeekDraft,
   type ProgrammeWorkItemDraft
 } from "./programmeDraft";
+import { useExerciseHowto } from "./useExerciseHowto";
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
 
 // DEV NOTE: FULL-UI-05B programme builder tree (block -> week -> session ->
@@ -41,15 +43,21 @@ import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
 // external truth, exactly mirroring the full-teardown-and-rebuild legacy
 // used to do with innerHTML.
 //
-// The one exception is .template-work-item-info (the "Exercise info"
-// toggle's target) - toggleTemplateWorkItemInfo() in app.js still
-// directly flips its hidden/innerHTML imperatively via a live DOM query
-// at click time, entirely outside React's reconciliation. This is
-// rendered here as a permanently-empty, permanently-hidden placeholder
-// div for legacy to find and populate - no different in spirit from
-// legacy's own prior behaviour, which also fully discarded this panel's
-// content on every unrelated mutation (the whole tree was torn down and
-// rebuilt via innerHTML on every change).
+// The one former exception, .template-work-item-info (the "Exercise
+// info" toggle's target, previously an empty placeholder div for
+// app.js's toggleTemplateWorkItemInfo() to imperatively populate), is now
+// fully React too - see useExerciseHowto.ts, a hook (not a self-contained
+// component) since BuilderWorkItem needs its button inside
+// .builder-action-row (a flex row, alongside Move/Duplicate/Remove) and
+// its panel as a standalone block right after - two different DOM
+// positions sharing one toggle state. This button is the one exception
+// to every other control's data-template-kind/#templateBlocks-delegated-
+// click convention: it carries no data-* attributes and a plain onClick,
+// since it triggers no draft mutation at all. This was the last
+// remaining app.js render call site (loadExerciseHowto()/
+// renderExerciseHowto(), now deleted from app.js entirely) - the exact
+// same rendering is shared with the athlete session view via
+// components/ExerciseHowtoBody.tsx.
 
 function workItemAttrs(blockIndex: number, weekIndex: number, sessionIndex: number, workItemIndex: number, field: string) {
   return {
@@ -483,6 +491,7 @@ function BuilderWorkItem({
   // change handler via workItemAttrs' data-field attribute, matching this
   // file's own established uncontrolled-input convention.
   const [groupTypeHint, setGroupTypeHint] = React.useState(workItem.group_type);
+  const howto = useExerciseHowto(workItem.exercise_id);
 
   return (
     <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`}>
@@ -515,14 +524,21 @@ function BuilderWorkItem({
         <div className="builder-action-row">
           <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise up" title="Move exercise up" data-direction={-1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === 0}>↑</button>
           <button className="button secondary small-button move-template-work-item" type="button" aria-label="Move exercise down" title="Move exercise down" data-direction={1} data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemIndex === workItemCount - 1}>↓</button>
-          <button className="button secondary small-button template-work-item-info-toggle" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Exercise info</button>
+          <button className="button secondary small-button" type="button" onClick={howto.toggle}>Exercise info</button>
           <button className="button secondary small-button duplicate-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex} disabled={workItemCount >= 12}>Duplicate</button>
           {workItemCount > 1 ? (
             <button className="button danger small-button remove-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} data-work-item-index={workItemIndex}>Remove</button>
           ) : null}
         </div>
       </div>
-      <div className="template-work-item-info" hidden />
+      <div className="template-work-item-info" hidden={!howto.expanded}>
+        {howto.expanded && !workItem.exercise_id ? <p className="muted">Select an exercise to view instructions.</p> : null}
+        {howto.expanded && workItem.exercise_id && howto.status === "loading" ? <p className="muted">Loading…</p> : null}
+        {howto.expanded && workItem.exercise_id && howto.status === "error" ? <p className="muted">Instructions could not be loaded right now.</p> : null}
+        {howto.expanded && workItem.exercise_id && howto.status === "loaded" && howto.result ? (
+          <ExerciseHowtoBody content={howto.result.content} referenceMedia={howto.result.referenceMedia} respectDensity={false} />
+        ) : null}
+      </div>
       <div className="template-prescription-grid">
         <label className="template-sets-field">
           <span>Sets</span>
