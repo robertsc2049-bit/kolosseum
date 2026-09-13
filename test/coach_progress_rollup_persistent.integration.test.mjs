@@ -268,7 +268,7 @@ async function compileAndCompleteSession(baseUrl, coach, athlete) {
   const sessionId = compiled.json.session_id;
   assert.ok(sessionId, "expected a created session id");
 
-  assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/start`, {}), 201, "start session");
+  assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/start`, {}), 200, "start session");
   assertStatus(
     await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
       type: "COMPLETE_EXERCISE", exercise_id: "back_squat"
@@ -343,6 +343,36 @@ test(
     await seedRelationship(baseUrl, {
       relationshipId: `roster_rel_3_${nonce}`, coachUserId: coach.userId, athleteUserId: revokedAthlete.userId, state: "revoked"
     });
+
+    assertStatus(
+      await request(
+        baseUrl,
+        "POST",
+        "/coach-workspace/athlete-strength-profile",
+        {
+          coach_user_id: coach.userId,
+          athlete_user_id: athleteWithData.userId,
+          preferred_weight_unit: "kg",
+          load_rounding_increment: 2.5,
+          bodyweight: null,
+          bodyweight_unit: "kg",
+          benchmarks: [{
+            benchmark_id: `roster_rollup_back_squat_${nonce}`,
+            exercise_id: "back_squat",
+            value: 150,
+            unit: "kg",
+            basis: "tested_1rm",
+            effective_date: daysAgoDateOnly(0),
+            source_note: "coach roster rollup proof",
+            replaces_reference_id: null
+          }],
+          expected_current_record_sha256: null
+        },
+        { cookie: coach.cookie, csrf: coach.csrf }
+      ),
+      201,
+      "athlete strength profile"
+    );
 
     const template = await createActivatedTemplate(baseUrl, coach.userId, `Roster Rollup Programme ${nonce}`);
     assertStatus(
