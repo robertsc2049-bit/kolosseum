@@ -937,7 +937,8 @@ function viewTitle(view) {
     templates: "Programmes",
     marketplace: "Marketplace",
     review: "Review",
-    account: "Account"
+    account: "Account",
+    calculator: "Barbell calculator"
   };
 
   return titles[view] ?? "Kolosseum";
@@ -1045,8 +1046,8 @@ function renderRoleNavigation() {
 
   const fallbackView = actorHomeView(state.role);
   const permittedViews = athlete
-    ? new Set(["today", "session", "history", "account"])
-    : new Set(["coach-onboarding", "coach-overview", "athletes", "events", "templates", "review", "account"]);
+    ? new Set(["today", "session", "history", "account", "calculator"])
+    : new Set(["coach-onboarding", "coach-overview", "athletes", "events", "templates", "review", "account", "calculator"]);
 
   if (!permittedViews.has(state.view)) state.view = fallbackView;
 }
