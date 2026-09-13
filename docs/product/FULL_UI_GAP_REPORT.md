@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 342
+- implemented: 343
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -403,7 +403,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 17 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -424,6 +424,7 @@ Implemented: 17 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_marketplace_template_sold` — Notify the selling coach when another coach buys their released marketplace template, deep-linking straight to their own original template
 - `notification_attendance_event` — Notify an invited athlete when they're invited to an attendance event, when that event is cancelled, or when one of its occurrences is skipped or rescheduled - deep-linking to the athlete's own attendance view
 - `notification_athlete_position_overridden` — Notify an athlete when a team coach or their org owner has directly overridden their declared position, deep-linking to the athlete's own Today view
+- `notification_attendance_rsvp_declined` — Notify the organizing coach when an invited athlete RSVPs not attending to one of their attendance events, deep-linking to the coach's own attendance view
 
 ### Data rights and consent
 
@@ -805,6 +806,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-84: implemented
 - FULL-UI-85: implemented
 - FULL-UI-86: implemented
+- FULL-UI-87: implemented
 
 ## Prohibited capabilities
 

@@ -55,7 +55,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "attendance_event_occurrence_changed",
   "activity_change_proposed",
   "activity_change_applied",
-  "athlete_position_overridden"
+  "athlete_position_overridden",
+  "attendance_rsvp_declined"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -71,7 +72,8 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   coachReviewAthlete: "coach_review_athlete",
   coachProgrammeDetail: "coach_programme_detail",
   sharedAccount: "shared_account",
-  athleteAttendanceEvents: "athlete_attendance_events"
+  athleteAttendanceEvents: "athlete_attendance_events",
+  coachAttendanceEvents: "coach_attendance_events"
 });
 
 function notificationId(
@@ -930,6 +932,47 @@ async function deriveAthletePositionOverrideNotifications(
   }
 }
 
+// --- Attendance RSVP declined (organizer-facing) ---------------------------
+// The symmetric reverse of the athlete-facing attendance_event_* trio above:
+// an athlete's "not attending" response is time-sensitive, actionable
+// information the organizer previously had zero passive signal about (they
+// could only find out by opening the event's roster). Scoped to
+// not_attending only - "attending"/"maybe" are routine, not actionable, and
+// would just be noise (mirrors activity_change_applied's own precedent of
+// only notifying for the deferred case, not every immediate one).
+
+async function deriveAttendanceRsvpDeclinedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'attendance_event_rsvp'
+      AND actor_user_id = $1
+      AND record_payload->>'rsvp_state' = 'not_attending'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_rsvp_declined",
+      sourceRecordType: "attendance_event_rsvp",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAttendanceEvents,
+      notificationPayload: {
+        athlete_user_id: cleanString(row.record_payload?.athlete_user_id),
+        event_id: cleanString(row.record_payload?.event_id),
+        occurrence_id: cleanString(row.record_payload?.occurrence_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -937,6 +980,7 @@ async function deriveNotificationsForRecipient(
   await deriveRelationshipNotifications(client, recipientUserId);
   await deriveActivityChangeNotifications(client, recipientUserId);
   await deriveAthletePositionOverrideNotifications(client, recipientUserId);
+  await deriveAttendanceRsvpDeclinedNotifications(client, recipientUserId);
   await deriveAssignmentNotifications(client, recipientUserId);
   await deriveEventLinkNotifications(client, recipientUserId);
   await deriveEventCancelledNotifications(client, recipientUserId);
