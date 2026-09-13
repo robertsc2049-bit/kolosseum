@@ -83,6 +83,7 @@ import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from ".
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
 import { EntryAuthPanel } from "./screens/entry/EntryAuthPanel";
+import { BarbellCalculatorPanel } from "./screens/tools/BarbellCalculatorPanel";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
@@ -96,6 +97,7 @@ function mount(containerId: string, node: React.ReactNode) {
 }
 
 mount("entry-auth-root", <EntryAuthPanel />);
+mount("barbell-calculator-root", <BarbellCalculatorPanel />);
 mount("account-identity-header-root", <AccountIdentityHeaderCard />);
 mount("account-code-root", <AccountCodeCard />);
 mount("account-identity-root", <AccountIdentityPanel />);
