@@ -29,8 +29,15 @@ export function useCoachProgrammeEventBinding() {
 
   const templateId = String(draft?.template_id ?? "");
   const boundEventId = String(draft?.bound_event_id ?? "");
+  const hasDraft = Boolean(draft);
 
+  // Every React root mounts unconditionally at script bootstrap, well
+  // before sign-in - gate this fetch on the builder actually being open
+  // (hasDraft flipping false -> true) rather than a plain mount-once
+  // effect, or it would fire as an unauthenticated request on every page
+  // load and never refresh once a session starts.
   useEffect(() => {
+    if (!hasDraft) return;
     let cancelled = false;
     loadStandaloneEventLibrary()
       .then((events) => {
@@ -42,7 +49,7 @@ export function useCoachProgrammeEventBinding() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [hasDraft]);
 
   useEffect(() => {
     if (!templateId || !boundEventId) {
