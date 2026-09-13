@@ -49,6 +49,19 @@ export async function loadTemplateEquipmentCatalog(): Promise<JsonRecord[]> {
   return Array.isArray(response.equipment_catalog) ? (response.equipment_catalog as JsonRecord[]) : [];
 }
 
+export async function loadStandaloneEventLibrary(): Promise<JsonRecord[]> {
+  const response = await request("GET", "/coach-workspace/events/library?status=active");
+  return Array.isArray(response.events) ? (response.events as JsonRecord[]) : [];
+}
+
+export async function loadTemplateEventBindingStatus(templateId: string, coachUserId: string): Promise<JsonRecord | null> {
+  const response = await request(
+    "GET",
+    `/templates/${encodeURIComponent(templateId)}/event-binding?coach_user_id=${encodeURIComponent(coachUserId)}`
+  );
+  return response.bound === true ? response : null;
+}
+
 export async function loadAthleteProgressInsights(athleteUserId: string): Promise<JsonRecord | null> {
   const response = await request("GET", `/progress-insights/coach/${encodeURIComponent(athleteUserId)}`);
   return response.insights && typeof response.insights === "object" ? (response.insights as JsonRecord) : null;

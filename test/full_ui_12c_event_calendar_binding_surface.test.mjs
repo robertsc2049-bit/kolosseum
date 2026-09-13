@@ -16,9 +16,18 @@ const templateHandlers = read("src/api/templates.handlers.ts");
 // see CoachProgrammeEventFields.tsx, mounted at
 // #template-event-fields-root. The disabled-while-bound guard moved
 // with them (disabled={bound}, computed from the same
-// draft.bound_event_id truth) - the binding picker/toggle themselves
-// stay legacy, untouched.
+// draft.bound_event_id truth) - the compile/fit-final-block math and
+// countdown/allocation summary stay legacy, untouched.
 const eventFields = read("public/app-src/screens/coach/CoachProgrammeEventFields.tsx");
+// DEV NOTE: the event-binding picker (select/bind-button/status banner,
+// formerly renderEventBindingPicker() in app.js) also moved to React
+// (FULL-UI-12C) - see CoachProgrammeEventBindingPicker.tsx, mounted at
+// #template-event-binding-root, and useCoachProgrammeEventBinding.ts for
+// its independent event-library/binding-status fetches. The actual bind
+// mutation (bindSelectedEventToTemplate()) stays legacy, reached via a
+// kolosseum:bind-template-event bridge event.
+const eventBindingPicker = read("public/app-src/screens/coach/CoachProgrammeEventBindingPicker.tsx");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 test("programme builder exposes an event-selector bound to the standalone event library", () => {
   for (const id of [
@@ -26,18 +35,22 @@ test("programme builder exposes an event-selector bound to the standalone event 
     "bindTemplateEventButton",
     "templateEventBindingStatus"
   ]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+    assert.ok(eventBindingPicker.includes(`id="${id}"`), `Expected ${id}`);
+    assert.doesNotMatch(html, new RegExp(`id="${id}"`, "u"), `${id} should no longer be static markup`);
   }
+  assert.ok(html.includes('id="template-event-binding-root"'), "Expected the React mount point");
 
   // The event-compiler section must actually render (not be permanently
-  // display:none) for the selector to be reachable at all.
+  // display:none) for the picker to be reachable at all.
   assert.match(html, /<section class="event-compiler-settings">/u);
   assert.doesNotMatch(html, /<section class="event-compiler-settings" hidden>/u);
 
-  assert.match(js, /loadStandaloneEventLibraryForBuilder/u);
-  assert.match(js, /\/coach-workspace\/events\/library/u);
-  assert.match(js, /renderEventBindingPicker/u);
+  assert.match(coachWorkspaceClient, /\/coach-workspace\/events\/library/u);
+  assert.match(coachWorkspaceClient, /\/event-binding/u);
   assert.match(js, /bindSelectedEventToTemplate/u);
+  assert.match(js, /kolosseum:bind-template-event/u);
+  assert.match(eventBindingPicker, /kolosseum:bind-template-event|requestBind/u);
+  assert.doesNotMatch(js, /function renderEventBindingPicker|function loadStandaloneEventLibraryForBuilder/u);
 });
 
 test("template event binding is a server-authoritative, sha-pinned reference", () => {
