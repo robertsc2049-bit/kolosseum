@@ -56,7 +56,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "activity_change_proposed",
   "activity_change_applied",
   "athlete_position_overridden",
-  "attendance_rsvp_declined"
+  "attendance_rsvp_declined",
+  "activity_change_declined"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -897,6 +898,62 @@ async function deriveActivityChangeNotifications(
   }
 }
 
+// --- Activity/position change declined (coach-facing) ----------------------
+// The symmetric reverse of activity_change_proposed/applied above: a coach
+// proposes an activity or position change (proposeAthleteActivityChangeForCoach/
+// proposeAthletePositionChangeForCoach) and the athlete can decline it via
+// respondToActivityChangeProposal() - the coach previously had zero signal
+// that their proposal was rejected. Both change kinds share the same
+// athlete_activity_change_request record type/state machine (see
+// athlete_activity_change_service.ts's own DEV NOTE), so this one notifier
+// covers both, matching activity_change_proposed/applied's own precedent of
+// a single type name spanning both kinds. The declined record's own
+// actor_user_id/subject_user_id are both the athlete (it's their write, not
+// the coach's) - the proposing coach is only recoverable by following
+// supersedes_request_id back to the "proposed" record it declines, whose
+// actor_user_id is the coach - hence the self-join below rather than a
+// single-table filter like this file's other derive* functions.
+
+async function deriveActivityChangeDeclinedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT declined.record_id, declined.effective_at, declined.record_payload
+    FROM beta_product_records declined
+    JOIN beta_product_records proposed
+      ON proposed.record_type = 'athlete_activity_change_request'
+     AND proposed.record_payload->>'request_id' = declined.record_payload->>'supersedes_request_id'
+    WHERE declined.record_type = 'athlete_activity_change_request'
+      AND declined.record_payload->>'request_state' = 'declined'
+      AND proposed.actor_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.record_payload?.athlete_user_id);
+    if (!athleteUserId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_declined",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        change_kind: cleanString(row.record_payload?.change_kind) || "activity",
+        new_activity_id: cleanString(row.record_payload?.new_activity_id),
+        new_position: cleanString(row.record_payload?.new_position)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
 // --- Athlete position overridden (coach-team or org-owner direct override,
 // no athlete confirmation - unlike the propose/confirm tier above, this tier
 // previously left the athlete with no signal at all that their declared
@@ -979,6 +1036,7 @@ async function deriveNotificationsForRecipient(
 ): Promise<void> {
   await deriveRelationshipNotifications(client, recipientUserId);
   await deriveActivityChangeNotifications(client, recipientUserId);
+  await deriveActivityChangeDeclinedNotifications(client, recipientUserId);
   await deriveAthletePositionOverrideNotifications(client, recipientUserId);
   await deriveAttendanceRsvpDeclinedNotifications(client, recipientUserId);
   await deriveAssignmentNotifications(client, recipientUserId);

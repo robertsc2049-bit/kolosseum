@@ -31,7 +31,8 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   activity_change_proposed: "Coach proposed an activity change",
   activity_change_applied: "Activity changed",
   athlete_position_overridden: "Position updated",
-  attendance_rsvp_declined: "Athlete declined an event"
+  attendance_rsvp_declined: "Athlete declined an event",
+  activity_change_declined: "Athlete declined a proposed change"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
