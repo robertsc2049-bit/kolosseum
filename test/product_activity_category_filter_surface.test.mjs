@@ -104,9 +104,13 @@ test("all 4 confirmed athlete-activity-declaration screens import and use the sh
 test("AthleteOnboardingPanel.tsx renders the filter twice - the onboarding wizard's activity stage, and the self-service change-activity card", () => {
   const usages = [...onboardingPanel.matchAll(/<ActivityCategoryFilter\b/gu)];
   assert.equal(usages.length, 2, "expected exactly 2 ActivityCategoryFilter usages in AthleteOnboardingPanel.tsx");
-  assert.match(onboardingPanel, /sportLabel="Activity"/u);
-  assert.match(onboardingPanel, /sportLabel="New activity"/u);
+  // #1081 made sport declaration optional at signup: the wizard stage's
+  // label now says so, and the self-service card's label/allowEmptySport
+  // depend on whether the athlete has actually declared one yet.
+  assert.match(onboardingPanel, /sportLabel="Activity \(optional\)"/u);
+  assert.match(onboardingPanel, /sportLabel=\{hasDeclaredActivity \? "New activity" : "Activity"\}/u);
   assert.match(onboardingPanel, /allowEmptySport/u);
+  assert.match(onboardingPanel, /allowEmptySport=\{!hasDeclaredActivity\}/u);
 });
 
 test("out-of-scope activity pickers (event creation/detail, marketplace/library filters, programme-builder identity) still import V1_ACTIVITIES directly - proving they were correctly left untouched", () => {

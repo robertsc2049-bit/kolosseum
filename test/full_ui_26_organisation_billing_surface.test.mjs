@@ -812,7 +812,9 @@ test("the coach org-context panel is gated to the coach role, since the org-memb
 test("org names and fellow-coach names/emails rendered into the coach org-context panel are inert text, never raw HTML", () => {
   assert.doesNotMatch(orgContextPanel, /dangerouslySetInnerHTML/u);
   assert.match(orgContextPanel, /\{String\(membership\.org_name \?\? ""\)\}/u);
-  assert.match(orgContextPanel, /\{String\(fellow\.coach_display_name \|\| fellow\.coach_user_id\)\}/u);
+  // #1076 replaced the raw coach_user_id fallback with plain consumer
+  // wording ("A connected coach") - see AccountOrgContextPanel.tsx.
+  assert.match(orgContextPanel, /\{String\(fellow\.coach_display_name \|\| "A connected coach"\)\}/u);
 });
 
 // The manifest's coach_org_membership function has claimed "accepts and

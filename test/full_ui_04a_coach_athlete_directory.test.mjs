@@ -124,9 +124,12 @@ test(
       service.indexOf("export async function listConnectedCoachAthletes")
     );
 
+    // Slice 3's declaredPosition/declaredTrainingFocus locals were added
+    // between these two defaults and the try block - only the ordering
+    // (both default to null/[] before the guarded read) matters here.
     assert.match(
       fn,
-      /let auth = null;\s*\n\s*let declaration = null;\s*\n\s*try \{/u
+      /let auth = null;[\s\S]*?let declaration = null;[\s\S]*?try \{/u
     );
 
     assert.match(
