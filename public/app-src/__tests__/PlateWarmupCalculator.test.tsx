@@ -106,3 +106,54 @@ test("enabling fractional plates reaches an otherwise-unreachable exact target, 
   fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
   assert.ok(screen.getByText("Fractional plates (1/0.5lb)"));
 });
+
+// DEV NOTE: ported from kolosseum.tools/ironclock's stepTarget()/stepKg -
+// the +/- step size is 2 x the smallest selectable plate, so it changes
+// when fractional plates are toggled, exactly like the reference.
+test("the +/- stepper buttons round the target by 2.5kg by default, and clicking - never goes below 0", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  const target = screen.getByLabelText("Target weight") as HTMLInputElement;
+  fireEvent.click(screen.getByLabelText("increase target weight"));
+  assert.equal(target.value, "102.5");
+
+  fireEvent.change(target, { target: { value: "100" } });
+  fireEvent.click(screen.getByLabelText("decrease target weight"));
+  assert.equal(target.value, "97.5");
+
+  fireEvent.change(target, { target: { value: "1" } });
+  fireEvent.click(screen.getByLabelText("decrease target weight"));
+  assert.equal(target.value, "0");
+});
+
+test("enabling fractional plates shrinks the stepper's step size to 0.5kg", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
+  fireEvent.click(fractionalCheckbox);
+
+  const target = screen.getByLabelText("Target weight") as HTMLInputElement;
+  fireEvent.click(screen.getByLabelText("increase target weight"));
+  assert.equal(target.value, "100.5");
+
+  fireEvent.change(target, { target: { value: "100" } });
+  fireEvent.click(screen.getByLabelText("decrease target weight"));
+  assert.equal(target.value, "99.5");
+});
+
+test("lb always steps by a flat 5lb, unaffected by fractional plates - the same asymmetry as kolosseum.tools/ironclock, whose lb display never derived its step from a plate set", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "lb" } }} />);
+  openCalculator();
+
+  const target = screen.getByLabelText("Target weight") as HTMLInputElement;
+  fireEvent.click(screen.getByLabelText("increase target weight"));
+  assert.equal(target.value, "105");
+
+  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
+  fireEvent.click(fractionalCheckbox);
+  fireEvent.change(target, { target: { value: "100" } });
+  fireEvent.click(screen.getByLabelText("increase target weight"));
+  assert.equal(target.value, "105");
+});

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 
 import { type JsonRecord } from "../api/transport";
 import {
@@ -7,6 +7,7 @@ import {
   FRACTIONAL_PLATE_SET_BY_UNIT,
   computePlateBreakdown,
   computeWarmupRamp,
+  effectivePlateSet,
   type WeightUnit
 } from "../utils/plateCalculator";
 import { BarbellDiagram } from "./BarbellDiagram";
@@ -15,6 +16,10 @@ import { BarbellDiagram } from "./BarbellDiagram";
 // (utils/format.ts) so the pre-filled target matches what the athlete
 // already sees in the prescription line above. This is a one-time initial
 // value, not a live sync - the athlete can freely overwrite it.
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
 function initialTargetFromExercise(exercise: JsonRecord | null): { value: string; unit: WeightUnit } {
   const intensity = exercise?.intensity && typeof exercise.intensity === "object" ? exercise.intensity as JsonRecord : null;
 
@@ -38,6 +43,13 @@ function initialTargetFromExercise(exercise: JsonRecord | null): { value: string
 // dedicated view/nav item available to both roles) - extracted once the
 // standalone tool needed the identical rendering.
 export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { initialTarget: string; initialUnit: WeightUnit }) {
+  // DEV NOTE: an explicit id/htmlFor pair, not implicit label-wrapping -
+  // the target field's label now wraps two stepper buttons in addition to
+  // the input, and RTL's (and browsers') implicit label association picks
+  // whichever labelable-looking control comes first in DOM order once
+  // there's more than one, which silently grabbed a stepper button
+  // instead of the input.
+  const targetInputId = useId();
   const [targetValue, setTargetValue] = useState(initialTarget);
   const [unit, setUnit] = useState<WeightUnit>(initialUnit);
   const [barWeight, setBarWeight] = useState(String(BAR_WEIGHT_BY_UNIT[initialUnit]));
@@ -58,20 +70,51 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
   const rampBarWeight = parsedBar + (useCollars ? COLLAR_WEIGHT_BY_UNIT[unit] : 0);
   const ramp = hasValidTarget && hasValidBar ? computeWarmupRamp(parsedTarget, rampBarWeight, unit, useFractionalPlates) : [];
 
+  // DEV NOTE: ported from kolosseum.tools/ironclock's stepTarget()/stepKg -
+  // the +/- step size tracks whichever plates are actually selectable, so
+  // toggling fractional plates changes it too (2.5kg normally, 0.5kg once
+  // 0.25kg micro-plates are in play). lb keeps a flat 5lb step regardless
+  // of fractional plates, exactly like the reference - its lb display was
+  // always a kg-internal conversion there, so lb stepping was never tied
+  // to a plate set to begin with, and this app's lb plates don't change
+  // that relationship for the step size.
+  function stepTarget(direction: 1 | -1) {
+    const plateSet = effectivePlateSet(unit, useFractionalPlates);
+    const smallestPlate = plateSet[plateSet.length - 1] ?? (unit === "kg" ? 1.25 : 2.5);
+    const step = unit === "lb" ? 5 : smallestPlate * 2;
+    const base = hasValidTarget ? parsedTarget : 0;
+    let next: number;
+
+    if (direction > 0) {
+      next = Math.floor(base / step + 1e-6) * step + step;
+    }
+    else {
+      next = Math.ceil(base / step - 1e-6) * step - step;
+      if (next < 0) next = 0;
+    }
+
+    setTargetValue(unit === "lb" ? String(Math.round(next)) : String(round2(next)));
+  }
+
   return (
     <>
       <div className="plate-calc-inputs">
-        <label className="field">
-          <span>Target weight</span>
-          <input
-            type="number"
-            min={0}
-            step="any"
-            value={targetValue}
-            placeholder="Enter weight"
-            onChange={(event) => setTargetValue(event.target.value)}
-          />
-        </label>
+        <div className="field">
+          <label htmlFor={targetInputId}>Target weight</label>
+          <div className="target-stepper">
+            <button type="button" className="target-stepper-button" aria-label="decrease target weight" onClick={() => stepTarget(-1)}>&minus;</button>
+            <input
+              id={targetInputId}
+              type="number"
+              min={0}
+              step="any"
+              value={targetValue}
+              placeholder="Enter weight"
+              onChange={(event) => setTargetValue(event.target.value)}
+            />
+            <button type="button" className="target-stepper-button" aria-label="increase target weight" onClick={() => stepTarget(1)}>+</button>
+          </div>
+        </div>
         <label className="field">
           <span>Unit</span>
           <select

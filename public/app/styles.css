@@ -316,7 +316,8 @@ p { line-height: 1.58; }
   gap: var(--k-space-2);
 }
 
-.field > span {
+.field > span,
+.field > label {
   color: var(--stone-dim);
   font-size: 0.8rem;
   font-weight: 700;
@@ -820,6 +821,30 @@ button:focus-visible,
   gap: var(--k-space-2) var(--k-space-4);
   margin-bottom: var(--k-space-3);
 }
+
+.target-stepper {
+  display: flex;
+  align-items: stretch;
+  gap: var(--k-space-1);
+}
+
+.target-stepper input { text-align: center; }
+
+.target-stepper-button {
+  flex-shrink: 0;
+  width: 40px;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--k-radius-m);
+  background: var(--ink-2);
+  color: var(--stone);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.target-stepper-button:hover { border-color: var(--bronze); }
 
 .barbell-diagram-wrap {
   background: var(--k-canvas);
