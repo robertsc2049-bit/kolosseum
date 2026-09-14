@@ -119,6 +119,20 @@ test("Today uses server state after refresh and never lets stale local cache pic
   assert.match(js, /view === "today"[\s\S]{0,80}loadAthleteToday\(\)/u);
 });
 
+test("Today reports an open self-directed session as current even without a coach assignment", () => {
+  // A self-directed (no-coach) session has no assignment/template to derive
+  // Today's state from - without this, the server's own next authoritative
+  // fetch (which createSession()'s own loadAthleteToday() call, and any
+  // later reload, both trigger) would report session: null and silently
+  // clobber the activeSessionId the client just set.
+  assert.match(todayService, /function latestOpenSelfDirectedSession/u);
+  assert.match(todayService, /beta_subject_user_id = \$1[\s\S]{0,40}beta_coach_user_id IS NULL/u);
+  assert.match(
+    todayService,
+    /if \(!assignment\) \{[\s\S]{0,200}latestOpenSelfDirectedSession\(athleteUserId\)/u
+  );
+});
+
 test("beta-athlete-today route and its handler are mounted", () => {
   assert.match(sessionsRoutes, /"\/beta-athlete-today"/u);
   assert.match(sessionsRoutes, /getAthleteTodayView/u);
