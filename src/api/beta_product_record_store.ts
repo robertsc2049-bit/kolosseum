@@ -37,7 +37,8 @@ type SupportedRecordType =
   | "attendance_event_occurrence"
   | "attendance_event_invite"
   | "attendance_event_rsvp"
-  | "athlete_activity_change_request";
+  | "athlete_activity_change_request"
+  | "beta17_relationship_athlete_ended";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -76,7 +77,8 @@ const supportedRecordTypes =
     "attendance_event_occurrence",
     "attendance_event_invite",
     "attendance_event_rsvp",
-    "athlete_activity_change_request"
+    "athlete_activity_change_request",
+    "beta17_relationship_athlete_ended"
   ]);
 
 function isRecord(
@@ -919,6 +921,43 @@ function recordMetadata(
             record,
             "effective_at_iso8601",
             "activity_change_request_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    // DEV NOTE: a narrow marker record, written alongside (never instead
+    // of) the existing beta17_coach_relationship "revoked" transition -
+    // see schema.sql's beta_product_records_full_ui_89_type_migration for
+    // why this exists as its own record type. subject_user_id is the
+    // coach (the notification recipient), actor_user_id the athlete who
+    // actually ended things.
+    case "beta17_relationship_athlete_ended": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "relationship_id",
+            "relationship_athlete_ended_relationship_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "coach_user_id",
+            "relationship_athlete_ended_coach_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "relationship_athlete_ended_athlete_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "ended_at_iso8601",
+            "relationship_athlete_ended_effective_at_required"
           ),
         record_sha256: recordSha256
       };
