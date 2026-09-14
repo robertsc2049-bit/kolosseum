@@ -814,6 +814,39 @@ button:focus-visible,
   margin-top: var(--k-space-2);
 }
 
+.barbell-diagram-wrap {
+  background: var(--k-canvas);
+  border: 1px solid var(--k-border);
+  border-radius: var(--k-radius-s);
+  padding: var(--k-space-3) var(--k-space-2);
+  margin-bottom: var(--k-space-2);
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.barbell-diagram {
+  display: block;
+  flex-shrink: 0;
+}
+
+.barbell-diagram-plate {
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 2;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.barbell-diagram-plate-label {
+  font-family: var(--k-font-body);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+}
+
+.barbell-diagram-plate-label-shadow {
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+}
+
 @media (max-width: 620px) {
   .plate-calc-inputs { grid-template-columns: 1fr; }
 }

@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { computePlateBreakdown, computeWarmupRamp, nearestAchievableWeight } from "../utils/plateCalculator";
+import { computePlateBreakdown, computeWarmupRamp, nearestAchievableWeight, plateVisual } from "../utils/plateCalculator";
 
 test("computePlateBreakdown resolves a kg target with a mix of plate sizes", () => {
   const result = computePlateBreakdown(100, 20, "kg");
@@ -57,4 +57,29 @@ test("computeWarmupRamp deduplicates degenerate steps for a near-bar-weight targ
 test("computeWarmupRamp returns nothing for an invalid or zero target", () => {
   assert.deepEqual(computeWarmupRamp(0, 20, "kg"), []);
   assert.deepEqual(computeWarmupRamp(Number.NaN, 20, "kg"), []);
+});
+
+test("plateVisual returns a distinct, larger spec for heavier plates within each unit", () => {
+  const kg25 = plateVisual(25, "kg");
+  const kg1_25 = plateVisual(1.25, "kg");
+  assert.ok(kg25.height > kg1_25.height);
+  assert.ok(kg25.width > kg1_25.width);
+  assert.notEqual(kg25.gradientId, kg1_25.gradientId);
+
+  const lb45 = plateVisual(45, "lb");
+  const lb2_5 = plateVisual(2.5, "lb");
+  assert.ok(lb45.height > lb2_5.height);
+  assert.ok(lb45.width > lb2_5.width);
+});
+
+test("plateVisual assigns the same rank (size/color) to a kg and lb plate at the same position in their respective sets, since lb has no independent color standard of its own", () => {
+  assert.deepEqual(plateVisual(25, "kg"), plateVisual(45, "lb"));
+  assert.deepEqual(plateVisual(20, "kg"), plateVisual(35, "lb"));
+});
+
+test("plateVisual falls back to the smallest/lightest spec for a plate size outside the known set", () => {
+  const fallback = plateVisual(999, "kg");
+  assert.ok(fallback.height > 0);
+  assert.ok(fallback.width > 0);
+  assert.ok(fallback.gradientId);
 });

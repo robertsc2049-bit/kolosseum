@@ -7,6 +7,7 @@ import {
   computeWarmupRamp,
   type WeightUnit
 } from "../utils/plateCalculator";
+import { BarbellDiagram } from "./BarbellDiagram";
 
 // DEV NOTE: mirrors exerciseDetails()'s intensity/resolved_load branching
 // (utils/format.ts) so the pre-filled target matches what the athlete
@@ -92,6 +93,7 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
       ) : (
         <>
           <div className="plate-calc-breakdown">
+            {breakdown ? <BarbellDiagram perSide={breakdown.perSide} barWeight={breakdown.barWeight} unit={unit} /> : null}
             <p className="exercise-howto-heading">Plates per side</p>
             {breakdown && breakdown.perSide.length ? (
               <div className="plate-calc-plates">

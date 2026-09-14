@@ -35,6 +35,45 @@ export const PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
   lb: [45, 35, 25, 10, 5, 2.5]
 };
 
+// DEV NOTE: size/color/label styling for BarbellDiagram.tsx - by rank
+// (largest to smallest) within each unit, matching the real IPF
+// competition plate color convention (and kolosseum.tools/ironclock's own
+// existing implementation of it: red/blue/yellow/green/white/black/grey,
+// descending by height+width). kg's 7 denominations map 1:1 onto
+// ironclock's own size table; lb has only 6 denominations (no single
+// commercial-gym color standard exists for lb plates, so this reuses the
+// same rank-ordered scheme rather than inventing an unrelated one) and so
+// never reaches the 7th (grey) rank.
+export interface PlateVisual {
+  height: number;
+  width: number;
+  gradientId: string;
+  gradientStops: readonly [string, string];
+  textColor: string;
+  fontSize: number;
+  textShadow: boolean;
+}
+
+export const PLATE_RANK_STYLES: readonly PlateVisual[] = [
+  { height: 190, width: 36, gradientId: "bd-red", gradientStops: ["#D72B2B", "#8A1414"], textColor: "#FFFFFF", fontSize: 16, textShadow: true },
+  { height: 176, width: 33, gradientId: "bd-blue", gradientStops: ["#2F70B6", "#163D6B"], textColor: "#FFFFFF", fontSize: 16, textShadow: true },
+  { height: 160, width: 30, gradientId: "bd-yellow", gradientStops: ["#E8C84A", "#A08820"], textColor: "#1A1A1A", fontSize: 14, textShadow: false },
+  { height: 140, width: 28, gradientId: "bd-green", gradientStops: ["#319A4F", "#14552A"], textColor: "#FFFFFF", fontSize: 14, textShadow: true },
+  { height: 114, width: 24, gradientId: "bd-white", gradientStops: ["#EFEFEF", "#B6B6B6"], textColor: "#1A1A1A", fontSize: 12, textShadow: false },
+  { height: 86, width: 21, gradientId: "bd-black", gradientStops: ["#2A2A2A", "#0C0C0C"], textColor: "#E6E6E6", fontSize: 11, textShadow: true },
+  { height: 70, width: 20, gradientId: "bd-grey", gradientStops: ["#9A9DA3", "#54585E"], textColor: "#1A1A1A", fontSize: 11, textShadow: false }
+];
+
+const PLATE_RANK_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: PLATE_SET_BY_UNIT.kg,
+  lb: PLATE_SET_BY_UNIT.lb
+};
+
+export function plateVisual(plate: number, unit: WeightUnit): PlateVisual {
+  const rank = PLATE_RANK_BY_UNIT[unit].indexOf(plate);
+  return rank >= 0 ? PLATE_RANK_STYLES[rank] : PLATE_RANK_STYLES[PLATE_RANK_STYLES.length - 1];
+}
+
 const RAMP_STEPS: { label: string; percent: number | null; reps: string }[] = [
   { label: "Bar", percent: null, reps: "8-10" },
   { label: "40%", percent: 0.4, reps: "5" },

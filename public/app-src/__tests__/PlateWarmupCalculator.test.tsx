@@ -15,7 +15,7 @@ function openCalculator() {
 }
 
 test("pre-fills the target weight and unit from a load-type exercise", () => {
-  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  const { container } = render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
 
   assert.equal((screen.getByLabelText("Target weight") as HTMLInputElement).value, "100");
@@ -23,6 +23,14 @@ test("pre-fills the target weight and unit from a load-type exercise", () => {
   assert.ok(screen.getByText("1 × 25kg"));
   assert.ok(screen.getByText("1 × 15kg"));
   assert.ok(screen.getByText("Bar: 20kg × 8-10"));
+  assert.equal(container.querySelectorAll(".barbell-diagram-plate").length, 2);
+});
+
+test("shows just the bar in the diagram, with no plate rects, before a target weight is entered", () => {
+  const { container } = render(<PlateWarmupCalculator exercise={{ intensity: { type: "rpe", value: 8 } }} />);
+  openCalculator();
+
+  assert.equal(container.querySelector(".barbell-diagram"), null);
 });
 
 test("starts empty and computes on manual entry for a non-numeric-intensity exercise", () => {
