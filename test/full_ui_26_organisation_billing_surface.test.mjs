@@ -111,22 +111,31 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 9, "all nine coach org-membership/org-messaging routes (including the two D.3 attachment routes and O.7's fellow-coach roster route) must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 11, "all eleven coach org-membership/org-messaging routes (including the two D.3 attachment routes, O.7's fellow-coach roster route and Slice 3's two team-position-override routes) must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);
 });
 
-// ownerRoutes is excluded from the athlete_user_id string check only (part
-// D.4): its new /organisations/:org_id/athlete-messages/athletes/
-// :athlete_user_id/send route genuinely names an athlete by id, purely as
-// a route param it passes straight through to org_athlete_messaging_
-// service.ts's own gated functions - it still never queries
-// beta_product_records itself (checked below, over the FULL orgFiles
-// list, unchanged), and the dedicated test further down proves its only
-// athlete_user_id occurrences are exactly that pass-through, never inline
-// business logic.
-const orgFilesForAthleteIdCheck = orgFiles.filter((source) => source !== ownerRoutes);
+// ownerRoutes and coachRoutes are excluded from the athlete_user_id string
+// check only. ownerRoutes (part D.4): its /organisations/:org_id/athlete-
+// messages/athletes/:athlete_user_id/send route genuinely names an athlete
+// by id, purely as a route param it passes straight through to
+// org_athlete_messaging_service.ts's own gated functions. ownerRoutes and
+// coachRoutes both also carry a Slice 3 sport-declaration-redesign
+// position-override route - ownerRoutes' /organisations/:org_id/athletes/
+// :athlete_user_id/position-override (org_owner_position_override_
+// service.ts) and coachRoutes' /organisations/:org_id/team-athletes/
+// :athlete_user_id/position-override (coach_team_position_override_
+// service.ts) - each likewise naming an athlete by id purely as a route
+// param passed straight through to its own gated function. None of these
+// ever queries beta_product_records itself (checked below, over the FULL
+// orgFiles list, unchanged), and the dedicated tests further down prove
+// each file's only athlete_user_id occurrences are exactly those route
+// params and pass-throughs, never inline business logic.
+const orgFilesForAthleteIdCheck = orgFiles.filter(
+  (source) => source !== ownerRoutes && source !== coachRoutes
+);
 
 test("no org file ever reads or writes any athlete-scoped table or record - the MVP boundary is structural, not policy", () => {
   for (const source of orgFilesForAthleteIdCheck) {
@@ -146,13 +155,27 @@ test("no org file ever reads or writes any athlete-scoped table or record - the 
   }
 });
 
-test("ownerRoutes' only athlete_user_id references are the D.4 route param and its pass-through to org_athlete_messaging_service.ts - never inline business logic", () => {
+test("ownerRoutes' only athlete_user_id references are the D.4 route param/pass-through and the Slice-3 position-override route param/pass-through - never inline business logic", () => {
   const occurrences = [...ownerRoutes.matchAll(/athlete_user_id/gu)].length;
-  // :athlete_user_id (route param) + request.params.athlete_user_id
-  // (passed straight to sendOrgAthleteMessageFromOwner) = exactly 2.
-  assert.equal(occurrences, 2, "expected exactly the route param and its single pass-through");
+  // D.4: :athlete_user_id (route param) + request.params.athlete_user_id
+  // (passed straight to sendOrgAthleteMessageFromOwner) = 2.
+  // Slice 3: :athlete_user_id (route param) + the athlete_user_id key/value
+  // pair passed straight to overrideAthletePositionForOrgOwner = 3.
+  // Total = 5.
+  assert.equal(occurrences, 5, "expected exactly the two route params and their pass-throughs");
   assert.match(ownerRoutes, /"\/organisations\/:org_id\/athlete-messages\/athletes\/:athlete_user_id\/send"/u);
   assert.match(ownerRoutes, /String\(request\.params\.athlete_user_id\)/u);
+  assert.match(ownerRoutes, /"\/organisations\/:org_id\/athletes\/:athlete_user_id\/position-override"/u);
+  assert.match(ownerRoutes, /athlete_user_id: request\.params\.athlete_user_id/u);
+});
+
+test("coachRoutes' only athlete_user_id references are the Slice-3 position-override route param and its pass-through to coach_team_position_override_service.ts - never inline business logic", () => {
+  const occurrences = [...coachRoutes.matchAll(/athlete_user_id/gu)].length;
+  // :athlete_user_id (route param) + the athlete_user_id key/value pair
+  // passed straight to overrideAthletePositionForCoach = exactly 3.
+  assert.equal(occurrences, 3, "expected exactly the route param and its pass-through");
+  assert.match(coachRoutes, /"\/organisations\/:org_id\/team-athletes\/:athlete_user_id\/position-override"/u);
+  assert.match(coachRoutes, /athlete_user_id: request\.params\.athlete_user_id/u);
 });
 
 test("no org file imports any engine-truth service - org billing/roster are product state only", () => {
@@ -805,7 +828,7 @@ test("the coach org-context panel is gated to the coach role, since the org-memb
 test("org names and fellow-coach names/emails rendered into the coach org-context panel are inert text, never raw HTML", () => {
   assert.doesNotMatch(orgContextPanel, /dangerouslySetInnerHTML/u);
   assert.match(orgContextPanel, /\{String\(membership\.org_name \?\? ""\)\}/u);
-  assert.match(orgContextPanel, /\{String\(fellow\.coach_display_name \|\| fellow\.coach_user_id\)\}/u);
+  assert.match(orgContextPanel, /\{String\(fellow\.coach_display_name \|\| "A connected coach"\)\}/u);
 });
 
 // The manifest's coach_org_membership function has claimed "accepts and
