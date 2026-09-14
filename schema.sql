@@ -633,6 +633,58 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_89_type_migration
+-- Additive FULL-UI-89 beta17_relationship_athlete_ended. A narrow marker
+-- record written alongside (never instead of) the existing
+-- beta17_coach_relationship "revoked" transition whenever an athlete ends an
+-- accepted relationship from their own profile
+-- (relationship_invitation_service.ts's athleteEndsRelationship). The
+-- shared beta17_coach_relationship record type has no way to distinguish
+-- an athlete-initiated revoke from the coach's own - its actor_user_id is
+-- always the coach regardless of who acted - so this dedicated record type
+-- exists purely to let product_notification_service.ts notify the coach
+-- when it was the athlete who ended things, the symmetric reverse of the
+-- coach's own revoke (which the athlete is already notified of via
+-- relationship_revoked). subject_user_id is the coach (the recipient),
+-- actor_user_id is the athlete who actually acted - one row per end event,
+-- append-only like every other record type here.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp',
+        'athlete_activity_change_request',
+        'beta17_relationship_athlete_ended'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
@@ -1422,6 +1474,53 @@ ALTER TABLE product_notifications
         'athlete_position_overridden',
         'attendance_rsvp_declined',
         'activity_change_declined'
+      )
+    );
+
+-- product_notifications_full_ui_89_type_migration
+-- Additive FULL-UI-89 relationship_ended_by_athlete - alerts the coach when
+-- an athlete ends the relationship themselves (athleteEndsRelationship,
+-- writing the new beta17_relationship_athlete_ended marker record above),
+-- the symmetric reverse of the athlete's existing relationship_revoked
+-- notification for a coach-initiated end - the coach previously had zero
+-- signal that an athlete had left, only noticing on their next visit to
+-- the athlete list - same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete'
       )
     );
 

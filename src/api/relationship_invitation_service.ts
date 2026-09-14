@@ -39,6 +39,24 @@ function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+// DEV NOTE: local stable-stringify + sha256 hash, matching the same
+// per-file convention every other record-writing service module in src/api
+// already follows (e.g. athlete_activity_change_service.ts) rather than a
+// shared utility - used only by recordAthleteEndedRelationship below.
+function stable(value: unknown): string {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
+  if (typeof value === "object") {
+    const item = value as JsonRecord;
+    return `{${Object.keys(item).sort().map((key) => `${JSON.stringify(key)}:${stable(item[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function hash(value: unknown): string {
+  return crypto.createHash("sha256").update(stable(value), "utf8").digest("hex");
+}
+
 function canonicalEmail(value: unknown): string {
   const email = cleanString(value).toLowerCase();
 
@@ -413,6 +431,30 @@ export async function declineRelationshipInvitation(
   });
 }
 
+// DEV NOTE: written alongside (never instead of) the existing
+// beta17_coach_relationship "revoked" transition, purely so
+// product_notification_service.ts can tell the coach it was the athlete
+// who ended things - the shared beta17_coach_relationship record's
+// actor_user_id is always the coach regardless of who acted, so this
+// dedicated record type is the only place that distinction is recorded.
+// See schema.sql's beta_product_records_full_ui_89_type_migration.
+function recordAthleteEndedRelationship(input: Readonly<{
+  relationship_id: string;
+  coach_user_id: string;
+  athlete_user_id: string;
+  ended_at_iso8601: string;
+}>): Promise<Readonly<JsonRecord>> {
+  const core = {
+    record_type: "beta17_relationship_athlete_ended" as const,
+    relationship_id: input.relationship_id,
+    coach_user_id: input.coach_user_id,
+    athlete_user_id: input.athlete_user_id,
+    ended_at_iso8601: input.ended_at_iso8601
+  };
+
+  return persistBetaProductRecord({ ...core, record_sha256: hash(core) });
+}
+
 // Athlete action: end an accepted relationship from their own profile - the
 // athlete-initiated counterpart to the coach's existing "revoke" control.
 // The server independently re-verifies the relationship is currently
@@ -441,10 +483,11 @@ export async function athleteEndsRelationship(
   }
 
   const timestamp = new Date().toISOString();
+  const coachUserId = cleanString(current.coach_user_id);
 
-  return writeRelationshipTransition({
+  const result = await writeRelationshipTransition({
     relationship_id: relationshipId,
-    coach_user_id: cleanString(current.coach_user_id),
+    coach_user_id: coachUserId,
     athlete_user_id: athleteUserId,
     relationship_state: "revoked",
     created_at_iso8601: cleanString(current.created_at_iso8601) || timestamp,
@@ -452,4 +495,13 @@ export async function athleteEndsRelationship(
     accepted_at_iso8601: cleanString(current.accepted_at_iso8601) || null,
     revoked_at_iso8601: timestamp
   });
+
+  await recordAthleteEndedRelationship({
+    relationship_id: relationshipId,
+    coach_user_id: coachUserId,
+    athlete_user_id: athleteUserId,
+    ended_at_iso8601: timestamp
+  });
+
+  return result;
 }

@@ -57,7 +57,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "activity_change_applied",
   "athlete_position_overridden",
   "attendance_rsvp_declined",
-  "activity_change_declined"
+  "activity_change_declined",
+  "relationship_ended_by_athlete"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -217,6 +218,43 @@ async function deriveRelationshipNotifications(
         notificationType === "relationship_accepted"
           ? { athlete_id: athleteUserId }
           : {},
+      notificationPayload: { athlete_user_id: athleteUserId },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Relationship ended by the athlete themselves --------------------------
+// The symmetric reverse of relationship_revoked (which only ever notifies
+// the athlete): a coach-initiated revoke and an athlete-initiated end both
+// produce the same beta17_coach_relationship "revoked" record, whose
+// actor_user_id is always the coach either way - so this reads the
+// dedicated beta17_relationship_athlete_ended marker record
+// athleteEndsRelationship writes instead (relationship_invitation_service.ts),
+// rather than trying to infer the true actor from the shared record.
+async function deriveRelationshipEndedByAthleteNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, actor_user_id AS athlete_user_id, effective_at
+    FROM beta_product_records
+    WHERE record_type = 'beta17_relationship_athlete_ended'
+      AND subject_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "relationship_ended_by_athlete",
+      sourceRecordType: "beta17_relationship_athlete_ended",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthletes,
       notificationPayload: { athlete_user_id: athleteUserId },
       occurredAtIso8601: toIso(row.effective_at)
     });
@@ -1035,6 +1073,7 @@ async function deriveNotificationsForRecipient(
   recipientUserId: string
 ): Promise<void> {
   await deriveRelationshipNotifications(client, recipientUserId);
+  await deriveRelationshipEndedByAthleteNotifications(client, recipientUserId);
   await deriveActivityChangeNotifications(client, recipientUserId);
   await deriveActivityChangeDeclinedNotifications(client, recipientUserId);
   await deriveAthletePositionOverrideNotifications(client, recipientUserId);
