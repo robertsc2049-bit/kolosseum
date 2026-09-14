@@ -4,10 +4,10 @@ import { type JsonRecord } from "../api/transport";
 import {
   BAR_WEIGHT_BY_UNIT,
   COLLAR_WEIGHT_BY_UNIT,
-  FRACTIONAL_PLATE_SET_BY_UNIT,
+  FULL_PLATE_SET_BY_UNIT,
   computePlateBreakdown,
   computeWarmupRamp,
-  effectivePlateSet,
+  defaultAvailablePlates,
   type WeightUnit
 } from "../utils/plateCalculator";
 import { BarbellDiagram } from "./BarbellDiagram";
@@ -54,7 +54,24 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
   const [unit, setUnit] = useState<WeightUnit>(initialUnit);
   const [barWeight, setBarWeight] = useState(String(BAR_WEIGHT_BY_UNIT[initialUnit]));
   const [useCollars, setUseCollars] = useState(false);
-  const [useFractionalPlates, setUseFractionalPlates] = useState(false);
+  // DEV NOTE: ported from kolosseum.tools/ironclock's `available` Set -
+  // every plate denomination is individually opt-out-able, not just the
+  // fractional (micro) ones. Not every gym has every plate - 25kg
+  // included, per the same "quick plate availability" toggle the
+  // reference gives 25kg specifically. Defaults to the standard set
+  // (DEFAULT_AVAILABLE there), fractional plates excluded, and resets to
+  // that default whenever the unit changes, since kg/lb plates are
+  // entirely different denominations.
+  const [availablePlates, setAvailablePlates] = useState<Set<number>>(() => defaultAvailablePlates(initialUnit));
+
+  function togglePlate(plate: number) {
+    setAvailablePlates((current) => {
+      const next = new Set(current);
+      if (next.has(plate)) next.delete(plate);
+      else next.add(plate);
+      return next;
+    });
+  }
 
   const parsedTarget = Number(targetValue);
   const parsedBar = Number(barWeight);
@@ -62,25 +79,23 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
   const hasValidBar = barWeight.trim() !== "" && Number.isFinite(parsedBar) && parsedBar >= 0;
 
   const breakdown = hasValidTarget && hasValidBar
-    ? computePlateBreakdown(parsedTarget, parsedBar, unit, { useCollars, useFractionalPlates })
+    ? computePlateBreakdown(parsedTarget, parsedBar, unit, { useCollars, availablePlates })
     : null;
   // DEV NOTE: collars stay on through warm-up (removing/reattaching them
   // between every set isn't realistic), so the ramp treats bar+collars as
   // its own effective floor rather than the bar alone.
   const rampBarWeight = parsedBar + (useCollars ? COLLAR_WEIGHT_BY_UNIT[unit] : 0);
-  const ramp = hasValidTarget && hasValidBar ? computeWarmupRamp(parsedTarget, rampBarWeight, unit, useFractionalPlates) : [];
+  const ramp = hasValidTarget && hasValidBar ? computeWarmupRamp(parsedTarget, rampBarWeight, availablePlates) : [];
 
   // DEV NOTE: ported from kolosseum.tools/ironclock's stepTarget()/stepKg -
-  // the +/- step size tracks whichever plates are actually selectable, so
-  // toggling fractional plates changes it too (2.5kg normally, 0.5kg once
-  // 0.25kg micro-plates are in play). lb keeps a flat 5lb step regardless
-  // of fractional plates, exactly like the reference - its lb display was
-  // always a kg-internal conversion there, so lb stepping was never tied
-  // to a plate set to begin with, and this app's lb plates don't change
-  // that relationship for the step size.
+  // the +/- step size is 2 x the smallest currently-available plate, so
+  // toggling any plate (not just fractional ones) can change it. lb keeps
+  // a flat 5lb step regardless, exactly like the reference - its lb
+  // display was always a kg-internal conversion there, so lb stepping was
+  // never tied to a plate set to begin with, and this app's own native lb
+  // plates don't change that relationship for the step size.
   function stepTarget(direction: 1 | -1) {
-    const plateSet = effectivePlateSet(unit, useFractionalPlates);
-    const smallestPlate = plateSet[plateSet.length - 1] ?? (unit === "kg" ? 1.25 : 2.5);
+    const smallestPlate = availablePlates.size ? Math.min(...availablePlates) : 1.25;
     const step = unit === "lb" ? 5 : smallestPlate * 2;
     const base = hasValidTarget ? parsedTarget : 0;
     let next: number;
@@ -123,6 +138,7 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
               const nextUnit: WeightUnit = event.target.value === "lb" ? "lb" : "kg";
               setUnit(nextUnit);
               setBarWeight(String(BAR_WEIGHT_BY_UNIT[nextUnit]));
+              setAvailablePlates(defaultAvailablePlates(nextUnit));
             }}
           >
             <option value="kg">kg</option>
@@ -146,10 +162,19 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
           <input type="checkbox" checked={useCollars} onChange={(event) => setUseCollars(event.target.checked)} />
           <span>{`Weighted collars (${COLLAR_WEIGHT_BY_UNIT[unit] / 2}${unit} each / ${COLLAR_WEIGHT_BY_UNIT[unit]}${unit} pair)`}</span>
         </label>
-        <label className="checkbox-field">
-          <input type="checkbox" checked={useFractionalPlates} onChange={(event) => setUseFractionalPlates(event.target.checked)} />
-          <span>{`Fractional plates (${FRACTIONAL_PLATE_SET_BY_UNIT[unit].join("/")}${unit})`}</span>
-        </label>
+      </div>
+
+      <div className="plate-calc-available">
+        <p className="exercise-howto-heading">Available plates</p>
+        <p className="muted small">Not every gym has every plate - untick what you don't have.</p>
+        <div className="plate-calc-plate-toggles">
+          {FULL_PLATE_SET_BY_UNIT[unit].map((plate) => (
+            <label className="checkbox-field" key={plate}>
+              <input type="checkbox" checked={availablePlates.has(plate)} onChange={() => togglePlate(plate)} />
+              <span>{`${plate}${unit}`}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       {!hasValidTarget || !hasValidBar ? (

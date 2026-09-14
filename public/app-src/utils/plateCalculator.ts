@@ -15,7 +15,7 @@ export interface PlatePair {
 
 export interface PlateBreakdownOptions {
   useCollars?: boolean;
-  useFractionalPlates?: boolean;
+  availablePlates?: ReadonlySet<number>;
 }
 
 export interface PlateBreakdown {
@@ -36,20 +36,28 @@ const EPSILON = 1e-6;
 
 export const BAR_WEIGHT_BY_UNIT: Record<WeightUnit, number> = { kg: 20, lb: 45 };
 
+// DEV NOTE: the default-available standard set, mirroring kolosseum.tools/
+// ironclock's own DEFAULT_AVAILABLE - every denomination here is still
+// individually opt-out-able (see availablePlates below), not a hardcoded
+// assumption. Not every gym has every plate, 25kg included.
 export const PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
   kg: [25, 20, 15, 10, 5, 2.5, 1.25],
   lb: [45, 35, 25, 10, 5, 2.5]
 };
 
-// DEV NOTE: opt-in micro-plates for fine-tuning an otherwise-unreachable
-// target, mirroring kolosseum.tools/ironclock's optional 0.5/0.25kg plate
-// settings (off by default there too - not every gym stocks these, so
-// defaulting them on would suggest loads the athlete can't actually make).
-// lb has no equivalent fractional-plate convention to port, so this uses
-// the closest common commercial fractional-plate-set sizes (1lb/0.5lb).
+// DEV NOTE: micro-plates, off by default (mirroring ironclock's
+// DEFAULT_AVAILABLE excluding them too) - fine-tuning plates most gyms
+// don't stock. lb has no equivalent fractional-plate convention to port,
+// so this uses the closest common commercial fractional-plate-set sizes
+// (1lb/0.5lb).
 export const FRACTIONAL_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
   kg: [0.5, 0.25],
   lb: [1, 0.5]
+};
+
+export const FULL_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: [...PLATE_SET_BY_UNIT.kg, ...FRACTIONAL_PLATE_SET_BY_UNIT.kg],
+  lb: [...PLATE_SET_BY_UNIT.lb, ...FRACTIONAL_PLATE_SET_BY_UNIT.lb]
 };
 
 // DEV NOTE: a competition/lockable collar pair, mirroring ironclock's
@@ -58,10 +66,12 @@ export const FRACTIONAL_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]>
 // 5-pair shape rather than inventing an unrelated number.
 export const COLLAR_WEIGHT_BY_UNIT: Record<WeightUnit, number> = { kg: 5, lb: 5 };
 
-export function effectivePlateSet(unit: WeightUnit, useFractionalPlates: boolean): readonly number[] {
-  return useFractionalPlates
-    ? [...PLATE_SET_BY_UNIT[unit], ...FRACTIONAL_PLATE_SET_BY_UNIT[unit]]
-    : PLATE_SET_BY_UNIT[unit];
+export function defaultAvailablePlates(unit: WeightUnit): Set<number> {
+  return new Set(PLATE_SET_BY_UNIT[unit]);
+}
+
+function sortedAvailablePlates(availablePlates: ReadonlySet<number>): number[] {
+  return Array.from(availablePlates).sort((a, b) => b - a);
 }
 
 // DEV NOTE: size/color/label styling for BarbellDiagram.tsx - by rank
@@ -75,7 +85,9 @@ export function effectivePlateSet(unit: WeightUnit, useFractionalPlates: boolean
 // never reaches the 7th (grey) rank. Fractional (opt-in micro) plates get
 // their own, smaller two-tier grey scheme, since ironclock has no
 // dedicated visual for them either (they render as its generic "small"
-// class) and this app's diagram needs a distinct size per denomination.
+// class) and this app's diagram needs a distinct size per denomination. A
+// plate's rank/visual is about its own identity, not whether it's
+// currently toggled available - unaffected by availablePlates.
 export interface PlateVisual {
   height: number;
   width: number;
@@ -128,7 +140,7 @@ export function computePlateBreakdown(
   options: PlateBreakdownOptions = {}
 ): PlateBreakdown {
   const collarWeight = options.useCollars ? COLLAR_WEIGHT_BY_UNIT[unit] : 0;
-  const plateSet = effectivePlateSet(unit, options.useFractionalPlates ?? false);
+  const plateSet = options.availablePlates ? sortedAvailablePlates(options.availablePlates) : PLATE_SET_BY_UNIT[unit];
 
   const perSide: PlatePair[] = [];
   let remaining = Number.isFinite(targetWeight) && Number.isFinite(barWeight)
@@ -152,16 +164,19 @@ export function computePlateBreakdown(
   return { perSide, barWeight, collarWeight, achievedWeight, exact };
 }
 
+// DEV NOTE: mirrors ironclock's stepKg/stepTarget rounding exactly - the
+// increment is 2 x the smallest currently-available plate (a bare 2.5
+// fallback when nothing is selected, same literal fallback the reference
+// uses regardless of unit).
 export function nearestAchievableWeight(
   weight: number,
   barWeight: number,
-  unit: WeightUnit,
-  useFractionalPlates = false
+  availablePlates: ReadonlySet<number>
 ): number {
   if (!Number.isFinite(weight) || weight <= barWeight) return barWeight;
 
-  const plateSet = effectivePlateSet(unit, useFractionalPlates);
-  const increment = plateSet[plateSet.length - 1] * 2;
+  const plates = Array.from(availablePlates);
+  const increment = plates.length ? 2 * Math.min(...plates) : 2.5;
   const steps = Math.round((weight - barWeight) / increment);
   return barWeight + steps * increment;
 }
@@ -169,8 +184,7 @@ export function nearestAchievableWeight(
 export function computeWarmupRamp(
   targetWeight: number,
   barWeight: number,
-  unit: WeightUnit,
-  useFractionalPlates = false
+  availablePlates: ReadonlySet<number>
 ): WarmupStep[] {
   if (!Number.isFinite(targetWeight) || targetWeight <= 0 || !Number.isFinite(barWeight)) return [];
 
@@ -180,7 +194,7 @@ export function computeWarmupRamp(
   for (const step of RAMP_STEPS) {
     const weight = step.percent === null
       ? barWeight
-      : nearestAchievableWeight(targetWeight * step.percent, barWeight, unit, useFractionalPlates);
+      : nearestAchievableWeight(targetWeight * step.percent, barWeight, availablePlates);
 
     if (weight >= targetWeight || weight <= lastWeight) continue;
 

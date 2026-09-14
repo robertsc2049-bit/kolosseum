@@ -831,6 +831,17 @@ button:focus-visible,
   margin-bottom: var(--k-space-3);
 }
 
+.plate-calc-available {
+  margin-bottom: var(--k-space-3);
+}
+
+.plate-calc-plate-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--k-space-1) var(--k-space-3);
+  margin-top: var(--k-space-2);
+}
+
 .target-stepper {
   display: flex;
   align-items: stretch;

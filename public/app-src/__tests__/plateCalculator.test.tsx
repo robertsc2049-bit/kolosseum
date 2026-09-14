@@ -4,7 +4,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { computePlateBreakdown, computeWarmupRamp, effectivePlateSet, nearestAchievableWeight, plateVisual } from "../utils/plateCalculator";
+import {
+  FULL_PLATE_SET_BY_UNIT,
+  computePlateBreakdown,
+  computeWarmupRamp,
+  defaultAvailablePlates,
+  nearestAchievableWeight,
+  plateVisual
+} from "../utils/plateCalculator";
 
 test("computePlateBreakdown resolves a kg target with a mix of plate sizes", () => {
   const result = computePlateBreakdown(100, 20, "kg");
@@ -31,21 +38,41 @@ test("computePlateBreakdown treats weighted collars as a fixed floor subtracted 
   assert.equal(withCollars.exact, true);
 });
 
-test("computePlateBreakdown only reaches for fractional (micro) plates when opted in, achieving an otherwise-unreachable exact target", () => {
-  const withoutFractional = computePlateBreakdown(100.5, 20, "kg");
+test("computePlateBreakdown only reaches for fractional (micro) plates when they're added to availablePlates, achieving an otherwise-unreachable exact target", () => {
+  const withoutFractional = computePlateBreakdown(100.5, 20, "kg", { availablePlates: defaultAvailablePlates("kg") });
   assert.equal(withoutFractional.achievedWeight, 100);
   assert.equal(withoutFractional.exact, false);
 
-  const withFractional = computePlateBreakdown(100.5, 20, "kg", { useFractionalPlates: true });
+  const withFractional = computePlateBreakdown(100.5, 20, "kg", {
+    availablePlates: new Set([...defaultAvailablePlates("kg"), 0.25])
+  });
   assert.ok(withFractional.perSide.some((pair) => pair.plate === 0.25));
   assert.equal(withFractional.achievedWeight, 100.5);
   assert.equal(withFractional.exact, true);
 });
 
-test("effectivePlateSet appends the unit's fractional plates only when requested", () => {
-  assert.deepEqual(effectivePlateSet("kg", false), [25, 20, 15, 10, 5, 2.5, 1.25]);
-  assert.deepEqual(effectivePlateSet("kg", true), [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]);
-  assert.deepEqual(effectivePlateSet("lb", true), [45, 35, 25, 10, 5, 2.5, 1, 0.5]);
+// DEV NOTE: ported from kolosseum.tools/ironclock - not every gym has
+// every plate (25kg included), so every denomination is individually
+// opt-out-able via availablePlates, not just the fractional ones.
+test("computePlateBreakdown skips a plate the gym doesn't have, even a large/standard one like 25kg", () => {
+  const without25 = computePlateBreakdown(100, 20, "kg", {
+    availablePlates: new Set(Array.from(defaultAvailablePlates("kg")).filter((plate) => plate !== 25))
+  });
+  assert.ok(!without25.perSide.some((pair) => pair.plate === 25));
+  assert.deepEqual(without25.perSide, [{ plate: 20, count: 2 }]);
+  assert.equal(without25.achievedWeight, 100);
+  assert.equal(without25.exact, true);
+});
+
+test("computePlateBreakdown falls back to the standard set when no availablePlates option is given", () => {
+  const result = computePlateBreakdown(100, 20, "kg");
+  assert.deepEqual(result.perSide, [{ plate: 25, count: 1 }, { plate: 15, count: 1 }]);
+});
+
+test("defaultAvailablePlates matches the standard plate set, fractional plates excluded", () => {
+  assert.deepEqual(new Set(FULL_PLATE_SET_BY_UNIT.kg.slice(0, 7)), defaultAvailablePlates("kg"));
+  assert.equal(defaultAvailablePlates("kg").has(0.25), false);
+  assert.equal(defaultAvailablePlates("lb").has(0.5), false);
 });
 
 test("computePlateBreakdown returns an empty breakdown when the target is below the bar weight", () => {
@@ -63,17 +90,21 @@ test("computePlateBreakdown stays exact across repeated fractional-plate subtrac
 });
 
 test("nearestAchievableWeight rounds to the nearest loadable increment", () => {
-  assert.equal(nearestAchievableWeight(41, 20, "kg"), 40);
-  assert.equal(nearestAchievableWeight(19, 20, "kg"), 20);
+  assert.equal(nearestAchievableWeight(41, 20, defaultAvailablePlates("kg")), 40);
+  assert.equal(nearestAchievableWeight(19, 20, defaultAvailablePlates("kg")), 20);
 });
 
-test("nearestAchievableWeight rounds to a finer increment when fractional plates are enabled", () => {
-  assert.equal(nearestAchievableWeight(21, 20, "kg"), 20, "the standard 1.25kg-per-side increment (2.5kg) rounds 21 down to the bar");
-  assert.equal(nearestAchievableWeight(21, 20, "kg", true), 21, "the fractional 0.25kg-per-side increment (0.5kg) can reach 21 exactly");
+test("nearestAchievableWeight rounds to a finer increment once a fractional plate is available", () => {
+  assert.equal(nearestAchievableWeight(21, 20, defaultAvailablePlates("kg")), 20, "the standard 1.25kg-per-side increment (2.5kg) rounds 21 down to the bar");
+  assert.equal(nearestAchievableWeight(21, 20, new Set([...defaultAvailablePlates("kg"), 0.25])), 21, "the fractional 0.25kg-per-side increment (0.5kg) can reach 21 exactly");
+});
+
+test("nearestAchievableWeight falls back to a 2.5 increment when nothing is available, matching ironclock's own stepKg fallback", () => {
+  assert.equal(nearestAchievableWeight(23, 20, new Set()), 22.5);
 });
 
 test("computeWarmupRamp produces an ascending ramp that stops before the working weight", () => {
-  const ramp = computeWarmupRamp(100, 20, "kg");
+  const ramp = computeWarmupRamp(100, 20, defaultAvailablePlates("kg"));
   assert.deepEqual(ramp.map((step) => step.label), ["Bar", "40%", "60%", "80%", "90%"]);
   assert.deepEqual(ramp.map((step) => step.weight), [20, 40, 60, 80, 90]);
   for (const step of ramp) {
@@ -83,13 +114,13 @@ test("computeWarmupRamp produces an ascending ramp that stops before the working
 });
 
 test("computeWarmupRamp deduplicates degenerate steps for a near-bar-weight target", () => {
-  const ramp = computeWarmupRamp(22, 20, "kg");
+  const ramp = computeWarmupRamp(22, 20, defaultAvailablePlates("kg"));
   assert.deepEqual(ramp, [{ label: "Bar", weight: 20, reps: "8-10" }]);
 });
 
 test("computeWarmupRamp returns nothing for an invalid or zero target", () => {
-  assert.deepEqual(computeWarmupRamp(0, 20, "kg"), []);
-  assert.deepEqual(computeWarmupRamp(Number.NaN, 20, "kg"), []);
+  assert.deepEqual(computeWarmupRamp(0, 20, defaultAvailablePlates("kg")), []);
+  assert.deepEqual(computeWarmupRamp(Number.NaN, 20, defaultAvailablePlates("kg")), []);
 });
 
 test("plateVisual returns a distinct, larger spec for heavier plates within each unit", () => {

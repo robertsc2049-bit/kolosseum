@@ -46,18 +46,21 @@ test("starts empty and computes on manual entry for a non-numeric-intensity exer
   assert.ok(screen.getByText("2 × 45lb"));
 });
 
-test("switching units resets the bar weight and recomputes with the other plate set", () => {
+test("switching units resets the bar weight and the available-plates list to the other unit's standard set", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
 
   assert.equal((screen.getByLabelText("Bar weight") as HTMLInputElement).value, "20");
   assert.ok(screen.getByText("1 × 25kg"));
+  assert.ok(screen.getByLabelText("25kg"));
 
   fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
 
   assert.equal((screen.getByLabelText("Bar weight") as HTMLInputElement).value, "45");
   assert.ok(screen.getByText("1 × 25lb"));
   assert.ok(screen.getByText("1 × 2.5lb"));
+  assert.equal(screen.queryByLabelText("25kg"), null);
+  assert.ok(screen.getByLabelText("25lb"));
 });
 
 test("the collars checkbox is labeled with the real per-collar weight (2.5kg each), matching kolosseum.tools/ironclock's own '2.5kg each / 5kg pair' button copy - not just the 5kg pair total", () => {
@@ -76,8 +79,7 @@ test("enabling weighted collars subtracts their pair weight before splitting pla
   // appears once collars are actually enabled.
   assert.equal(screen.queryByText("+ 5kg weighted collars"), null);
 
-  const [collarsCheckbox] = screen.getAllByRole("checkbox");
-  fireEvent.click(collarsCheckbox);
+  fireEvent.click(screen.getByLabelText(/^Weighted collars/u));
 
   assert.ok(screen.getByText("1 × 25kg"));
   assert.ok(screen.getByText("1 × 10kg"));
@@ -90,7 +92,38 @@ test("enabling weighted collars subtracts their pair weight before splitting pla
   assert.deepEqual(labels, ["25", "10"]);
 });
 
-test("enabling fractional plates reaches an otherwise-unreachable exact target, and the label updates for the selected unit", () => {
+// DEV NOTE: ported from kolosseum.tools/ironclock's `available` Set - not
+// every gym has every plate. 25kg specifically, since ironclock gives it
+// its own "25kg available" quick toggle rather than assuming every gym
+// has one.
+test("every plate, including 25kg, is individually available to untick - not every gym has one", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  assert.ok(screen.getByText("1 × 25kg"));
+
+  fireEvent.click(screen.getByLabelText("25kg"));
+
+  // "25kg" alone would also match the (always-present) checkbox's own
+  // label, so check the specific badge text that only appears when 25kg
+  // is actually part of the computed breakdown.
+  assert.equal(screen.queryByText("1 × 25kg"), null);
+  assert.ok(screen.getByText("2 × 20kg"));
+});
+
+test("all plates default to available (the standard set) with fractional micro-plates excluded, matching ironclock's own DEFAULT_AVAILABLE", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  for (const plate of ["25kg", "20kg", "15kg", "10kg", "5kg", "2.5kg", "1.25kg"]) {
+    assert.equal((screen.getByLabelText(plate) as HTMLInputElement).checked, true, `expected ${plate} to default to available`);
+  }
+  for (const plate of ["0.5kg", "0.25kg"]) {
+    assert.equal((screen.getByLabelText(plate) as HTMLInputElement).checked, false, `expected ${plate} to default to unavailable`);
+  }
+});
+
+test("adding the 0.25kg plate to the available list reaches an otherwise-unreachable exact target", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100.5, unit: "kg" } }} />);
   openCalculator();
 
@@ -98,20 +131,16 @@ test("enabling fractional plates reaches an otherwise-unreachable exact target, 
   assert.ok(screen.getByText("Rounded"));
   assert.equal(screen.queryByText("1 × 0.25kg"), null);
 
-  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
-  fireEvent.click(fractionalCheckbox);
+  fireEvent.click(screen.getByLabelText("0.25kg"));
 
   assert.ok(screen.getByText("1 × 0.25kg"));
   assert.ok(screen.getByText("Exact"));
   assert.equal(screen.queryByText(/Rounded (up|down) by/u), null);
-
-  fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
-  assert.ok(screen.getByText("Fractional plates (1/0.5lb)"));
 });
 
 // DEV NOTE: ported from kolosseum.tools/ironclock's stepTarget()/stepKg -
-// the +/- step size is 2 x the smallest selectable plate, so it changes
-// when fractional plates are toggled, exactly like the reference.
+// the +/- step size is 2 x the smallest currently-available plate, so it
+// changes whenever any plate (not just fractional ones) is toggled.
 test("the +/- stepper buttons round the target by 2.5kg by default, and clicking - never goes below 0", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
@@ -129,12 +158,11 @@ test("the +/- stepper buttons round the target by 2.5kg by default, and clicking
   assert.equal(target.value, "0");
 });
 
-test("enabling fractional plates shrinks the stepper's step size to 0.5kg", () => {
+test("adding the 0.25kg plate to the available list shrinks the stepper's step size to 0.5kg", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
 
-  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
-  fireEvent.click(fractionalCheckbox);
+  fireEvent.click(screen.getByLabelText("0.25kg"));
 
   const target = screen.getByLabelText("Target weight") as HTMLInputElement;
   fireEvent.click(screen.getByLabelText("increase target weight"));
@@ -145,7 +173,7 @@ test("enabling fractional plates shrinks the stepper's step size to 0.5kg", () =
   assert.equal(target.value, "99.5");
 });
 
-test("lb always steps by a flat 5lb, unaffected by fractional plates - the same asymmetry as kolosseum.tools/ironclock, whose lb display never derived its step from a plate set", () => {
+test("lb always steps by a flat 5lb, unaffected by which plates are available - the same asymmetry as kolosseum.tools/ironclock, whose lb display never derived its step from a plate set", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "lb" } }} />);
   openCalculator();
 
@@ -153,8 +181,7 @@ test("lb always steps by a flat 5lb, unaffected by fractional plates - the same 
   fireEvent.click(screen.getByLabelText("increase target weight"));
   assert.equal(target.value, "105");
 
-  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
-  fireEvent.click(fractionalCheckbox);
+  fireEvent.click(screen.getByLabelText("0.5lb"));
   fireEvent.change(target, { target: { value: "100" } });
   fireEvent.click(screen.getByLabelText("increase target weight"));
   assert.equal(target.value, "105");
