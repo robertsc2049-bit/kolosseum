@@ -61,9 +61,13 @@ function makeClient() {
         return { rowCount: 0, rows: [] };
       }
 
-      if (/SELECT session_id, status, planned_session, session_state_summary, beta_subject_user_id\s+FROM sessions\s+WHERE session_id = \$1\s+FOR UPDATE/i.test(s)) {
+      if (/SELECT session_id, block_id, status, planned_session, session_state_summary, beta_subject_user_id\s+FROM sessions\s+WHERE session_id = \$1\s+FOR UPDATE/i.test(s)) {
         if (!currentSessionRow) return { rowCount: 0, rows: [] };
         return { rowCount: 1, rows: [currentSessionRow] };
+      }
+
+      if (/SELECT phase1_input ->> 'activity_id' AS activity_id\s+FROM blocks\s+WHERE block_id = \$1/i.test(s)) {
+        return { rowCount: 0, rows: [] };
       }
 
       if (/SELECT re\.event->>'load_value' AS load_value, re\.event->>'load_unit' AS load_unit\s+FROM runtime_events re\s+JOIN sessions s ON s\.session_id = re\.session_id\s+WHERE s\.beta_subject_user_id = \$1/i.test(s)) {
