@@ -13,6 +13,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { CoachReviewPanel } from "../screens/coach/CoachReviewPanel";
+import { formatDate } from "../utils/format";
 
 function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
   return {
@@ -305,6 +306,83 @@ test("an athlete name and session title containing markup render as inert text, 
   assert.ok(document.querySelector(".review-record-card")?.textContent?.includes('<img src=y onerror="window.pwned=true">'));
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll(".review-record-card img").length, 0);
+});
+
+// DEV NOTE: GET /coach-workspace/reviews already computes reviewed_at_iso8601
+// server-side (the coach's own latest product_session_reviews row), distinct
+// from the session's updated_at - a reviewed session's own record can be
+// edited/updated long after the coach reviewed it, so the two timestamps
+// must stay visibly different.
+test("a reviewed record's card shows when it was actually reviewed, not just when the session record was last updated", async () => {
+  installMocks({
+    records: [baseRecord({
+      review_status: "reviewed",
+      reviewed_at_iso8601: "2026-08-25T09:15:00.000Z",
+      updated_at: "2026-08-20T10:00:00.000Z"
+    })],
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Jordan Athlete", relationship: { relationship_id: "rel_1" } }]
+  });
+  render(<CoachReviewPanel />);
+  fireEvent.change(await waitFor(() => screen.getByDisplayValue("Awaiting review")), { target: { value: "all" } });
+
+  const card = await waitFor(() => {
+    const found = document.querySelector(".review-record-card");
+    assert.ok(found);
+    return found as Element;
+  });
+
+  assert.ok(card.textContent?.includes(`Reviewed ${formatDate("2026-08-25T09:15:00.000Z")}`));
+  assert.equal(card.textContent?.includes(formatDate("2026-08-20T10:00:00.000Z")), false, "the session's own updated_at should not be shown once a real review date exists");
+});
+
+test("an awaiting-review record's card still shows the session's own date, since there's no review date yet", async () => {
+  installMocks({});
+  render(<CoachReviewPanel />);
+
+  const card = await waitFor(() => {
+    const found = document.querySelector(".review-record-card");
+    assert.ok(found);
+    return found as Element;
+  });
+
+  assert.ok(card.textContent?.includes(formatDate("2026-08-20T10:00:00.000Z")));
+  assert.equal(card.textContent?.includes("Reviewed"), false);
+});
+
+test("the detail panel adds a Reviewed fact distinct from Updated once a session is marked reviewed", async () => {
+  installMocks({
+    records: [baseRecord({
+      review_status: "reviewed",
+      reviewed_at_iso8601: "2026-08-25T09:15:00.000Z",
+      updated_at: "2026-08-20T10:00:00.000Z"
+    })]
+  });
+  render(<CoachReviewPanel />);
+  fireEvent.change(await waitFor(() => screen.getByDisplayValue("Awaiting review")), { target: { value: "all" } });
+
+  const factGrid = await waitFor(() => {
+    const grid = document.querySelectorAll(".review-detail .review-fact-grid")[0];
+    assert.ok(grid && [...grid.querySelectorAll("dt")].some((dt) => dt.textContent === "Reviewed"));
+    return grid;
+  });
+
+  const factRows = factGrid.querySelectorAll("dt, dd");
+  const facts: Record<string, string> = {};
+  for (let i = 0; i < factRows.length; i += 2) {
+    facts[factRows[i].textContent ?? ""] = factRows[i + 1].textContent ?? "";
+  }
+
+  assert.equal(facts.Updated, formatDate("2026-08-20T10:00:00.000Z"));
+  assert.equal(facts.Reviewed, formatDate("2026-08-25T09:15:00.000Z"));
+});
+
+test("the detail panel has no Reviewed fact for an awaiting-review session", async () => {
+  installMocks({});
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+
+  const factGrid = document.querySelectorAll(".review-detail .review-fact-grid")[0];
+  assert.equal([...factGrid.querySelectorAll("dt")].some((dt) => dt.textContent === "Reviewed"), false);
 });
 
 test("the open review record's detail shows the neutral session summary facts fetched from GET /sessions/:sessionId/summary", async () => {

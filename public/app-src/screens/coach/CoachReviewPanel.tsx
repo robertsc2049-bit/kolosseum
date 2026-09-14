@@ -21,6 +21,17 @@ function reviewRecordDate(record: ReviewRecord): string {
   return String(record.updated_at ?? record.created_at ?? "");
 }
 
+// DEV NOTE: the backend already computes the real review timestamp
+// (product_review.routes.ts's reviewed_at_iso8601, from the coach's latest
+// product_session_reviews row) but this panel used to fall back to the
+// session's own updated_at/created_at everywhere, showing when the session
+// record last changed rather than when the coach actually marked it
+// reviewed. Only meaningful once a record is actually reviewed - null
+// otherwise.
+function reviewedAtDate(record: ReviewRecord): string {
+  return String(record.reviewed_at_iso8601 ?? "");
+}
+
 function reviewAthleteName(record: ReviewRecord, athleteNamesById: Record<string, string>): string {
   return athleteNamesById[String(record.athlete_user_id ?? "")] ?? "Connected athlete";
 }
@@ -97,12 +108,17 @@ function ReviewCard({
   onNote: (record: ReviewRecord) => void;
 }) {
   const notes = Number(record.note_count ?? 0);
+  const status = reviewRecordStatus(record);
+  const reviewedAt = reviewedAtDate(record);
+  const dateLabel = status === "reviewed" && reviewedAt
+    ? `Reviewed ${formatDate(reviewedAt)}`
+    : formatDate(reviewRecordDate(record));
   return (
     <article className={`record-card review-record-card${selected ? " selected" : ""}`}>
       <div>
         <p className="eyebrow">{athleteName}</p>
         <h3>{String(record.session_title ?? "Training session")}</h3>
-        <p>{formatDate(reviewRecordDate(record))} · {Number(record.runtime_event_count ?? 0)} recorded events</p>
+        <p>{dateLabel} · {Number(record.runtime_event_count ?? 0)} recorded events</p>
       </div>
       <div className="record-meta review-record-actions">
         <StatusBadge record={record} />
@@ -151,6 +167,7 @@ function ReviewDetail({
         <div><dt>Planned work items</dt><dd>{Number(record.planned_work_item_count ?? 0)}</dd></div>
         <div><dt>Block</dt><dd>{String(record.block_id || "Not recorded")}</dd></div>
         <div><dt>Updated</dt><dd>{formatDate(reviewRecordDate(record))}</dd></div>
+        {status === "reviewed" ? <div><dt>Reviewed</dt><dd>{formatDate(reviewedAtDate(record))}</dd></div> : null}
       </dl>
 
       {summary ? (
