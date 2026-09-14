@@ -13,9 +13,15 @@ export interface PlatePair {
   count: number;
 }
 
+export interface PlateBreakdownOptions {
+  useCollars?: boolean;
+  useFractionalPlates?: boolean;
+}
+
 export interface PlateBreakdown {
   perSide: PlatePair[];
   barWeight: number;
+  collarWeight: number;
   achievedWeight: number;
   exact: boolean;
 }
@@ -35,6 +41,29 @@ export const PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
   lb: [45, 35, 25, 10, 5, 2.5]
 };
 
+// DEV NOTE: opt-in micro-plates for fine-tuning an otherwise-unreachable
+// target, mirroring kolosseum.tools/ironclock's optional 0.5/0.25kg plate
+// settings (off by default there too - not every gym stocks these, so
+// defaulting them on would suggest loads the athlete can't actually make).
+// lb has no equivalent fractional-plate convention to port, so this uses
+// the closest common commercial fractional-plate-set sizes (1lb/0.5lb).
+export const FRACTIONAL_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: [0.5, 0.25],
+  lb: [1, 0.5]
+};
+
+// DEV NOTE: a competition/lockable collar pair, mirroring ironclock's
+// binary "Not included" / "2.5kg each / 5kg pair" toggle exactly (kg) - lb
+// has no single standard collar weight, so this uses the same 2.5-each/
+// 5-pair shape rather than inventing an unrelated number.
+export const COLLAR_WEIGHT_BY_UNIT: Record<WeightUnit, number> = { kg: 5, lb: 5 };
+
+export function effectivePlateSet(unit: WeightUnit, useFractionalPlates: boolean): readonly number[] {
+  return useFractionalPlates
+    ? [...PLATE_SET_BY_UNIT[unit], ...FRACTIONAL_PLATE_SET_BY_UNIT[unit]]
+    : PLATE_SET_BY_UNIT[unit];
+}
+
 // DEV NOTE: size/color/label styling for BarbellDiagram.tsx - by rank
 // (largest to smallest) within each unit, matching the real IPF
 // competition plate color convention (and kolosseum.tools/ironclock's own
@@ -43,7 +72,10 @@ export const PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
 // ironclock's own size table; lb has only 6 denominations (no single
 // commercial-gym color standard exists for lb plates, so this reuses the
 // same rank-ordered scheme rather than inventing an unrelated one) and so
-// never reaches the 7th (grey) rank.
+// never reaches the 7th (grey) rank. Fractional (opt-in micro) plates get
+// their own, smaller two-tier grey scheme, since ironclock has no
+// dedicated visual for them either (they render as its generic "small"
+// class) and this app's diagram needs a distinct size per denomination.
 export interface PlateVisual {
   height: number;
   width: number;
@@ -64,14 +96,21 @@ export const PLATE_RANK_STYLES: readonly PlateVisual[] = [
   { height: 70, width: 20, gradientId: "bd-grey", gradientStops: ["#9A9DA3", "#54585E"], textColor: "#1A1A1A", fontSize: 11, textShadow: false }
 ];
 
-const PLATE_RANK_BY_UNIT: Record<WeightUnit, readonly number[]> = {
-  kg: PLATE_SET_BY_UNIT.kg,
-  lb: PLATE_SET_BY_UNIT.lb
-};
+export const FRACTIONAL_PLATE_RANK_STYLES: readonly PlateVisual[] = [
+  { height: 56, width: 16, gradientId: "bd-frac-1", gradientStops: ["#8A8D93", "#46494E"], textColor: "#FFFFFF", fontSize: 9, textShadow: true },
+  { height: 44, width: 14, gradientId: "bd-frac-2", gradientStops: ["#6E7176", "#36393D"], textColor: "#FFFFFF", fontSize: 8, textShadow: true }
+];
 
 export function plateVisual(plate: number, unit: WeightUnit): PlateVisual {
-  const rank = PLATE_RANK_BY_UNIT[unit].indexOf(plate);
-  return rank >= 0 ? PLATE_RANK_STYLES[rank] : PLATE_RANK_STYLES[PLATE_RANK_STYLES.length - 1];
+  const mainRank = PLATE_SET_BY_UNIT[unit].indexOf(plate);
+  if (mainRank >= 0) return PLATE_RANK_STYLES[mainRank];
+
+  const fractionalRank = FRACTIONAL_PLATE_SET_BY_UNIT[unit].indexOf(plate);
+  if (fractionalRank >= 0) {
+    return FRACTIONAL_PLATE_RANK_STYLES[fractionalRank] ?? FRACTIONAL_PLATE_RANK_STYLES[FRACTIONAL_PLATE_RANK_STYLES.length - 1];
+  }
+
+  return PLATE_RANK_STYLES[PLATE_RANK_STYLES.length - 1];
 }
 
 const RAMP_STEPS: { label: string; percent: number | null; reps: string }[] = [
@@ -82,14 +121,22 @@ const RAMP_STEPS: { label: string; percent: number | null; reps: string }[] = [
   { label: "90%", percent: 0.9, reps: "1" }
 ];
 
-export function computePlateBreakdown(targetWeight: number, barWeight: number, unit: WeightUnit): PlateBreakdown {
+export function computePlateBreakdown(
+  targetWeight: number,
+  barWeight: number,
+  unit: WeightUnit,
+  options: PlateBreakdownOptions = {}
+): PlateBreakdown {
+  const collarWeight = options.useCollars ? COLLAR_WEIGHT_BY_UNIT[unit] : 0;
+  const plateSet = effectivePlateSet(unit, options.useFractionalPlates ?? false);
+
   const perSide: PlatePair[] = [];
   let remaining = Number.isFinite(targetWeight) && Number.isFinite(barWeight)
-    ? Math.max(0, (targetWeight - barWeight) / 2)
+    ? Math.max(0, (targetWeight - barWeight - collarWeight) / 2)
     : 0;
 
   if (remaining > EPSILON) {
-    for (const plate of PLATE_SET_BY_UNIT[unit]) {
+    for (const plate of plateSet) {
       const count = Math.floor((remaining + EPSILON) / plate);
       if (count > 0) {
         perSide.push({ plate, count });
@@ -99,22 +146,32 @@ export function computePlateBreakdown(targetWeight: number, barWeight: number, u
   }
 
   const loadedPerSide = perSide.reduce((sum, { plate, count }) => sum + plate * count, 0);
-  const achievedWeight = barWeight + loadedPerSide * 2;
+  const achievedWeight = barWeight + collarWeight + loadedPerSide * 2;
   const exact = Number.isFinite(targetWeight) && Math.abs(targetWeight - achievedWeight) <= EPSILON;
 
-  return { perSide, barWeight, achievedWeight, exact };
+  return { perSide, barWeight, collarWeight, achievedWeight, exact };
 }
 
-export function nearestAchievableWeight(weight: number, barWeight: number, unit: WeightUnit): number {
+export function nearestAchievableWeight(
+  weight: number,
+  barWeight: number,
+  unit: WeightUnit,
+  useFractionalPlates = false
+): number {
   if (!Number.isFinite(weight) || weight <= barWeight) return barWeight;
 
-  const plates = PLATE_SET_BY_UNIT[unit];
-  const increment = plates[plates.length - 1] * 2;
+  const plateSet = effectivePlateSet(unit, useFractionalPlates);
+  const increment = plateSet[plateSet.length - 1] * 2;
   const steps = Math.round((weight - barWeight) / increment);
   return barWeight + steps * increment;
 }
 
-export function computeWarmupRamp(targetWeight: number, barWeight: number, unit: WeightUnit): WarmupStep[] {
+export function computeWarmupRamp(
+  targetWeight: number,
+  barWeight: number,
+  unit: WeightUnit,
+  useFractionalPlates = false
+): WarmupStep[] {
   if (!Number.isFinite(targetWeight) || targetWeight <= 0 || !Number.isFinite(barWeight)) return [];
 
   const steps: WarmupStep[] = [];
@@ -123,7 +180,7 @@ export function computeWarmupRamp(targetWeight: number, barWeight: number, unit:
   for (const step of RAMP_STEPS) {
     const weight = step.percent === null
       ? barWeight
-      : nearestAchievableWeight(targetWeight * step.percent, barWeight, unit);
+      : nearestAchievableWeight(targetWeight * step.percent, barWeight, unit, useFractionalPlates);
 
     if (weight >= targetWeight || weight <= lastWeight) continue;
 

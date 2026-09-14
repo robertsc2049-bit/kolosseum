@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { type JsonRecord } from "../api/transport";
 import {
   BAR_WEIGHT_BY_UNIT,
+  COLLAR_WEIGHT_BY_UNIT,
+  FRACTIONAL_PLATE_SET_BY_UNIT,
   computePlateBreakdown,
   computeWarmupRamp,
   type WeightUnit
@@ -39,14 +41,22 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
   const [targetValue, setTargetValue] = useState(initialTarget);
   const [unit, setUnit] = useState<WeightUnit>(initialUnit);
   const [barWeight, setBarWeight] = useState(String(BAR_WEIGHT_BY_UNIT[initialUnit]));
+  const [useCollars, setUseCollars] = useState(false);
+  const [useFractionalPlates, setUseFractionalPlates] = useState(false);
 
   const parsedTarget = Number(targetValue);
   const parsedBar = Number(barWeight);
   const hasValidTarget = targetValue.trim() !== "" && Number.isFinite(parsedTarget) && parsedTarget > 0;
   const hasValidBar = barWeight.trim() !== "" && Number.isFinite(parsedBar) && parsedBar >= 0;
 
-  const breakdown = hasValidTarget && hasValidBar ? computePlateBreakdown(parsedTarget, parsedBar, unit) : null;
-  const ramp = hasValidTarget && hasValidBar ? computeWarmupRamp(parsedTarget, parsedBar, unit) : [];
+  const breakdown = hasValidTarget && hasValidBar
+    ? computePlateBreakdown(parsedTarget, parsedBar, unit, { useCollars, useFractionalPlates })
+    : null;
+  // DEV NOTE: collars stay on through warm-up (removing/reattaching them
+  // between every set isn't realistic), so the ramp treats bar+collars as
+  // its own effective floor rather than the bar alone.
+  const rampBarWeight = parsedBar + (useCollars ? COLLAR_WEIGHT_BY_UNIT[unit] : 0);
+  const ramp = hasValidTarget && hasValidBar ? computeWarmupRamp(parsedTarget, rampBarWeight, unit, useFractionalPlates) : [];
 
   return (
     <>
@@ -88,12 +98,25 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
         </label>
       </div>
 
+      <div className="plate-calc-options">
+        <label className="checkbox-field">
+          <input type="checkbox" checked={useCollars} onChange={(event) => setUseCollars(event.target.checked)} />
+          <span>{`Weighted collars (+${COLLAR_WEIGHT_BY_UNIT[unit]}${unit} pair)`}</span>
+        </label>
+        <label className="checkbox-field">
+          <input type="checkbox" checked={useFractionalPlates} onChange={(event) => setUseFractionalPlates(event.target.checked)} />
+          <span>{`Fractional plates (${FRACTIONAL_PLATE_SET_BY_UNIT[unit].join("/")}${unit})`}</span>
+        </label>
+      </div>
+
       {!hasValidTarget || !hasValidBar ? (
         <p className="muted">Enter a target weight to see the plate breakdown and warm-up ramp.</p>
       ) : (
         <>
           <div className="plate-calc-breakdown">
-            {breakdown ? <BarbellDiagram perSide={breakdown.perSide} barWeight={breakdown.barWeight} unit={unit} /> : null}
+            {breakdown ? (
+              <BarbellDiagram perSide={breakdown.perSide} barWeight={breakdown.barWeight} collarWeight={breakdown.collarWeight} unit={unit} />
+            ) : null}
             <p className="exercise-howto-heading">Plates per side</p>
             {breakdown && breakdown.perSide.length ? (
               <div className="plate-calc-plates">
@@ -104,6 +127,9 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
             ) : (
               <p className="muted">Bar only.</p>
             )}
+            {breakdown && breakdown.collarWeight > 0 ? (
+              <p className="muted">{`+ ${breakdown.collarWeight}${unit} weighted collars`}</p>
+            ) : null}
             {breakdown && !breakdown.exact ? (
               <p className="muted">{`Closest achievable: ${breakdown.achievedWeight}${unit}`}</p>
             ) : null}

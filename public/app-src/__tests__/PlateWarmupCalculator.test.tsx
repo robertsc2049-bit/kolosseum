@@ -59,3 +59,38 @@ test("switching units resets the bar weight and recomputes with the other plate 
   assert.ok(screen.getByText("1 × 25lb"));
   assert.ok(screen.getByText("1 × 2.5lb"));
 });
+
+test("enabling weighted collars subtracts their weight before splitting plates, and shows a note with the extra weight", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  // The dynamic "+ Nkg weighted collars" note (distinct from the static
+  // checkbox label of the same name, which is already on the page) only
+  // appears once collars are actually enabled.
+  assert.equal(screen.queryByText("+ 5kg weighted collars"), null);
+
+  const [collarsCheckbox] = screen.getAllByRole("checkbox");
+  fireEvent.click(collarsCheckbox);
+
+  assert.ok(screen.getByText("1 × 25kg"));
+  assert.ok(screen.getByText("1 × 10kg"));
+  assert.ok(screen.getByText("1 × 2.5kg"));
+  assert.ok(screen.getByText("+ 5kg weighted collars"));
+});
+
+test("enabling fractional plates reaches an otherwise-unreachable exact target, and the label updates for the selected unit", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100.5, unit: "kg" } }} />);
+  openCalculator();
+
+  assert.ok(screen.getByText("Closest achievable: 100kg"));
+  assert.equal(screen.queryByText("1 × 0.25kg"), null);
+
+  const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
+  fireEvent.click(fractionalCheckbox);
+
+  assert.ok(screen.getByText("1 × 0.25kg"));
+  assert.equal(screen.queryByText("Closest achievable: 100kg"), null);
+
+  fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
+  assert.ok(screen.getByText("Fractional plates (1/0.5lb)"));
+});

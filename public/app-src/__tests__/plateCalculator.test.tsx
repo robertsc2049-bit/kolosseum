@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { computePlateBreakdown, computeWarmupRamp, nearestAchievableWeight, plateVisual } from "../utils/plateCalculator";
+import { computePlateBreakdown, computeWarmupRamp, effectivePlateSet, nearestAchievableWeight, plateVisual } from "../utils/plateCalculator";
 
 test("computePlateBreakdown resolves a kg target with a mix of plate sizes", () => {
   const result = computePlateBreakdown(100, 20, "kg");
@@ -18,6 +18,34 @@ test("computePlateBreakdown resolves an lb target with a single plate size", () 
   assert.deepEqual(result.perSide, [{ plate: 45, count: 2 }]);
   assert.equal(result.achievedWeight, 225);
   assert.equal(result.exact, true);
+});
+
+test("computePlateBreakdown treats weighted collars as a fixed floor subtracted before splitting the remaining weight across plates", () => {
+  const withoutCollars = computePlateBreakdown(100, 20, "kg");
+  assert.equal(withoutCollars.collarWeight, 0);
+
+  const withCollars = computePlateBreakdown(100, 20, "kg", { useCollars: true });
+  assert.equal(withCollars.collarWeight, 5);
+  assert.deepEqual(withCollars.perSide, [{ plate: 25, count: 1 }, { plate: 10, count: 1 }, { plate: 2.5, count: 1 }]);
+  assert.equal(withCollars.achievedWeight, 100);
+  assert.equal(withCollars.exact, true);
+});
+
+test("computePlateBreakdown only reaches for fractional (micro) plates when opted in, achieving an otherwise-unreachable exact target", () => {
+  const withoutFractional = computePlateBreakdown(100.5, 20, "kg");
+  assert.equal(withoutFractional.achievedWeight, 100);
+  assert.equal(withoutFractional.exact, false);
+
+  const withFractional = computePlateBreakdown(100.5, 20, "kg", { useFractionalPlates: true });
+  assert.ok(withFractional.perSide.some((pair) => pair.plate === 0.25));
+  assert.equal(withFractional.achievedWeight, 100.5);
+  assert.equal(withFractional.exact, true);
+});
+
+test("effectivePlateSet appends the unit's fractional plates only when requested", () => {
+  assert.deepEqual(effectivePlateSet("kg", false), [25, 20, 15, 10, 5, 2.5, 1.25]);
+  assert.deepEqual(effectivePlateSet("kg", true), [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]);
+  assert.deepEqual(effectivePlateSet("lb", true), [45, 35, 25, 10, 5, 2.5, 1, 0.5]);
 });
 
 test("computePlateBreakdown returns an empty breakdown when the target is below the bar weight", () => {
@@ -37,6 +65,11 @@ test("computePlateBreakdown stays exact across repeated fractional-plate subtrac
 test("nearestAchievableWeight rounds to the nearest loadable increment", () => {
   assert.equal(nearestAchievableWeight(41, 20, "kg"), 40);
   assert.equal(nearestAchievableWeight(19, 20, "kg"), 20);
+});
+
+test("nearestAchievableWeight rounds to a finer increment when fractional plates are enabled", () => {
+  assert.equal(nearestAchievableWeight(21, 20, "kg"), 20, "the standard 1.25kg-per-side increment (2.5kg) rounds 21 down to the bar");
+  assert.equal(nearestAchievableWeight(21, 20, "kg", true), 21, "the fractional 0.25kg-per-side increment (0.5kg) can reach 21 exactly");
 });
 
 test("computeWarmupRamp produces an ascending ramp that stops before the working weight", () => {

@@ -814,6 +814,13 @@ button:focus-visible,
   margin-top: var(--k-space-2);
 }
 
+.plate-calc-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--k-space-2) var(--k-space-4);
+  margin-bottom: var(--k-space-3);
+}
+
 .barbell-diagram-wrap {
   background: var(--k-canvas);
   border: 1px solid var(--k-border);
