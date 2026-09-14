@@ -815,6 +815,15 @@ button:focus-visible,
   margin-top: var(--k-space-2);
 }
 
+.plate-calc-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--k-space-2);
+}
+
+.plate-calc-status-row .exercise-howto-heading { margin: 0; }
+
 .plate-calc-options {
   display: flex;
   flex-wrap: wrap;

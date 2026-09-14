@@ -160,7 +160,12 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
             {breakdown ? (
               <BarbellDiagram perSide={breakdown.perSide} barWeight={breakdown.barWeight} collarWeight={breakdown.collarWeight} unit={unit} />
             ) : null}
-            <p className="exercise-howto-heading">Plates per side</p>
+            <div className="plate-calc-status-row">
+              <p className="exercise-howto-heading">Plates per side</p>
+              {breakdown ? (
+                <span className={`badge ${breakdown.exact ? "active" : "neutral"}`}>{breakdown.exact ? "Exact" : "Rounded"}</span>
+              ) : null}
+            </div>
             {breakdown && breakdown.perSide.length ? (
               <div className="plate-calc-plates">
                 {breakdown.perSide.map(({ plate, count }) => (
@@ -174,7 +179,9 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
               <p className="muted">{`+ ${breakdown.collarWeight}${unit} weighted collars`}</p>
             ) : null}
             {breakdown && !breakdown.exact ? (
-              <p className="muted">{`Closest achievable: ${breakdown.achievedWeight}${unit}`}</p>
+              <p className="muted">
+                {`Target cannot be loaded exactly with the selected plates. Rounded ${breakdown.achievedWeight > parsedTarget ? "up" : "down"} by ${round2(Math.abs(breakdown.achievedWeight - parsedTarget))}${unit}.`}
+              </p>
             ) : null}
           </div>
 

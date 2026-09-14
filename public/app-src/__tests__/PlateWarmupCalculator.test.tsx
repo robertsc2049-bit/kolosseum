@@ -94,14 +94,16 @@ test("enabling fractional plates reaches an otherwise-unreachable exact target, 
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100.5, unit: "kg" } }} />);
   openCalculator();
 
-  assert.ok(screen.getByText("Closest achievable: 100kg"));
+  assert.ok(screen.getByText("Target cannot be loaded exactly with the selected plates. Rounded down by 0.5kg."));
+  assert.ok(screen.getByText("Rounded"));
   assert.equal(screen.queryByText("1 × 0.25kg"), null);
 
   const [, fractionalCheckbox] = screen.getAllByRole("checkbox");
   fireEvent.click(fractionalCheckbox);
 
   assert.ok(screen.getByText("1 × 0.25kg"));
-  assert.equal(screen.queryByText("Closest achievable: 100kg"), null);
+  assert.ok(screen.getByText("Exact"));
+  assert.equal(screen.queryByText(/Rounded (up|down) by/u), null);
 
   fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
   assert.ok(screen.getByText("Fractional plates (1/0.5lb)"));

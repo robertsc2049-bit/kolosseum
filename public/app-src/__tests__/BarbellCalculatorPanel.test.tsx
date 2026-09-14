@@ -47,10 +47,11 @@ test("switching units resets the bar weight and recomputes with the other plate 
   assert.ok(screen.getByText("2 × 45lb"));
 });
 
-test("shows the closest-achievable note when the target cannot be loaded exactly", () => {
+test("shows the rounded-direction note and a Rounded status pill when the target cannot be loaded exactly", () => {
   render(<BarbellCalculatorPanel />);
 
   fireEvent.change(screen.getByLabelText("Target weight"), { target: { value: "101" } });
 
-  assert.ok(screen.getByText(/Closest achievable:/u));
+  assert.ok(screen.getByText(/Rounded down by 1kg\.$/u));
+  assert.ok(screen.getByText("Rounded"));
 });
