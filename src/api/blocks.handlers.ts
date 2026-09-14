@@ -214,6 +214,14 @@ export async function compileBlock(req: Request, res: Response) {
     } |
     null = null;
 
+  // A self-directed (individual, no coach) beta_path_context admission has
+  // no coach/assignment/template to bind - only the athlete's own identity,
+  // taken from the admitted auth_record. Kept separate from
+  // beta_session_binding (which stays coach-path-only, matching its
+  // required-string shape) rather than force-fitting it into that shape with
+  // empty-string coach/assignment placeholders.
+  let beta_individual_subject_user_id: string | undefined;
+
   if (beta_path_requested) {
     try {
       if (storedBetaSelectorsProvided) {
@@ -270,6 +278,11 @@ export async function compileBlock(req: Request, res: Response) {
           assertBeta16CompileAdmission(
             body.beta_path_context,
             body.phase1_input
+          );
+
+        beta_individual_subject_user_id =
+          asString(
+            beta_path_admission.user_id
           );
       }
     }
@@ -589,7 +602,8 @@ export async function compileBlock(req: Request, res: Response) {
     create_session,
     beta_subject_user_id:
       beta_session_binding
-        ?.subject_user_id,
+        ?.subject_user_id ??
+      beta_individual_subject_user_id,
     beta_coach_user_id:
       beta_session_binding
         ?.coach_user_id,

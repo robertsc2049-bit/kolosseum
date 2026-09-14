@@ -237,6 +237,40 @@ async function latestSessionForAssignment(
   return sessionId ? { session_id: sessionId } : null;
 }
 
+// A self-directed session (created via the individual/no-coach beta_path,
+// see createSession()'s beta_path_context branch in app.js) has no
+// assignment/template to derive Today's state from - it is only ever
+// tracked by beta_subject_user_id with no beta_coach_user_id. Without this,
+// loadAthleteTodayView had no way to report such a session as current, so
+// the app's own next server-authoritative Today fetch (which every mutation
+// and full reload triggers) would silently forget it.
+async function latestOpenSelfDirectedSession(
+  athleteUserId: string
+): Promise<{ session_id: string } | null> {
+  const result = await pool.query(
+    `
+    SELECT session_id
+    FROM sessions
+    WHERE beta_subject_user_id = $1
+      AND beta_coach_user_id IS NULL
+    ORDER BY created_at DESC, session_id DESC
+    LIMIT 1
+    `,
+    [athleteUserId]
+  );
+
+  const sessionId = cleanString(result.rows?.[0]?.session_id);
+  if (!sessionId) {
+    return null;
+  }
+
+  const sessionState = await getSessionStateQuery(sessionId).catch(() => null);
+  const executionStatus = cleanString((sessionState as JsonRecord | null)?.execution_status);
+  const terminal = executionStatus === "completed" || executionStatus === "partial";
+
+  return terminal ? null : { session_id: sessionId };
+}
+
 function sessionContextFromMaterialised(
   materialised: JsonRecord,
   action: "start" | "start_next" | "continue",
@@ -277,7 +311,13 @@ export async function loadAthleteTodayView(
   const assignment = await loadCurrentAssignment(athleteUserId);
 
   if (!assignment) {
-    return baseResponse("no_current_assignment", athleteUserId);
+    const selfDirectedSession = await latestOpenSelfDirectedSession(athleteUserId);
+
+    return baseResponse("no_current_assignment", athleteUserId, {
+      session: selfDirectedSession
+        ? deepFreeze({ action: "continue", session_id: selfDirectedSession.session_id })
+        : null
+    });
   }
 
   const coachUserId = cleanString(assignment.assigned_by_coach_id);

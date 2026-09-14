@@ -150,7 +150,7 @@ async function setUpAthlete(baseUrl, label, nonce) {
   const userId = `full_ui_14c_${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}`;
   const timestamp = new Date().toISOString();
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-auth", {
+  const authResult = await request(baseUrl, "POST", "/sessions/beta-auth", {
     user_id: userId,
     email: `${userId}@example.com`,
     display_name: label,
@@ -158,9 +158,10 @@ async function setUpAthlete(baseUrl, label, nonce) {
     account_state: "active",
     accepted_terms_version: "terms_v1",
     created_at_iso8601: timestamp
-  }), 201, `${label} athlete auth`);
+  });
+  assertStatus(authResult, 201, `${label} athlete auth`);
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-acknowledgement", {
+  const acknowledgementResult = await request(baseUrl, "POST", "/sessions/beta-acknowledgement", {
     acknowledgement_id: `ack_${userId}`,
     user_id: userId,
     beta_id: "september_beta_2026",
@@ -168,9 +169,10 @@ async function setUpAthlete(baseUrl, label, nonce) {
     jurisdiction_acknowledged: true,
     accepted_at_iso8601: timestamp,
     copy_acknowledgement_id: "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
-  }), 201, `${label} acknowledgement`);
+  });
+  assertStatus(acknowledgementResult, 201, `${label} acknowledgement`);
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-declaration", {
+  const declarationResult = await request(baseUrl, "POST", "/sessions/beta-declaration", {
     declaration_id: `declaration_${userId}`,
     user_id: userId,
     phase1_input: {
@@ -190,9 +192,15 @@ async function setUpAthlete(baseUrl, label, nonce) {
     declared_at_iso8601: timestamp,
     accepted_terms_version: "terms_v1",
     copy_acknowledgement_id: "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
-  }), 201, `${label} declaration`);
+  });
+  assertStatus(declarationResult, 201, `${label} declaration`);
 
-  return { userId };
+  return {
+    userId,
+    authRecord: authResult.json.auth_record,
+    acknowledgementRecord: acknowledgementResult.json.acknowledgement_record,
+    declarationRecord: declarationResult.json.declaration_record
+  };
 }
 
 async function connectRelationship(baseUrl, coachUserId, athleteUserId, relationshipId, state, timestamp) {
@@ -670,6 +678,76 @@ test(
       assert.equal(withCancelledEvent.state, "no_session");
       assert.ok(withCancelledEvent.session);
 
+      // --- Athlete E: no coach, no assignment at all - a self-directed
+      //     session (the "start a self-directed session" affordance on the
+      //     Today screen for athletes without a coach-assigned programme,
+      //     see createSession()'s beta_path_context branch in app.js) has no
+      //     template/assignment to derive Today's state from, but Today must
+      //     still report it as the athlete's current session (by
+      //     beta_subject_user_id, with no beta_coach_user_id) so a page
+      //     reload or the create-session flow's own immediate re-fetch
+      //     doesn't silently forget it. ---
+      const athleteE = await setUpAthlete(baseUrl, "Full14c Athlete E", nonce);
+      userIds.push(athleteE.userId);
+
+      const beforeSelfDirected = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(beforeSelfDirected.state, "no_current_assignment");
+      assert.equal(beforeSelfDirected.assignment, null);
+      assert.equal(beforeSelfDirected.session, null);
+
+      const selfDirectedPhase1Input = {
+        consent_granted: true,
+        engine_version: "EB2-1.0.0",
+        enum_bundle_version: "EB2-1.0.0",
+        phase1_schema_version: "1.0.0",
+        actor_type: "athlete",
+        execution_scope: "individual",
+        activity_id: "powerlifting",
+        nd_mode: false,
+        instruction_density: "standard",
+        exposure_prompt_density: "standard",
+        bias_mode: "none"
+      };
+
+      const selfDirectedCompiled = await request(
+        baseUrl,
+        "POST",
+        "/blocks/compile?create_session=true&beta_path=true",
+        {
+          phase1_input: selfDirectedPhase1Input,
+          beta_path_context: {
+            auth_record: athleteE.authRecord,
+            acknowledgement_record: athleteE.acknowledgementRecord,
+            declaration_record: athleteE.declarationRecord
+          }
+        }
+      );
+      assertStatus(selfDirectedCompiled, 201, "compile self-directed session");
+      const selfDirectedSessionId = selfDirectedCompiled.json.session_id;
+      assert.ok(selfDirectedSessionId, "expected a created self-directed session id");
+
+      const withSelfDirected = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(withSelfDirected.state, "no_current_assignment");
+      assert.equal(withSelfDirected.assignment, null);
+      assert.equal(withSelfDirected.session.action, "continue");
+      assert.equal(withSelfDirected.session.session_id, selfDirectedSessionId);
+
+      const selfDirectedRow = await pool.query(
+        "SELECT beta_subject_user_id, beta_coach_user_id FROM sessions WHERE session_id = $1",
+        [selfDirectedSessionId]
+      );
+      assert.equal(selfDirectedRow.rows[0]?.beta_subject_user_id, athleteE.userId);
+      assert.equal(selfDirectedRow.rows[0]?.beta_coach_user_id, null);
+
+      await advanceSessionToTerminal(baseUrl, selfDirectedSessionId);
+
+      const afterSelfDirectedComplete = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(afterSelfDirectedComplete.state, "no_current_assignment");
+      // A completed self-directed session has nothing left to continue -
+      // unlike the coach-assigned path, there is no next session to surface,
+      // since there is no template driving what comes next.
+      assert.equal(afterSelfDirectedComplete.session, null);
+
       // --- Fresh-process reconstruction: a brand-new Node process reconnects
       //     and reads back the same authoritative facts for every athlete. ---
       const childScript = `
@@ -681,7 +759,8 @@ test(
           athleteA: athleteA.userId,
           athleteB: athleteB.userId,
           athleteC: athleteC.userId,
-          athleteD: athleteD.userId
+          athleteD: athleteD.userId,
+          athleteE: athleteE.userId
         })})) {
           results[label] = await loadAthleteTodayView(athleteUserId);
         }
@@ -706,6 +785,8 @@ test(
       assert.equal(afterRestart.athleteC.state, "relationship_ended");
       assert.equal(afterRestart.athleteD.event.status, "unavailable");
       assert.equal(afterRestart.athleteD.event.reason, "event_cancelled");
+      assert.equal(afterRestart.athleteE.state, "no_current_assignment");
+      assert.equal(afterRestart.athleteE.session, null);
     }
     finally {
       await closeServer(server);
