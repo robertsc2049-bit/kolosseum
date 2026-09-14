@@ -5633,12 +5633,12 @@ function scheduleMessagingReconnect() {
 // liveMessageThreadId's React-hook equivalent - see
 // useCoachAthleteMessages.ts/useAccountCoachRelationship.ts) - cross-thread
 // notification is out of scope there, same as the original D.1/D.2 plan.
-// org_athlete_message
-// (part D.4) is the one exception with no "currently open" gate at all,
-// since its athlete-side UI renders every org thread simultaneously - see
-// the branch below. Org-owner<->coach pushes still have no client here:
-// org owner has no dedicated frontend, and the coach-side org inbox is
-// API-only, same as every prior org slice.
+// org_athlete_message (part D.4) and org_coach_message (part O.9) are the
+// two exceptions with no "currently open" gate at all, since both sides'
+// UI renders every org thread simultaneously - see the branches below.
+// The org owner side of both push types still has no live client anywhere
+// (the separate org-owner dashboard has no WebSocket connection at all) -
+// its own inbox is fetch-on-demand only, unchanged by this slice.
 function handleMessagingSocketPayload(envelope) {
   if (!envelope) return;
 
@@ -5674,6 +5674,17 @@ function handleMessagingSocketPayload(envelope) {
     const message = envelope.message;
     if (!thread || !message) return;
     document.dispatchEvent(new CustomEvent("kolosseum:athlete-org-message-received", { detail: { thread, message } }));
+  }
+  // Part O.9 - the coach-side org-messaging panel is React now (see
+  // CoachOrgMessagesPanel.tsx/useCoachOrgMessages.ts) - it owns merging a
+  // push into an existing thread entry or creating a brand new one, so
+  // this just forwards the push, mirroring the org_athlete_message branch
+  // above.
+  else if (envelope.type === "org_coach_message" && state.role === "coach") {
+    const thread = envelope.thread;
+    const message = envelope.message;
+    if (!thread || !message) return;
+    document.dispatchEvent(new CustomEvent("kolosseum:coach-org-message-received", { detail: { thread, message } }));
   }
 }
 

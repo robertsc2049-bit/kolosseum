@@ -39,6 +39,13 @@ const orgMessagesPanel = read("public/app-src/screens/account/AccountOrgMessages
 const orgContextHook = read("public/app-src/screens/account/useAccountOrgContext.ts");
 const orgContextPanel = read("public/app-src/screens/account/AccountOrgContextPanel.tsx");
 const accountRelationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: Part O.9 - the coach-side org-owner<->coach messaging panel
+// (the org_coach_messaging function's coach half, previously API-only) -
+// see CoachOrgMessagesPanel.tsx/useCoachOrgMessages.ts.
+const coachOrgMessagesHook = read("public/app-src/screens/account/useCoachOrgMessages.ts");
+const coachOrgMessagesPanel = read("public/app-src/screens/account/CoachOrgMessagesPanel.tsx");
+const productAppIndexHtml = read("public/app/index.html");
+const mainTsx = read("public/app-src/main.tsx");
 const attendanceGymRosterService = read("src/api/attendance_event_gym_roster_service.ts");
 
 const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
@@ -827,6 +834,60 @@ test("the coach org-context panel actually renders Accept/Leave controls wired t
   assert.match(orgContextHook, /await refresh\(\);/u);
   assert.match(orgContextPanel, /onClick=\{\(\) => accept\(membershipId\)\}/u);
   assert.match(orgContextPanel, /onClick=\{\(\) => leave\(membershipId\)\}/u);
+});
+
+// Part O.9 - the coach's own org-owner<->coach thread (org_coach_messaging),
+// previously API-only. Mirrors the athlete org-messages panel's merge
+// pattern above as closely as the underlying data allows - see
+// useCoachOrgMessages.ts's DEV NOTE for why org_name is sourced from
+// loadCoachOrgMemberships rather than the thread row.
+test("the coach org-messages panel merges org-messages threads with the coach's own org-memberships by org_id, so it no longer requires a thread to already exist", () => {
+  assert.match(accountRelationshipsClient, /export async function loadCoachOrgMessageThreadsMine/u);
+  assert.match(accountRelationshipsClient, /"\/coach-workspace\/org-messages\/threads"/u);
+  assert.match(coachOrgMessagesHook, /function combineEntries/u);
+  assert.match(coachOrgMessagesHook, /combineEntries\(threadEntries, memberships\)/u);
+  assert.match(
+    coachOrgMessagesHook,
+    /Promise\.all\(\[\s*\n\s*loadCoachOrgMessageThreadsMine\(\),\s*\n\s*loadCoachOrgMemberships\(\)/u
+  );
+});
+
+test("the coach org-messages panel only renders a send form for an active membership in shared-mode - an invited or removed membership, or an individual (gym) org, gets explanatory text instead, never a form the send route would 403 on", () => {
+  assert.match(coachOrgMessagesPanel, /entry\.membership_status === "active" && entry\.visibility_mode === "shared"/u);
+  assert.match(coachOrgMessagesPanel, /no longer an active member/u);
+  assert.match(coachOrgMessagesPanel, /no organisation messaging/u);
+});
+
+test("the coach org-messages panel is gated to the coach role, since the org-memberships and org-messages routes 403 for an athlete session", () => {
+  assert.match(coachOrgMessagesPanel, /useRole\(\) === "coach"/u);
+  assert.match(coachOrgMessagesPanel, /if \(!isCoach\) return null;/u);
+});
+
+test("org names and message bodies rendered into the coach org-messages panel are inert text, never raw HTML", () => {
+  assert.doesNotMatch(coachOrgMessagesPanel, /dangerouslySetInnerHTML/u);
+  assert.match(coachOrgMessagesPanel, /const orgName = entry\.org_name \|\| "Organisation";/u);
+  assert.match(coachOrgMessagesPanel, /<strong>\{orgName\}<\/strong>/u);
+});
+
+test("sending a coach org-message posts to the send route with the coach's own csrf token, mirroring sendAthleteOrgMessage", () => {
+  assert.match(accountRelationshipsClient, /export async function sendCoachOrgMessage/u);
+  assert.match(
+    accountRelationshipsClient,
+    /sendMessageRequest\(`\/coach-workspace\/org-messages\/organisations\/\$\{encodeURIComponent\(orgId\)\}\/send`, bodyText, attachmentFile, csrfToken\)/u
+  );
+  assert.match(coachOrgMessagesHook, /await sendCoachOrgMessage\(orgId, trimmed, attachmentFile, csrfToken\);/u);
+});
+
+test("a live org_coach_message push is forwarded from app.js to the coach org-messages panel via a dedicated custom event, mirroring the org_athlete_message branch", () => {
+  assert.match(appJs, /envelope\.type === "org_coach_message" && state\.role === "coach"/u);
+  assert.match(appJs, /kolosseum:coach-org-message-received/u);
+  assert.match(coachOrgMessagesHook, /MESSAGE_RECEIVED_EVENT = "kolosseum:coach-org-message-received"/u);
+});
+
+test("the coach org-messages panel is mounted into the product app's shared account view, not the separate org-owner SPA", () => {
+  assert.match(productAppIndexHtml, /<div id="coach-org-messages-root"><\/div>/u);
+  assert.match(mainTsx, /import \{ CoachOrgMessagesPanel \} from ".\/screens\/account\/CoachOrgMessagesPanel";/u);
+  assert.match(mainTsx, /mount\("coach-org-messages-root", <CoachOrgMessagesPanel \/>\);/u);
 });
 
 // Part O.5 - the org<->coach and org<->athlete messaging inboxes, built

@@ -510,7 +510,7 @@ Implemented: 24 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_audit_log` — View the organisation's recorded activity log
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
 - `coach_org_roster_visibility` — Coach reads fellow coaches in a shared (team) org they're an active member of - individual (gym) orgs stay coach-private
-- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only - each thread carries a live unread count for its viewer, cleared when that viewer opens it
+- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments - each thread carries a live unread count for its viewer, cleared when that viewer opens it. The coach side renders in the product app's account view (org owner side remains API-only, no dedicated frontend)
 - `org_athlete_messaging` — Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only - each thread carries a live unread count for its owner/athlete viewer, cleared when that viewer opens it
 - `org_coach_broadcast_message` — Org owner sends the same message into every active coach's thread at once, with a live read-by-N-of-M receipt for that broadcast
 - `org_athlete_broadcast_message` — Org owner sends the same message into every accepted athlete's thread at once, gated to team (shared-visibility) orgs only, with a live read-by-N-of-M receipt for that broadcast

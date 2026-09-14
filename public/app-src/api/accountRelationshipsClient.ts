@@ -92,6 +92,26 @@ export async function loadAthleteOrgMessageThreadsMine(): Promise<OrgMessageThre
   );
 }
 
+// DEV NOTE: Part O.9 - the coach's own two-party thread with the org owner
+// (org_coach_messaging_service.ts), the symmetric counterpart to
+// loadAthleteOrgMessageThreadsMine/sendAthleteOrgMessage above (a different
+// thread type - org_owner_coach, not org_owner_athlete). Unlike
+// OrgCoachThreadRow's projection for the org-owner side, the coach-side
+// thread row carries no org_name (see org_coach_messaging_service.ts's
+// mapThreadRow) - useCoachOrgMessages.ts sources org_name from
+// loadCoachOrgMemberships instead.
+export async function loadCoachOrgMessageThreadsMine(): Promise<OrgMessageThreadEntry[]> {
+  const response = await request("GET", "/coach-workspace/org-messages/threads");
+  const threads = Array.isArray(response.threads) ? (response.threads as JsonRecord[]) : [];
+  return Promise.all(
+    threads.map(async (thread) => {
+      const messagesResponse = await request("GET", `/coach-workspace/org-messages/threads/${encodeURIComponent(String(thread.thread_id))}`);
+      const messages = Array.isArray(messagesResponse.messages) ? (messagesResponse.messages as JsonRecord[]) : [];
+      return { thread, messages };
+    })
+  );
+}
+
 // DEV NOTE: ported verbatim from app.js's ATTACHMENT_*/validateAttachmentClientSide/
 // sendMessageRequest - fast client-side feedback only, never the actual
 // security boundary (the server's own content-sniffed validation in
@@ -156,4 +176,8 @@ export async function sendAthleteOwnMessage(coachUserId: string, bodyText: strin
 
 export async function sendAthleteOrgMessage(orgId: string, bodyText: string, attachmentFile: File | null, csrfToken: string): Promise<JsonRecord> {
   return sendMessageRequest(`/messages/athlete/org-messages/organisations/${encodeURIComponent(orgId)}/send`, bodyText, attachmentFile, csrfToken);
+}
+
+export async function sendCoachOrgMessage(orgId: string, bodyText: string, attachmentFile: File | null, csrfToken: string): Promise<JsonRecord> {
+  return sendMessageRequest(`/coach-workspace/org-messages/organisations/${encodeURIComponent(orgId)}/send`, bodyText, attachmentFile, csrfToken);
 }
