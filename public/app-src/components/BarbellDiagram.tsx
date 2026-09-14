@@ -143,21 +143,7 @@ export function BarbellDiagram({ perSide, barWeight, collarWeight, unit }: {
         ))}
 
         {hasCollar ? (
-          <g>
-            <rect x={collarX} y={centerY - COLLAR_HEIGHT / 2} width={COLLAR_WIDTH} height={COLLAR_HEIGHT} rx={2} fill={`url(#${gradientId("collar")})`} />
-            <text
-              x={collarX + COLLAR_WIDTH / 2}
-              y={centerY}
-              fontSize={9}
-              textAnchor="middle"
-              dominantBaseline="central"
-              transform={`rotate(-90 ${collarX + COLLAR_WIDTH / 2} ${centerY})`}
-              className="barbell-diagram-plate-label barbell-diagram-plate-label-shadow"
-              fill="#FFFFFF"
-            >
-              {collarWeight / 2}
-            </text>
-          </g>
+          <rect x={collarX} y={centerY - COLLAR_HEIGHT / 2} width={COLLAR_WIDTH} height={COLLAR_HEIGHT} rx={2} fill={`url(#${gradientId("collar")})`} />
         ) : null}
 
         <rect x={sleeveEndX} y={centerY - SLEEVE_END_HEIGHT / 2} width={SLEEVE_END_WIDTH} height={SLEEVE_END_HEIGHT} rx={1} fill={`url(#${gradientId("sleeve-end")})`} />

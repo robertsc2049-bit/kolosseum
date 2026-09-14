@@ -82,12 +82,13 @@ test("renders a collar element only when collarWeight is positive, and mentions 
   assert.equal(withCollars.container.querySelectorAll("rect").length, 5, "expected shaft + sleeve + plate + collar + sleeve-end");
   assert.match(withCollars.container.querySelector("svg")!.getAttribute("aria-label") ?? "", /weighted collars/u);
 
-  // collarWeight is the pair total (both sides combined) - but this is a
-  // one-sided diagram, so the single visible collar must be labeled with
-  // its own per-side (per-collar) weight, half the pair total, exactly
-  // like a plate is labeled with its own weight rather than both sides'.
+  // The collar element itself carries no text label, matching
+  // kolosseum.tools/ironclock's own <div className="ic-bar-collar" />
+  // exactly - it's a plain block, unlike plates (which do print their own
+  // weight). The per-collar (2.5kg) figure is surfaced elsewhere instead
+  // (the checkbox's own "2.5kg each / 5kg pair" copy).
   const labels = Array.from(withCollars.container.querySelectorAll(".barbell-diagram-plate-label")).map((node) => node.textContent);
-  assert.deepEqual(labels, ["25", "2.5"]);
+  assert.deepEqual(labels, ["25"]);
 });
 
 test("renders a fractional (micro) plate with its own distinct, smaller style", () => {
