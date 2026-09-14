@@ -60,8 +60,15 @@ test("switching units resets the bar weight and recomputes with the other plate 
   assert.ok(screen.getByText("1 × 2.5lb"));
 });
 
-test("enabling weighted collars subtracts their weight before splitting plates, and shows a note with the extra weight", () => {
+test("the collars checkbox is labeled with the real per-collar weight (2.5kg each), matching kolosseum.tools/ironclock's own '2.5kg each / 5kg pair' button copy - not just the 5kg pair total", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  assert.ok(screen.getByText("Weighted collars (2.5kg each / 5kg pair)"));
+});
+
+test("enabling weighted collars subtracts their pair weight before splitting plates, and shows a note with the extra weight", () => {
+  const { container } = render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 95, unit: "kg" } }} />);
   openCalculator();
 
   // The dynamic "+ Nkg weighted collars" note (distinct from the static
@@ -74,8 +81,16 @@ test("enabling weighted collars subtracts their weight before splitting plates, 
 
   assert.ok(screen.getByText("1 × 25kg"));
   assert.ok(screen.getByText("1 × 10kg"));
-  assert.ok(screen.getByText("1 × 2.5kg"));
+  assert.equal(screen.queryByText(/× 2\.5kg/u), null, "this target's plate breakdown has no 2.5kg plate, so any '2.5' label found below is unambiguously the collar's own");
   assert.ok(screen.getByText("+ 5kg weighted collars"));
+
+  // The diagram's one visible collar (this is a one-sided diagram, so it
+  // stands for a single physical collar) is itself labeled with its own
+  // 2.5kg weight, the same way every plate is labeled with its own weight
+  // - never the 5kg pair total, which would misrepresent what one collar
+  // actually weighs.
+  const labels = Array.from(container.querySelectorAll(".barbell-diagram-plate-label")).map((node) => node.textContent);
+  assert.deepEqual(labels, ["25", "10", "2.5"]);
 });
 
 test("enabling fractional plates reaches an otherwise-unreachable exact target, and the label updates for the selected unit", () => {

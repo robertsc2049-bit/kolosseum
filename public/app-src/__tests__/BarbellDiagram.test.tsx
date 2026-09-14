@@ -81,6 +81,13 @@ test("renders a collar element only when collarWeight is positive, and mentions 
   const withCollars = render(<BarbellDiagram perSide={[{ plate: 25, count: 1 }]} barWeight={20} collarWeight={5} unit="kg" />);
   assert.equal(withCollars.container.querySelectorAll("rect").length, 5, "expected shaft + sleeve + plate + collar + sleeve-end");
   assert.match(withCollars.container.querySelector("svg")!.getAttribute("aria-label") ?? "", /weighted collars/u);
+
+  // collarWeight is the pair total (both sides combined) - but this is a
+  // one-sided diagram, so the single visible collar must be labeled with
+  // its own per-side (per-collar) weight, half the pair total, exactly
+  // like a plate is labeled with its own weight rather than both sides'.
+  const labels = Array.from(withCollars.container.querySelectorAll(".barbell-diagram-plate-label")).map((node) => node.textContent);
+  assert.deepEqual(labels, ["25", "2.5"]);
 });
 
 test("renders a fractional (micro) plate with its own distinct, smaller style", () => {

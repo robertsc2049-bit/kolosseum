@@ -101,7 +101,7 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
       <div className="plate-calc-options">
         <label className="checkbox-field">
           <input type="checkbox" checked={useCollars} onChange={(event) => setUseCollars(event.target.checked)} />
-          <span>{`Weighted collars (+${COLLAR_WEIGHT_BY_UNIT[unit]}${unit} pair)`}</span>
+          <span>{`Weighted collars (${COLLAR_WEIGHT_BY_UNIT[unit] / 2}${unit} each / ${COLLAR_WEIGHT_BY_UNIT[unit]}${unit} pair)`}</span>
         </label>
         <label className="checkbox-field">
           <input type="checkbox" checked={useFractionalPlates} onChange={(event) => setUseFractionalPlates(event.target.checked)} />
