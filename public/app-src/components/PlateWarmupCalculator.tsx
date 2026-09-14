@@ -1,10 +1,12 @@
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 
 import { type JsonRecord } from "../api/transport";
 import {
   BAR_WEIGHT_BY_UNIT,
+  CHANGE_PLATE_SET_BY_UNIT,
   COLLAR_WEIGHT_BY_UNIT,
-  FULL_PLATE_SET_BY_UNIT,
+  LARGE_PLATE_SET_BY_UNIT,
+  QUICK_PLATE_SET_BY_UNIT,
   computePlateBreakdown,
   computeWarmupRamp,
   defaultAvailablePlates,
@@ -63,6 +65,7 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
   // that default whenever the unit changes, since kg/lb plates are
   // entirely different denominations.
   const [availablePlates, setAvailablePlates] = useState<Set<number>>(() => defaultAvailablePlates(initialUnit));
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   function togglePlate(plate: number) {
     setAvailablePlates((current) => {
@@ -72,6 +75,22 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
       return next;
     });
   }
+
+  // DEV NOTE: matches ironclock's own Escape-closes-the-settings-modal
+  // behaviour.
+  useEffect(() => {
+    if (!settingsOpen) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setSettingsOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [settingsOpen]);
+
+  const availableSummary = useMemo(
+    () => Array.from(availablePlates).sort((a, b) => b - a).map((plate) => `${plate}${unit}`).join(", "),
+    [availablePlates, unit]
+  );
 
   const parsedTarget = Number(targetValue);
   const parsedBar = Number(barWeight);
@@ -165,17 +184,82 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
       </div>
 
       <div className="plate-calc-available">
-        <p className="exercise-howto-heading">Available plates</p>
-        <p className="muted small">Not every gym has every plate - untick what you don't have.</p>
+        <p className="exercise-howto-heading">Quick plate availability</p>
         <div className="plate-calc-plate-toggles">
-          {FULL_PLATE_SET_BY_UNIT[unit].map((plate) => (
-            <label className="checkbox-field" key={plate}>
-              <input type="checkbox" checked={availablePlates.has(plate)} onChange={() => togglePlate(plate)} />
-              <span>{`${plate}${unit}`}</span>
-            </label>
+          {QUICK_PLATE_SET_BY_UNIT[unit].map((plate) => (
+            <button
+              type="button"
+              key={plate}
+              className={`badge badge-toggle ${availablePlates.has(plate) ? "active" : "neutral"}`}
+              aria-pressed={availablePlates.has(plate)}
+              onClick={() => togglePlate(plate)}
+            >
+              {`${plate}${unit} available`}
+            </button>
           ))}
         </div>
+        <button type="button" className="button secondary wide plate-calc-settings-button" onClick={() => setSettingsOpen(true)}>
+          Full plate settings
+        </button>
+        <p className="muted small">{`Available plates: ${availableSummary || "none"}`}</p>
       </div>
+
+      {settingsOpen ? (
+        <div
+          className="plate-calc-modal-overlay"
+          onClick={(event) => {
+            if (event.target === event.currentTarget) setSettingsOpen(false);
+          }}
+        >
+          <div className="plate-calc-modal-card" role="dialog" aria-modal="true" aria-label="Plate settings">
+            <div className="plate-calc-modal-head">
+              <div>
+                <p className="plate-calc-modal-title">Plate settings</p>
+                <p className="muted small">Not every gym has every plate - choose which are available. A plate only counts when selected.</p>
+              </div>
+              <button type="button" className="button secondary" onClick={() => setSettingsOpen(false)}>Close</button>
+            </div>
+
+            <div>
+              <p className="exercise-howto-heading">Large plates available</p>
+              <div className="plate-calc-plate-toggles">
+                {LARGE_PLATE_SET_BY_UNIT[unit].map((plate) => (
+                  <button
+                    type="button"
+                    key={plate}
+                    className={`badge badge-toggle ${availablePlates.has(plate) ? "active" : "neutral"}`}
+                    aria-pressed={availablePlates.has(plate)}
+                    onClick={() => togglePlate(plate)}
+                  >
+                    {`${plate}${unit}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="exercise-howto-heading">Change plates available</p>
+              <div className="plate-calc-plate-toggles">
+                {CHANGE_PLATE_SET_BY_UNIT[unit].map((plate) => (
+                  <button
+                    type="button"
+                    key={plate}
+                    className={`badge badge-toggle ${availablePlates.has(plate) ? "active" : "neutral"}`}
+                    aria-pressed={availablePlates.has(plate)}
+                    onClick={() => togglePlate(plate)}
+                  >
+                    {`${plate}${unit}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button type="button" className="button secondary" onClick={() => setAvailablePlates(defaultAvailablePlates(unit))}>
+              Reset to default
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {!hasValidTarget || !hasValidBar ? (
         <p className="muted">Enter a target weight to see the plate breakdown and warm-up ramp.</p>

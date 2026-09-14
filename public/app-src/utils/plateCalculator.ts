@@ -70,6 +70,29 @@ export function defaultAvailablePlates(unit: WeightUnit): Set<number> {
   return new Set(PLATE_SET_BY_UNIT[unit]);
 }
 
+// DEV NOTE: mirrors ironclock's QUICK_PLATES ([25, 0.5, 0.25] there) - the
+// single largest standard plate plus both fractional (micro) plates, the
+// combination most worth a one-tap toggle without opening full settings.
+export const QUICK_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: [PLATE_SET_BY_UNIT.kg[0], ...FRACTIONAL_PLATE_SET_BY_UNIT.kg],
+  lb: [PLATE_SET_BY_UNIT.lb[0], ...FRACTIONAL_PLATE_SET_BY_UNIT.lb]
+};
+
+// DEV NOTE: mirrors ironclock's LARGE_PLATES/CHANGE_PLATES full-settings
+// grouping - the first five standard-set ranks ("large") vs. everything
+// else ("change": the remaining standard ranks plus both fractional
+// plates). Rank-based (not hardcoded weight values) so it generalizes to
+// lb's smaller six-plate standard set the same way.
+export const LARGE_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: PLATE_SET_BY_UNIT.kg.slice(0, 5),
+  lb: PLATE_SET_BY_UNIT.lb.slice(0, 5)
+};
+
+export const CHANGE_PLATE_SET_BY_UNIT: Record<WeightUnit, readonly number[]> = {
+  kg: [...PLATE_SET_BY_UNIT.kg.slice(5), ...FRACTIONAL_PLATE_SET_BY_UNIT.kg],
+  lb: [...PLATE_SET_BY_UNIT.lb.slice(5), ...FRACTIONAL_PLATE_SET_BY_UNIT.lb]
+};
+
 function sortedAvailablePlates(availablePlates: ReadonlySet<number>): number[] {
   return Array.from(availablePlates).sort((a, b) => b - a);
 }

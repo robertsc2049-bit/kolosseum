@@ -842,6 +842,55 @@ button:focus-visible,
   margin-top: var(--k-space-2);
 }
 
+.badge-toggle {
+  cursor: pointer;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.badge-toggle:hover { border-color: var(--bronze); }
+
+.plate-calc-settings-button {
+  margin-top: var(--k-space-3);
+}
+
+.plate-calc-modal-overlay {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--k-space-4);
+  background: rgba(10, 12, 10, 0.78);
+  backdrop-filter: blur(5px);
+}
+
+.plate-calc-modal-card {
+  display: grid;
+  gap: var(--k-space-4);
+  width: min(480px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: var(--k-space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--k-radius-l);
+  background: var(--ink-2);
+}
+
+.plate-calc-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--k-space-3);
+}
+
+.plate-calc-modal-title {
+  margin: 0 0 var(--k-space-1);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
 .target-stepper {
   display: flex;
   align-items: stretch;

@@ -52,15 +52,14 @@ test("switching units resets the bar weight and the available-plates list to the
 
   assert.equal((screen.getByLabelText("Bar weight") as HTMLInputElement).value, "20");
   assert.ok(screen.getByText("1 × 25kg"));
-  assert.ok(screen.getByLabelText("25kg"));
+  assert.ok(screen.getByText("Available plates: 25kg, 20kg, 15kg, 10kg, 5kg, 2.5kg, 1.25kg"));
 
   fireEvent.change(screen.getByLabelText("Unit"), { target: { value: "lb" } });
 
   assert.equal((screen.getByLabelText("Bar weight") as HTMLInputElement).value, "45");
   assert.ok(screen.getByText("1 × 25lb"));
   assert.ok(screen.getByText("1 × 2.5lb"));
-  assert.equal(screen.queryByLabelText("25kg"), null);
-  assert.ok(screen.getByLabelText("25lb"));
+  assert.ok(screen.getByText("Available plates: 45lb, 35lb, 25lb, 10lb, 5lb, 2.5lb"));
 });
 
 test("the collars checkbox is labeled with the real per-collar weight (2.5kg each), matching kolosseum.tools/ironclock's own '2.5kg each / 5kg pair' button copy - not just the 5kg pair total", () => {
@@ -79,11 +78,11 @@ test("enabling weighted collars subtracts their pair weight before splitting pla
   // appears once collars are actually enabled.
   assert.equal(screen.queryByText("+ 5kg weighted collars"), null);
 
-  fireEvent.click(screen.getByLabelText(/^Weighted collars/u));
+  fireEvent.click(screen.getByLabelText("Weighted collars (2.5kg each / 5kg pair)"));
 
   assert.ok(screen.getByText("1 × 25kg"));
   assert.ok(screen.getByText("1 × 10kg"));
-  assert.equal(screen.queryByText(/× 2\.5kg/u), null, "this target's plate breakdown has no 2.5kg plate");
+  assert.equal(screen.queryByText(/× 2\.5kg/), null, "this target's plate breakdown has no 2.5kg plate");
   assert.ok(screen.getByText("+ 5kg weighted collars"));
 
   // The collar element itself carries no text label, matching
@@ -102,11 +101,8 @@ test("every plate, including 25kg, is individually available to untick - not eve
 
   assert.ok(screen.getByText("1 × 25kg"));
 
-  fireEvent.click(screen.getByLabelText("25kg"));
+  fireEvent.click(screen.getByRole("button", { name: "25kg available" }));
 
-  // "25kg" alone would also match the (always-present) checkbox's own
-  // label, so check the specific badge text that only appears when 25kg
-  // is actually part of the computed breakdown.
   assert.equal(screen.queryByText("1 × 25kg"), null);
   assert.ok(screen.getByText("2 × 20kg"));
 });
@@ -114,12 +110,13 @@ test("every plate, including 25kg, is individually available to untick - not eve
 test("all plates default to available (the standard set) with fractional micro-plates excluded, matching ironclock's own DEFAULT_AVAILABLE", () => {
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
+  fireEvent.click(screen.getByText("Full plate settings"));
 
   for (const plate of ["25kg", "20kg", "15kg", "10kg", "5kg", "2.5kg", "1.25kg"]) {
-    assert.equal((screen.getByLabelText(plate) as HTMLInputElement).checked, true, `expected ${plate} to default to available`);
+    assert.equal(screen.getByRole("button", { name: plate }).getAttribute("aria-pressed"), "true", `expected ${plate} to default to available`);
   }
   for (const plate of ["0.5kg", "0.25kg"]) {
-    assert.equal((screen.getByLabelText(plate) as HTMLInputElement).checked, false, `expected ${plate} to default to unavailable`);
+    assert.equal(screen.getByRole("button", { name: plate }).getAttribute("aria-pressed"), "false", `expected ${plate} to default to unavailable`);
   }
 });
 
@@ -131,11 +128,12 @@ test("adding the 0.25kg plate to the available list reaches an otherwise-unreach
   assert.ok(screen.getByText("Rounded"));
   assert.equal(screen.queryByText("1 × 0.25kg"), null);
 
-  fireEvent.click(screen.getByLabelText("0.25kg"));
+  fireEvent.click(screen.getByRole("button", { name: "0.25kg available" }));
 
   assert.ok(screen.getByText("1 × 0.25kg"));
   assert.ok(screen.getByText("Exact"));
-  assert.equal(screen.queryByText(/Rounded (up|down) by/u), null);
+  assert.equal(screen.queryByText("Target cannot be loaded exactly with the selected plates. Rounded up by 0.5kg."), null);
+  assert.equal(screen.queryByText("Target cannot be loaded exactly with the selected plates. Rounded down by 0.5kg."), null);
 });
 
 // DEV NOTE: ported from kolosseum.tools/ironclock's stepTarget()/stepKg -
@@ -162,7 +160,7 @@ test("adding the 0.25kg plate to the available list shrinks the stepper's step s
   render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
   openCalculator();
 
-  fireEvent.click(screen.getByLabelText("0.25kg"));
+  fireEvent.click(screen.getByRole("button", { name: "0.25kg available" }));
 
   const target = screen.getByLabelText("Target weight") as HTMLInputElement;
   fireEvent.click(screen.getByLabelText("increase target weight"));
@@ -181,8 +179,60 @@ test("lb always steps by a flat 5lb, unaffected by which plates are available - 
   fireEvent.click(screen.getByLabelText("increase target weight"));
   assert.equal(target.value, "105");
 
-  fireEvent.click(screen.getByLabelText("0.5lb"));
+  fireEvent.click(screen.getByRole("button", { name: "0.5lb available" }));
   fireEvent.change(target, { target: { value: "100" } });
   fireEvent.click(screen.getByLabelText("increase target weight"));
   assert.equal(target.value, "105");
+});
+
+// DEV NOTE: the always-visible per-plate checkbox list this replaced made
+// the calculator feel too busy. Matching kolosseum.tools/ironclock's own
+// pattern instead: a few quick-toggle plates inline, everything else
+// tucked behind a "Full plate settings" panel.
+test("only the quick-toggle plates (largest standard plate + both fractional plates) show inline - the rest stay tucked behind Full plate settings", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  assert.ok(screen.getByRole("button", { name: "25kg available" }));
+  assert.ok(screen.getByRole("button", { name: "0.5kg available" }));
+  assert.ok(screen.getByRole("button", { name: "0.25kg available" }));
+  // The bare "20kg" toggle (as opposed to the quick row's "20kg available")
+  // only exists inside the Full plate settings dialog, which is closed by
+  // default - its absence here is what proves the dialog isn't open yet.
+  assert.equal(screen.queryByRole("button", { name: "20kg" }), null);
+  assert.equal(screen.queryByRole("dialog"), null);
+  assert.ok(screen.getByText("Available plates: 25kg, 20kg, 15kg, 10kg, 5kg, 2.5kg, 1.25kg"), "the always-visible summary line still reflects the full available set");
+});
+
+test("Full plate settings opens a dialog grouping every plate into Large plates and Change plates, matching ironclock's own modal grouping", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  fireEvent.click(screen.getByText("Full plate settings"));
+
+  assert.ok(screen.getByRole("dialog", { name: "Plate settings" }));
+  assert.ok(screen.getByText("Large plates available"));
+  assert.ok(screen.getByText("Change plates available"));
+  for (const plate of ["25kg", "20kg", "15kg", "10kg", "5kg"]) {
+    assert.ok(screen.getByRole("button", { name: plate }), `expected ${plate} in the Large plates group`);
+  }
+  for (const plate of ["2.5kg", "1.25kg", "0.5kg", "0.25kg"]) {
+    assert.ok(screen.getByRole("button", { name: plate }), `expected ${plate} in the Change plates group`);
+  }
+});
+
+test("closing the settings dialog with Escape works, and Reset to default restores the standard plate set after customizing it", () => {
+  render(<PlateWarmupCalculator exercise={{ intensity: { type: "load", value: 100, unit: "kg" } }} />);
+  openCalculator();
+
+  fireEvent.click(screen.getByText("Full plate settings"));
+  fireEvent.click(screen.getByRole("button", { name: "20kg" }));
+  assert.ok(screen.getByText("Available plates: 25kg, 15kg, 10kg, 5kg, 2.5kg, 1.25kg"));
+
+  fireEvent.keyDown(window, { key: "Escape" });
+  assert.equal(screen.queryByRole("dialog"), null);
+
+  fireEvent.click(screen.getByText("Full plate settings"));
+  fireEvent.click(screen.getByText("Reset to default"));
+  assert.ok(screen.getByText("Available plates: 25kg, 20kg, 15kg, 10kg, 5kg, 2.5kg, 1.25kg"));
 });

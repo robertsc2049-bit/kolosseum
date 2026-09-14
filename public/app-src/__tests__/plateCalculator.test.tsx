@@ -5,7 +5,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CHANGE_PLATE_SET_BY_UNIT,
   FULL_PLATE_SET_BY_UNIT,
+  LARGE_PLATE_SET_BY_UNIT,
+  QUICK_PLATE_SET_BY_UNIT,
   computePlateBreakdown,
   computeWarmupRamp,
   defaultAvailablePlates,
@@ -73,6 +76,23 @@ test("defaultAvailablePlates matches the standard plate set, fractional plates e
   assert.deepEqual(new Set(FULL_PLATE_SET_BY_UNIT.kg.slice(0, 7)), defaultAvailablePlates("kg"));
   assert.equal(defaultAvailablePlates("kg").has(0.25), false);
   assert.equal(defaultAvailablePlates("lb").has(0.5), false);
+});
+
+// DEV NOTE: matches kolosseum.tools/ironclock's own QUICK_PLATES ([25, 0.5,
+// 0.25] there exactly) - the largest standard plate plus both fractional
+// plates, for a one-tap toggle without opening full settings.
+test("QUICK_PLATE_SET_BY_UNIT matches ironclock's own QUICK_PLATES for kg, and generalizes the same rule to lb", () => {
+  assert.deepEqual(QUICK_PLATE_SET_BY_UNIT.kg, [25, 0.5, 0.25]);
+  assert.deepEqual(QUICK_PLATE_SET_BY_UNIT.lb, [45, 1, 0.5]);
+});
+
+// DEV NOTE: matches ironclock's own LARGE_PLATES/CHANGE_PLATES modal
+// grouping ([25,20,15,10,5] / [2.5,1.25,0.5,0.25] there exactly for kg).
+test("LARGE_PLATE_SET_BY_UNIT and CHANGE_PLATE_SET_BY_UNIT together cover every plate exactly once, matching ironclock's own settings-modal grouping for kg", () => {
+  assert.deepEqual(LARGE_PLATE_SET_BY_UNIT.kg, [25, 20, 15, 10, 5]);
+  assert.deepEqual(CHANGE_PLATE_SET_BY_UNIT.kg, [2.5, 1.25, 0.5, 0.25]);
+  assert.deepEqual([...LARGE_PLATE_SET_BY_UNIT.kg, ...CHANGE_PLATE_SET_BY_UNIT.kg], FULL_PLATE_SET_BY_UNIT.kg);
+  assert.deepEqual([...LARGE_PLATE_SET_BY_UNIT.lb, ...CHANGE_PLATE_SET_BY_UNIT.lb], FULL_PLATE_SET_BY_UNIT.lb);
 });
 
 test("computePlateBreakdown returns an empty breakdown when the target is below the bar weight", () => {

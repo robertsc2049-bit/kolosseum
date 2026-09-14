@@ -52,6 +52,6 @@ test("shows the rounded-direction note and a Rounded status pill when the target
 
   fireEvent.change(screen.getByLabelText("Target weight"), { target: { value: "101" } });
 
-  assert.ok(screen.getByText(/Rounded down by 1kg\.$/u));
+  assert.ok(screen.getByText("Target cannot be loaded exactly with the selected plates. Rounded down by 1kg."));
   assert.ok(screen.getByText("Rounded"));
 });
