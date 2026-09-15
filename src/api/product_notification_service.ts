@@ -58,7 +58,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "athlete_position_overridden",
   "attendance_rsvp_declined",
   "activity_change_declined",
-  "relationship_ended_by_athlete"
+  "relationship_ended_by_athlete",
+  "coach_athlete_message_received",
+  "org_owner_message_received"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -1068,6 +1070,135 @@ async function deriveAttendanceRsvpDeclinedNotifications(
   }
 }
 
+// --- Messaging: new messages, coach<->athlete and org-owner<->coach/athlete
+// Notification creation is gated on the recipient's own last-read marker on
+// product_message_threads - the same column the live unread-count queries in
+// coach_athlete_messaging_service.ts/org_coach_messaging_service.ts/
+// org_athlete_messaging_service.ts already use, reused verbatim here rather
+// than inventing a new "is unread" concept. This means a message the
+// recipient already read before their bell was ever queried never becomes a
+// notification at all - no separate suppression logic needed.
+// Deliberately scoped to the 4 directions where the recipient is a normal
+// product_accounts row (coach or athlete). The 2 directions where an org
+// owner would be the recipient (coach->owner, athlete->owner) are out of
+// scope: org owners live in the wholly separate product_org_owner_accounts
+// table with no notification-bell infrastructure of their own today.
+
+async function deriveCoachAthleteMessageNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const asCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.athlete_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    WHERE t.thread_type = 'coach_athlete'
+      AND t.coach_user_id = $1
+      AND m.sender_role = 'athlete'
+      AND m.created_at > COALESCE(t.coach_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asCoach.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coach_athlete_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: { athlete_user_id: athleteUserId },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const asAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.coach_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    WHERE t.thread_type = 'coach_athlete'
+      AND t.athlete_user_id = $1
+      AND m.sender_role = 'coach'
+      AND m.created_at > COALESCE(t.athlete_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asAthlete.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coach_athlete_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { coach_user_id: cleanString(row.coach_user_id) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+async function deriveOrgOwnerMessageNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const asCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_coach'
+      AND t.coach_user_id = $1
+      AND m.sender_role = 'org_owner'
+      AND m.created_at > COALESCE(t.coach_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asCoach.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "org_owner_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.org_name) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const asAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_athlete'
+      AND t.athlete_user_id = $1
+      AND m.sender_role = 'org_owner'
+      AND m.created_at > COALESCE(t.athlete_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asAthlete.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "org_owner_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.org_name) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -1093,6 +1224,8 @@ async function deriveNotificationsForRecipient(
   await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
   await deriveVideoSubmittedNotifications(client, recipientUserId);
   await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
+  await deriveCoachAthleteMessageNotifications(client, recipientUserId);
+  await deriveOrgOwnerMessageNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

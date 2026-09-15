@@ -54,7 +54,7 @@ test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
 });
 
 test("FULL-UI-01 manifest retains every delivery slice", () => {
-  assert.equal(manifest.delivery_slices.length, 61);
+  assert.equal(manifest.delivery_slices.length, 62);
   const sliceIds = manifest.delivery_slices.map((slice) => slice.slice_id);
   assert.deepEqual(
     sliceIds.slice(0, 31),
@@ -92,6 +92,7 @@ test("FULL-UI-01 manifest retains every delivery slice", () => {
   assert.equal(sliceIds[58], "FULL-UI-87");
   assert.equal(sliceIds[59], "FULL-UI-88");
   assert.equal(sliceIds[60], "FULL-UI-89");
+  assert.equal(sliceIds[61], "FULL-UI-90");
   assert.ok(manifest.delivery_slices.every((slice) => slice.state === "implemented"));
 });
 
