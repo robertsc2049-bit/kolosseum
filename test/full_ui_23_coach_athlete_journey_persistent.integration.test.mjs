@@ -343,7 +343,15 @@ test(
       { cookie: coachCookie, csrf: coachCsrf }
     );
     assertStatus(onboardingTerms, 200, "coach onboarding terms");
-    assert.equal(onboardingTerms.json?.current_stage, "review");
+    assert.equal(onboardingTerms.json?.current_stage, "accessibility");
+
+    const onboardingAccessibility = await request(
+      baseUrl, "PATCH", "/account/coach-onboarding/accessibility",
+      { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } },
+      { cookie: coachCookie, csrf: coachCsrf }
+    );
+    assertStatus(onboardingAccessibility, 200, "coach onboarding accessibility");
+    assert.equal(onboardingAccessibility.json?.current_stage, "review");
 
     const onboardingComplete = await request(
       baseUrl, "POST", "/account/coach-onboarding/complete",
@@ -1043,7 +1051,7 @@ test(
       "step_16b_coach_note_scoped_to_exercise",
       "A coach note can be scoped to a real exercise on the session, and is rejected for an exercise_id not on that session's plan",
       exerciseScopedNote.json?.coach_note?.exercise_id === firstSessionExerciseId &&
-        rejectedExerciseNote.status === 400,
+        rejectedExerciseNote.response.status === 400,
       { session_id: sessionId, exercise_id: firstSessionExerciseId }
     );
 
