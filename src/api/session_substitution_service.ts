@@ -6,11 +6,23 @@
 // which session_state_write_service.ts verifies against the same registry
 // before it is durably recorded.
 
+import { pool } from "../db/pool.js";
 import { badRequest } from "./http_errors.js";
 import { getSessionStateQuery } from "./session_state_query_service.js";
 import { buildV1SubstitutionInput } from "./session_substitution_registry.js";
 // @ts-ignore - .mjs source, no type declarations
 import { tryBuildV1SubstitutionResult } from "../v1SubstitutionEngineContract.mjs";
+
+async function loadSessionActivityId(session_id: string): Promise<string> {
+  const result = await pool.query(
+    `SELECT b.phase1_input ->> 'activity_id' AS activity_id
+     FROM sessions s
+     JOIN blocks b ON b.block_id = s.block_id
+     WHERE s.session_id = $1`,
+    [session_id]
+  );
+  return typeof result.rows[0]?.activity_id === "string" ? result.rows[0].activity_id : "";
+}
 
 export async function requestSessionSubstitution(
   session_id: string,
@@ -33,7 +45,8 @@ export async function requestSessionSubstitution(
     ? unavailableEquipmentIdsInput.filter((v): v is string => typeof v === "string" && v.length > 0)
     : [];
 
-  const input = buildV1SubstitutionInput(id, unavailableEquipmentIds);
+  const activityId = await loadSessionActivityId(session_id);
+  const input = buildV1SubstitutionInput(id, unavailableEquipmentIds, activityId);
   if (!input) {
     throw badRequest("Exercise is not eligible for a substitution lookup", {
       failure_token: "substitution_exercise_not_in_registry"

@@ -6,8 +6,6 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ACTIVITY_ID = "general_strength";
-
 const EXERCISE_REGISTRY_PATH = path.join(
   process.cwd(),
   "registries",
@@ -137,25 +135,27 @@ function requiredEquipmentIds(
 
 function trainingApplicability(
   exerciseId: string,
+  activityId: string,
   rows: Record<string, ApplicabilityRow>
 ): ApplicabilityRow | null {
   return (
     Object.values(rows).find(
       (row) =>
         row.exercise_id === exerciseId &&
-        row.activity_id === ACTIVITY_ID &&
+        row.activity_id === activityId &&
         row.activity_context === "training"
     ) ?? null
   );
 }
 
-function isExplicitlyEligible(exerciseId: string, rows: Record<string, ApplicabilityRow>): boolean {
-  const row = trainingApplicability(exerciseId, rows);
+function isExplicitlyEligible(exerciseId: string, activityId: string, rows: Record<string, ApplicabilityRow>): boolean {
+  const row = trainingApplicability(exerciseId, activityId, rows);
   return row?.applicability_state === "allowed" && row?.substitution_applicability === "eligible";
 }
 
 function outgoingEdges(
   sourceExerciseId: string,
+  activityId: string,
   substitutions: Record<string, SubstitutionRow>
 ): SubstitutionRow[] {
   return Object.values(substitutions)
@@ -163,7 +163,7 @@ function outgoingEdges(
       (row) =>
         row.source_exercise_id === sourceExerciseId &&
         Array.isArray(row.activity_applicability) &&
-        row.activity_applicability.includes(ACTIVITY_ID)
+        row.activity_applicability.includes(activityId)
     )
     .sort((left, right) => {
       const leftKey = typeof left.deterministic_ordering_key === "string" ? left.deterministic_ordering_key : "";
@@ -175,18 +175,19 @@ function outgoingEdges(
 
 function projectExercise(
   exerciseId: string,
+  activityId: string,
   authority: RuntimeAuthority
 ): RegistryExercise | null {
   const row = authority.exercises[exerciseId];
   if (!row || row.exercise_id !== exerciseId || typeof row.movement_pattern_id !== "string") return null;
-  if (!isExplicitlyEligible(exerciseId, authority.applicability)) return null;
+  if (!isExplicitlyEligible(exerciseId, activityId, authority.applicability)) return null;
 
   const equipmentIds = requiredEquipmentIds(exerciseId, authority.equipmentCompatibility);
   if (equipmentIds.length === 0 || equipmentIds.some((equipmentId) => !authority.equipment[equipmentId])) return null;
 
   return {
     exercise_id: exerciseId,
-    activity_id: ACTIVITY_ID,
+    activity_id: activityId,
     movement_id: row.movement_pattern_id,
     equipment_ids: equipmentIds
   };
@@ -200,31 +201,34 @@ export function isKnownExerciseRegistryId(exerciseId: string): boolean {
   return !!row && row.exercise_id === id;
 }
 
-export function isKnownSubstitutionExerciseId(exerciseId: string): boolean {
+export function isKnownSubstitutionExerciseId(exerciseId: string, activityId: string): boolean {
   const id = typeof exerciseId === "string" ? exerciseId.trim() : "";
-  if (!id) return false;
+  const activity = typeof activityId === "string" ? activityId.trim() : "";
+  if (!id || !activity) return false;
   const authority = loadRuntimeAuthority();
-  if (!projectExercise(id, authority)) return false;
-  return outgoingEdges(id, authority.substitutions).some(
-    (edge) => typeof edge.target_exercise_id === "string" && projectExercise(edge.target_exercise_id, authority) !== null
+  if (!projectExercise(id, activity, authority)) return false;
+  return outgoingEdges(id, activity, authority.substitutions).some(
+    (edge) => typeof edge.target_exercise_id === "string" && projectExercise(edge.target_exercise_id, activity, authority) !== null
   );
 }
 
 export function buildV1SubstitutionInput(
   sourceExerciseId: string,
-  unavailableEquipmentIds: string[]
+  unavailableEquipmentIds: string[],
+  activityId: string
 ): Record<string, unknown> | null {
   const sourceId = typeof sourceExerciseId === "string" ? sourceExerciseId.trim() : "";
-  if (!sourceId) return null;
+  const activity = typeof activityId === "string" ? activityId.trim() : "";
+  if (!sourceId || !activity) return null;
 
   const authority = loadRuntimeAuthority();
-  const sourceExercise = projectExercise(sourceId, authority);
+  const sourceExercise = projectExercise(sourceId, activity, authority);
   if (!sourceExercise) return null;
 
-  const relevantEdges = outgoingEdges(sourceId, authority.substitutions).filter((edge) => {
+  const relevantEdges = outgoingEdges(sourceId, activity, authority.substitutions).filter((edge) => {
     if (typeof edge.substitution_edge_id !== "string" || edge.substitution_edge_id.length === 0) return false;
     if (typeof edge.target_exercise_id !== "string" || edge.target_exercise_id.length === 0) return false;
-    return projectExercise(edge.target_exercise_id, authority) !== null;
+    return projectExercise(edge.target_exercise_id, activity, authority) !== null;
   });
   if (relevantEdges.length === 0) return null;
 
@@ -234,7 +238,7 @@ export function buildV1SubstitutionInput(
   ].filter((value, index, values) => values.indexOf(value) === index);
 
   const candidateExercises = orderedCandidateIds
-    .map((exerciseId) => projectExercise(exerciseId, authority))
+    .map((exerciseId) => projectExercise(exerciseId, activity, authority))
     .filter((exercise): exercise is RegistryExercise => exercise !== null);
 
   if (candidateExercises.length !== orderedCandidateIds.length) return null;
@@ -243,11 +247,11 @@ export function buildV1SubstitutionInput(
   const unavailable = [...new Set(unavailableEquipmentIds.filter((value) => typeof value === "string" && value.length > 0))].sort();
 
   return {
-    activity_id: ACTIVITY_ID,
+    activity_id: activity,
     target_exercise_id: sourceId,
     unavailable_equipment_ids: unavailable,
     registry_links: {
-      activity_ids: [ACTIVITY_ID],
+      activity_ids: [activity],
       exercise_ids: candidateExercises.map((exercise) => exercise.exercise_id).sort(),
       movement_ids: [...new Set(candidateExercises.map((exercise) => exercise.movement_id))].sort(),
       equipment_ids: equipmentIds,
@@ -255,7 +259,7 @@ export function buildV1SubstitutionInput(
       applicability_records: candidateExercises
         .map((exercise) => ({
           exercise_id: exercise.exercise_id,
-          activity_id: ACTIVITY_ID,
+          activity_id: activity,
           substitution_applicability: "eligible" as const
         }))
         .sort((left, right) => left.exercise_id.localeCompare(right.exercise_id))
@@ -268,7 +272,7 @@ export function buildV1SubstitutionInput(
     })),
     substitution_edges: relevantEdges.map((edge) => ({
       edge_id: edge.substitution_edge_id as string,
-      activity_id: ACTIVITY_ID,
+      activity_id: activity,
       source_exercise_id: sourceId,
       target_exercise_id: edge.target_exercise_id as string,
       reason_codes: ["declared_edge_matched"]
@@ -279,8 +283,12 @@ export function buildV1SubstitutionInput(
 export function findSubstitutionRegistryEdge(
   edgeId: string,
   sourceExerciseId: string,
-  targetExerciseId: string
+  targetExerciseId: string,
+  activityId: string
 ): RegistryEdge | null {
+  const activity = typeof activityId === "string" ? activityId.trim() : "";
+  if (!activity) return null;
+
   const authority = loadRuntimeAuthority();
   const row = authority.substitutions[edgeId];
   if (
@@ -289,14 +297,14 @@ export function findSubstitutionRegistryEdge(
     row.source_exercise_id !== sourceExerciseId ||
     row.target_exercise_id !== targetExerciseId ||
     !Array.isArray(row.activity_applicability) ||
-    !row.activity_applicability.includes(ACTIVITY_ID)
+    !row.activity_applicability.includes(activity)
   ) {
     return null;
   }
 
   return {
     edge_id: edgeId,
-    activity_id: ACTIVITY_ID,
+    activity_id: activity,
     source_exercise_id: sourceExerciseId,
     target_exercise_id: targetExerciseId,
     reason_codes: ["declared_edge_matched"]

@@ -255,13 +255,23 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
 
 async function loadSessionForUpdate(client: any, session_id: string) {
   const r = await client.query(
-    `SELECT session_id, status, planned_session, session_state_summary, beta_subject_user_id
+    `SELECT session_id, block_id, status, planned_session, session_state_summary, beta_subject_user_id
      FROM sessions
      WHERE session_id = $1
      FOR UPDATE`,
     [session_id]
   );
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
+}
+
+async function loadBlockActivityId(client: any, block_id: string): Promise<string> {
+  const r = await client.query(
+    `SELECT phase1_input ->> 'activity_id' AS activity_id
+     FROM blocks
+     WHERE block_id = $1`,
+    [block_id]
+  );
+  return typeof r.rows[0]?.activity_id === "string" ? r.rows[0].activity_id : "";
 }
 
 // A logged extra set/exercise is a personal record when it beats every prior
@@ -967,7 +977,7 @@ function isGroupCompletionEventType(t: string | null): boolean {
   return typeof t === "string" && GROUP_COMPLETION_EVENT_TYPES.has(t);
 }
 
-function ensureSubstitutionTagValid(event: unknown): void {
+async function ensureSubstitutionTagValid(event: unknown, client: any, block_id: string): Promise<void> {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
 
@@ -987,7 +997,8 @@ function ensureSubstitutionTagValid(event: unknown): void {
   }
 
   const sourceExerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id : "";
-  const edge = findSubstitutionRegistryEdge(substitutionEdgeId, sourceExerciseId, substitutedExerciseId);
+  const activityId = await loadBlockActivityId(client, block_id);
+  const edge = findSubstitutionRegistryEdge(substitutionEdgeId, sourceExerciseId, substitutedExerciseId, activityId);
   if (!edge) {
     throw conflict("Runtime event rejected (substitution not declared by the substitution registry)", {
       failure_token: "phase6_runtime_substitution_tag_unlawful",
@@ -1242,7 +1253,7 @@ export async function appendRuntimeEventMutation(
     ensureAmrapResultReportShapeValid(event, planned, workingSummary);
     ensureEmomResultReportShapeValid(event, planned, workingSummary);
     ensureForTimeResultReportShapeValid(event, planned, workingSummary);
-    ensureSubstitutionTagValid(event);
+    await ensureSubstitutionTagValid(event, client, s.block_id);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);
     ensureTerminalSessionEventRejected(workingSummary, event);
