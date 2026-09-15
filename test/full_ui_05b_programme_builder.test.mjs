@@ -132,5 +132,10 @@ test("FULL-UI-05B remains presentation-only and engine-inert", () => {
     /runPipelineFromDist|planSessionService|compileBlock|engine_runner/u
   );
   assert.match(helperSource, /programmeActivationIssues/u);
-  assert.match(validationList, /server remains authoritative/iu);
+  // #1076 rewrote this list's "The server remains authoritative" pass
+  // message into plain consumer language ("All checks pass.") - the
+  // presentation-only/engine-inert invariant this test cares about is
+  // still documented (and enforced above via programmeActivationIssues)
+  // by the component's own DEV NOTE, which is what we check here instead.
+  assert.match(validationList, /same rules engine/u);
 });
