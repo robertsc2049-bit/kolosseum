@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 346
+- implemented: 348
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -404,7 +404,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 22 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -428,6 +428,8 @@ Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_attendance_rsvp_declined` — Notify the organizing coach when an invited athlete RSVPs not attending to one of their attendance events, deep-linking to the coach's own attendance view
 - `notification_activity_change_declined` — Notify the proposing coach when an athlete declines their coach-proposed activity or position change, deep-linking to the coach's own detail view of that athlete
 - `notification_relationship_ended_by_athlete` — Notify the coach when an athlete ends the relationship themselves, the symmetric reverse of the athlete's own relationship_revoked notification for a coach-initiated end
+- `notification_coach_athlete_message` — Notify a coach or athlete when the other party sends a new direct message, deep-linking to the coach's athlete detail view or the athlete's shared account view
+- `notification_org_owner_message` — Notify a coach or athlete when their org owner sends them a new message, deep-linking to the recipient's own shared account view
 
 ### Data rights and consent
 
@@ -812,6 +814,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-87: implemented
 - FULL-UI-88: implemented
 - FULL-UI-89: implemented
+- FULL-UI-90: implemented
 
 ## Prohibited capabilities
 

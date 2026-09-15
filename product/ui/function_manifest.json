@@ -5303,6 +5303,52 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_coach_athlete_message",
+          "label": "Notify a coach or athlete when the other party sends a new direct message, deep-linking to the coach's athlete detail view or the athlete's shared account view",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_90_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_90c_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_org_owner_message",
+          "label": "Notify a coach or athlete when their org owner sends them a new message, deep-linking to the recipient's own shared account view",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_90_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_90c_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8370,6 +8416,10 @@
     },
     {
       "slice_id": "FULL-UI-89",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-90",
       "state": "implemented"
     }
   ],

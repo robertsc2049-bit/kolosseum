@@ -33,7 +33,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   athlete_position_overridden: "Position updated",
   attendance_rsvp_declined: "Athlete declined an event",
   activity_change_declined: "Athlete declined a proposed change",
-  relationship_ended_by_athlete: "Athlete ended the relationship"
+  relationship_ended_by_athlete: "Athlete ended the relationship",
+  coach_athlete_message_received: "New message",
+  org_owner_message_received: "New message from your organisation"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -65,6 +67,10 @@ export function resolveNotificationSubject(
     if (accepted?.coach_display_name) return String(accepted.coach_display_name);
     const pending = context.pendingInvitations.find((entry) => String(entry.coach_user_id) === coachUserId);
     return String(pending?.coach_display_name ?? "A connected coach");
+  }
+
+  if (record.org_name) {
+    return String(record.org_name);
   }
 
   return null;
