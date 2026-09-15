@@ -13,6 +13,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import { authenticatedOrgOwner } from "./org_owner_auth.js";
 import {
@@ -26,6 +27,16 @@ import {
 import { badRequest, notFound } from "./http_errors.js";
 
 export const orgOwnerNotificationRouter = Router();
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors coach_org_membership.
+// routes.ts's own teamPositionOverrideRateLimit.
+const orgOwnerNotificationRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 type AsyncHandler = (
   request: Request,
@@ -54,6 +65,7 @@ function rethrowNotificationError(error: unknown): never {
 
 orgOwnerNotificationRouter.get(
   "/notifications",
+  orgOwnerNotificationRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const result = await listNotificationsForRecipient(user_id);
@@ -63,6 +75,7 @@ orgOwnerNotificationRouter.get(
 
 orgOwnerNotificationRouter.get(
   "/notifications/unread-count",
+  orgOwnerNotificationRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const unread_count = await getUnreadNotificationCount(user_id);
@@ -72,6 +85,7 @@ orgOwnerNotificationRouter.get(
 
 orgOwnerNotificationRouter.post(
   "/notifications/:notification_id/read",
+  orgOwnerNotificationRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
 
@@ -88,6 +102,7 @@ orgOwnerNotificationRouter.post(
 
 orgOwnerNotificationRouter.post(
   "/notifications/:notification_id/unread",
+  orgOwnerNotificationRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
 
@@ -104,6 +119,7 @@ orgOwnerNotificationRouter.post(
 
 orgOwnerNotificationRouter.post(
   "/notifications/mark-all-read",
+  orgOwnerNotificationRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
     await markAllNotificationsRead(user_id);
