@@ -19,6 +19,7 @@ import { productNotificationRouter } from "./api/product_notification.routes.js"
 import { productSupportRouter } from "./api/product_support.routes.js";
 import { productAdminRouter } from "./api/product_admin.routes.js";
 import { orgOwnerRouter } from "./api/org_owner.routes.js";
+import { orgOwnerNotificationRouter } from "./api/org_owner_notification.routes.js";
 import { coachOrgMembershipRouter } from "./api/coach_org_membership.routes.js";
 import { messagingRouter } from "./api/messaging.routes.js";
 import { progressPhotosRouter } from "./api/progress_photos.routes.js";
@@ -141,6 +142,7 @@ app.use("/account", productNotificationRouter);
 app.use("/account", productSupportRouter);
 app.use("/admin", productAdminRouter);
 app.use("/org", orgOwnerRouter);
+app.use("/org", orgOwnerNotificationRouter);
 app.use("/messages", messagingRouter);
 app.use("/progress-photos", progressPhotosRouter);
 app.use("/video-feedback", videoFeedbackRouter);
