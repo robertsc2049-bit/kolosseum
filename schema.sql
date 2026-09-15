@@ -1576,6 +1576,77 @@ ALTER TABLE product_notifications
       )
     );
 
+-- product_notifications_full_ui_91_recipient_fk_relaxation
+-- FULL-UI-91 gives org owners the same bell-notification capability
+-- coaches/athletes already have, for messages a coach or athlete sends TO
+-- their org owner. Org owners are a wholly separate identity
+-- (product_org_owner_accounts, not product_accounts) - recipient_user_id's
+-- REFERENCES product_accounts(user_id) FK below must be dropped so an org
+-- owner's user_id is a legal recipient too. Confirmed safe: every query
+-- against product_notifications already treats recipient_user_id as an
+-- opaque TEXT filter key, never joined against product_accounts; no
+-- production deletion flow relies on the FK's ON DELETE CASCADE actually
+-- firing (coach/athlete self-service deletion only queues a GDPR delete
+-- request, never hard-deletes; org-owner closure only sets
+-- account_state = 'closed'; the only real DELETE FROM product_accounts is a
+-- failed-registration rollback, before any notification could exist for
+-- that user_id).
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_recipient_user_id_fkey;
+
+-- product_notifications_full_ui_91_type_migration
+-- Additive FULL-UI-91 owner_message_received_from_coach /
+-- owner_message_received_from_athlete - alerts an org owner when a coach or
+-- athlete sends them a new direct message, the remaining 2 directions
+-- FULL-UI-90 deliberately left out (org owners had no notification-bell
+-- infrastructure of their own until this migration). Two types, not one,
+-- because unlike FULL-UI-90's coach_athlete_message_received (where the
+-- RECIPIENT's role alone determined the payload shape), the recipient here
+-- is always the owner in both directions - the payload shape differs by
+-- SENDER instead - same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete'
+      )
+    );
+
 -- FULL-UI-20 factual status, support and error-reporting.
 -- Every row stores only an explicit, narrow allowlist of caller-supplied
 -- context (never a raw error payload, stack trace, header set, cookie or

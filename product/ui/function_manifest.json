@@ -6341,6 +6341,50 @@
           }
         },
         {
+          "function_id": "org_owner_notification_coach_message",
+          "label": "Notify the org owner when a coach sends them a new direct message, deep-linking to that organisation's Messages section",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_91_org_owner_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_91c_org_owner_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_notification_athlete_message",
+          "label": "Notify the org owner when an athlete sends them a new direct message, deep-linking to that organisation's Messages section",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_91_org_owner_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_91c_org_owner_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "org_coach_broadcast_message",
           "label": "Org owner sends the same message into every active coach's thread at once, with a live read-by-N-of-M receipt for that broadcast",
           "actors": [
@@ -8420,6 +8464,10 @@
     },
     {
       "slice_id": "FULL-UI-90",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-91",
       "state": "implemented"
     }
   ],
