@@ -131,7 +131,115 @@ async function showWorkspace(displayName) {
   el("orgAccountDeletionError").hidden = true;
   el("orgAccountClosureError").hidden = true;
 
-  await Promise.all([refreshOrganisations(), refreshAccountDataRights().catch(console.error)]);
+  await Promise.all([
+    refreshOrganisations(),
+    refreshAccountDataRights().catch(console.error),
+    refreshNotificationBadge().catch(console.error)
+  ]);
+}
+
+// FULL-UI-91 - the org owner's own bell, the mirror of the coach/athlete
+// bell's #notification-bell-root (NotificationBellPanel.tsx), reusing the
+// same .notification-bell-wrap/.notification-unread-badge/.notification-panel
+// CSS already shared via /app/styles.css. Deliberately minimal: no
+// per-notification read/unread toggle - the existing per-thread unread
+// badge in the Messages section (see renderThreadList's own "badge active")
+// already gives that precision once inside one org's thread list; this
+// bell's only job is the coarser cross-screen "something happened, go
+// look" nudge, grouped by organisation rather than itemised per message.
+async function refreshNotificationBadge() {
+  const result = await api("GET", "/org/notifications/unread-count");
+  const count = Number(result.unread_count ?? 0);
+  const badge = el("orgNotificationUnreadBadge");
+  badge.hidden = count <= 0;
+  badge.textContent = count > 99 ? "99+" : String(count);
+}
+
+function notificationOrgLabel(notification) {
+  const payload = notification.notification_payload || {};
+  return String(payload.org_name || "An organisation");
+}
+
+function renderNotificationPanel(notifications) {
+  const body = el("orgNotificationPanelBody");
+
+  if (notifications.length === 0) {
+    body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
+    return;
+  }
+
+  const countsByOrg = new Map();
+  for (const notification of notifications) {
+    const payload = notification.notification_payload || {};
+    const orgId = String(payload.org_id || "");
+    if (!orgId) continue;
+    const existing = countsByOrg.get(orgId) || { orgId, orgName: notificationOrgLabel(notification), count: 0 };
+    existing.count += 1;
+    countsByOrg.set(orgId, existing);
+  }
+
+  const groups = [...countsByOrg.values()];
+  if (groups.length === 0) {
+    body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
+    return;
+  }
+
+  body.innerHTML = `
+    <ul class="notification-list">
+      ${groups.map((group) => `
+        <li class="notification-item">
+          <button type="button" class="notification-item-open" data-open-org-notifications="${escapeHtml(group.orgId)}" data-org-name="${escapeHtml(group.orgName)}">
+            <span class="notification-item-dot" aria-hidden="true"></span>
+            <span class="notification-item-body">
+              <span class="notification-item-type">${escapeHtml(group.orgName)}</span>
+              <span class="notification-item-subject">${group.count} unread</span>
+            </span>
+          </button>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+
+  for (const button of body.querySelectorAll("[data-open-org-notifications]")) {
+    button.addEventListener("click", () => {
+      closeNotificationPanel();
+      showMessagesSection(button.getAttribute("data-open-org-notifications"), button.getAttribute("data-org-name"));
+    });
+  }
+}
+
+async function openNotificationPanel() {
+  el("orgNotificationPanel").hidden = false;
+  el("orgNotificationBellButton").setAttribute("aria-expanded", "true");
+  el("orgNotificationPanelBody").innerHTML = '<div class="notification-loading">Loading notifications...</div>';
+
+  try {
+    const result = await api("GET", "/org/notifications");
+    renderNotificationPanel(Array.isArray(result.notifications) ? result.notifications : []);
+    // Opening the panel marks everything read at once - there is no
+    // bulk "mark read for org X" endpoint, and building one isn't
+    // proportionate for two notification types on a first version.
+    await api("POST", "/org/notifications/mark-all-read", {});
+    await refreshNotificationBadge();
+  }
+  catch (error) {
+    el("orgNotificationPanelBody").innerHTML = '<div class="notification-unavailable"><p>Notifications are unavailable right now.</p></div>';
+    console.error(error);
+  }
+}
+
+function closeNotificationPanel() {
+  el("orgNotificationPanel").hidden = true;
+  el("orgNotificationBellButton").setAttribute("aria-expanded", "false");
+}
+
+function toggleNotificationPanel() {
+  if (el("orgNotificationPanel").hidden) {
+    openNotificationPanel().catch(console.error);
+  }
+  else {
+    closeNotificationPanel();
+  }
 }
 
 function visibilityModeLabel(mode) {
@@ -1332,6 +1440,7 @@ function showMessagesSection(orgId, orgName) {
     el("orgMessagesError").textContent = "Could not load messages.";
     console.error(error);
   });
+  refreshNotificationBadge().catch(console.error);
 }
 
 function hideMessagesSection() {
@@ -1813,6 +1922,7 @@ function boot() {
   el("orgSignInForm").addEventListener("submit", (event) => signIn(event).catch(console.error));
   el("orgRegisterForm").addEventListener("submit", (event) => register(event).catch(console.error));
   el("orgSignOutButton").addEventListener("click", () => signOut().catch(console.error));
+  el("orgNotificationBellButton").addEventListener("click", () => toggleNotificationPanel());
   el("orgCreateForm").addEventListener("submit", (event) => createOrganisation(event).catch(console.error));
   el("orgRosterInviteForm").addEventListener("submit", (event) => inviteCoach(event).catch(console.error));
   el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());

@@ -60,7 +60,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "activity_change_declined",
   "relationship_ended_by_athlete",
   "coach_athlete_message_received",
-  "org_owner_message_received"
+  "org_owner_message_received",
+  "owner_message_received_from_coach",
+  "owner_message_received_from_athlete"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -77,7 +79,12 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   coachProgrammeDetail: "coach_programme_detail",
   sharedAccount: "shared_account",
   athleteAttendanceEvents: "athlete_attendance_events",
-  coachAttendanceEvents: "coach_attendance_events"
+  coachAttendanceEvents: "coach_attendance_events",
+  // The org console (public/org/) has no hash router/PRODUCT_ROUTE_MAP
+  // equivalent - this is a sentinel the org console's own bell click
+  // handler special-cases directly (calls showMessagesSection(org_id)),
+  // never resolved through public/app/route_bootstrap.js.
+  orgMessages: "org_messages"
 });
 
 function notificationId(
@@ -1078,11 +1085,13 @@ async function deriveAttendanceRsvpDeclinedNotifications(
 // than inventing a new "is unread" concept. This means a message the
 // recipient already read before their bell was ever queried never becomes a
 // notification at all - no separate suppression logic needed.
-// Deliberately scoped to the 4 directions where the recipient is a normal
-// product_accounts row (coach or athlete). The 2 directions where an org
-// owner would be the recipient (coach->owner, athlete->owner) are out of
-// scope: org owners live in the wholly separate product_org_owner_accounts
-// table with no notification-bell infrastructure of their own today.
+// FULL-UI-90 covered the 4 directions where the recipient is a normal
+// product_accounts row (coach or athlete); FULL-UI-91 (below,
+// deriveMessageNotificationsForOrgOwner) covers the remaining 2 directions,
+// where an org owner is the recipient - org owners are a wholly separate
+// identity (product_org_owner_accounts, not product_accounts), which is why
+// this needed its own function and its own notification types rather than
+// just widening the ones above.
 
 async function deriveCoachAthleteMessageNotifications(
   client: QueryClient,
@@ -1199,6 +1208,84 @@ async function deriveOrgOwnerMessageNotifications(
   }
 }
 
+// The mirror image of deriveOrgOwnerMessageNotifications above: that one
+// notifies a coach/athlete when the ORG OWNER is the sender; this one
+// notifies the ORG OWNER when a coach or athlete is the sender. Aggregated
+// across every org this owner owns (unlike the per-org live unread-count
+// queries in org_coach_messaging_service.ts/org_athlete_messaging_service.ts,
+// which are scoped to one org_id at a time), since a bell must summarise
+// activity across all of an owner's organisations at once.
+async function deriveMessageNotificationsForOrgOwner(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const fromCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name, t.coach_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_coach'
+      AND o.owner_user_id = $1
+      AND m.sender_role = 'coach'
+      AND m.created_at > COALESCE(t.owner_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of fromCoach.rows) {
+    const orgId = cleanString(row.org_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "owner_message_received_from_coach",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgMessages,
+      deepLinkParams: { org_id: orgId },
+      notificationPayload: {
+        org_id: orgId,
+        org_name: cleanString(row.org_name),
+        coach_user_id: cleanString(row.coach_user_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const fromAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name, t.athlete_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_athlete'
+      AND o.owner_user_id = $1
+      AND m.sender_role = 'athlete'
+      AND m.created_at > COALESCE(t.owner_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of fromAthlete.rows) {
+    const orgId = cleanString(row.org_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "owner_message_received_from_athlete",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgMessages,
+      deepLinkParams: { org_id: orgId },
+      notificationPayload: {
+        org_id: orgId,
+        org_name: cleanString(row.org_name),
+        athlete_user_id: cleanString(row.athlete_user_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -1226,6 +1313,7 @@ async function deriveNotificationsForRecipient(
   await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
   await deriveCoachAthleteMessageNotifications(client, recipientUserId);
   await deriveOrgOwnerMessageNotifications(client, recipientUserId);
+  await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

@@ -62,7 +62,21 @@
     <section id="orgWorkspaceSection" class="panel" hidden>
       <div class="button-row" style="justify-content: space-between;">
         <p>Signed in as <strong id="orgDisplayName"></strong></p>
-        <button id="orgSignOutButton" class="button secondary" type="button">Sign out</button>
+        <div class="button-row">
+          <div class="notification-bell-wrap">
+            <button id="orgNotificationBellButton" class="icon-button notification-bell" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false">
+              <span aria-hidden="true">&#128276;</span>
+              <span id="orgNotificationUnreadBadge" class="notification-unread-badge" hidden>0</span>
+            </button>
+            <div id="orgNotificationPanel" class="notification-panel" role="menu" aria-label="Notifications" hidden>
+              <div class="notification-panel-header">
+                <strong>Notifications</strong>
+              </div>
+              <div id="orgNotificationPanelBody"></div>
+            </div>
+          </div>
+          <button id="orgSignOutButton" class="button secondary" type="button">Sign out</button>
+        </div>
       </div>
     </section>
 
