@@ -172,6 +172,33 @@ test("skipping one occurrence and rescheduling another never touches the sibling
   assert.equal(within(row1).getByText("Skipped").textContent, "Skipped", "occurrence 1 remained skipped throughout occurrence 2's reschedule");
 });
 
+test("the calendar export link is a plain download href in the list view, and is hidden while an event's detail is open", async () => {
+  installMocks(({ input }) => {
+    const path = String(input);
+    if (path === "/attendance-events") {
+      return jsonResponse({ ok: true, events: [{ event_id: "attendance_event_1", title: "Saturday class", status: "active" }] });
+    }
+    if (path === "/attendance-events/attendance_event_1") {
+      return jsonResponse({
+        ok: true,
+        event: { event_id: "attendance_event_1", title: "Saturday class", status: "active" },
+        occurrences: [],
+        roster: []
+      });
+    }
+    return null;
+  });
+
+  render(<AttendanceEventDetailPanel />);
+  await waitFor(() => screen.getByText("Saturday class"));
+  const link = screen.getByText("Export calendar (.ics)") as HTMLAnchorElement;
+  assert.equal(link.getAttribute("href"), "/attendance-events/calendar.ics");
+
+  act(() => { screen.getByText("Open event").click(); });
+  await waitFor(() => screen.getByText("Back"));
+  assert.equal(screen.queryByText("Export calendar (.ics)"), null, "the export link belongs to the list view, not a single event's detail");
+});
+
 test("cancelling an active event calls the cancel route and reflects the cancelled state", async () => {
   let cancelled = false;
   installMocks(({ input, init }) => {

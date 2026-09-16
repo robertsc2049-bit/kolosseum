@@ -13,6 +13,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -23,10 +24,12 @@ import { forbidden, unauthorized } from "./http_errors.js";
 import { authenticatedCoach, cookieValue } from "./coach_session_auth.js";
 import {
   AttendanceEventError,
+  buildAttendanceEventsCalendar,
   cancelAttendanceEvent,
   createAttendanceEventForCoach,
   getAttendanceEventForCoach,
   listAttendanceEventsForCoach,
+  loadAttendanceOccurrenceRecords,
   rescheduleAttendanceOccurrence,
   skipAttendanceOccurrence
 } from "./attendance_event_service.js";
@@ -151,6 +154,40 @@ attendanceEventRouter.get(
     const coachUserId = await authenticatedCoach(request, false);
     const athletes = await listSharedOrgAcceptedAthletes(coachUserId, request.params.org_id);
     return response.status(200).json({ ok: true, athletes });
+  })
+);
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors org_owner.routes.ts's own
+// orgOwnerAttendanceCalendarExportRateLimit for the FULL-UI-92 sibling route.
+const coachAttendanceCalendarExportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// FULL-UI-93 calendar export - registered BEFORE the /:event_id route
+// below, or "calendar.ics" would be swallowed as an event_id (mirrors
+// coach_workspace.routes.ts's own identical ordering note for its own
+// beta19 events calendar route, and org_owner.routes.ts's gym-wide one).
+attendanceEventRouter.get(
+  "/calendar.ics",
+  coachAttendanceCalendarExportRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const events = await listAttendanceEventsForCoach(coachUserId);
+    const active = events.filter((event) => event.status === "active");
+    const eventsWithOccurrences = await Promise.all(
+      active.map(async (event) => ({
+        event,
+        occurrences: await loadAttendanceOccurrenceRecords(String(event.event_id))
+      }))
+    );
+    const calendar = buildAttendanceEventsCalendar(eventsWithOccurrences);
+    response.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    response.setHeader("Content-Disposition", 'attachment; filename="kolosseum-coach-events.ics"');
+    return response.status(200).send(calendar);
   })
 );
 

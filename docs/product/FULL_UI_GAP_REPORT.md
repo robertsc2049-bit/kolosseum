@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 351
+- implemented: 352
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -742,13 +742,14 @@ Slice: FULL-UI-76
 
 Area state: implemented
 
-Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `attendance_event_create` — Coach creates a real calendar event or a full recurring series (weekdays, interval, end date or occurrence count) for their own accepted athletes, or - as any ACTIVE coach in a shared-visibility org - for the whole org's accepted-athlete roster across every coach
 - `attendance_event_roster_view` — Coach views their own created events (including full recurring series and org-wide events, with full identity for every invited athlete regardless of which coach they belong to) and each invited athlete's current RSVP state per occurrence, cancels an event, and skips or reschedules a single occurrence
 - `attendance_event_athlete_rsvp` — Athlete views every occurrence they are currently invited to across every coach (a skipped occurrence never appears, a rescheduled one shows its new date/time), and replies attending, maybe or not attending
+- `attendance_event_calendar_export` — Coach exports their own individual attendance events (including shared-org events they organize) as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules
 
 ## Functions without persistent integration proof
 
@@ -820,6 +821,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-90: implemented
 - FULL-UI-91: implemented
 - FULL-UI-92: implemented
+- FULL-UI-93: implemented
 
 ## Prohibited capabilities
 
