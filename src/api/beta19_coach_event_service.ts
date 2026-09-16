@@ -824,7 +824,10 @@ export async function assignAthleteProgrammeFromProfile(
   });
 }
 
-function icsEscapeText(value: string): string {
+// Exported for attendance_event_service.ts's own buildAttendanceEventsCalendar
+// (FULL-UI-92) to reuse rather than duplicate - these 4 helpers are pure
+// RFC 5545 text formatting with no beta19-specific knowledge.
+export function icsEscapeText(value: string): string {
   return value
     .replace(/\\/g, "\\\\")
     .replace(/\n/g, "\\n")
@@ -832,19 +835,19 @@ function icsEscapeText(value: string): string {
     .replace(/;/g, "\\;");
 }
 
-function icsDateOnly(dateOnly: string): string {
+export function icsDateOnly(dateOnly: string): string {
   return dateOnly.replace(/-/g, "");
 }
 
 // ICS all-day events use an exclusive DTEND per RFC 5545 - a one-day event
 // spans DTSTART through DTSTART+1, not DTSTART itself.
-function icsDateOnlyPlusOneDay(dateOnly: string): string {
+export function icsDateOnlyPlusOneDay(dateOnly: string): string {
   const date = new Date(`${dateOnly}T00:00:00.000Z`);
   date.setUTCDate(date.getUTCDate() + 1);
   return date.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
-function icsTimestamp(iso8601Value: string): string {
+export function icsTimestamp(iso8601Value: string): string {
   return iso8601Value.replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
 }
 

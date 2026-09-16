@@ -6633,6 +6633,28 @@
           }
         },
         {
+          "function_id": "org_owner_attendance_calendar_export",
+          "label": "Org owner exports their gym-wide attendance events as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/attendance-events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_92_org_owner_attendance_calendar_export_surface.test.mjs",
+          "integration_test": "test/full_ui_92c_org_owner_attendance_calendar_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "coach_team_position_override",
           "label": "Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed",
           "actors": [
@@ -8468,6 +8490,10 @@
     },
     {
       "slice_id": "FULL-UI-91",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-92",
       "state": "implemented"
     }
   ],

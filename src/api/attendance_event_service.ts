@@ -22,6 +22,12 @@ import {
   persistBetaProductRecord
 } from "./beta_product_record_store.js";
 import { requireActiveSharedOrgMembership } from "./attendance_event_org_invite_service.js";
+import {
+  icsDateOnly,
+  icsDateOnlyPlusOneDay,
+  icsEscapeText,
+  icsTimestamp
+} from "./beta19_coach_event_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -623,6 +629,95 @@ export async function loadAttendanceOccurrenceRecord(occurrenceId: string): Prom
 
 export async function loadAttendanceOccurrenceRecords(eventId: string): Promise<readonly Readonly<JsonRecord>[]> {
   return latestOccurrenceRecords(eventId);
+}
+
+// FULL-UI-92 calendar export. Deliberately NOT a reuse of beta19_coach_
+// event_service.ts's own buildCoachEventsCalendar - that function's input
+// shape (a flat, always-all-day event.event_plan.event_date) has no concept
+// of this file's occurrence model (one event -> many pre-materialized
+// occurrences, each independently scheduled/skipped/rescheduled with real
+// start/end times), so it renders one VEVENT per OCCURRENCE, not per event.
+// A skipped occurrence is omitted entirely (never STATUS:CANCELLED) - this
+// produces a one-time downloaded snapshot (Content-Disposition: attachment),
+// not a live subscription URL, so there is no future re-sync for a
+// cancellation to invalidate; a rescheduled occurrence uses its
+// rescheduled_to_* slot, never the original. DTSTART/DTEND use a bare
+// TZID=<event timezone> reference with no embedded VTIMEZONE component -
+// this repo has no timezone-conversion library anywhere, and every major
+// calendar client resolves a common IANA TZID without one in practice, so
+// this is a deliberate, acceptable simplification rather than full RFC 5545
+// strictness.
+export function buildAttendanceEventsCalendar(
+  eventsWithOccurrences: readonly Readonly<{
+    event: Readonly<JsonRecord>;
+    occurrences: readonly Readonly<JsonRecord>[];
+  }>[]
+): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Kolosseum//Attendance Events//EN",
+    "CALSCALE:GREGORIAN"
+  ];
+
+  const dtstamp = icsTimestamp(new Date().toISOString());
+
+  for (const { event, occurrences } of eventsWithOccurrences) {
+    if (event.status !== "active") continue;
+
+    const title = cleanString(event.title) || "Event";
+    const location = cleanString(event.location);
+    const activityLabel = cleanString(event.activity_label);
+    const description = [cleanString(event.description), activityLabel]
+      .filter(Boolean)
+      .join(" — ");
+    const timezone = cleanString(event.timezone) || "Europe/London";
+
+    for (const occurrence of occurrences) {
+      if (occurrence.status === "skipped") continue;
+
+      const rescheduled = occurrence.status === "rescheduled";
+      const occurrenceDate = cleanString(
+        rescheduled ? occurrence.rescheduled_to_date : occurrence.occurrence_date
+      );
+      if (!occurrenceDate) continue;
+
+      const startTime = cleanString(
+        rescheduled ? occurrence.rescheduled_to_start_time : occurrence.start_time
+      );
+      const endTime = cleanString(
+        rescheduled ? occurrence.rescheduled_to_end_time : occurrence.end_time
+      );
+
+      lines.push(
+        "BEGIN:VEVENT",
+        `UID:${cleanString(occurrence.occurrence_id)}@kolosseum.app`,
+        `DTSTAMP:${dtstamp}`
+      );
+
+      if (startTime && endTime) {
+        lines.push(
+          `DTSTART;TZID=${timezone}:${icsDateOnly(occurrenceDate)}T${startTime.replace(":", "")}00`,
+          `DTEND;TZID=${timezone}:${icsDateOnly(occurrenceDate)}T${endTime.replace(":", "")}00`
+        );
+      }
+      else {
+        lines.push(
+          `DTSTART;VALUE=DATE:${icsDateOnly(occurrenceDate)}`,
+          `DTEND;VALUE=DATE:${icsDateOnlyPlusOneDay(occurrenceDate)}`
+        );
+      }
+
+      lines.push(`SUMMARY:${icsEscapeText(title)}`);
+      if (location) lines.push(`LOCATION:${icsEscapeText(location)}`);
+      if (description) lines.push(`DESCRIPTION:${icsEscapeText(description)}`);
+
+      lines.push("END:VEVENT");
+    }
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
 }
 
 async function loadOwnedOccurrence(
