@@ -9491,6 +9491,12 @@
     },
     {
       "method": "GET",
+      "path": "/attendance-events/calendar.ics",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
       "path": "/attendance-events/mine",
       "source": "src/api/attendance_event.routes.ts",
       "tracked_by_area": "attendance_events"
