@@ -82,7 +82,11 @@ import {
   validateStagedUpload
 } from "./message_attachment_storage.js";
 import { badRequest } from "./http_errors.js";
-import { AttendanceEventError } from "./attendance_event_service.js";
+import {
+  AttendanceEventError,
+  buildAttendanceEventsCalendar,
+  loadAttendanceOccurrenceRecords
+} from "./attendance_event_service.js";
 import {
   AttendanceEventGymRosterError,
   cancelGymWideAttendanceEventForOwner,
@@ -308,6 +312,40 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const events = await listGymWideAttendanceEventsForOwner(user_id, request.params.org_id);
     return response.status(200).json({ ok: true, events });
+  })
+);
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors this file's own
+// orgOwnerPositionOverrideRateLimit.
+const orgOwnerAttendanceCalendarExportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// FULL-UI-92 calendar export - registered BEFORE the /:event_id route
+// below, or "calendar.ics" would be swallowed as an event_id (mirrors
+// coach_workspace.routes.ts's own identical ordering note for its calendar
+// route).
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events/calendar.ics",
+  orgOwnerAttendanceCalendarExportRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const events = await listGymWideAttendanceEventsForOwner(user_id, request.params.org_id);
+    const active = events.filter((event) => event.status === "active");
+    const eventsWithOccurrences = await Promise.all(
+      active.map(async (event) => ({
+        event,
+        occurrences: await loadAttendanceOccurrenceRecords(String(event.event_id))
+      }))
+    );
+    const calendar = buildAttendanceEventsCalendar(eventsWithOccurrences);
+    response.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    response.setHeader("Content-Disposition", 'attachment; filename="kolosseum-gym-events.ics"');
+    return response.status(200).send(calendar);
   })
 );
 

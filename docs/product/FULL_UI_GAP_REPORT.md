@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 350
+- implemented: 351
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -500,7 +500,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 26 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 27 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -528,6 +528,7 @@ Implemented: 26 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_data_deletion_status` — Display org owner deletion-request status
 - `athlete_org_context` — Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster
 - `org_owner_attendance_events` — Org owner creates a gym-wide attendance event (with no athlete picker - every currently-accepted athlete across every active coach is auto-invited server-side) for an individual-visibility ('gym') organisation they own, views full real identity and RSVP state on the roster for that one event, cancels it, and skips or reschedules a single occurrence - the fourth, narrowly-scoped exception to org_visibility_service.ts's gym-mode identity-hiding invariant
+- `org_owner_attendance_calendar_export` — Org owner exports their gym-wide attendance events as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules
 - `coach_team_position_override` — Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed
 - `org_owner_position_override` — Org owner directly overrides the position of an athlete already visible on their own shared-visibility roster
 
@@ -818,6 +819,7 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-89: implemented
 - FULL-UI-90: implemented
 - FULL-UI-91: implemented
+- FULL-UI-92: implemented
 
 ## Prohibited capabilities
 

@@ -931,6 +931,7 @@ function showAttendanceSection(orgId, orgName) {
   el("orgAttendanceDetailSection").hidden = true;
   el("orgAttendanceSection").hidden = false;
   el("orgAttendanceOrgName").textContent = orgName;
+  el("orgAttendanceCalendarExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/attendance-events/calendar.ics`;
   el("orgAttendanceCreateForm").reset();
   el("orgAttendanceRecurrenceFields").hidden = true;
   el("orgAttendanceCreateError").hidden = true;
