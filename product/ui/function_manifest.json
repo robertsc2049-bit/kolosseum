@@ -8235,6 +8235,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "attendance_event_calendar_export",
+          "label": "Coach exports their own individual attendance events (including shared-org events they organize) as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_93_coach_attendance_calendar_export_surface.test.mjs",
+          "integration_test": "test/full_ui_93c_coach_attendance_calendar_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     }
@@ -8494,6 +8516,10 @@
     },
     {
       "slice_id": "FULL-UI-92",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-93",
       "state": "implemented"
     }
   ],
