@@ -41,6 +41,7 @@ import type { PoolClient } from "pg";
 import { pool } from "../db/pool.js";
 import { loadLatestBetaProductRecord } from "./beta_product_record_store.js";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
+import { csvEscapeField } from "./coach_workspace.handlers.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -237,6 +238,8 @@ export type OrgVisibilityRoster = Readonly<{
       display_name: string;
       email: string | null;
       relationship_state: RelationshipState;
+      activity_id: string | null;
+      position: string | null;
     }>[];
   }>[];
 }>;
@@ -335,4 +338,48 @@ export async function getOrgAthleteVisibility(
   finally {
     client.release();
   }
+}
+
+// FULL-UI-94 roster CSV export. Deliberately reuses getOrgAthleteVisibility's
+// own output as-is rather than reading anything new - this is a pure
+// serialization change, never a new privacy decision. The CSV's own column
+// shape necessarily varies by visibility_mode because the underlying data
+// does: an 'individual'-mode ("gym") org only ever has aggregate per-coach
+// counts to show (see this file's own top DEV NOTE for why athlete
+// identity must never leave aggregateCountsForOrg()), so its CSV has no
+// athlete-identifying columns at all, while a 'shared'-mode ("team") org's
+// CSV lists one row per athlete exactly like fullRosterForOrg() already
+// exposes in JSON.
+export function buildOrgAthleteRosterCsv(
+  visibility: OrgAthleteVisibility,
+  coachNamesById: ReadonlyMap<string, string>
+): string {
+  const coachLabel = (coachUserId: string): string => coachNamesById.get(coachUserId) ?? coachUserId;
+
+  if (visibility.visibility_mode === "individual") {
+    const header = ["coach_user_id", "coach_display_name", "membership_status", "active_athlete_count", "invited_athlete_count"];
+    const rows = visibility.coaches.map((coach) => [
+      coach.coach_user_id,
+      coachLabel(coach.coach_user_id),
+      coach.membership_status,
+      String(coach.active_athlete_count),
+      String(coach.invited_athlete_count)
+    ]);
+    return [header, ...rows].map((row) => row.map(csvEscapeField).join(",")).join("\r\n") + "\r\n";
+  }
+
+  const header = ["coach_user_id", "coach_display_name", "athlete_user_id", "display_name", "email", "relationship_state", "activity_id", "position"];
+  const rows = visibility.coaches.flatMap((coach) =>
+    coach.athletes.map((athlete) => [
+      coach.coach_user_id,
+      coachLabel(coach.coach_user_id),
+      athlete.athlete_user_id,
+      athlete.display_name,
+      athlete.email ?? "",
+      athlete.relationship_state,
+      athlete.activity_id ?? "",
+      athlete.position ?? ""
+    ])
+  );
+  return [header, ...rows].map((row) => row.map(csvEscapeField).join(",")).join("\r\n") + "\r\n";
 }

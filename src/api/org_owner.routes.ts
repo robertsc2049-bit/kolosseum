@@ -49,6 +49,7 @@ import {
 } from "./org_roster_service.js";
 import {
   OrgVisibilityError,
+  buildOrgAthleteRosterCsv,
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
 import { getOrgProgressRollup } from "./org_progress_rollup_service.js";
@@ -268,6 +269,43 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const visibility = await getOrgAthleteVisibility(user_id, String(request.params.org_id));
     return response.status(200).json({ ok: true, visibility });
+  })
+);
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors this file's own
+// orgOwnerAttendanceCalendarExportRateLimit/orgOwnerPositionOverrideRateLimit.
+const orgOwnerRosterCsvExportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// FULL-UI-94 roster CSV export. Reuses getOrgAthleteVisibility() exactly
+// as the JSON route above does - this is a pure serialization change,
+// never a new privacy decision, so the CSV's own shape varies by
+// visibility_mode exactly the way the JSON payload already does (see
+// buildOrgAthleteRosterCsv's own DEV NOTE in org_visibility_service.ts).
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-visibility/export.csv",
+  orgOwnerRosterCsvExportRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const orgId = String(request.params.org_id);
+    const [visibility, roster] = await Promise.all([
+      getOrgAthleteVisibility(user_id, orgId),
+      listOrganisationRoster(user_id, orgId)
+    ]);
+    const coachNamesById = new Map(
+      roster
+        .filter((membership) => membership.coach_display_name)
+        .map((membership) => [membership.coach_user_id, membership.coach_display_name as string])
+    );
+    const csv = buildOrgAthleteRosterCsv(visibility, coachNamesById);
+    response.setHeader("Content-Type", "text/csv; charset=utf-8");
+    response.setHeader("Content-Disposition", 'attachment; filename="kolosseum-org-roster.csv"');
+    return response.status(200).send(csv);
   })
 );
 

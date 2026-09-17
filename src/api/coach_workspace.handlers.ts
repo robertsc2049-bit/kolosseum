@@ -169,7 +169,7 @@ export async function getCoachAthleteRelationships(
 // uses. Distinct in purpose from data_rights' GDPR personal-data export:
 // this is the coach's own operational roster of their athletes, not an
 // account's export of its own personal data.
-function csvEscapeField(value: string): string {
+export function csvEscapeField(value: string): string {
   if (/[",\r\n]/u.test(value)) {
     return `"${value.replace(/"/gu, '""')}"`;
   }
