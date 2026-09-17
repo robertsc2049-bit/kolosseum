@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 352
+- implemented: 353
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -500,7 +500,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 27 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 28 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -509,6 +509,7 @@ Implemented: 27 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_roster` — Invite, list and remove coach roster memberships by email
 - `org_owner_billing` — View seat usage and change the org's seat plan
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
+- `org_owner_athlete_roster_csv_export` — Org owner downloads a CSV of their organisation's athlete roster - one row per athlete with real identity for shared-visibility (team) organisations, or aggregate per-coach counts only (never any athlete identity) for individual-visibility (gym) organisations, matching the same visibility_mode boundary as the athlete-visibility screen
 - `org_owner_progress_rollup` — View an org-wide progress rollup - a real per-athlete adherence chart per accepted athlete across every coach on the roster for shared-visibility (team) organisations, or a privacy-preserving per-coach average adherence trend (never an athlete identity, withheld entirely below a 3-athlete cohort) for individual-visibility (gym) organisations
 - `org_owner_audit_log` — View the organisation's recorded activity log
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
@@ -822,6 +823,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-91: implemented
 - FULL-UI-92: implemented
 - FULL-UI-93: implemented
+- FULL-UI-94: implemented
 
 ## Prohibited capabilities
 

@@ -555,6 +555,7 @@ function showVisibilitySection(orgId, orgName) {
   el("orgAttendanceDetailSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
+  el("orgVisibilityRosterExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/athlete-visibility/export.csv`;
   el("orgVisibilityError").hidden = true;
   refreshVisibility().catch((error) => {
     el("orgVisibilityError").hidden = false;
