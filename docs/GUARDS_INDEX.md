@@ -162,6 +162,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_f_10_controlled_launch_smoke_run_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_12_controlled_launch_go_no_go_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_g_02_registry_workability_audit_launch_hold_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_v1_g_03_controlled_launch_release_tag_currency_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_02_gdpr_export_handling_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_03_gdpr_delete_queue_guard.mjs` | Repo Governance | medium | repo |  |
