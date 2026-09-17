@@ -4,7 +4,7 @@
   "record_id": "v1_release_tag_preparation",
   "record_title": "V1 Release Tag Preparation",
   "record_state": "preparation_only_not_tagged",
-  "candidate_tag": "v1-controlled-launch",
+  "candidate_tag": "v1.0.0",
   "authority_boundary": {
     "creates_git_tag": false,
     "pushes_git_tag": false,
