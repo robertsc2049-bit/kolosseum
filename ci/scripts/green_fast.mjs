@@ -40,8 +40,14 @@ function main() {
 
   // Green:fast is the minimal local gate: keep it aligned with what guards expect.
   // Do NOT run build/e2e here; green:ci owns that.
-  sh("npm run lint:fast");
-  sh("npm run test:unit");
+  //
+  // DEV NOTE: lint:fast's own command string is long enough (8000+ chars) to hit
+  // cmd.exe's command-line-length limit ("The command line is too long.") when
+  // run via a plain "npm run lint:fast" execSync on Windows - route both through
+  // run_long_npm_script.mjs, which splits a package.json script's "&&"-joined
+  // commands and runs each one separately instead of as one long command line.
+  sh("node ci/scripts/run_long_npm_script.mjs lint:fast");
+  sh("node ci/scripts/run_long_npm_script.mjs test:unit");
 
   log("");
   log("GREEN_FAST_OK: lint:fast + test:unit passed.");
