@@ -1,0 +1,99 @@
+{
+  "slice_id": "S-V1-G-03",
+  "record_id": "controlled_launch_release_tag_currency_confirmation",
+  "title": "Controlled Launch Release Tag Currency Confirmation",
+  "record_type": "release_tag_currency_confirmation",
+  "token": "CI_V1_RELEASE_TAG_CURRENCY_CONFIRMATION",
+  "status": "CONFIRMED",
+  "decision_scope": "controlled_launch_only",
+  "created_at_utc": "2026-09-17T17:20:37.631Z",
+  "historical_go_no_go_record": {
+    "path": "docs/releases/CONTROLLED_LAUNCH_GO_NO_GO_RECORD.json",
+    "slice_id": "S-V1-F-12",
+    "decision": "GO",
+    "decision_scope": "controlled_launch_only",
+    "recorded_release_tag": "v1-controlled-launch",
+    "recorded_release_tag_commit": "43510e4c4d791effda647e80dc74d8452dc61f1f",
+    "record_unchanged_by_this_slice": true
+  },
+  "current_release_identity": {
+    "tag_name": "v1.0.0",
+    "tag_commit": "fb32206e3a178954ed7fbeda5b67e68159618a46",
+    "tag_object_sha": "2d3f6fd561241b4574cdcc442cf66fe1ae980e00",
+    "local_tag_verified": true,
+    "remote_tag_verified": true,
+    "supersedes_recorded_release_tag": true
+  },
+  "main_state_observed": {
+    "head_sha": "9909ccd7dae43543531b59a31872054591ae0939",
+    "origin_main_sha": "9909ccd7dae43543531b59a31872054591ae0939",
+    "head_equals_origin_main": true,
+    "working_tree_clean": true
+  },
+  "current_evidence_chain": {
+    "final_ship_decision": {
+      "slice_id": "S-V1-F-05",
+      "path": "docs/releases/V1_FINAL_SHIP_DECISION.json",
+      "decision": "SHIP",
+      "proof_command": "npm.cmd run proof:s-v1-f-05"
+    },
+    "release_evidence_snapshot": {
+      "slice_id": "S-V1-F-08",
+      "path": "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json",
+      "tag_name": "v1.0.0",
+      "verified_main_commit": "fb32206e3a178954ed7fbeda5b67e68159618a46",
+      "proof_command": "npm.cmd run proof:s-v1-f-08"
+    },
+    "controlled_launch_execution_pack": {
+      "slice_id": "S-V1-F-09",
+      "path": "docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.json",
+      "status": "prepared",
+      "tag_name": "v1.0.0",
+      "proof_command": "npm.cmd run proof:s-v1-f-09"
+    },
+    "controlled_launch_smoke_run": {
+      "slice_id": "S-V1-F-10",
+      "path": "docs/releases/CONTROLLED_LAUNCH_SMOKE_RUN.json",
+      "result": "pass",
+      "failed_required_command_count": 0,
+      "launch_blocker_recorded": false,
+      "tag_name": "v1.0.0",
+      "proof_command": "npm.cmd run proof:s-v1-f-10"
+    }
+  },
+  "currency_findings": {
+    "current_tag_independently_re_verified": true,
+    "all_upstream_evidence_re_verified_against_current_tag": true,
+    "historical_go_no_go_decision_remains_valid_authority": true,
+    "this_record_does_not_reissue_a_new_go_decision": true,
+    "this_record_does_not_change_historical_go_no_go_record": true,
+    "this_record_does_not_change_release_tag": true,
+    "this_record_does_not_change_product_code": true,
+    "this_record_does_not_change_engine_code": true,
+    "this_record_does_not_change_acceptance_gate_law": true,
+    "this_record_does_not_activate_post_v1_scope": true
+  },
+  "blocker_reason_codes": [],
+  "claim_boundary": {
+    "coaching_advice_claim": false,
+    "athlete_condition_claim": false,
+    "safety_claim": false,
+    "readiness_claim": false,
+    "optimisation_claim": false,
+    "training_effect_claim": false,
+    "automated_selection_claim": false,
+    "automated_recommendation_claim": false,
+    "programme_outcome_claim": false,
+    "external_endorsement_claim": false
+  },
+  "permitted_next_action": "start_controlled_launch_for_named_founder_group_only_under_current_tag",
+  "proof_commands": [
+    "npm.cmd run proof:s-v1-g-03",
+    "npm.cmd run proof:s-v1-f-05",
+    "npm.cmd run proof:s-v1-f-08",
+    "npm.cmd run proof:s-v1-f-09",
+    "npm.cmd run proof:s-v1-f-10",
+    "npm.cmd run proof:s-v1-f-12",
+    "npm.cmd run lint:fast"
+  ]
+}
