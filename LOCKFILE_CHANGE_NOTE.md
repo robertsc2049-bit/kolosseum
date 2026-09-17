@@ -254,3 +254,22 @@ Verified totals after remediation:
 This refresh does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, runtime
 scope, or intended user-facing behaviour.
+
+## v1.0.0 controlled-launch release tag: version bump
+
+Commit subject: chore(release): bump version to 1.0.0 for the v1.0.0 controlled-launch tag
+
+package-lock.json changed because package.json's `version` field was
+bumped from `0.1.24` to `1.0.0`, to satisfy `scripts/version-gate.ps1`
+(run as part of `npm run release:tag`) ahead of cutting a fresh
+`v1.0.0` release tag for the planned 2026-10-01 founder-group
+controlled beta - the prior go-live decision was pinned to a tag 812+
+commits stale.
+
+`npm install --package-lock-only` was used to regenerate the lockfile's
+own `version` fields to match; no dependency additions, removals, or
+version changes were intended by this bump.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or
+any existing user-facing behaviour.
