@@ -10,8 +10,8 @@ function log(s) {
   process.stdout.write(String(s) + "\n");
 }
 
-function sh(cmd) {
-  return execSync(cmd, { stdio: "inherit", env: process.env });
+function sh(cmd, extraEnv = {}) {
+  return execSync(cmd, { stdio: "inherit", env: { ...process.env, ...extraEnv } });
 }
 
 function computeAndExportBaseHead() {
@@ -46,8 +46,15 @@ function main() {
   // run via a plain "npm run lint:fast" execSync on Windows - route both through
   // run_long_npm_script.mjs, which splits a package.json script's "&&"-joined
   // commands and runs each one separately instead of as one long command line.
-  sh("node ci/scripts/run_long_npm_script.mjs lint:fast");
-  sh("node ci/scripts/run_long_npm_script.mjs test:unit");
+  // A plain "npm run lint:fast" would have set npm_lifecycle_event=lint:fast for
+  // green_entrypoint_guard.mjs's own allowlist check; a direct node invocation
+  // does not, so it leaks whatever lifecycle event this script's own parent had
+  // instead. green_fast.mjs already IS the canonical green runner, so mark these
+  // as green-runner-owned via KOLOSSEUM_GREEN_ENTRYPOINT=1 - the guard's own
+  // documented mechanism for exactly this case - rather than spoofing a lifecycle
+  // event name.
+  sh("node ci/scripts/run_long_npm_script.mjs lint:fast", { KOLOSSEUM_GREEN_ENTRYPOINT: "1" });
+  sh("node ci/scripts/run_long_npm_script.mjs test:unit", { KOLOSSEUM_GREEN_ENTRYPOINT: "1" });
 
   log("");
   log("GREEN_FAST_OK: lint:fast + test:unit passed.");
