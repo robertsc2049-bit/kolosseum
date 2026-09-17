@@ -5,20 +5,20 @@
     "title":  "Controlled Launch Go/No-Go Record",
     "status":  "final",
     "record_type":  "controlled_launch_decision_record",
-    "created_at_utc":  "2026-09-17T17:20:37.631Z",
+    "created_at_utc":  "2026-06-19T14:19:51.5227615Z",
     "decision":  "GO",
     "decision_scope":  "controlled_launch_only",
     "blocked_reason":  null,
     "current_mainline":  {
-                             "head_sha":  "9909ccd7dae43543531b59a31872054591ae0939",
-                             "origin_main_sha":  "9909ccd7dae43543531b59a31872054591ae0939",
+                             "head_sha":  "7510f63eaae6bfbe539f48e75b4ff2f63fca3f02",
+                             "origin_main_sha":  "7510f63eaae6bfbe539f48e75b4ff2f63fca3f02",
                              "head_equals_origin_main":  true,
                              "working_tree_clean":  true
                          },
     "release_identity":  {
-                             "tag_name":  "v1.0.0",
-                             "expected_tag_commit":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
-                             "verified_tag_commit":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
+                             "tag_name":  "v1-controlled-launch",
+                             "expected_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                             "verified_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
                              "tag_commit_match":  true
                          },
     "evidence_references":  {
@@ -90,7 +90,7 @@
                            {
                                "id":  "GNG-003",
                                "label":  "release_tag_verified",
-                               "source":  "git rev-list -n 1 v1.0.0",
+                               "source":  "git rev-list -n 1 v1-controlled-launch",
                                "required":  true,
                                "passed":  true,
                                "status":  "pass"

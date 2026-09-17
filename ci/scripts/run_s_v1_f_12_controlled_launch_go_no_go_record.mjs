@@ -55,8 +55,8 @@ function validate() {
   assert(["GO", "NO-GO"].includes(record.decision), "decision must be GO or NO-GO.", { actual: record.decision });
   assert(record.decision_scope === "controlled_launch_only", "decision_scope mismatch.", { actual: record.decision_scope });
 
-  const expectedTagCommit = "fb32206e3a178954ed7fbeda5b67e68159618a46";
-  assert(record.release_identity?.tag_name === "v1.0.0", "tag name mismatch.");
+  const expectedTagCommit = "43510e4c4d791effda647e80dc74d8452dc61f1f";
+  assert(record.release_identity?.tag_name === "v1-controlled-launch", "tag name mismatch.");
   assert(record.release_identity?.expected_tag_commit === expectedTagCommit, "expected tag commit mismatch.");
   assert(record.release_identity?.verified_tag_commit === expectedTagCommit, "verified tag commit mismatch.");
   assert(record.release_identity?.tag_commit_match === true, "tag commit must match.");

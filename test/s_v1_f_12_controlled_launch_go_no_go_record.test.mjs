@@ -58,9 +58,9 @@ test("S-V1-F-12 decision record is evidence based and bounded", () => {
 test("S-V1-F-12 required evidence references are present", () => {
   const record = readJson(JSON_PATH);
 
-  assert.equal(record.release_identity.tag_name, "v1.0.0");
-  assert.equal(record.release_identity.expected_tag_commit, "fb32206e3a178954ed7fbeda5b67e68159618a46");
-  assert.equal(record.release_identity.verified_tag_commit, "fb32206e3a178954ed7fbeda5b67e68159618a46");
+  assert.equal(record.release_identity.tag_name, "v1-controlled-launch");
+  assert.equal(record.release_identity.expected_tag_commit, "43510e4c4d791effda647e80dc74d8452dc61f1f");
+  assert.equal(record.release_identity.verified_tag_commit, "43510e4c4d791effda647e80dc74d8452dc61f1f");
   assert.equal(record.release_identity.tag_commit_match, true);
 
   assert.equal(record.evidence_references.final_ship_decision, "docs/releases/V1_FINAL_SHIP_DECISION.json");

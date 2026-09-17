@@ -7,7 +7,7 @@ Record type: controlled launch decision record
 Status: final
 Decision: GO
 Scope: controlled launch only
-Created at UTC: 2026-09-17T17:20:37.631Z
+Created at UTC: 2026-06-19T14:19:51.5227615Z
 
 ## Purpose
 
@@ -17,13 +17,13 @@ GO authorises controlled launch for the named founder group only. It does not au
 
 ## Release identity
 
-Tag: v1.0.0
-Expected tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
-Verified tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
+Tag: v1-controlled-launch
+Expected tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
+Verified tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
 Tag commit match: True
 
-Main HEAD: 9909ccd7dae43543531b59a31872054591ae0939
-Origin main: 9909ccd7dae43543531b59a31872054591ae0939
+Main HEAD: 7510f63eaae6bfbe539f48e75b4ff2f63fca3f02
+Origin main: 7510f63eaae6bfbe539f48e75b4ff2f63fca3f02
 HEAD equals origin/main: True
 Working tree clean: True
 
@@ -41,7 +41,7 @@ The decision record does not change product code, engine behaviour, feature impl
 | --- | --- | --- | --- | --- |
 | GNG-001 | main_synced_to_origin_main | git rev-parse HEAD and git rev-parse origin/main | pass | True |
 | GNG-002 | main_working_tree_clean | git status --short | pass | True |
-| GNG-003 | release_tag_verified | git rev-list -n 1 v1.0.0 | pass | True |
+| GNG-003 | release_tag_verified | git rev-list -n 1 v1-controlled-launch | pass | True |
 | GNG-004 | final_ship_decision_is_ship | docs/releases/V1_FINAL_SHIP_DECISION.json | pass | True |
 | GNG-005 | release_evidence_snapshot_recorded | docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json | pass | True |
 | GNG-006 | controlled_launch_execution_pack_prepared | docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.json | pass | True |
