@@ -6,7 +6,7 @@ Slice: S-V1-F-10
 Record type: controlled launch smoke evidence
 Status: pass
 Scope: controlled launch only
-Created at UTC: 2026-06-19T13:59:18.6784951Z
+Created at UTC: 2026-09-17T16:59:53.807Z
 
 ## Purpose
 
@@ -16,10 +16,10 @@ The smoke run used the release-ready main state after the controlled v1 tag was 
 
 ## Release state used
 
-Main HEAD: cb0e618f0be00d21d8ca8f7afb0be69dc94ecec8
-Origin main: cb0e618f0be00d21d8ca8f7afb0be69dc94ecec8
-Release tag: v1-controlled-launch
-Release tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
+Main HEAD: e5dd2840eeefc4446c35c742974c12943b529269
+Origin main: e5dd2840eeefc4446c35c742974c12943b529269
+Release tag: v1.0.0
+Release tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
 Release evidence snapshot: docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md
 Final ship decision: docs/releases/V1_FINAL_SHIP_DECISION.md
 Controlled launch execution pack: docs/releases/CONTROLLED_LAUNCH_EXECUTION_PACK.md
