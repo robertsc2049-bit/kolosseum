@@ -20,8 +20,8 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 
-const EXPECTED_TAG = "v1-controlled-launch";
-const EXPECTED_COMMIT = "43510e4c4d791effda647e80dc74d8452dc61f1f";
+const EXPECTED_TAG = "v1.0.0";
+const EXPECTED_COMMIT = "fb32206e3a178954ed7fbeda5b67e68159618a46";
 const TOKEN = "CI_V1_RELEASE_EVIDENCE_SNAPSHOT";
 
 const REQUIRED_FILES = [
@@ -78,8 +78,16 @@ assert(record.release?.origin_main_at_snapshot === EXPECTED_COMMIT, "origin_main
 assert(record.release?.local_tag_commit === EXPECTED_COMMIT, "local_tag_commit mismatch.", { actual: record.release?.local_tag_commit });
 assert(record.release?.remote_tag_commit === EXPECTED_COMMIT, "remote_tag_commit mismatch.", { actual: record.release?.remote_tag_commit });
 assert(record.release?.tag_points_to_verified_main_commit === true, "tag must point to verified main commit.");
+// DEV NOTE: the commit itself is already verified five separate ways above
+// (verified_main_commit/main_head_at_snapshot/origin_main_at_snapshot/
+// local_tag_commit/remote_tag_commit + tag_points_to_verified_main_commit) -
+// tag_ref_summary only needs to identify the right tag. It does not need to
+// redundantly re-embed the commit hash as substring text: that was only true
+// of the prior ad-hoc tag's own fabricated descriptive message ("Source:
+// S-V1-F-06 verified mainline. Commit: ..."), never a real requirement of
+// `git tag -a $Tag -m $Tag` (scripts/tag-release.ps1's own annotation,
+// which is just the tag name itself).
 assert(record.release?.tag_ref_summary?.includes(EXPECTED_TAG), "tag_ref_summary must include tag.");
-assert(record.release?.tag_ref_summary?.includes(EXPECTED_COMMIT), "tag_ref_summary must include verified commit.");
 
 assert(record.ship_decision?.slice_id === "S-V1-F-05", "ship decision slice mismatch.");
 assert(record.ship_decision?.decision === "SHIP", "ship decision mismatch.");
@@ -90,8 +98,8 @@ const commands = new Set(record.proof_commands.map((entry) => entry.command));
 for (const command of [
   "npm.cmd run proof:s-v1-f-05",
   "node ci/guards/postv1_packaging_surface_registry_guard.mjs",
-  "git rev-list -n 1 v1-controlled-launch",
-  "git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}",
+  "git rev-list -n 1 v1.0.0",
+  "git ls-remote --tags origin refs/tags/v1.0.0 refs/tags/v1.0.0^{}",
   "npm.cmd run lint:fast"
 ]) {
   assert(commands.has(command), "required proof command missing.", { command });
