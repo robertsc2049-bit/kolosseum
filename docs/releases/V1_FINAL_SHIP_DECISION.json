@@ -5,8 +5,8 @@
     "decision":  "SHIP",
     "decision_scope":  "controlled_v1",
     "mainline_evidence":  {
-                              "head_sha":  "455ea0cb5bdc640de6a405fd443e667b0fae57e4",
-                              "origin_main_sha":  "455ea0cb5bdc640de6a405fd443e667b0fae57e4",
+                              "head_sha":  "ace71306a37373bc2601efe2962f9d82db0e0fcb",
+                              "origin_main_sha":  "ace71306a37373bc2601efe2962f9d82db0e0fcb",
                               "main_clean_before_decision":  true,
                               "head_equals_origin_main":  true,
                               "required_checks_green":  true
