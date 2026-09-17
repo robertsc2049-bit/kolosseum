@@ -157,7 +157,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_f_03_controlled_launch_readiness_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_04_v1_release_tag_preparation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_05_v1_final_ship_decision_guard.mjs` | Repo Governance | medium | repo |  |
-| `ci/guards/s_v1_f_08_release_evidence_snapshot_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_f_08_release_evidence_snapshot_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: the commit itself is already verified five separate ways above |
 | `ci/guards/s_v1_f_09_controlled_launch_execution_pack_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_10_controlled_launch_smoke_run_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_12_controlled_launch_go_no_go_record_guard.mjs` | Repo Governance | medium | repo |  |
