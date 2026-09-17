@@ -30,7 +30,7 @@ This record binds the order only. It does not execute the tag command.
 
 ## Candidate tag
 
-Candidate tag: v1-controlled-launch
+Candidate tag: v1.0.0
 
 The candidate tag may be created only by a later operator action after all preconditions below are recorded as passing.
 
