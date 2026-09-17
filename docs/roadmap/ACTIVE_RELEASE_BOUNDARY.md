@@ -218,3 +218,27 @@ PASS token: `PUBLIC_LAUNCH_COMMERCIAL_AUTHORITY: PASS`
 
 LAUNCH-02 does not authorise public launch. Final authority remains LAUNCH-10.
 <!-- LAUNCH-02:PUBLIC-LAUNCH-COMMERCIAL-AUTHORITY:END -->
+
+<!-- LAUNCH-03:PUBLIC-LAUNCH-ACCOUNT-ACCESS:START -->
+## LAUNCH-03 Public Account Registration and Access Activation
+
+Status: reconciled account-access authority for persisted athlete and coach registration and access.
+
+Authority:
+
+- `docs/releases/PUBLIC_LAUNCH_ACCOUNT_ACCESS.json`
+- `docs/releases/PUBLIC_LAUNCH_ACCOUNT_ACCESS.md`
+- `scripts/launch_03_public_account_access_guard.mjs`
+- `test/launch_03_public_account_access.test.mjs`
+
+Public account actors are exactly `athlete` and `coach`, one explicit role and one explicit account state against a unique canonical identity. There is no implicit role promotion and no organisation, team, gym, federation or enterprise account scope in this release. LAUNCH-03 does not connect the billing provider; provider activation belongs to LAUNCH-04.
+
+Use the executable LAUNCH-03 proof:
+
+    node --test test/launch_03_public_account_access.test.mjs
+    node scripts/launch_03_public_account_access_guard.mjs
+
+PASS token: `PUBLIC_LAUNCH_ACCOUNT_ACCESS: PASS`
+
+LAUNCH-03 does not authorise public launch. Final authority remains LAUNCH-10.
+<!-- LAUNCH-03:PUBLIC-LAUNCH-ACCOUNT-ACCESS:END -->
