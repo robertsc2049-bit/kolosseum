@@ -41,10 +41,38 @@ import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
+import { initialiseErrorReporting } from "./v1ErrorReportingInitialisation.mjs";
 
 import { VERSION } from "./version.js";
 
 export const app = express();
+
+// S-V1-O-02: local, factual error-reporting initialisation only (no provider
+// SDK, no network transport - see src/v1ErrorReportingInitialisation.mjs).
+// Confirms the contract accepts this server's real environment/release at
+// startup; per-error envelopes are built in api/error_middleware.ts.
+const errorReportingEnvironment =
+  process.env.NODE_ENV === "production"
+    ? "production"
+    : process.env.NODE_ENV === "test"
+      ? "test"
+      : "development";
+
+const errorReportingInit = initialiseErrorReporting({
+  request_id: globalThis.crypto.randomUUID(),
+  requested_at: new Date().toISOString(),
+  environment: errorReportingEnvironment,
+  release: VERSION,
+  transport: "local_stub"
+});
+
+if (!errorReportingInit.ok) {
+  // eslint-disable-next-line no-console
+  console.error("WARN: error reporting initialisation rejected input", errorReportingInit.code);
+} else {
+  // eslint-disable-next-line no-console
+  console.log(`OK: error reporting initialised (${errorReportingInit.error_reporting_config_id})`);
+}
 
 /**
  * @law: Health Contract
