@@ -21,6 +21,7 @@ import {
   listSupportReportsForUser,
   ProductSupportError
 } from "./product_support_service.js";
+import { notifySupportRequestCreated } from "./support_alert_notifier.js";
 import { badRequest, conflict } from "./http_errors.js";
 
 export const productSupportRouter = Router();
@@ -87,6 +88,12 @@ productSupportRouter.post(
 
     try {
       const report = await createSupportReport(session.account_row.user_id, request.body);
+      await notifySupportRequestCreated({
+        actor_type: "athlete_or_coach",
+        correlation_id: String(report.correlation_id),
+        user_id: session.account_row.user_id,
+        description: String(report.description)
+      });
       return response.status(201).json({ ok: true, report });
     }
     catch (error) {
