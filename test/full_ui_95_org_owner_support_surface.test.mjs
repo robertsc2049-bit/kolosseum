@@ -46,6 +46,12 @@ test("the org-owner support routes resolve identity from authenticatedOrgOwner o
   assert.doesNotMatch(routes, /request\.body\.user_id|request\.query\.user_id/u);
 });
 
+test("the org-owner support routes are rate-limited (CodeQL's js/missing-rate-limiting query flags newly-added authorising routes, GET included)", () => {
+  assert.match(routes, /const orgOwnerSupportRateLimit = rateLimit\(\{/u);
+  assert.match(routes, /"\/support\/reports",\s*\n\s*orgOwnerSupportRateLimit,\s*\n\s*asyncHandler\(async \(request, response\) => \{\s*\n\s*const \{ user_id \} = await authenticatedOrgOwner\(request, true\)/u);
+  assert.match(routes, /"\/support\/reports",\s*\n\s*orgOwnerSupportRateLimit,\s*\n\s*asyncHandler\(async \(request, response\) => \{\s*\n\s*const \{ user_id \} = await authenticatedOrgOwner\(request, false\)/u);
+});
+
 test("the org-owner support router is mounted at /org, alongside orgOwnerRouter", () => {
   assert.match(serverSource, /import \{ orgOwnerSupportRouter \} from "\.\/api\/org_owner_support\.routes\.js";/u);
   assert.match(serverSource, /app\.use\("\/org", orgOwnerSupportRouter\);/u);

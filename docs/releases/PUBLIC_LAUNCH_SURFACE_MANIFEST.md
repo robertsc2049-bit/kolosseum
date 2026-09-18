@@ -8,7 +8,7 @@ Authority: LAUNCH-00
 
 The machine authority is `docs/releases/PUBLIC_LAUNCH_SURFACE_MANIFEST.json`.
 
-LAUNCH-01 classifies the exact current `product/ui/function_manifest.json` inventory. It does not infer release availability from implementation presence. The source UI manifest is blob-pinned and count-pinned at 35 product areas and 353 functions, so any added, removed or silently changed function fails closed until this authority is explicitly reconciled.
+LAUNCH-01 classifies the exact current `product/ui/function_manifest.json` inventory. It does not infer release availability from implementation presence. The source UI manifest is blob-pinned and count-pinned at 35 product areas and 356 functions, so any added, removed or silently changed function fails closed until this authority is explicitly reconciled.
 
 ## Classifications
 

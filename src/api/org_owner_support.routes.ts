@@ -10,6 +10,7 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import { authenticatedOrgOwner } from "./org_owner_auth.js";
 import {
@@ -20,6 +21,16 @@ import {
 import { badRequest, conflict } from "./http_errors.js";
 
 export const orgOwnerSupportRouter = Router();
+
+// CodeQL's js/missing-rate-limiting query flags newly-added authorising
+// routes, including GET - matches the existing orgOwnerDataRightsRateLimit/
+// orgOwnerAdminRateLimit precedent in org_owner.routes.ts/product_admin.routes.ts.
+const orgOwnerSupportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 type AsyncHandler = (
   request: Request,
@@ -48,6 +59,7 @@ function rethrowSupportError(error: unknown): never {
 
 orgOwnerSupportRouter.post(
   "/support/reports",
+  orgOwnerSupportRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
 
@@ -63,6 +75,7 @@ orgOwnerSupportRouter.post(
 
 orgOwnerSupportRouter.get(
   "/support/reports",
+  orgOwnerSupportRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const reports = await listOrgOwnerSupportReportsForUser(user_id);
