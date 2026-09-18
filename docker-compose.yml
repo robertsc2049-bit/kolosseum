@@ -1,0 +1,44 @@
+# DEV NOTE: Platform-agnostic local/self-hosted stack - app + Postgres, for
+# any host that runs containers. Not tied to a specific cloud vendor. Run
+# `docker compose exec app node scripts/apply-schema.mjs` once after the first
+# `docker compose up` to create the schema, then
+# `docker compose exec app node scripts/bootstrap_admin_account.mjs` to create
+# the first founder_admin account - see docs/ops/DOCKER_DEPLOYMENT.md.
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kolosseum
+    volumes:
+      - kolosseum-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: postgres://postgres:postgres@db:5432/kolosseum
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_PLAN_ID: ${KOLOSSEUM_CONTROLLED_LAUNCH_PLAN_ID:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID: ${KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT: ${KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT:-}
+      KOLOSSEUM_PUBLIC_APP_URL: ${KOLOSSEUM_PUBLIC_APP_URL:-}
+
+volumes:
+  kolosseum-db-data:
