@@ -1789,7 +1789,8 @@ CREATE TABLE IF NOT EXISTS product_admin_audit_records (
         'account_state_change',
         'test_account_marked',
         'test_account_unmarked',
-        'support_request_status_change'
+        'support_request_status_change',
+        'org_owner_support_request_status_change'
       )
     ),
   target_record_type    TEXT NOT NULL,
@@ -1819,6 +1820,34 @@ ON product_admin_audit_records (
   target_record_id,
   created_at DESC
 );
+
+-- FULL-UI-95 migration for environments that already applied the original
+-- product_admin_audit_records shape (before org_owner_support_request_
+-- status_change was added to action_type's allowed set).
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_admin_audit_records'
+      AND constraint_name = 'product_admin_audit_records_action_type_check'
+  ) THEN
+    ALTER TABLE product_admin_audit_records
+      DROP CONSTRAINT product_admin_audit_records_action_type_check;
+    ALTER TABLE product_admin_audit_records
+      ADD CONSTRAINT product_admin_audit_records_action_type_check
+      CHECK (
+        action_type IN (
+          'account_state_change',
+          'test_account_marked',
+          'test_account_unmarked',
+          'support_request_status_change',
+          'org_owner_support_request_status_change'
+        )
+      );
+  END IF;
+END;
+$$;
 
 -- Organisation/team billing and roster shell (commercial expansion, part B).
 -- An org owner is a wholly separate identity/session surface from
@@ -1962,6 +1991,59 @@ ON org_owner_data_deletion_requests(
   user_id,
   requested_at DESC
 );
+
+-- FULL-UI-95 org-owner support/error-reporting parity - mirrors
+-- product_support_requests's exact shape (FULL-UI-20), but FK'd to
+-- product_org_owner_accounts instead of product_accounts, matching every
+-- other org_owner_* parity table above (never a shared/reused FK target).
+CREATE TABLE IF NOT EXISTS org_owner_support_requests (
+  correlation_id   TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  route_hash       TEXT NOT NULL,
+  occurred_at      TIMESTAMPTZ NOT NULL,
+  description      TEXT NOT NULL
+    CHECK (
+      char_length(description) BETWEEN 1 AND 4000
+    ),
+  browser_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(browser_context) = 'object'
+    ),
+  failure_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(failure_context) = 'object'
+    ),
+  status           TEXT NOT NULL DEFAULT 'submitted'
+    CHECK (
+      status IN ('submitted', 'acknowledged', 'closed')
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_org_owner_support_requests_user_created
+ON org_owner_support_requests (
+  user_id,
+  created_at DESC
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'org_owner_support_requests_set_updated_at'
+  ) THEN
+    CREATE TRIGGER org_owner_support_requests_set_updated_at
+    BEFORE UPDATE ON org_owner_support_requests
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
 
 CREATE TABLE IF NOT EXISTS product_organisations (
   org_id        TEXT PRIMARY KEY,

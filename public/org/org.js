@@ -111,6 +111,7 @@ function showSignedOut() {
   el("orgRegisterSection").hidden = false;
   el("orgWorkspaceSection").hidden = true;
   el("orgAccountSection").hidden = true;
+  el("orgSupportSection").hidden = true;
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
 }
@@ -120,6 +121,7 @@ async function showWorkspace(displayName) {
   el("orgRegisterSection").hidden = true;
   el("orgWorkspaceSection").hidden = false;
   el("orgAccountSection").hidden = false;
+  el("orgSupportSection").hidden = false;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
   el("orgDisplayName").textContent = displayName;
@@ -130,10 +132,14 @@ async function showWorkspace(displayName) {
   el("orgAccountExportError").hidden = true;
   el("orgAccountDeletionError").hidden = true;
   el("orgAccountClosureError").hidden = true;
+  el("orgSupportReportPanel").hidden = true;
+  el("orgSupportResult").hidden = true;
+  el("orgSupportError").hidden = true;
 
   await Promise.all([
     refreshOrganisations(),
     refreshAccountDataRights().catch(console.error),
+    refreshOrgSupportHistory().catch(console.error),
     refreshNotificationBadge().catch(console.error)
   ]);
 }
@@ -1896,6 +1902,125 @@ async function confirmAccountDeletion(event) {
   }
 }
 
+// FULL-UI-95 org-owner support/error-reporting parity - ported from
+// useAccountSupport.ts's report-a-problem flow (FULL-UI-20) into this
+// file's own vanilla state/el()/api() idiom. Deliberately does not port
+// the React panel's separate "check platform status" or "retry the
+// failed GET request" features - this org page has no global fetch-error
+// interceptor to source a real failure_context from, so only the actual
+// identified gap (a report path org owner otherwise entirely lacks) is
+// built here; failure_context is simply omitted (the server accepts it as
+// optional).
+let orgSupportReportContext = null;
+
+function newOrgSupportCorrelationId() {
+  if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+  return `corr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function orgSupportBrowserContextSnapshot() {
+  return {
+    user_agent: navigator.userAgent ?? "",
+    language: navigator.language ?? "",
+    viewport_width: window.innerWidth ?? null,
+    viewport_height: window.innerHeight ?? null,
+    timezone_offset_minutes: new Date().getTimezoneOffset()
+  };
+}
+
+function openOrgSupportReportForm() {
+  orgSupportReportContext = {
+    correlation_id: newOrgSupportCorrelationId(),
+    route_hash: "#/org",
+    occurred_at_iso8601: new Date().toISOString(),
+    browser_context: orgSupportBrowserContextSnapshot()
+  };
+
+  el("orgSupportResult").hidden = true;
+  el("orgSupportError").hidden = true;
+  el("orgSupportDescription").value = "";
+  el("orgSupportReportContext").innerHTML = `
+    <article class="record-card">
+      <div>
+        <h3>Correlation ID</h3>
+        <p class="muted small">${escapeHtml(orgSupportReportContext.correlation_id)}</p>
+      </div>
+      <div>
+        <h3>Timestamp</h3>
+        <p class="muted small">${escapeHtml(formatDate(orgSupportReportContext.occurred_at_iso8601))}</p>
+      </div>
+    </article>
+  `;
+  el("orgSupportReportPanel").hidden = false;
+}
+
+function closeOrgSupportReportForm() {
+  el("orgSupportReportPanel").hidden = true;
+}
+
+function supportRequestStatusLabel(status) {
+  if (status === "acknowledged") return "Acknowledged";
+  if (status === "closed") return "Closed";
+  return "Submitted";
+}
+
+function renderOrgSupportHistory(reports) {
+  const container = el("orgSupportHistoryList");
+  if (reports.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No problems reported yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = reports.map((report) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(formatDate(report.created_at_iso8601))}</h3>
+        <p class="muted small">${escapeHtml(report.description)}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(supportRequestStatusLabel(report.status))}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshOrgSupportHistory() {
+  const result = await api("GET", "/org/support/reports");
+  renderOrgSupportHistory(Array.isArray(result.reports) ? result.reports : []);
+}
+
+async function submitOrgSupportReport(event) {
+  event.preventDefault();
+  el("orgSupportError").hidden = true;
+
+  const description = el("orgSupportDescription").value.trim();
+  if (!description || !orgSupportReportContext) return;
+
+  try {
+    const result = await api("POST", "/org/support/reports", {
+      correlation_id: orgSupportReportContext.correlation_id,
+      route_hash: orgSupportReportContext.route_hash,
+      occurred_at_iso8601: orgSupportReportContext.occurred_at_iso8601,
+      description,
+      browser_context: orgSupportReportContext.browser_context,
+      failure_context: {}
+    });
+    el("orgSupportReportPanel").hidden = true;
+    el("orgSupportResult").hidden = false;
+    el("orgSupportResult").textContent = `Report submitted. Correlation ID: ${result.report.correlation_id}`;
+    await refreshOrgSupportHistory();
+  }
+  catch (error) {
+    el("orgSupportError").hidden = false;
+    el("orgSupportError").textContent = "The report could not be submitted.";
+    console.error(error);
+  }
+}
+
 async function closeAccount(event) {
   event.preventDefault();
   el("orgAccountClosureError").hidden = true;
@@ -1951,6 +2076,9 @@ function boot() {
   el("orgAccountDeletionReviewButton").addEventListener("click", () => reviewAccountDeletion().catch(console.error));
   el("orgAccountDeletionConfirmForm").addEventListener("submit", (event) => confirmAccountDeletion(event).catch(console.error));
   el("orgAccountClosureForm").addEventListener("submit", (event) => closeAccount(event).catch(console.error));
+  el("orgSupportReportButton").addEventListener("click", () => openOrgSupportReportForm());
+  el("orgSupportCancelButton").addEventListener("click", () => closeOrgSupportReportForm());
+  el("orgSupportReportForm").addEventListener("submit", (event) => submitOrgSupportReport(event).catch(console.error));
 }
 
 boot();

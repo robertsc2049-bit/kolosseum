@@ -6720,6 +6720,72 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "org_owner_support_report_problem",
+          "label": "Report a problem",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_support_context",
+          "label": "Attach route, timestamp, browser and correlation ID",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_support_history",
+          "label": "Display support request history",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -8547,6 +8613,10 @@
     {
       "slice_id": "FULL-UI-94",
       "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-95",
+      "state": "implemented"
     }
   ],
   "prohibited_capabilities": [
@@ -8828,6 +8898,18 @@
     {
       "method": "GET",
       "path": "/admin/org-owner-data-rights/deletions",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-support-requests",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/org-owner-support-requests/:correlation_id/status",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

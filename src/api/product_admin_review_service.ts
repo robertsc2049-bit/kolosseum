@@ -420,6 +420,48 @@ export async function listAdminOrgOwnerDataDeletionRequests(
   );
 }
 
+export async function listAdminOrgOwnerSupportRequests(
+  statusFilterValue: unknown
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const statusFilter = cleanString(statusFilterValue);
+
+  const result = await pool.query(
+    statusFilter
+      ? `
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
+        FROM org_owner_support_requests
+        WHERE status = $1
+        ORDER BY created_at DESC
+        LIMIT 200
+        `
+      : `
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
+        FROM org_owner_support_requests
+        ORDER BY created_at DESC
+        LIMIT 200
+        `,
+    statusFilter ? [statusFilter] : []
+  );
+
+  return Object.freeze(
+    result.rows.map((row) =>
+      Object.freeze({
+        correlation_id: cleanString(row.correlation_id),
+        user_id: cleanString(row.user_id),
+        route_hash: cleanString(row.route_hash),
+        description: cleanString(row.description),
+        status: cleanString(row.status),
+        occurred_at_iso8601: toIso(row.occurred_at),
+        created_at_iso8601: toIso(row.created_at),
+        browser_context: isRecord(row.browser_context) ? row.browser_context : {},
+        failure_context: isRecord(row.failure_context) ? row.failure_context : {}
+      })
+    )
+  );
+}
+
 export async function listAdminAuditRecords(
   targetUserIdValue: unknown
 ): Promise<readonly Readonly<JsonRecord>[]> {

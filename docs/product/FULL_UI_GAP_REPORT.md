@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 353
+- implemented: 356
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -500,7 +500,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 28 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 31 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -532,6 +532,9 @@ Implemented: 28 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_attendance_calendar_export` — Org owner exports their gym-wide attendance events as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules
 - `coach_team_position_override` — Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed
 - `org_owner_position_override` — Org owner directly overrides the position of an athlete already visible on their own shared-visibility roster
+- `org_owner_support_report_problem` — Report a problem
+- `org_owner_support_context` — Attach route, timestamp, browser and correlation ID
+- `org_owner_support_history` — Display support request history
 
 ### Coach-athlete messaging
 
@@ -824,6 +827,7 @@ Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-92: implemented
 - FULL-UI-93: implemented
 - FULL-UI-94: implemented
+- FULL-UI-95: implemented
 
 ## Prohibited capabilities
 
