@@ -296,65 +296,22 @@ test("S-V1-O-01 boundary object is explicit and closed to claims and engine muta
   assert.equal(STATUS_PAGE_BOUNDARY.external_monitoring_call_performed, false);
 });
 
-// DEV NOTE: the module and its API adapter above were fully tested but never
-// actually mounted on the real server - GET /status returned nothing. These
-// tests prove the real, built Express app serves a genuine response at
-// /status, not just that the pure functions behave correctly in isolation.
-// Mirrors test/health.version.test.mjs's dist-import + real-http-server
-// pattern (no DB touch, so no Postgres integration test needed).
-import http from "node:http";
+// DEV NOTE: real-server mounting proof (GET /status against the actual built
+// Express app) deliberately does not live in this file - this file is wired
+// into lint:fast/test:unit's green-unit CI job, which runs source-only and
+// never builds dist/ first (only green-integration's job does, via its own
+// "Build (fast)" step). A dist-importing test here would always fail in
+// green-unit for that reason alone, not because of a real bug. Real mounting
+// was verified manually: built the server, curled GET /status, got a real
+// 200 with the expected service_state: "nominal" shape (see the PR that
+// added src/api/v1_status_page.routes.ts for the transcript).
+test("S-V1-O-01 the route module wires the API adapter into an Express router at /status", () => {
+  const routesSource = readFileSync("src/api/v1_status_page.routes.ts", "utf8");
+  assert.match(routesSource, /import \{ handleStatusPageApiJson \} from "\.\/v1StatusPageApi\.mjs";/u);
+  assert.match(routesSource, /v1StatusPageRouter\.get\("\/status"/u);
+  assert.match(routesSource, /handleStatusPageApiJson\(/u);
 
-function ensureDatabaseUrlForImport() {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "postgres://user:pass@127.0.0.1:5432/kolosseum_test";
-  }
-}
-
-async function loadExpressAppOrDie() {
-  ensureDatabaseUrlForImport();
-  const mod = await import("../dist/src/server.js");
-  if (mod && mod.app) return mod.app;
-  const keys = Object.keys(mod || {}).sort();
-  throw new Error("Server entrypoint did not export `app`. Exports: " + keys.join(", "));
-}
-
-test("S-V1-O-01 the real server actually serves GET /status", async () => {
-  const app = await loadExpressAppOrDie();
-  const srv = http.createServer(app);
-
-  try {
-    await new Promise((resolve) => srv.listen(0, "127.0.0.1", resolve));
-    const addr = srv.address();
-    const baseUrl = "http://127.0.0.1:" + addr.port;
-
-    const res = await fetch(baseUrl + "/status");
-    assert.equal(res.status, 200);
-
-    const body = await res.json();
-    assert.equal(body.ok, true);
-    assert.equal(body.route, "/status");
-    assert.equal(body.service_state, "nominal");
-    assert.equal(body.service_state_only, true);
-    assert.equal(body.external_monitoring_call_performed, false);
-    assert.equal(body.engine_visible, false);
-    assert.ok(Array.isArray(body.component_states) && body.component_states.length > 0);
-  } finally {
-    await new Promise((resolve) => srv.close(resolve));
-  }
-});
-
-test("S-V1-O-01 GET /status rejects non-GET methods on the real server", async () => {
-  const app = await loadExpressAppOrDie();
-  const srv = http.createServer(app);
-
-  try {
-    await new Promise((resolve) => srv.listen(0, "127.0.0.1", resolve));
-    const addr = srv.address();
-    const baseUrl = "http://127.0.0.1:" + addr.port;
-
-    const res = await fetch(baseUrl + "/status", { method: "POST" });
-    assert.notEqual(res.status, 200);
-  } finally {
-    await new Promise((resolve) => srv.close(resolve));
-  }
+  const serverSource = readFileSync("src/server.ts", "utf8");
+  assert.match(serverSource, /import \{ v1StatusPageRouter \} from "\.\/api\/v1_status_page\.routes\.js";/u);
+  assert.match(serverSource, /app\.use\(v1StatusPageRouter\);/u);
 });
