@@ -295,3 +295,66 @@ test("S-V1-O-01 boundary object is explicit and closed to claims and engine muta
   assert.equal(STATUS_PAGE_BOUNDARY.provider_call_performed, false);
   assert.equal(STATUS_PAGE_BOUNDARY.external_monitoring_call_performed, false);
 });
+
+// DEV NOTE: the module and its API adapter above were fully tested but never
+// actually mounted on the real server - GET /status returned nothing. These
+// tests prove the real, built Express app serves a genuine response at
+// /status, not just that the pure functions behave correctly in isolation.
+// Mirrors test/health.version.test.mjs's dist-import + real-http-server
+// pattern (no DB touch, so no Postgres integration test needed).
+import http from "node:http";
+
+function ensureDatabaseUrlForImport() {
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = "postgres://user:pass@127.0.0.1:5432/kolosseum_test";
+  }
+}
+
+async function loadExpressAppOrDie() {
+  ensureDatabaseUrlForImport();
+  const mod = await import("../dist/src/server.js");
+  if (mod && mod.app) return mod.app;
+  const keys = Object.keys(mod || {}).sort();
+  throw new Error("Server entrypoint did not export `app`. Exports: " + keys.join(", "));
+}
+
+test("S-V1-O-01 the real server actually serves GET /status", async () => {
+  const app = await loadExpressAppOrDie();
+  const srv = http.createServer(app);
+
+  try {
+    await new Promise((resolve) => srv.listen(0, "127.0.0.1", resolve));
+    const addr = srv.address();
+    const baseUrl = "http://127.0.0.1:" + addr.port;
+
+    const res = await fetch(baseUrl + "/status");
+    assert.equal(res.status, 200);
+
+    const body = await res.json();
+    assert.equal(body.ok, true);
+    assert.equal(body.route, "/status");
+    assert.equal(body.service_state, "nominal");
+    assert.equal(body.service_state_only, true);
+    assert.equal(body.external_monitoring_call_performed, false);
+    assert.equal(body.engine_visible, false);
+    assert.ok(Array.isArray(body.component_states) && body.component_states.length > 0);
+  } finally {
+    await new Promise((resolve) => srv.close(resolve));
+  }
+});
+
+test("S-V1-O-01 GET /status rejects non-GET methods on the real server", async () => {
+  const app = await loadExpressAppOrDie();
+  const srv = http.createServer(app);
+
+  try {
+    await new Promise((resolve) => srv.listen(0, "127.0.0.1", resolve));
+    const addr = srv.address();
+    const baseUrl = "http://127.0.0.1:" + addr.port;
+
+    const res = await fetch(baseUrl + "/status", { method: "POST" });
+    assert.notEqual(res.status, 200);
+  } finally {
+    await new Promise((resolve) => srv.close(resolve));
+  }
+});

@@ -41,6 +41,7 @@ import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
+import { v1StatusPageRouter } from "./api/v1_status_page.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
 import { initialiseErrorReporting } from "./v1ErrorReportingInitialisation.mjs";
 
@@ -85,6 +86,10 @@ if (!errorReportingInit.ok) {
 app.get("/health", (_req, res) => {
   return res.status(200).json({ status: "ok", version: VERSION });
 });
+
+// S-V1-O-01: public, factual, service-state-only status page. See
+// src/v1StatusPage.mjs for the boundary this surface must never cross.
+app.use(v1StatusPageRouter);
 
 // Stripe webhook signature verification needs the exact raw bytes Stripe
 // signed - mounted with a raw body parser, ahead of the global JSON parser
