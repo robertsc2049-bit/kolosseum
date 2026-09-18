@@ -112,6 +112,35 @@ test("shows the unavailable state on a load failure, with a working retry", asyn
   await screen.findByText("Incomplete onboarding");
 });
 
+test("a stale sign-in-required error from before registration clears itself once entry auth succeeds, with no manual retry needed", async () => {
+  // Reproduces the real bug: this panel mounts unconditionally on script
+  // load, before the person has signed in, so its very first fetch
+  // genuinely 401s. Nothing used to tell it a moment later that sign-up/
+  // sign-in then succeeded, so it was stuck showing this error forever
+  // until a manual Retry click.
+  let authenticated = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
+    if (path === "/account/coach-onboarding") {
+      return authenticated
+        ? jsonResponse(baseState())
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return jsonResponse({ error: "unhandled" }, false, 404);
+  }) as typeof fetch;
+
+  render(<CoachOnboardingPanel />);
+  await screen.findByText("Sign in to continue coach onboarding.");
+
+  authenticated = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "create" } }));
+  });
+
+  await screen.findByText("Incomplete onboarding");
+});
+
 test("saving the profile moves to the terms stage and shows a confirmation and history entry", async () => {
   installMocks({
     onSaveProfile: (body) => baseState({

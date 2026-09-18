@@ -144,6 +144,35 @@ test("shows the unavailable state on a load failure, with a working retry", asyn
   await screen.findByText("Set up your account");
 });
 
+test("a stale sign-in-required error from before registration clears itself once entry auth succeeds, with no manual retry needed", async () => {
+  // Reproduces the real bug: this panel mounts unconditionally on script
+  // load, before the person has signed in, so its very first fetch
+  // genuinely 401s. Nothing used to tell it a moment later that sign-up/
+  // sign-in then succeeded, so it was stuck showing this error forever
+  // until a manual Retry click.
+  let authenticated = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "athlete_1" }, csrf_token: "csrf" });
+    if (path === "/account/onboarding/") {
+      return authenticated
+        ? jsonResponse(draftState())
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return jsonResponse({ error: "unhandled" }, false, 404);
+  }) as typeof fetch;
+
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Onboarding is unavailable");
+
+  authenticated = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "create" } }));
+  });
+
+  await screen.findByText("Set up your account");
+});
+
 test("advancing a stage saves the draft and moves forward, showing a saved-draft status", async () => {
   installMocks({});
   render(<AthleteOnboardingPanel />);
@@ -199,6 +228,37 @@ test("the Back button is enabled past the first stage and moves backward", async
   });
 
   await screen.findByText("Activity declaration");
+});
+
+test("continuing past the accessibility stage without touching any checkbox saves an explicit no-preferences default, not a validation error", async () => {
+  let savedFields: Record<string, unknown> | undefined;
+  installMocks({
+    initialState: draftState({
+      current_stage: "accessibility",
+      draft: { fields: { activity_id: "powerlifting", execution_scope: "individual", product_acknowledged: true, jurisdiction_code: "england_wales", jurisdiction_acknowledged: true } }
+    }),
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({
+        current_stage: body.current_stage,
+        draft: { fields: body.fields },
+        saved_draft_state: true,
+        saved_draft_at_iso8601: "2026-08-28T00:00:00.000Z"
+      });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Accessibility preferences");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save and continue"));
+  });
+
+  await screen.findByText("Draft saved");
+  assert.ok(screen.getByText("Instruction-density preference"));
+  assert.deepEqual(savedFields?.accessibility_preferences, {
+    reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false
+  });
 });
 
 test("a validation failure shows field errors and does not advance the stage", async () => {

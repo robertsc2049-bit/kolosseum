@@ -254,7 +254,18 @@ function DraftView({ api }: { api: OnboardingApi }) {
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (currentStage === "review") confirm();
-    else move(1, localDraft);
+    else {
+      // The accessibility stage is genuinely optional (its own copy says
+      // so) - but the server requires the field to be present at all once
+      // this stage is left, even to declare "no preferences". Default it
+      // explicitly so a user who touches none of the 4 checkboxes can still
+      // continue, instead of hitting a confusing "complete this earlier
+      // stage" validation error on the stage they are actually leaving.
+      const fields = currentStage === "accessibility" && !Object.prototype.hasOwnProperty.call(localDraft, "accessibility_preferences")
+        ? { ...localDraft, accessibility_preferences: accessibilityOf(localDraft.accessibility_preferences) }
+        : localDraft;
+      move(1, fields);
+    }
   }
 
   return (

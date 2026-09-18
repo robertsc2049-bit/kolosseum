@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import {
@@ -12,6 +12,7 @@ import {
   updateAthleteOnboardingPreferences
 } from "../../api/athleteOnboardingClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { applyAccessibilityPreferences as applySharedAccessibilityPreferences } from "../../utils/accessibilityPreferences";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
@@ -95,8 +96,17 @@ async function csrfToken(): Promise<string> {
 
 export function useAthleteOnboarding() {
   const [state, setState] = useState<AthleteOnboardingState>(initialState);
+  // Guards against a stale response overwriting a newer one: this panel is
+  // one of several always-mounted regardless of route, so refresh() can be
+  // called again (on ENTRY_AUTH_SUCCEEDED_EVENT below) while the very first,
+  // mounted-before-sign-in call is still in flight. Only the most recently
+  // *started* call is ever allowed to update state, so a stale error
+  // arriving after a real success already applied can never clobber it back
+  // to an error state.
+  const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setState((current) => ({ ...current, loading: true, unavailableError: null }));
     try {
       const serverState = await loadAthleteOnboardingState();
@@ -116,6 +126,7 @@ export function useAthleteOnboarding() {
         catch { /* non-fatal - the onboarding view itself still loaded fine */ }
       }
 
+      if (requestIdRef.current !== requestId) return;
       setState({
         loading: false, unavailableError: null, serverState, draft: { ...draft }, busy: false,
         editing: false, validationError: null, activityChange, activityChangeBusy: false, activityChangeError: null,
@@ -123,6 +134,7 @@ export function useAthleteOnboarding() {
       });
     }
     catch (error) {
+      if (requestIdRef.current !== requestId) return;
       setState((current) => ({
         ...current,
         loading: false,
@@ -133,6 +145,14 @@ export function useAthleteOnboarding() {
 
   useEffect(() => {
     refresh();
+    // This panel mounts unconditionally on script load, regardless of
+    // whether the person is signed in yet - a fresh sign-up/sign-in
+    // completing later needs to trigger a real refetch, since nothing else
+    // ever tells this hook that auth state just changed.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   const currentStage = useCallback((): OnboardingStage => {

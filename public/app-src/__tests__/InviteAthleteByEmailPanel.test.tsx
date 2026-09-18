@@ -13,8 +13,8 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
   return { ok, status, text: async () => JSON.stringify(body) } as Response;
 }
 
-function installMocks(options: { inviteFails?: boolean } = {}) {
-  const { inviteFails = false } = options;
+function installMocks(options: { inviteFailure?: { error: string; status: number } } = {}) {
+  const { inviteFailure } = options;
   const calls: Array<{ path: string; init?: RequestInit }> = [];
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -25,7 +25,7 @@ function installMocks(options: { inviteFails?: boolean } = {}) {
       return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf-abc" });
     }
     if (path === "/coach-workspace/relationship-invitations") {
-      if (inviteFails) return jsonResponse({ error: "relationship_invitation_email_invalid" }, false, 400);
+      if (inviteFailure) return jsonResponse({ error: inviteFailure.error }, false, inviteFailure.status);
       return jsonResponse({ ok: true, relationship: { relationship_id: "rel_1" } }, true, 201);
     }
     return jsonResponse({ error: `unhandled_${path}` }, false, 404);
@@ -66,8 +66,8 @@ test("submitting sends the CSRF-guarded email invitation and shows a confirmatio
   assert.equal((input).value, "");
 });
 
-test("a failed invitation shows a factual error and keeps the entered email", async () => {
-  installMocks({ inviteFails: true });
+test("inviting an email with no matching athlete account shows a specific, actionable error, not a generic one", async () => {
+  installMocks({ inviteFailure: { error: "relationship_invitation_athlete_not_found", status: 404 } });
   render(<InviteAthleteByEmailPanel />);
 
   const input = screen.getByRole("textbox") as HTMLInputElement;
@@ -77,6 +77,23 @@ test("a failed invitation shows a factual error and keeps the entered email", as
     fireEvent.click(screen.getByText("Send invitation"));
   });
 
-  await screen.findByText("The invitation could not be sent.");
+  await screen.findByText(
+    "No athlete account exists with that email yet. Ask them to create their Kolosseum account first, then send the invitation."
+  );
+  assert.equal(input.value, "athlete@example.com");
+});
+
+test("a validation failure on the email itself shows a factual error and keeps the entered email", async () => {
+  installMocks({ inviteFailure: { error: "relationship_invitation_athlete_email_invalid", status: 400 } });
+  render(<InviteAthleteByEmailPanel />);
+
+  const input = screen.getByRole("textbox") as HTMLInputElement;
+  fireEvent.change(input, { target: { value: "athlete@example.com" } });
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Send invitation"));
+  });
+
+  await screen.findByText("Enter a valid email address.");
   assert.equal(input.value, "athlete@example.com");
 });
