@@ -401,3 +401,60 @@ export async function changeSupportRequestStatus(
     });
   });
 }
+
+// FULL-UI-95 org-owner support parity - mirrors changeSupportRequestStatus
+// exactly, targeting org_owner_support_requests instead.
+export async function changeOrgOwnerSupportRequestStatus(
+  adminUserId: string,
+  correlationId: string,
+  targetCorrelationId: string,
+  newStatus: string
+): Promise<AuditOutcome> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanTargetCorrelationId = cleanString(targetCorrelationId);
+  const cleanStatus = cleanString(newStatus);
+
+  if (!cleanCorrelationId || !cleanTargetCorrelationId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+  if (!SUPPORT_REQUEST_STATES.has(cleanStatus)) {
+    throw new AdminActionError("admin_support_status_invalid", 400);
+  }
+
+  return withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const current = await client.query(
+      `SELECT correlation_id, status FROM org_owner_support_requests WHERE correlation_id = $1 FOR UPDATE`,
+      [cleanTargetCorrelationId]
+    );
+    if (!current.rows[0]) {
+      throw new AdminActionError("admin_support_request_not_found", 404);
+    }
+
+    const currentStatus = cleanString(current.rows[0].status);
+    if (!SUPPORT_REQUEST_ALLOWED_TRANSITIONS[currentStatus]?.has(cleanStatus)) {
+      throw new AdminActionError("admin_support_status_transition_invalid", 409);
+    }
+
+    const beforeState = { status: currentStatus };
+
+    await client.query(
+      `UPDATE org_owner_support_requests SET status = $2 WHERE correlation_id = $1`,
+      [cleanTargetCorrelationId, cleanStatus]
+    );
+
+    const afterState = { status: cleanStatus };
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "org_owner_support_request_status_change",
+      targetRecordType: "org_owner_support_requests",
+      targetRecordId: cleanTargetCorrelationId,
+      beforeState,
+      afterState
+    });
+  });
+}

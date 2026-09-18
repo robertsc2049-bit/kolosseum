@@ -23,6 +23,7 @@ import { adminCookieValue, authenticatedAdmin } from "./product_admin_auth.js";
 import {
   changeAccountState,
   changeOrgOwnerAccountState,
+  changeOrgOwnerSupportRequestStatus,
   changeSupportRequestStatus,
   AdminActionError,
   setTestAccountMarking
@@ -36,6 +37,7 @@ import {
   listAdminDataExportRequests,
   listAdminOrgOwnerDataDeletionRequests,
   listAdminOrgOwnerDataExportRequests,
+  listAdminOrgOwnerSupportRequests,
   listAdminSupportRequests,
   searchAdminAccounts,
   searchAdminOrgOwnerAccounts
@@ -234,7 +236,7 @@ productAdminRouter.get(
 // own reasoning for the parallel read functions. Rate-limited (unlike this
 // file's older routes, which predate this and are grandfathered) because
 // CodeQL's js/missing-rate-limiting query flags newly-added authorising
-// routes - one shared limiter across all five keeps a single new instance
+// routes - one shared limiter across all seven keeps a single new instance
 // from being added per route for what is one logical capability.
 const orgOwnerAdminRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -303,6 +305,38 @@ productAdminRouter.get(
     await authenticatedAdmin(request, false);
     const requests = await listAdminOrgOwnerDataDeletionRequests(request.query.user_id);
     return response.status(200).json({ requests });
+  })
+);
+
+productAdminRouter.get(
+  "/org-owner-support-requests",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    const reports = await listAdminOrgOwnerSupportRequests(request.query.status);
+    return response.status(200).json({ reports });
+  })
+);
+
+productAdminRouter.post(
+  "/org-owner-support-requests/:correlation_id/status",
+  orgOwnerAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    const body = request.body ?? {};
+
+    try {
+      const outcome = await changeOrgOwnerSupportRequestStatus(
+        admin.user_id,
+        String(body.correlation_id ?? ""),
+        String(request.params.correlation_id),
+        String(body.status ?? "")
+      );
+      return response.status(200).json({ ok: true, audit: outcome });
+    }
+    catch (error) {
+      rethrowActionError(error);
+    }
   })
 );
 
