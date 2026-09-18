@@ -18,6 +18,7 @@ import {
   createOrgOwnerSupportReport,
   listOrgOwnerSupportReportsForUser
 } from "./org_owner_support_service.js";
+import { notifySupportRequestCreated } from "./support_alert_notifier.js";
 import { badRequest, conflict } from "./http_errors.js";
 
 export const orgOwnerSupportRouter = Router();
@@ -65,6 +66,12 @@ orgOwnerSupportRouter.post(
 
     try {
       const report = await createOrgOwnerSupportReport(user_id, request.body);
+      await notifySupportRequestCreated({
+        actor_type: "org_owner",
+        correlation_id: String(report.correlation_id),
+        user_id,
+        description: String(report.description)
+      });
       return response.status(201).json({ ok: true, report });
     }
     catch (error) {
