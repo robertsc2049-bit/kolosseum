@@ -124,11 +124,10 @@ function findSecretLikeValue(text) {
 
 function assertNoEngineImportsInThisScript() {
   const self = fs.readFileSync(new URL(import.meta.url), "utf8");
-  const forbidden = ["@kolosseum/engine", "from \"../engine", "from \"./engine", "engine/src/"];
-  for (const needle of forbidden) {
-    if (self.includes(needle)) {
-      throw new Error(`engine_boundary_checked failed: this script contains a forbidden reference (${needle})`);
-    }
+  const importSpecifiers = [...self.matchAll(/from\s+["']([^"']+)["']/g)].map((m) => m[1]);
+  const engineLike = importSpecifiers.find((specifier) => specifier.toLowerCase().includes("engine"));
+  if (engineLike) {
+    throw new Error(`engine_boundary_checked failed: this script imports an engine-like path (${engineLike})`);
   }
 }
 
