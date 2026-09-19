@@ -26,7 +26,7 @@ import { type JsonRecord } from "../../api/transport";
 // blank transition. Both listeners run synchronously up to the possible
 // throw, so the rejection (if any) is already dispatched by the time
 // dispatchEvent() returns here - no promise/timeout needed.
-const ENTRY_AUTH_SUCCEEDED_EVENT = "kolosseum:entry-auth-succeeded";
+export const ENTRY_AUTH_SUCCEEDED_EVENT = "kolosseum:entry-auth-succeeded";
 const SESSION_REJECTED_EVENT = "kolosseum:entry-auth-session-rejected";
 const BOOTSTRAP_NOTICE_EVENT = "kolosseum:entry-bootstrap-notice";
 

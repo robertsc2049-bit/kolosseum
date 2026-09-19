@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import {
@@ -9,6 +9,7 @@ import {
   saveCoachOnboardingProfile
 } from "../../api/coachOnboardingClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { applyAccessibilityPreferences } from "../../utils/accessibilityPreferences";
 
 // DEV NOTE: FULL-UI-04C coach onboarding profile/terms/completion - ported
@@ -44,15 +45,26 @@ async function csrfToken(): Promise<string> {
 
 export function useCoachOnboarding() {
   const [state, setState] = useState<CoachOnboardingState>(initialState);
+  // Guards against a stale response overwriting a newer one: this panel is
+  // one of several always-mounted regardless of route, so refresh() can be
+  // called again (on ENTRY_AUTH_SUCCEEDED_EVENT below) while the very first,
+  // mounted-before-sign-in call is still in flight. Only the most recently
+  // *started* call is ever allowed to update state, so a stale 401 arriving
+  // after a real 200 already succeeded can never clobber it back to an
+  // error state.
+  const requestIdRef = useRef(0);
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestIdRef.current;
     setState((current) => ({ ...current, loading: true, unavailableError: null }));
     try {
       const serverState = await loadCoachOnboardingState();
+      if (requestIdRef.current !== requestId) return;
       applyAccessibilityPreferences(serverState.accessibility_preferences);
       setState({ loading: false, unavailableError: null, serverState, busy: false, validationError: null });
     }
     catch (error) {
+      if (requestIdRef.current !== requestId) return;
       setState((current) => ({
         ...current,
         loading: false,
@@ -63,6 +75,14 @@ export function useCoachOnboarding() {
 
   useEffect(() => {
     refresh();
+    // This panel mounts unconditionally on script load, regardless of
+    // whether the person is signed in yet - a fresh sign-up/sign-in
+    // completing later needs to trigger a real refetch, since nothing else
+    // ever tells this hook that auth state just changed.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   const saveProfile = useCallback(async (input: JsonRecord): Promise<JsonRecord | null> => {

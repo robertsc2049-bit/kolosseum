@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import { inviteAthleteByEmail as inviteAthleteByEmailRequest } from "../../api/coachWorkspaceClient";
+import { ApiRequestError } from "../../api/transport";
 
 // DEV NOTE: FULL-UI-24 lawful invitation - ported from app.js's (removed)
 // inviteAthleteByEmail(). Unlike the manual "Add athlete" form
@@ -29,9 +30,9 @@ export function useInviteAthleteByEmail() {
       setNotice(`Invitation sent to ${trimmed}.`);
       return true;
     }
-    catch {
+    catch (error) {
       setSubmitting(false);
-      setError("The invitation could not be sent.");
+      setError(error instanceof ApiRequestError ? error.message : "The invitation could not be sent.");
       return false;
     }
   }, []);
