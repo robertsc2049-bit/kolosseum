@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { type JsonRecord, loadAccountDetail } from "../../api/client";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 export type AccountDetailState = {
   loading: boolean;
@@ -56,6 +57,16 @@ export function useAccountDetail(refreshToken: number) {
 
   useEffect(() => {
     refresh();
+    // This hook's consumers (the account header and the full identity
+    // panel) both mount unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later - while already positioned on
+    // #/account - needs to trigger a real refetch. Otherwise a mount-time
+    // fetch that ran pre-auth (a 401) leaves the panel stuck in its error
+    // state until the user happens to navigate away and back.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh, refreshToken]);
 

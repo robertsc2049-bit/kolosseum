@@ -323,6 +323,39 @@ test("closing the account submits the typed confirmation via POST with the CSRF 
   mock.restore();
 });
 
+// DEV NOTE: reproduces a real bug found live - this panel (via
+// useAccountDetail) mounts unconditionally on script load, before the
+// person has signed in, so its very first /account/detail fetch genuinely
+// 401s. Unlike useAthleteOnboarding/useCoachOnboarding, nothing told this
+// hook that a sign-up/sign-in completing moments later - while already
+// positioned on #/account - meant it should refetch, so a brand new
+// account landed on a permanent "Account details could not be loaded"
+// error until the person happened to navigate away from #/account and
+// back (a genuine route change, which this panel DOES listen for).
+test("a stale account-details error from before sign-in clears itself once entry auth succeeds, with no navigation away and back needed", async () => {
+  let authenticated = false;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path === "/account/detail") {
+      return authenticated
+        ? jsonResponse({ account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-post-auth" })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  render(<AccountIdentityPanel />);
+  await screen.findByText("Account details could not be loaded. Check your connection and try again.");
+
+  authenticated = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "create" } }));
+  });
+
+  await screen.findByLabelText("Display name");
+  assert.equal(screen.queryByText("Account details could not be loaded. Check your connection and try again."), null);
+});
+
 test("a rejected closure request shows an inline error and does not end the session", async () => {
   const mock = await renderPanel(
     { account: baseAccount(), terms: {}, consent_history: [], csrf_token: "csrf-closure-fail" },
