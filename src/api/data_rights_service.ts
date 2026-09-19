@@ -118,6 +118,44 @@ async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+async function loadCoachOrgMemberships(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT m.membership_id, m.org_id, m.coach_user_id, m.membership_status,
+            m.invited_at, m.activated_at, m.removed_at, m.created_at
+     FROM product_org_coach_memberships m
+     WHERE m.coach_user_id = $1
+     ORDER BY m.created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    membership_id: row.membership_id,
+    org_id: row.org_id,
+    coach_user_id: row.coach_user_id,
+    membership_status: row.membership_status,
+    invited_at_iso8601: isoString(row.invited_at),
+    activated_at_iso8601: isoString(row.activated_at),
+    removed_at_iso8601: isoString(row.removed_at),
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
+async function loadCoachOrgMessagesSent(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT message_id, thread_id, body_text, client_request_id, created_at
+     FROM product_messages
+     WHERE sender_user_id = $1 AND sender_role = 'coach'
+     ORDER BY created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    message_id: row.message_id,
+    thread_id: row.thread_id,
+    body_text: row.body_text,
+    client_request_id: row.client_request_id,
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
 async function loadCommercialRecords(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT commercial_record_id, user_id, request_id, record_type, effective_at, record_payload
@@ -176,7 +214,9 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     habitCompletions,
     deviceConnections,
     deviceMetricEntries,
-    athleteGoals
+    athleteGoals,
+    coachOrgMemberships,
+    coachOrgMessagesSent
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -192,7 +232,9 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadBetaProductRecordsByType(userId, "habit_completion"),
     loadBetaProductRecordsByType(userId, "device_connection_record"),
     loadBetaProductRecordsByType(userId, "device_metric_entry"),
-    loadBetaProductRecordsByType(userId, "athlete_goal")
+    loadBetaProductRecordsByType(userId, "athlete_goal"),
+    loadCoachOrgMemberships(userId),
+    loadCoachOrgMessagesSent(userId)
   ]);
 
   const account = [tagOwnedRecord({
@@ -223,7 +265,9 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     habit_completions: habitCompletions.map((r) => tagOwnedRecord(r, userId)),
     device_connections: deviceConnections.map((r) => tagOwnedRecord(r, userId)),
     device_metric_entries: deviceMetricEntries.map((r) => tagOwnedRecord(r, userId)),
-    athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId))
+    athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId)),
+    org_coach_memberships: coachOrgMemberships.map((r) => tagOwnedRecord(r, userId)),
+    org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(
