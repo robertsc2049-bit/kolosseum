@@ -37,6 +37,7 @@ export const FRIENDLY_ERROR_MESSAGES: Record<string, string> = {
   account_sign_in_failed: "The email or password is incorrect.",
   account_temporarily_locked: "Sign-in is temporarily locked after repeated failed attempts.",
   account_session_missing: "Sign in to continue.",
+  BETA16_APP_PATH_ADMISSION_FAILED: "Your training declaration could not be verified. Declare your activity again from Declarations, or report this problem if it continues.",
   account_session_invalid: "The sign-in session has expired.",
   account_csrf_invalid: "The account request could not be authorised. Refresh and try again.",
   account_unavailable: "This account is not currently active.",
