@@ -12,6 +12,12 @@ import { type JsonRecord } from "../../api/transport";
 // authority on that boundary (empty roster for individual mode), this is
 // purely display. Ported from app.js's refreshCoachOrgContext()/
 // renderCoachOrgContext()/resolveOrgMembershipAction().
+// Dispatched after a successful accept/leave so sibling panels that
+// independently cache membership_status (e.g. CoachOrgMessagesPanel.tsx,
+// which only otherwise refetches on kolosseum:account-role-known) don't
+// keep showing a stale status until the next sign-in/page load.
+export const ORG_MEMBERSHIP_CHANGED_EVENT = "kolosseum:org-membership-changed";
+
 export type CoachOrgContextEntry = { membership: JsonRecord; roster: JsonRecord[] };
 
 export type AccountOrgContextState = {
@@ -80,6 +86,7 @@ export function useAccountOrgContext() {
       await resolveCoachOrgMembershipAction(membershipId, action, csrfToken);
       setState((current) => ({ ...current, actingId: null }));
       await refresh();
+      document.dispatchEvent(new CustomEvent(ORG_MEMBERSHIP_CHANGED_EVENT));
       return true;
     }
     catch {

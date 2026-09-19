@@ -16,6 +16,7 @@ const state = {
   auditRecords: [],
   commercialRecords: [],
   supportRequests: [],
+  orgOwnerSupportRequests: [],
   selectedOrgOwnerUserId: null,
   pendingOrgOwnerStateChange: null,
   orgOwnerDataRightsExports: [],
@@ -72,12 +73,14 @@ function showWorkspace() {
   el("orgOwnerAccountSearchSection").hidden = false;
   el("entitlementSection").hidden = false;
   el("supportSection").hidden = false;
+  el("orgOwnerSupportSection").hidden = false;
   el("dataRightsReviewSection").hidden = false;
   el("orgOwnerDataRightsReviewSection").hidden = false;
   el("auditSection").hidden = false;
 
   refreshCommercialRecords();
   refreshSupportRequests();
+  refreshOrgOwnerSupportRequests();
   refreshDataRightsReview();
   refreshOrgOwnerDataRightsReview();
   refreshAuditRecords();
@@ -431,6 +434,87 @@ async function confirmAndChangeSupportStatus(targetCorrelationId, newStatus) {
   await refreshAuditRecords();
 }
 
+// FULL-UI-95 org-owner support/error-reporting parity - mirrors the
+// athlete/coach support-request block above field-for-field
+// (org_owner_support_requests has the same shape as product_support_requests),
+// reusing supportContextDetailMarkup() as-is since both share the same
+// route_hash/occurred_at_iso8601/browser_context/failure_context fields.
+async function refreshOrgOwnerSupportRequests() {
+  const result = await api("GET", "/admin/org-owner-support-requests");
+  state.orgOwnerSupportRequests = result.reports ?? [];
+  renderOrgOwnerSupportRequests();
+}
+
+function filteredOrgOwnerSupportRequests() {
+  const search = (el("orgOwnerSupportRequestsSearch")?.value ?? "").trim().toLowerCase();
+  if (!search) return state.orgOwnerSupportRequests;
+  return state.orgOwnerSupportRequests.filter((report) =>
+    [report.correlation_id, report.user_id, report.description, report.status]
+      .some((value) => String(value ?? "").toLowerCase().includes(search))
+  );
+}
+
+function renderOrgOwnerSupportRequests() {
+  const tbody = el("orgOwnerSupportRequestsList");
+  tbody.innerHTML = "";
+  const reports = filteredOrgOwnerSupportRequests();
+  for (const report of reports) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${escapeHtml(report.correlation_id)}</td>
+      <td>${escapeHtml(report.user_id)}</td>
+      <td>${escapeHtml(report.description)}</td>
+      <td>${escapeHtml(report.status)}</td>
+      <td>
+        <button type="button" class="details-org-owner-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Details</button>
+        ${report.status === "submitted"
+          ? `<button type="button" class="ack-org-owner-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Acknowledge</button>`
+          : ""
+        }
+        ${report.status !== "closed"
+          ? `<button type="button" class="close-org-owner-support" data-correlation-id="${escapeHtml(report.correlation_id)}">Close</button>`
+          : ""
+        }
+      </td>
+    `;
+    tbody.appendChild(row);
+
+    const detailRow = document.createElement("tr");
+    detailRow.className = "support-detail-row";
+    detailRow.hidden = true;
+    detailRow.innerHTML = `<td colspan="5">${supportContextDetailMarkup(report)}</td>`;
+    tbody.appendChild(detailRow);
+  }
+  if (state.orgOwnerSupportRequests.length > 0 && reports.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="5" class="muted">No support requests match.</td>`;
+    tbody.appendChild(emptyRow);
+  }
+
+  tbody.querySelectorAll(".details-org-owner-support").forEach((button) => {
+    button.addEventListener("click", () => {
+      const detailRow = button.closest("tr").nextElementSibling;
+      detailRow.hidden = !detailRow.hidden;
+      button.textContent = detailRow.hidden ? "Details" : "Hide details";
+    });
+  });
+  tbody.querySelectorAll(".ack-org-owner-support").forEach((button) => {
+    button.addEventListener("click", () => confirmAndChangeOrgOwnerSupportStatus(button.dataset.correlationId, "acknowledged"));
+  });
+  tbody.querySelectorAll(".close-org-owner-support").forEach((button) => {
+    button.addEventListener("click", () => confirmAndChangeOrgOwnerSupportStatus(button.dataset.correlationId, "closed"));
+  });
+}
+
+async function confirmAndChangeOrgOwnerSupportStatus(targetCorrelationId, newStatus) {
+  await api("POST", `/admin/org-owner-support-requests/${encodeURIComponent(targetCorrelationId)}/status`, {
+    correlation_id: generateCorrelationId(),
+    status: newStatus
+  });
+  await refreshOrgOwnerSupportRequests();
+  await refreshAuditRecords();
+}
+
 async function refreshDataRightsReview() {
   const [exportsResult, deletionsResult] = await Promise.all([
     api("GET", "/admin/data-rights/exports"),
@@ -600,6 +684,7 @@ el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("auditRecordsSearch").addEventListener("input", renderAuditRecords);
 el("commercialRecordsSearch").addEventListener("input", renderCommercialRecords);
 el("supportRequestsSearch").addEventListener("input", renderSupportRequests);
+el("orgOwnerSupportRequestsSearch").addEventListener("input", renderOrgOwnerSupportRequests);
 el("orgOwnerAccountSearchForm").addEventListener("submit", (event) => searchOrgOwnerAccounts(event).catch(console.error));
 el("orgOwnerAccountToggleStateButton").addEventListener("click", requestOrgOwnerAccountStateToggle);
 el("orgOwnerAccountToggleStateConfirmButton").addEventListener("click", () => confirmOrgOwnerAccountStateToggle().catch(console.error));
