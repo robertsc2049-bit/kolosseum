@@ -162,3 +162,36 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
   assert.match(css, /\.today-resolved-load\b/u);
   assert.match(css, /\.today-notes\b/u);
 });
+
+// DEV NOTE: an athlete who leaves activity declaration blank at signup (a
+// deliberately supported "declare it later" path) could never start a
+// coach-assigned session - the compile call always genuinely fails
+// server-side for that account (no valid beta16_phase1_declaration record
+// exists to admit against), but the client attempted it anyway and showed
+// only a generic "request could not be completed" error, with no hint the
+// fix is to declare an activity. createSession() now checks its own
+// already-available state.phase1Input.activity_id first and routes the
+// athlete straight to Declarations instead of attempting a doomed compile.
+test("starting a session checks for a declared activity before attempting to create one, and routes to Declarations if missing", () => {
+  const createSessionBody = js.slice(
+    js.indexOf("async function createSession()"),
+    js.indexOf("async function loadSessionState()")
+  );
+
+  assert.match(createSessionBody, /if \(!state\.phase1Input\?\.activity_id\) \{/u);
+  assert.match(createSessionBody, /Declare a training activity before starting a session\./u);
+  assert.match(createSessionBody, /document\.getElementById\("athleteOnboardingNav"\)\?\.click\(\);/u);
+
+  // The guard must run and return before showBusy()/the real compile call -
+  // never alongside it.
+  const guardIndex = createSessionBody.indexOf("if (!state.phase1Input");
+  const busyIndex = createSessionBody.indexOf('showBusy("Creating session');
+  assert.ok(guardIndex >= 0 && busyIndex >= 0 && guardIndex < busyIndex);
+});
+
+test("a raw BETA16_APP_PATH_ADMISSION_FAILED error still maps to an actionable message, not a generic fallback, as defense in depth", () => {
+  assert.match(js, /BETA16_APP_PATH_ADMISSION_FAILED:\s*"Your training declaration could not be verified\./u);
+
+  const friendlyErrorTs = read("public/app-src/utils/friendlyError.ts");
+  assert.match(friendlyErrorTs, /BETA16_APP_PATH_ADMISSION_FAILED:\s*"Your training declaration could not be verified\./u);
+});
