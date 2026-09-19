@@ -84,6 +84,8 @@ function OrgThread({ entry, sending, sendError, onSend }: {
             <button className="button primary" type="submit" disabled={sending}>Send</button>
           </div>
         </form>
+      ) : entry.membership_status === "invited" ? (
+        <p className="muted small">Accept this organisation's invitation from your Account page to message them.</p>
       ) : entry.membership_status !== "active" ? (
         <p className="muted small">You're no longer an active member of this organisation.</p>
       ) : (

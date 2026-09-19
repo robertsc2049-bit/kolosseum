@@ -9,6 +9,7 @@ import {
   validateAttachmentClientSide
 } from "../../api/accountRelationshipsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ORG_MEMBERSHIP_CHANGED_EVENT } from "./useAccountOrgContext";
 
 // DEV NOTE: Part O.9 - the coach's own org-owner<->coach team messaging,
 // mirroring useAccountOrgMessages.ts's athlete-side original as closely as
@@ -98,7 +99,11 @@ export function useCoachOrgMessages() {
   useEffect(() => {
     refresh();
     document.addEventListener("kolosseum:account-role-known", refresh);
-    return () => document.removeEventListener("kolosseum:account-role-known", refresh);
+    document.addEventListener(ORG_MEMBERSHIP_CHANGED_EVENT, refresh);
+    return () => {
+      document.removeEventListener("kolosseum:account-role-known", refresh);
+      document.removeEventListener(ORG_MEMBERSHIP_CHANGED_EVENT, refresh);
+    };
   }, [refresh]);
 
   useEffect(() => {

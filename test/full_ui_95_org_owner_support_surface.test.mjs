@@ -19,6 +19,8 @@ const actionService = read("src/api/product_admin_action_service.ts");
 const adminRoutes = read("src/api/product_admin.routes.ts");
 const orgJs = read("public/org/org.js");
 const indexHtml = read("public/org/index.html");
+const adminJs = read("public/admin/admin.js");
+const adminIndexHtml = read("public/admin/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 const schema = read("schema.sql");
 
@@ -109,6 +111,39 @@ test("the org support history is refreshed as part of showWorkspace()'s init, an
   assert.match(orgJs, /el\("orgSupportSection"\)\.hidden = true;/u);
   assert.match(orgJs, /el\("orgSupportSection"\)\.hidden = false;/u);
   assert.match(orgJs, /refreshOrgSupportHistory\(\)\.catch\(console\.error\)/u);
+});
+
+// DEV NOTE: found live - the admin routes above existed and passed their
+// own tests, but nothing in the actual admin UI ever called them. An
+// admin had no way, through the real workspace, to see or act on an
+// org-owner's support report, unlike the athlete/coach one (#supportSection)
+// this was supposed to have parity with.
+test("the admin workspace has a real org-owner support-request review section, wired the same way as the athlete/coach one", () => {
+  assert.match(adminIndexHtml, /<section id="orgOwnerSupportSection" hidden>/u);
+  assert.match(adminIndexHtml, /id="orgOwnerSupportRequestsSearch"/u);
+  assert.match(adminIndexHtml, /id="orgOwnerSupportRequestsList"/u);
+
+  assert.match(adminJs, /orgOwnerSupportRequests: \[\]/u);
+  assert.match(adminJs, /async function refreshOrgOwnerSupportRequests\(\)/u);
+  assert.match(adminJs, /await api\("GET", "\/admin\/org-owner-support-requests"\)/u);
+  assert.match(adminJs, /function renderOrgOwnerSupportRequests\(\)/u);
+  assert.match(adminJs, /async function confirmAndChangeOrgOwnerSupportStatus\(targetCorrelationId, newStatus\)/u);
+  assert.match(adminJs, /await api\("POST", `\/admin\/org-owner-support-requests\/\$\{encodeURIComponent\(targetCorrelationId\)\}\/status`/u);
+
+  // Reuses the athlete/coach section's own detail-context renderer rather
+  // than duplicating it - both share the same route_hash/
+  // occurred_at_iso8601/browser_context/failure_context shape.
+  const renderFnBody = adminJs.slice(
+    adminJs.indexOf("function renderOrgOwnerSupportRequests()"),
+    adminJs.indexOf("async function confirmAndChangeOrgOwnerSupportStatus")
+  );
+  assert.match(renderFnBody, /supportContextDetailMarkup\(report\)/u);
+});
+
+test("the org-owner support section is shown and refreshed as part of showWorkspace()'s init, alongside the athlete/coach one", () => {
+  assert.match(adminJs, /el\("supportSection"\)\.hidden = false;\s*\n\s*el\("orgOwnerSupportSection"\)\.hidden = false;/u);
+  assert.match(adminJs, /refreshSupportRequests\(\);\s*\n\s*refreshOrgOwnerSupportRequests\(\);/u);
+  assert.match(adminJs, /el\("orgOwnerSupportRequestsSearch"\)\.addEventListener\("input", renderOrgOwnerSupportRequests\)/u);
 });
 
 test("the FULL-UI-95 manifest functions are declared as implemented with real tests inside the existing organisation_billing area", () => {
