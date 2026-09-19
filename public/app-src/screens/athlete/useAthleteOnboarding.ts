@@ -237,7 +237,15 @@ export function useAthleteOnboarding() {
         activityChangeBusy: false,
         activityChange: requestState === "queued" ? result : null
       }));
-      if (requestState === "applied") await refresh();
+      // An "applied" change takes effect on the stored declaration
+      // immediately - but the legacy app.js shell's own bootstrap-time
+      // phase1Input/declarationRecord cache (used by session creation) is
+      // never told, and only a real page load re-fetches it. Same
+      // mechanism confirm()/savePreferences() already use.
+      if (requestState === "applied") {
+        sessionStorage.setItem(RELOAD_KEY, "1");
+        await refresh();
+      }
       return true;
     }
     catch {
@@ -271,7 +279,12 @@ export function useAthleteOnboarding() {
         activityChange: !isPosition ? (requestState === "queued" ? result : null) : current.activityChange,
         positionChange: isPosition ? (requestState === "queued" ? result : null) : current.positionChange
       }));
-      if (requestState === "applied") await refresh();
+      // See changeActivity()'s own comment on RELOAD_KEY - a confirmed
+      // coach-proposed change takes effect immediately, same staleness risk.
+      if (requestState === "applied") {
+        sessionStorage.setItem(RELOAD_KEY, "1");
+        await refresh();
+      }
       return true;
     }
     catch {

@@ -469,6 +469,44 @@ test("the completed view offers a change-activity control, and submitting it pos
   assert.equal((lastBody as Record<string, unknown>).apply_at, "immediately");
 });
 
+// DEV NOTE: an activity change applied immediately updates the stored
+// declaration, but legacy app.js's own bootstrap-time phase1Input cache
+// (used by session creation) is never told - only a real page load
+// re-fetches it. Without this flag, "Start session" fails with a raw,
+// unhelpful compile error until the athlete happens to reload on their own.
+test("changing activity so it applies immediately sets the reload-required flag, the same mechanism confirmation uses", async () => {
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    onActivityChange: () => ({ request_state: "applied" })
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Change activity", { selector: "h3" });
+
+  fireEvent.change(screen.getByLabelText("New activity"), { target: { value: "crossfit" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Change activity", { selector: "button" }));
+  });
+
+  await waitFor(() => assert.equal(sessionStorage.getItem("kolosseum.athlete_onboarding.reload_required"), "1"));
+});
+
+test("a queued (deferred) activity change does NOT set the reload-required flag - nothing effective has changed yet", async () => {
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    onActivityChange: () => ({ request_state: "queued", request_id: "req_9", new_activity_id: "crossfit" })
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Change activity", { selector: "h3" });
+
+  fireEvent.change(screen.getByLabelText("New activity"), { target: { value: "crossfit" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Change activity", { selector: "button" }));
+  });
+
+  await screen.findByText(/pending/iu);
+  assert.equal(sessionStorage.getItem("kolosseum.athlete_onboarding.reload_required"), null);
+});
+
 test("an athlete who completed onboarding without declaring an activity sees 'Declare activity' instead of 'Change activity'", async () => {
   let lastBody: Record<string, unknown> | null = null;
   installMocks({
@@ -522,6 +560,22 @@ test("a coach-proposed activity change shows Confirm/Decline, and confirming pos
   await waitFor(() => assert.ok(lastBody));
   assert.equal((lastBody as Record<string, unknown>).request_id, "req_1");
   assert.equal((lastBody as Record<string, unknown>).response, "confirmed");
+});
+
+test("confirming a coach-proposed activity change that applies immediately also sets the reload-required flag", async () => {
+  installMocks({
+    initialState: completedState({ activity_id: "powerlifting" }),
+    activityChange: { request_id: "req_1", requested_by: "coach", new_activity_id: "crossfit", request_state: "proposed" },
+    onActivityProposalResponse: () => ({ request_state: "applied" })
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Activity change proposed");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Confirm"));
+  });
+
+  await waitFor(() => assert.equal(sessionStorage.getItem("kolosseum.athlete_onboarding.reload_required"), "1"));
 });
 
 test("declining a coach-proposed activity change posts a decline and never applies it", async () => {
