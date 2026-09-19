@@ -85,7 +85,9 @@ test("export covers the complete personal-data category surface, not just sessio
     "habit_completions",
     "device_connections",
     "device_metric_entries",
-    "athlete_goals"
+    "athlete_goals",
+    "org_coach_memberships",
+    "org_messages_sent"
   ]) {
     assert.match(service, new RegExp(`\\b${category}\\b`, "u"), `Expected export category ${category}`);
     assert.match(gdprExportContract, new RegExp(`\\b${category}\\b`, "u"), `Expected export contract to allow ${category}`);

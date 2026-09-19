@@ -109,6 +109,80 @@ async function registerAthlete(baseUrl, label, nonce) {
   return { userId, cookie, csrf };
 }
 
+function cookieNamed(result, cookieName, label) {
+  const values =
+    typeof result.response.headers.getSetCookie === "function"
+      ? result.response.headers.getSetCookie()
+      : [result.response.headers.get("set-cookie")].filter(Boolean);
+
+  const found = values.find((value) => String(value).startsWith(`${cookieName}=`));
+  assert.ok(found, `${label}: expected ${cookieName} cookie`);
+  return String(found).split(";")[0];
+}
+
+async function registerCoachAccount(baseUrl, label, nonce) {
+  const email = `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`;
+  const registration = await request(baseUrl, "POST", "/account/register", {
+    actor_type: "coach",
+    display_name: label,
+    email,
+    password: "Full19DataRightsCoach!2026",
+    accepted_terms: true,
+    accepted_consent: true,
+    accepted_terms_version: "terms_v1",
+    accepted_consent_version: "consent_v1"
+  });
+  assertStatus(registration, 201, `${label} coach registration`);
+
+  const userId = registration.json?.account?.user_id ?? "";
+  assert.ok(userId, `${label}: expected registered coach user_id`);
+  return {
+    userId,
+    email,
+    cookie: sessionCookie(registration, `${label} coach registration`),
+    csrf: registration.json?.csrf_token
+  };
+}
+
+async function registerOrgOwnerAccount(baseUrl, label, nonce) {
+  const email = `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`;
+  const registration = await request(baseUrl, "POST", "/org/register", {
+    email,
+    display_name: label,
+    password: "Full19DataRightsOwner!2026"
+  });
+  assertStatus(registration, 201, `${label} org owner registration`);
+  return {
+    userId: registration.json?.org_owner?.user_id ?? "",
+    email,
+    cookie: cookieNamed(registration, "kolosseum_org_owner_session", `${label} org owner registration`),
+    csrf: registration.json?.csrf_token
+  };
+}
+
+async function createOrgAsOwner(baseUrl, owner, name) {
+  const result = await request(baseUrl, "POST", "/org/organisations", {
+    org_name: name,
+    activity_id: "powerlifting",
+    visibility_mode: "shared"
+  }, { cookie: owner.cookie, csrf: owner.csrf });
+  assertStatus(result, 201, "create organisation");
+  return result.json?.organisation?.org_id;
+}
+
+async function inviteAndAcceptCoachIntoOrg(baseUrl, owner, orgId, coach, requestIdSuffix) {
+  const invite = await request(
+    baseUrl, "POST", `/org/organisations/${encodeURIComponent(orgId)}/roster/invite`,
+    { coach_email: coach.email, request_id: `invite_${requestIdSuffix}` }, { cookie: owner.cookie, csrf: owner.csrf }
+  );
+  assertStatus(invite, 201, `invite ${coach.email} to org ${orgId}`);
+  const acceptResult = await request(
+    baseUrl, "POST", `/coach-workspace/org-memberships/${encodeURIComponent(invite.json?.membership?.membership_id)}/accept`,
+    { request_id: `accept_${requestIdSuffix}` }, { cookie: coach.cookie, csrf: coach.csrf }
+  );
+  assertStatus(acceptResult, 200, `${coach.email} accepts org membership`);
+}
+
 test(
   "FULL-UI-19 data rights and consent: export request/status/download/access-control, deletion preview/confirm/status/idempotency, retention handling and restart reconstruction",
   async () => {
@@ -218,7 +292,8 @@ test(
         "session_records", "runtime_events", "coach_notes_authored",
         "legal_document_acknowledgements", "billing_records",
         "progress_photos", "body_metrics", "habit_definitions", "habit_completions",
-        "device_connections", "device_metric_entries", "athlete_goals"
+        "device_connections", "device_metric_entries", "athlete_goals",
+        "org_coach_memberships", "org_messages_sent"
       ]) {
         assert.ok(
           Object.hasOwn(exportReq.json.included_category_counts, category),
@@ -387,6 +462,101 @@ test(
       const downloadAfterRestart = await request(baseUrl, "GET", `/account/data-rights/export/${exportRequestId}/download`, undefined, { cookie: athlete.cookie });
       assertStatus(downloadAfterRestart, 200, "export download after restart");
       assert.deepEqual(downloadAfterRestart.json.subject_data, download.json.subject_data);
+    }
+    finally {
+      await closeServer(server);
+      await cleanup();
+    }
+  }
+);
+
+// DEV NOTE: reproduces a real gap found live - a coach's own GDPR export
+// declared org_coach_memberships/org_messages_sent as allowed categories
+// (they are shared, actor-type-agnostic category names in the export
+// boundary - see FULL-UI-79's org-owner export, which populates the SAME
+// category names from the owner's own perspective) but data_rights_service.ts
+// never actually loaded either one for a coach, so both always came back
+// empty even when the coach had real org memberships and had sent real
+// org messages.
+test(
+  "FULL-UI-19 coach data rights export includes the coach's own org memberships and sent org messages, not just empty declared categories",
+  async () => {
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+    let server = null;
+    const coachUserIds = [];
+    const orgOwnerUserIds = [];
+
+    const cleanup = async () => {
+      for (const userId of coachUserIds) {
+        if (!userId) continue;
+        await pool.query("DELETE FROM data_export_requests WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query(
+          "DELETE FROM product_messages WHERE sender_user_id = $1",
+          [userId]
+        ).catch(() => {});
+        await pool.query("DELETE FROM product_org_coach_memberships WHERE coach_user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+      for (const userId of orgOwnerUserIds) {
+        if (!userId) continue;
+        await pool.query(
+          "DELETE FROM product_message_threads WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query(
+          "DELETE FROM product_org_coach_memberships WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)",
+          [userId]
+        ).catch(() => {});
+        await pool.query("DELETE FROM product_organisations WHERE owner_user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_org_owner_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+    };
+
+    try {
+      server = await listen();
+      const address = server.address();
+      const baseUrl = `http://127.0.0.1:${address.port}`;
+
+      const coach = await registerCoachAccount(baseUrl, "Full19 Export Coach", nonce);
+      coachUserIds.push(coach.userId);
+
+      const owner = await registerOrgOwnerAccount(baseUrl, "Full19 Export Owner", nonce);
+      orgOwnerUserIds.push(owner.userId);
+
+      const orgId = await createOrgAsOwner(baseUrl, owner, "Full19 Coach Export Org");
+      await inviteAndAcceptCoachIntoOrg(baseUrl, owner, orgId, coach, nonce);
+
+      const messageText = "Coach data-rights export coverage message.";
+      const sendMessage = await requestMultipart(
+        baseUrl, `/coach-workspace/org-messages/organisations/${encodeURIComponent(orgId)}/send`,
+        { body_text: messageText, client_request_id: `msg_${nonce}` },
+        null,
+        { cookie: coach.cookie, csrf: coach.csrf }
+      );
+      assertStatus(sendMessage, 201, "coach sends an org message");
+
+      const exportReq = await request(baseUrl, "POST", "/account/data-rights/export", {}, { cookie: coach.cookie, csrf: coach.csrf });
+      assertStatus(exportReq, 202, "coach export request");
+      assert.equal(exportReq.json.status, "ready");
+
+      assert.ok(Object.hasOwn(exportReq.json.included_category_counts, "org_coach_memberships"), "expected org_coach_memberships category");
+      assert.ok(Object.hasOwn(exportReq.json.included_category_counts, "org_messages_sent"), "expected org_messages_sent category");
+      assert.equal(exportReq.json.included_category_counts.org_coach_memberships, 1);
+      assert.equal(exportReq.json.included_category_counts.org_messages_sent, 1);
+
+      const download = await request(
+        baseUrl, "GET", `/account/data-rights/export/${exportReq.json.export_request_id}/download`,
+        undefined, { cookie: coach.cookie }
+      );
+      assertStatus(download, 200, "coach export download");
+      assert.equal(download.json.subject_data.org_coach_memberships[0].org_id, orgId);
+      assert.equal(download.json.subject_data.org_coach_memberships[0].parties.coach_user_id, coach.userId);
+      assert.equal(download.json.subject_data.org_coach_memberships[0].membership_status, "active");
+      assert.equal(download.json.subject_data.org_messages_sent[0].body_text, messageText);
     }
     finally {
       await closeServer(server);
