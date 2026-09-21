@@ -513,6 +513,20 @@ test(
       assertStatus(compiledSecond, 201, "compile second session");
       const secondSessionId = compiledSecond.json.session_id;
 
+      // --- Regression: starting the FINAL session of a programme must not
+      //     be confused with the whole programme being complete. Every
+      //     session row now exists (count === total_session_count), so
+      //     materialising "the next one to create" throws
+      //     assigned_template_sessions_exhausted even though this last
+      //     session hasn't been trained yet - Today must still report the
+      //     real, open, in-progress session here, not null it out. ---
+      const finalSessionStillOpen = await todayFor(baseUrl, athleteA.userId);
+      assert.equal(finalSessionStillOpen.state, "ok");
+      assert.equal(finalSessionStillOpen.session.action, "continue");
+      assert.equal(finalSessionStillOpen.session.session_id, secondSessionId);
+      assert.equal(finalSessionStillOpen.session.template_session_index, 1);
+      assert.equal(finalSessionStillOpen.session.total_session_count, 2);
+
       await advanceSessionToTerminal(baseUrl, secondSessionId);
 
       const afterProgramme = await todayFor(baseUrl, athleteA.userId);

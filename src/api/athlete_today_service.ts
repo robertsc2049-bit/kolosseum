@@ -373,6 +373,48 @@ export async function loadAthleteTodayView(
   catch (error) {
     if (error instanceof Beta18ProgrammeTemplateError) {
       if (error.reason === "assigned_template_sessions_exhausted") {
+        // "Exhausted" only means every session row has been created at
+        // least once - it says nothing about whether the LAST one was
+        // ever finished. Without this check, starting a programme's
+        // final session (a perfectly normal, everyday action) made every
+        // subsequent Today refresh report the whole programme as
+        // complete and null out the session, silently stranding the
+        // athlete on a just-created, not-yet-trained session they could
+        // no longer reach - confirmed live. Mirrors the identical
+        // existing/terminal check already used below for the
+        // nextIndex > 0 path, just reached from the exhaustion branch
+        // instead.
+        const existingOnExhaustion = await latestSessionForAssignment(assignmentId);
+        if (existingOnExhaustion) {
+          const existingOnExhaustionState = await getSessionStateQuery(existingOnExhaustion.session_id);
+          const executionStatusOnExhaustion = cleanString((existingOnExhaustionState as JsonRecord)?.execution_status);
+          const terminalOnExhaustion = executionStatusOnExhaustion === "completed" || executionStatusOnExhaustion === "partial";
+
+          if (!terminalOnExhaustion) {
+            const currentSessionMaterialised = (await materialiseNextCoachTemplateProgram({
+              coach_user_id: coachUserId,
+              athlete_user_id: athleteUserId,
+              assignment_id: assignmentId,
+              template_id: templateId,
+              base_program: {},
+              session_index_override: totalSessionCount - 1
+            })) as JsonRecord;
+
+            return baseResponse("ok", athleteUserId, {
+              coach_user_id: coachUserId,
+              assignment: assignmentSummary,
+              session: sessionContextFromMaterialised(
+                currentSessionMaterialised,
+                "continue",
+                existingOnExhaustion.session_id,
+                totalSessionCount
+              ),
+              event,
+              notes
+            });
+          }
+        }
+
         return baseResponse("programme_complete", athleteUserId, {
           coach_user_id: coachUserId,
           assignment: assignmentSummary,
