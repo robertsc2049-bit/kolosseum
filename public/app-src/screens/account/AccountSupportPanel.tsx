@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { type JsonRecord } from "../../api/transport";
+import { getRecentRequestFailure, type JsonRecord } from "../../api/transport";
 import { formatDate, titleCase } from "../../utils/format";
 import { useAccountSupport } from "./useAccountSupport";
 
@@ -85,7 +85,11 @@ export function AccountSupportPanel() {
             <h4>Report a problem</h4>
             <p className="muted">Opens a form that shows exactly what route, timestamp, browser context and correlation ID will be attached before you submit a description.</p>
           </div>
-          <button className="button primary" type="button" onClick={() => openReportForm(null)}>Report a problem</button>
+          {/* If a request failed in the last couple of minutes (React screens never
+              surface their own report-this-problem prompt the way the legacy
+              global error notice does - see transport.ts's getRecentRequestFailure()),
+              attach that real failure automatically rather than opening blank. */}
+          <button className="button primary" type="button" onClick={() => openReportForm(getRecentRequestFailure())}>Report a problem</button>
 
           {reportOpen && reportContext ? (
             <div className="support-report-panel">
