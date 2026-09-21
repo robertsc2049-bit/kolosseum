@@ -148,3 +148,19 @@ test("refetches when kolosseum:coach-events-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Regional Meet"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks([]);
+  render(<CoachEventsListPanel />);
+  await waitFor(() => screen.getByText("No events created"));
+
+  installMocks([
+    { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
+  ]);
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Regional Meet"));
+});

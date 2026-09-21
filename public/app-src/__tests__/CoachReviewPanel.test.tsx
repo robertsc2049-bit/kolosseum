@@ -109,6 +109,19 @@ test("shows a factual empty state when there are no matching review records", as
   await waitFor(() => screen.getByText("No matching review records"));
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ records: [] });
+  render(<CoachReviewPanel />);
+  await waitFor(() => screen.getByText("No matching review records"));
+
+  installMocks({});
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+});
+
 test("loads and displays a review record with the resolved athlete name and status badge", async () => {
   installMocks({});
   render(<CoachReviewPanel />);

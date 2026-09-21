@@ -154,3 +154,19 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText(/Waist: 82 cm/u));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfBodyMetricsPanel />);
+  await waitFor(() => screen.getByText("No body-metric entries yet."));
+
+  installMocks({
+    entries: [
+      { record_sha256: "m1", source: "athlete_reported", metric_type: "waist_circumference_cm", unit: "cm", value: 82, effective_date: "2026-08-20" }
+    ]
+  });
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => screen.getByText(/Waist: 82 cm/u));
+});

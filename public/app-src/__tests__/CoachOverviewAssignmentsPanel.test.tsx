@@ -119,3 +119,20 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Alex"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ relationships: [], assignments: [] });
+  render(<CoachOverviewAssignmentsPanel />);
+  await waitFor(() => screen.getByText("No assignment actions"));
+
+  installMocks({
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex", relationship_state: "accepted" }],
+    assignments: []
+  });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Alex"));
+});

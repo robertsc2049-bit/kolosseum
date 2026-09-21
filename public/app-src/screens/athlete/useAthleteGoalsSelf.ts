@@ -8,6 +8,7 @@ import {
   resolveAthleteGoalSelf
 } from "../../api/athleteGoalsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-37 athlete's own goal-setting - independently fetched,
 // listens for kolosseum:history-changed (dispatched by app.js's
@@ -82,8 +83,10 @@ export function useAthleteGoalsSelf() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

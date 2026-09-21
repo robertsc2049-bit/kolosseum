@@ -170,3 +170,17 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText(/Week of/u));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ checkins: [] });
+  render(<AthleteSelfWeeklyCheckinsPanel />);
+  await waitFor(() => screen.getByText("No weekly check-ins yet."));
+
+  installMocks({ checkins: [{ week_start_date: "2026-01-05", energy_level: 4, motivation_level: 3, sleep_quality: 5 }] });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText(/Week of/u));
+});

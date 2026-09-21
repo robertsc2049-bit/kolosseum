@@ -38,6 +38,18 @@ test("shows a factual empty state when nothing has been shared at all", async ()
   assert.ok(screen.getByText("Complete or active programmes another coach shares publicly will appear here."));
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks([]);
+  render(<CoachMarketplacePanel />);
+  await waitFor(() => screen.getByText("No shared programmes yet"));
+
+  installMocks([{ template_id: "template_1", template_name: "Peak Week Block", activity_id: "powerlifting", template_status: "active" }]);
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => screen.getByText("Peak Week Block"));
+});
+
 test("renders a template card with activity, status, description, price, payment note and sharing coach", async () => {
   installMocks([
     {

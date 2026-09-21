@@ -263,3 +263,21 @@ test("refetches when kolosseum:athlete-directory-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Jordan Lee"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ relationships: [] });
+  render(<AthleteDirectoryPanel />);
+  await waitFor(() => screen.getByText("No matching relationships"));
+
+  installMocks({
+    relationships: [
+      { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: "powerlifting", relationship_state: "accepted" }
+    ]
+  });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Jordan Lee"));
+});

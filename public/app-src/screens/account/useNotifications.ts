@@ -11,6 +11,7 @@ import {
   markNotificationUnread
 } from "../../api/notificationsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-18 factual in-product notifications (bell + dropdown
 // panel) - ported from public/app/app.js's notification functions (see
@@ -77,11 +78,23 @@ const initialState: NotificationsState = {
 export function useNotifications() {
   const [state, setState] = useState<NotificationsState>(initialState);
 
-  useEffect(() => {
+  const refreshUnreadCount = useCallback(() => {
     loadUnreadNotificationCount()
       .then((unreadCount) => setState((current) => ({ ...current, unreadCount })))
       .catch(() => {});
   }, []);
+
+  useEffect(() => {
+    refreshUnreadCount();
+    // The bell mounts unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later needs to trigger a real refetch -
+    // same bug class already fixed for useAccountDetail.ts/
+    // useCommercialAccount.ts and others.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refreshUnreadCount);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refreshUnreadCount);
+    };
+  }, [refreshUnreadCount]);
 
   const csrfToken = useCallback(async () => {
     const account = await loadAccountDetail();

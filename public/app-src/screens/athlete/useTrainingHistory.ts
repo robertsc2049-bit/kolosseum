@@ -9,6 +9,7 @@ import {
 } from "../../api/athleteHistoryClient";
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-16C athlete training history (list, server-side filters,
 // detail). Independently fetched - app.js's refreshHistory() no longer
@@ -168,9 +169,11 @@ export function useTrainingHistory() {
 
     document.addEventListener(CHANGED_EVENT, onChanged);
     document.addEventListener(DETAIL_ROUTE_EVENT, onDetailRoute);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, onChanged);
     return () => {
       document.removeEventListener(CHANGED_EVENT, onChanged);
       document.removeEventListener(DETAIL_ROUTE_EVENT, onDetailRoute);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, onChanged);
     };
   }, [refresh, openDetail]);
 

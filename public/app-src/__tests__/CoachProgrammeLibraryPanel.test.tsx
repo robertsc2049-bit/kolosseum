@@ -256,6 +256,19 @@ test("refetches when a legacy kolosseum:templates-changed event fires", async ()
   await screen.findByText("Renamed After Mutation");
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks([template({ template_id: "tmpl_1_v1", template_family_id: "tmpl_1", template_name: "Original Name" })]);
+  render(<CoachProgrammeLibraryPanel />);
+  await screen.findByText("Original Name");
+
+  installMocks([template({ template_id: "tmpl_1_v1", template_family_id: "tmpl_1", template_name: "Renamed After Sign-In" })]);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await screen.findByText("Renamed After Sign-In");
+});
+
 test("shows a factual error with a working retry when the library fails to load", async () => {
   let fail = true;
   globalThis.fetch = (async (input: RequestInfo | URL) => {

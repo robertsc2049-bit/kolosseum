@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { loadTemplateEquipmentCatalog, loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { type ProgrammeDraft } from "./programmeDraft";
 
 // DEV NOTE: FULL-UI-05B programme builder - first slices. The builder
@@ -47,22 +48,36 @@ export function useProgrammeBuilderDraft() {
   const [templateExercises, setTemplateExercises] = useState<JsonRecord[]>([]);
   const [equipmentCatalog, setEquipmentCatalog] = useState<JsonRecord[]>([]);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadCatalogs = useCallback((signal: { cancelled: boolean }) => {
     loadTemplateExercises()
       .then((exercises) => {
-        if (!cancelled) setTemplateExercises(exercises);
+        if (!signal.cancelled) setTemplateExercises(exercises);
       })
       .catch(() => {});
     loadTemplateEquipmentCatalog()
       .then((catalog) => {
-        if (!cancelled) setEquipmentCatalog(catalog);
+        if (!signal.cancelled) setEquipmentCatalog(catalog);
       })
       .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    const signal = { cancelled: false };
+    loadCatalogs(signal);
+
+    // This hook backs several always-mounted builder panels regardless of
+    // route, so a fresh sign-up/sign-in completing later needs to trigger a
+    // real refetch - same bug class already fixed for
+    // useAccountDetail.ts/useCommercialAccount.ts and others.
+    function handleAuthSucceeded() {
+      loadCatalogs({ cancelled: false });
+    }
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    return () => {
+      signal.cancelled = true;
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    };
+  }, [loadCatalogs]);
 
   useEffect(() => {
     function handleChanged(event: Event) {

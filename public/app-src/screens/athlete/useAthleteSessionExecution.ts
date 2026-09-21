@@ -13,6 +13,7 @@ import {
   validateSessionVideoFeedbackClientSide
 } from "../../api/athleteSessionClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
 // startSession()/postSessionEvent()/loadSessionState()/
@@ -241,23 +242,37 @@ export function useAthleteSessionExecution() {
   useEffect(() => {
     refresh();
     document.addEventListener(TODAY_CHANGED_EVENT, refresh);
-    return () => document.removeEventListener(TODAY_CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(TODAY_CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const catalog = await loadExerciseCatalog();
-        const exercises = Array.isArray(catalog.exercises) ? (catalog.exercises as JsonRecord[]) : [];
-        setState((current) => ({ ...current, exerciseCatalog: exercises }));
-      }
-      catch {
-        // Exercise catalog is optional decoration for the "Add exercise"
-        // picker - leave it empty on failure rather than blocking the
-        // session view.
-      }
-    })();
+  const loadCatalog = useCallback(async () => {
+    try {
+      const catalog = await loadExerciseCatalog();
+      const exercises = Array.isArray(catalog.exercises) ? (catalog.exercises as JsonRecord[]) : [];
+      setState((current) => ({ ...current, exerciseCatalog: exercises }));
+    }
+    catch {
+      // Exercise catalog is optional decoration for the "Add exercise"
+      // picker - leave it empty on failure rather than blocking the
+      // session view.
+    }
   }, []);
+
+  useEffect(() => {
+    loadCatalog();
+    // This panel mounts unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later needs to trigger a real refetch -
+    // same bug class already fixed for useAccountDetail.ts/
+    // useCommercialAccount.ts and others.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, loadCatalog);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, loadCatalog);
+    };
+  }, [loadCatalog]);
 
   const stopRestTimer = useCallback(() => {
     if (restIntervalRef.current !== null) {

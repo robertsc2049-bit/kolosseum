@@ -9,6 +9,7 @@ import {
 } from "../../api/accountSupportClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { formatDate } from "../../utils/format";
 
 // DEV NOTE: FULL-UI-20 platform status + error-reporting - ported from
@@ -201,6 +202,19 @@ export function useAccountSupport() {
   useEffect(() => {
     checkPlatformStatus();
     refreshHistory();
+
+    // refreshHistory() is per-account and mounts unconditionally regardless
+    // of route, so a fresh sign-up/sign-in completing later needs to
+    // trigger a real refetch - same bug class already fixed for
+    // useAccountDetail.ts/useCommercialAccount.ts and others.
+    function handleAuthSucceeded() {
+      checkPlatformStatus();
+      refreshHistory();
+    }
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    };
   }, [checkPlatformStatus, refreshHistory]);
 
   useEffect(() => {

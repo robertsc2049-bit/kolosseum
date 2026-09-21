@@ -162,3 +162,20 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
 
   await screen.findByText("Alex");
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ records: [] });
+  render(<CoachOverviewOpenSessionsPanel />);
+  await screen.findByText("No open sessions");
+
+  installMocks({
+    records: [{ artefact_id: "a1", athlete_user_id: "athlete_1", review_status: "open", session_status: "in_progress", runtime_event_count: 0, updated_at: "2026-08-20T10:00:00.000Z" }],
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex" }]
+  });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await screen.findByText("Alex");
+});

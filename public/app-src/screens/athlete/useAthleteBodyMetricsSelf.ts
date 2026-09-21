@@ -7,6 +7,7 @@ import {
   logAthleteBodyMetricSelf
 } from "../../api/athleteBodyMetricsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-29 athlete's own body-measurement logging -
 // independently fetched, listens for kolosseum:history-changed (dispatched
@@ -69,8 +70,10 @@ export function useAthleteBodyMetricsSelf() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

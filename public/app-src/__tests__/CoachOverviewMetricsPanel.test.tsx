@@ -102,3 +102,16 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
 
   await screen.findByText("1");
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks();
+  render(<CoachOverviewMetricsPanel />);
+  await screen.findByText("Connected athletes");
+
+  installMocks({ assignments: [{ assignment_id: "1" }] });
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await screen.findByText("1");
+});

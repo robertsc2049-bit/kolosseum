@@ -155,6 +155,27 @@ test("shows a clean pass message for a fully valid draft", async () => {
   await screen.findByText(/All checks pass/u);
 });
 
+test("refetches the exercise registry once a same-tab sign-in completes", async () => {
+  // useProgrammeBuilderDraft.ts's templateExercises fetch previously ran
+  // once on mount with no listener for a later same-tab sign-in - a
+  // pre-auth 401 (swallowed to an empty registry, which skips the check
+  // entirely per programmeDraft.ts's registryIds.size > 0 guard) or a
+  // registry not yet containing this exercise would leave a stale false
+  // failure/pass showing until the user navigated away and back.
+  installMocks([{ exercise_id: "some_other_exercise" }]);
+  render(<CoachProgrammeBuilderValidationList />);
+  await broadcast(draftWithWorkItem());
+  await screen.findByText(/is not in the active exercise registry\./u);
+
+  installMocks([{ exercise_id: "back_squat" }]);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  await screen.findByText(/All checks pass/u);
+});
+
 test("lists every issue with its path and message, as clickable builder-validation-index buttons", async () => {
   installMocks();
   render(<CoachProgrammeBuilderValidationList />);

@@ -83,6 +83,20 @@ test("shows a factual empty state when no reports have been submitted", async ()
   await waitFor(() => screen.getByText("No problems reported yet."));
 });
 
+test("refetches the report history once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AccountSupportPanel />);
+  await waitFor(() => screen.getByText("No problems reported yet."));
+
+  installMocks({ reports: [{ correlation_id: "corr_1", description: "Something broke", status: "submitted", created_at_iso8601: "2026-08-26T00:00:00.000Z" }] });
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Something broke"));
+});
+
 test("opening the report form shows a correlation ID, route, timestamp and browser summary", async () => {
   installMocks({});
   render(<AccountSupportPanel />);

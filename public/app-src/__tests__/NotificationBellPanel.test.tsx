@@ -235,6 +235,26 @@ test("the bell refreshes its unread count when a live message-received event fir
   assert.equal(document.querySelector(".notification-unread-badge")?.hasAttribute("hidden"), false);
 });
 
+test("refetches the unread count once a same-tab sign-in completes", async () => {
+  installMocks({ unreadCount: 0 });
+  render(<NotificationBellPanel />);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(document.querySelector(".notification-unread-badge")?.hasAttribute("hidden"), true);
+
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path === "/account/notifications/unread-count") return jsonResponse({ unread_count: 1 });
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(document.querySelector(".notification-unread-badge")?.hasAttribute("hidden"), false);
+});
+
 test("an already-open panel refetches its full content (not just the count) when a live message-received event fires", async () => {
   installMocks({ unreadCount: 0, notifications: [] });
   render(<NotificationBellPanel />);

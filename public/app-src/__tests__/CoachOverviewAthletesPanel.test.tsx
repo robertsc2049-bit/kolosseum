@@ -193,3 +193,20 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
 
   await screen.findByText("Alex");
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ relationships: [] });
+  render(<CoachOverviewAthletesPanel />);
+  await screen.findByText("No connected athletes");
+
+  installMocks({
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex", relationship_state: "accepted" }],
+    assignments: []
+  });
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await screen.findByText("Alex");
+});

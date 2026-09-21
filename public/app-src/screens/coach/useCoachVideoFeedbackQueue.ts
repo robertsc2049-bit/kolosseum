@@ -4,6 +4,7 @@ import { loadAccountDetail } from "../../api/client";
 import { loadCoachVideoFeedbackQueue, submitCoachVideoFeedback } from "../../api/coachVideoFeedbackClient";
 import { loadCoachRelationships } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-32 coach video-feedback queue - a self-contained
 // sub-panel of the still-legacy Review view (reviewList/coachNoteForm
@@ -79,6 +80,10 @@ export function useCoachVideoFeedbackQueue() {
 
   useEffect(() => {
     refresh();
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   return { ...state, refresh, submitFeedback };

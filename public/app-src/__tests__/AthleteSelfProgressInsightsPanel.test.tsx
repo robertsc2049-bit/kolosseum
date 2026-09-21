@@ -238,6 +238,27 @@ test("refetches when kolosseum:history-changed fires", async () => {
   await waitFor(() => screen.getByText("100% adherence — 4 of 4 sessions completed in the last 30 days."));
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfProgressInsightsPanel />);
+  await waitFor(() => screen.getByText("No sessions recorded in the last 30 days."));
+
+  installMocks({
+    insights: {
+      session_adherence: { has_sufficient_data: true, adherence_percentage: 100, completed_sessions: 4, total_sessions: 4 },
+      strength_trends: [],
+      habit_consistency: [],
+      body_metric_trends: []
+    }
+  });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("100% adherence — 4 of 4 sessions completed in the last 30 days."));
+});
+
 test("charts a strength trend's series and falls back to a factual empty chart state when no series is present", async () => {
   installMocks({
     insights: {

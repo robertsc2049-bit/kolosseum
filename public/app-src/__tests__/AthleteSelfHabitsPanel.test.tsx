@@ -218,3 +218,19 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Stretch"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfHabitsPanel />);
+  await waitFor(() => screen.getByText("No habits yet."));
+
+  installMocks({
+    habits: [
+      { habit_id: "habit_1", habit_label: "Stretch", cadence: "daily", current_streak_length: 0, longest_streak_length: 0, total_completions: 0, archived_at_iso8601: null }
+    ]
+  });
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => screen.getByText("Stretch"));
+});
