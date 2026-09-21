@@ -20,7 +20,13 @@ import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 // useCoachOverviewSessionReview.ts/useCoachOverviewEvents.ts for the
 // precedents this mirrors). Refetches on mount and on
 // kolosseum:coach-overview-changed, same as every other dashboard hook.
+//
+// Also listens for kolosseum:coach-events-changed directly, the same gap
+// fixed in useCoachOverviewEvents.ts - otherwise upcomingEventCount goes
+// stale after a coach creates/edits/deletes an event, since that only
+// dispatches the narrower event.
 const CHANGED_EVENT = "kolosseum:coach-overview-changed";
+const EVENTS_CHANGED_EVENT = "kolosseum:coach-events-changed";
 
 export type CoachOverviewMetricsState = {
   loading: boolean;
@@ -94,9 +100,11 @@ export function useCoachOverviewMetrics() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(EVENTS_CHANGED_EVENT, refresh);
     document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(EVENTS_CHANGED_EVENT, refresh);
       document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);

@@ -30,6 +30,14 @@ import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 const OPEN_SESSION_REVIEW_EVENT = "kolosseum:open-session-review";
 const ATHLETE_NOT_FOUND_EVENT = "kolosseum:coach-review-athlete-not-found";
 const NOTE_DIRTY_EVENT = "kolosseum:coach-note-dirty-changed";
+// DEV NOTE: marking a session reviewed/unreviewed changes exactly the
+// data useCoachOverviewMetrics.ts's awaitingReviewCount/openSessionCount
+// and useCoachOverviewSessionReview.ts's own record lists derive from
+// (GET /coach-workspace/reviews), but those Coach Overview dashboard
+// hooks only ever refetch on kolosseum:coach-overview-changed - this
+// hook never dispatched it, so the always-mounted dashboard panels went
+// stale after a mark until the coach's next full sign-in.
+const OVERVIEW_CHANGED_EVENT = "kolosseum:coach-overview-changed";
 
 export type ReviewRecord = JsonRecord;
 
@@ -125,6 +133,7 @@ export function useCoachReview() {
 
       setState((current) => ({ ...current, marking: false }));
       await refresh();
+      document.dispatchEvent(new CustomEvent(OVERVIEW_CHANGED_EVENT));
       return true;
     }
     catch {

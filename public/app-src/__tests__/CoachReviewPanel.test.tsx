@@ -220,6 +220,33 @@ test("marking a session reviewed asks for confirmation and refreshes the record"
   }
 });
 
+// Regression test: marking a session reviewed/unreviewed used to never
+// notify the Coach Overview dashboard (useCoachOverviewMetrics.ts's
+// awaitingReviewCount/openSessionCount and
+// useCoachOverviewSessionReview.ts's record lists all derive from the
+// same GET /coach-workspace/reviews this mutates), so those always-
+// mounted dashboard panels went stale after a mark until the coach's
+// next full sign-in.
+test("marking a session reviewed notifies the Coach Overview dashboard to refresh", async () => {
+  installMocks({});
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+
+  let overviewChanged = false;
+  document.addEventListener("kolosseum:coach-overview-changed", () => { overviewChanged = true; });
+
+  const originalConfirm = window.confirm;
+  window.confirm = () => true;
+  try {
+    installMocks({ records: [baseRecord({ review_status: "reviewed" })] });
+    fireEvent.click(screen.getAllByText("Mark reviewed")[0]);
+    await waitFor(() => assert.ok(overviewChanged));
+  }
+  finally {
+    window.confirm = originalConfirm;
+  }
+});
+
 test("declining the confirmation does not submit the review status change", async () => {
   installMocks({});
   render(<CoachReviewPanel />);

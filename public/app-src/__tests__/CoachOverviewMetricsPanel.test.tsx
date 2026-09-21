@@ -103,6 +103,26 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
   await screen.findByText("1");
 });
 
+// Regression test: creating/editing/deleting an event only ever
+// dispatches kolosseum:coach-events-changed (see useCoachEventCreate.ts/
+// useCoachEventDetail.ts), a narrower event this hook used to not listen
+// for at all - the "Upcoming events" count went stale after a coach
+// created a new event until their next full sign-in.
+test("refetches when kolosseum:coach-events-changed fires", async () => {
+  installMocks();
+  render(<CoachOverviewMetricsPanel />);
+  await screen.findByText("Connected athletes");
+
+  const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  installMocks({ events: [{ event_id: "e1", event_plan: { event_date: future } }] });
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:coach-events-changed"));
+  });
+
+  const upcoming = [...document.querySelectorAll(".metric-card strong")].at(-1);
+  assert.equal(upcoming?.textContent, "1");
+});
+
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks();
   render(<CoachOverviewMetricsPanel />);
