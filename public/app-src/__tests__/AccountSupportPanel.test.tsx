@@ -9,6 +9,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { AccountSupportPanel } from "../screens/account/AccountSupportPanel";
+import { __resetRecentRequestFailureForTests } from "../api/transport";
 
 function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
   return {
@@ -53,6 +54,7 @@ function installMocks(options: {
 
 test.afterEach(() => {
   cleanup();
+  __resetRecentRequestFailureForTests();
 });
 
 test("checks platform status on mount and shows operational", async () => {
@@ -135,6 +137,24 @@ test("the retry button appears when opened from a failed GET request", async () 
       })
     );
   });
+
+  await waitFor(() => screen.getByText("Retry the failed request"));
+});
+
+// Regression test: React screens never dispatch kolosseum:open-support-report
+// the way the legacy global error notice does - every React hook just sets
+// its own local inline error message. transport.ts's request() now captures
+// the most recent failed request (any failed GET/POST/etc, regardless of
+// whether the calling hook re-throws or swallows it) so the standalone
+// "Report a problem" button can attach it automatically instead of opening
+// blank - see getRecentRequestFailure().
+test("the standalone report button auto-attaches a request that failed moments ago", async () => {
+  installMocks({ healthFails: true });
+  render(<AccountSupportPanel />);
+  await waitFor(() => screen.getByText("Unavailable"));
+
+  fireEvent.click(screen.getByRole("button", { name: "Report a problem" }));
+  await waitFor(() => screen.getByText("Correlation ID"));
 
   await waitFor(() => screen.getByText("Retry the failed request"));
 });
