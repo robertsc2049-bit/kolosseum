@@ -394,12 +394,12 @@ test(
       "releasing to yourself is rejected"
     );
     assertStatus(
-      await request(baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`, { buyer_account_code: athlete.userId }, { cookie: coachA.cookie, csrf: coachA.csrf }),
+      await request(baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`, { buyer_account_code: athlete.userId, client_request_id: `release_crid_${nonce}_bad1` }, { cookie: coachA.cookie, csrf: coachA.csrf }),
       404,
       "releasing to a non-coach account code is rejected"
     );
     assertStatus(
-      await request(baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`, { buyer_account_code: "coach_does_not_exist_at_all" }, { cookie: coachA.cookie, csrf: coachA.csrf }),
+      await request(baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`, { buyer_account_code: "coach_does_not_exist_at_all", client_request_id: `release_crid_${nonce}_bad2` }, { cookie: coachA.cookie, csrf: coachA.csrf }),
       404,
       "releasing to a nonexistent account code is rejected"
     );
@@ -410,7 +410,7 @@ test(
     // ============================================================
     const crossCoachRelease = await request(
       baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-      { buyer_account_code: coachB.userId }, { cookie: coachC.cookie, csrf: coachC.csrf }
+      { buyer_account_code: coachB.userId, client_request_id: `release_crid_${nonce}_cross` }, { cookie: coachC.cookie, csrf: coachC.csrf }
     );
     assertStatus(crossCoachRelease, 404, "a coach cannot release another coach's template");
     assert.equal(crossCoachRelease.json?.error, "programme_template_sharing_template_not_found");
@@ -437,7 +437,7 @@ test(
     // ============================================================
     const release = await request(
       baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-      { buyer_account_code: coachB.userId }, { cookie: coachA.cookie, csrf: coachA.csrf }
+      { buyer_account_code: coachB.userId, client_request_id: `release_crid_${nonce}_to_b` }, { cookie: coachA.cookie, csrf: coachA.csrf }
     );
     assertStatus(release, 201, "coach A releases the template to coach B");
     const clonedTemplateId = release.json?.cloned_template_id;
@@ -465,7 +465,7 @@ test(
     // ============================================================
     const releaseToC = await request(
       baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-      { buyer_account_code: coachC.userId }, { cookie: coachA.cookie, csrf: coachA.csrf }
+      { buyer_account_code: coachC.userId, client_request_id: `release_crid_${nonce}_to_c` }, { cookie: coachA.cookie, csrf: coachA.csrf }
     );
     assertStatus(releaseToC, 201, "coach A releases the same template to coach C too");
 
@@ -487,6 +487,30 @@ test(
     );
     assertStatus(unrelatedHistory, 200, "coach B queries release history for a template they don't own");
     assert.deepEqual(unrelatedHistory.json.releases, []);
+
+    // ============================================================
+    // Idempotent replay: retrying a release with the SAME
+    // client_request_id (a double-click or a network retry) must not
+    // clone a second, independent copy of the template - it replays the
+    // original release and returns the same cloned_template_id.
+    // ============================================================
+    const replayedRelease = await request(
+      baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
+      { buyer_account_code: coachB.userId, client_request_id: `release_crid_${nonce}_to_b` }, { cookie: coachA.cookie, csrf: coachA.csrf }
+    );
+    assertStatus(replayedRelease, 201, "replaying the same release with the same client_request_id");
+    assert.equal(replayedRelease.json?.cloned_template_id, clonedTemplateId, "the replay must return the same cloned_template_id, not a new clone");
+
+    const buyerTemplatesAfterReplay = await request(baseUrl, "GET", `/templates?coach_user_id=${encodeURIComponent(coachB.userId)}`, undefined, { cookie: coachB.cookie });
+    assertStatus(buyerTemplatesAfterReplay, 200, "coach B lists own templates after the replayed release");
+    const buyerClonesAfterReplay = buyerTemplatesAfterReplay.json.templates.filter((entry) => entry.template_name === "Sellable Template");
+    assert.equal(buyerClonesAfterReplay.length, 1, "the replay must not have cloned a second, independent copy");
+
+    const historyAfterReplay = await request(
+      baseUrl, "GET", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/releases`, undefined, { cookie: coachA.cookie }
+    );
+    assertStatus(historyAfterReplay, 200, "coach A reads own release history after the replayed release");
+    assert.equal(historyAfterReplay.json.releases.length, 2, "the replay must not have added a third release history entry");
 
     // ============================================================
     // Deterministic compile output is completely unaffected by any of

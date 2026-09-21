@@ -253,11 +253,13 @@ export async function listMarketplaceSharedTemplates(): Promise<readonly Readonl
 export async function releaseProgrammeTemplateToCoach(
   sellerCoachUserIdInput: string,
   templateIdInput: string,
-  buyerAccountCodeInput: unknown
+  buyerAccountCodeInput: unknown,
+  clientRequestIdInput: unknown
 ): Promise<Readonly<JsonRecord>> {
   const sellerCoachUserId = cleanString(sellerCoachUserIdInput);
   const templateId = cleanString(templateIdInput);
   const buyerCoachUserId = cleanString(buyerAccountCodeInput);
+  const clientRequestId = cleanString(clientRequestIdInput);
 
   if (!sellerCoachUserId || !templateId) {
     throw new ProgrammeTemplateSharingError("identity_required");
@@ -268,8 +270,43 @@ export async function releaseProgrammeTemplateToCoach(
   if (buyerCoachUserId === sellerCoachUserId) {
     throw new ProgrammeTemplateSharingError("buyer_cannot_be_seller");
   }
+  if (!clientRequestId) {
+    throw new ProgrammeTemplateSharingError("client_request_id_required");
+  }
 
   const template = await requireOwnedShareableTemplate(sellerCoachUserId, templateId);
+
+  // Idempotent replay: unlike product_video_submissions (a dedicated table
+  // with a real UNIQUE(athlete_user_id, client_request_id) constraint),
+  // programme_template_release records live in the generic, constraint-free
+  // beta_product_records store - so a double-click/retry here would
+  // otherwise clone a brand-new, independent copy of the template into the
+  // buyer's library every time, and fire a duplicate marketplace_template_sold
+  // notification at the seller for what was really one purchase. Checked
+  // before cloning, matching the client_request_id-replay pattern already
+  // established for video submissions/attendance invites/admin actions.
+  const existingReplay = await pool.query(
+    `
+    SELECT record_payload
+    FROM beta_product_records
+    WHERE
+      record_type = 'programme_template_release'
+      AND actor_user_id = $1
+      AND record_payload->>'template_id' = $2
+      AND record_payload->>'buyer_coach_user_id' = $3
+      AND record_payload->>'client_request_id' = $4
+    ORDER BY effective_at DESC, created_at DESC
+    LIMIT 1
+    `,
+    [sellerCoachUserId, templateId, buyerCoachUserId, clientRequestId]
+  );
+  const existingRelease = existingReplay.rows?.[0]?.record_payload;
+  if (isRecord(existingRelease)) {
+    return Object.freeze({
+      cloned_template_id: cleanString(existingRelease.cloned_template_id),
+      release: Object.freeze(existingRelease)
+    });
+  }
 
   try {
     await requireActiveCoach(buyerCoachUserId);
@@ -297,6 +334,7 @@ export async function releaseProgrammeTemplateToCoach(
     template_id: templateId,
     seller_coach_user_id: sellerCoachUserId,
     buyer_coach_user_id: buyerCoachUserId,
+    client_request_id: clientRequestId,
     cloned_template_id: clonedTemplateId,
     price_label: cleanString(sharingPreference?.price_label) || null,
     payment_methods_note: cleanString(sharingPreference?.payment_methods_note) || null,
