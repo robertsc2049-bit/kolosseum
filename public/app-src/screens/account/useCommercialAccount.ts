@@ -8,6 +8,7 @@ import {
 } from "../../api/commercialClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { FRIENDLY_ERROR_MESSAGES } from "../../utils/friendlyError";
 
 // DEV NOTE: FULL-UI-08 commercial/billing - ported from commercial_ui.js's
@@ -99,7 +100,7 @@ export function useCommercialAccount() {
   const [state, setState] = useState<CommercialAccountState>(initialState);
   const returnHandledRef = useRef(false);
 
-  const refresh = useCallback(async (options: { quiet?: boolean } = {}) => {
+  const refresh = useCallback(async (options: { quiet?: boolean; clearStaleError?: boolean } = {}) => {
     try {
       const payload = await loadCommercialAccount();
       const commercial = (payload.commercial && typeof payload.commercial === "object" ? payload.commercial : {}) as JsonRecord;
@@ -116,7 +117,15 @@ export function useCommercialAccount() {
         history,
         entitlementText: entitlement ? (clean(entitlement.message) || humanise(entitlement.code)) : null,
         entitlementTone: entitlement ? "warning" : "neutral",
-        ...(options.quiet ? {} : { resultText: "Commercial account state refreshed.", resultTone: "success" as const })
+        ...(options.quiet
+          // clearStaleError is only passed by the auth-transition listener
+          // below, never by runAction's own post-action quiet refresh - an
+          // action's own catch-block error message must survive the
+          // unconditional quiet refresh runAction's own finally performs
+          // right after, so ordinary quiet refreshes must never touch
+          // resultText at all.
+          ? (options.clearStaleError ? { resultText: null, resultTone: "neutral" as const } : {})
+          : { resultText: "Commercial account state refreshed.", resultTone: "success" as const })
       }));
     }
     catch (error) {
@@ -225,6 +234,21 @@ export function useCommercialAccount() {
   useEffect(() => {
     refresh({ quiet: true });
     handlePaymentReturn();
+
+    // This panel mounts unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later - while already positioned on
+    // #/account - needs to trigger a real refetch. Otherwise a mount-time
+    // fetch that ran pre-auth (a 401) leaves the panel stuck showing "The
+    // sign-in session has expired" until the user happens to navigate away
+    // and back - same bug class already fixed for useAccountDetail.ts/
+    // useAthleteOnboarding.ts/useCoachOnboarding.ts.
+    function handleAuthSucceeded() {
+      refresh({ quiet: true, clearStaleError: true });
+    }
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

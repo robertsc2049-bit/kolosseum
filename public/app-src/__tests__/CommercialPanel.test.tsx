@@ -214,6 +214,61 @@ test("a payment return in the URL records the outcome, shows the confirmation-pe
   assert.equal(window.location.search, "");
 });
 
+test("the panel refetches once a same-tab sign-in completes, replacing a pre-auth error with real data and clearing the stale error banner", async () => {
+  // useCommercialAccount.ts previously fetched only once on mount, with no
+  // listener for kolosseum:entry-auth-succeeded - since this panel is
+  // always-mounted, a mount-time fetch that ran pre-auth (401) left it
+  // stuck on "Sign in to view commercial account state." even after the
+  // user signed in in the same tab, exactly like the already-fixed
+  // useAccountDetail.ts/useAthleteOnboarding.ts/useCoachOnboarding.ts hooks.
+  let authed = false;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? "GET";
+    if (path.startsWith("/account/detail")) {
+      return authed
+        ? jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf-abc" })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    if (path === "/account/commercial" && method === "GET") {
+      return authed
+        ? jsonResponse({ commercial: baseCommercial(), history: [] })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  render(<CommercialPanel />);
+  await waitFor(() => screen.getByText("Sign in to view commercial account state."));
+
+  authed = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "sign_in" } }));
+  });
+
+  await waitFor(() => screen.getByText("coach_monthly"));
+  assert.equal(screen.queryByText("Sign in to view commercial account state."), null);
+});
+
+test("an action's own failure message survives the quiet refresh its own runAction performs right after - only the auth-transition refresh clears stale errors", async () => {
+  // Guards against a regression in the fix above: refresh({quiet:true}) now
+  // clears a stale error banner when called from the entry-auth-succeeded
+  // listener, but runAction's own post-action quiet refresh (called
+  // unconditionally in its finally block, even after a failed action) must
+  // NOT also clear the error runAction's own catch block just set - that
+  // would wipe a real, meaningful action-failure message off the screen
+  // moments after showing it.
+  installMocks({ commercial: baseCommercial({ checkout_available: true }), checkoutFails: "commercial_seat_limit_reached" });
+  render(<CommercialPanel />);
+  await waitFor(() => screen.getByText("Prepare checkout"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Prepare checkout"));
+  });
+
+  await waitFor(() => screen.getByText("The current seat allowance is fully used."));
+});
+
 test("a commercial record type containing markup renders as inert text, never as HTML", async () => {
   installMocks({
     history: [
