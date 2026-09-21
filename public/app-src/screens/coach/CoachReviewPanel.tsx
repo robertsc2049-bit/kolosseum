@@ -216,7 +216,11 @@ function ReviewDetail({
                 </div>
                 <p>{String(note.note_text ?? "")}</p>
                 {note.exercise_id ? <p className="muted small">Exercise: {titleCase(String(note.exercise_id))}</p> : null}
-                <p className="muted small">Private note · doesn't affect training calculations</p>
+                <p className="muted small">
+                  {note.visibility === "athlete_visible"
+                    ? "Visible to the athlete · doesn't affect training calculations"
+                    : "Private note · doesn't affect training calculations"}
+                </p>
               </article>
             ))}
           </div>
