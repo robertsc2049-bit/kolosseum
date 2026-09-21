@@ -63,9 +63,9 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
 
   const authCallCount = [...routes.matchAll(/authenticatedAdmin\(request,\s*(?:false|true)\)/gu)].length;
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
-  // once: 12 routes total, minus the 2 unauthenticated sign-in/sign-out
+  // once: 19 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 15, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 17, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -197,7 +197,7 @@ test("a repeated correlation_id replays the existing audit record instead of rep
   // same transaction as the mutation and the audit write - returning the
   // existing record as a replay rather than performing the mutation again.
   const replayCallCount = [...actionService.matchAll(/if \(existingAudit\) return toAuditOutcome\(existingAudit, true\);/gu)].length;
-  assert.equal(replayCallCount, 4, "each of the 4 mutating actions must check for and replay an existing audit record");
+  assert.equal(replayCallCount, 5, "each of the 5 mutating actions must check for and replay an existing audit record");
 });
 
 test("confirmed operational actions require an explicit second confirmation click before the request is sent", () => {
@@ -206,6 +206,31 @@ test("confirmed operational actions require an explicit second confirmation clic
   assert.match(js, /function requestAccountStateToggle/u);
   assert.match(js, /function confirmAccountStateToggle|async function confirmAccountStateToggle/u);
   assert.match(js, /pendingStateChange/u);
+});
+
+test("confirming an account state change refreshes the search-results table it was opened from, not just the detail panel - a still-visible stale row would otherwise misreport the account's actual state", () => {
+  // Same "sibling panel doesn't refresh after a mutation elsewhere" bug
+  // class found repeatedly across this session's live-walkthrough series
+  // (e.g. PR #1127's cross-panel org-membership-status fix) - here, within
+  // a single admin.js file: confirmAccountStateToggle/
+  // confirmOrgOwnerAccountStateToggle refreshed the just-opened detail
+  // panel and the audit log, but never re-issued the search that produced
+  // the still-visible results table above it, so a suspended account kept
+  // showing "active" in the search list until a fresh manual search.
+  assert.match(js, /async function refreshAccountSearchResults\(/u);
+  assert.match(js, /async function refreshOrgOwnerAccountSearchResults\(/u);
+
+  const stateToggleFn = js.slice(
+    js.indexOf("async function confirmAccountStateToggle"),
+    js.indexOf("function requestTestMarkingToggle")
+  );
+  assert.match(stateToggleFn, /await refreshAccountSearchResults\(\);/u);
+
+  const orgOwnerStateToggleFn = js.slice(
+    js.indexOf("async function confirmOrgOwnerAccountStateToggle"),
+    js.indexOf("async function refreshCommercialRecords")
+  );
+  assert.match(orgOwnerStateToggleFn, /await refreshOrgOwnerAccountSearchResults\(\);/u);
 });
 
 test("the reason an admin gives for marking a test account is authorable, stored, and read back - not silently discarded", () => {
@@ -414,7 +439,7 @@ test("every new interactive admin control is a real focusable button/form, not a
 
 test("every table in the founder/admin surface is wrapped in a horizontally-scrollable container, so wide tables scroll instead of squashing illegibly on narrow viewports", () => {
   const tableOpenTags = [...html.matchAll(/<table\b[^>]*>/gu)];
-  assert.equal(tableOpenTags.length, 11, "expected exactly 11 <table> elements in the admin surface");
+  assert.equal(tableOpenTags.length, 12, "expected exactly 12 <table> elements in the admin surface");
 
   // Every <table> must be the very first thing inside a div.table-scroll
   // wrapper - not just present somewhere on the page - so a future table

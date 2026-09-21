@@ -130,11 +130,15 @@ function renderAccountSearchResults(accounts) {
   });
 }
 
-async function searchAccounts(event) {
-  event.preventDefault();
+async function refreshAccountSearchResults() {
   const query = el("accountSearchQuery").value.trim();
   const result = await api("GET", `/admin/accounts?query=${encodeURIComponent(query)}`);
   renderAccountSearchResults(result.accounts ?? []);
+}
+
+async function searchAccounts(event) {
+  event.preventDefault();
+  await refreshAccountSearchResults();
 }
 
 async function openAccountDetail(userId) {
@@ -187,6 +191,7 @@ async function confirmAccountStateToggle() {
   el("accountToggleStateConfirmButton").hidden = true;
   state.pendingStateChange = null;
   await openAccountDetail(state.selectedUserId);
+  await refreshAccountSearchResults();
   await refreshAuditRecords();
 }
 
@@ -238,11 +243,15 @@ function renderOrgOwnerAccountSearchResults(accounts) {
   });
 }
 
-async function searchOrgOwnerAccounts(event) {
-  event.preventDefault();
+async function refreshOrgOwnerAccountSearchResults() {
   const query = el("orgOwnerAccountSearchQuery").value.trim();
   const result = await api("GET", `/admin/org-owner-accounts?query=${encodeURIComponent(query)}`);
   renderOrgOwnerAccountSearchResults(result.accounts ?? []);
+}
+
+async function searchOrgOwnerAccounts(event) {
+  event.preventDefault();
+  await refreshOrgOwnerAccountSearchResults();
 }
 
 async function openOrgOwnerAccountDetail(userId) {
@@ -292,6 +301,7 @@ async function confirmOrgOwnerAccountStateToggle() {
   el("orgOwnerAccountToggleStateConfirmButton").hidden = true;
   state.pendingOrgOwnerStateChange = null;
   await openOrgOwnerAccountDetail(state.selectedOrgOwnerUserId);
+  await refreshOrgOwnerAccountSearchResults();
   await refreshAuditRecords();
 }
 
