@@ -225,6 +225,27 @@ test("choosing 'Visible to athlete' sends athlete_visible", async () => {
   assert.equal(body.visibility, "athlete_visible");
 });
 
+// Regression test: this caption used to unconditionally read "Notes are
+// private and can't change the recorded session." regardless of the
+// Visibility select right above it - false whenever "Visible to athlete"
+// was selected, found during a live walkthrough of the same bug class in
+// the sibling CoachReviewPanel.tsx (PR #1141).
+test("the compose form's caption never claims a note is private outright, since the Visibility select can send athlete_visible", async () => {
+  installMocks({});
+  render(<AthleteCoachNotesPanel />);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPENED_EVENT, { detail: { athlete_user_id: "athlete_test123" } }));
+  });
+  await screen.findByText("No coach notes");
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(OPEN_NOTE_FORM_EVENT, { detail: { session_id: "session_1", artefact_id: "artefact_1" } }));
+  });
+
+  assert.equal(screen.queryByText("Notes are private and can't change the recorded session."), null);
+  assert.ok(screen.getByText(/private to you \(unless marked visible to the athlete\)/u));
+});
+
 test("a note can be scoped to a specific exercise on the session", async () => {
   const calls = installMocks({});
   render(<AthleteCoachNotesPanel />);

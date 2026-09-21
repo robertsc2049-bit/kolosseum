@@ -84,7 +84,7 @@ export function AthleteCoachNotesPanel() {
             <button className="button primary" type="submit" disabled={submitting}>Record note</button>
           </div>
 
-          <p className="muted small">Notes are private and can't change the recorded session.</p>
+          <p className="muted small">This note is private to you (unless marked visible to the athlete) and can't change the recorded session.</p>
         </form>
       ) : null}
     </>
