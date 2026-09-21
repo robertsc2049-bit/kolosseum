@@ -267,7 +267,16 @@ export async function loadEnrichedAthleteSessions(athleteUserId: string): Promis
       s.session_id, s.block_id, s.status, s.planned_session, s.session_state_summary,
       s.beta_assignment_id, s.created_at, s.updated_at,
       b.phase1_input ->> 'activity_id' AS activity_id,
-      count(re.seq)::integer AS runtime_event_count
+      count(re.seq)::integer AS runtime_event_count,
+      bool_or(re.event->>'type' = 'SPLIT_SESSION') AS session_split_entered,
+      (
+        array_agg(
+          re.event->>'type'
+          ORDER BY re.seq DESC
+        ) FILTER (
+          WHERE re.event->>'type' IN ('RETURN_CONTINUE', 'RETURN_SKIP')
+        )
+      )[1] AS session_last_return_decision_type
     FROM sessions s
     JOIN blocks b ON b.block_id = s.block_id
     LEFT JOIN runtime_events re ON re.session_id = s.session_id
@@ -288,6 +297,20 @@ export async function loadEnrichedAthleteSessions(athleteUserId: string): Promis
     const assignmentId = cleanString(row.beta_assignment_id) || null;
     const provenance = await loadProvenanceCached(provenanceCache, assignmentId);
     const summary = projected.session_execution_summary?.[0] as JsonRecord | undefined;
+    // Mirrors beta19_coach_workspace_service.ts's own identical
+    // session_last_return_decision_type derivation - the persisted
+    // session_state_summary's runtime.split_return_decision doesn't
+    // reliably survive being folded across later events, so this reads
+    // the same ground truth straight from the ordered runtime_events
+    // instead of trusting summary?.split_return_decision (see the DEV
+    // NOTE on the athlete history detail endpoint below for the full
+    // explanation of the bug this works around).
+    const lastReturnDecisionType: "continue" | "skip" | null =
+      row.session_last_return_decision_type === "RETURN_CONTINUE"
+        ? "continue"
+        : row.session_last_return_decision_type === "RETURN_SKIP"
+          ? "skip"
+          : null;
 
     enriched.push({
       session_id: String(row.session_id),
@@ -302,8 +325,8 @@ export async function loadEnrichedAthleteSessions(athleteUserId: string): Promis
       completed_count: projected.completed_exercises.length,
       dropped_count: projected.dropped_exercises.length,
       remaining_count: projected.remaining_exercises.length,
-      split_entered: Boolean(summary?.split_entered),
-      split_return_decision: (summary?.split_return_decision as "continue" | "skip" | null) ?? null,
+      split_entered: Boolean(summary?.split_entered) || Boolean(row.session_split_entered),
+      split_return_decision: lastReturnDecisionType,
       provenance
     });
   }
@@ -522,6 +545,30 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
     Object.freeze({ exercise_id: exerciseId, sets: Object.freeze(sets) })
   );
 
+  // The persisted session_state_summary's own runtime.split_return_decision
+  // doesn't survive being folded across the later events in a session (it's
+  // an extension field the engine's own event application doesn't know to
+  // carry forward), so session_state_read_model.ts's readSplitReturnDecision
+  // falls back to a heuristic - "does this session have ANY dropped
+  // exercise at all" - that wrongly reports "skip" whenever an athlete both
+  // returns-and-continues AND separately drops an unrelated exercise via
+  // the ordinary per-exercise Skip action (two orthogonal facts). This
+  // function already scans the raw, ordered event log directly for
+  // splitReturnEvents (SPLIT_SESSION/RETURN_CONTINUE/RETURN_SKIP) - the
+  // same ground truth the coach-side SQL-based derivation
+  // (beta19_coach_workspace_service.ts's session_last_return_decision_type)
+  // already correctly uses - so derive the summary field from that instead
+  // of the unreliable persisted runtime field.
+  const lastReturnDecisionEvent = [...splitReturnEvents]
+    .reverse()
+    .find((entry) => entry.type === "RETURN_CONTINUE" || entry.type === "RETURN_SKIP");
+  const splitReturnDecision: "continue" | "skip" | null =
+    lastReturnDecisionEvent?.type === "RETURN_CONTINUE"
+      ? "continue"
+      : lastReturnDecisionEvent?.type === "RETURN_SKIP"
+        ? "skip"
+        : null;
+
   return Object.freeze({
     status: 200,
     body: Object.freeze({
@@ -537,8 +584,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       started: projected.started === true,
       exercises: Object.freeze(exercises),
       added_exercises: Object.freeze(addedExercisesList),
-      split_entered: Boolean(summary?.split_entered),
-      split_return_decision: (summary?.split_return_decision as "continue" | "skip" | null) ?? null,
+      split_entered: Boolean(summary?.split_entered) || splitReturnEvents.length > 0,
+      split_return_decision: splitReturnDecision,
       split_return_events: Object.freeze(splitReturnEvents),
       provenance,
       factual_records_only: true,
