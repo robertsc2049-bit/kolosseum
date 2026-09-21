@@ -20,7 +20,7 @@ import { useAthleteDirectory } from "./useAthleteDirectory";
 // for and handles exactly as bindCoachAthleteActions()'s click handler
 // used to (setView("athletes") + openAthleteProfile(id)).
 
-type EffectiveState = "accepted" | "invited" | "expired" | "revoked" | "unknown";
+type EffectiveState = "accepted" | "invited" | "expired" | "revoked" | "declined" | "unknown";
 
 function relationshipEffectiveState(entry: JsonRecord): EffectiveState {
   if (entry.relationship_expired === true) return "expired";
@@ -63,7 +63,8 @@ const COUNT_LABELS: Array<[string, EffectiveState]> = [
   ["Accepted", "accepted"],
   ["Pending", "invited"],
   ["Expired", "expired"],
-  ["Revoked", "revoked"]
+  ["Revoked", "revoked"],
+  ["Declined", "declined"]
 ];
 
 export function AthleteDirectoryPanel() {
@@ -72,7 +73,7 @@ export function AthleteDirectoryPanel() {
   const [filter, setFilter] = useState("all");
 
   const counts = useMemo(() => {
-    const tally: Record<string, number> = { accepted: 0, invited: 0, expired: 0, revoked: 0 };
+    const tally: Record<string, number> = { accepted: 0, invited: 0, expired: 0, revoked: 0, declined: 0 };
     for (const record of relationships) {
       const state = relationshipEffectiveState(record);
       if (state in tally) tally[state] += 1;
@@ -131,6 +132,7 @@ export function AthleteDirectoryPanel() {
             <option value="invited">Pending</option>
             <option value="expired">Expired</option>
             <option value="revoked">Revoked</option>
+            <option value="declined">Declined</option>
           </select>
         </label>
       </div>

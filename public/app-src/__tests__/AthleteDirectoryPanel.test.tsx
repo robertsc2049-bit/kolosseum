@@ -67,7 +67,7 @@ test("displays relationship counts and a roster card for an accepted athlete", a
 
   const counts = document.querySelectorAll(".relationship-metric-card strong");
   const values = Array.from(counts).map((node) => node.textContent);
-  assert.deepEqual(values, ["1", "0", "0", "0"]);
+  assert.deepEqual(values, ["1", "0", "0", "0", "0"]);
 });
 
 test("falls back to Powerlifting when the relationship record's activity_id is null, matching the real /coach-workspace/relationships response shape", async () => {
@@ -152,6 +152,39 @@ test("an expired invitation is classified by its expiry date, not the raw stored
   await waitFor(() => screen.getByText("Jordan Lee"));
   const card = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
   assert.ok(card.getByText("Expired"));
+});
+
+test("a declined invitation is counted in its own metric card, filterable, and never renders an Open profile button", async () => {
+  // Regression test: relationship_state "declined" is a real, distinct
+  // server state (see FULL-UI-24's decline route), but the directory's
+  // EffectiveState type, its metric-card tally and its filter <select>
+  // previously only knew about accepted/invited/expired/revoked - a
+  // declined relationship fell through the tally's `if (state in tally)`
+  // check uncounted, so the summary counts silently didn't add up to the
+  // total relationship count, and there was no way to filter to just
+  // declined athletes.
+  installMocks({
+    relationships: [
+      { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: "powerlifting", relationship_state: "accepted" },
+      { athlete_user_id: "athlete_2", display_name: "Sam Rivera", email: "sam@example.com", activity_id: "powerlifting", relationship_state: "declined" }
+    ]
+  });
+
+  render(<AthleteDirectoryPanel />);
+  await waitFor(() => screen.getByText("Jordan Lee"));
+
+  const declinedCard = within(screen.getByText("Sam Rivera").closest("article") as HTMLElement);
+  assert.ok(declinedCard.getByText("Declined"));
+  assert.equal(declinedCard.queryByText("Open profile"), null);
+
+  const counts = document.querySelectorAll(".relationship-metric-card strong");
+  const values = Array.from(counts).map((node) => node.textContent);
+  assert.deepEqual(values, ["1", "0", "0", "0", "1"]);
+
+  const filterSelect = screen.getByLabelText("Relationship state") as HTMLSelectElement;
+  fireEvent.change(filterSelect, { target: { value: "declined" } });
+  await waitFor(() => screen.getByText("Sam Rivera"));
+  assert.equal(screen.queryByText("Jordan Lee"), null);
 });
 
 test("the View audit button carries the relationship-action data attributes the existing global click delegation relies on", async () => {
