@@ -26,7 +26,16 @@ import { COACH_RELATIONSHIP_MUTATED_EVENT } from "./useConnectAthlete";
 const OPEN_REQUEST_EVENT = "kolosseum:open-relationship-audit-request";
 const CLOSE_EVENT = "kolosseum:close-relationship-audit";
 
-export type EffectiveState = "accepted" | "invited" | "expired" | "revoked" | "unknown";
+// "declined" is a real, distinct relationship_state the backend can send
+// (see the FULL-UI-24 decline route) - this type used to omit it, the
+// same latent gap that caused a real bug in AthleteDirectoryPanel.tsx's
+// sibling EffectiveState (a tally/filter silently miscounting declined
+// relationships). This file's own effectiveState is only ever compared
+// with === (never tallied/filtered), so a declined relationship already
+// renders correctly here - keeping the type accurate is purely to stop
+// that same bug class from resurfacing if this type is ever reused for a
+// tally/filter later, not a fix for a currently-visible symptom.
+export type EffectiveState = "accepted" | "invited" | "expired" | "revoked" | "declined" | "unknown";
 
 function relationshipEffectiveState(entry: JsonRecord): EffectiveState {
   if (entry.relationship_expired === true) return "expired";

@@ -117,6 +117,27 @@ test("opening for a pending-invitation athlete shows Cancel invitation but not O
   assert.ok(screen.getByText("Cancel invitation"));
 });
 
+// Regression test: EffectiveState used to omit "declined" - a real,
+// distinct relationship_state the backend can send (see the FULL-UI-24
+// decline route) - the same type-completeness gap that caused a real
+// bug in AthleteDirectoryPanel.tsx's sibling tally/filter. This file's
+// own effectiveState is only ever compared with ===, so it already
+// rendered "declined" correctly at runtime even with the incomplete
+// type; this asserts that stays true and that neither action button
+// (both gated on accepted/invited) incorrectly appears.
+test("opening for a declined-invitation athlete shows the correct effective state and no action buttons", async () => {
+  installMocks({ relationships: [baseRelationshipEntry({ relationship_state: "declined" })] });
+  render(<AthleteRelationshipDetailPanel />);
+
+  await openAudit();
+  await screen.findByText("Jordan Athlete");
+
+  assert.ok(screen.getByText("Declined · Powerlifting"));
+  assert.equal(screen.queryByText("Open training profile"), null);
+  assert.equal(screen.queryByText("Revoke relationship"), null);
+  assert.equal(screen.queryByText("Cancel invitation"), null);
+});
+
 test("shows the athlete's declared training focus as a factual, read-only line", async () => {
   installMocks({ relationships: [baseRelationshipEntry({ training_focus: ["strength", "strength_and_conditioning"] })] });
   render(<AthleteRelationshipDetailPanel />);
