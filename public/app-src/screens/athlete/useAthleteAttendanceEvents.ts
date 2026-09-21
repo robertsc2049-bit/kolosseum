@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadMyAttendanceOccurrences, submitAttendanceRsvp } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 const CHANGED_EVENT = "kolosseum:attendance-events-changed";
 
@@ -29,7 +30,15 @@ export function useAthleteAttendanceEvents() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
-    return () => document.removeEventListener(CHANGED_EVENT, refresh);
+    // This panel mounts unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later needs to trigger a real refetch -
+    // same bug class already fixed for useAccountDetail.ts/
+    // useCommercialAccount.ts and others.
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   const rsvp = useCallback(async (occurrenceId: string, rsvpState: "attending" | "maybe" | "not_attending") => {

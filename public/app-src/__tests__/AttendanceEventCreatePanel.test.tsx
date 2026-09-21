@@ -71,6 +71,45 @@ test("shows a factual empty state when the coach has no connected athletes", asy
   await waitFor(() => screen.getByText("No connected athletes yet."));
 });
 
+test("refetches accepted athletes and shared-org options once a same-tab sign-in completes", async () => {
+  // This panel's mount-time fetches previously ran once with no listener
+  // for kolosseum:entry-auth-succeeded at all - a pre-auth 401 (swallowed
+  // into an empty invite-candidate list) left the form stuck showing no
+  // athletes until the user navigated away and back, same bug class
+  // already fixed for useAccountDetail.ts/useCommercialAccount.ts and
+  // others.
+  let authed = false;
+  const original = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) {
+      return authed
+        ? jsonResponse({ account: { user_id: COACH_USER_ID }, csrf_token: "csrf-token" })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    if (path.startsWith("/coach-workspace/relationships")) {
+      return authed
+        ? jsonResponse({ relationships: [{ athlete_user_id: "athlete_1", display_name: "Jordan Lee", relationship_state: "accepted" }] })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    if (path === "/coach-workspace/org-memberships") {
+      return authed ? jsonResponse({ memberships: [] }) : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  render(<AttendanceEventCreatePanel />);
+  await waitFor(() => screen.getByText("No connected athletes yet."));
+
+  authed = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "sign_in" } }));
+  });
+
+  await waitFor(() => screen.getByText("Jordan Lee"));
+  globalThis.fetch = original;
+});
+
 test("lists only currently-accepted athletes as invite candidates, not invited/declined/revoked ones", async () => {
   installMocks({
     relationships: [

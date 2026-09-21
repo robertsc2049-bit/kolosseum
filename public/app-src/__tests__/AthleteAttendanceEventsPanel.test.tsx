@@ -106,6 +106,33 @@ test("submitting an RSVP calls the rsvp route with the chosen state and refreshe
   assert.equal(rsvpState, "attending");
 });
 
+test("refetches once a same-tab sign-in completes, replacing a pre-auth error with the real invited-events list", async () => {
+  // This panel is always-mounted regardless of route, so a mount-time
+  // fetch that ran pre-auth (401, mapped to a factual error here) left it
+  // stuck until the user navigated away and back - same bug class already
+  // fixed for useAccountDetail.ts/useCommercialAccount.ts and others.
+  let authed = false;
+  installMocks(({ input }) => {
+    const path = String(input);
+    if (path === "/attendance-events/mine") {
+      return authed
+        ? jsonResponse({ ok: true, occurrences: [{ event_id: "attendance_event_1", title: "Saturday class", occurrence_id: "occ_1", occurrence_date: "2026-09-05", my_rsvp_state: null }] })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return null;
+  });
+
+  render(<AthleteAttendanceEventsPanel />);
+  await waitFor(() => screen.getByText("Sign in to continue."));
+
+  authed = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "sign_in" } }));
+  });
+
+  await waitFor(() => screen.getByText("Saturday class"));
+});
+
 test("a failed RSVP shows a factual error message", async () => {
   installMocks(({ input, init }) => {
     const path = String(input);
