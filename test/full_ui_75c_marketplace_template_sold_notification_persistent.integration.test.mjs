@@ -347,7 +347,7 @@ test(
 
     const release = await request(
       baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-      { buyer_account_code: coachB.userId }, { cookie: coachA.cookie, csrf: coachA.csrf }
+      { buyer_account_code: coachB.userId, client_request_id: `release_crid_${templateId}_to_b` }, { cookie: coachA.cookie, csrf: coachA.csrf }
     );
     assertStatus(release, 201, "coach A sells to coach B");
 
@@ -407,7 +407,7 @@ test(
     // ============================================================
     const secondRelease = await request(
       baseUrl, "POST", `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-      { buyer_account_code: coachC.userId }, { cookie: coachA.cookie, csrf: coachA.csrf }
+      { buyer_account_code: coachC.userId, client_request_id: `release_crid_${templateId}_to_c` }, { cookie: coachA.cookie, csrf: coachA.csrf }
     );
     assertStatus(secondRelease, 201, "coach A sells the same template to coach C too");
 

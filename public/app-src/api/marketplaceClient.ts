@@ -52,11 +52,18 @@ export async function loadTemplateReleaseHistory(templateId: string): Promise<Js
   return Array.isArray(response.releases) ? (response.releases as JsonRecord[]) : [];
 }
 
+function newClientRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
 export async function releaseTemplate(templateId: string, buyerAccountCode: string, csrfToken: string): Promise<void> {
   await request(
     "POST",
     `/programme-marketplace/templates/${encodeURIComponent(templateId)}/release`,
-    { buyer_account_code: buyerAccountCode },
+    { buyer_account_code: buyerAccountCode, client_request_id: newClientRequestId() },
     csrfToken
   );
 }

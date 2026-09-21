@@ -81,7 +81,8 @@ programmeTemplateSharingRouter.post(
     const result = await releaseProgrammeTemplateToCoach(
       coachUserId,
       String(request.params.template_id),
-      request.body?.buyer_account_code
+      request.body?.buyer_account_code,
+      request.body?.client_request_id
     );
     return response.status(201).json({ ok: true, ...result });
   })
