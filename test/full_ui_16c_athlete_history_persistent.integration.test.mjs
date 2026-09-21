@@ -363,7 +363,7 @@ test(
       await connectRelationship(baseUrl, coach.userId, athlete.userId, `relationship_${nonce}`, timestamp);
       await setUpStrengthProfile(baseUrl, coach, athlete.userId);
 
-      const template = await createActivatedTemplate(baseUrl, coach.userId, `Full16c Programme ${nonce}`, 3);
+      const template = await createActivatedTemplate(baseUrl, coach.userId, `Full16c Programme ${nonce}`, 4);
       await assignTemplate(baseUrl, coach, athlete.userId, template.template_id, nonce);
 
       // --- Session 1: fully completed. ---
@@ -441,9 +441,61 @@ test(
         "return-skip session 3"
       );
 
+      // --- Session 4: split then return-CONTINUE, combined with an
+      //     unrelated individually-skipped exercise - regression coverage
+      //     for a real bug found during a live walkthrough. The two facts
+      //     (an athlete separately skips one exercise for its own reason,
+      //     and separately continues the remaining work after a stop) are
+      //     orthogonal; the read model must not conflate "this session has
+      //     ANY dropped exercise" with "the return decision was to skip
+      //     the remaining work" - that conflation previously made a
+      //     RETURN_CONTINUE session incorrectly report
+      //     split_return_decision: "skip" whenever it also happened to
+      //     have an unrelated dropped exercise anywhere in it. ---
+      const returnContinueSessionId = await compileSession(baseUrl, coach, athlete.userId);
+      sessionIds.push(returnContinueSessionId);
+      await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/start`, {});
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
+          type: "COMPLETE_EXERCISE", exercise_id: "back_squat"
+        }),
+        201,
+        "complete back_squat (session 4)"
+      );
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
+          type: "SKIP_EXERCISE", exercise_id: "bench_press", reason_code: "time_constraint"
+        }),
+        201,
+        "skip bench_press, unrelated to the split (session 4)"
+      );
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
+          type: "SPLIT_SESSION"
+        }),
+        201,
+        "split session 4"
+      );
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
+          type: "RETURN_CONTINUE"
+        }),
+        201,
+        "return-continue session 4"
+      );
+      for (const exerciseId of ["deadlift", "overhead_press"]) {
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
+            type: "COMPLETE_EXERCISE", exercise_id: exerciseId
+          }),
+          201,
+          `complete ${exerciseId} (session 4)`
+        );
+      }
+
       // --- List: unfiltered. ---
       const unfiltered = await historyList(baseUrl, athlete.userId);
-      assert.equal(unfiltered.session_count, 3);
+      assert.equal(unfiltered.session_count, 4);
       const byId = Object.fromEntries(unfiltered.sessions.map((s) => [s.session_id, s]));
 
       assert.equal(byId[completedSessionId].execution_status, "completed");
@@ -458,6 +510,16 @@ test(
       assert.equal(byId[returnedSessionId].split_entered, true);
       assert.equal(byId[returnedSessionId].split_return_decision, "skip");
 
+      assert.equal(byId[returnContinueSessionId].execution_status, "partial");
+      assert.equal(byId[returnContinueSessionId].completed_count, 3);
+      assert.equal(byId[returnContinueSessionId].dropped_count, 1);
+      assert.equal(byId[returnContinueSessionId].split_entered, true);
+      assert.equal(
+        byId[returnContinueSessionId].split_return_decision,
+        "continue",
+        "a RETURN_CONTINUE session with an unrelated dropped exercise must not be misreported as split_return_decision: skip"
+      );
+
       for (const session of unfiltered.sessions) {
         assert.equal(session.activity_id, "powerlifting");
         assert.equal(session.provenance.programme.template_name, `Full16c Programme ${nonce}`);
@@ -465,12 +527,12 @@ test(
       }
 
       // --- Filters: status, date range, activity, programme narrow without
-      //     mutating anything (re-fetching unfiltered still returns 3). ---
+      //     mutating anything (re-fetching unfiltered still returns 4). ---
       const partialOnly = await historyList(baseUrl, athlete.userId, { status: "partial" });
-      assert.equal(partialOnly.session_count, 2);
+      assert.equal(partialOnly.session_count, 3);
       assert.deepEqual(
         new Set(partialOnly.sessions.map((s) => s.session_id)),
-        new Set([partialSessionId, returnedSessionId])
+        new Set([partialSessionId, returnedSessionId, returnContinueSessionId])
       );
 
       const completedOnly = await historyList(baseUrl, athlete.userId, { status: "completed" });
@@ -482,19 +544,19 @@ test(
       assert.equal(futureDateFrom.session_count, 0, "a date_from far in the future must exclude every session");
 
       const sameDayFilter = await historyList(baseUrl, athlete.userId, { date_from: todayIso, date_to: todayIso });
-      assert.equal(sameDayFilter.session_count, 3, "date_to must be inclusive of the whole calendar day");
+      assert.equal(sameDayFilter.session_count, 4, "date_to must be inclusive of the whole calendar day");
 
       const activityFilter = await historyList(baseUrl, athlete.userId, { activity_id: "powerlifting" });
-      assert.equal(activityFilter.session_count, 3);
+      assert.equal(activityFilter.session_count, 4);
 
       const wrongActivityFilter = await historyList(baseUrl, athlete.userId, { activity_id: "rugby_union" });
       assert.equal(wrongActivityFilter.session_count, 0);
 
       const programmeFilter = await historyList(baseUrl, athlete.userId, { template_id: template.template_id });
-      assert.equal(programmeFilter.session_count, 3);
+      assert.equal(programmeFilter.session_count, 4);
 
       const unfilteredAfterFilters = await historyList(baseUrl, athlete.userId);
-      assert.equal(unfilteredAfterFilters.session_count, 3, "filtering must never alter the underlying stored record");
+      assert.equal(unfilteredAfterFilters.session_count, 4, "filtering must never alter the underlying stored record");
 
       // --- Detail: planned versus recorded, split/return record, skip
       //     reason/pain, RPE report, and provenance. ---
@@ -522,6 +584,19 @@ test(
       assert.ok(returnedEventTypes.includes("SPLIT_SESSION"));
       assert.ok(returnedEventTypes.includes("RETURN_SKIP"));
 
+      const returnContinueDetail = await historyDetail(baseUrl, athlete.userId, returnContinueSessionId);
+      assertStatus(returnContinueDetail, 200, "history detail (return-continue session)");
+      assert.equal(returnContinueDetail.json.split_entered, true);
+      assert.equal(
+        returnContinueDetail.json.split_return_decision,
+        "continue",
+        "the detail endpoint must also correctly distinguish RETURN_CONTINUE from an unrelated dropped exercise"
+      );
+      assert.equal(returnContinueDetail.json.exercises.find((ex) => ex.exercise_id === "bench_press")?.recorded_state, "dropped");
+      const returnContinueEventTypes = returnContinueDetail.json.split_return_events.map((e) => e.type);
+      assert.ok(returnContinueEventTypes.includes("SPLIT_SESSION"));
+      assert.ok(returnContinueEventTypes.includes("RETURN_CONTINUE"));
+
       // --- Access control: another athlete must never read this session's
       //     detail, even with a syntactically valid session_id. ---
       const crossAccess = await historyDetail(baseUrl, otherAthlete.userId, partialSessionId);
@@ -542,7 +617,7 @@ test(
       assert.equal(exportResult.json.permission.permission_scope, "own_user_data_only");
       assert.equal(exportResult.json.boundary.proof_layer_export, false);
       assert.equal(exportResult.json.boundary.organisation_export, false);
-      assert.equal(exportResult.json.included_category_counts.session_records, 3);
+      assert.equal(exportResult.json.included_category_counts.session_records, 4);
       assert.equal(exportResult.json.included_category_counts.programme_assignments, 1);
       assert.ok(exportResult.json.included_category_counts.runtime_events > 0);
 
@@ -559,11 +634,12 @@ test(
       baseUrl = `http://127.0.0.1:${address.port}`;
 
       const listAfterRestart = await historyList(baseUrl, athlete.userId);
-      assert.equal(listAfterRestart.session_count, 3);
+      assert.equal(listAfterRestart.session_count, 4);
       const byIdAfterRestart = Object.fromEntries(listAfterRestart.sessions.map((s) => [s.session_id, s]));
       assert.equal(byIdAfterRestart[completedSessionId].execution_status, "completed");
       assert.equal(byIdAfterRestart[partialSessionId].execution_status, "partial");
       assert.equal(byIdAfterRestart[returnedSessionId].split_return_decision, "skip");
+      assert.equal(byIdAfterRestart[returnContinueSessionId].split_return_decision, "continue");
 
       const detailAfterRestart = await historyDetail(baseUrl, athlete.userId, partialSessionId);
       assertStatus(detailAfterRestart, 200, "history detail after restart");
