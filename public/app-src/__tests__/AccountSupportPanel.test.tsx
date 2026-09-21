@@ -85,6 +85,20 @@ test("shows a factual empty state when no reports have been submitted", async ()
   await waitFor(() => screen.getByText("No problems reported yet."));
 });
 
+// Regression test: the panel used to show "No problems reported yet." the
+// instant it mounted, regardless of whether GET /account/support/reports
+// had actually resolved yet - a false claim for any account that does
+// have prior reports, since reportsLoading was already returned by
+// useAccountSupport.ts but never read here.
+test("shows a loading status before the report history resolves, not a premature empty state", async () => {
+  installMocks({ reports: [{ correlation_id: "corr-1", description: "Prior report", status: "submitted", created_at_iso8601: "2026-08-20T10:00:00.000Z" }] });
+  render(<AccountSupportPanel />);
+  assert.ok(screen.getByText("Loading your submitted reports…"));
+  assert.equal(screen.queryByText("No problems reported yet."), null);
+
+  await waitFor(() => screen.getByText("Prior report"));
+});
+
 test("refetches the report history once a same-tab sign-in completes", async () => {
   installMocks({});
   render(<AccountSupportPanel />);
