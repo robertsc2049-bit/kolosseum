@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
 import { loadPendingRelationshipInvitations, loadAthleteRelationshipsMine } from "../../api/accountRelationshipsClient";
@@ -34,6 +34,23 @@ import { type JsonRecord } from "../../api/transport";
 // zero other callers once notificationCoachName() (their only reason to
 // keep running) moved here.
 const OPEN_TARGET_EVENT = "kolosseum:open-notification-target";
+
+// The bell is always-mounted (per this app's architecture) and previously
+// only fetched the unread count once on mount - a message arriving while
+// the bell is already up (the common case) left the badge stale until a
+// reload or a manual open. These four events are the exact ones app.js's
+// handleMessagingSocketPayload() already forwards from the live WebSocket
+// relay (coach-athlete-message-received, athlete-coach-message-received,
+// athlete-org-message-received, coach-org-message-received) - only the
+// pair matching the signed-in account's own role ever actually fires, so
+// listening for all four unconditionally is safe and avoids duplicating
+// the role branch app.js already does server-push-side.
+const MESSAGE_RECEIVED_EVENTS = [
+  "kolosseum:coach-athlete-message-received",
+  "kolosseum:athlete-coach-message-received",
+  "kolosseum:athlete-org-message-received",
+  "kolosseum:coach-org-message-received"
+];
 
 export type NotificationsState = {
   unreadCount: number;
@@ -100,6 +117,31 @@ export function useNotifications() {
       setState((current) => ({ ...current, loading: false, error: true }));
     }
   }, []);
+
+  const panelOpenRef = useRef(false);
+  useEffect(() => {
+    panelOpenRef.current = state.panelOpen;
+  }, [state.panelOpen]);
+
+  useEffect(() => {
+    function handleMessageReceived() {
+      if (panelOpenRef.current) {
+        loadPanelContent();
+        return;
+      }
+      loadUnreadNotificationCount()
+        .then((unreadCount) => setState((current) => ({ ...current, unreadCount })))
+        .catch(() => {});
+    }
+    for (const eventName of MESSAGE_RECEIVED_EVENTS) {
+      document.addEventListener(eventName, handleMessageReceived);
+    }
+    return () => {
+      for (const eventName of MESSAGE_RECEIVED_EVENTS) {
+        document.removeEventListener(eventName, handleMessageReceived);
+      }
+    };
+  }, [loadPanelContent]);
 
   const open = useCallback(() => {
     setState((current) => ({ ...current, panelOpen: true }));
