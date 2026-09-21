@@ -5,6 +5,7 @@ import { loadCoachRelationships } from "../../api/coachWorkspaceClient";
 import { loadCoachOrgMemberships } from "../../api/accountRelationshipsClient";
 import { createAttendanceEvent, loadSharedOrgAcceptedAthletes, type RecurrenceRuleInput } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 const CHANGED_EVENT = "kolosseum:attendance-events-changed";
 
@@ -55,30 +56,26 @@ export function useAttendanceEventCreate() {
     );
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const account = await loadAccountDetail();
-        const coachUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
-        if (!coachUserId) return;
-        const relationships = await loadCoachRelationships(coachUserId);
-        if (cancelled) return;
-        setAcceptedAthletes(
-          relationships
-            .filter((relationship) => relationship.relationship_state === "accepted")
-            .map((relationship) => ({
-              athlete_user_id: String(relationship.athlete_user_id ?? ""),
-              display_name: String(relationship.display_name ?? relationship.athlete_user_id ?? "")
-            }))
-        );
-      }
-      catch {
-        // Leave acceptedAthletes empty - the create form simply shows no
-        // invite candidates rather than a hard failure blocking the form.
-      }
-    })();
-    return () => { cancelled = true; };
+  const loadAcceptedAthletes = useCallback(async (signal: { cancelled: boolean }) => {
+    try {
+      const account = await loadAccountDetail();
+      const coachUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
+      if (!coachUserId) return;
+      const relationships = await loadCoachRelationships(coachUserId);
+      if (signal.cancelled) return;
+      setAcceptedAthletes(
+        relationships
+          .filter((relationship) => relationship.relationship_state === "accepted")
+          .map((relationship) => ({
+            athlete_user_id: String(relationship.athlete_user_id ?? ""),
+            display_name: String(relationship.display_name ?? relationship.athlete_user_id ?? "")
+          }))
+      );
+    }
+    catch {
+      // Leave acceptedAthletes empty - the create form simply shows no
+      // invite candidates rather than a hard failure blocking the form.
+    }
   }, []);
 
   // Org-wide creation is only offered when the coach has at least one
@@ -86,28 +83,48 @@ export function useAttendanceEventCreate() {
   // capability's own server-side gate (requireActiveSharedOrgMembership
   // in attendance_event_org_invite_service.ts), so the option never
   // appears only to be rejected on submit.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const memberships = await loadCoachOrgMemberships();
-        if (cancelled) return;
-        setSharedOrgOptions(
-          memberships
-            .filter((membership) => membership.membership_status === "active" && membership.visibility_mode === "shared")
-            .map((membership) => ({
-              org_id: String(membership.org_id ?? ""),
-              org_name: String(membership.org_name ?? membership.org_id ?? "")
-            }))
-        );
-      }
-      catch {
-        // Leave sharedOrgOptions empty - the create form simply omits the
-        // org-wide option rather than a hard failure blocking the form.
-      }
-    })();
-    return () => { cancelled = true; };
+  const loadSharedOrgOptions = useCallback(async (signal: { cancelled: boolean }) => {
+    try {
+      const memberships = await loadCoachOrgMemberships();
+      if (signal.cancelled) return;
+      setSharedOrgOptions(
+        memberships
+          .filter((membership) => membership.membership_status === "active" && membership.visibility_mode === "shared")
+          .map((membership) => ({
+            org_id: String(membership.org_id ?? ""),
+            org_name: String(membership.org_name ?? membership.org_id ?? "")
+          }))
+      );
+    }
+    catch {
+      // Leave sharedOrgOptions empty - the create form simply omits the
+      // org-wide option rather than a hard failure blocking the form.
+    }
   }, []);
+
+  useEffect(() => {
+    const signal = { cancelled: false };
+    loadAcceptedAthletes(signal);
+    loadSharedOrgOptions(signal);
+
+    // This panel mounts unconditionally regardless of route, so a fresh
+    // sign-up/sign-in completing later - while already positioned on the
+    // events view - needs to trigger a real refetch. Otherwise a mount-time
+    // fetch that ran pre-auth (a 401, swallowed into "leave empty" above)
+    // leaves the form stuck with no invite candidates/org options until the
+    // user happens to navigate away and back - same bug class already
+    // fixed for useAccountDetail.ts/useAthleteOnboarding.ts/
+    // useCoachOnboarding.ts/useCommercialAccount.ts.
+    function handleAuthSucceeded() {
+      loadAcceptedAthletes({ cancelled: false });
+      loadSharedOrgOptions({ cancelled: false });
+    }
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    return () => {
+      signal.cancelled = true;
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, handleAuthSucceeded);
+    };
+  }, [loadAcceptedAthletes, loadSharedOrgOptions]);
 
   useEffect(() => {
     if (inviteScope !== "org" || !selectedOrgId) {

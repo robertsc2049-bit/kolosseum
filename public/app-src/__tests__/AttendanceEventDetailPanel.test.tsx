@@ -43,6 +43,33 @@ test("shows a factual empty state when the coach has no events yet", async () =>
   await waitFor(() => screen.getByText("No events created yet."));
 });
 
+test("refetches once a same-tab sign-in completes, replacing a pre-auth error with the real events list", async () => {
+  // This panel is always-mounted regardless of route, so a mount-time
+  // fetch that ran pre-auth (401, mapped to a factual error here) left it
+  // stuck until the user navigated away and back - same bug class already
+  // fixed for useAccountDetail.ts/useCommercialAccount.ts and others.
+  let authed = false;
+  installMocks(({ input }) => {
+    const path = String(input);
+    if (path === "/attendance-events") {
+      return authed
+        ? jsonResponse({ ok: true, events: [{ event_id: "attendance_event_1", title: "Saturday class", status: "active" }] })
+        : jsonResponse({ error: "account_session_missing" }, false, 401);
+    }
+    return null;
+  });
+
+  render(<AttendanceEventDetailPanel />);
+  await waitFor(() => screen.getByText("Sign in to continue."));
+
+  authed = true;
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "sign_in" } }));
+  });
+
+  await waitFor(() => screen.getByText("Saturday class"));
+});
+
 test("lists the coach's own events and opens the selected event's detail with its roster", async () => {
   installMocks(({ input }) => {
     const path = String(input);
