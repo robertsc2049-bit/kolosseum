@@ -215,6 +215,57 @@ test("opening a notification with an unavailable target does not dispatch a navi
   assert.equal(dispatched, false);
 });
 
+test("the bell refreshes its unread count when a live message-received event fires while the panel is closed", async () => {
+  installMocks({ unreadCount: 0 });
+  render(<NotificationBellPanel />);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(document.querySelector(".notification-unread-badge")?.hasAttribute("hidden"), true);
+
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    if (path === "/account/notifications/unread-count") return jsonResponse({ unread_count: 1 });
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:athlete-coach-message-received", { detail: { thread: {}, message: {} } }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  assert.equal(document.querySelector(".notification-unread-badge")?.hasAttribute("hidden"), false);
+});
+
+test("an already-open panel refetches its full content (not just the count) when a live message-received event fires", async () => {
+  installMocks({ unreadCount: 0, notifications: [] });
+  render(<NotificationBellPanel />);
+  await act(async () => {
+    fireEvent.click(screen.getByLabelText("Open notifications"));
+  });
+  await screen.findByText("No notifications yet.");
+
+  let notificationsRequestCount = 0;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? "GET";
+    if (path === "/account/notifications" && method === "GET") {
+      notificationsRequestCount += 1;
+      return jsonResponse({ notifications: [notification()], unread_count: 1 });
+    }
+    if (path === "/account/notifications/unread-count") return jsonResponse({ unread_count: 1 });
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1", actor_type: "coach" }, csrf_token: "csrf" });
+    if (path.startsWith("/coach-workspace/relationships?")) return jsonResponse({ relationships: [] });
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:coach-athlete-message-received", { detail: { thread: {}, message: {} } }));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+
+  await screen.findByText("Relationship accepted");
+  assert.equal(notificationsRequestCount, 1);
+});
+
 test("opening a notification with a real target dispatches the navigation bridge event with its deep_link", async () => {
   installMocks({ notifications: [notification()] });
   render(<NotificationBellPanel />);
