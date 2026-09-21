@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadProgressInsights } from "../../api/athleteProgressInsightsClient";
 import { loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-36 athlete's own progress insights - independently
 // fetched, listens for kolosseum:history-changed (dispatched by app.js's
@@ -55,8 +56,10 @@ export function useProgressInsights() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

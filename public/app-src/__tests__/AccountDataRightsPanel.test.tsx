@@ -97,6 +97,17 @@ test("shows service unavailable only when both reads fail, and retry re-fetches"
   await waitFor(() => screen.getByText("No export requested yet."));
 });
 
+test("refetches once a same-tab sign-in completes, replacing a pre-auth error with real data", async () => {
+  installMocks({ exportStatusFails: true, deletionStatusFails: true });
+  render(<AccountDataRightsPanel />);
+
+  await waitFor(() => screen.getByText("Data rights status could not be loaded."));
+
+  installMocks({});
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  await waitFor(() => screen.getByText("No export requested yet."));
+});
+
 test("one failing read does not hide the other's successfully-loaded data", async () => {
   installMocks({ exportStatusFails: true, deletionRequests: [{ deletion_request_id: "d1", reason_code: "user_requested_erasure", queue_status: "queued_for_review", requested_at_iso8601: "2026-08-20T10:00:00.000Z", retention_boundary: { retained_record_count: 3 } }] });
   render(<AccountDataRightsPanel />);

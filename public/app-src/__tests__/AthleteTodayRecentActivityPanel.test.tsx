@@ -99,3 +99,17 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await screen.findByText("Training session");
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks([]);
+  render(<AthleteTodayRecentActivityList />);
+  await screen.findByText("No recent sessions are recorded.");
+
+  installMocks([{ session_id: "s1", status: "completed", runtime_event_count: 1, created_at: "2026-01-05T10:00:00.000Z" }]);
+
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await screen.findByText("Training session");
+});

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachRelationships, loadCoachReviews, submitCoachNote, submitCoachSessionReview } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-17 coach review queue - ported from app.js's
 // refreshCoachReviewQueue()/renderCoachReviewWorkspace()/
@@ -172,6 +173,10 @@ export function useCoachReview() {
 
   useEffect(() => {
     refresh();
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   useEffect(() => {

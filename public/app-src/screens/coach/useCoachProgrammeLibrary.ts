@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachAssignments, loadCoachTemplates } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-05A programme library (read-only) - the metric cards,
 // search/filter/sort and card list. Ported from public/app/app.js's
@@ -67,8 +68,10 @@ export function useCoachProgrammeLibrary() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

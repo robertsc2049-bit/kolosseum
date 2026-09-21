@@ -179,3 +179,19 @@ test("refetches when kolosseum:athlete-directory-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Jordan Lee"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installRoster([]);
+  render(<CoachProgressOverviewPanel />);
+  await waitFor(() => screen.getByText(/No connected athletes yet/u));
+
+  installRoster([
+    { athlete_user_id: "athlete_1", display_name: "Jordan Lee", insights: { session_adherence: { series: [] } } }
+  ]);
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Jordan Lee"));
+});

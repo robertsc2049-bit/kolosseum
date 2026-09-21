@@ -177,6 +177,20 @@ test("shows the service-unavailable state with a working retry button", async ()
   await waitFor(() => screen.getByText("Start session"));
 });
 
+test("refetches once a same-tab sign-in completes, replacing a pre-auth error with real session state", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionFails: true });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => assert.equal(screen.getAllByText("Session could not be loaded").length, 2));
+
+  installMocks({ sessionFails: false });
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+  await waitFor(() => screen.getByText("Start session"));
+});
+
 test("loads the session and shows Start session before the session has started", async () => {
   seedActiveSession("session_1");
   installMocks({});

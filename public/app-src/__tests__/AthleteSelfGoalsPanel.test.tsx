@@ -241,3 +241,17 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Run a 5k"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfGoalsPanel />);
+  await waitFor(() => screen.getByText("No goals yet."));
+
+  installMocks({ goals: [{ goal_id: "goal_1", goal_label: "Run a 5k", status: "active" }] });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Run a 5k"));
+});

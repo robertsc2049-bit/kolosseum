@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachAssignments, loadCoachRelationships } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: whole-workspace read for the Coach Overview dashboard's
 // "Action queue" panel (part of FULL-UI-03) - ported from app.js's
@@ -74,8 +75,10 @@ export function useCoachOverviewAssignments() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

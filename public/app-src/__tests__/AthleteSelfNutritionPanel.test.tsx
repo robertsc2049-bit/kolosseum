@@ -140,3 +140,17 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText(/Calories 2200 kcal/u));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfNutritionPanel />);
+  await waitFor(() => screen.getByText("No nutrition entries yet."));
+
+  installMocks({
+    entries: [{ record_sha256: "m1", metric_type: "calories_kcal", value: 2200, effective_date: "2026-08-20" }]
+  });
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => screen.getByText(/Calories 2200 kcal/u));
+});

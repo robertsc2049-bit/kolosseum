@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadAthleteStrengthProfile, loadCoachAssignments, loadCoachRelationships } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 // DEV NOTE: reused verbatim rather than re-derived - the same canonical
 // current-strength-reference count the backend computes, exactly as
 // AthleteStrengthProfilePanel.tsx/useAthleteProfileAssignment.ts already
@@ -126,8 +127,10 @@ export function useCoachOverviewAthletes() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 

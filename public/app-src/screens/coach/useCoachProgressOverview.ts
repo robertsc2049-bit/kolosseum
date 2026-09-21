@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { loadCoachProgressRollup } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: progress graphs slice 3 - a roster-wide overview of the
 // coach's own athletes, reusing the same "roster changed" signal
@@ -42,7 +43,11 @@ export function useCoachProgressOverview() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
-    return () => document.removeEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    return () => {
+      document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
+    };
   }, [refresh]);
 
   return { ...state, retry: refresh };

@@ -214,3 +214,17 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => screen.getByText("Fresh"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<AthleteSelfProgressPhotosPanel />);
+  await waitFor(() => screen.getByText("No progress photos yet."));
+
+  installMocks({
+    photos: [{ photo_id: "p1", url: "/p1", taken_at_iso8601: "2026-08-20T00:00:00.000Z", byte_size: 1000, caption: "Fresh" }]
+  });
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => screen.getByText("Fresh"));
+});

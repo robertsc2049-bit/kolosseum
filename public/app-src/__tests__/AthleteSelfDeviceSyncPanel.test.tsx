@@ -171,3 +171,19 @@ test("refetches when kolosseum:history-changed fires", async () => {
 
   await waitFor(() => assert.equal(document.querySelector(".record-card strong")?.textContent, "Garmin"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ connections: [] });
+  render(<AthleteSelfDeviceSyncPanel />);
+  await waitFor(() => screen.getByText("No connected devices yet."));
+
+  installMocks({
+    connections: [{ connection_id: "conn_1", provider: "garmin", connection_status: "active", updated_at_iso8601: "2026-01-05T10:00:00.000Z" }]
+  });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => assert.equal(document.querySelector(".record-card strong")?.textContent, "Garmin"));
+});

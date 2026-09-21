@@ -388,6 +388,20 @@ test("refetches when kolosseum:history-changed fires", async () => {
   await waitFor(() => screen.getByText("Training session"));
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ sessions: [] });
+  render(<AthleteHistoryPanel />);
+  await waitFor(() => screen.getByText("No sessions recorded"));
+
+  installMocks({ sessions: [{ session_id: "s1", execution_status: "completed", created_at: "2026-01-05T10:00:00.000Z" }] });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("Training session"));
+});
+
 test("kolosseum:history-detail-route opens the matching session's detail directly", async () => {
   installMocks({
     sessions: [{ session_id: "s1", execution_status: "completed", created_at: "2026-01-05T10:00:00.000Z" }],

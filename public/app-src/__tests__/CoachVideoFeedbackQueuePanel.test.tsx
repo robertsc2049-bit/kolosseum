@@ -68,6 +68,23 @@ test("shows a factual empty state when no submissions are pending", async () => 
   assert.ok(screen.getByText("No pending video submissions."));
 });
 
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({});
+  render(<CoachVideoFeedbackQueuePanel />);
+  await waitFor(() => screen.getByText("No pending video submissions"));
+
+  installMocks({
+    submissions: [
+      { submission_id: "sub_1", exercise_label: "Back Squat", athlete_user_id: "athlete_1", created_at: "2026-08-20T10:00:00.000Z", url: "/sub_1/media", caption: "Depth check" }
+    ],
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Jordan Lee" }]
+  });
+
+  document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+
+  await waitFor(() => assert.equal(cardHeading(), "Back Squat"));
+});
+
 test("renders a queue card with exercise, athlete name and date, and auto-selects the first submission's detail", async () => {
   installMocks({
     submissions: [

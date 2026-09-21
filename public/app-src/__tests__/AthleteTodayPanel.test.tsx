@@ -272,3 +272,17 @@ test("refetches when kolosseum:today-changed fires", async () => {
 
   await waitFor(() => screen.getByText("No session is open"));
 });
+
+test("refetches once a same-tab sign-in completes", async () => {
+  installMocks({ state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] });
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => screen.getByText("No active programme"));
+
+  installMocks({ state: "no_session", assignment: null, session: null, event: null, notes: [] });
+
+  act(() => {
+    document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded"));
+  });
+
+  await waitFor(() => screen.getByText("No session is open"));
+});

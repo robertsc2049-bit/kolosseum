@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadAthleteHistoryList } from "../../api/athleteHistoryClient";
 import { type JsonRecord } from "../../api/transport";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: Today's "Recent activity" preview (FULL-UI-14C) - independently
 // fetches the same /sessions/beta-athlete-history endpoint
@@ -54,8 +55,10 @@ export function useAthleteTodayRecentActivity() {
   useEffect(() => {
     refresh();
     document.addEventListener(CHANGED_EVENT, refresh);
+    document.addEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     return () => {
       document.removeEventListener(CHANGED_EVENT, refresh);
+      document.removeEventListener(ENTRY_AUTH_SUCCEEDED_EVENT, refresh);
     };
   }, [refresh]);
 
