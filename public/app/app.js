@@ -4406,7 +4406,14 @@ function templateDraftValidationRecord() {
 
 function currentTemplateBuilderIssues() {
   const record = templateDraftValidationRecord();
-  return record ? programmeActivationIssues(record) : [];
+  // A non-draft record's only possible "issue" is the permanent, never-
+  // resolvable "only_draft_can_complete" (the save-complete button is
+  // already hidden entirely once status isn't draft) - treat it as
+  // clean here so the outer wrapper doesn't show a stale "warning" state
+  // for an already-completed/activated programme. See
+  // CoachProgrammeBuilderValidationList.tsx's matching guard.
+  if (!record || record.template_status !== "draft") return [];
+  return programmeActivationIssues(record);
 }
 
 function templateValidationSelector(issue) {
@@ -5341,10 +5348,17 @@ async function completeOpenTemplate() {
   const completed = await completeTemplateById(templateId);
 
   if (completed) {
+    // preserveBaseline is deliberately omitted here (unlike the other
+    // openTemplateBuilder() call sites above): `completed` is a fresh,
+    // just-persisted server record with a different template_status than
+    // the pre-completion draft snapshot saveTemplateDraft() took a moment
+    // earlier, so the baseline must reset to match it - otherwise
+    // templateDraftIsDirty() spuriously compares against the stale
+    // draft-status snapshot and shows "Unsaved changes" for a template
+    // that was just successfully saved and completed.
     openTemplateBuilder(
       templateRecordToDraft(completed),
       {
-        preserveBaseline: true,
         skipRecoveryCheck: true
       }
     );

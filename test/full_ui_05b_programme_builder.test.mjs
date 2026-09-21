@@ -105,6 +105,33 @@ test("FULL-UI-05B links every visible validation issue to a builder field", () =
   assert.match(app, /builder-validation-target/u);
 });
 
+test("FULL-UI-05B a just-completed template's builder correctly resets its dirty/unsaved-changes baseline, and the validation list stops showing the unresolvable draft-only issue", () => {
+  // Regression: completeOpenTemplate()'s final openTemplateBuilder() call
+  // used to pass preserveBaseline: true, which skipped resetting
+  // templateDraftSavedSnapshot to match the just-completed template - so
+  // templateDraftIsDirty() compared the new (now "complete"-status) draft
+  // against a stale "draft"-status snapshot taken moments earlier by
+  // saveTemplateDraft(), and always came back dirty. The other two
+  // legitimate preserveBaseline: true callers (recovered-draft reopening,
+  // resumeRecoveredTemplateDraft()) are untouched by this check.
+  const completeOpenTemplateBody = app.slice(
+    app.indexOf("async function completeOpenTemplate("),
+    app.indexOf("async function activateTemplateById(")
+  );
+  assert.doesNotMatch(completeOpenTemplateBody, /preserveBaseline:\s*true/u);
+  assert.match(completeOpenTemplateBody, /templateRecordToDraft\(completed\)/u);
+
+  // currentTemplateBuilderIssues() drives the outer #templateBuilderValidation
+  // wrapper's warning/complete class - it must also treat a non-draft
+  // record as clean (no issues), matching CoachProgrammeBuilderValidationList.tsx's
+  // own guard below, rather than perpetually reporting the single
+  // unresolvable "only a draft programme can be marked complete" issue as
+  // an outstanding warning once a programme is already complete/active.
+  assert.match(app, /record\.template_status !== "draft"\) return \[\]/u);
+  assert.match(validationList, /draft\.template_status !== "draft"/u);
+  assert.match(validationList, /Completion checks apply to draft versions only\./u);
+});
+
 test("FULL-UI-05B supports keyboard and phone operation", () => {
   assert.match(app, /event\.key\.toLowerCase\(\) === "s"/u);
   assert.match(app, /event\.key === "Escape"/u);

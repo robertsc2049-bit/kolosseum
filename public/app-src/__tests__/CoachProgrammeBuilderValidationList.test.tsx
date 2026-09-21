@@ -197,6 +197,22 @@ test("re-renders when the legacy builder broadcasts an updated (now-fixed) draft
   await screen.findByText(/All checks pass/u);
 });
 
+test("shows a clean informational message instead of the unresolvable draft-only issue once a programme is no longer a draft", async () => {
+  // Regression test: completing a draft used to leave this list showing
+  // "Only a draft programme can be marked complete" as if it were an
+  // unresolved checklist item - permanently true and unactionable once
+  // status isn't "draft" (the save-complete button is already hidden by
+  // then), and confusingly worded as an "issue to resolve". Mirrors
+  // CoachProgrammeValidationPanel.tsx's own equivalent guard for the
+  // persisted-template detail view.
+  installMocks();
+  render(<CoachProgrammeBuilderValidationList />);
+  await broadcast(draftWithWorkItem({}, { template_status: "complete" }));
+
+  await screen.findByText("Completion checks apply to draft versions only.");
+  assert.equal(screen.queryByText(/Only a draft programme/u), null);
+});
+
 test("clears back to nothing once the legacy builder broadcasts a null draft (closed)", async () => {
   installMocks();
   const { container } = render(<CoachProgrammeBuilderValidationList />);
