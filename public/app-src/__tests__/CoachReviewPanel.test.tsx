@@ -321,6 +321,34 @@ test("an athlete name and session title containing markup render as inert text, 
   assert.equal(document.querySelectorAll(".review-record-card img").length, 0);
 });
 
+// Regression test: this note-caption line used to be a single hardcoded
+// "Private note..." string rendered under EVERY note regardless of its
+// actual visibility, directly contradicting the badge right above it
+// (which does correctly read note.visibility) for any athlete-visible
+// note - found during a live walkthrough.
+test("each coach note's caption matches its own visibility badge, not a hardcoded 'Private note' for every note", async () => {
+  installMocks({
+    records: [baseRecord({
+      notes: [
+        { note_id: "note_public", note_text: "Great squat depth today.", visibility: "athlete_visible", created_at: "2026-08-20T10:05:00.000Z" },
+        { note_id: "note_private", note_text: "Consider a deload next week.", visibility: "coach_private", created_at: "2026-08-20T10:06:00.000Z" }
+      ],
+      note_count: 2
+    })]
+  });
+  render(<CoachReviewPanel />);
+
+  await screen.findByText("Great squat depth today.");
+  const publicCard = screen.getByText("Great squat depth today.").closest(".review-note-card") as HTMLElement;
+  assert.ok(publicCard.textContent?.includes("Athlete visible"));
+  assert.ok(publicCard.textContent?.includes("Visible to the athlete"));
+  assert.equal(publicCard.textContent?.includes("Private note"), false, "an athlete-visible note must never be captioned as private");
+
+  const privateCard = screen.getByText("Consider a deload next week.").closest(".review-note-card") as HTMLElement;
+  assert.ok(privateCard.textContent?.includes("Coach only"));
+  assert.ok(privateCard.textContent?.includes("Private note"));
+});
+
 // DEV NOTE: GET /coach-workspace/reviews already computes reviewed_at_iso8601
 // server-side (the coach's own latest product_session_reviews row), distinct
 // from the session's updated_at - a reviewed session's own record can be
