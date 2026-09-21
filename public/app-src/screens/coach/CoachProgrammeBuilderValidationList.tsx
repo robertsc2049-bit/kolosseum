@@ -22,6 +22,20 @@ export function CoachProgrammeBuilderValidationList() {
   const { draft, templateExercises } = useProgrammeBuilderDraft();
   if (!draft) return null;
 
+  // Mirrors CoachProgrammeValidationPanel.tsx's own guard: once a
+  // programme is no longer a draft, the only "issue" programmeActivationIssues()
+  // could ever report is the permanent, unresolvable "only a draft
+  // programme can be marked complete" - showing that as a checklist item
+  // to "resolve" is misleading, since the save-complete action is already
+  // hidden entirely for a non-draft status.
+  if (draft.template_status !== "draft") {
+    return (
+      <li className="template-builder-validation-pass">
+        Completion checks apply to draft versions only.
+      </li>
+    );
+  }
+
   const issues = programmeActivationIssues(draftToValidationRecord(draft), templateExercises);
 
   if (issues.length === 0) {
