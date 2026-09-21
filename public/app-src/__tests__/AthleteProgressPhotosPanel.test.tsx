@@ -68,6 +68,26 @@ test("renders nothing until the coach opens an athlete's profile", () => {
   assert.equal(document.body.textContent, "");
 });
 
+test("shows the athlete's chosen calendar day regardless of the viewer's local timezone", async () => {
+  // Regression test - see the matching test in AthleteSelfProgressPhotosPanel.test.tsx
+  // for the full explanation: taken_at_iso8601 is always a full
+  // timestamp, so formatDate() previously rendered a UTC-midnight
+  // "date taken" in the viewer's own local time, showing the wrong
+  // calendar day for any coach west of UTC.
+  const originalTz = process.env.TZ;
+  process.env.TZ = "America/Los_Angeles";
+  try {
+    await openPanel([photo({ caption: "Week 4 check-in", taken_at_iso8601: "2026-08-20T00:00:00.000Z" })]);
+    await waitFor(() => screen.getByText("Week 4 check-in"));
+
+    assert.match(document.body.textContent ?? "", /20 Aug 2026/u);
+    assert.doesNotMatch(document.body.textContent ?? "", /19 Aug 2026/u);
+  }
+  finally {
+    process.env.TZ = originalTz;
+  }
+});
+
 test("displays each photo with its date, human-readable size and caption", async () => {
   await openPanel([photo({ caption: "Week 4 check-in" })]);
 
