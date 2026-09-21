@@ -61,6 +61,37 @@ test("shows a factual empty state when no photos are uploaded", async () => {
   await waitFor(() => screen.getByText("No progress photos yet."));
 });
 
+test("shows the athlete's chosen calendar day regardless of the viewer's local timezone", async () => {
+  // Regression test: taken_at_iso8601 is always a full timestamp - UTC
+  // midnight for a client-picked "Date taken" with no time-of-day
+  // meaning of its own. formatDate() only skips local-timezone
+  // conversion for a bare "YYYY-MM-DD" string, so passing the full
+  // timestamp through unmodified used to render this UTC-midnight value
+  // in the viewer's own local time - for any athlete west of UTC, a
+  // "20 Aug" pick displayed as "19 Aug" evening, the wrong calendar day
+  // entirely. Forcing a real negative-offset timezone here (rather than
+  // relying on whatever the CI/dev machine's own TZ happens to be)
+  // reproduces that failure mode deterministically.
+  const originalTz = process.env.TZ;
+  process.env.TZ = "America/Los_Angeles";
+  try {
+    installMocks({
+      photos: [
+        { photo_id: "p1", url: "/progress-photos/p1/file", taken_at_iso8601: "2026-08-20T00:00:00.000Z", byte_size: 204800, caption: "Week 4" }
+      ]
+    });
+
+    render(<AthleteSelfProgressPhotosPanel />);
+    await waitFor(() => screen.getByText("Week 4"));
+
+    await screen.findByText(/20 Aug 2026/u);
+    assert.equal(screen.queryByText(/19 Aug 2026/u), null);
+  }
+  finally {
+    process.env.TZ = originalTz;
+  }
+});
+
 test("renders a photo card with date and byte size", async () => {
   installMocks({
     photos: [

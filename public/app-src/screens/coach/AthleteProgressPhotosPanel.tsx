@@ -4,6 +4,17 @@ import { type JsonRecord } from "../../api/transport";
 import { formatAttachmentSize, formatDate } from "../../utils/format";
 import { useAthleteProgressPhotos } from "./useAthleteProgressPhotos";
 
+// taken_at_iso8601 is always a full timestamp (either a genuine upload
+// moment, when the athlete left "Date taken" blank, or UTC midnight for
+// whichever day they picked, when they didn't - see
+// AthleteSelfProgressPhotosPanel.tsx's matching DEV NOTE). formatDate()
+// only skips its local-timezone conversion for a bare "YYYY-MM-DD"
+// string, so slicing to the date portion first avoids rendering the
+// UTC-midnight case a day off in the viewer's own local timezone.
+function takenAtDateOnly(photo: JsonRecord): string {
+  return String(photo.taken_at_iso8601 ?? "").slice(0, 10);
+}
+
 function PhotoCard({
   photo,
   selected,
@@ -18,7 +29,7 @@ function PhotoCard({
   return (
     <article className={`progress-photo-card${selected ? " selected" : ""}`}>
       <img src={String(photo.url)} alt="Progress photo" loading="lazy" />
-      <span className="muted small">{formatDate(photo.taken_at_iso8601)}</span>
+      <span className="muted small">{formatDate(takenAtDateOnly(photo))}</span>
       {sizeLabel ? <span className="muted small">{sizeLabel}</span> : null}
       {photo.caption ? <p>{String(photo.caption)}</p> : null}
       <button
@@ -38,7 +49,7 @@ function ComparisonSide({ photo }: { photo: JsonRecord }) {
     <figure className="progress-photo-comparison-side">
       <img src={String(photo.url)} alt="Progress photo" />
       <figcaption>
-        <span className="muted small">{formatDate(photo.taken_at_iso8601)}</span>
+        <span className="muted small">{formatDate(takenAtDateOnly(photo))}</span>
         {photo.caption ? <p>{String(photo.caption)}</p> : null}
       </figcaption>
     </figure>

@@ -14,6 +14,21 @@ import { useAthleteProgressPhotosSelf } from "./useAthleteProgressPhotosSelf";
 // legacy's localStorage-persisted state.progressPhotoCompareIds - losing
 // "survives a page reload" for a two-photo scratch selection isn't worth
 // inventing this migration's only localStorage-backed hook for.
+//
+// taken_at_iso8601 is always a full timestamp (either a genuine upload
+// moment, when the athlete leaves "Date taken" blank, or new
+// Date(dateOnlyString).toISOString() - UTC midnight for whatever day the
+// athlete picked, when they don't). formatDate() only skips its
+// local-timezone conversion for a bare "YYYY-MM-DD" string, so passing
+// the full timestamp through unmodified rendered the UTC-midnight case in
+// the viewer's own local time - for any athlete west of UTC, a "20 Sept"
+// pick displayed as "19 Sept" evening. Slicing to the date portion first
+// keeps both cases showing the calendar day the record actually
+// represents, matching every other date-only field in this section.
+function takenAtDateOnly(photo: JsonRecord): string {
+  return String(photo.taken_at_iso8601 ?? "").slice(0, 10);
+}
+
 function PhotoCard({
   photo,
   selected,
@@ -28,7 +43,7 @@ function PhotoCard({
   return (
     <article className={`progress-photo-card${selected ? " selected" : ""}`}>
       <img src={String(photo.url)} alt="Progress photo" loading="lazy" />
-      <span className="muted small">{formatDate(photo.taken_at_iso8601)}</span>
+      <span className="muted small">{formatDate(takenAtDateOnly(photo))}</span>
       {sizeLabel ? <span className="muted small">{sizeLabel}</span> : null}
       {photo.caption ? <p>{String(photo.caption)}</p> : null}
       <button
@@ -48,7 +63,7 @@ function ComparisonSide({ photo }: { photo: JsonRecord }) {
     <figure className="progress-photo-comparison-side">
       <img src={String(photo.url)} alt="Progress photo" />
       <figcaption>
-        <span className="muted small">{formatDate(photo.taken_at_iso8601)}</span>
+        <span className="muted small">{formatDate(takenAtDateOnly(photo))}</span>
         {photo.caption ? <p>{String(photo.caption)}</p> : null}
       </figcaption>
     </figure>
