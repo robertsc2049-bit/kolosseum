@@ -25,6 +25,7 @@ export function AccountSupportPanel() {
     reportOpen,
     reportContext,
     reports,
+    reportsLoading,
     submitting,
     resultText,
     checkPlatformStatus,
@@ -138,7 +139,9 @@ export function AccountSupportPanel() {
             <p className="eyebrow">Support history</p>
             <h4>Your submitted reports</h4>
           </div>
-          {reports.length === 0 ? (
+          {reportsLoading && reports.length === 0 ? (
+            <p className="muted small">Loading your submitted reports…</p>
+          ) : reports.length === 0 ? (
             <div className="empty-state compact-empty"><p>No problems reported yet.</p></div>
           ) : (
             <div className="record-list compact-record-list">
