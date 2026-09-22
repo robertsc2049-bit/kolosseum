@@ -77,9 +77,12 @@ export function useCoachOverviewMetrics() {
       ).length;
 
       const today = todayDateOnly();
+      // Matches CoachOverviewEventsPanel.tsx's own "upcoming" definition -
+      // a cancelled or archived event isn't something the coach still
+      // needs to prepare for, even if its date hasn't passed yet.
       const upcomingEventCount = events.filter((eventRecord) => {
         const eventDate = eventDateOf(eventRecord);
-        return eventDate && eventDate >= today;
+        return eventDate && eventDate >= today && eventRecord.event_status === "active";
       }).length;
 
       setState({

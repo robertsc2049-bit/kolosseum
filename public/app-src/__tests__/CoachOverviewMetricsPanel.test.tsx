@@ -80,8 +80,26 @@ test("counts only events on or after today as upcoming", async () => {
   const past = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
   installMocks({
     events: [
-      { event_id: "e1", event_plan: { event_date: future } },
-      { event_id: "e2", event_plan: { event_date: past } }
+      { event_id: "e1", event_status: "active", event_plan: { event_date: future } },
+      { event_id: "e2", event_status: "active", event_plan: { event_date: past } }
+    ]
+  });
+  render(<CoachOverviewMetricsPanel />);
+  await screen.findByText("Connected athletes");
+  const upcoming = [...document.querySelectorAll(".metric-card strong")].at(-1);
+  assert.equal(upcoming?.textContent, "1");
+});
+
+// Regression test: a future-dated cancelled event used to still count
+// toward this metric, since the filter was purely date-based - see
+// CoachOverviewEventsPanel.tsx's matching "Upcoming events" list fix.
+test("excludes a cancelled or archived event from the upcoming count even with a future date", async () => {
+  const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  installMocks({
+    events: [
+      { event_id: "e1", event_status: "active", event_plan: { event_date: future } },
+      { event_id: "e2", event_status: "cancelled", event_plan: { event_date: future } },
+      { event_id: "e3", event_status: "archived", event_plan: { event_date: future } }
     ]
   });
   render(<CoachOverviewMetricsPanel />);
@@ -114,7 +132,7 @@ test("refetches when kolosseum:coach-events-changed fires", async () => {
   await screen.findByText("Connected athletes");
 
   const future = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
-  installMocks({ events: [{ event_id: "e1", event_plan: { event_date: future } }] });
+  installMocks({ events: [{ event_id: "e1", event_status: "active", event_plan: { event_date: future } }] });
   await act(async () => {
     document.dispatchEvent(new CustomEvent("kolosseum:coach-events-changed"));
   });
