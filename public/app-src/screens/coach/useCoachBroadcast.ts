@@ -28,6 +28,18 @@ const initialState: CoachBroadcastState = {
 export function useCoachBroadcast() {
   const [state, setState] = useState<CoachBroadcastState>(initialState);
   const [broadcastId, setBroadcastId] = useState<string | null>(null);
+  // DEV NOTE: lazily created ONCE per compose session (not inside send()
+  // itself) so a genuine double-submit - a fast double-click before
+  // submitting disables the button, or a network-level retry - reuses
+  // the SAME id for both attempts, rather than each call minting its own
+  // fresh random one. sendCoachBroadcastMessage now reuses a client-
+  // supplied id as-is instead of always generating a random broadcastId,
+  // so a resend with this same id becomes a no-op at the database level
+  // (sendCoachAthleteMessage's own per-thread idempotency) instead of a
+  // real duplicate message landing in every athlete's thread - confirmed
+  // live: two genuinely-parallel sends used to double up every athlete's
+  // message.
+  const [clientRequestId, setClientRequestId] = useState<string>(() => crypto.randomUUID());
 
   const refreshReadStatus = useCallback(async (id: string) => {
     try {
@@ -69,8 +81,13 @@ export function useCoachBroadcast() {
     try {
       const account = await loadAccountDetail();
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      const result = await sendCoachBroadcast(trimmed, csrfToken);
+      const result = await sendCoachBroadcast(trimmed, clientRequestId, csrfToken);
       const sentCount = Number(result.sent_count) || 0;
+
+      // A fresh id for the NEXT broadcast this coach deliberately sends -
+      // only a genuine resend of THIS SAME attempt should ever reuse
+      // clientRequestId.
+      setClientRequestId(crypto.randomUUID());
 
       setState({
         submitting: false,
@@ -95,7 +112,7 @@ export function useCoachBroadcast() {
       setState((current) => ({ ...current, submitting: false }));
       return false;
     }
-  }, [refreshReadStatus]);
+  }, [clientRequestId, refreshReadStatus]);
 
   const refresh = useCallback(() => {
     if (broadcastId) return refreshReadStatus(broadcastId);

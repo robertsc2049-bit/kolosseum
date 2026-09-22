@@ -134,7 +134,7 @@ messagingRouter.post(
   "/coach/broadcast",
   asyncHandler(async (request, response) => {
     const coachUserId = await authenticatedCoach(request, true);
-    const result = await sendCoachBroadcastMessage(coachUserId, request.body?.body_text);
+    const result = await sendCoachBroadcastMessage(coachUserId, request.body?.body_text, request.body?.client_request_id);
     return response.status(201).json({ ok: true, ...result });
   })
 );
