@@ -44,7 +44,8 @@ const state = {
 // bundle, matching its own established convention.
 const POSITION_OPTIONS_BY_ACTIVITY = {
   rugby_union: [
-    ["prop", "Prop"], ["hooker", "Hooker"], ["lock", "Lock"], ["flanker", "Flanker"],
+    ["loosehead_prop", "Loosehead prop"], ["tighthead_prop", "Tighthead prop"],
+    ["hooker", "Hooker"], ["lock", "Lock"], ["flanker", "Flanker"],
     ["number8", "Number 8"], ["scrum_half", "Scrum-half"], ["fly_half", "Fly-half"],
     ["centre", "Centre"], ["wing", "Wing"], ["fullback", "Fullback"]
   ],

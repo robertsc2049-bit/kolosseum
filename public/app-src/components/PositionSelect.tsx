@@ -9,7 +9,8 @@ import React from "react";
 // value, not zero-or-more.
 export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string; label: string }[]> = {
   rugby_union: [
-    { id: "prop", label: "Prop" },
+    { id: "loosehead_prop", label: "Loosehead prop" },
+    { id: "tighthead_prop", label: "Tighthead prop" },
     { id: "hooker", label: "Hooker" },
     { id: "lock", label: "Lock" },
     { id: "flanker", label: "Flanker" },

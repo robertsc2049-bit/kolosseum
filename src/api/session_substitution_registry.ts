@@ -5,6 +5,10 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import {
+  RUGBY_UNION_POSITION_SUBSTITUTION_PROFILE,
+  type RugbyUnionPositionExclusionEntry
+} from "./rugby_union_position_substitution_profile.js";
 
 const EXERCISE_REGISTRY_PATH = path.join(
   process.cwd(),
@@ -153,6 +157,30 @@ function isExplicitlyEligible(exerciseId: string, activityId: string, rows: Reco
   return row?.applicability_state === "allowed" && row?.substitution_applicability === "eligible";
 }
 
+// Position is a pure, optional narrowing filter over an already
+// activity-eligible substitution pool - see the DEV NOTE atop
+// rugby_union_position_substitution_profile.ts. It has no bearing on
+// eligibility itself (isExplicitlyEligible/isKnownSubstitutionExerciseId
+// are unaffected) and is only ever consulted inside buildV1SubstitutionInput.
+export function positionExclusionEntry(
+  activityId: string,
+  position: string | null | undefined
+): RugbyUnionPositionExclusionEntry | null {
+  if (!position) return null;
+  return RUGBY_UNION_POSITION_SUBSTITUTION_PROFILE[`${activityId}__${position}`] ?? null;
+}
+
+export function isExcludedForPosition(
+  exerciseId: string,
+  entry: RugbyUnionPositionExclusionEntry | null,
+  exercises: Record<string, { movement_pattern_id?: string }>
+): boolean {
+  if (!entry) return false;
+  if (entry.excluded_exercise_ids?.includes(exerciseId)) return true;
+  const movementId = exercises[exerciseId]?.movement_pattern_id;
+  return !!movementId && !!entry.excluded_movement_pattern_ids?.includes(movementId);
+}
+
 function outgoingEdges(
   sourceExerciseId: string,
   activityId: string,
@@ -215,7 +243,8 @@ export function isKnownSubstitutionExerciseId(exerciseId: string, activityId: st
 export function buildV1SubstitutionInput(
   sourceExerciseId: string,
   unavailableEquipmentIds: string[],
-  activityId: string
+  activityId: string,
+  position?: string | null
 ): Record<string, unknown> | null {
   const sourceId = typeof sourceExerciseId === "string" ? sourceExerciseId.trim() : "";
   const activity = typeof activityId === "string" ? activityId.trim() : "";
@@ -225,12 +254,24 @@ export function buildV1SubstitutionInput(
   const sourceExercise = projectExercise(sourceId, activity, authority);
   if (!sourceExercise) return null;
 
-  const relevantEdges = outgoingEdges(sourceId, activity, authority.substitutions).filter((edge) => {
+  const relevantEdgesAll = outgoingEdges(sourceId, activity, authority.substitutions).filter((edge) => {
     if (typeof edge.substitution_edge_id !== "string" || edge.substitution_edge_id.length === 0) return false;
     if (typeof edge.target_exercise_id !== "string" || edge.target_exercise_id.length === 0) return false;
     return projectExercise(edge.target_exercise_id, activity, authority) !== null;
   });
-  if (relevantEdges.length === 0) return null;
+  if (relevantEdgesAll.length === 0) return null;
+
+  const exclusionEntry = positionExclusionEntry(activity, position);
+  const relevantEdgesNarrowed = exclusionEntry
+    ? relevantEdgesAll.filter(
+        (edge) => !isExcludedForPosition(edge.target_exercise_id as string, exclusionEntry, authority.exercises)
+      )
+    : relevantEdgesAll;
+  // Narrowing can never reduce the offered set to zero: fall back to the
+  // unnarrowed set so a thin/incomplete position profile degrades to
+  // today's activity-only behaviour rather than wrongly refusing an
+  // otherwise-lawful substitution.
+  const relevantEdges = relevantEdgesNarrowed.length > 0 ? relevantEdgesNarrowed : relevantEdgesAll;
 
   const orderedCandidateIds = [
     sourceId,

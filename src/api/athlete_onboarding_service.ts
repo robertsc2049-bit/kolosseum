@@ -49,8 +49,8 @@ export const ATHLETE_TRAINING_FOCUS_OPTIONS = Object.freeze([
 // athlete's own declared activity_id, independent of any team/org.
 export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly string[]>> = Object.freeze({
   rugby_union: Object.freeze([
-    "prop", "hooker", "lock", "flanker", "number8", "scrum_half",
-    "fly_half", "centre", "wing", "fullback"
+    "loosehead_prop", "tighthead_prop", "hooker", "lock", "flanker", "number8",
+    "scrum_half", "fly_half", "centre", "wing", "fullback"
   ]),
   powerlifting: Object.freeze(["athlete"]),
   general_strength: Object.freeze(["athlete"]),

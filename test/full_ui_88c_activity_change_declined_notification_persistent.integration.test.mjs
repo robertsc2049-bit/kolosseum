@@ -339,8 +339,8 @@ test(
     coachUserIds.push(otherCoach.userId);
 
     // athlete1 completes onboarding declared into rugby_union as a hooker,
-    // so the later position-change proposal (to "prop") is a real change
-    // validated against their actual declared activity.
+    // so the later position-change proposal (to "tighthead_prop") is a real
+    // change validated against their actual declared activity.
     const athlete1 = await registerAthlete(baseUrl, nonce, "1", "rugby_union");
     athleteUserIds.push(athlete1.userId);
     await completeAthleteOnboarding(baseUrl, athlete1, "rugby_union", "hooker");
@@ -420,7 +420,7 @@ test(
     // ============================================================
     const positionProposal = await request(
       baseUrl, "POST", "/coach-workspace/athlete-position-change-proposal",
-      { athlete_user_id: athlete1.userId, position: "prop" },
+      { athlete_user_id: athlete1.userId, position: "tighthead_prop" },
       { cookie: coach.cookie, csrf: coach.csrf }
     );
     assertStatus(positionProposal, 201, "coach proposes a position change for athlete1");
@@ -441,7 +441,7 @@ test(
     const secondNotification = afterSecondDecline.find((entry) => entry.notification_payload.athlete_user_id === athlete1.userId);
     assert.ok(secondNotification, "expected a notification for athlete1's position-change decline");
     assert.equal(secondNotification.notification_payload.change_kind, "position");
-    assert.equal(secondNotification.notification_payload.new_position, "prop");
+    assert.equal(secondNotification.notification_payload.new_position, "tighthead_prop");
     assert.equal(secondNotification.read_at_iso8601, null, "expected the second notification to start unread independently");
 
     // ============================================================

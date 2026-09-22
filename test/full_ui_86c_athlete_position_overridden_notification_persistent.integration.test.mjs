@@ -246,7 +246,7 @@ test(
     const athleteA = await registerAthlete(baseUrl, nonce, "a", "rugby_union");
     athleteUserIds.push(athleteA.userId);
 
-    await completeAthleteOnboarding(baseUrl, athleteA, "rugby_union", "prop");
+    await completeAthleteOnboarding(baseUrl, athleteA, "rugby_union", "tighthead_prop");
 
     const teamOrg = await request(baseUrl, "POST", "/org/organisations", {
       org_name: "Full86 Rugby Team", activity_id: "rugby_union", visibility_mode: "shared"

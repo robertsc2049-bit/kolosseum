@@ -246,7 +246,7 @@ test(
       const athleteB = await registerAthlete(baseUrl, nonce, "b", "rugby_union");
       athleteUserIds.push(athleteB.userId);
 
-      await completeAthleteOnboarding(baseUrl, athleteA, "rugby_union", "prop");
+      await completeAthleteOnboarding(baseUrl, athleteA, "rugby_union", "tighthead_prop");
 
       // ============================================================
       // Org creation now requires a declared sport.
@@ -304,7 +304,7 @@ test(
       const rosterEntry = roster.json?.roster?.find((entry) => entry.athlete_user_id === athleteA.userId);
       assert.ok(rosterEntry, "expected athleteA on the team roster");
       assert.equal(rosterEntry.activity_id, "rugby_union");
-      assert.equal(rosterEntry.position, "prop");
+      assert.equal(rosterEntry.position, "tighthead_prop");
       assert.equal(roster.json?.roster?.some((entry) => entry.athlete_user_id === athleteB.userId), false, "athleteB must not appear - no relationship to coachTeam");
 
       // ============================================================
