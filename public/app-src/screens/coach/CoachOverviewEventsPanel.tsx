@@ -66,7 +66,12 @@ export function CoachOverviewEventsPanel() {
     return events
       .filter((eventRecord) => {
         const eventDate = eventDateOf(eventRecord);
-        return eventDate && eventDate >= today;
+        // A cancelled or archived event is no longer something the coach
+        // needs to prepare for - a future-dated cancelled event used to
+        // still show here indistinguishable from a real one, with a
+        // matching false count on CoachOverviewMetricsPanel.tsx's
+        // "Upcoming events" card.
+        return eventDate && eventDate >= today && eventRecord.event_status === "active";
       })
       .sort((left, right) => eventDateOf(left).localeCompare(eventDateOf(right)))
       .slice(0, 8);

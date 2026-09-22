@@ -28,6 +28,20 @@ function todayDateOnly(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// DEV NOTE: this list shows every event regardless of lifecycle state
+// (it's the library/history view, unlike CoachOverviewEventsPanel.tsx's
+// "upcoming" subset, which excludes non-active events entirely) - a
+// cancelled or archived event's card used to look identical to an active
+// one, with no way to tell them apart without opening each one.
+// event_status is already present on every list record (no extra fetch),
+// mirrors CoachProgrammeLibraryPanel.tsx's templateStatusBadgeClass()'s
+// archived -> "badge neutral" precedent.
+function eventStatusBadge(status: string): { label: string; className: string } | null {
+  if (status === "cancelled") return { label: "Cancelled", className: "badge warning" };
+  if (status === "archived") return { label: "Archived", className: "badge neutral" };
+  return null;
+}
+
 // DEV NOTE: opens CoachEventDetailPanel.tsx (see useCoachEventDetail.ts) -
 // dispatches kolosseum:open-event-detail directly, the same convention
 // AthleteDirectoryPanel.tsx's "Open profile" button already uses for its
@@ -51,9 +65,13 @@ export function CoachEventsMetricCards() {
 
   const { upcomingCount, linkedCount } = useMemo(() => {
     const today = todayDateOnly();
+    // Same fix as CoachOverviewEventsPanel.tsx/useCoachOverviewMetrics.ts -
+    // a cancelled or archived event isn't something still upcoming, even
+    // with a future date. linkedCount stays a raw historical total across
+    // every event (cancelled or not), a different, non-"upcoming" claim.
     const upcoming = events.filter((eventRecord) => {
       const eventDate = String(eventPlanOf(eventRecord).event_date ?? "");
-      return eventDate && eventDate >= today;
+      return eventDate && eventDate >= today && eventRecord.event_status === "active";
     });
     const linked = events.reduce((total, eventRecord) => total + Number(eventRecord.linked_athlete_count ?? 0), 0);
     return { upcomingCount: upcoming.length, linkedCount: linked };
@@ -105,6 +123,7 @@ export function CoachEventsListPanel() {
         const compile = eventCompileOf(eventRecord);
         const linkedAthletes = Number(eventRecord.linked_athlete_count ?? 0);
         const eventId = String(eventRecord.event_id ?? "");
+        const statusBadge = eventStatusBadge(String(eventRecord.event_status ?? ""));
 
         return (
           <article className="record-card coach-event-card" data-event-id={eventId} key={eventId || index}>
@@ -119,6 +138,7 @@ export function CoachEventsListPanel() {
               {plan.notes ? <p className="coach-event-notes">{String(plan.notes)}</p> : null}
             </div>
             <div className="record-meta coach-event-meta">
+              {statusBadge ? <span className={statusBadge.className}>{statusBadge.label}</span> : null}
               <strong>{countdownLabel(plan.event_date)}</strong>
               <span className="badge neutral">{Number(compile.required_week_count ?? 0)} weeks</span>
               <span className={`badge ${linkedAthletes > 0 ? "active" : "neutral"}`}>

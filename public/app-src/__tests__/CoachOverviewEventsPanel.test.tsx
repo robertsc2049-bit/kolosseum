@@ -51,6 +51,7 @@ test("displays an upcoming event with its name, type, date, countdown and linked
   installMocks([
     {
       event_id: "event_1",
+      event_status: "active",
       linked_athlete_count: 3,
       event_plan: { event_name: "Regional Meet", event_type: "powerlifting_meet", event_date: daysFromNow(10) }
     }
@@ -66,9 +67,9 @@ test("displays an upcoming event with its name, type, date, countdown and linked
 
 test("excludes past events and sorts remaining ones by date ascending", async () => {
   installMocks([
-    { event_id: "event_past", event_plan: { event_name: "Past Meet", event_date: daysFromNow(-5) } },
-    { event_id: "event_later", event_plan: { event_name: "Later Meet", event_date: daysFromNow(20) } },
-    { event_id: "event_sooner", event_plan: { event_name: "Sooner Meet", event_date: daysFromNow(5) } }
+    { event_id: "event_past", event_status: "active", event_plan: { event_name: "Past Meet", event_date: daysFromNow(-5) } },
+    { event_id: "event_later", event_status: "active", event_plan: { event_name: "Later Meet", event_date: daysFromNow(20) } },
+    { event_id: "event_sooner", event_status: "active", event_plan: { event_name: "Sooner Meet", event_date: daysFromNow(5) } }
   ]);
 
   render(<CoachOverviewEventsPanel />);
@@ -80,6 +81,23 @@ test("excludes past events and sorts remaining ones by date ascending", async ()
   assert.deepEqual(headings, ["Sooner Meet", "Later Meet"]);
 });
 
+// Regression test: a future-dated cancelled/archived event used to still
+// show here as if it were a real upcoming commitment - the filter was
+// purely date-based, with no check on the event's own lifecycle state.
+test("excludes a cancelled or archived event even with a future date", async () => {
+  installMocks([
+    { event_id: "event_active", event_status: "active", event_plan: { event_name: "Active Meet", event_date: daysFromNow(5) } },
+    { event_id: "event_cancelled", event_status: "cancelled", event_plan: { event_name: "Cancelled Meet", event_date: daysFromNow(5) } },
+    { event_id: "event_archived", event_status: "archived", event_plan: { event_name: "Archived Meet", event_date: daysFromNow(5) } }
+  ]);
+
+  render(<CoachOverviewEventsPanel />);
+
+  await waitFor(() => screen.getByText("Active Meet"));
+  assert.equal(screen.queryByText("Cancelled Meet"), null);
+  assert.equal(screen.queryByText("Archived Meet"), null);
+});
+
 test("the Open event button clicks the legacy Events nav link before navigating", async () => {
   // DEV NOTE: this jsdom test setup has no global `location` (see
   // setup.mjs), so the location.hash half of openEventDetail isn't
@@ -87,7 +105,7 @@ test("the Open event button clicks the legacy Events nav link before navigating"
   // router, mirroring the identical pattern already proven for
   // AthleteHistoryPanels.tsx's openProgramme/openEvent.
   installMocks([
-    { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
+    { event_id: "event_1", event_status: "active", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
   ]);
 
   const eventsNavButton = document.createElement("button");
@@ -115,6 +133,7 @@ test("an event name containing markup is rendered as inert text, never as HTML",
   installMocks([
     {
       event_id: "event_1",
+      event_status: "active",
       event_plan: { event_name: '<img src=x onerror="window.pwned=true">', event_date: daysFromNow(10) }
     }
   ]);
@@ -133,7 +152,7 @@ test("refetches when kolosseum:coach-overview-changed fires", async () => {
   await waitFor(() => screen.getByText("No upcoming events"));
 
   installMocks([
-    { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
+    { event_id: "event_1", event_status: "active", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
   ]);
 
   act(() => {
@@ -154,7 +173,7 @@ test("refetches when kolosseum:coach-events-changed fires", async () => {
   await waitFor(() => screen.getByText("No upcoming events"));
 
   installMocks([
-    { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
+    { event_id: "event_1", event_status: "active", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
   ]);
 
   act(() => {
@@ -170,7 +189,7 @@ test("refetches once a same-tab sign-in completes", async () => {
   await waitFor(() => screen.getByText("No upcoming events"));
 
   installMocks([
-    { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
+    { event_id: "event_1", event_status: "active", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
   ]);
 
   act(() => {

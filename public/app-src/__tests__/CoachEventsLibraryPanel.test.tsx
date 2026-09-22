@@ -41,8 +41,8 @@ test.afterEach(() => {
 
 test("the metric cards show total, upcoming and linked-athlete counts", async () => {
   installMocks([
-    { event_id: "event_past", linked_athlete_count: 2, event_plan: { event_date: daysFromNow(-5) } },
-    { event_id: "event_future", linked_athlete_count: 3, event_plan: { event_date: daysFromNow(5) } }
+    { event_id: "event_past", event_status: "active", linked_athlete_count: 2, event_plan: { event_date: daysFromNow(-5) } },
+    { event_id: "event_future", event_status: "active", linked_athlete_count: 3, event_plan: { event_date: daysFromNow(5) } }
   ]);
 
   render(<CoachEventsMetricCards />);
@@ -50,6 +50,25 @@ test("the metric cards show total, upcoming and linked-athlete counts", async ()
   await waitFor(() => {
     const values = Array.from(document.querySelectorAll("strong")).map((node) => node.textContent);
     assert.deepEqual(values, ["2", "1", "5"]);
+  });
+});
+
+// Regression test: a future-dated cancelled event used to still count as
+// "upcoming" here, since the filter was purely date-based - see
+// CoachOverviewEventsPanel.tsx/useCoachOverviewMetrics.ts for the matching
+// dashboard-side fix.
+test("excludes a cancelled or archived event from the upcoming count even with a future date", async () => {
+  installMocks([
+    { event_id: "event_active", event_status: "active", linked_athlete_count: 1, event_plan: { event_date: daysFromNow(5) } },
+    { event_id: "event_cancelled", event_status: "cancelled", linked_athlete_count: 1, event_plan: { event_date: daysFromNow(5) } },
+    { event_id: "event_archived", event_status: "archived", linked_athlete_count: 1, event_plan: { event_date: daysFromNow(5) } }
+  ]);
+
+  render(<CoachEventsMetricCards />);
+
+  await waitFor(() => {
+    const values = Array.from(document.querySelectorAll("strong")).map((node) => node.textContent);
+    assert.deepEqual(values, ["3", "1", "3"]);
   });
 });
 
@@ -109,6 +128,30 @@ test("omits location, timezone and notes when the event doesn't have them, and u
   const badge = screen.getByText("0 athletes");
   assert.ok(badge.className.includes("neutral"));
   assert.equal(badge.className.includes("active"), false);
+});
+
+// Regression test: a cancelled/archived event's card used to look
+// identical to an active one - no way to tell them apart in the library
+// list without opening each one.
+test("shows a Cancelled or Archived badge for a non-active event, and no badge for an active one", async () => {
+  installMocks([
+    { event_id: "event_active", event_status: "active", event_plan: { event_name: "Active Meet", event_date: daysFromNow(10) } },
+    { event_id: "event_cancelled", event_status: "cancelled", event_plan: { event_name: "Cancelled Meet", event_date: daysFromNow(10) } },
+    { event_id: "event_archived", event_status: "archived", event_plan: { event_name: "Archived Meet", event_date: daysFromNow(10) } }
+  ]);
+
+  render(<CoachEventsListPanel />);
+
+  await waitFor(() => screen.getByText("Active Meet"));
+
+  const activeCard = document.querySelector('[data-event-id="event_active"]') as HTMLElement;
+  const cancelledCard = document.querySelector('[data-event-id="event_cancelled"]') as HTMLElement;
+  const archivedCard = document.querySelector('[data-event-id="event_archived"]') as HTMLElement;
+
+  assert.equal(activeCard.textContent?.includes("Cancelled"), false);
+  assert.equal(activeCard.textContent?.includes("Archived"), false);
+  assert.ok(cancelledCard.textContent?.includes("Cancelled"));
+  assert.ok(archivedCard.textContent?.includes("Archived"));
 });
 
 test("an event name and notes containing markup are rendered as inert text, never as HTML", async () => {
