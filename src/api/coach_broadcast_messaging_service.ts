@@ -47,7 +47,8 @@ function randomId(prefix: string): string {
 
 export async function sendCoachBroadcastMessage(
   coachUserIdInput: string,
-  bodyTextInput: unknown
+  bodyTextInput: unknown,
+  clientRequestIdInput: unknown = null
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId = cleanString(coachUserIdInput);
   if (!coachUserId) {
@@ -63,7 +64,15 @@ export async function sendCoachBroadcastMessage(
   }
 
   const athletes = await listConnectedCoachAthletes(coachUserId);
-  const broadcastId = randomId("broadcast");
+  // A client-supplied id (the same one a genuine double-submit would
+  // resend) is reused as-is rather than always minting a fresh random
+  // one - sendCoachAthleteMessage's own (thread_id, sender_user_id,
+  // client_request_id) uniqueness then makes every re-sent fan-out send
+  // a no-op instead of a real duplicate message in every athlete's
+  // thread. Falls back to a fresh id when none is supplied (a caller
+  // that doesn't care about idempotency, e.g. a script or an older
+  // client), matching sendCoachAthleteMessage's own fallback.
+  const broadcastId = cleanString(clientRequestIdInput) || randomId("broadcast");
 
   const results: JsonRecord[] = [];
   for (const athlete of athletes) {

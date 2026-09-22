@@ -377,8 +377,8 @@ export function inviteAthleteByEmail(athleteEmail: string, csrfToken: string): P
   return request("POST", "/coach-workspace/relationship-invitations", { athlete_email: athleteEmail }, csrfToken);
 }
 
-export function sendCoachBroadcast(bodyText: string, csrfToken: string): Promise<JsonRecord> {
-  return request("POST", "/messages/coach/broadcast", { body_text: bodyText }, csrfToken);
+export function sendCoachBroadcast(bodyText: string, clientRequestId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/messages/coach/broadcast", { body_text: bodyText, client_request_id: clientRequestId }, csrfToken);
 }
 
 export function loadBroadcastReadStatus(broadcastId: string): Promise<JsonRecord> {

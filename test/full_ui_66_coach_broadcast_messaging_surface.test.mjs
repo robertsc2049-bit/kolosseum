@@ -64,14 +64,36 @@ test("the coach workspace has a real broadcast control wired to the route", () =
   assert.match(broadcastPanel, /useCoachBroadcast/u);
   assert.match(coachWorkspaceClient, /export function sendCoachBroadcast/u);
   assert.match(coachWorkspaceClient, /"\/messages\/coach\/broadcast"/u);
-  assert.match(useCoachBroadcast, /sendCoachBroadcast\(trimmed, csrfToken\)/u);
+  assert.match(useCoachBroadcast, /sendCoachBroadcast\(trimmed, clientRequestId, csrfToken\)/u);
 });
 
-test("every fan-out send in one broadcast shares the same server-generated client_request_id, turning it into a free broadcast_id - never client-supplied, never a new column", () => {
+test("every fan-out send in one broadcast shares one client_request_id, turning it into a free broadcast_id - never a new column", () => {
   assert.match(service, /function randomId/u);
-  assert.match(service, /const broadcastId = randomId\("broadcast"\);/u);
+  assert.match(service, /const broadcastId = cleanString\(clientRequestIdInput\) \|\| randomId\("broadcast"\);/u);
   assert.match(service, /sendCoachAthleteMessage\("coach", coachUserId, athleteUserId, bodyText, broadcastId, null\)/u);
   assert.match(service, /broadcast_id: broadcastId/u);
+});
+
+// Regression coverage for the fix: a genuine double-submit (a fast
+// double-click before submitting disables the button, or a network-level
+// retry) used to always mint a fresh random broadcastId server-side per
+// HTTP request, so two requests for what the coach intended as ONE
+// broadcast sent every connected athlete the same message twice. The
+// route now forwards an optional client-supplied id through to the
+// service, and useCoachBroadcast.ts generates it once per compose
+// session (not inside send() itself) so both requests of a genuine
+// double-submit carry the identical id - sendCoachAthleteMessage's own
+// (thread_id, sender_user_id, client_request_id) uniqueness then
+// collapses the resend into a no-op instead of a real duplicate message.
+test("the broadcast route forwards a client-supplied client_request_id through to the service for idempotency", () => {
+  assert.match(routes, /sendCoachBroadcastMessage\(coachUserId, request\.body\?\.body_text, request\.body\?\.client_request_id\)/u);
+  assert.match(service, /clientRequestIdInput: unknown = null/u);
+});
+
+test("the compose hook generates one client_request_id per compose session, not fresh inside every send() call, and rotates it only after a successful send", () => {
+  assert.match(useCoachBroadcast, /useState<string>\(\(\) => crypto\.randomUUID\(\)\)/u);
+  assert.match(useCoachBroadcast, /setClientRequestId\(crypto\.randomUUID\(\)\)/u);
+  assert.match(coachWorkspaceClient, /body_text: bodyText, client_request_id: clientRequestId/u);
 });
 
 test("read status is re-derived live from each athlete's own thread's athlete_last_read_at marker, never a stored/cached read flag", () => {
