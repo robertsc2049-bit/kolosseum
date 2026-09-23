@@ -111,7 +111,7 @@ test("FULL-UI-03C validates every declaration field directly", () => {
   );
 
   for (const [functionName, value, field] of [
-    ["validateAthleteActivityId", "boxing", "activity_id"],
+    ["validateAthleteActivityId", "golf", "activity_id"],
     ["validateAthleteExecutionScope", "inferred", "execution_scope"],
     ["validateAthleteJurisdiction", "auto_detect", "jurisdiction_code"],
     ["validateAthleteInstructionDensity", "maximum", "instruction_density"]

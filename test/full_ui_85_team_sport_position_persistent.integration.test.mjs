@@ -258,7 +258,7 @@ test(
       assert.equal(missingActivity.json?.error, "org_roster_activity_required");
 
       const invalidActivity = await request(baseUrl, "POST", "/org/organisations", {
-        org_name: "Full85 Bad Sport Team", activity_id: "cricket", visibility_mode: "shared"
+        org_name: "Full85 Bad Sport Team", activity_id: "golf", visibility_mode: "shared"
       }, { cookie: owner.cookie, csrf: owner.csrf });
       assertStatus(invalidActivity, 400, "org creation with an unsupported sport is rejected");
       assert.equal(invalidActivity.json?.error, "org_roster_activity_invalid");
