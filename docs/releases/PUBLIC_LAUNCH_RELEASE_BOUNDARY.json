@@ -52,7 +52,8 @@
       "rugby_union",
       "strongman",
       "hyrox",
-      "crossfit"
+      "crossfit",
+      "street_lifting"
     ],
     "source": "REG-FULL-09 supported_activity_scope",
     "closed_world": true
