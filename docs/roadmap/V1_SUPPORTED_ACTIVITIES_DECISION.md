@@ -212,3 +212,25 @@ Authorisation: explicit direct chat instruction from the product owner ("we need
 Rationale: this is the first activity addition to also close the gap Hyrox's own amendment left open - a genuinely new completion model (grouped "complex"/AMRAP/EMOM/for-time work items, sharing one weight or one clock across several exercises) rather than only a periodized block/week/session template dressed in new registry content. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition, and additionally extends the existing work-item grouping mechanism (`group_id`/`group_type`) with real execution semantics instead of introducing a parallel one.
 
 Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, Hyrox, and CrossFit. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.
+
+## Amendment - Street lifting activated as v1's seventh locked activity
+
+Status: Accepted.
+
+This amendment does not rewrite the "Explicit v1 exclusions" listing above (street lifting was not itself a named exclusion there; it falls under "additional individual sports" - it is a distinct sport from the excluded "weightlifting," which refers to Olympic weightlifting's snatch/clean & jerk and shares no lifts or equipment with it).
+
+v1 supported activities are now locked to:
+
+1. powerlifting
+2. general_strength
+3. rugby_union
+4. strongman
+5. hyrox
+6. crossfit
+7. street_lifting
+
+Authorisation: explicit direct chat instruction from the product owner, following a refined sport catalogue presented in chat (removing golf/climbing/skiing, splitting "combat sports" into individual disciplines, and adding street lifting/kayaking/rugby 7s as candidates) and the explicit choice "street lifting first," selecting it as the cheapest remaining step - its three competition lifts already exist as registry exercises (`back_squat`, `pull_up`, `dip`), needing no new exercise content. A full implementation plan naming this scope specifically was presented and approved via Plan Mode before this slice began.
+
+Rationale: like strongman/Hyrox/CrossFit (and unlike rugby_union, which reuses the entire exercise pool), street lifting uses a small curated exercise set (24 exercises) rather than the full registry - its three competition lifts (back squat, weighted pull-up, weighted dip) and their accessory work were already present as generic strength content with no street-lifting-specific exercises required. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition.
+
+Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, Hyrox, CrossFit, and street lifting. The remaining exclusions listed above are unchanged and still apply.

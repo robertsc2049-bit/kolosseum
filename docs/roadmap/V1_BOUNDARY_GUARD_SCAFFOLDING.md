@@ -228,3 +228,7 @@ shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains
 ## Amendment - CrossFit activated as v1's sixth locked activity
 
 shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.
+
+## Amendment - Street lifting activated as v1's seventh locked activity
+
+shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, strongman, hyrox, crossfit, and street_lifting, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.

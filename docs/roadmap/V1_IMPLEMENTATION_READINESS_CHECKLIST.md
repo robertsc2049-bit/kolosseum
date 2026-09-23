@@ -70,8 +70,9 @@ Implementation must remain limited to:
 4. strongman
 5. hyrox
 6. crossfit
+7. street_lifting
 
-No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set. (Amendment: strongman was activated as the fourth locked activity, hyrox as the fifth, and crossfit as the sixth, by the amendments recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
+No implementation slice may add, imply, seed, expose, copy, or test support for excluded activities unless a later accepted decision record changes the supported set. (Amendment: strongman was activated as the fourth locked activity, hyrox as the fifth, crossfit as the sixth, and street_lifting as the seventh, by the amendments recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Required implementation order
 

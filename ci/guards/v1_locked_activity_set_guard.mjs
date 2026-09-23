@@ -22,7 +22,8 @@ const expectedActivities = Object.freeze([
   "rugby_union",
   "strongman",
   "hyrox",
-  "crossfit"
+  "crossfit",
+  "street_lifting"
 ]);
 
 const rejectedExamples = Object.freeze([
