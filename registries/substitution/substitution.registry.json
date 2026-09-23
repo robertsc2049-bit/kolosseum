@@ -136,7 +136,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "back_squat|00|01|paused_back_squat",
@@ -264,7 +265,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "back_squat|02|02|goblet_squat",
@@ -470,7 +472,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_assisted_pull_up|01|00|chin_up",
@@ -488,7 +491,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_assisted_pull_up|01|00|lat_pulldown",
@@ -542,7 +546,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_assisted_pull_up|01|00|pull_up",
@@ -1024,7 +1029,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_row|01|00|seated_cable_row",
@@ -1077,7 +1083,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_row|02|00|single_arm_dumbbell_row",
@@ -3043,7 +3050,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "chin_up|00|00|pull_up",
@@ -3061,7 +3069,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "chin_up|01|00|band_assisted_pull_up",
@@ -3079,7 +3088,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "chin_up|01|00|lat_pulldown",
@@ -3239,7 +3249,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "close_grip_bench_press|01|00|dumbbell_bench_press",
@@ -3311,7 +3322,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "close_grip_bench_press|02|01|push_up",
@@ -3744,7 +3756,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "decline_bench_press|01|00|dip",
@@ -4067,7 +4080,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dip|01|00|decline_bench_press",
@@ -4207,7 +4221,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_bench_press|01|00|close_grip_bench_press",
@@ -4334,7 +4349,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_bench_press|02|01|push_up",
@@ -6631,7 +6647,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "lat_pulldown|01|00|band_assisted_pull_up",
@@ -6649,7 +6666,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "lat_pulldown|01|00|chin_up",
@@ -6685,7 +6703,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "lat_pulldown|01|00|pull_up",
@@ -8566,6 +8585,54 @@
       "deterministic_ordering_key": "medicine_ball_scoop_toss|00|00|rotational_medicine_ball_throw",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "muscle_up__to__band_assisted_pull_up": {
+      "substitution_edge_id": "muscle_up__to__band_assisted_pull_up",
+      "source_exercise_id": "muscle_up",
+      "target_exercise_id": "band_assisted_pull_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "muscle_up|01|01|band_assisted_pull_up",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "muscle_up__to__chin_up": {
+      "substitution_edge_id": "muscle_up__to__chin_up",
+      "source_exercise_id": "muscle_up",
+      "target_exercise_id": "chin_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "muscle_up|01|01|chin_up",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "muscle_up__to__lat_pulldown": {
+      "substitution_edge_id": "muscle_up__to__lat_pulldown",
+      "source_exercise_id": "muscle_up",
+      "target_exercise_id": "lat_pulldown",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "muscle_up|01|01|lat_pulldown",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "muscle_up__to__pull_up": {
       "substitution_edge_id": "muscle_up__to__pull_up",
       "source_exercise_id": "muscle_up",
@@ -8576,7 +8643,8 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "muscle_up|01|01|pull_up",
@@ -9619,7 +9687,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_back_squat|02|01|goblet_squat",
@@ -10905,7 +10974,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pull_up|00|00|chin_up",
@@ -10923,7 +10993,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pull_up|01|00|band_assisted_pull_up",
@@ -10941,7 +11012,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pull_up|01|00|lat_pulldown",
@@ -11721,7 +11793,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|02|00|kettlebell_deadlift",
@@ -11925,7 +11998,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "seated_cable_row|01|00|barbell_row",
@@ -12049,7 +12123,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "seated_cable_row|02|00|single_arm_dumbbell_row",
@@ -15869,7 +15944,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "weighted_crunch|02|00|curl_up",

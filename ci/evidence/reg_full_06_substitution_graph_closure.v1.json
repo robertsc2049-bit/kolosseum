@@ -31,22 +31,22 @@
   },
   "counts": {
     "exercise_count": 259,
-    "edge_count": 919,
+    "edge_count": 922,
     "source_exercise_count": 222,
     "target_exercise_count": 219,
     "equipment_change_type_counts": {
       "same_required_equipment": 331,
-      "lateral": 355,
+      "lateral": 358,
       "downgrade": 233
     }
   },
   "hashes": {
-    "exercise_registry_sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b",
-    "movement_registry_sha256": "cbe2fb53d9260f31e81a8e1ba4330fb738da5ee0f87945f4beb882eb697159d8",
+    "exercise_registry_sha256": "3f442096e70772550dbc5d49972aa65fe4d17bfbeb779e4989cec2a30d90c4db",
+    "movement_registry_sha256": "d150aa0a232957cf191ccfc4724af617936400066f17a9d9746c24044422fcf6",
     "equipment_registry_sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d",
     "equipment_compatibility_registry_sha256": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb",
-    "activity_applicability_registry_sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f",
-    "substitution_registry_sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301",
+    "activity_applicability_registry_sha256": "248e30a54588ef1ecad6b11b43b639dc4454c9a4ac58413fea99ff94a3abc147",
+    "substitution_registry_sha256": "ff259dade4f3754dd04c81bb0fc24172008fba83b424963ee6981ed686b36ebf",
     "legacy_graph_sha256": "8d97eab5a2149e6e8634f7bf82f3179ae78c2906825bc46fe6588c1d984852c9"
   }
 }

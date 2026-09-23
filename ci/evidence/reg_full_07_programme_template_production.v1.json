@@ -4,15 +4,15 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "057960b620fe320c5588d247e5639c39819fa9beacee50fa226ca099148ea3a8",
+  "canonical_registry_sha256": "3d33c3784b6d380edc85d9e459e83943e84e9f1de4b677fcbecd04d9e153dc64",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc"
+      "sha256": "a5015f53aff5cae9c49a71a31abd05ce0eca891b33c42a71bf35970f00df9073"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b"
+      "sha256": "3f442096e70772550dbc5d49972aa65fe4d17bfbeb779e4989cec2a30d90c4db"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
@@ -24,15 +24,15 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f"
+      "sha256": "248e30a54588ef1ecad6b11b43b639dc4454c9a4ac58413fea99ff94a3abc147"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301"
+      "sha256": "bfb83101891c12d5b8e44dec295060671b4202d738885287699aab36bcfc6075"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "cad3961089756bca2fb4a8ed83eff11e1efbeb377a97685d1ca5b6284e6bf4e0"
+      "sha256": "4d612b8dc8103e82245b5337a23844b12d233fdd5d8421a3a9bd0467e020202b"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -48,18 +48,19 @@
     }
   },
   "counts": {
-    "template_count": 20,
+    "template_count": 23,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
       "hyrox": 3,
-      "crossfit": 3
+      "crossfit": 3,
+      "street_lifting": 3
     },
-    "low_equipment_templates": 4,
-    "unique_scheduled_exercises": 30,
-    "scheduled_work_items": 604
+    "low_equipment_templates": 5,
+    "unique_scheduled_exercises": 33,
+    "scheduled_work_items": 696
   },
   "family_ids": [
     "powerlifting_novice",
@@ -81,7 +82,10 @@
     "hyrox_race_prep",
     "crossfit_novice",
     "crossfit_intermediate",
-    "crossfit_low_equipment"
+    "crossfit_low_equipment",
+    "street_lifting_novice",
+    "street_lifting_intermediate",
+    "street_lifting_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,

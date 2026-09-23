@@ -45,7 +45,8 @@
       "secondary_activity_applicability": [
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -262,7 +263,8 @@
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -485,7 +487,8 @@
         "powerlifting",
         "rugby_union",
         "strongman",
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -1062,7 +1065,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1218,7 +1222,8 @@
         "powerlifting",
         "rugby_union",
         "strongman",
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -1325,7 +1330,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3002,7 +3008,8 @@
       "primary_activity_applicability": "powerlifting",
       "secondary_activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -3218,7 +3225,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3318,7 +3326,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3668,7 +3677,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -3925,7 +3935,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -4345,7 +4356,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4445,7 +4457,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4546,7 +4559,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4744,7 +4758,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4794,7 +4809,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4846,7 +4862,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4949,7 +4966,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -5049,7 +5067,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7415,7 +7434,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7957,7 +7977,8 @@
       "secondary_activity_applicability": [
         "powerlifting",
         "rugby_union",
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8055,7 +8076,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -11676,7 +11698,8 @@
       "primary_activity_applicability": "general_strength",
       "secondary_activity_applicability": [
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -12922,7 +12945,9 @@
         "pull_up_bar"
       ],
       "primary_activity_applicability": "crossfit",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "street_lifting"
+      ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
       "template_eligibility": "eligible",

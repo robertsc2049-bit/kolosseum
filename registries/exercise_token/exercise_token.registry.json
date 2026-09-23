@@ -9,7 +9,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "street_lifting"
       ],
       "movement_pattern_id": "squat",
       "token_kind": "exercise_name_token",
@@ -47,7 +48,8 @@
       "activity_ids": [
         "general_strength",
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "street_lifting"
       ],
       "movement_pattern_id": "core_anti_extension",
       "token_kind": "exercise_name_token",

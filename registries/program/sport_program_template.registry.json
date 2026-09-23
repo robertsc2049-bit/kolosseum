@@ -12254,6 +12254,1886 @@
         "no_royalty_scope",
         "registry_bound"
       ]
+    },
+    {
+      "template_id": "street_lifting_novice",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "street_lifting",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_street_lifting_novice",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "street_lifting_novice_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "street_lifting_novice_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "street_lifting_novice_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w01_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w01_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w01_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 2,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_novice_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "street_lifting_novice_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w02_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w02_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w02_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 2,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_novice_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "street_lifting_novice_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w03_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w03_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w03_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 2,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_novice_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "street_lifting_novice_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_novice_w04_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_novice_w04_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_novice_w04_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 2,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "street_lifting",
+        "exercise_ids": [
+          "back_squat",
+          "dip",
+          "pull_up"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "bodyweight",
+          "dip_bars",
+          "pull_up_bar",
+          "rack"
+        ],
+        "substitution_edge_ids": [
+          "back_squat__to__goblet_squat",
+          "dip__to__decline_bench_press",
+          "pull_up__to__chin_up"
+        ],
+        "applicability_ids": [
+          "back_squat__street_lifting__training",
+          "dip__street_lifting__training",
+          "pull_up__street_lifting__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "street_lifting_intermediate",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "street_lifting",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_street_lifting_intermediate",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "street_lifting_intermediate_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "street_lifting_intermediate_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "street_lifting_intermediate_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "paused_back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "paused_back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w01_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w01_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w01_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "romanian_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "romanian_deadlift__to__kettlebell_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_intermediate_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "street_lifting_intermediate_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "paused_back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "paused_back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w02_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w02_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w02_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "romanian_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "romanian_deadlift__to__kettlebell_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_intermediate_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "street_lifting_intermediate_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "paused_back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "paused_back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w03_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w03_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w03_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "romanian_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "romanian_deadlift__to__kettlebell_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_intermediate_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "street_lifting_intermediate_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "paused_back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "paused_back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 4,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "muscle_up",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "bodyweight",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "gymnastics_rings"
+                            ],
+                            "substitution_policy_id": "muscle_up__to__pull_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_intermediate_w04_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_intermediate_w04_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "back_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell",
+                              "rack"
+                            ],
+                            "substitution_policy_id": "back_squat__to__goblet_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "dip",
+                            "planned_sets": 4,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "dip_bars"
+                            ],
+                            "substitution_policy_id": "dip__to__decline_bench_press"
+                          },
+                          {
+                            "work_item_id": "street_lifting_intermediate_w04_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "romanian_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 6,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "barbell"
+                            ],
+                            "substitution_policy_id": "romanian_deadlift__to__kettlebell_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "street_lifting",
+        "exercise_ids": [
+          "back_squat",
+          "dip",
+          "muscle_up",
+          "paused_back_squat",
+          "pull_up",
+          "romanian_deadlift"
+        ],
+        "equipment_ids": [
+          "barbell",
+          "bodyweight",
+          "dip_bars",
+          "gymnastics_rings",
+          "pull_up_bar",
+          "rack"
+        ],
+        "substitution_edge_ids": [
+          "back_squat__to__goblet_squat",
+          "dip__to__decline_bench_press",
+          "muscle_up__to__pull_up",
+          "paused_back_squat__to__goblet_squat",
+          "pull_up__to__chin_up",
+          "romanian_deadlift__to__kettlebell_deadlift"
+        ],
+        "applicability_ids": [
+          "back_squat__street_lifting__training",
+          "dip__street_lifting__training",
+          "muscle_up__street_lifting__training",
+          "paused_back_squat__street_lifting__training",
+          "pull_up__street_lifting__training",
+          "romanian_deadlift__street_lifting__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "street_lifting_low_equipment",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "street_lifting",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_street_lifting_low_equipment",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "street_lifting_low_equipment_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "street_lifting_low_equipment_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "street_lifting_low_equipment_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_low_equipment_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w01_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_low_equipment_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "street_lifting_low_equipment_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_low_equipment_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w02_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_low_equipment_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "street_lifting_low_equipment_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_low_equipment_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w03_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "street_lifting_low_equipment_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "street_lifting_low_equipment_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "street_lifting_low_equipment_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "street_lifting_low_equipment_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "goblet_squat",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "goblet_squat__to__air_squat"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "street_lifting_low_equipment_w04_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "dumbbell_bench_press",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bench",
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "dumbbell_bench_press__to__push_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "street_lifting",
+        "exercise_ids": [
+          "dumbbell_bench_press",
+          "goblet_squat",
+          "pull_up"
+        ],
+        "equipment_ids": [
+          "bench",
+          "bodyweight",
+          "dumbbell",
+          "pull_up_bar"
+        ],
+        "substitution_edge_ids": [
+          "dumbbell_bench_press__to__push_up",
+          "goblet_squat__to__air_squat",
+          "pull_up__to__chin_up"
+        ],
+        "applicability_ids": [
+          "dumbbell_bench_press__street_lifting__training",
+          "goblet_squat__street_lifting__training",
+          "pull_up__street_lifting__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
     }
   ]
 }

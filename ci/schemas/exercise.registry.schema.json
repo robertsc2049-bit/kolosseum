@@ -166,7 +166,8 @@
               "rugby_union",
               "strongman",
               "hyrox",
-              "crossfit"
+              "crossfit",
+              "street_lifting"
             ]
           },
           "secondary_activity_applicability": {
@@ -180,7 +181,8 @@
                 "rugby_union",
                 "strongman",
                 "hyrox",
-                "crossfit"
+                "crossfit",
+                "street_lifting"
               ]
             },
             "uniqueItems": true
