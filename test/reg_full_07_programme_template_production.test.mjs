@@ -87,9 +87,10 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
       muay_thai: 3,
       mma: 3,
       tennis: 3,
-      triathlon: 3
+      triathlon: 3,
+      rugby_league: 4
     },
-    low_equipment_templates: 27
+    low_equipment_templates: 28
   });
 });
 
