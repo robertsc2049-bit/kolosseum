@@ -15162,7 +15162,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "crossfit",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "street_lifting"
+          ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
           "template_eligibility": "eligible",
@@ -42710,6 +42712,42 @@
         "weighted_crunch__street_lifting__competition": {
           "applicability_id": "weighted_crunch__street_lifting__competition",
           "exercise_id": "weighted_crunch",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__training": {
+          "applicability_id": "air_squat__street_lifting__training",
+          "exercise_id": "air_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__testing": {
+          "applicability_id": "air_squat__street_lifting__testing",
+          "exercise_id": "air_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__competition": {
+          "applicability_id": "air_squat__street_lifting__competition",
+          "exercise_id": "air_squat",
           "activity_id": "street_lifting",
           "activity_context": "competition",
           "applicability_state": "prohibited",
