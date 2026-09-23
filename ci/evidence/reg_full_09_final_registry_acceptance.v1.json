@@ -10,7 +10,8 @@
     "rugby_union",
     "strongman",
     "hyrox",
-    "crossfit"
+    "crossfit",
+    "rugby_league"
   ],
   "checks": {
     "registry_expected_count_authority": "PASS",
@@ -31,7 +32,7 @@
     "authoritative_schema_count": 25,
     "schema_conflict_count": 0,
     "compact_bundle_registry_count": 12,
-    "supported_activity_count": 6,
+    "supported_activity_count": 7,
     "unsupported_activity_count": 0,
     "candidate_only_active_record_count": 0,
     "dormant_candidate_only_record_count": 5,
@@ -39,34 +40,35 @@
     "duplicate_id_count": 0,
     "closed_materialized_registry_count": 14,
     "declared_fk_field_count": 17,
-    "fk_reference_count": 7495,
+    "fk_reference_count": 8925,
     "orphan_relationship_count": 0,
     "dependency_gate_count": 10,
     "dependency_failure_count": 0,
     "exercise_count": 259,
     "resolved_exercise_count": 259,
     "equipment_compatibility_edge_count": 524,
-    "activity_relation_pair_count": 707,
-    "applicability_row_count": 2121,
-    "programme_template_count": 20,
+    "activity_relation_pair_count": 944,
+    "applicability_row_count": 2832,
+    "programme_template_count": 24,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
       "hyrox": 3,
-      "crossfit": 3
+      "crossfit": 3,
+      "rugby_league": 4
     },
-    "low_equipment_template_count": 4,
+    "low_equipment_template_count": 5,
     "programme_template_coverage_gap_count": 0,
     "substitution_edge_count": 919,
     "substitution_source_count": 222,
     "substitution_target_count": 219,
     "substitution_reachability_gap_count": 0,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 4110,
-    "copy_provenance_record_count": 4110,
-    "exact_copy_control_count": 6674
+    "copy_source_record_count": 4827,
+    "copy_provenance_record_count": 4827,
+    "exact_copy_control_count": 7385
   },
   "dependency_gates": {
     "reg_full_00": "PASS",

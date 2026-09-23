@@ -1,5 +1,5 @@
 {
-  "canonical_copy_registry_sha256": "868962813951f75a6eb243987dbdd8f6560ec8d7dffdd33eca0f6c333f441219",
+  "canonical_copy_registry_sha256": "8fcbac977c00bb665b695b6f777d295287c7f091c98af1ba0a6e14de71fd3ac9",
   "copy_schema_sha256": "6ed5407c7f6dbc3a2bb83bae15dcec37aa507d02ca1d31d3cd40af7785bd6a27",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
@@ -54,8 +54,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/movement/movement.registry.json",
-      "source_file_sha256": "cbe2fb53d9260f31e81a8e1ba4330fb738da5ee0f87945f4beb882eb697159d8",
-      "source_git_blob_sha": "149d0d11c0058ff68d9a53aaa03be90fe3a573ac",
+      "source_file_sha256": "4ebc4ec4116de3bea848a0259674ab3543e8fbac968c2a7ade8197f964c82a62",
+      "source_git_blob_sha": "163c432fb69c5b3334d3c4c267a8f633649ff380",
       "source_record_count": 54,
       "source_registry_id": "movement_registry_3"
     },
@@ -70,8 +70,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_token/exercise_token.registry.json",
-      "source_file_sha256": "ce06ecb1659f637f58d7b30535a783a8056f886442af8b61f25e7481ab46c4d0",
-      "source_git_blob_sha": "d8d8c35bf4845118801c75be5cb538f516b6b949",
+      "source_file_sha256": "ddc58e8d9cfa306e2d647b5743629b2545479b49e6dac2ab259f8ff54c0c868a",
+      "source_git_blob_sha": "459c0872a286409a2a490105303404977895e24d",
       "source_record_count": 4,
       "source_registry_id": "exercise_token_registry_3b"
     },
@@ -118,8 +118,8 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/program/sport_program_template.registry.json",
-      "source_file_sha256": "fb6be4788b058f4cfff3db784180527113b8580776a87dab1964723e2f31b27f",
-      "source_git_blob_sha": "59290cb1d767d833f073dad7eebd789860609e98",
+      "source_file_sha256": "66aac2af6b816136a4606eace83624cb29d75a1953807154aabd6440e445ac2a",
+      "source_git_blob_sha": "fa8eb10d991e9336f765da74643d352343c41c5b",
       "source_record_count": 24,
       "source_registry_id": "sport_program_template_registry_5f"
     },
