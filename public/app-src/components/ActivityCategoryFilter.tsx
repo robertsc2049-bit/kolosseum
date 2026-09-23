@@ -38,13 +38,13 @@ export const CATEGORY_ACTIVITY_IDS: Record<string, readonly string[]> = {
   ],
   strength_and_conditioning: ["crossfit", "swimming", "rowing", "kayaking", "brazilian_jiu_jitsu"],
   power: [
-    "crossfit", "rugby_union", "football_soccer", "netball", "basketball",
+    "crossfit", "rugby_union", "rugby_league", "football_soccer", "netball", "basketball",
     "rugby_sevens", "field_hockey", "ice_hockey", "volleyball", "cricket",
     "american_football", "athletics", "olympic_weightlifting", "boxing",
     "wrestling", "judo", "muay_thai", "mma", "tennis"
   ],
   plyometric: [
-    "rugby_union", "hyrox", "football_soccer", "netball", "basketball",
+    "rugby_union", "rugby_league", "hyrox", "football_soccer", "netball", "basketball",
     "rugby_sevens", "field_hockey", "ice_hockey", "volleyball",
     "american_football", "athletics", "boxing", "muay_thai", "tennis"
   ]
