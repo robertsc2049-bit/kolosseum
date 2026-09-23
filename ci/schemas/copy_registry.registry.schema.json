@@ -89,7 +89,8 @@
                 "rugby_union",
                 "strongman",
                 "hyrox",
-                "crossfit"
+                "crossfit",
+                "rugby_league"
               ]
             },
             "uniqueItems": true
