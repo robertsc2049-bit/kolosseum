@@ -15471,7 +15471,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15491,7 +15492,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15510,7 +15512,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -15528,7 +15531,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15550,6 +15554,7 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15573,6 +15578,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15593,7 +15599,8 @@
           "equipment_class": "machine",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15612,7 +15619,8 @@
           "equipment_class": "portable_resistance",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15632,6 +15640,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15654,7 +15663,8 @@
           "equipment_class": "fixed_support",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
@@ -15672,7 +15682,8 @@
           "equipment_class": "free_weight",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "hinge",
@@ -15690,6 +15701,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15708,6 +15720,7 @@
           "equipment_class": "conditioning_tool",
           "activity_applicability": [
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15725,7 +15738,8 @@
           "equipment_class": "support",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15743,7 +15757,8 @@
           "equipment_class": "machine",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15764,6 +15779,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15781,6 +15797,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "hyrox"
           ],
           "movement_pattern_applicability": [
@@ -15802,7 +15819,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -15819,7 +15837,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -15836,7 +15855,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "hinge"
@@ -15853,7 +15873,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15876,7 +15897,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15898,7 +15920,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15916,7 +15939,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15934,7 +15958,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15951,7 +15976,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15970,7 +15996,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "vertical_pull"
@@ -15987,6 +16014,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16004,6 +16032,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16022,6 +16051,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16039,6 +16069,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16057,6 +16088,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman",
             "hyrox"
           ],
@@ -16076,6 +16108,7 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16095,6 +16128,7 @@
             "general_strength",
             "powerlifting",
             "rugby_union",
+            "rugby_league",
             "strongman"
           ],
           "movement_pattern_applicability": [
@@ -16113,7 +16147,8 @@
           "activity_applicability": [
             "general_strength",
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "decline_push"
@@ -16130,7 +16165,8 @@
           "activity_applicability": [
             "general_strength",
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "rugby_league"
           ],
           "movement_pattern_applicability": [
             "hip_extension_isolation",

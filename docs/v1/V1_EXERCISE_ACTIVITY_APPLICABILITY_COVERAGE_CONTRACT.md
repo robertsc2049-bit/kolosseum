@@ -24,10 +24,11 @@ The exercise activity applicability coverage contract is locked to:
 4. strongman
 5. hyrox
 6. crossfit
+7. rugby_league
 
 No applicability entry may imply active support for an activity outside this set.
 
-(Amendment: strongman was activated as v1's fourth locked activity, hyrox as the fifth, and crossfit as the sixth - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
+(Amendment: strongman was activated as v1's fourth locked activity, hyrox as the fifth, crossfit as the sixth, and rugby_league as the seventh - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Boundary
 

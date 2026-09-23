@@ -8,7 +8,8 @@
     "rugby_union",
     "strongman",
     "hyrox",
-    "crossfit"
+    "crossfit",
+    "rugby_league"
   ],
   "required_activity_contexts": [
     "training",

@@ -8,7 +8,8 @@
     "rugby_union",
     "strongman",
     "hyrox",
-    "crossfit"
+    "crossfit",
+    "rugby_league"
   ],
   "expected_failure_code": "v1_equipment_registry_coverage_contract_missing_equipment_reference",
   "missing_case": {
@@ -24,6 +25,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "hyrox",
         "crossfit"
@@ -46,7 +48,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -65,7 +68,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -83,7 +87,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -104,7 +109,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -126,7 +132,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -146,7 +153,8 @@
       "equipment_class": "machine",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -165,7 +173,8 @@
       "equipment_class": "portable_resistance",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -184,7 +193,8 @@
       "equipment_class": "bodyweight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -206,7 +216,8 @@
       "equipment_class": "fixed_support",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "vertical_pull",
@@ -223,7 +234,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "hinge",
@@ -240,7 +252,8 @@
       "equipment_class": "free_weight",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -257,7 +270,8 @@
       "display_label": "Sled",
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
@@ -274,7 +288,8 @@
       "equipment_class": "support",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -292,7 +307,8 @@
       "equipment_class": "machine",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -312,7 +328,8 @@
       "equipment_class": "conditioning_machine",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "conditioning_general"
@@ -328,7 +345,8 @@
       "equipment_class": "space",
       "activity_applicability": [
         "general_strength",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
