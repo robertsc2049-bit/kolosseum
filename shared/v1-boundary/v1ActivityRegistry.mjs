@@ -119,6 +119,346 @@ const V1_ACTIVITIES = Object.freeze([
       "crossfit_intermediate",
       "crossfit_low_equipment"
     ])
+  }),
+  Object.freeze({
+    activity_id: "football_soccer",
+    display_label: "Football",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "football_soccer_match", display_label: "Football match" }),
+      Object.freeze({ event_type_id: "football_soccer_tournament", display_label: "Football tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "football_soccer_off_season",
+      "football_soccer_pre_season",
+      "football_soccer_in_season",
+      "football_soccer_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "netball",
+    display_label: "Netball",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "netball_match", display_label: "Netball match" }),
+      Object.freeze({ event_type_id: "netball_tournament", display_label: "Netball tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "netball_off_season",
+      "netball_pre_season",
+      "netball_in_season",
+      "netball_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "basketball",
+    display_label: "Basketball",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "basketball_match", display_label: "Basketball match" }),
+      Object.freeze({ event_type_id: "basketball_tournament", display_label: "Basketball tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "basketball_off_season",
+      "basketball_pre_season",
+      "basketball_in_season",
+      "basketball_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "rugby_sevens",
+    display_label: "Rugby sevens",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "rugby_sevens_match", display_label: "Rugby sevens match" }),
+      Object.freeze({ event_type_id: "rugby_sevens_tournament", display_label: "Rugby sevens tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "rugby_sevens_off_season",
+      "rugby_sevens_pre_season",
+      "rugby_sevens_in_season",
+      "rugby_sevens_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "field_hockey",
+    display_label: "Field hockey",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "field_hockey_match", display_label: "Field hockey match" }),
+      Object.freeze({ event_type_id: "field_hockey_tournament", display_label: "Field hockey tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "field_hockey_off_season",
+      "field_hockey_pre_season",
+      "field_hockey_in_season",
+      "field_hockey_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "ice_hockey",
+    display_label: "Ice hockey",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "ice_hockey_match", display_label: "Ice hockey match" }),
+      Object.freeze({ event_type_id: "ice_hockey_tournament", display_label: "Ice hockey tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "ice_hockey_off_season",
+      "ice_hockey_pre_season",
+      "ice_hockey_in_season",
+      "ice_hockey_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "volleyball",
+    display_label: "Volleyball",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "volleyball_match", display_label: "Volleyball match" }),
+      Object.freeze({ event_type_id: "volleyball_tournament", display_label: "Volleyball tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "volleyball_off_season",
+      "volleyball_pre_season",
+      "volleyball_in_season",
+      "volleyball_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "cricket",
+    display_label: "Cricket",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "cricket_match", display_label: "Cricket match" }),
+      Object.freeze({ event_type_id: "cricket_tournament", display_label: "Cricket tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "cricket_off_season",
+      "cricket_pre_season",
+      "cricket_in_season",
+      "cricket_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "american_football",
+    display_label: "American football",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "american_football_match", display_label: "American football match" }),
+      Object.freeze({ event_type_id: "american_football_tournament", display_label: "American football tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "american_football_off_season",
+      "american_football_pre_season",
+      "american_football_in_season",
+      "american_football_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "athletics",
+    display_label: "Athletics",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "athletics_competition", display_label: "Athletics competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "athletics_novice",
+      "athletics_intermediate",
+      "athletics_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "swimming",
+    display_label: "Swimming",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "swimming_competition", display_label: "Swimming competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "swimming_novice",
+      "swimming_intermediate",
+      "swimming_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "olympic_weightlifting",
+    display_label: "Olympic weightlifting",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "olympic_weightlifting_competition", display_label: "Olympic weightlifting competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "olympic_weightlifting_novice",
+      "olympic_weightlifting_intermediate",
+      "olympic_weightlifting_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "cycling",
+    display_label: "Cycling",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "cycling_competition", display_label: "Cycling competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "cycling_novice",
+      "cycling_intermediate",
+      "cycling_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "rowing",
+    display_label: "Rowing",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "rowing_competition", display_label: "Rowing competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "rowing_novice",
+      "rowing_intermediate",
+      "rowing_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "kayaking",
+    display_label: "Kayaking",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "kayaking_competition", display_label: "Kayaking competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "kayaking_novice",
+      "kayaking_intermediate",
+      "kayaking_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "boxing",
+    display_label: "Boxing",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "boxing_competition", display_label: "Boxing competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "boxing_novice",
+      "boxing_intermediate",
+      "boxing_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "wrestling",
+    display_label: "Wrestling",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "wrestling_competition", display_label: "Wrestling competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "wrestling_novice",
+      "wrestling_intermediate",
+      "wrestling_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "judo",
+    display_label: "Judo",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "judo_competition", display_label: "Judo competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "judo_novice",
+      "judo_intermediate",
+      "judo_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "brazilian_jiu_jitsu",
+    display_label: "Brazilian jiu-jitsu",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "brazilian_jiu_jitsu_competition", display_label: "Brazilian jiu-jitsu competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "brazilian_jiu_jitsu_novice",
+      "brazilian_jiu_jitsu_intermediate",
+      "brazilian_jiu_jitsu_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "muay_thai",
+    display_label: "Muay Thai",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "muay_thai_competition", display_label: "Muay Thai competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "muay_thai_novice",
+      "muay_thai_intermediate",
+      "muay_thai_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "mma",
+    display_label: "MMA",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "mma_competition", display_label: "MMA competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "mma_novice",
+      "mma_intermediate",
+      "mma_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "tennis",
+    display_label: "Tennis",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "tennis_competition", display_label: "Tennis competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "tennis_novice",
+      "tennis_intermediate",
+      "tennis_low_equipment"
+    ])
+  }),
+  Object.freeze({
+    activity_id: "triathlon",
+    display_label: "Triathlon",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "triathlon_competition", display_label: "Triathlon competition" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "triathlon_novice",
+      "triathlon_intermediate",
+      "triathlon_low_equipment"
+    ])
   })
 ]);
 
