@@ -252,6 +252,22 @@
       "deterministic_ordering_key": "back_squat|02|01|split_squat",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "back_squat__to__air_squat": {
+      "substitution_edge_id": "back_squat__to__air_squat",
+      "source_exercise_id": "back_squat",
+      "target_exercise_id": "air_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "back_squat|02|02|air_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "back_squat__to__goblet_squat": {
       "substitution_edge_id": "back_squat__to__goblet_squat",
       "source_exercise_id": "back_squat",
@@ -5480,7 +5496,8 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "goblet_squat|02|00|air_squat",
@@ -9673,6 +9690,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_back_squat|02|00|split_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "paused_back_squat__to__air_squat": {
+      "substitution_edge_id": "paused_back_squat__to__air_squat",
+      "source_exercise_id": "paused_back_squat",
+      "target_exercise_id": "air_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "paused_back_squat|02|01|air_squat",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "paused_back_squat__to__goblet_squat": {

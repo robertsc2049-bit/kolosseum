@@ -13236,7 +13236,9 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "crossfit",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "street_lifting"
+      ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
       "template_eligibility": "eligible",
