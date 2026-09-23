@@ -79,7 +79,8 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   muay_thai: Object.freeze(["athlete"]),
   mma: Object.freeze(["athlete"]),
   tennis: Object.freeze(["athlete"]),
-  triathlon: Object.freeze(["athlete"])
+  triathlon: Object.freeze(["athlete"]),
+  rugby_league: Object.freeze(["athlete"])
 });
 const ATHLETE_POSITION_IDS = Object.freeze(
   [...new Set(Object.values(ATHLETE_POSITIONS_BY_ACTIVITY).flat())]
