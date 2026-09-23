@@ -53,7 +53,30 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   general_strength: [["athlete", "Athlete"]],
   strongman: [["athlete", "Athlete"]],
   hyrox: [["athlete", "Athlete"]],
-  crossfit: [["athlete", "Athlete"]]
+  crossfit: [["athlete", "Athlete"]],
+  football_soccer: [["athlete", "Athlete"]],
+  netball: [["athlete", "Athlete"]],
+  basketball: [["athlete", "Athlete"]],
+  rugby_sevens: [["athlete", "Athlete"]],
+  field_hockey: [["athlete", "Athlete"]],
+  ice_hockey: [["athlete", "Athlete"]],
+  volleyball: [["athlete", "Athlete"]],
+  cricket: [["athlete", "Athlete"]],
+  american_football: [["athlete", "Athlete"]],
+  athletics: [["athlete", "Athlete"]],
+  swimming: [["athlete", "Athlete"]],
+  olympic_weightlifting: [["athlete", "Athlete"]],
+  cycling: [["athlete", "Athlete"]],
+  rowing: [["athlete", "Athlete"]],
+  kayaking: [["athlete", "Athlete"]],
+  boxing: [["athlete", "Athlete"]],
+  wrestling: [["athlete", "Athlete"]],
+  judo: [["athlete", "Athlete"]],
+  brazilian_jiu_jitsu: [["athlete", "Athlete"]],
+  muay_thai: [["athlete", "Athlete"]],
+  mma: [["athlete", "Athlete"]],
+  tennis: [["athlete", "Athlete"]],
+  triathlon: [["athlete", "Athlete"]]
 };
 
 function positionSelectHtml(activityId, currentPosition, athleteUserId) {

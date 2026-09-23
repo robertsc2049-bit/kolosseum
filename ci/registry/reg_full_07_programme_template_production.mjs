@@ -23,7 +23,30 @@ const EXPECTED_LEGACY_PROGRAM = Object.freeze({
     { activity_id: "rugby_union", template_id: "PROGRAM_RUGBY_UNION_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
     { activity_id: "general_strength", template_id: "PROGRAM_GENERAL_STRENGTH_V1", exercise_eligibility: ["deadlift", "bench_press", "back_squat", "overhead_press", "incline_bench_press", "push_up"] },
     { activity_id: "strongman", template_id: "PROGRAM_STRONGMAN_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "farmers_carry"] },
-    { activity_id: "crossfit", template_id: "PROGRAM_CROSSFIT_V1", exercise_eligibility: ["thruster", "power_clean", "toes_to_bar", "pull_up"] }
+    { activity_id: "crossfit", template_id: "PROGRAM_CROSSFIT_V1", exercise_eligibility: ["thruster", "power_clean", "toes_to_bar", "pull_up"] },
+    { activity_id: "football_soccer", template_id: "PROGRAM_FOOTBALL_SOCCER_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "netball", template_id: "PROGRAM_NETBALL_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "basketball", template_id: "PROGRAM_BASKETBALL_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "rugby_sevens", template_id: "PROGRAM_RUGBY_SEVENS_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "field_hockey", template_id: "PROGRAM_FIELD_HOCKEY_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "ice_hockey", template_id: "PROGRAM_ICE_HOCKEY_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "volleyball", template_id: "PROGRAM_VOLLEYBALL_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "cricket", template_id: "PROGRAM_CRICKET_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "american_football", template_id: "PROGRAM_AMERICAN_FOOTBALL_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "athletics", template_id: "PROGRAM_ATHLETICS_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "swimming", template_id: "PROGRAM_SWIMMING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "olympic_weightlifting", template_id: "PROGRAM_OLYMPIC_WEIGHTLIFTING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "cycling", template_id: "PROGRAM_CYCLING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "rowing", template_id: "PROGRAM_ROWING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "kayaking", template_id: "PROGRAM_KAYAKING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "boxing", template_id: "PROGRAM_BOXING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "wrestling", template_id: "PROGRAM_WRESTLING_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "judo", template_id: "PROGRAM_JUDO_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "brazilian_jiu_jitsu", template_id: "PROGRAM_BRAZILIAN_JIU_JITSU_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "muay_thai", template_id: "PROGRAM_MUAY_THAI_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "mma", template_id: "PROGRAM_MMA_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "tennis", template_id: "PROGRAM_TENNIS_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "triathlon", template_id: "PROGRAM_TRIATHLON_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] }
   ]
 });
 

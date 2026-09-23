@@ -64,9 +64,32 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
       rugby_union: 4,
       strongman: 3,
       hyrox: 3,
-      crossfit: 3
+      crossfit: 3,
+      football_soccer: 4,
+      netball: 4,
+      basketball: 4,
+      rugby_sevens: 4,
+      field_hockey: 4,
+      ice_hockey: 4,
+      volleyball: 4,
+      cricket: 4,
+      american_football: 4,
+      athletics: 3,
+      swimming: 3,
+      olympic_weightlifting: 3,
+      cycling: 3,
+      rowing: 3,
+      kayaking: 3,
+      boxing: 3,
+      wrestling: 3,
+      judo: 3,
+      brazilian_jiu_jitsu: 3,
+      muay_thai: 3,
+      mma: 3,
+      tennis: 3,
+      triathlon: 3
     },
-    low_equipment_templates: 4
+    low_equipment_templates: 27
   });
 });
 

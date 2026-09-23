@@ -4,19 +4,19 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "057960b620fe320c5588d247e5639c39819fa9beacee50fa226ca099148ea3a8",
+  "canonical_registry_sha256": "0a1ee29f7c328afeefa188f444f09b806fbd95f4804b928d0d018224c54db517",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc"
+      "sha256": "3b9591811bb69e3582408cac05d0cc2ee14132a5c5e5133f4e1d7328b7afbb01"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b"
+      "sha256": "74ad5666dc98982ee9466674d91a672ce63779c0849c2be1e9f21f372a86cb52"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d"
+      "sha256": "54030f7267cb580443ce9aa1a05dea2de5375e95159976ad680db7e44d7ae0f5"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
@@ -24,15 +24,15 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f"
+      "sha256": "b8bb013deb26fc8eed31f46fce8a55bb7779a6f83d464f4b52a45fd786e69579"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301"
+      "sha256": "1afeb1b840b8c361ef33d5b82485c5226b3f6ac2d1c65d453fd1a482bb4cbd5b"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "cad3961089756bca2fb4a8ed83eff11e1efbeb377a97685d1ca5b6284e6bf4e0"
+      "sha256": "5df6aae87fc525ed95408c3ba2dc6f7f77d444943161e1a215390620b7f05f49"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -40,7 +40,7 @@
     },
     "surfaceManifest": {
       "path": "registries/final_registry_surface_manifest.json",
-      "sha256": "6195555058c51f8599bf0fe35cce1b076275b42153ee31ce347cae7f3eb9e8c4"
+      "sha256": "9250bab2dd9a30b1b2fbb04ff0411d596fe8a4dccc53f1e57fb92c01e8c4da79"
     },
     "schemaManifest": {
       "path": "registries/final_registry_schema_manifest.json",
@@ -48,18 +48,41 @@
     }
   },
   "counts": {
-    "template_count": 20,
+    "template_count": 98,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
       "hyrox": 3,
-      "crossfit": 3
+      "crossfit": 3,
+      "football_soccer": 4,
+      "netball": 4,
+      "basketball": 4,
+      "rugby_sevens": 4,
+      "field_hockey": 4,
+      "ice_hockey": 4,
+      "volleyball": 4,
+      "cricket": 4,
+      "american_football": 4,
+      "athletics": 3,
+      "swimming": 3,
+      "olympic_weightlifting": 3,
+      "cycling": 3,
+      "rowing": 3,
+      "kayaking": 3,
+      "boxing": 3,
+      "wrestling": 3,
+      "judo": 3,
+      "brazilian_jiu_jitsu": 3,
+      "muay_thai": 3,
+      "mma": 3,
+      "tennis": 3,
+      "triathlon": 3
     },
-    "low_equipment_templates": 4,
+    "low_equipment_templates": 27,
     "unique_scheduled_exercises": 30,
-    "scheduled_work_items": 604
+    "scheduled_work_items": 2556
   },
   "family_ids": [
     "powerlifting_novice",
@@ -81,7 +104,85 @@
     "hyrox_race_prep",
     "crossfit_novice",
     "crossfit_intermediate",
-    "crossfit_low_equipment"
+    "crossfit_low_equipment",
+    "football_soccer_off_season",
+    "football_soccer_pre_season",
+    "football_soccer_in_season",
+    "football_soccer_low_equipment",
+    "netball_off_season",
+    "netball_pre_season",
+    "netball_in_season",
+    "netball_low_equipment",
+    "basketball_off_season",
+    "basketball_pre_season",
+    "basketball_in_season",
+    "basketball_low_equipment",
+    "rugby_sevens_off_season",
+    "rugby_sevens_pre_season",
+    "rugby_sevens_in_season",
+    "rugby_sevens_low_equipment",
+    "field_hockey_off_season",
+    "field_hockey_pre_season",
+    "field_hockey_in_season",
+    "field_hockey_low_equipment",
+    "ice_hockey_off_season",
+    "ice_hockey_pre_season",
+    "ice_hockey_in_season",
+    "ice_hockey_low_equipment",
+    "volleyball_off_season",
+    "volleyball_pre_season",
+    "volleyball_in_season",
+    "volleyball_low_equipment",
+    "cricket_off_season",
+    "cricket_pre_season",
+    "cricket_in_season",
+    "cricket_low_equipment",
+    "american_football_off_season",
+    "american_football_pre_season",
+    "american_football_in_season",
+    "american_football_low_equipment",
+    "athletics_novice",
+    "athletics_intermediate",
+    "athletics_low_equipment",
+    "swimming_novice",
+    "swimming_intermediate",
+    "swimming_low_equipment",
+    "olympic_weightlifting_novice",
+    "olympic_weightlifting_intermediate",
+    "olympic_weightlifting_low_equipment",
+    "cycling_novice",
+    "cycling_intermediate",
+    "cycling_low_equipment",
+    "rowing_novice",
+    "rowing_intermediate",
+    "rowing_low_equipment",
+    "kayaking_novice",
+    "kayaking_intermediate",
+    "kayaking_low_equipment",
+    "boxing_novice",
+    "boxing_intermediate",
+    "boxing_low_equipment",
+    "wrestling_novice",
+    "wrestling_intermediate",
+    "wrestling_low_equipment",
+    "judo_novice",
+    "judo_intermediate",
+    "judo_low_equipment",
+    "brazilian_jiu_jitsu_novice",
+    "brazilian_jiu_jitsu_intermediate",
+    "brazilian_jiu_jitsu_low_equipment",
+    "muay_thai_novice",
+    "muay_thai_intermediate",
+    "muay_thai_low_equipment",
+    "mma_novice",
+    "mma_intermediate",
+    "mma_low_equipment",
+    "tennis_novice",
+    "tennis_intermediate",
+    "tennis_low_equipment",
+    "triathlon_novice",
+    "triathlon_intermediate",
+    "triathlon_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,

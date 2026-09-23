@@ -73,6 +73,29 @@ The public launch candidate uses the exact REG-FULL-09 accepted activity scope:
 - `strongman`
 - `hyrox`
 - `crossfit`
+- `football_soccer`
+- `netball`
+- `basketball`
+- `rugby_sevens`
+- `field_hockey`
+- `ice_hockey`
+- `volleyball`
+- `cricket`
+- `american_football`
+- `athletics`
+- `swimming`
+- `olympic_weightlifting`
+- `cycling`
+- `rowing`
+- `kayaking`
+- `boxing`
+- `wrestling`
+- `judo`
+- `brazilian_jiu_jitsu`
+- `muay_thai`
+- `mma`
+- `tennis`
+- `triathlon`
 
 The activity set is closed world. An activity outside REG-FULL-09 accepted scope is not permitted by LAUNCH-00.
 

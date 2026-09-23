@@ -3,7 +3,7 @@
     {
       "case_id": "unsupported_activity_refused",
       "mutation_path": "registry_records.substitution_edges.0.activity_id",
-      "mutation_value": "football_soccer",
+      "mutation_value": "golf",
       "expected_reason": "unsupported_activity_refused"
     },
     {
@@ -50,7 +50,7 @@
     {
       "case_id": "supported_activity_set_is_closed",
       "mutation_path": "supported_activity_ids.3",
-      "mutation_value": "football_soccer",
+      "mutation_value": "golf",
       "expected_reason": "supported_activity_set_invalid"
     }
   ]

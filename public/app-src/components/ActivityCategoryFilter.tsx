@@ -26,12 +26,28 @@ export const CATEGORIES = [
 ] as const;
 
 export const CATEGORY_ACTIVITY_IDS: Record<string, readonly string[]> = {
-  strength: ["powerlifting", "strongman"],
+  strength: [
+    "powerlifting", "strongman", "american_football", "olympic_weightlifting",
+    "wrestling", "judo", "brazilian_jiu_jitsu", "mma"
+  ],
   body_composition: ["general_strength"],
-  conditioning: ["hyrox"],
-  strength_and_conditioning: ["crossfit"],
-  power: ["crossfit", "rugby_union"],
-  plyometric: ["rugby_union", "hyrox"]
+  conditioning: [
+    "hyrox", "football_soccer", "basketball", "rugby_sevens", "field_hockey",
+    "ice_hockey", "cricket", "athletics", "swimming", "cycling", "rowing",
+    "kayaking", "boxing", "muay_thai", "mma", "tennis", "triathlon"
+  ],
+  strength_and_conditioning: ["crossfit", "swimming", "rowing", "kayaking", "brazilian_jiu_jitsu"],
+  power: [
+    "crossfit", "rugby_union", "football_soccer", "netball", "basketball",
+    "rugby_sevens", "field_hockey", "ice_hockey", "volleyball", "cricket",
+    "american_football", "athletics", "olympic_weightlifting", "boxing",
+    "wrestling", "judo", "muay_thai", "mma", "tennis"
+  ],
+  plyometric: [
+    "rugby_union", "hyrox", "football_soccer", "netball", "basketball",
+    "rugby_sevens", "field_hockey", "ice_hockey", "volleyball",
+    "american_football", "athletics", "boxing", "muay_thai", "tennis"
+  ]
 };
 
 export function sportOptionsForCategory(categoryId: string) {

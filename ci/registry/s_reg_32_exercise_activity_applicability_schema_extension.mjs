@@ -88,7 +88,34 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
   // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md), added the same way as
   // strongman/hyrox above: a live-recognition placeholder only, with no
   // historical movement-id evidence from S-REG-32's authoring time.
-  crossfit: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"])
+  crossfit: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  // The 23 activities activated in the same batched slice (see
+  // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md) are added the same way
+  // as strongman/hyrox/crossfit above: live-recognition placeholders only,
+  // with no historical movement-id evidence from S-REG-32's authoring time.
+  football_soccer: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  netball: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  basketball: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  rugby_sevens: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  field_hockey: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  ice_hockey: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  volleyball: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  cricket: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  american_football: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  athletics: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  swimming: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  olympic_weightlifting: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  cycling: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  rowing: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  kayaking: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  boxing: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  wrestling: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  judo: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  brazilian_jiu_jitsu: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  muay_thai: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  mma: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  tennis: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  triathlon: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([

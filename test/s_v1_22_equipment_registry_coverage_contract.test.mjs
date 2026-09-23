@@ -271,14 +271,7 @@ function makeEquipmentRecord(equipmentId, overrides = {}) {
     equipment_id: equipmentId,
     display_label: equipmentId.replaceAll("_", " "),
     equipment_class: "contract_class",
-    activity_applicability: [
-      "powerlifting",
-      "general_strength",
-      "rugby_union",
-      "strongman",
-      "hyrox",
-      "crossfit"
-    ],
+    activity_applicability: [...lockedActivityIds],
     movement_pattern_applicability: [
       "squat",
       "hinge",
@@ -308,7 +301,30 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
     "rugby_union",
     "strongman",
     "hyrox",
-    "crossfit"
+    "crossfit",
+    "football_soccer",
+    "netball",
+    "basketball",
+    "rugby_sevens",
+    "field_hockey",
+    "ice_hockey",
+    "volleyball",
+    "cricket",
+    "american_football",
+    "athletics",
+    "swimming",
+    "olympic_weightlifting",
+    "cycling",
+    "rowing",
+    "kayaking",
+    "boxing",
+    "wrestling",
+    "judo",
+    "brazilian_jiu_jitsu",
+    "muay_thai",
+    "mma",
+    "tennis",
+    "triathlon"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [

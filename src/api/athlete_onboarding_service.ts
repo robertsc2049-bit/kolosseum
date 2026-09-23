@@ -56,7 +56,30 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   general_strength: Object.freeze(["athlete"]),
   strongman: Object.freeze(["athlete"]),
   hyrox: Object.freeze(["athlete"]),
-  crossfit: Object.freeze(["athlete"])
+  crossfit: Object.freeze(["athlete"]),
+  football_soccer: Object.freeze(["athlete"]),
+  netball: Object.freeze(["athlete"]),
+  basketball: Object.freeze(["athlete"]),
+  rugby_sevens: Object.freeze(["athlete"]),
+  field_hockey: Object.freeze(["athlete"]),
+  ice_hockey: Object.freeze(["athlete"]),
+  volleyball: Object.freeze(["athlete"]),
+  cricket: Object.freeze(["athlete"]),
+  american_football: Object.freeze(["athlete"]),
+  athletics: Object.freeze(["athlete"]),
+  swimming: Object.freeze(["athlete"]),
+  olympic_weightlifting: Object.freeze(["athlete"]),
+  cycling: Object.freeze(["athlete"]),
+  rowing: Object.freeze(["athlete"]),
+  kayaking: Object.freeze(["athlete"]),
+  boxing: Object.freeze(["athlete"]),
+  wrestling: Object.freeze(["athlete"]),
+  judo: Object.freeze(["athlete"]),
+  brazilian_jiu_jitsu: Object.freeze(["athlete"]),
+  muay_thai: Object.freeze(["athlete"]),
+  mma: Object.freeze(["athlete"]),
+  tennis: Object.freeze(["athlete"]),
+  triathlon: Object.freeze(["athlete"])
 });
 const ATHLETE_POSITION_IDS = Object.freeze(
   [...new Set(Object.values(ATHLETE_POSITIONS_BY_ACTIVITY).flat())]

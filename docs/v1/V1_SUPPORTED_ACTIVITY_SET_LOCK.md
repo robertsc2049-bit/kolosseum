@@ -109,3 +109,7 @@ S-V1-20 is accepted when:
 - no UI screen is added
 - no database migration is added
 - no package version is changed
+
+## Amendment - 23 further sports activated (seventh through twenty-ninth locked activities)
+
+The locked activity set now additionally includes: `football_soccer`, `netball`, `basketball`, `rugby_sevens`, `field_hockey`, `ice_hockey`, `volleyball`, `cricket`, `american_football`, `athletics`, `swimming`, `olympic_weightlifting`, `cycling`, `rowing`, `kayaking`, `boxing`, `wrestling`, `judo`, `brazilian_jiu_jitsu`, `muay_thai`, `mma`, `tennis`, `triathlon`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Each reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.

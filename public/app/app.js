@@ -3067,7 +3067,32 @@ function programmeActivationIssues(template) {
     "powerlifting",
     "general_strength",
     "rugby_union",
-    "strongman"
+    "strongman",
+    "hyrox",
+    "crossfit",
+    "football_soccer",
+    "netball",
+    "basketball",
+    "rugby_sevens",
+    "field_hockey",
+    "ice_hockey",
+    "volleyball",
+    "cricket",
+    "american_football",
+    "athletics",
+    "swimming",
+    "olympic_weightlifting",
+    "cycling",
+    "rowing",
+    "kayaking",
+    "boxing",
+    "wrestling",
+    "judo",
+    "brazilian_jiu_jitsu",
+    "muay_thai",
+    "mma",
+    "tennis",
+    "triathlon"
   ]);
   const supportedBlockTypes = new Set([
     "general",
@@ -3757,6 +3782,142 @@ const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
   strongman: [
     ["strongman_competition", "Strongman competition"],
     ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  hyrox: [
+    ["hyrox_race", "Hyrox race"],
+    ["hyrox_simulation", "Hyrox simulation"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  crossfit: [
+    ["crossfit_competition", "CrossFit competition"],
+    ["wod_event", "WOD event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  football_soccer: [
+    ["football_soccer_match", "Football match"],
+    ["football_soccer_tournament", "Football tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  netball: [
+    ["netball_match", "Netball match"],
+    ["netball_tournament", "Netball tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  basketball: [
+    ["basketball_match", "Basketball match"],
+    ["basketball_tournament", "Basketball tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  rugby_sevens: [
+    ["rugby_sevens_match", "Rugby sevens match"],
+    ["rugby_sevens_tournament", "Rugby sevens tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  field_hockey: [
+    ["field_hockey_match", "Field hockey match"],
+    ["field_hockey_tournament", "Field hockey tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  ice_hockey: [
+    ["ice_hockey_match", "Ice hockey match"],
+    ["ice_hockey_tournament", "Ice hockey tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  volleyball: [
+    ["volleyball_match", "Volleyball match"],
+    ["volleyball_tournament", "Volleyball tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  cricket: [
+    ["cricket_match", "Cricket match"],
+    ["cricket_tournament", "Cricket tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  american_football: [
+    ["american_football_match", "American football match"],
+    ["american_football_tournament", "American football tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  athletics: [
+    ["athletics_competition", "Athletics competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  swimming: [
+    ["swimming_competition", "Swimming competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  olympic_weightlifting: [
+    ["olympic_weightlifting_competition", "Olympic weightlifting competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  cycling: [
+    ["cycling_competition", "Cycling competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  rowing: [
+    ["rowing_competition", "Rowing competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  kayaking: [
+    ["kayaking_competition", "Kayaking competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  boxing: [
+    ["boxing_competition", "Boxing competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  wrestling: [
+    ["wrestling_competition", "Wrestling competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  judo: [
+    ["judo_competition", "Judo competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  brazilian_jiu_jitsu: [
+    ["brazilian_jiu_jitsu_competition", "Brazilian jiu-jitsu competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  muay_thai: [
+    ["muay_thai_competition", "Muay Thai competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  mma: [
+    ["mma_competition", "MMA competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  tennis: [
+    ["tennis_competition", "Tennis competition"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  triathlon: [
+    ["triathlon_competition", "Triathlon competition"],
     ["test_day", "Test day"],
     ["other", "Other event"]
   ]

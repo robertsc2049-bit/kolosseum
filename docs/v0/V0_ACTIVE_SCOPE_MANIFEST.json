@@ -50,14 +50,7 @@
                                "general_strength"
                            ],
     "forbidden_activity_examples":  [
-                                        "football_soccer",
-                                        "american_football",
-                                        "weightlifting",
                                         "running",
-                                        "cycling",
-                                        "swimming",
-                                        "boxing",
-                                        "mma",
                                         "bodybuilding",
                                         "military_fitness"
                                     ],

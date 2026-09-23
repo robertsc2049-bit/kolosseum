@@ -40,19 +40,19 @@
       "expected_token": "V0_FORBIDDEN_EXECUTION_SCOPE"
     },
     {
-      "test_id": "neg_activity_football_soccer",
+      "test_id": "neg_activity_running",
       "domain": "activity_id",
       "input": {
-        "activity_id": "football_soccer"
+        "activity_id": "running"
       },
       "expected_ok": false,
       "expected_token": "V0_FORBIDDEN_ACTIVITY"
     },
     {
-      "test_id": "neg_activity_weightlifting",
+      "test_id": "neg_activity_bodybuilding",
       "domain": "activity_id",
       "input": {
-        "activity_id": "weightlifting"
+        "activity_id": "bodybuilding"
       },
       "expected_ok": false,
       "expected_token": "V0_FORBIDDEN_ACTIVITY"

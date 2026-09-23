@@ -103,7 +103,7 @@ test("a missing programme name is flagged", () => {
 });
 
 test("an unsupported activity is flagged", () => {
-  const issues = programmeActivationIssues(template({ activity_id: "cycling" }), []);
+  const issues = programmeActivationIssues(template({ activity_id: "golf" }), []);
   assert.ok(issues.some((issue) => issue.code === "activity_id_invalid"));
 });
 
@@ -265,7 +265,7 @@ test("lists every issue with its path and message, and offers Open draft builder
 });
 
 test("pluralises the issue count correctly", async () => {
-  installMocks([template({ template_name: "", activity_id: "cycling" })]);
+  installMocks([template({ template_name: "", activity_id: "golf" })]);
   render(<CoachProgrammeValidationPanel />);
   await openDetail("tmpl_1_v1");
   await screen.findByText("2 completion issues recorded.");

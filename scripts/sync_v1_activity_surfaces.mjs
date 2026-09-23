@@ -21,14 +21,18 @@ if (!mode) {
   process.exit(1);
 }
 
-// DEV NOTE: This regex matches the literal, currently-committed activity id
-// sequence regardless of surrounding whitespace/newlines, so the same
-// updater works for both compact single-line schema files and pretty-
-// printed multi-line ones. It intentionally matches on CONTENT (the known
-// ids in their current order), not on a field name, since the same array
+// DEV NOTE: This regex matches on CONTENT (the stable powerlifting/
+// general_strength/rugby_union prefix every version of this array has
+// carried since v1's foundation), not on a field name, since the same array
 // shape appears under different key names (`enum`, `const`,
-// `supported_activity_scope`) across these files.
-const ACTIVITY_ARRAY_PATTERN = /\[\s*"powerlifting"\s*,\s*"general_strength"\s*,\s*"rugby_union"\s*,\s*"strongman"\s*,\s*"hyrox"\s*\]/g;
+// `supported_activity_scope`) across these files - and not on a full fixed
+// id sequence, since a fixed-length pattern silently stops matching (and
+// silently no-ops, since syncActivityArrays only replaces what it matches)
+// the moment a later activity is appended past its hardcoded end, as
+// happened here after crossfit's own activation. Matching everything from
+// the stable prefix to the array's own closing bracket keeps this working
+// for any current activity count without needing another future edit here.
+const ACTIVITY_ARRAY_PATTERN = /\[\s*"powerlifting"\s*,\s*"general_strength"\s*,\s*"rugby_union"\s*,[\s\S]*?\]/g;
 
 /**
  * Rebuild an activity-id JSON array, preserving the matched text's own
