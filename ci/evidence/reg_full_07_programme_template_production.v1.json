@@ -4,15 +4,15 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "0a1ee29f7c328afeefa188f444f09b806fbd95f4804b928d0d018224c54db517",
+  "canonical_registry_sha256": "c7f0c16e4d1a63f5a5298cf5525fab9762bb7ae68dfe178c1ea28bc2200f3c2d",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "3b9591811bb69e3582408cac05d0cc2ee14132a5c5e5133f4e1d7328b7afbb01"
+      "sha256": "69d79f036af1b254b5fee175d44c11d1be658e2d4468cbb492dc0b2c35f34fe5"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "74ad5666dc98982ee9466674d91a672ce63779c0849c2be1e9f21f372a86cb52"
+      "sha256": "cf949ed99133e04b859e9501e3a53e4f7453bee45819677e5b23e556f286e070"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
@@ -24,15 +24,15 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "b8bb013deb26fc8eed31f46fce8a55bb7779a6f83d464f4b52a45fd786e69579"
+      "sha256": "29af256a905ba2a845f5e64bc62208a865ec559c51dd31dca0ec094d35be63b6"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "1afeb1b840b8c361ef33d5b82485c5226b3f6ac2d1c65d453fd1a482bb4cbd5b"
+      "sha256": "c0c320fc21e7d18822b7a16d6d93e19d50d5aaf8d9739196d74650db1704df47"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "5df6aae87fc525ed95408c3ba2dc6f7f77d444943161e1a215390620b7f05f49"
+      "sha256": "b90be8ca13f86ed41bc304e27bf1890880c3c0928fc67e1daae74986f42c96ca"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -48,7 +48,7 @@
     }
   },
   "counts": {
-    "template_count": 98,
+    "template_count": 102,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
@@ -78,11 +78,12 @@
       "muay_thai": 3,
       "mma": 3,
       "tennis": 3,
-      "triathlon": 3
+      "triathlon": 3,
+      "rugby_league": 4
     },
-    "low_equipment_templates": 27,
+    "low_equipment_templates": 28,
     "unique_scheduled_exercises": 30,
-    "scheduled_work_items": 2556
+    "scheduled_work_items": 2692
   },
   "family_ids": [
     "powerlifting_novice",
@@ -182,7 +183,11 @@
     "tennis_low_equipment",
     "triathlon_novice",
     "triathlon_intermediate",
-    "triathlon_low_equipment"
+    "triathlon_low_equipment",
+    "rugby_league_off_season",
+    "rugby_league_pre_season",
+    "rugby_league_in_season",
+    "rugby_league_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,
