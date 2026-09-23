@@ -455,3 +455,11 @@ Status: Accepted.
 docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to six activities: powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit.
 
 The v1 registry expansion target now also covers crossfit: activity registry entry, new exercise and equipment content for its benchmark movements (thruster, clean and jerk, snatch, muscle-up, toes-to-bar, double-under, rope climb, handstand push-up, burpee, air squat), movement pattern coverage, substitution edge coverage, three programme templates (crossfit_novice, crossfit_intermediate, crossfit_low_equipment), and copy/legal boundary review, matching the same target already defined above for the prior activities. This activation is also the first to add real completion/scoring semantics for grouped work items (complex/AMRAP/EMOM/for-time), a programme-shape investment Hyrox's own activation named but did not build.
+
+## Amendment - Rugby league activated as v1's seventh locked activity
+
+Status: Accepted.
+
+docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md was amended to lock v1 to seven activities: powerlifting, general_strength, rugby_union, strongman, hyrox, crossfit, and rugby_league.
+
+The v1 registry expansion target now also covers rugby_league: activity registry entry, exercise activity-applicability extended onto the same 237-exercise set already applicable to rugby_union (no new exercises needed - the registry is generic strength & conditioning content with no sport-skill exercises tied specifically to union), movement pattern coverage (identical allowlist to every other locked activity), substitution edge coverage (piggybacking on existing multi-activity edges rather than new edges), four programme templates (rugby_league_off_season, rugby_league_pre_season, rugby_league_in_season, rugby_league_low_equipment), and copy/legal boundary review, matching the same target already defined above for the prior activities. Unlike Hyrox and CrossFit, this activation needs no new programme-template shape or completion model - it reuses rugby_union's existing periodized block/week/session template.

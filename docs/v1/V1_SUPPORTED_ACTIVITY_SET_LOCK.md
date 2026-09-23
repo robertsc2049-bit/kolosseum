@@ -95,7 +95,7 @@ The required proof is:
 S-V1-20 is accepted when:
 
 - docs/v1/V1_SUPPORTED_ACTIVITY_SET_LOCK.md exists
-- the supported set is exactly powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit
+- the supported set is exactly powerlifting, general_strength, rugby_union, strongman, hyrox, crossfit, and rugby_league
 - the negative fixture exists
 - unsupported activity ids in the fixture are rejected
 - the S-V1-20 test exists and passes

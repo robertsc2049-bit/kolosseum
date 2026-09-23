@@ -164,3 +164,7 @@ The locked activity set is now exactly powerlifting, general_strength, rugby_uni
 ## Amendment - CrossFit activated as v1's sixth locked activity
 
 The locked activity set is now exactly powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit (length 6), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` was updated accordingly.
+
+## Amendment - Rugby league activated as v1's seventh locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, strongman, hyrox, crossfit, and rugby_league (length 7), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` was updated accordingly.

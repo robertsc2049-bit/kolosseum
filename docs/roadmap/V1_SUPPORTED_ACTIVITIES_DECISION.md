@@ -212,3 +212,25 @@ Authorisation: explicit direct chat instruction from the product owner ("we need
 Rationale: this is the first activity addition to also close the gap Hyrox's own amendment left open - a genuinely new completion model (grouped "complex"/AMRAP/EMOM/for-time work items, sharing one weight or one clock across several exercises) rather than only a periodized block/week/session template dressed in new registry content. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition, and additionally extends the existing work-item grouping mechanism (`group_id`/`group_type`) with real execution semantics instead of introducing a parallel one.
 
 Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, Hyrox, and CrossFit. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.
+
+## Amendment - Rugby league activated as v1's seventh locked activity
+
+Status: Accepted.
+
+This amendment does not rewrite the "Explicit v1 exclusions" listing above (rugby league was not itself a named exclusion there; it falls under "additional team sports"); it records a new activity added to the locked set, reusing rugby_union's existing periodized block/week/session template shape with no new completion model required.
+
+v1 supported activities are now locked to:
+
+1. powerlifting
+2. general_strength
+3. rugby_union
+4. strongman
+5. hyrox
+6. crossfit
+7. rugby_league
+
+Authorisation: explicit direct chat instruction from the product owner, following a tiered candidate list presented in chat (rugby league, football, netball, basketball as Tier 1 - team sports with genuine positional training-demand splits) and the explicit choice "work through in order," selecting rugby league first as the smallest step (same athlete population already served by rugby_union, different positional structure). A full implementation plan naming this scope specifically was presented and approved via Plan Mode before this slice began.
+
+Rationale: this is the first activity addition since the generalized v1 activity-set foundation that reuses an existing activity's template shape and exercise pool wholesale rather than requiring new template/completion-model work (unlike Hyrox's fixed-station format or CrossFit's grouped-workout scoring) - the exercise registry is generic strength & conditioning content with no rugby_union-specific sport-skill exercises, so the same 237-exercise applicability set, movement-pattern allowlist, and multi-activity substitution edges extend cleanly. It follows the same registry plan, substitution coverage plan, template plan, copy/legal review, and CI proof this record already required for any post-v1 activity addition. Real rugby_league positions and position-aware substitution narrowing (mirroring the rugby_union work in PR #1148) are deliberately deferred to a follow-up slice, matching how rugby_union itself only received that treatment separately from its own initial activation.
+
+Public and in-product copy may now say that v1 supports powerlifting, general strength, rugby union, strongman, Hyrox, CrossFit, and rugby league. The remaining exclusions listed above (bodybuilding, weightlifting, combat sports, running, cycling, swimming, tactical/uniformed-force packs, youth-specific variants, rehabilitation packs, additional team/individual sports beyond those now locked) are unchanged and still apply.

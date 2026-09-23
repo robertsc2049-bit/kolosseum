@@ -57,6 +57,18 @@
         "toes_to_bar",
         "pull_up"
       ]
+    },
+    {
+      "activity_id": "rugby_league",
+      "template_id": "PROGRAM_RUGBY_LEAGUE_V1",
+      "exercise_eligibility": [
+        "back_squat",
+        "bench_press",
+        "deadlift",
+        "overhead_press",
+        "incline_bench_press",
+        "push_up"
+      ]
     }
   ]
 }

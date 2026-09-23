@@ -4,15 +4,15 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "057960b620fe320c5588d247e5639c39819fa9beacee50fa226ca099148ea3a8",
+  "canonical_registry_sha256": "fb6be4788b058f4cfff3db784180527113b8580776a87dab1964723e2f31b27f",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "deda0d9bcbc4192d55efbdd445f070e3592ff9d33c83b019f6a72ce0451c6ddc"
+      "sha256": "a5982be91ba78972a1752307d669cba08bf74f3007528a32a44a5582ec06d148"
     },
     "exercise": {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "dc8e37017a93ae207f0dabc232ba443e0abccb5d244e87356b593211f0a2d07b"
+      "sha256": "0ee78129ad0510089f26ab8160df7607de9a2fab3b029bead860ec4dce005c0d"
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
@@ -24,11 +24,11 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "50d8c0f2d9be0bbc2914ca06b0d176d372d73d7e6e31e4d0fa3ef8ac7db20b3f"
+      "sha256": "09fec54ad36a55071ae2e33fc99673ad67c724742d643141539e9b5b066275ee"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "050be240b9fa8c1b643ba8e95e88958d8882e798dc20aaff2ab5f18157248301"
+      "sha256": "394c2a94ee529b6533c0de6659200f4d4fff8c8653adfc4785691d1fdb1fb1af"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
@@ -48,18 +48,19 @@
     }
   },
   "counts": {
-    "template_count": 20,
+    "template_count": 24,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
       "rugby_union": 4,
       "strongman": 3,
       "hyrox": 3,
-      "crossfit": 3
+      "crossfit": 3,
+      "rugby_league": 4
     },
-    "low_equipment_templates": 4,
+    "low_equipment_templates": 5,
     "unique_scheduled_exercises": 30,
-    "scheduled_work_items": 604
+    "scheduled_work_items": 740
   },
   "family_ids": [
     "powerlifting_novice",
@@ -73,6 +74,10 @@
     "rugby_union_pre_season",
     "rugby_union_in_season",
     "rugby_union_low_equipment",
+    "rugby_league_off_season",
+    "rugby_league_pre_season",
+    "rugby_league_in_season",
+    "rugby_league_low_equipment",
     "strongman_novice",
     "strongman_intermediate",
     "strongman_low_equipment",

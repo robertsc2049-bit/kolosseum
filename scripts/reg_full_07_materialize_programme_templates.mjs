@@ -80,6 +80,24 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
     Object.freeze([work("box_jump", 3, 4), work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)]),
     Object.freeze([work("bulgarian_split_squat", 3, 8), work("dumbbell_overhead_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)])
   ]) }),
+  Object.freeze({ template_id: "rugby_league_off_season", activity_id: "rugby_league", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("box_jump", 3, 5), work("back_squat", 4, 6), work("dumbbell_bench_press", 4, 8), work("single_arm_dumbbell_row", 4, 10)]),
+    Object.freeze([work("backward_overhead_medicine_ball_throw", 4, 5), work("romanian_deadlift", 4, 6), work("dumbbell_overhead_press", 3, 8)]),
+    Object.freeze([work("box_jump", 3, 5), work("back_squat", 3, 6), work("dumbbell_bench_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)])
+  ]) }),
+  Object.freeze({ template_id: "rugby_league_pre_season", activity_id: "rugby_league", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("box_jump", 4, 4), work("backward_overhead_medicine_ball_throw", 4, 4), work("back_squat", 3, 5)]),
+    Object.freeze([work("romanian_deadlift", 3, 5), work("dumbbell_bench_press", 3, 6), work("single_arm_dumbbell_row", 3, 8)]),
+    Object.freeze([work("box_jump", 3, 4), work("backward_overhead_medicine_ball_throw", 3, 4), work("dumbbell_overhead_press", 3, 6)])
+  ]) }),
+  Object.freeze({ template_id: "rugby_league_in_season", activity_id: "rugby_league", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("box_jump", 3, 3), work("back_squat", 2, 4), work("dumbbell_bench_press", 2, 6), work("single_arm_dumbbell_row", 2, 8)]),
+    Object.freeze([work("backward_overhead_medicine_ball_throw", 3, 3), work("romanian_deadlift", 2, 5), work("dumbbell_overhead_press", 2, 6)])
+  ]) }),
+  Object.freeze({ template_id: "rugby_league_low_equipment", activity_id: "rugby_league", weeks: 4, low_equipment: true, days: Object.freeze([
+    Object.freeze([work("box_jump", 3, 4), work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)]),
+    Object.freeze([work("bulgarian_split_squat", 3, 8), work("dumbbell_overhead_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)])
+  ]) }),
   Object.freeze({ template_id: "strongman_novice", activity_id: "strongman", weeks: 4, low_equipment: false, days: Object.freeze([
     Object.freeze([work("back_squat", 3, 5), work("bench_press", 3, 5), work("farmers_carry", 3, 1)]),
     Object.freeze([work("deadlift", 3, 5), work("farmers_carry", 3, 1)]),

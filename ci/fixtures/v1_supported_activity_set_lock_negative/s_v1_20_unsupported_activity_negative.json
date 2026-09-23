@@ -8,7 +8,8 @@
     "rugby_union",
     "strongman",
     "hyrox",
-    "crossfit"
+    "crossfit",
+    "rugby_league"
   ],
   "unsupported_activity_ids": [
     "bodybuilding",
@@ -23,7 +24,6 @@
     "football_soccer",
     "soccer",
     "basketball",
-    "rugby_league",
     "athletics",
     "youth_pack",
     "rehabilitation_pack"
