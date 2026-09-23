@@ -63,8 +63,22 @@ test("every one of the 6 locked activities has a position list - rugby_union rea
   for (const activityId of ["powerlifting", "general_strength", "rugby_union", "strongman", "hyrox", "crossfit"]) {
     assert.match(onboardingService, new RegExp(`${activityId}:\\s*Object\\.freeze\\(\\[`, "u"), activityId);
   }
-  assert.match(onboardingService, /rugby_union: Object\.freeze\(\[\s*\n\s*"prop", "hooker"/u);
+  assert.match(onboardingService, /rugby_union: Object\.freeze\(\[\s*\n\s*"loosehead_prop", "tighthead_prop", "hooker"/u);
   assert.match(onboardingService, /powerlifting: Object\.freeze\(\["athlete"\]\)/u);
+});
+
+test("rugby_union's front row is split into loosehead/tighthead prop (no bare 'prop' position remains) across all three hand-synced position lists", () => {
+  const positionSelect = read("public/app-src/components/PositionSelect.tsx");
+  const orgJs = read("public/org/org.js");
+  for (const [label, source] of [
+    ["athlete_onboarding_service.ts", onboardingService],
+    ["PositionSelect.tsx", positionSelect],
+    ["org.js", orgJs]
+  ]) {
+    assert.match(source, /loosehead_prop/u, `${label} missing loosehead_prop`);
+    assert.match(source, /tighthead_prop/u, `${label} missing tighthead_prop`);
+    assert.doesNotMatch(source, /["'[]prop["',\]]/u, `${label} still references the retired bare "prop" position`);
+  }
 });
 
 test("position is validated structurally by validateAthletePosition and semantically cross-checked by assertPositionMatchesActivity", () => {

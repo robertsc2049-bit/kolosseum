@@ -98,6 +98,25 @@ test("substitution uses the existing v1 substitution contract and a closed regis
   assert.match(client, /export async function requestSessionSubstitution/u);
 });
 
+test("substitution narrows by the athlete's declared rugby_union position as a suggestion-time-only signal, never touching engine truth or write-time validation", () => {
+  assert.match(substitutionRegistry, /RUGBY_UNION_POSITION_SUBSTITUTION_PROFILE/u);
+  assert.match(substitutionRegistry, /position\?: string \| null/u);
+  assert.match(
+    substitutionRegistry,
+    /relevantEdgesNarrowed\.length > 0 \? relevantEdgesNarrowed : relevantEdgesAll/u
+  );
+
+  assert.match(substitutionService, /getAthleteDeclaredActivityAndPosition/u);
+  assert.match(substitutionService, /declared\.activity_id !== sessionActivityId/u);
+
+  // Write-time validation stays activity-only - position must never reach
+  // findSubstitutionRegistryEdge's call in the write service.
+  const writeServiceEdgeCallStart = writeService.indexOf("findSubstitutionRegistryEdge(");
+  const writeServiceEdgeCallEnd = writeService.indexOf(")", writeServiceEdgeCallStart);
+  const writeServiceEdgeCall = writeService.slice(writeServiceEdgeCallStart, writeServiceEdgeCallEnd);
+  assert.doesNotMatch(writeServiceEdgeCall, /position/u);
+});
+
 test("planned_items and exercise_id remain authoritative through substitution and skip annotations", () => {
   // The tag validator only accepts substitution facts alongside the existing
   // COMPLETE_EXERCISE/SKIP_EXERCISE exercise_id - it never rewrites it.
