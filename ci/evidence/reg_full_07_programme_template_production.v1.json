@@ -16,7 +16,7 @@
     },
     "equipment": {
       "path": "registries/equipment/equipment.registry.json",
-      "sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d"
+      "sha256": "cfcfa8860a99ba7a3f65e0ce4f66d8b0bbcf48eebfbe2a6f93631c42cf51d4c4"
     },
     "equipmentCompatibility": {
       "path": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
@@ -40,7 +40,7 @@
     },
     "surfaceManifest": {
       "path": "registries/final_registry_surface_manifest.json",
-      "sha256": "6195555058c51f8599bf0fe35cce1b076275b42153ee31ce347cae7f3eb9e8c4"
+      "sha256": "decc04eb7ac0c6cff9ecee53cb908389c1d5b7204e0e90a8fe8ca16c55a5f857"
     },
     "schemaManifest": {
       "path": "registries/final_registry_schema_manifest.json",

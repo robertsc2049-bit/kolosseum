@@ -30,8 +30,8 @@ export const CATEGORY_ACTIVITY_IDS: Record<string, readonly string[]> = {
   body_composition: ["general_strength"],
   conditioning: ["hyrox"],
   strength_and_conditioning: ["crossfit"],
-  power: ["crossfit", "rugby_union"],
-  plyometric: ["rugby_union", "hyrox"]
+  power: ["crossfit", "rugby_union", "rugby_league"],
+  plyometric: ["rugby_union", "hyrox", "rugby_league"]
 };
 
 export function sportOptionsForCategory(categoryId: string) {

@@ -22,7 +22,7 @@
   "sha256": {
     "exercise_registry": "0ee78129ad0510089f26ab8160df7607de9a2fab3b029bead860ec4dce005c0d",
     "movement_registry": "4ebc4ec4116de3bea848a0259674ab3543e8fbac968c2a7ade8197f964c82a62",
-    "equipment_registry": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d",
+    "equipment_registry": "cfcfa8860a99ba7a3f65e0ce4f66d8b0bbcf48eebfbe2a6f93631c42cf51d4c4",
     "activity_registry": "a5982be91ba78972a1752307d669cba08bf74f3007528a32a44a5582ec06d148",
     "exercise_activity_applicability_registry": "09fec54ad36a55071ae2e33fc99673ad67c724742d643141539e9b5b066275ee",
     "exercise_equipment_compatibility_registry": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb"
