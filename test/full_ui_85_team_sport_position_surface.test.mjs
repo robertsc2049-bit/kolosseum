@@ -58,9 +58,9 @@ test("writeAuditRecord is exported for reuse by the two new position-override se
   assert.match(orgOwnerOverrideService, /import \{[\s\S]*?writeAuditRecord[\s\S]*?\} from "\.\/org_roster_service\.js";/u);
 });
 
-test("every one of the 6 locked activities has a position list - rugby_union real positions, the other 5 a single generic Athlete option", () => {
+test("every one of the 7 locked activities has a position list - rugby_union real positions, the other 6 a single generic Athlete option", () => {
   assert.match(onboardingService, /export const ATHLETE_POSITIONS_BY_ACTIVITY/u);
-  for (const activityId of ["powerlifting", "general_strength", "rugby_union", "strongman", "hyrox", "crossfit"]) {
+  for (const activityId of ["powerlifting", "general_strength", "rugby_union", "strongman", "hyrox", "crossfit", "street_lifting"]) {
     assert.match(onboardingService, new RegExp(`${activityId}:\\s*Object\\.freeze\\(\\[`, "u"), activityId);
   }
   assert.match(onboardingService, /rugby_union: Object\.freeze\(\[\s*\n\s*"prop", "hooker"/u);

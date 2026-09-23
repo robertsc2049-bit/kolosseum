@@ -3067,7 +3067,10 @@ function programmeActivationIssues(template) {
     "powerlifting",
     "general_strength",
     "rugby_union",
-    "strongman"
+    "strongman",
+    "hyrox",
+    "crossfit",
+    "street_lifting"
   ]);
   const supportedBlockTypes = new Set([
     "general",
@@ -3756,6 +3759,24 @@ const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
   ],
   strongman: [
     ["strongman_competition", "Strongman competition"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  hyrox: [
+    ["hyrox_race", "Hyrox race"],
+    ["hyrox_simulation", "Hyrox simulation"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  crossfit: [
+    ["crossfit_competition", "CrossFit competition"],
+    ["wod_event", "WOD event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  street_lifting: [
+    ["street_lifting_competition", "Street lifting competition"],
     ["strength_event", "Strength event"],
     ["test_day", "Test day"],
     ["other", "Other event"]

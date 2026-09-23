@@ -56,7 +56,8 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   general_strength: Object.freeze(["athlete"]),
   strongman: Object.freeze(["athlete"]),
   hyrox: Object.freeze(["athlete"]),
-  crossfit: Object.freeze(["athlete"])
+  crossfit: Object.freeze(["athlete"]),
+  street_lifting: Object.freeze(["athlete"])
 });
 const ATHLETE_POSITION_IDS = Object.freeze(
   [...new Set(Object.values(ATHLETE_POSITIONS_BY_ACTIVITY).flat())]
