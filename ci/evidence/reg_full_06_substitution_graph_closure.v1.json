@@ -43,7 +43,7 @@
   "hashes": {
     "exercise_registry_sha256": "ae8436fd19f397e00011267455258b5205850653cb49468ba78969b6f9b7e3d9",
     "movement_registry_sha256": "d150aa0a232957cf191ccfc4724af617936400066f17a9d9746c24044422fcf6",
-    "equipment_registry_sha256": "1dc125510c914aa332bc10ea483e34b4e7cec2ed064ceb8eac53767bbaf4487d",
+    "equipment_registry_sha256": "41b5c17fcdd72d43d97044f6c0797e67cb9ab2ef30903b701c1c7096b31527ed",
     "equipment_compatibility_registry_sha256": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb",
     "activity_applicability_registry_sha256": "8f5ed6d4ba8a2d2b39f921056bb165471d2a3d96d2f6c2bb2e8625599aaa6e96",
     "substitution_registry_sha256": "f02f07603011cd108c0992540a822c316198a076f98eb29b80d83ecb63a78aec",

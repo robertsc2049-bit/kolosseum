@@ -64,9 +64,10 @@ test("REG-FULL-07 canonical programme inventory passes complete registry-backed 
       rugby_union: 4,
       strongman: 3,
       hyrox: 3,
-      crossfit: 3
+      crossfit: 3,
+      street_lifting: 3
     },
-    low_equipment_templates: 4
+    low_equipment_templates: 5
   });
 });
 
