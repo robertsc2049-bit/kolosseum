@@ -22,10 +22,10 @@ test("REG-FULL-02 closes the exact activity and movement universe", () => {
   const result = auditRegFull02(process.cwd());
   assert.equal(result.ok, true, JSON.stringify(result.errors));
   assert.deepEqual(result.summary, {
-    activity_count: 29,
+    activity_count: 30,
     movement_count: 54,
-    activity_to_movement_permissions: 1566,
-    movement_to_activity_permissions: 1566
+    activity_to_movement_permissions: 1620,
+    movement_to_activity_permissions: 1620
   });
 });
 
