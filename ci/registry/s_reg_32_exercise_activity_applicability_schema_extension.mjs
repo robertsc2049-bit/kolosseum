@@ -88,7 +88,16 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
   // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md), added the same way as
   // strongman/hyrox above: a live-recognition placeholder only, with no
   // historical movement-id evidence from S-REG-32's authoring time.
-  crossfit: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"])
+  crossfit: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  // rugby_league is a later authorised registry-production activity (see
+  // docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md), added the same way as
+  // strongman/hyrox/crossfit above: a live-recognition placeholder only, with
+  // no historical movement-id evidence from S-REG-32's authoring time.
+  rugby_league: Object.freeze([
+    "squat", "hinge", "horizontal_push", "vertical_push", "horizontal_pull",
+    "vertical_pull", "carry", "brace", "sprint_acceleration",
+    "deceleration_change_of_direction", "jump_land", "conditioning_general"
+  ])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([
