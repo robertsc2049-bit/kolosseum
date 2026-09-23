@@ -24,7 +24,30 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   general_strength: [{ id: "athlete", label: "Athlete" }],
   strongman: [{ id: "athlete", label: "Athlete" }],
   hyrox: [{ id: "athlete", label: "Athlete" }],
-  crossfit: [{ id: "athlete", label: "Athlete" }]
+  crossfit: [{ id: "athlete", label: "Athlete" }],
+  football_soccer: [{ id: "athlete", label: "Athlete" }],
+  netball: [{ id: "athlete", label: "Athlete" }],
+  basketball: [{ id: "athlete", label: "Athlete" }],
+  rugby_sevens: [{ id: "athlete", label: "Athlete" }],
+  field_hockey: [{ id: "athlete", label: "Athlete" }],
+  ice_hockey: [{ id: "athlete", label: "Athlete" }],
+  volleyball: [{ id: "athlete", label: "Athlete" }],
+  cricket: [{ id: "athlete", label: "Athlete" }],
+  american_football: [{ id: "athlete", label: "Athlete" }],
+  athletics: [{ id: "athlete", label: "Athlete" }],
+  swimming: [{ id: "athlete", label: "Athlete" }],
+  olympic_weightlifting: [{ id: "athlete", label: "Athlete" }],
+  cycling: [{ id: "athlete", label: "Athlete" }],
+  rowing: [{ id: "athlete", label: "Athlete" }],
+  kayaking: [{ id: "athlete", label: "Athlete" }],
+  boxing: [{ id: "athlete", label: "Athlete" }],
+  wrestling: [{ id: "athlete", label: "Athlete" }],
+  judo: [{ id: "athlete", label: "Athlete" }],
+  brazilian_jiu_jitsu: [{ id: "athlete", label: "Athlete" }],
+  muay_thai: [{ id: "athlete", label: "Athlete" }],
+  mma: [{ id: "athlete", label: "Athlete" }],
+  tennis: [{ id: "athlete", label: "Athlete" }],
+  triathlon: [{ id: "athlete", label: "Athlete" }]
 };
 
 export function PositionSelect({ activityId, value, onChange, label = "Position" }: {
