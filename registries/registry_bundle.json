@@ -15259,7 +15259,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15279,7 +15280,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15298,7 +15300,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -15316,7 +15319,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15338,7 +15342,8 @@
             "powerlifting",
             "general_strength",
             "rugby_union",
-            "hyrox"
+            "hyrox",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15361,7 +15366,8 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
-            "hyrox"
+            "hyrox",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15381,7 +15387,8 @@
           "equipment_class": "machine",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15400,7 +15407,8 @@
           "equipment_class": "portable_resistance",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15420,7 +15428,8 @@
           "activity_applicability": [
             "general_strength",
             "rugby_union",
-            "hyrox"
+            "hyrox",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -15442,7 +15451,8 @@
           "equipment_class": "fixed_support",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
@@ -15513,7 +15523,8 @@
           "equipment_class": "support",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15531,7 +15542,8 @@
           "equipment_class": "machine",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15590,7 +15602,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -15607,7 +15620,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -15641,7 +15655,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15664,7 +15679,8 @@
           "activity_applicability": [
             "powerlifting",
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -15686,7 +15702,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15704,7 +15721,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15722,7 +15740,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -15758,7 +15777,8 @@
           "equipment_class": "attachment",
           "activity_applicability": [
             "general_strength",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull"
@@ -15901,7 +15921,8 @@
           "activity_applicability": [
             "general_strength",
             "powerlifting",
-            "rugby_union"
+            "rugby_union",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "decline_push"
@@ -15964,7 +15985,8 @@
           "display_label": "Gymnastics rings",
           "equipment_class": "fixed_support",
           "activity_applicability": [
-            "crossfit"
+            "crossfit",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
