@@ -9,7 +9,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "rugby_league"
       ],
       "movement_pattern_id": "squat",
       "token_kind": "exercise_name_token",
@@ -22,7 +23,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "rugby_league"
       ],
       "movement_pattern_id": "hinge",
       "token_kind": "exercise_name_token",
@@ -35,7 +37,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
-        "strongman"
+        "strongman",
+        "rugby_league"
       ],
       "movement_pattern_id": "horizontal_push",
       "token_kind": "exercise_name_token",
@@ -47,7 +50,8 @@
       "activity_ids": [
         "general_strength",
         "powerlifting",
-        "rugby_union"
+        "rugby_union",
+        "rugby_league"
       ],
       "movement_pattern_id": "core_anti_extension",
       "token_kind": "exercise_name_token",

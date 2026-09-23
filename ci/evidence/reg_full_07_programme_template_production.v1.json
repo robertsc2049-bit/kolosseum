@@ -4,7 +4,7 @@
   "slice_id": "REG-FULL-07",
   "status": "closed",
   "canonical_registry_path": "registries/program/sport_program_template.registry.json",
-  "canonical_registry_sha256": "fb6be4788b058f4cfff3db784180527113b8580776a87dab1964723e2f31b27f",
+  "canonical_registry_sha256": "66aac2af6b816136a4606eace83624cb29d75a1953807154aabd6440e445ac2a",
   "source_authorities": {
     "activity": {
       "path": "registries/activity/activity.registry.json",
@@ -32,7 +32,7 @@
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "cad3961089756bca2fb4a8ed83eff11e1efbeb377a97685d1ca5b6284e6bf4e0"
+      "sha256": "56e06a0d3ebc6ba664b346ccdd7519c6d744176795c8f41e692357a7cd8216d5"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",
@@ -74,10 +74,6 @@
     "rugby_union_pre_season",
     "rugby_union_in_season",
     "rugby_union_low_equipment",
-    "rugby_league_off_season",
-    "rugby_league_pre_season",
-    "rugby_league_in_season",
-    "rugby_league_low_equipment",
     "strongman_novice",
     "strongman_intermediate",
     "strongman_low_equipment",
@@ -86,7 +82,11 @@
     "hyrox_race_prep",
     "crossfit_novice",
     "crossfit_intermediate",
-    "crossfit_low_equipment"
+    "crossfit_low_equipment",
+    "rugby_league_off_season",
+    "rugby_league_pre_season",
+    "rugby_league_in_season",
+    "rugby_league_low_equipment"
   ],
   "policy": {
     "finished_exercises_only": true,
