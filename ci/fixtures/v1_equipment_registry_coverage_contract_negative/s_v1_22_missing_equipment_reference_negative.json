@@ -31,7 +31,8 @@
     "muay_thai",
     "mma",
     "tennis",
-    "triathlon"
+    "triathlon",
+    "rugby_league"
   ],
   "expected_failure_code": "v1_equipment_registry_coverage_contract_missing_equipment_reference",
   "missing_case": {
@@ -47,6 +48,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "hyrox",
         "crossfit",
@@ -93,6 +95,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -135,6 +138,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -176,6 +180,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -220,6 +225,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -265,6 +271,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -308,6 +315,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -350,6 +358,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -392,6 +401,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -437,6 +447,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -477,6 +488,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -517,6 +529,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -557,6 +570,7 @@
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -597,6 +611,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -638,6 +653,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -681,6 +697,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -720,6 +737,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",

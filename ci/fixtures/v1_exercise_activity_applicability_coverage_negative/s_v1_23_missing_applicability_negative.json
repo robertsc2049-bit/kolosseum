@@ -31,7 +31,8 @@
     "muay_thai",
     "mma",
     "tennis",
-    "triathlon"
+    "triathlon",
+    "rugby_league"
   ],
   "required_activity_contexts": [
     "training",

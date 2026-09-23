@@ -324,7 +324,8 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
     "muay_thai",
     "mma",
     "tennis",
-    "triathlon"
+    "triathlon",
+    "rugby_league"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [
