@@ -52,7 +52,8 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   general_strength: [["athlete", "Athlete"]],
   strongman: [["athlete", "Athlete"]],
   hyrox: [["athlete", "Athlete"]],
-  crossfit: [["athlete", "Athlete"]]
+  crossfit: [["athlete", "Athlete"]],
+  rugby_league: [["athlete", "Athlete"]]
 };
 
 function positionSelectHtml(activityId, currentPosition, athleteUserId) {
