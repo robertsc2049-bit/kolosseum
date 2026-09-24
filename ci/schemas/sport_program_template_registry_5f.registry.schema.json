@@ -90,7 +90,9 @@
               "muay_thai",
               "mma",
               "tennis",
-              "triathlon"
+              "triathlon",
+              "rugby_league",
+              "street_lifting"
             ]
           },
           "assignment_scope": {
@@ -315,7 +317,9 @@
                   "muay_thai",
                   "mma",
                   "tennis",
-                  "triathlon"
+                  "triathlon",
+                  "rugby_league",
+                  "street_lifting"
                 ]
               },
               "exercise_ids": {

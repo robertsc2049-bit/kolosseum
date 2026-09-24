@@ -31,7 +31,9 @@
     "muay_thai",
     "mma",
     "tennis",
-    "triathlon"
+    "triathlon",
+    "rugby_league",
+    "street_lifting"
   ],
   "unsupported_activity_ids": [
     "bodybuilding",
@@ -42,7 +44,6 @@
     "running",
     "football",
     "soccer",
-    "rugby_league",
     "youth_pack",
     "rehabilitation_pack"
   ],

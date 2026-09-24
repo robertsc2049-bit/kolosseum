@@ -67,9 +67,9 @@ test("writeAuditRecord is exported for reuse by the two new position-override se
   assert.match(orgOwnerOverrideService, /import \{[\s\S]*?writeAuditRecord[\s\S]*?\} from "\.\/org_roster_service\.js";/u);
 });
 
-test("every one of the 29 locked activities has a position list - rugby_union real positions, the other 28 a single generic Athlete option", () => {
+test("every one of the 31 locked activities has a position list - rugby_union real positions, the other 30 a single generic Athlete option", () => {
   assert.match(onboardingService, /export const ATHLETE_POSITIONS_BY_ACTIVITY/u);
-  for (const activityId of ["powerlifting","general_strength","rugby_union","strongman","hyrox","crossfit","football_soccer","netball","basketball","rugby_sevens","field_hockey","ice_hockey","volleyball","cricket","american_football","athletics","swimming","olympic_weightlifting","cycling","rowing","kayaking","boxing","wrestling","judo","brazilian_jiu_jitsu","muay_thai","mma","tennis","triathlon"]) {
+  for (const activityId of ["powerlifting","general_strength","rugby_union","strongman","hyrox","crossfit","football_soccer","netball","basketball","rugby_sevens","field_hockey","ice_hockey","volleyball","cricket","american_football","athletics","swimming","olympic_weightlifting","cycling","rowing","kayaking","boxing","wrestling","judo","brazilian_jiu_jitsu","muay_thai","mma","tennis","triathlon","rugby_league","street_lifting"]) {
     assert.match(onboardingService, new RegExp(`${activityId}:\\s*Object\\.freeze\\(\\[`, "u"), activityId);
   }
   assert.match(onboardingService, /rugby_union: Object\.freeze\(\[\s*\n\s*"loosehead_prop", "tighthead_prop", "hooker"/u);

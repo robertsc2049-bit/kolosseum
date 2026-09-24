@@ -189,7 +189,9 @@
               "muay_thai",
               "mma",
               "tennis",
-              "triathlon"
+              "triathlon",
+              "rugby_league",
+              "street_lifting"
             ]
           },
           "secondary_activity_applicability": {
@@ -226,7 +228,9 @@
                 "muay_thai",
                 "mma",
                 "tennis",
-                "triathlon"
+                "triathlon",
+                "rugby_league",
+                "street_lifting"
               ]
             },
             "uniqueItems": true

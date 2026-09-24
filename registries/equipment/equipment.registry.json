@@ -10,6 +10,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -32,7 +33,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -53,6 +55,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -75,7 +78,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -95,6 +99,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -117,7 +122,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -136,6 +142,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -158,7 +165,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -180,6 +188,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -203,7 +212,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -226,6 +236,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -249,7 +260,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -270,6 +282,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -292,7 +305,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -312,6 +326,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -334,7 +349,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -354,6 +370,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -377,7 +394,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -400,6 +418,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -422,7 +441,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "vertical_pull",
@@ -441,6 +461,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -481,6 +502,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -522,6 +544,7 @@
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -563,6 +586,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -585,7 +609,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -604,6 +629,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -626,7 +652,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -647,6 +674,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -687,6 +715,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -732,6 +761,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -754,7 +784,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat"
@@ -772,6 +803,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -794,7 +826,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat"
@@ -812,6 +845,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -852,6 +886,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -874,7 +909,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -898,6 +934,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -920,7 +957,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -943,6 +981,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -965,7 +1004,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -984,6 +1024,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1006,7 +1047,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -1025,6 +1067,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1047,7 +1090,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -1065,6 +1109,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1107,6 +1152,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1129,7 +1175,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "vertical_pull"
@@ -1146,6 +1193,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1186,6 +1234,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1227,6 +1276,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1267,6 +1317,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1308,6 +1359,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "hyrox",
         "football_soccer",
@@ -1350,6 +1402,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1392,6 +1445,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1434,6 +1488,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1456,7 +1511,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "decline_push"
@@ -1474,6 +1530,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1542,7 +1599,8 @@
       "display_label": "Gymnastics rings",
       "equipment_class": "fixed_support",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "vertical_pull",

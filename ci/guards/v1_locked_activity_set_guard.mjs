@@ -45,7 +45,9 @@ const expectedActivities = Object.freeze([
   "muay_thai",
   "mma",
   "tennis",
-  "triathlon"
+  "triathlon",
+  "rugby_league",
+  "street_lifting"
 ]);
 
 const rejectedExamples = Object.freeze([

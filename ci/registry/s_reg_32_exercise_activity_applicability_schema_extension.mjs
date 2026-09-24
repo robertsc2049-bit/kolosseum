@@ -115,7 +115,13 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
   muay_thai: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
   mma: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
   tennis: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
-  triathlon: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"])
+  triathlon: Object.freeze(["squat", "hinge", "vertical_push", "vertical_pull", "conditioning_general"]),
+  rugby_league: Object.freeze([
+    "squat", "hinge", "horizontal_push", "vertical_push", "horizontal_pull",
+    "vertical_pull", "carry", "brace", "sprint_acceleration",
+    "deceleration_change_of_direction", "jump_land", "conditioning_general"
+  ]),
+  street_lifting: Object.freeze(["squat", "vertical_pull", "decline_push"])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([

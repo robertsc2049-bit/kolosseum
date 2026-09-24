@@ -10,7 +10,7 @@
   },
   "sources": {
     "launch_00_boundary": "docs/releases/PUBLIC_LAUNCH_RELEASE_BOUNDARY.json",
-    "launch_00_boundary_blob_sha": "b26d28bf2a42d4436c6d8e41528e1fa266dbcc81",
+    "launch_00_boundary_blob_sha": "c43c2cc3741f87f2fea1c20e581c8b54cee19dc1",
     "ui_function_manifest": "product/ui/function_manifest.json",
     "ui_function_manifest_blob_sha": "6a5259ad76040e8bace532ed336f82e21a1a371e",
     "full_ui_gap_report": "docs/product/FULL_UI_GAP_REPORT.md",

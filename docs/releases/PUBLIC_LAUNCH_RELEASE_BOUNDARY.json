@@ -75,7 +75,9 @@
       "muay_thai",
       "mma",
       "tennis",
-      "triathlon"
+      "triathlon",
+      "rugby_league",
+      "street_lifting"
     ],
     "source": "REG-FULL-09 supported_activity_scope",
     "closed_world": true
