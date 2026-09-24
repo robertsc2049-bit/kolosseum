@@ -410,6 +410,32 @@ test("Phase4: endurance sports get a minimum-effective-dose strength session", (
   assert.ok(ids("athletics").includes("nordic_curl"), "athletics: hamstring resilience");
 });
 
+// Fighters make weight, so strength work stays low-rep with no hypertrophy
+// volume; grapplers need pulling and grip, strikers rotational power.
+const COMBAT_SPORTS = ["boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"];
+
+test("Phase4: combat sports get power, pulling and grip work without hypertrophy volume", () => {
+  const plans = new Set();
+  const ids = (a) => phase4AssembleProgram(mkInput(a), mkPhase3()).program.planned_exercise_ids;
+  for (const activity of COMBAT_SPORTS) {
+    const r = phase4AssembleProgram(mkInput(activity), mkPhase3());
+    assert.equal(r.ok, true, `${activity} must assemble`);
+    const items = r.program.planned_items;
+    assert.match(items[0].exercise_id, POWER, `${activity} must open with power work`);
+    for (const generic of ["bench_press", "incline_bench_press", "push_up", "overhead_press"]) {
+      assert.ok(!r.program.planned_exercise_ids.includes(generic), `${activity} must not plan generic ${generic}`);
+    }
+    for (const it of items.filter((x) => x.intensity.type === "percent_1rm")) {
+      assert.ok(it.reps <= 6, `${activity} ${it.exercise_id}: no hypertrophy-range loaded work`);
+    }
+    assert.ok(r.program.planned_exercise_ids.some((x) => /chin_up|pull_up|row/.test(x)), `${activity}: pulling strength`);
+    plans.add(r.program.planned_exercise_ids.join(","));
+  }
+  assert.equal(plans.size, COMBAT_SPORTS.length, "no two combat sports may share a session");
+  for (const a of ["wrestling", "judo", "brazilian_jiu_jitsu"]) assert.ok(ids(a).includes("trap_bar_static_hold"), `${a}: grip strength`);
+  for (const a of ["boxing", "muay_thai", "judo"]) assert.ok(ids(a).includes("rotational_medicine_ball_throw"), `${a}: rotational power`);
+});
+
 // Programs without item_prescriptions keep the default primary/accessory
 // prescription exactly (exercised directly now that every activity declares its own).
 test("Phase4: planned items without declared prescriptions keep the default prescription", () => {
