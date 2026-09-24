@@ -103,7 +103,8 @@ export function phase4AssembleProgram(
 
   // Registry source for the unchanged legacy path.
   const registry = loadRegistry(opts);
-  const template = selectTemplate(activity);
+  const level = typeof canonicalInput?.experience_level === "string" ? canonicalInput.experience_level : undefined;
+  const template = selectTemplate(activity, level);
 
   if (!template) {
     return {
