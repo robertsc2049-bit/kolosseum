@@ -65,7 +65,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "general_strength": {
@@ -127,7 +128,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "rugby_union": {
@@ -189,7 +191,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "strongman": {
@@ -251,7 +254,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "hyrox": {
@@ -313,7 +317,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "crossfit": {
@@ -375,7 +380,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "football_soccer": {
@@ -437,7 +443,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "netball": {
@@ -499,7 +506,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "basketball": {
@@ -561,7 +569,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "rugby_sevens": {
@@ -623,7 +632,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "field_hockey": {
@@ -685,7 +695,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "ice_hockey": {
@@ -747,7 +758,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "volleyball": {
@@ -809,7 +821,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "cricket": {
@@ -871,7 +884,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "american_football": {
@@ -933,7 +947,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "athletics": {
@@ -995,7 +1010,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "swimming": {
@@ -1057,7 +1073,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "olympic_weightlifting": {
@@ -1119,7 +1136,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "cycling": {
@@ -1181,7 +1199,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "rowing": {
@@ -1243,7 +1262,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "kayaking": {
@@ -1305,7 +1325,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "boxing": {
@@ -1367,7 +1388,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "wrestling": {
@@ -1429,7 +1451,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "judo": {
@@ -1491,7 +1514,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "brazilian_jiu_jitsu": {
@@ -1553,7 +1577,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "muay_thai": {
@@ -1615,7 +1640,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "mma": {
@@ -1677,7 +1703,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "tennis": {
@@ -1739,7 +1766,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "triathlon": {
@@ -1801,7 +1829,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "rugby_league": {
@@ -1863,7 +1892,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         },
         "street_lifting": {
@@ -1925,7 +1955,8 @@
             "throw_slam",
             "conditioning_cyclical",
             "conditioning_row",
-            "conditioning_sled"
+            "conditioning_sled",
+            "neck_isometric"
           ]
         }
       }
@@ -4671,6 +4702,50 @@
             "hip",
             "knee",
             "ankle"
+          ],
+          "activity_applicability": [
+            "powerlifting",
+            "general_strength",
+            "rugby_union",
+            "strongman",
+            "hyrox",
+            "crossfit",
+            "football_soccer",
+            "netball",
+            "basketball",
+            "rugby_sevens",
+            "field_hockey",
+            "ice_hockey",
+            "volleyball",
+            "cricket",
+            "american_football",
+            "athletics",
+            "swimming",
+            "olympic_weightlifting",
+            "cycling",
+            "rowing",
+            "kayaking",
+            "boxing",
+            "wrestling",
+            "judo",
+            "brazilian_jiu_jitsu",
+            "muay_thai",
+            "mma",
+            "tennis",
+            "triathlon",
+            "rugby_league",
+            "street_lifting"
+          ]
+        },
+        "neck_isometric": {
+          "movement_pattern_id": "neck_isometric",
+          "equipment_vocab": [
+            "bodyweight",
+            "resistance_band",
+            "open_floor_space"
+          ],
+          "joint_stress_tags_vocab": [
+            "neck"
           ],
           "activity_applicability": [
             "powerlifting",
@@ -23647,6 +23722,254 @@
             "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "neck_flexion_isometric": {
+          "exercise_id": "neck_flexion_isometric",
+          "display_label": "Neck flexion isometric",
+          "movement_pattern_id": "neck_isometric",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "neck"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Neck flexion isometric: Hold the head in a neutral position against the band pulling it backwards, pressing gently forwards without letting the head move.",
+          "instruction_detail_text": [
+            "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+            "Hold the head in a neutral position against the band pulling it backwards, pressing gently forwards without letting the head move.",
+            "Release neck flexion isometric gradually at the end of each hold so the neck returns to neutral under control."
+          ],
+          "coaching_cues": [
+            "Keep the chin level",
+            "Build pressure gradually",
+            "Breathe throughout the hold"
+          ],
+          "common_faults": [
+            "Jerking into the hold",
+            "Tucking the chin to the chest",
+            "Shrugging the shoulders"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "resistance_band"
+          ],
+          "equipment_alternatives": [
+            "bodyweight"
+          ],
+          "primary_activity_applicability": "rugby_union",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "football_soccer",
+            "rugby_sevens",
+            "ice_hockey",
+            "american_football",
+            "boxing",
+            "wrestling",
+            "judo",
+            "brazilian_jiu_jitsu",
+            "muay_thai",
+            "mma",
+            "rugby_league"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "neck_extension_isometric": {
+          "exercise_id": "neck_extension_isometric",
+          "display_label": "Neck extension isometric",
+          "movement_pattern_id": "neck_isometric",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "neck"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Neck extension isometric: Hold the head in a neutral position against the band pulling it forwards, pressing gently backwards without letting the head move.",
+          "instruction_detail_text": [
+            "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+            "Hold the head in a neutral position against the band pulling it forwards, pressing gently backwards without letting the head move.",
+            "Release neck extension isometric gradually at the end of each hold so the neck returns to neutral under control."
+          ],
+          "coaching_cues": [
+            "Keep the eyes level",
+            "Build pressure gradually",
+            "Breathe throughout the hold"
+          ],
+          "common_faults": [
+            "Arching the upper back",
+            "Jerking into the hold",
+            "Letting the head tip back"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "resistance_band"
+          ],
+          "equipment_alternatives": [
+            "bodyweight"
+          ],
+          "primary_activity_applicability": "rugby_union",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "football_soccer",
+            "rugby_sevens",
+            "ice_hockey",
+            "american_football",
+            "boxing",
+            "wrestling",
+            "judo",
+            "brazilian_jiu_jitsu",
+            "muay_thai",
+            "mma",
+            "rugby_league"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "neck_lateral_flexion_isometric": {
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "display_label": "Neck lateral flexion isometric",
+          "movement_pattern_id": "neck_isometric",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment_tier": "TIER_3",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "neck"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Neck lateral flexion isometric: Hold the head upright against the band pulling it sideways, pressing gently into the band without letting the head tilt.",
+          "instruction_detail_text": [
+            "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+            "Hold the head upright against the band pulling it sideways, pressing gently into the band without letting the head tilt.",
+            "Release neck lateral flexion isometric gradually at the end of each hold so the neck returns to neutral under control."
+          ],
+          "coaching_cues": [
+            "Keep the ears level",
+            "Build pressure gradually",
+            "Match both sides"
+          ],
+          "common_faults": [
+            "Tilting the head",
+            "Leaning the trunk",
+            "Jerking into the hold"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "resistance_band"
+          ],
+          "equipment_alternatives": [
+            "bodyweight"
+          ],
+          "primary_activity_applicability": "rugby_union",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "football_soccer",
+            "rugby_sevens",
+            "ice_hockey",
+            "american_football",
+            "boxing",
+            "wrestling",
+            "judo",
+            "brazilian_jiu_jitsu",
+            "muay_thai",
+            "mma",
+            "rugby_league"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
+          "substitution_eligibility": "eligible",
+          "template_eligibility": "eligible",
+          "copy_legal_boundary_flags": [
+            "factual_instruction_only",
+            "no_medical_claims",
+            "no_performance_guarantees"
+          ]
+        },
+        "self_resisted_neck_isometric": {
+          "exercise_id": "self_resisted_neck_isometric",
+          "display_label": "Self-resisted neck isometric",
+          "movement_pattern_id": "neck_isometric",
+          "stimulus_intent": "strength",
+          "rom": "partial",
+          "stability": "stable",
+          "equipment_tier": "TIER_4",
+          "difficulty_tier": "beginner",
+          "joint_stress_tags": [
+            "neck"
+          ],
+          "tempo_capability": "not_applicable",
+          "instruction_short_text": "Self-resisted neck isometric: Press the head gently into the hand in each direction while the hand stops any movement, holding a neutral head position.",
+          "instruction_detail_text": [
+            "Set up in a tall, supported posture and establish the prescribed starting position before the first repetition.",
+            "Press the head gently into the hand in each direction while the hand stops any movement, holding a neutral head position.",
+            "Release self-resisted neck isometric gradually at the end of each hold so the neck returns to neutral under control."
+          ],
+          "coaching_cues": [
+            "Use moderate pressure only",
+            "Keep the head still",
+            "Work each direction evenly"
+          ],
+          "common_faults": [
+            "Pushing hard enough to move the head",
+            "Holding the breath",
+            "Shrugging the shoulders"
+          ],
+          "fast_execution": false,
+          "equipment_requirements": [
+            "bodyweight"
+          ],
+          "equipment_alternatives": [
+            "resistance_band"
+          ],
+          "primary_activity_applicability": "rugby_union",
+          "secondary_activity_applicability": [
+            "general_strength",
+            "football_soccer",
+            "rugby_sevens",
+            "ice_hockey",
+            "american_football",
+            "boxing",
+            "wrestling",
+            "judo",
+            "brazilian_jiu_jitsu",
+            "muay_thai",
+            "mma",
+            "rugby_league"
+          ],
+          "contraindication_or_exclusion_tags": [
+            "high_external_load"
+          ],
           "substitution_eligibility": "eligible",
           "template_eligibility": "eligible",
           "copy_legal_boundary_flags": [
@@ -259197,6 +259520,1878 @@
           "applicability_id": "air_squat__street_lifting__competition",
           "exercise_id": "air_squat",
           "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_union__training": {
+          "applicability_id": "neck_flexion_isometric__rugby_union__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_union__testing": {
+          "applicability_id": "neck_flexion_isometric__rugby_union__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_union__competition": {
+          "applicability_id": "neck_flexion_isometric__rugby_union__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__general_strength__training": {
+          "applicability_id": "neck_flexion_isometric__general_strength__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__general_strength__testing": {
+          "applicability_id": "neck_flexion_isometric__general_strength__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__general_strength__competition": {
+          "applicability_id": "neck_flexion_isometric__general_strength__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__football_soccer__training": {
+          "applicability_id": "neck_flexion_isometric__football_soccer__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__football_soccer__testing": {
+          "applicability_id": "neck_flexion_isometric__football_soccer__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__football_soccer__competition": {
+          "applicability_id": "neck_flexion_isometric__football_soccer__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_sevens__training": {
+          "applicability_id": "neck_flexion_isometric__rugby_sevens__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_sevens__testing": {
+          "applicability_id": "neck_flexion_isometric__rugby_sevens__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_sevens__competition": {
+          "applicability_id": "neck_flexion_isometric__rugby_sevens__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__ice_hockey__training": {
+          "applicability_id": "neck_flexion_isometric__ice_hockey__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__ice_hockey__testing": {
+          "applicability_id": "neck_flexion_isometric__ice_hockey__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__ice_hockey__competition": {
+          "applicability_id": "neck_flexion_isometric__ice_hockey__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__american_football__training": {
+          "applicability_id": "neck_flexion_isometric__american_football__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__american_football__testing": {
+          "applicability_id": "neck_flexion_isometric__american_football__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__american_football__competition": {
+          "applicability_id": "neck_flexion_isometric__american_football__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__boxing__training": {
+          "applicability_id": "neck_flexion_isometric__boxing__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__boxing__testing": {
+          "applicability_id": "neck_flexion_isometric__boxing__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__boxing__competition": {
+          "applicability_id": "neck_flexion_isometric__boxing__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__wrestling__training": {
+          "applicability_id": "neck_flexion_isometric__wrestling__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__wrestling__testing": {
+          "applicability_id": "neck_flexion_isometric__wrestling__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__wrestling__competition": {
+          "applicability_id": "neck_flexion_isometric__wrestling__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__judo__training": {
+          "applicability_id": "neck_flexion_isometric__judo__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__judo__testing": {
+          "applicability_id": "neck_flexion_isometric__judo__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__judo__competition": {
+          "applicability_id": "neck_flexion_isometric__judo__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__brazilian_jiu_jitsu__training": {
+          "applicability_id": "neck_flexion_isometric__brazilian_jiu_jitsu__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__brazilian_jiu_jitsu__testing": {
+          "applicability_id": "neck_flexion_isometric__brazilian_jiu_jitsu__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__brazilian_jiu_jitsu__competition": {
+          "applicability_id": "neck_flexion_isometric__brazilian_jiu_jitsu__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__muay_thai__training": {
+          "applicability_id": "neck_flexion_isometric__muay_thai__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__muay_thai__testing": {
+          "applicability_id": "neck_flexion_isometric__muay_thai__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__muay_thai__competition": {
+          "applicability_id": "neck_flexion_isometric__muay_thai__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__mma__training": {
+          "applicability_id": "neck_flexion_isometric__mma__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__mma__testing": {
+          "applicability_id": "neck_flexion_isometric__mma__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__mma__competition": {
+          "applicability_id": "neck_flexion_isometric__mma__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_league__training": {
+          "applicability_id": "neck_flexion_isometric__rugby_league__training",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_league__testing": {
+          "applicability_id": "neck_flexion_isometric__rugby_league__testing",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_flexion_isometric__rugby_league__competition": {
+          "applicability_id": "neck_flexion_isometric__rugby_league__competition",
+          "exercise_id": "neck_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_union__training": {
+          "applicability_id": "neck_extension_isometric__rugby_union__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_union__testing": {
+          "applicability_id": "neck_extension_isometric__rugby_union__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_union__competition": {
+          "applicability_id": "neck_extension_isometric__rugby_union__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__general_strength__training": {
+          "applicability_id": "neck_extension_isometric__general_strength__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__general_strength__testing": {
+          "applicability_id": "neck_extension_isometric__general_strength__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__general_strength__competition": {
+          "applicability_id": "neck_extension_isometric__general_strength__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__football_soccer__training": {
+          "applicability_id": "neck_extension_isometric__football_soccer__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__football_soccer__testing": {
+          "applicability_id": "neck_extension_isometric__football_soccer__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__football_soccer__competition": {
+          "applicability_id": "neck_extension_isometric__football_soccer__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_sevens__training": {
+          "applicability_id": "neck_extension_isometric__rugby_sevens__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_sevens__testing": {
+          "applicability_id": "neck_extension_isometric__rugby_sevens__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_sevens__competition": {
+          "applicability_id": "neck_extension_isometric__rugby_sevens__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__ice_hockey__training": {
+          "applicability_id": "neck_extension_isometric__ice_hockey__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__ice_hockey__testing": {
+          "applicability_id": "neck_extension_isometric__ice_hockey__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__ice_hockey__competition": {
+          "applicability_id": "neck_extension_isometric__ice_hockey__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__american_football__training": {
+          "applicability_id": "neck_extension_isometric__american_football__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "american_football",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__american_football__testing": {
+          "applicability_id": "neck_extension_isometric__american_football__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "american_football",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__american_football__competition": {
+          "applicability_id": "neck_extension_isometric__american_football__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "american_football",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__boxing__training": {
+          "applicability_id": "neck_extension_isometric__boxing__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "boxing",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__boxing__testing": {
+          "applicability_id": "neck_extension_isometric__boxing__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "boxing",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__boxing__competition": {
+          "applicability_id": "neck_extension_isometric__boxing__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "boxing",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__wrestling__training": {
+          "applicability_id": "neck_extension_isometric__wrestling__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__wrestling__testing": {
+          "applicability_id": "neck_extension_isometric__wrestling__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__wrestling__competition": {
+          "applicability_id": "neck_extension_isometric__wrestling__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__judo__training": {
+          "applicability_id": "neck_extension_isometric__judo__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "judo",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__judo__testing": {
+          "applicability_id": "neck_extension_isometric__judo__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "judo",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__judo__competition": {
+          "applicability_id": "neck_extension_isometric__judo__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "judo",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__brazilian_jiu_jitsu__training": {
+          "applicability_id": "neck_extension_isometric__brazilian_jiu_jitsu__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__brazilian_jiu_jitsu__testing": {
+          "applicability_id": "neck_extension_isometric__brazilian_jiu_jitsu__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__brazilian_jiu_jitsu__competition": {
+          "applicability_id": "neck_extension_isometric__brazilian_jiu_jitsu__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__muay_thai__training": {
+          "applicability_id": "neck_extension_isometric__muay_thai__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__muay_thai__testing": {
+          "applicability_id": "neck_extension_isometric__muay_thai__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__muay_thai__competition": {
+          "applicability_id": "neck_extension_isometric__muay_thai__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__mma__training": {
+          "applicability_id": "neck_extension_isometric__mma__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "mma",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__mma__testing": {
+          "applicability_id": "neck_extension_isometric__mma__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "mma",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__mma__competition": {
+          "applicability_id": "neck_extension_isometric__mma__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "mma",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_league__training": {
+          "applicability_id": "neck_extension_isometric__rugby_league__training",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_league__testing": {
+          "applicability_id": "neck_extension_isometric__rugby_league__testing",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_extension_isometric__rugby_league__competition": {
+          "applicability_id": "neck_extension_isometric__rugby_league__competition",
+          "exercise_id": "neck_extension_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_union__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_union__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_union__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_union__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_union__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_union__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__general_strength__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__general_strength__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__general_strength__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__general_strength__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__general_strength__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__general_strength__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__football_soccer__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__football_soccer__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__football_soccer__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__football_soccer__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__football_soccer__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__football_soccer__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_sevens__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_sevens__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_sevens__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_sevens__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_sevens__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_sevens__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__ice_hockey__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__ice_hockey__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__ice_hockey__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__ice_hockey__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__ice_hockey__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__ice_hockey__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__american_football__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__american_football__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__american_football__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__american_football__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__american_football__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__american_football__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "american_football",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__boxing__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__boxing__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__boxing__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__boxing__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__boxing__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__boxing__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "boxing",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__wrestling__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__wrestling__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__wrestling__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__wrestling__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__wrestling__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__wrestling__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__judo__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__judo__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__judo__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__judo__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__judo__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__judo__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "judo",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__brazilian_jiu_jitsu__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__muay_thai__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__muay_thai__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__muay_thai__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__muay_thai__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__muay_thai__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__muay_thai__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__mma__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__mma__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__mma__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__mma__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__mma__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__mma__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "mma",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_league__training": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_league__training",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_league__testing": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_league__testing",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "neck_lateral_flexion_isometric__rugby_league__competition": {
+          "applicability_id": "neck_lateral_flexion_isometric__rugby_league__competition",
+          "exercise_id": "neck_lateral_flexion_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_union__training": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_union__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_union__testing": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_union__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_union__competition": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_union__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_union",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__general_strength__training": {
+          "applicability_id": "self_resisted_neck_isometric__general_strength__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__general_strength__testing": {
+          "applicability_id": "self_resisted_neck_isometric__general_strength__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__general_strength__competition": {
+          "applicability_id": "self_resisted_neck_isometric__general_strength__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "general_strength",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__football_soccer__training": {
+          "applicability_id": "self_resisted_neck_isometric__football_soccer__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__football_soccer__testing": {
+          "applicability_id": "self_resisted_neck_isometric__football_soccer__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__football_soccer__competition": {
+          "applicability_id": "self_resisted_neck_isometric__football_soccer__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "football_soccer",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_sevens__training": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_sevens__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_sevens__testing": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_sevens__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_sevens__competition": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_sevens__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_sevens",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__ice_hockey__training": {
+          "applicability_id": "self_resisted_neck_isometric__ice_hockey__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__ice_hockey__testing": {
+          "applicability_id": "self_resisted_neck_isometric__ice_hockey__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__ice_hockey__competition": {
+          "applicability_id": "self_resisted_neck_isometric__ice_hockey__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "ice_hockey",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__american_football__training": {
+          "applicability_id": "self_resisted_neck_isometric__american_football__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "american_football",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__american_football__testing": {
+          "applicability_id": "self_resisted_neck_isometric__american_football__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "american_football",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__american_football__competition": {
+          "applicability_id": "self_resisted_neck_isometric__american_football__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "american_football",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__boxing__training": {
+          "applicability_id": "self_resisted_neck_isometric__boxing__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "boxing",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__boxing__testing": {
+          "applicability_id": "self_resisted_neck_isometric__boxing__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "boxing",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__boxing__competition": {
+          "applicability_id": "self_resisted_neck_isometric__boxing__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "boxing",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__wrestling__training": {
+          "applicability_id": "self_resisted_neck_isometric__wrestling__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__wrestling__testing": {
+          "applicability_id": "self_resisted_neck_isometric__wrestling__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__wrestling__competition": {
+          "applicability_id": "self_resisted_neck_isometric__wrestling__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "wrestling",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__judo__training": {
+          "applicability_id": "self_resisted_neck_isometric__judo__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "judo",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__judo__testing": {
+          "applicability_id": "self_resisted_neck_isometric__judo__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "judo",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__judo__competition": {
+          "applicability_id": "self_resisted_neck_isometric__judo__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "judo",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__brazilian_jiu_jitsu__training": {
+          "applicability_id": "self_resisted_neck_isometric__brazilian_jiu_jitsu__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__brazilian_jiu_jitsu__testing": {
+          "applicability_id": "self_resisted_neck_isometric__brazilian_jiu_jitsu__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__brazilian_jiu_jitsu__competition": {
+          "applicability_id": "self_resisted_neck_isometric__brazilian_jiu_jitsu__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "brazilian_jiu_jitsu",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__muay_thai__training": {
+          "applicability_id": "self_resisted_neck_isometric__muay_thai__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__muay_thai__testing": {
+          "applicability_id": "self_resisted_neck_isometric__muay_thai__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__muay_thai__competition": {
+          "applicability_id": "self_resisted_neck_isometric__muay_thai__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "muay_thai",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__mma__training": {
+          "applicability_id": "self_resisted_neck_isometric__mma__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "mma",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__mma__testing": {
+          "applicability_id": "self_resisted_neck_isometric__mma__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "mma",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__mma__competition": {
+          "applicability_id": "self_resisted_neck_isometric__mma__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "mma",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_league__training": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_league__training",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_league__testing": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_league__testing",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_league",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "self_resisted_neck_isometric__rugby_league__competition": {
+          "applicability_id": "self_resisted_neck_isometric__rugby_league__competition",
+          "exercise_id": "self_resisted_neck_isometric",
+          "activity_id": "rugby_league",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],
