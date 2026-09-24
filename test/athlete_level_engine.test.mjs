@@ -73,12 +73,17 @@ test("athlete level: a declared variant wins; amateur, unknown and variant-less 
   assert.equal(templateForLevel(ENTRY, "beginner").program_id, "PROGRAM_TEST_V1");
 });
 
-test("athlete level: phase 4 reads the canonical level and falls back to the base programme when no variant exists", () => {
-  const base = phase4AssembleProgram({ activity_id: "powerlifting" }, { constraints: { constraints_version: "1.0.0" } });
-  const pro = phase4AssembleProgram({ activity_id: "powerlifting", experience_level: "pro" }, { constraints: { constraints_version: "1.0.0" } });
+test("athlete level: phase 4 reads the canonical level and serves that level's prescriptions", () => {
+  const constraints = { constraints: { constraints_version: "1.0.0" } };
+  const base = phase4AssembleProgram({ activity_id: "powerlifting" }, constraints);
+  const pro = phase4AssembleProgram({ activity_id: "powerlifting", experience_level: "pro" }, constraints);
   assert.equal(base.ok, true);
   assert.equal(pro.ok, true);
-  assert.deepEqual(pro.program.planned_exercise_ids, base.program.planned_exercise_ids);
+  // Same competition lifts, but the pro variant's heavier top sets.
+  assert.deepEqual(pro.program.planned_items.slice(0, 3).map((x) => [x.exercise_id, x.sets, x.reps, x.intensity.value]),
+    [["back_squat", 5, 2, 85], ["paused_bench_press", 5, 3, 80], ["deadlift", 4, 2, 87]]);
+  assert.deepEqual(base.program.planned_items.slice(0, 3).map((x) => [x.exercise_id, x.sets, x.reps, x.intensity.value]),
+    [["back_squat", 5, 3, 80], ["paused_bench_press", 5, 3, 77], ["deadlift", 3, 3, 82]]);
 });
 
 // --- Level content (every activity declares beginner and pro variants) ---
