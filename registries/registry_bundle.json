@@ -257032,11 +257032,11 @@
           "exercise_id": "face_pull",
           "activity_id": "street_lifting",
           "activity_context": "testing",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "face_pull__street_lifting__competition": {
@@ -257104,11 +257104,11 @@
           "exercise_id": "curl_up",
           "activity_id": "street_lifting",
           "activity_context": "testing",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "curl_up__street_lifting__competition": {
@@ -257140,11 +257140,11 @@
           "exercise_id": "weighted_crunch",
           "activity_id": "street_lifting",
           "activity_context": "testing",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
-          "substitution_applicability": "eligible",
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
         "weighted_crunch__street_lifting__competition": {

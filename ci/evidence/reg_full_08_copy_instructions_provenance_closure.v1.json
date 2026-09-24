@@ -1,5 +1,5 @@
 {
-  "canonical_copy_registry_sha256": "fb5b6e55afee40874701880063c9db6f3233f0cdc9f8df22d4b4cff73d227dbd",
+  "canonical_copy_registry_sha256": "ede66817f660c9508aa7e297e442290e20fefef1429602cdf8ed869a8a4e0664",
   "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
@@ -102,8 +102,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "bfd69e71e79c97a86feadc0573a5476d4772c43b319c5ed2743c08b4d6b15881",
-      "source_git_blob_sha": "59defee09107fcccc822fd4d721d710df31429b0",
+      "source_file_sha256": "4a11177863eb809b7e7275839314ea513440c017ac1101b6b4a7f24c8f04b64f",
+      "source_git_blob_sha": "d42a8a7df31b9f7c9dba9065092e64205741214f",
       "source_record_count": 19260,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },

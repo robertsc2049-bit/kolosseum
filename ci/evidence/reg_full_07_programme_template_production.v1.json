@@ -40,7 +40,7 @@
     },
     "surfaceManifest": {
       "path": "registries/final_registry_surface_manifest.json",
-      "sha256": "2e68dcda34449fff57950f862ec4c0a1c3620715faa3af4ae827fc0392301540"
+      "sha256": "db312eda752f48d2daf257b3cf76cae5673b73208f3b2102a174637da1d1f281"
     },
     "schemaManifest": {
       "path": "registries/final_registry_schema_manifest.json",

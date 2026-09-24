@@ -34,7 +34,8 @@
     "mma",
     "tennis",
     "triathlon",
-    "rugby_league"
+    "rugby_league",
+    "street_lifting"
   ],
   "checks": {
     "registry_expected_count_authority": "PASS",
@@ -55,7 +56,7 @@
     "authoritative_schema_count": 25,
     "schema_conflict_count": 0,
     "compact_bundle_registry_count": 12,
-    "supported_activity_count": 30,
+    "supported_activity_count": 31,
     "unsupported_activity_count": 0,
     "candidate_only_active_record_count": 0,
     "dormant_candidate_only_record_count": 5,
@@ -63,16 +64,16 @@
     "duplicate_id_count": 0,
     "closed_materialized_registry_count": 14,
     "declared_fk_field_count": 17,
-    "fk_reference_count": 41787,
+    "fk_reference_count": 41953,
     "orphan_relationship_count": 0,
     "dependency_gate_count": 10,
     "dependency_failure_count": 0,
     "exercise_count": 259,
     "resolved_exercise_count": 259,
     "equipment_compatibility_edge_count": 524,
-    "activity_relation_pair_count": 6395,
-    "applicability_row_count": 19185,
-    "programme_template_count": 102,
+    "activity_relation_pair_count": 6420,
+    "applicability_row_count": 19260,
+    "programme_template_count": 105,
     "templates_by_activity": {
       "powerlifting": 4,
       "general_strength": 3,
@@ -103,18 +104,19 @@
       "mma": 3,
       "tennis": 3,
       "triathlon": 3,
-      "rugby_league": 4
+      "rugby_league": 4,
+      "street_lifting": 3
     },
-    "low_equipment_template_count": 28,
+    "low_equipment_template_count": 29,
     "programme_template_coverage_gap_count": 0,
-    "substitution_edge_count": 919,
+    "substitution_edge_count": 924,
     "substitution_source_count": 222,
     "substitution_target_count": 219,
     "substitution_reachability_gap_count": 0,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 21304,
-    "copy_provenance_record_count": 21304,
-    "exact_copy_control_count": 23738
+    "copy_source_record_count": 21389,
+    "copy_provenance_record_count": 21389,
+    "exact_copy_control_count": 23818
   },
   "dependency_gates": {
     "reg_full_00": "PASS",
