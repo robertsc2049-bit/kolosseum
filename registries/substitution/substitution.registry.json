@@ -10563,6 +10563,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -34884,6 +34885,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
