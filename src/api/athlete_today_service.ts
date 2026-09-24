@@ -332,6 +332,47 @@ export async function loadAthleteTodayView(
   catch (error) {
     if (error instanceof Beta18ProgrammeTemplateError) {
       if (error.reason === "assigned_template_sessions_exhausted") {
+        // The template has no further session to materialise, but that does
+        // not mean the athlete is done: the LAST session in the template may
+        // already have been created (e.g. via a prior compile) and still be
+        // open. Check for it before declaring the programme complete, using
+        // the same existing-session helpers the non-exhausted path below
+        // uses, so an unstarted/in-progress final session is never hidden.
+        const existingForExhausted = await latestSessionForAssignment(assignmentId);
+
+        if (existingForExhausted) {
+          const existingStateForExhausted = await getSessionStateQuery(existingForExhausted.session_id);
+          const executionStatusForExhausted = cleanString(
+            (existingStateForExhausted as JsonRecord)?.execution_status
+          );
+          const terminalForExhausted =
+            executionStatusForExhausted === "completed" || executionStatusForExhausted === "partial";
+
+          if (!terminalForExhausted) {
+            const currentSessionMaterialised = (await materialiseNextCoachTemplateProgram({
+              coach_user_id: coachUserId,
+              athlete_user_id: athleteUserId,
+              assignment_id: assignmentId,
+              template_id: templateId,
+              base_program: {},
+              session_index_override: totalSessionCount - 1
+            })) as JsonRecord;
+
+            return baseResponse("ok", athleteUserId, {
+              coach_user_id: coachUserId,
+              assignment: assignmentSummary,
+              session: sessionContextFromMaterialised(
+                currentSessionMaterialised,
+                "continue",
+                existingForExhausted.session_id,
+                totalSessionCount
+              ),
+              event,
+              notes
+            });
+          }
+        }
+
         return baseResponse("programme_complete", athleteUserId, {
           coach_user_id: coachUserId,
           assignment: assignmentSummary,

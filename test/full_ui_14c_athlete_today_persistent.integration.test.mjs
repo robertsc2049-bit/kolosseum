@@ -633,6 +633,80 @@ test(
       assert.equal(withCancelledEvent.state, "no_session");
       assert.ok(withCancelledEvent.session);
 
+      // --- Athlete E: single-session template regression proof. The moment
+      //     the template's only (last) session is created but not yet
+      //     started, materialiseNextCoachTemplateProgram's eager "next
+      //     session" lookup is immediately exhausted (there is no session
+      //     after the one that already exists). Today must still fall back
+      //     to the existing, still-open session and report "ok"/"continue" -
+      //     never short-circuit to "programme_complete", which would hide
+      //     the session from the athlete entirely. ---
+      const athleteE = await setUpAthlete(baseUrl, "Full14c Athlete E", nonce);
+      userIds.push(athleteE.userId);
+
+      await connectRelationship(
+        baseUrl,
+        coach.userId,
+        athleteE.userId,
+        `relationship_e_${nonce}`,
+        "accepted",
+        timestamp
+      );
+      await setUpStrengthProfile(baseUrl, coach, athleteE.userId);
+
+      const templateE = await createActivatedTemplate(baseUrl, coach.userId, "Full14c Programme E", 1);
+      await assignTemplate(baseUrl, coach, athleteE.userId, templateE.template_id, nonce);
+
+      const beforeSessionE = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(beforeSessionE.state, "no_session");
+
+      const compiledE = await request(
+        baseUrl,
+        "POST",
+        "/blocks/compile?create_session=true&beta_path=true",
+        {
+          phase1_input: {
+            consent_granted: true,
+            engine_version: "EB2-1.0.0",
+            enum_bundle_version: "EB2-1.0.0",
+            phase1_schema_version: "1.0.0",
+            actor_type: "athlete",
+            execution_scope: "individual",
+            activity_id: "powerlifting",
+            nd_mode: false,
+            instruction_density: "standard",
+            exposure_prompt_density: "standard",
+            bias_mode: "none"
+          },
+          beta_user_id: athleteE.userId,
+          beta_coach_user_id: coach.userId
+        }
+      );
+      assertStatus(compiledE, 201, "compile only session (athlete E)");
+      const sessionEId = compiledE.json.session_id;
+      assert.ok(sessionEId, "expected a created session id for athlete E");
+
+      // This is the exact repro: the template's only session now exists but
+      // has never been started. A repeated read (mirroring the app's normal
+      // polling of /sessions/beta-athlete-today right after session
+      // creation) must keep surfacing it, not hide it behind a premature
+      // "programme_complete".
+      for (let poll = 0; poll < 2; poll += 1) {
+        const afterOnlySessionCreated = await todayFor(baseUrl, athleteE.userId);
+        assert.equal(afterOnlySessionCreated.state, "ok", `poll ${poll}: expected state "ok"`);
+        assert.equal(afterOnlySessionCreated.session.action, "continue");
+        assert.equal(afterOnlySessionCreated.session.session_id, sessionEId);
+        assert.equal(afterOnlySessionCreated.session.template_session_index, 0);
+        assert.equal(afterOnlySessionCreated.session.total_session_count, 1);
+      }
+
+      // Once the athlete actually finishes the (only) session, the programme
+      // genuinely is complete.
+      await advanceSessionToTerminal(baseUrl, sessionEId);
+      const afterOnlySessionComplete = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(afterOnlySessionComplete.state, "programme_complete");
+      assert.equal(afterOnlySessionComplete.session, null);
+
       // --- Fresh-process reconstruction: a brand-new Node process reconnects
       //     and reads back the same authoritative facts for every athlete. ---
       const childScript = `
