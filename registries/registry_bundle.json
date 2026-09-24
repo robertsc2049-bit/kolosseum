@@ -23699,10 +23699,68 @@
           "activity_id": "strongman",
           "template_id": "PROGRAM_STRONGMAN_V1",
           "exercise_eligibility": [
-            "back_squat",
-            "bench_press",
+            "strongman_log_press",
             "deadlift",
-            "farmers_carry"
+            "yoke_walk",
+            "zercher_squat",
+            "farmers_carry",
+            "romanian_deadlift"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 75
+              },
+              "rest_seconds": 180
+            },
+            {
+              "sets": 4,
+              "reps": 3,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 80
+              },
+              "rest_seconds": 180
+            },
+            {
+              "sets": 4,
+              "reps": 1,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 180
+            },
+            {
+              "sets": 3,
+              "reps": 5,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 70
+              },
+              "rest_seconds": 150
+            },
+            {
+              "sets": 3,
+              "reps": 1,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 65
+              },
+              "rest_seconds": 90
+            }
           ]
         },
         {
