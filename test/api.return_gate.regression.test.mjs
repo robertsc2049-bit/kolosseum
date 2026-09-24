@@ -234,6 +234,10 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
   );
 
   const sessionId = compile.json.session_id;
+  // Use whatever the programme plans first, rather than pinning one exercise id
+  // (the powerlifting programme changes over time; the gate behaviour does not).
+  const firstExerciseId = compile.json.planned_session?.exercises?.[0]?.exercise_id;
+  assert.ok(typeof firstExerciseId === "string" && firstExerciseId.length > 0, `missing first planned exercise. raw=${compile.text}`);
 
   // ---- Start session ----
   const start = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/start`, {});
@@ -288,7 +292,7 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
   const evCompleteWhileGated = await httpJson(
     "POST",
     `${baseUrl}/sessions/${sessionId}/events`,
-    { event: { type: "COMPLETE_EXERCISE", exercise_id: "bench_press" } }
+    { event: { type: "COMPLETE_EXERCISE", exercise_id: firstExerciseId } }
   );
 
   assert.equal(
@@ -321,7 +325,7 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
 
   // ---- 4) COMPLETE_EXERCISE now succeeds ----
   const evComplete = await httpJson("POST", `${baseUrl}/sessions/${sessionId}/events`, {
-    event: { type: "COMPLETE_EXERCISE", exercise_id: "bench_press" },
+    event: { type: "COMPLETE_EXERCISE", exercise_id: firstExerciseId },
   });
   assert.equal(evComplete.res.status, 201, `COMPLETE_EXERCISE expected 201, got ${evComplete.res.status}. raw=${evComplete.text}`);
 
@@ -340,8 +344,8 @@ test("API regression: split return decision gate blocks events until RETURN_CONT
   );
   assert.equal(
     trace2.completed_ids[0],
-    "bench_press",
-    `expected completed_ids=["bench_press"], got ${JSON.stringify(trace2.completed_ids)}`
+    firstExerciseId,
+    `expected completed_ids=["${firstExerciseId}"], got ${JSON.stringify(trace2.completed_ids)}`
   );
 
   assert.equal(
