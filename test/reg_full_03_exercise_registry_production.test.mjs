@@ -12,7 +12,7 @@ test("REG-FULL-03 closes the production exercise universe", () => {
   assert.equal(result.counts.exercises, EXPECTED_EXERCISE_COUNT);
   assert.equal(result.counts.tokens, EXPECTED_TOKEN_COUNT);
   assert.equal(result.counts.applicability, EXPECTED_APPLICABILITY_COUNT);
-  assert.equal(result.counts.movement_patterns, 54);
+  assert.equal(result.counts.movement_patterns, 55);
 });
 
 test("REG-FULL-03 rejects removal of a competition lift", () => {

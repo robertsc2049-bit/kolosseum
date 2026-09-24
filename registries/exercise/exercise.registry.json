@@ -18944,6 +18944,254 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "neck_flexion_isometric": {
+      "exercise_id": "neck_flexion_isometric",
+      "display_label": "Neck flexion isometric",
+      "movement_pattern_id": "neck_isometric",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Neck flexion isometric: Hold the head in a neutral position against the band pulling it backwards, pressing gently forwards without letting the head move.",
+      "instruction_detail_text": [
+        "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+        "Hold the head in a neutral position against the band pulling it backwards, pressing gently forwards without letting the head move.",
+        "Release neck flexion isometric gradually at the end of each hold so the neck returns to neutral under control."
+      ],
+      "coaching_cues": [
+        "Keep the chin level",
+        "Build pressure gradually",
+        "Breathe throughout the hold"
+      ],
+      "common_faults": [
+        "Jerking into the hold",
+        "Tucking the chin to the chest",
+        "Shrugging the shoulders"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "resistance_band"
+      ],
+      "equipment_alternatives": [
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "rugby_sevens",
+        "ice_hockey",
+        "american_football",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "neck_extension_isometric": {
+      "exercise_id": "neck_extension_isometric",
+      "display_label": "Neck extension isometric",
+      "movement_pattern_id": "neck_isometric",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Neck extension isometric: Hold the head in a neutral position against the band pulling it forwards, pressing gently backwards without letting the head move.",
+      "instruction_detail_text": [
+        "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+        "Hold the head in a neutral position against the band pulling it forwards, pressing gently backwards without letting the head move.",
+        "Release neck extension isometric gradually at the end of each hold so the neck returns to neutral under control."
+      ],
+      "coaching_cues": [
+        "Keep the eyes level",
+        "Build pressure gradually",
+        "Breathe throughout the hold"
+      ],
+      "common_faults": [
+        "Arching the upper back",
+        "Jerking into the hold",
+        "Letting the head tip back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "resistance_band"
+      ],
+      "equipment_alternatives": [
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "rugby_sevens",
+        "ice_hockey",
+        "american_football",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "neck_lateral_flexion_isometric": {
+      "exercise_id": "neck_lateral_flexion_isometric",
+      "display_label": "Neck lateral flexion isometric",
+      "movement_pattern_id": "neck_isometric",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Neck lateral flexion isometric: Hold the head upright against the band pulling it sideways, pressing gently into the band without letting the head tilt.",
+      "instruction_detail_text": [
+        "Set up the resistance band securely at head height and establish the prescribed starting position before the first repetition.",
+        "Hold the head upright against the band pulling it sideways, pressing gently into the band without letting the head tilt.",
+        "Release neck lateral flexion isometric gradually at the end of each hold so the neck returns to neutral under control."
+      ],
+      "coaching_cues": [
+        "Keep the ears level",
+        "Build pressure gradually",
+        "Match both sides"
+      ],
+      "common_faults": [
+        "Tilting the head",
+        "Leaning the trunk",
+        "Jerking into the hold"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "resistance_band"
+      ],
+      "equipment_alternatives": [
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "rugby_sevens",
+        "ice_hockey",
+        "american_football",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "self_resisted_neck_isometric": {
+      "exercise_id": "self_resisted_neck_isometric",
+      "display_label": "Self-resisted neck isometric",
+      "movement_pattern_id": "neck_isometric",
+      "stimulus_intent": "strength",
+      "rom": "partial",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Self-resisted neck isometric: Press the head gently into the hand in each direction while the hand stops any movement, holding a neutral head position.",
+      "instruction_detail_text": [
+        "Set up in a tall, supported posture and establish the prescribed starting position before the first repetition.",
+        "Press the head gently into the hand in each direction while the hand stops any movement, holding a neutral head position.",
+        "Release self-resisted neck isometric gradually at the end of each hold so the neck returns to neutral under control."
+      ],
+      "coaching_cues": [
+        "Use moderate pressure only",
+        "Keep the head still",
+        "Work each direction evenly"
+      ],
+      "common_faults": [
+        "Pushing hard enough to move the head",
+        "Holding the breath",
+        "Shrugging the shoulders"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "rugby_sevens",
+        "ice_hockey",
+        "american_football",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }
