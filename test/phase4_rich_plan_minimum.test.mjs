@@ -339,6 +339,44 @@ test("Phase4: crossfit short timebox keeps the whole AMRAP group", () => {
   assert.equal(r.program.planned_items.filter((x) => x.group_type === "amrap").length, 3);
 });
 
+// Team sports get the gym (S&C) work that supports the sport: power first,
+// then strength, then that sport's injury-resilience work - and never the
+// generic bench/press-up/overhead-press block, nor each other's session.
+const TEAM_SPORTS = [
+  "rugby_union", "rugby_league", "rugby_sevens", "american_football", "football_soccer", "field_hockey",
+  "ice_hockey", "netball", "basketball", "volleyball", "cricket", "tennis"
+];
+const POWER = /jump|sprint|acceleration|bound|throw|drop_to_stick|deceleration/;
+
+test("Phase4: every team sport gets its own power-first S&C session", () => {
+  const plans = new Map();
+  for (const activity of TEAM_SPORTS) {
+    const r = phase4AssembleProgram(mkInput(activity), mkPhase3());
+    assert.equal(r.ok, true, `${activity} must assemble`);
+    const ids = r.program.planned_exercise_ids;
+    assert.equal(ids.length, 6, `${activity} plans 6 items`);
+    for (const generic of ["bench_press", "incline_bench_press", "push_up", "overhead_press"]) {
+      assert.ok(!ids.includes(generic), `${activity} must not plan generic ${generic}`);
+    }
+    assert.match(ids[0], POWER, `${activity} must open with power/speed work, got ${ids[0]}`);
+    plans.set(activity, ids.join(","));
+  }
+  assert.equal(new Set(plans.values()).size, TEAM_SPORTS.length, "no two team sports may share a session");
+});
+
+test("Phase4: team sports include each sport's own injury-resilience work", () => {
+  const ids = (activity) => phase4AssembleProgram(mkInput(activity), mkPhase3()).program.planned_exercise_ids;
+  for (const a of ["football_soccer", "rugby_union", "rugby_league", "rugby_sevens", "american_football", "field_hockey", "netball"]) {
+    assert.ok(ids(a).includes("nordic_curl"), `${a}: hamstring (Nordic) work`);
+  }
+  for (const a of ["football_soccer", "ice_hockey"]) assert.ok(ids(a).includes("cable_hip_adduction"), `${a}: adductor work`);
+  for (const a of ["netball", "basketball", "volleyball"]) assert.ok(ids(a).includes("drop_to_stick"), `${a}: landing mechanics`);
+  for (const a of ["volleyball", "cricket", "tennis"]) assert.ok(ids(a).includes("cable_external_rotation"), `${a}: shoulder care`);
+  for (const a of ["cricket", "tennis"]) assert.ok(ids(a).some((x) => /rotational/.test(x)), `${a}: rotational power`);
+  // Volleyball players already take very high jump counts in practice: keep gym plyometrics to landing work only.
+  assert.equal(ids("volleyball").filter((x) => /jump|bound/.test(x)).length, 0, "volleyball: no extra jump volume");
+});
+
 // Activities without item_prescriptions keep the default primary/accessory
 // prescription exactly.
 test("Phase4: activities without item_prescriptions keep the default prescription", () => {
