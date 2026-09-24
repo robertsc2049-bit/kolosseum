@@ -5,6 +5,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 
 // Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).
@@ -220,6 +221,39 @@ test("Phase4: timebox pruning (general_strength) tb<30 drops all accessories; tb
     const r = phase4AssembleProgram(mkInput("general_strength", 60), phase3);
     assert.equal(r.ok, true);
     assertTimeboxPlan(r.program, 6, 2);
+  }
+});
+
+// Every activity athletes can declare must assemble a program: a missing
+// program-registry entry fails compile for that sport's athletes outright,
+// coach-assigned ones included (this happened to hyrox). Each planned exercise
+// must also be training-allowed for the activity it was planned for.
+test("Phase4: every registry activity assembles a program of training-allowed exercises", () => {
+  const activityDoc = JSON.parse(fs.readFileSync(path.resolve("registries/activity/activity.registry.json"), "utf8"));
+  const activityIds = Object.keys(activityDoc.entries ?? activityDoc);
+  assert.ok(activityIds.includes("hyrox"), "activity registry must include hyrox");
+
+  const applicabilityDoc = JSON.parse(fs.readFileSync(
+    path.resolve("registries/exercise_activity_applicability/exercise_activity_applicability.registry.json"),
+    "utf8"
+  ));
+  const trainingAllowed = new Set(
+    Object.values(applicabilityDoc.entries ?? applicabilityDoc)
+      .filter((row) => row.activity_context === "training" && row.applicability_state === "allowed")
+      .map((row) => `${row.activity_id}::${row.exercise_id}`)
+  );
+
+  for (const activityId of activityIds) {
+    const r = phase4AssembleProgram(mkInput(activityId), mkPhase3());
+    assert.equal(r.ok, true, `${activityId} must assemble a program (got ${r.failure_token ?? "no token"})`);
+    assertPhase4PlanContract(r.program, { minItems: 2 });
+
+    for (const exerciseId of r.program.planned_exercise_ids) {
+      assert.ok(
+        trainingAllowed.has(`${activityId}::${exerciseId}`),
+        `${activityId} planned ${exerciseId}, which is not training-allowed for it`
+      );
+    }
   }
 });
 

@@ -23699,6 +23699,18 @@
           ]
         },
         {
+          "activity_id": "hyrox",
+          "template_id": "PROGRAM_HYROX_V1",
+          "exercise_eligibility": [
+            "sled_push",
+            "sled_drag",
+            "sandbag_lunge",
+            "farmers_carry",
+            "wall_ball",
+            "burpee_broad_jump"
+          ]
+        },
+        {
           "activity_id": "crossfit",
           "template_id": "PROGRAM_CROSSFIT_V1",
           "exercise_eligibility": [
