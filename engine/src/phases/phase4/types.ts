@@ -65,7 +65,17 @@ export type PlannedItem = {
   rep_range?: PlannedItemRepRange;
   intensity: PlannedItemIntensity;
   rest_seconds: number;
+
+  // Timed/linked group membership, only when a template declares one.
+  // Phase6 passes these through unchanged.
+  group_id?: string;
+  group_type?: Phase4GroupType;
+  group_time_cap_seconds?: number;
+  group_round_seconds?: number;
+  group_total_rounds?: number;
 };
+
+export type Phase4GroupType = "superset" | "circuit" | "complex" | "amrap" | "emom" | "for_time";
 
 export type Phase4Program = {
   program_id: string;
@@ -120,6 +130,18 @@ export type Phase4ItemPrescription = {
   reps: number;
   intensity: PlannedItemIntensity;
   rest_seconds: number;
+  group?: Phase4ItemGroup;
+};
+
+// A group is declared on each member item; members must be contiguous,
+// identical in every group field, and entirely within the four primaries so
+// timebox pruning can never split one.
+export type Phase4ItemGroup = {
+  group_id: string;
+  group_type: Phase4GroupType;
+  time_cap_seconds?: number;
+  round_seconds?: number;
+  total_rounds?: number;
 };
 
 export type Phase4Template = {

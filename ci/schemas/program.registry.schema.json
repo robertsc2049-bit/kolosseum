@@ -103,7 +103,7 @@
                 },
                 "rest_seconds": {
                   "type": "integer",
-                  "minimum": 1
+                  "minimum": 0
                 },
                 "intensity": {
                   "type": "object",
@@ -122,6 +122,43 @@
                     },
                     "value": {
                       "type": "number"
+                    }
+                  }
+                },
+                "group": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "group_id",
+                    "group_type"
+                  ],
+                  "properties": {
+                    "group_id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9][a-z0-9_]*$"
+                    },
+                    "group_type": {
+                      "type": "string",
+                      "enum": [
+                        "superset",
+                        "circuit",
+                        "complex",
+                        "amrap",
+                        "emom",
+                        "for_time"
+                      ]
+                    },
+                    "time_cap_seconds": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "round_seconds": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "total_rounds": {
+                      "type": "integer",
+                      "minimum": 1
                     }
                   }
                 }
