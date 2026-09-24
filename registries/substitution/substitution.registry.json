@@ -25290,6 +25290,198 @@
       "deterministic_ordering_key": "pogo_jump|00|00|vertical_jump_to_stick",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "power_clean__to__snatch_grip_deadlift": {
+      "substitution_edge_id": "power_clean__to__snatch_grip_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "snatch_grip_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|00|snatch_grip_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__partial_deadlift": {
+      "substitution_edge_id": "power_clean__to__partial_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "partial_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|partial_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__paused_deadlift": {
+      "substitution_edge_id": "power_clean__to__paused_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__romanian_deadlift": {
+      "substitution_edge_id": "power_clean__to__romanian_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "power_clean__to__stiff_leg_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__sumo_deadlift": {
+      "substitution_edge_id": "power_clean__to__sumo_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "sumo_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|sumo_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__tempo_deadlift": {
+      "substitution_edge_id": "power_clean__to__tempo_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "tempo_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|00|01|tempo_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__block_pull": {
+      "substitution_edge_id": "power_clean__to__block_pull",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|01|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__deficit_deadlift": {
+      "substitution_edge_id": "power_clean__to__deficit_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|01|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__good_morning": {
+      "substitution_edge_id": "power_clean__to__good_morning",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|01|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__rack_pull": {
+      "substitution_edge_id": "power_clean__to__rack_pull",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|01|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__trap_bar_deadlift": {
+      "substitution_edge_id": "power_clean__to__trap_bar_deadlift",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|01|01|trap_bar_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "power_clean__to__kettlebell_deadlift": {
       "substitution_edge_id": "power_clean__to__kettlebell_deadlift",
       "source_exercise_id": "power_clean",
@@ -25300,10 +25492,43 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "power_clean|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__kettlebell_swing": {
+      "substitution_edge_id": "power_clean__to__kettlebell_swing",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_clean__to__single_leg_rdl": {
+      "substitution_edge_id": "power_clean__to__single_leg_rdl",
+      "source_exercise_id": "power_clean",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_clean|02|01|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "preacher_curl__to__barbell_curl": {
@@ -25810,6 +26035,70 @@
       "deterministic_ordering_key": "pull_up|01|01|pullover",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "push_jerk__to__overhead_press": {
+      "substitution_edge_id": "push_jerk__to__overhead_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|00|01|overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "push_jerk__to__paused_overhead_press": {
+      "substitution_edge_id": "push_jerk__to__paused_overhead_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "paused_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|00|01|paused_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "push_jerk__to__machine_shoulder_press": {
+      "substitution_edge_id": "push_jerk__to__machine_shoulder_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "machine_shoulder_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|01|01|machine_shoulder_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "push_jerk__to__arnold_press": {
+      "substitution_edge_id": "push_jerk__to__arnold_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "arnold_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|02|01|arnold_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "push_jerk__to__dumbbell_overhead_press": {
       "substitution_edge_id": "push_jerk__to__dumbbell_overhead_press",
       "source_exercise_id": "push_jerk",
@@ -25820,10 +26109,27 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "push_jerk|02|01|dumbbell_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "push_jerk__to__kettlebell_overhead_press": {
+      "substitution_edge_id": "push_jerk__to__kettlebell_overhead_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "kettlebell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|02|01|kettlebell_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "push_jerk__to__pike_push_up": {
@@ -25836,10 +26142,27 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "push_jerk|02|01|pike_push_up",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "push_jerk__to__single_arm_overhead_press": {
+      "substitution_edge_id": "push_jerk__to__single_arm_overhead_press",
+      "source_exercise_id": "push_jerk",
+      "target_exercise_id": "single_arm_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "push_jerk|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "rack_pull__to__good_morning": {
@@ -29905,7 +30228,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|partial_deadlift",
@@ -29922,7 +30246,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|paused_deadlift",
@@ -29940,7 +30265,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "strongman"
+        "strongman",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|romanian_deadlift",
@@ -29958,7 +30284,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "strongman"
+        "strongman",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|stiff_leg_deadlift",
@@ -29975,7 +30302,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|sumo_deadlift",
@@ -29992,7 +30320,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|00|01|tempo_deadlift",
@@ -30009,7 +30338,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|01|01|block_pull",
@@ -30026,7 +30356,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|01|01|deficit_deadlift",
@@ -30043,7 +30374,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|01|01|good_morning",
@@ -30060,7 +30392,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|01|01|rack_pull",
@@ -30077,7 +30410,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "powerlifting",
-        "general_strength"
+        "general_strength",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|01|01|trap_bar_deadlift",
@@ -30095,7 +30429,8 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "strongman"
+        "strongman",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|02|01|kettlebell_deadlift",
@@ -30112,7 +30447,8 @@
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
         "general_strength",
-        "strongman"
+        "strongman",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|02|01|kettlebell_swing",
@@ -30130,10 +30466,203 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
-        "strongman"
+        "strongman",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch_grip_deadlift|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__snatch_grip_deadlift": {
+      "substitution_edge_id": "snatch__to__snatch_grip_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "snatch_grip_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|00|snatch_grip_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__partial_deadlift": {
+      "substitution_edge_id": "snatch__to__partial_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "partial_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|partial_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__paused_deadlift": {
+      "substitution_edge_id": "snatch__to__paused_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__romanian_deadlift": {
+      "substitution_edge_id": "snatch__to__romanian_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "snatch__to__stiff_leg_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__sumo_deadlift": {
+      "substitution_edge_id": "snatch__to__sumo_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "sumo_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|sumo_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__tempo_deadlift": {
+      "substitution_edge_id": "snatch__to__tempo_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "tempo_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "same_required_equipment",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|00|01|tempo_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__block_pull": {
+      "substitution_edge_id": "snatch__to__block_pull",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|01|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__deficit_deadlift": {
+      "substitution_edge_id": "snatch__to__deficit_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|01|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__good_morning": {
+      "substitution_edge_id": "snatch__to__good_morning",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|01|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__rack_pull": {
+      "substitution_edge_id": "snatch__to__rack_pull",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|01|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__trap_bar_deadlift": {
+      "substitution_edge_id": "snatch__to__trap_bar_deadlift",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|01|01|trap_bar_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "snatch__to__kettlebell_deadlift": {
@@ -30146,10 +30675,43 @@
       "excluded_equipment_handling": "explicit_target_required_equipment_filter",
       "joint_stress_handling": "target_subset_or_equal",
       "activity_applicability": [
-        "crossfit"
+        "crossfit",
+        "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "snatch|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__kettlebell_swing": {
+      "substitution_edge_id": "snatch__to__kettlebell_swing",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "snatch__to__single_leg_rdl": {
+      "substitution_edge_id": "snatch__to__single_leg_rdl",
+      "source_exercise_id": "snatch",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "snatch|02|01|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "spoto_press__to__close_grip_bench_press": {
