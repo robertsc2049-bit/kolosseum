@@ -24,7 +24,7 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "bfd69e71e79c97a86feadc0573a5476d4772c43b319c5ed2743c08b4d6b15881"
+      "sha256": "4a11177863eb809b7e7275839314ea513440c017ac1101b6b4a7f24c8f04b64f"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
