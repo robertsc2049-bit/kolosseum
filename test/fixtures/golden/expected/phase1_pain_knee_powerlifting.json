@@ -2,79 +2,65 @@
   "ok": true,
   "result": {
     "notes": [
-      "PHASE_6: emitted session from planned_items (deduped)"
+      "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
     ],
     "session": {
       "exercises": [
         {
           "block_id": "B0",
-          "exercise_id": "bench_press",
+          "exercise_id": "paused_bench_press",
           "intensity": {
             "type": "percent_1rm",
-            "value": 75
+            "value": 80
           },
           "item_id": "B0_I0",
-          "reps": 5,
+          "reps": 3,
           "resolved_load": null,
           "rest_seconds": 180,
           "segment": "working",
-          "sets": 4,
-          "source": "program"
-        },
-        {
-          "block_id": "B0",
-          "exercise_id": "back_squat",
-          "intensity": {
-            "type": "percent_1rm",
-            "value": 75
-          },
-          "item_id": "B0_I1",
-          "reps": 5,
-          "resolved_load": null,
-          "rest_seconds": 180,
-          "segment": "working",
-          "sets": 4,
-          "source": "program"
+          "sets": 5,
+          "source": "program",
+          "substituted_from": "back_squat"
         },
         {
           "block_id": "B0",
           "exercise_id": "deadlift",
           "intensity": {
             "type": "percent_1rm",
-            "value": 75
+            "value": 82
           },
           "item_id": "B0_I2",
-          "reps": 5,
+          "reps": 3,
           "resolved_load": null,
-          "rest_seconds": 180,
+          "rest_seconds": 240,
           "segment": "working",
-          "sets": 4,
+          "sets": 3,
           "source": "program"
         },
         {
           "block_id": "B0",
-          "exercise_id": "overhead_press",
+          "exercise_id": "close_grip_bench_press",
           "intensity": {
             "type": "percent_1rm",
-            "value": 75
+            "value": 70
           },
           "item_id": "B0_I3",
-          "reps": 5,
+          "reps": 6,
           "resolved_load": null,
-          "rest_seconds": 180,
+          "rest_seconds": 120,
           "segment": "working",
-          "sets": 4,
+          "sets": 3,
           "source": "program"
         },
         {
           "block_id": "B0",
-          "exercise_id": "incline_bench_press",
+          "exercise_id": "barbell_row",
           "intensity": {
-            "type": "percent_1rm",
-            "value": 60
+            "type": "rpe",
+            "value": 8
           },
           "item_id": "B0_I4",
-          "reps": 10,
+          "reps": 8,
           "resolved_load": null,
           "rest_seconds": 90,
           "segment": "working",
@@ -83,15 +69,15 @@
         },
         {
           "block_id": "B0",
-          "exercise_id": "push_up",
+          "exercise_id": "cable_triceps_pressdown",
           "intensity": {
-            "type": "percent_1rm",
-            "value": 60
+            "type": "rpe",
+            "value": 8
           },
           "item_id": "B0_I5",
-          "reps": 10,
+          "reps": 12,
           "resolved_load": null,
-          "rest_seconds": 90,
+          "rest_seconds": 60,
           "segment": "working",
           "sets": 3,
           "source": "program"

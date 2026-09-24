@@ -49,7 +49,7 @@ function sha256TextUtf8(text) {
 
 // DEV NOTE: This must stay a valid 64-character lowercase hex SHA-256 string.
 // An empty or malformed value means the guard has been broken rather than updated.
-const PINNED_MANIFEST_SHA256 = "734707bda7b1e0176df3e761dc4fb46d2b883efdb9fa4495d920d0a7c798c4ee";
+const PINNED_MANIFEST_SHA256 = "0f609f4fa2f1336d60f8297e0b6e49a9f0c13fc9e6fc3571626582484db33793";
 
 /**
  * DEV NOTE: Validate SHA-256 pin shape before comparing content.

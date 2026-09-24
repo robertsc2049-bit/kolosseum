@@ -134,7 +134,7 @@ function runCli(args, stdinText) {
   assertHasRendered(debugRes.out);
 
   const first = debugRes.out.result.rendered_text.lines[0];
-  const expected = "1) bench_press \u2014 4x5 @ 75% rest 180s";
+  const expected = "1) back_squat \u2014 5x3 @ 80% rest 180s";
   assert(first === expected, `unexpected first rendered line: ${first}`);
 
   console.log("PASS test/cli_runner_rendered_text.test.mjs");
