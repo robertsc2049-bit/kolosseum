@@ -17,7 +17,7 @@ export function assembleSupportedProgram(args: AssembleSupportedProgramArgs): Ph
 
   const timeboxMinutes = readSessionTimeboxMinutes(canonicalInput, phase3.constraints);
 
-  const planned_items = buildPlannedItems(template.intent, session_id, timeboxMinutes);
+  const planned_items = buildPlannedItems(template.intent, session_id, timeboxMinutes, template.prescriptions);
 
   // Derived convenience only (and must match planned_items order 1:1 per test contract)
   const planned_exercise_ids = derivePlannedExerciseIds(planned_items);

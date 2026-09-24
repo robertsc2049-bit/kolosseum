@@ -257,6 +257,48 @@ test("Phase4: every registry activity assembles a program of training-allowed ex
   }
 });
 
+// An Olympic weightlifting programme must be built from the sport's own lifts at
+// weightlifting rep ranges - not the generic squat/bench/deadlift block, and
+// not 4x5 snatches.
+test("Phase4: olympic_weightlifting plans the classic lifts with their declared prescriptions", () => {
+  const r = phase4AssembleProgram(mkInput("olympic_weightlifting"), mkPhase3());
+  assert.equal(r.ok, true);
+  assertPhase4PlanContract(r.program, { minItems: 2 });
+
+  const plan = r.program.planned_items.map((it) => [it.exercise_id, it.sets, it.reps, it.intensity.value, it.rest_seconds]);
+  assert.deepEqual(plan, [
+    ["snatch", 5, 2, 75, 150],
+    ["power_clean", 4, 2, 75, 150],
+    ["push_jerk", 4, 2, 75, 150],
+    ["front_squat", 4, 3, 80, 180],
+    ["snatch_grip_deadlift", 3, 3, 75, 150]
+  ]);
+  for (const generic of ["bench_press", "incline_bench_press", "push_up", "overhead_press"]) {
+    assert.ok(!r.program.planned_exercise_ids.includes(generic), `olympic_weightlifting must not plan ${generic}`);
+  }
+});
+
+// Timebox pruning still drops the accessory pull but keeps every declared
+// prescription on the classic lifts.
+test("Phase4: olympic_weightlifting timebox keeps the classic lifts' declared prescriptions", () => {
+  const r = phase4AssembleProgram(mkInput("olympic_weightlifting", 25), mkPhase3());
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.program.planned_exercise_ids, ["snatch", "power_clean", "push_jerk", "front_squat"]);
+  assert.equal(r.program.planned_items[0].reps, 2);
+});
+
+// Activities without item_prescriptions keep the default primary/accessory
+// prescription exactly.
+test("Phase4: activities without item_prescriptions keep the default prescription", () => {
+  const r = phase4AssembleProgram(mkInput("swimming"), mkPhase3());
+  assert.equal(r.ok, true);
+  const plan = r.program.planned_items.map((it) => [it.sets, it.reps, it.intensity.value, it.rest_seconds]);
+  assert.deepEqual(plan, [
+    [4, 5, 75, 180], [4, 5, 75, 180], [4, 5, 75, 180], [4, 5, 75, 180],
+    [3, 10, 60, 90], [3, 10, 60, 90]
+  ]);
+});
+
 test("Phase4: unsupported activity fails closed instead of returning a stub program", () => {
   const constraints = { constraints_version: "1.0.0", demo: true };
   const canonicalInput = { activity_id: "unknown_activity" };
