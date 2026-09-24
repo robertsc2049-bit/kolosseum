@@ -190,7 +190,8 @@
               "mma",
               "tennis",
               "triathlon",
-              "rugby_league"
+              "rugby_league",
+              "street_lifting"
             ]
           },
           "secondary_activity_applicability": {
@@ -228,7 +229,8 @@
                 "mma",
                 "tennis",
                 "triathlon",
-                "rugby_league"
+                "rugby_league",
+                "street_lifting"
               ]
             },
             "uniqueItems": true

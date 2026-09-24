@@ -447,6 +447,20 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
   Object.freeze({ template_id: "rugby_league_low_equipment", activity_id: "rugby_league", weeks: 4, low_equipment: true, days: Object.freeze([
     Object.freeze([work("box_jump", 3, 4), work("kettlebell_deadlift", 3, 8), work("dumbbell_bench_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)]),
     Object.freeze([work("bulgarian_split_squat", 3, 8), work("dumbbell_overhead_press", 3, 8), work("single_arm_dumbbell_row", 3, 10)])
+  ]) }),
+  Object.freeze({ template_id: "street_lifting_novice", activity_id: "street_lifting", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("back_squat", 3, 5), work("pull_up", 3, 5), work("dip", 3, 8)]),
+    Object.freeze([work("pull_up", 4, 5), work("dip", 4, 8)]),
+    Object.freeze([work("back_squat", 3, 5), work("pull_up", 3, 5), work("dip", 2, 8)])
+  ]) }),
+  Object.freeze({ template_id: "street_lifting_intermediate", activity_id: "street_lifting", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("back_squat", 4, 4), work("pull_up", 4, 4), work("dip", 4, 6)]),
+    Object.freeze([work("paused_back_squat", 3, 3), work("pull_up", 3, 4), work("muscle_up", 3, 3)]),
+    Object.freeze([work("back_squat", 3, 5), work("dip", 4, 6), work("romanian_deadlift", 3, 6)])
+  ]) }),
+  Object.freeze({ template_id: "street_lifting_low_equipment", activity_id: "street_lifting", weeks: 4, low_equipment: true, days: Object.freeze([
+    Object.freeze([work("goblet_squat", 3, 8), work("pull_up", 3, 5), work("dumbbell_bench_press", 3, 8)]),
+    Object.freeze([work("goblet_squat", 3, 10), work("pull_up", 4, 5), work("dumbbell_bench_press", 3, 10)])
   ]) })
 ]);
 
@@ -486,7 +500,10 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   push_jerk: "push_jerk__to__dumbbell_overhead_press",
   muscle_up: "muscle_up__to__pull_up",
   toes_to_bar: "toes_to_bar__to__curl_up",
-  handstand_push_up: "handstand_push_up__to__pike_push_up"
+  handstand_push_up: "handstand_push_up__to__pike_push_up",
+  pull_up: "pull_up__to__chin_up",
+  dip: "dip__to__decline_bench_press",
+  goblet_squat: "goblet_squat__to__air_squat"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);
