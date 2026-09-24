@@ -2207,6 +2207,48 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "neck_extension_isometric__resistance_band": {
+      "compatibility_id": "neck_extension_isometric__resistance_band",
+      "exercise_id": "neck_extension_isometric",
+      "equipment_id": "resistance_band",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "neck_extension_isometric__bodyweight": {
+      "compatibility_id": "neck_extension_isometric__bodyweight",
+      "exercise_id": "neck_extension_isometric",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "neck_flexion_isometric__resistance_band": {
+      "compatibility_id": "neck_flexion_isometric__resistance_band",
+      "exercise_id": "neck_flexion_isometric",
+      "equipment_id": "resistance_band",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "neck_flexion_isometric__bodyweight": {
+      "compatibility_id": "neck_flexion_isometric__bodyweight",
+      "exercise_id": "neck_flexion_isometric",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "neck_lateral_flexion_isometric__resistance_band": {
+      "compatibility_id": "neck_lateral_flexion_isometric__resistance_band",
+      "exercise_id": "neck_lateral_flexion_isometric",
+      "equipment_id": "resistance_band",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "neck_lateral_flexion_isometric__bodyweight": {
+      "compatibility_id": "neck_lateral_flexion_isometric__bodyweight",
+      "exercise_id": "neck_lateral_flexion_isometric",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "neutral_grip_pulldown__cable_machine": {
       "compatibility_id": "neutral_grip_pulldown__cable_machine",
       "exercise_id": "neutral_grip_pulldown",
@@ -2793,6 +2835,20 @@
       "exercise_id": "seated_leg_curl",
       "equipment_id": "machine_general",
       "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "self_resisted_neck_isometric__bodyweight": {
+      "compatibility_id": "self_resisted_neck_isometric__bodyweight",
+      "exercise_id": "self_resisted_neck_isometric",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "self_resisted_neck_isometric__resistance_band": {
+      "compatibility_id": "self_resisted_neck_isometric__resistance_band",
+      "exercise_id": "self_resisted_neck_isometric",
+      "equipment_id": "resistance_band",
+      "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "shrug__barbell": {
