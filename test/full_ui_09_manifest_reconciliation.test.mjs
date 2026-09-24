@@ -22,9 +22,9 @@ const targets = [
     "id": "assignment_replace",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/api/coachWorkspaceClient.ts",
         "all": [
-          "createId(\"assignment_replace\")"
+          "function replaceAthleteAssignment("
         ]
       },
       {
@@ -51,8 +51,13 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteAssignmentCancelButton",
-          "assignmentCancelButton"
+          "athlete-profile-assignment-root"
+        ]
+      },
+      {
+        "path": "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        "all": [
+          "Cancel future assignment"
         ]
       },
       {
@@ -79,15 +84,19 @@ const targets = [
       {
         "path": "public/app/app.js",
         "all": [
-          "function assignmentHistoryCards(",
           "assignment_history"
         ]
       },
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteAssignmentHistory",
-          "assignmentHistoryList"
+          "athlete-profile-assignment-root"
+        ]
+      },
+      {
+        "path": "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        "all": [
+          "athlete-assignment-history"
         ]
       }
     ],
@@ -107,15 +116,14 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "athleteDirectorySearch",
-          "athleteRelationshipFilter"
+          "athlete-directory-root"
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/AthleteDirectoryPanel.tsx",
         "all": [
-          "athleteDirectorySearch",
-          "athleteRelationshipFilter"
+          "Search athletes",
+          "Relationship state"
         ]
       }
     ],
@@ -133,9 +141,9 @@ const targets = [
     "id": "athlete_assignment_history",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         "all": [
-          "athleteDetailAssignmentHistory"
+          "AthleteAssignmentHistoryList"
         ]
       },
       {
@@ -159,9 +167,9 @@ const targets = [
     "id": "athlete_bodyweight_history",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         "all": [
-          "athleteDetailBodyweightHistory"
+          "AthleteBodyweightHistoryList"
         ]
       },
       {
@@ -214,9 +222,9 @@ const targets = [
     "id": "subscription_state",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialSubscriptionState"
+          "commercial.subscription_state"
         ]
       },
       {
@@ -228,9 +236,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 displays factual subscription and seat state"
+          "loads and displays factual subscription, access, billing and seat state"
         ]
       }
     ]
@@ -240,18 +248,18 @@ const targets = [
     "id": "seat_allowance",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialSeatAllowance",
-          "commercialSeatUsage"
+          "commercial.seat_limit",
+          "commercial.occupied_seat_count"
         ]
       }
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 displays factual subscription and seat state"
+          "loads and displays factual subscription, access, billing and seat state"
         ]
       }
     ]
@@ -261,9 +269,9 @@ const targets = [
     "id": "checkout_entry",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialCheckoutButton"
+          "openCheckout"
         ]
       },
       {
@@ -275,9 +283,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 checkout remains controlled-launch and provider-inert"
+          "requesting checkout with no checkout_url shows the provider-inert result message"
         ]
       }
     ]
@@ -287,7 +295,7 @@ const targets = [
     "id": "payment_return",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/commercialClient.ts",
         "all": [
           "recordCommercialPaymentReturn",
           "/account/commercial/payment-return"
@@ -302,10 +310,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 mounts authenticated commercial account routes",
-          "FULL-UI-08 persists immutable commercial records"
+          "a payment return in the URL records the outcome, shows the confirmation-pending notice, and strips the query params"
         ]
       }
     ]
@@ -315,23 +322,23 @@ const targets = [
     "id": "billing_portal",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/commercialClient.ts",
         "all": [
           "requestCommercialBillingPortal"
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialPortalButton"
+          "openBillingPortal"
         ]
       }
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+          "the billing portal button is disabled until the server marks the portal as available"
         ]
       }
     ]
@@ -341,13 +348,13 @@ const targets = [
     "id": "entitlement_error",
     "source": [
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/account/CommercialPanel.tsx",
         "all": [
-          "commercialEntitlementError"
+          "commercial-entitlement-error"
         ]
       },
       {
-        "path": "public/app/commercial_ui.js",
+        "path": "public/app-src/screens/account/useCommercialAccount.ts",
         "all": [
           "entitlement_error"
         ]
@@ -355,9 +362,9 @@ const targets = [
     ],
     "prior": [
       {
-        "path": "test/full_ui_08_account_commercial.test.mjs",
+        "path": "public/app-src/__tests__/CommercialPanel.test.tsx",
         "all": [
-          "FULL-UI-08 exposes factual entitlement failure and portal gating"
+          "an entitlement error is shown as a factual notice, distinct from the general result message"
         ]
       }
     ]
@@ -369,10 +376,8 @@ const targets = [
       {
         "path": "public/app/index.html",
         "any": [
-          "coachOverviewAssignments",
-          "coachAssignmentCount",
-          "Assignments requiring action",
-          "Assignment queue"
+          "coach-overview-assignments-root",
+          "Action queue"
         ]
       }
     ],
@@ -394,8 +399,8 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "coachOpenSessionCount",
-          "coachOverviewOpenSessions"
+          "Open sessions",
+          "coach-overview-open-sessions-root"
         ]
       }
     ],
@@ -437,11 +442,21 @@ const targets = [
     "id": "review_open_sessions",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachReviewPanel.tsx",
         "any": [
-          "open read-only sessions",
-          "Open sessions cannot be marked reviewed",
-          "coachOverviewOpenSessions"
+          "open read-only sessions"
+        ]
+      },
+      {
+        "path": "src/api/product_review.routes.ts",
+        "all": [
+          "Open sessions cannot be marked reviewed"
+        ]
+      },
+      {
+        "path": "public/app-src/screens/coach/CoachOverviewSessionReviewPanel.tsx",
+        "all": [
+          "CoachOverviewOpenSessionsPanel"
         ]
       }
     ],
@@ -460,9 +475,8 @@ const targets = [
     "id": "review_note_list",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachReviewPanel.tsx",
         "all": [
-          "function reviewNoteList(",
           "review-note-list"
         ]
       }
@@ -471,8 +485,7 @@ const targets = [
       {
         "path": "test/full_ui_07_review_queue.test.mjs",
         "all": [
-          "FULL-UI-07 displays provenance live status and note visibility",
-          "reviewNoteList"
+          "FULL-UI-07 displays provenance live status and note visibility"
         ]
       }
     ]
@@ -488,10 +501,10 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/useCoachOverviewSessionReview.ts",
         "all": [
-          "__review_state__",
-          "unreviewed"
+          "review_status",
+          "awaiting_review"
         ]
       }
     ],
@@ -510,7 +523,7 @@ const targets = [
     "id": "account_sign_in",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/authClient.ts",
         "all": [
           "signInAccount",
           "/account/sign-in"
@@ -564,7 +577,7 @@ const targets = [
     "id": "email_verification",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/client.ts",
         "all": [
           "requestEmailVerification",
           "completeEmailVerification",
@@ -592,7 +605,7 @@ const targets = [
     "id": "password_reset",
     "source": [
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/authClient.ts",
         "all": [
           "requestPasswordReset",
           "completePasswordReset"
@@ -643,9 +656,8 @@ const targets = [
     "id": "consent_history",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/account/useAccountDetail.ts",
         "all": [
-          "accountConsentHistory",
           "consent_history"
         ]
       }
@@ -672,7 +684,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/account/ProfileForm.tsx",
         "all": [
           "Profile updated."
         ]
@@ -700,7 +712,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/account_ui.js",
+        "path": "public/app-src/api/client.ts",
         "any": [
           "changePassword",
           "updatePassword",
@@ -801,14 +813,14 @@ const targets = [
     "id": "programme_search_filter",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/useCoachProgrammeLibrary.ts",
         "all": [
           "function programmeSearchText(",
           "function filteredProgrammeTemplates("
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx",
         "all": [
           "Search programmes"
         ]
@@ -828,15 +840,9 @@ const targets = [
     "id": "programme_version_metadata",
     "source": [
       {
-        "path": "public/app/app.js",
+        "path": "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         "all": [
-          "function programmeVersionFamilyHtml("
-        ]
-      },
-      {
-        "path": "public/app/index.html",
-        "all": [
-          "templateDetailVersionFamily",
+          "function VersionFamilyList(",
           "Version metadata"
         ]
       }
@@ -861,7 +867,7 @@ const targets = [
         ]
       },
       {
-        "path": "public/app/index.html",
+        "path": "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         "all": [
           "Assignment usage"
         ]
@@ -953,8 +959,13 @@ test(
       // (test/full_ui_02_account_ui.test.mjs, enforced by that area's own
       // "FULL-UI-02C identity manifest is implemented and persistently
       // proven" test) - this generic cross-area reconciliation pass defers
-      // to it rather than re-stamping a competing pointer.
-      if (target.area === "identity_account") {
+      // to it rather than re-stamping a competing pointer. coach_commercial's
+      // billing functions (subscription_state/seat_allowance/checkout_entry/
+      // payment_return/billing_portal/entitlement_error) migrated to React
+      // and now point at CommercialPanel.test.tsx instead - coach_terms/
+      // coach_profile_setup/webhook_confirmation in the same area are
+      // unaffected and keep pointing at their own dedicated test files.
+      if (target.area === "identity_account" || target.area === "coach_commercial") {
         assert.ok(item.entry.direct_test, target.id);
       }
       else {

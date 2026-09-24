@@ -123,7 +123,7 @@
       ]
     }
   ],
-  "current_primary_local_gate": "npm.cmd run lint:fast",
+  "current_primary_local_gate": "npm.cmd run verify",
   "generated_file_owners": [
     {
       "path": "docs/GUARDS_INDEX.md",

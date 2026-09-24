@@ -14,10 +14,24 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 
 const html = read("public/app/index.html");
-const js = read("public/app/app.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const invitationService = read("src/api/relationship_invitation_service.ts");
+// DEV NOTE: the pending-invitations panel moved to React - see
+// AccountCoachInvitationsPanel.tsx/useAccountCoachInvitations.ts/
+// accountRelationshipsClient.ts, which fetches its own independent copy
+// of the athlete's pending invitations on mount. app.js's own
+// refreshPendingRelationshipInvitations() was deleted entirely (FULL-UI-18
+// notification bell slice) once notificationCoachName() - its only other
+// caller - moved to React too (see NotificationBellPanel.tsx's
+// useNotifications.ts).
+const invitationsPanel = read("public/app-src/screens/account/AccountCoachInvitationsPanel.tsx");
+const invitationsHook = read("public/app-src/screens/account/useAccountCoachInvitations.ts");
+const invitationsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: the coach's own invite-by-email FORM moved to React too - see
+// InviteAthleteByEmailPanel.tsx/useInviteAthleteByEmail.ts.
+const inviteByEmailPanel = read("public/app-src/screens/coach/InviteAthleteByEmailPanel.tsx");
+const useInviteAthleteByEmail = read("public/app-src/screens/coach/useInviteAthleteByEmail.ts");
 
 test("the coach invites an athlete by email only - never the athlete's internal user_id", () => {
   assert.match(routes, /coachWorkspaceRouter\.post\(\s*"\/relationship-invitations",/u);
@@ -30,7 +44,9 @@ test("the coach invites an athlete by email only - never the athlete's internal 
   assert.match(invitationService, /function findActiveAthleteByEmail/u);
   assert.doesNotMatch(invitationService, /athlete_user_id:\s*athleteEmailInput/u);
 
-  assert.match(html, /<input id="inviteAthleteEmail" type="email" required autocomplete="off" \/>/u);
+  assert.match(inviteByEmailPanel, /type="email"/u);
+  assert.match(inviteByEmailPanel, /autoComplete="off"/u);
+  assert.match(useInviteAthleteByEmail, /inviteAthleteByEmailRequest\(trimmed, csrfToken\)/u);
   assert.doesNotMatch(html, /id="inviteAthlete(?:Id|UserId|Code)"/u);
 });
 
@@ -72,18 +88,24 @@ test("the coach's email lookup only ever resolves an active athlete account, nev
 });
 
 test("the pending-invitations panel is real, focusable markup rendered from the athlete's own server response - not a typed field", () => {
-  assert.match(js, /function renderPendingRelationshipInvitations\(\)/u);
-  assert.match(js, /async function refreshPendingRelationshipInvitations\(\)/u);
-  assert.match(js, /async function acceptRelationshipInvitation\(relationshipId\)/u);
-  assert.match(js, /class="button primary accept-relationship-invitation-button">Accept<\/button>/u);
-  assert.match(js, /guardedAction\(button, async \(\) => \{/u);
+  assert.match(invitationsPanel, /export function AccountCoachInvitationsPanel/u);
+  assert.match(invitationsHook, /await loadPendingRelationshipInvitations\(\)/u);
+  assert.match(invitationsClient, /export async function acceptRelationshipInvitation/u);
+  assert.match(invitationsPanel, />Accept<\/button>/u);
+  // A busy in-flight action disables the button (React's own equivalent of
+  // guardedAction's double-submit guard).
+  assert.match(invitationsPanel, /disabled=\{busy\}/u);
 
   // The panel is populated only from the server-returned relationship_id -
   // never an editable input the athlete could mistype or forge.
-  assert.doesNotMatch(js, /pendingRelationshipInvitations[\s\S]{0,400}<input/u);
+  assert.doesNotMatch(invitationsPanel, /<input/u);
 });
 
-test("visiting the account view refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {
-  assert.match(js, /refreshPendingRelationshipInvitations\(\)\.catch\(handleError\);/u);
-  assert.match(js, /elements\.inviteAthleteByEmailForm\.addEventListener\("submit", \(event\) => \{\s*\n\s*guardedAction\(submitButtonOf, inviteAthleteByEmail\)\(event\)\.catch\(handleError\);/u);
+test("mounting the pending-invitations panel refreshes the athlete's own pending invitations, and the coach invite form is duplicate-submit guarded", () => {
+  assert.match(invitationsHook, /useEffect\(\(\) => \{\s*\n\s*refresh\(\);/u);
+  // The coach's invite-by-email form is React now - useInviteAthleteByEmail's
+  // own submitting flag (not app.js's guardedAction) disables the button for
+  // the duration of the in-flight request.
+  assert.match(useInviteAthleteByEmail, /setSubmitting\(true\)/u);
+  assert.match(inviteByEmailPanel, /disabled=\{submitting\}/u);
 });

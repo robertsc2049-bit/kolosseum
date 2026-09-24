@@ -23,6 +23,20 @@ const blocks = read("src/api/blocks.handlers.ts");
 const journey = read("src/api/beta_product_journey_service.ts");
 const phase4Types = read("engine/src/phases/phase4/types.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts. The
+// standalone #view-assign twin is gone outright (unreachable dead code).
+const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
+// DEV NOTE: the builder tree (block/week/session/work-item) moved to
+// React - see CoachProgrammeBuilderTree.tsx, mounted directly into the
+// still-legacy #templateBlocks. The per-exercise info toggle (formerly
+// app.js's toggleTemplateWorkItemInfo()) is React too now - see
+// useExerciseHowto.ts, a hook rather than part of this file since
+// BuilderWorkItem needs its button and panel at two different DOM
+// positions sharing one toggle state.
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 test("programme and athlete-reference routes are mounted", () => {
   assert.match(server, /import \{ templatesRouter \} from "\.\/api\/templates\.routes\.js";/u);
@@ -94,10 +108,10 @@ test("builder supports flexible session composition: variable exercise count, su
 });
 
 test("builder exposes a per-exercise written instructions, cues and faults lookup", () => {
-  assert.match(js, /class="template-work-item-info"/u);
-  assert.match(js, /template-work-item-info-toggle/u);
-  assert.match(js, /function toggleTemplateWorkItemInfo\(/u);
-  assert.match(js, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
+  assert.match(builderTree, /className="template-work-item-info"/u);
+  assert.match(builderTree, /onClick=\{howto\.toggle\}/u);
+  assert.match(howtoHook, /loadExerciseContent\(exerciseId\)/u);
+  assert.match(coachWorkspaceClient, /\/exercises\/\$\{encodeURIComponent\(exerciseId\)\}\/content/u);
 });
 
 test("athlete profile supports factual 1RM, estimated 1RM and training max records", () => {
@@ -139,9 +153,9 @@ test("assignment requires an active owned programme and the required factual ref
   assert.match(journey, /loadActiveCoachTemplateById/u);
   assert.match(journey, /stored_template_not_active/u);
   assert.match(journey, /stored_template_activity_mismatch/u);
-  assert.match(js, /requiredOneRmExerciseIds/u);
-  assert.match(js, /renderAssignmentRequirements/u);
-  assert.match(js, /Complete the athlete strength references required by this programme/u);
+  assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
+  assert.match(assignmentHook, /function computeRequirements\(/u);
+  assert.match(assignmentHook, /Missing current strength references/u);
 });
 
 test("assigned programme materialises the next deterministic session across blocks", () => {
@@ -160,23 +174,21 @@ test("coach UI exposes one coherent athlete, programme, assignment and review wo
   assert.match(html, /data-view="templates"/u);
   assert.match(html, /id="view-athletes"/u);
   assert.match(html, /id="athleteProfilePanel"/u);
-  assert.match(html, /id="athleteBenchmarkList"/u);
+  assert.match(html, /id="athlete-profile-editor-root"/u);
   assert.match(html, /id="templateBlocks"/u);
   assert.match(html, /id="addTemplateBlockButton"/u);
-  assert.match(html, /id="assignmentRequirements"/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(html, /id="view-review"/u);
   assert.match(js, /refreshCoachAthletes/u);
   assert.match(js, /refreshCoachAssignments/u);
-  assert.match(js, /refreshCoachAthleteProfiles/u);
   assert.match(js, /openAthleteProfile/u);
-  assert.match(js, /saveOpenAthleteProfile/u);
   assert.match(js, /addTemplateBlock/u);
   assert.match(js, /duplicateTemplateBlock/u);
   assert.match(js, /moveTemplateBlock/u);
   assert.match(js, /duplicateTemplateWeek/u);
   assert.match(js, /duplicateTemplateSession/u);
-  assert.match(js, /renderTemplateRepControls/u);
-  assert.match(js, /renderTemplateLoadControls/u);
+  assert.match(builderTree, /function RepControls/u);
+  assert.match(builderTree, /function LoadControls/u);
   assert.match(css, /\.template-block/u);
   assert.match(css, /\.athlete-profile-panel/u);
   assert.match(css, /\.benchmark-row/u);

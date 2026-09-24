@@ -21,8 +21,13 @@ The exercise activity applicability coverage contract is locked to:
 1. powerlifting
 2. general_strength
 3. rugby_union
+4. strongman
+5. hyrox
+6. crossfit
 
 No applicability entry may imply active support for an activity outside this set.
+
+(Amendment: strongman was activated as v1's fourth locked activity, hyrox as the fifth, and crossfit as the sixth - see docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md.)
 
 ## Boundary
 
@@ -252,3 +257,15 @@ additive real-content enforcement, not a replacement of the fixture-based
 proof, and not a relaxing of any requirement stated above.
 
 - superseded_by_slice_ids: S-REG-33
+
+## Amendment - 23 further sports activated (seventh through twenty-ninth locked activities)
+
+The locked activity set now additionally includes: `football_soccer`, `netball`, `basketball`, `rugby_sevens`, `field_hockey`, `ice_hockey`, `volleyball`, `cricket`, `american_football`, `athletics`, `swimming`, `olympic_weightlifting`, `cycling`, `rowing`, `kayaking`, `boxing`, `wrestling`, `judo`, `brazilian_jiu_jitsu`, `muay_thai`, `mma`, `tennis`, `triathlon`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Each reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Rugby league activated (thirtieth locked activity)
+
+The locked activity set now additionally includes `rugby_league`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. It reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Street lifting activated (thirty-first locked activity)
+
+The locked activity set now additionally includes `street_lifting`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Unlike rugby_union/rugby_league's full-pool reuse, it uses a small curated exercise set (25 exercises, including one new exercise, `air_squat`) rather than the full registry.

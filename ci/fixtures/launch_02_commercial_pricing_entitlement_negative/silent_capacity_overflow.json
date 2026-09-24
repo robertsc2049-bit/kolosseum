@@ -1,0 +1,1 @@
+{"schema_version":"LAUNCH-02.NEGATIVE.1.0.0","slice_id":"LAUNCH-02","case_id":"silent_capacity_overflow","mutation":{"path":"capacity_policy.silent_overflow","value":true},"expected_token":"LAUNCH_02_SILENT_OVERFLOW_FORBIDDEN"}

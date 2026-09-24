@@ -13,7 +13,7 @@ param(
   [switch]$Web
 )
 
-Set-Location C:\Users\rober\kolosseum
+Set-Location -LiteralPath $PSScriptRoot
 $ErrorActionPreference = "Stop"
 
 if (-not $Branch -or $Branch.Trim() -eq "") {

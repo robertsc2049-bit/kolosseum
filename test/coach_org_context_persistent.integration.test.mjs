@@ -280,7 +280,7 @@ test(
     // Shared org: coachA and coachB both ACTIVE. coachD INVITED only.
     // ============================================================
     const sharedOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Coach Org Ctx Shared Team", visibility_mode: "shared"
+      org_name: "Coach Org Ctx Shared Team", activity_id: "powerlifting", visibility_mode: "shared"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(sharedOrg, 201, "create shared-mode org");
     const sharedOrgId = sharedOrg.json?.organisation?.org_id;
@@ -309,7 +309,7 @@ test(
     // Individual org: coachC ACTIVE.
     // ============================================================
     const individualOrg = await request(baseUrl, "POST", "/org/organisations", {
-      org_name: "Coach Org Ctx Individual Gym", visibility_mode: "individual"
+      org_name: "Coach Org Ctx Individual Gym", activity_id: "powerlifting", visibility_mode: "individual"
     }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(individualOrg, 201, "create individual-mode org");
     const individualOrgId = individualOrg.json?.organisation?.org_id;

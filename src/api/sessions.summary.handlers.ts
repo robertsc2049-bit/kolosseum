@@ -3,7 +3,7 @@
 // not bypass engine package boundaries, infer hidden truth, or let UI/product state mutate
 // deterministic engine behaviour.
 
-import { buildNeutralSessionSummary } from "./session_summary_read_model";
+import { buildNeutralSessionSummary } from "./session_summary_read_model.js";
 
 type RuntimeEventLike = {
   event_type?: string;

@@ -29,8 +29,8 @@ test("S-V1-F-09 records the required post-tag release identity", () => {
   assert.equal(record.record_id, "controlled_launch_execution_pack");
   assert.equal(record.status, "prepared");
   assert.equal(record.scope, "controlled_launch_only");
-  assert.equal(record.release_identity.tag_name, "v1-controlled-launch");
-  assert.equal(record.release_identity.tag_commit, "43510e4c4d791effda647e80dc74d8452dc61f1f");
+  assert.equal(record.release_identity.tag_name, "v1.0.0");
+  assert.equal(record.release_identity.tag_commit, "fb32206e3a178954ed7fbeda5b67e68159618a46");
   assert.equal(record.release_identity.release_evidence_snapshot, "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json");
   assert.equal(record.release_identity.final_ship_decision, "docs/releases/V1_FINAL_SHIP_DECISION.json");
   assert.equal(record.release_identity.controlled_launch_readiness_record, "docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.json");
@@ -104,7 +104,7 @@ test("S-V1-F-09 markdown contains required operational sections and factual refe
   assert.ok(markdown.includes("docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md"));
   assert.ok(markdown.includes("docs/releases/V1_FINAL_SHIP_DECISION.md"));
   assert.ok(markdown.includes("docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md"));
-  assert.ok(markdown.includes("v1-controlled-launch"));
+  assert.ok(markdown.includes("v1.0.0"));
   assert.ok(markdown.includes("This pack does not mark v1 live by itself."));
 });
 

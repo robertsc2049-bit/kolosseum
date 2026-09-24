@@ -19,22 +19,62 @@ import { productNotificationRouter } from "./api/product_notification.routes.js"
 import { productSupportRouter } from "./api/product_support.routes.js";
 import { productAdminRouter } from "./api/product_admin.routes.js";
 import { orgOwnerRouter } from "./api/org_owner.routes.js";
+import { orgOwnerNotificationRouter } from "./api/org_owner_notification.routes.js";
+import { orgOwnerSupportRouter } from "./api/org_owner_support.routes.js";
 import { coachOrgMembershipRouter } from "./api/coach_org_membership.routes.js";
 import { messagingRouter } from "./api/messaging.routes.js";
 import { progressPhotosRouter } from "./api/progress_photos.routes.js";
+import { videoFeedbackRouter } from "./api/video_feedback.routes.js";
+import { videoFeedbackCoachRouter } from "./api/video_feedback_coach.routes.js";
 import { exerciseReferenceMediaRouter } from "./api/exercise_reference_media.routes.js";
 import { exerciseContentRouter } from "./api/exercise_content.routes.js";
 import { bodyMetricsRouter } from "./api/body_metrics.routes.js";
 import { habitTrackingRouter } from "./api/habit_tracking.routes.js";
+import { athleteGoalsRouter } from "./api/athlete_goals.routes.js";
+import { weeklyCheckinsRouter } from "./api/weekly_checkins.routes.js";
+import { coachBrandingRouter } from "./api/coach_branding.routes.js";
+import { programmeTemplateSharingRouter } from "./api/programme_template_sharing.routes.js";
 import { deviceSyncRouter } from "./api/device_sync.routes.js";
+import { progressInsightsRouter } from "./api/progress_insights.routes.js";
+import { attendanceEventRouter } from "./api/attendance_event.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
 import { productCommercialRouter } from "./api/product_commercial.routes.js";
+import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
+import { v1StatusPageRouter } from "./api/v1_status_page.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
+import { initialiseErrorReporting } from "./v1ErrorReportingInitialisation.mjs";
 
 import { VERSION } from "./version.js";
 
 export const app = express();
+
+// S-V1-O-02: local, factual error-reporting initialisation only (no provider
+// SDK, no network transport - see src/v1ErrorReportingInitialisation.mjs).
+// Confirms the contract accepts this server's real environment/release at
+// startup; per-error envelopes are built in api/error_middleware.ts.
+const errorReportingEnvironment =
+  process.env.NODE_ENV === "production"
+    ? "production"
+    : process.env.NODE_ENV === "test"
+      ? "test"
+      : "development";
+
+const errorReportingInit = initialiseErrorReporting({
+  request_id: globalThis.crypto.randomUUID(),
+  requested_at: new Date().toISOString(),
+  environment: errorReportingEnvironment,
+  release: VERSION,
+  transport: "local_stub"
+});
+
+if (!errorReportingInit.ok) {
+  // eslint-disable-next-line no-console
+  console.error("WARN: error reporting initialisation rejected input", errorReportingInit.code);
+} else {
+  // eslint-disable-next-line no-console
+  console.log(`OK: error reporting initialised (${errorReportingInit.error_reporting_config_id})`);
+}
 
 /**
  * @law: Health Contract
@@ -46,6 +86,15 @@ export const app = express();
 app.get("/health", (_req, res) => {
   return res.status(200).json({ status: "ok", version: VERSION });
 });
+
+// S-V1-O-01: public, factual, service-state-only status page. See
+// src/v1StatusPage.mjs for the boundary this surface must never cross.
+app.use(v1StatusPageRouter);
+
+// Stripe webhook signature verification needs the exact raw bytes Stripe
+// signed - mounted with a raw body parser, ahead of the global JSON parser
+// below, so this one path never gets its body pre-parsed as JSON.
+app.use("/webhooks/stripe", express.raw({ type: "application/json" }), productCommercialWebhookRouter);
 
 app.use(express.json({ limit: "1mb" }));
 
@@ -127,18 +176,28 @@ app.use("/account", productNotificationRouter);
 app.use("/account", productSupportRouter);
 app.use("/admin", productAdminRouter);
 app.use("/org", orgOwnerRouter);
+app.use("/org", orgOwnerNotificationRouter);
+app.use("/org", orgOwnerSupportRouter);
 app.use("/messages", messagingRouter);
 app.use("/progress-photos", progressPhotosRouter);
+app.use("/video-feedback", videoFeedbackRouter);
 app.use("/exercises", exerciseReferenceMediaRouter);
 app.use("/exercises", exerciseContentRouter);
 app.use("/body-metrics", bodyMetricsRouter);
 app.use("/habits", habitTrackingRouter);
+app.use("/athlete-goals", athleteGoalsRouter);
+app.use("/weekly-checkins", weeklyCheckinsRouter);
+app.use("/coach-branding", coachBrandingRouter);
+app.use("/programme-marketplace", programmeTemplateSharingRouter);
 app.use("/device-sync", deviceSyncRouter);
+app.use("/progress-insights", progressInsightsRouter);
+app.use("/attendance-events", attendanceEventRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);
 app.use("/coach-workspace", coachOrgMembershipRouter);
 app.use("/coach-workspace", productAssignmentRouter);
 app.use("/coach-workspace", productReviewRouter);
+app.use("/coach-workspace", videoFeedbackCoachRouter);
 app.use("/sessions", sessionsRouter);
 app.use("/sessions", beta17CoachNoteWriteRouter);
 app.use("/blocks", blocksRouter);

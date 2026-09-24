@@ -18,6 +18,21 @@ function isRecord(value: unknown): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+// A non-empty exercise_id must belong to the session's own prescribed plan -
+// mirrors the "known ids" scoping already established for athlete self-report
+// events in session_state_write_service.ts. Session-less notes (session_id
+// "not_applicable") and whole-session notes never carry an exercise_id, so
+// this never runs for them.
+async function isKnownSessionExerciseId(sessionId: string, exerciseId: string): Promise<boolean> {
+  const result = await pool.query(
+    `SELECT planned_session FROM sessions WHERE session_id = $1`,
+    [sessionId]
+  );
+  const plannedSession = result.rows[0]?.planned_session;
+  const exercises = Array.isArray(plannedSession?.exercises) ? plannedSession.exercises : [];
+  return exercises.some((exercise: unknown) => isRecord(exercise) && String(exercise.exercise_id ?? "") === exerciseId);
+}
+
 /**
  * FUNCTION NOTE:
  * Purpose: Records an exact non-binding coach note.
@@ -42,6 +57,20 @@ export async function createBeta17CoachNote(
     const note =
       result.body.coach_note;
 
+    const exerciseId =
+      typeof note.exercise_id === "string" ? note.exercise_id : "";
+
+    if (exerciseId) {
+      const known = await isKnownSessionExerciseId(String(note.session_id), exerciseId);
+      if (!known) {
+        return res.status(400).json({
+          ok: false,
+          error: "coach_note_exercise_id_not_in_session",
+          failure_token: "beta17_coach_note_exercise_id_not_in_session"
+        });
+      }
+    }
+
     // DEV NOTE: Coach notes are persisted in a dedicated product table.
     // They remain separate from session artefacts and never enter engine input.
     await pool.query(
@@ -53,6 +82,7 @@ export async function createBeta17CoachNote(
         relationship_id,
         session_id,
         artefact_id,
+        exercise_id,
         note_text,
         visibility,
         record_sha256,
@@ -68,7 +98,8 @@ export async function createBeta17CoachNote(
         $7,
         $8,
         $9,
-        $10::jsonb
+        $10,
+        $11::jsonb
       )
       ON CONFLICT (note_id)
       DO NOTHING
@@ -80,6 +111,7 @@ export async function createBeta17CoachNote(
         String(note.relationship_id),
         String(note.session_id),
         String(note.artefact_id),
+        exerciseId || null,
         String(note.note_text),
         String(note.visibility),
         String(note.record_sha256),

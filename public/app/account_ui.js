@@ -69,29 +69,11 @@ async function request(
   return payload;
 }
 
-export function loadCurrentTerms() {
-  return request(
-    "GET",
-    "/account/terms"
-  );
-}
-
-export function registerAccount(input) {
-  return request(
-    "POST",
-    "/account/register",
-    input
-  );
-}
-
-export function signInAccount(input) {
-  return request(
-    "POST",
-    "/account/sign-in",
-    input
-  );
-}
-
+// DEV NOTE: FULL-UI-02D loadCurrentTerms/registerAccount/signInAccount
+// moved to public/app-src/api/authClient.ts (the entry/sign-up screen
+// itself is React now - EntryAuthPanel.tsx/useEntryAuth.ts). This function
+// stays since bootstrapApplication()'s shell-vs-entry-view decision must
+// stay plain JS, independent of the React bundle.
 export function restoreAccountSession() {
   return request(
     "GET",
@@ -99,16 +81,9 @@ export function restoreAccountSession() {
   );
 }
 
-export function signOutAccount(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/sign-out",
-    {},
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-02 sign_out transport moved to React (client.ts's
+// signOutAccount()) - was only ever consumed by app.js's now-removed
+// clearLocalSession().
 
 export function loadAccountDetail() {
   return request(
@@ -117,201 +92,37 @@ export function loadAccountDetail() {
   );
 }
 
-export function updateAccountProfile(
-  input,
-  csrfToken
-) {
-  return request(
-    "PATCH",
-    "/account/profile",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-02D requestPasswordReset/completePasswordReset moved
+// to public/app-src/api/authClient.ts alongside the rest of the entry
+// screen's transport - see the DEV NOTE above restoreAccountSession().
 
-export function changeAccountPassword(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/password/change",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: updateAccountProfile/changeAccountPassword/
+// requestEmailVerification/completeEmailVerification moved to React
+// (client.ts) alongside ProfileForm.tsx/PasswordForm.tsx/
+// EmailVerificationPanel.tsx - these copies had zero remaining callers
+// (found via a post-migration audit sweep) and were only kept alive by a
+// source-text-only governance assertion, not any real usage.
 
-export function requestPasswordReset(
-  input
-) {
-  return request(
-    "POST",
-    "/account/password/reset/request",
-    input
-  );
-}
+// DEV NOTE: FULL-UI-02 account_close_request transport moved to React
+// (client.ts's requestAccountClosure()) - was only ever consumed by
+// app.js's now-removed closePersistentAccount().
 
-export function completePasswordReset(
-  input
-) {
-  return request(
-    "POST",
-    "/account/password/reset/complete",
-    input
-  );
-}
+// DEV NOTE: FULL-UI-08 commercial/billing transport moved to React
+// (commercialClient.ts) - loadCommercialAccount()/
+// requestCommercialCheckout()/recordCommercialPaymentReturn()/
+// requestCommercialBillingPortal() were only ever consumed by the now-
+// retired commercial_ui.js.
 
-export function requestEmailVerification(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/email-verification/request",
-    {},
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-19 data rights transport moved to React
+// (dataRightsClient.ts) - requestDataExport()/loadDataExportStatus()/
+// downloadDataExport()/loadDataDeletionPreview()/confirmDataDeletion()/
+// loadDataDeletionStatus() were only ever consumed by app.js's now-removed
+// data rights panel rendering.
 
-export function completeEmailVerification(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/email-verification/complete",
-    input,
-    csrfToken
-  );
-}
-
-export function requestAccountClosure(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/closure",
-    input,
-    csrfToken
-  );
-}
-export function loadCommercialAccount() {
-  return request(
-    "GET",
-    "/account/commercial"
-  );
-}
-
-export function requestCommercialCheckout(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/checkout",
-    input,
-    csrfToken
-  );
-}
-
-export function recordCommercialPaymentReturn(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/payment-return",
-    input,
-    csrfToken
-  );
-}
-
-export function requestCommercialBillingPortal(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/commercial/portal",
-    input,
-    csrfToken
-  );
-}
-
-export function requestDataExport(csrfToken) {
-  return request(
-    "POST",
-    "/account/data-rights/export",
-    {},
-    csrfToken
-  );
-}
-
-export function loadDataExportStatus() {
-  return request(
-    "GET",
-    "/account/data-rights/export"
-  );
-}
-
-export async function downloadDataExport(
-  exportRequestId
-) {
-  const response = await fetch(
-    `/account/data-rights/export/${encodeURIComponent(exportRequestId)}/download`,
-    { method: "GET", credentials: "same-origin" }
-  );
-
-  const payload = await readJson(response);
-
-  if (!response.ok) {
-    const error = new Error(
-      String(
-        payload?.error ??
-        payload?.details?.failure_token ??
-        `account_request_${response.status}`
-      )
-    );
-
-    error.payload = payload;
-    error.status = response.status;
-
-    throw error;
-  }
-
-  return payload;
-}
-
-export function loadDataDeletionPreview(
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/data-rights/deletion/preview",
-    {},
-    csrfToken
-  );
-}
-
-export function confirmDataDeletion(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/data-rights/deletion",
-    input,
-    csrfToken
-  );
-}
-
-export function loadDataDeletionStatus() {
-  return request(
-    "GET",
-    "/account/data-rights/deletion"
-  );
-}
-
+// DEV NOTE: FULL-UI-04C profile/terms/completion mutations moved to
+// public/app-src/api/coachOnboardingClient.ts - this one stays here since
+// coach_onboarding_ui.js's resolveCoachOnboardingGate() (route_bootstrap.js's
+// onboarding gate) must stay plain JS, independent of the React bundle.
 export function loadCoachOnboardingState() {
   return request(
     "GET",
@@ -319,38 +130,7 @@ export function loadCoachOnboardingState() {
   );
 }
 
-export function saveCoachOnboardingProfile(
-  input,
-  csrfToken
-) {
-  return request(
-    "PATCH",
-    "/account/coach-onboarding/profile",
-    input,
-    csrfToken
-  );
-}
-
-export function acceptCoachOnboardingTerms(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/coach-onboarding/terms",
-    input,
-    csrfToken
-  );
-}
-
-export function completeCoachOnboarding(
-  input,
-  csrfToken
-) {
-  return request(
-    "POST",
-    "/account/coach-onboarding/complete",
-    input,
-    csrfToken
-  );
-}
+// DEV NOTE: FULL-UI-65 coach branding transport moved to React
+// (coachBrandingClient.ts) - loadCoachBrandPreference()/
+// saveCoachBrandPreference() were only ever consumed by the now-retired
+// coach_branding_ui.js.

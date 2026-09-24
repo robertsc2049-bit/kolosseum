@@ -31,8 +31,8 @@ test("S-V1-F-10 records the tagged or release-ready state used for smoke", () =>
   assert.equal(record.status, "pass");
   assert.equal(record.scope, "controlled_launch_only");
   assert.equal(record.release_state_used.mode, "release_ready_main_after_tag");
-  assert.equal(record.release_state_used.tag_name, "v1-controlled-launch");
-  assert.equal(record.release_state_used.tag_commit, "43510e4c4d791effda647e80dc74d8452dc61f1f");
+  assert.equal(record.release_state_used.tag_name, "v1.0.0");
+  assert.equal(record.release_state_used.tag_commit, "fb32206e3a178954ed7fbeda5b67e68159618a46");
   assert.equal(record.release_state_used.local_tag_verified, true);
   assert.equal(record.release_state_used.remote_tag_verified, true);
   assert.equal(record.release_state_used.release_evidence_snapshot, "docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json");
@@ -148,7 +148,7 @@ test("S-V1-F-10 markdown mirrors factual smoke evidence without completion or cl
   assert.ok(markdown.includes("Slice: S-V1-F-10"));
   assert.ok(markdown.includes("Overall result: pass"));
   assert.ok(markdown.includes("Main HEAD:"));
-  assert.ok(markdown.includes("Release tag: v1-controlled-launch"));
+  assert.ok(markdown.includes("Release tag: v1.0.0"));
   assert.ok(markdown.includes("## Smoke commands"));
   assert.ok(markdown.includes("## Minimum controlled-launch path evidence"));
   assert.ok(markdown.includes("## Blocker rule"));

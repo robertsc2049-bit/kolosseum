@@ -10,46 +10,49 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
+const todayPanel = read("public/app-src/screens/athlete/AthleteTodayPanel.tsx");
+const format = read("public/app-src/utils/format.ts");
 const todayService = read("src/api/athlete_today_service.ts");
 const todayNotesService = read("src/api/athlete_today_notes_service.ts");
 const sessionsRoutes = read("src/api/sessions.routes.ts");
 const sessionsHandlers = read("src/api/sessions.handlers.ts");
 
 test("Today exposes current programme, exact assignment version and block/week context", () => {
-  for (const id of [
-    "todayProgrammeSummary",
-    "todayProgrammeName",
-    "todayProgrammeVersion",
-    "todayBlockWeek"
-  ]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
+  assert.ok(html.includes('id="athlete-today-session-root"'));
 
-  assert.match(js, /function renderTodayProgramme/u);
-  assert.match(js, /assignment\.template_version/u);
-  assert.match(js, /assignment\.template_name/u);
-  assert.match(js, /todaySessionLabel/u);
+  assert.match(todayPanel, /assignment\.template_version/u);
+  assert.match(todayPanel, /assignment\.template_name/u);
+  assert.match(todayPanel, /function todaySessionLabel/u);
 
   assert.match(todayService, /template_name:\s*cleanString\(template\.template_name\)/u);
   assert.match(todayService, /template_version:\s*Number\(template\.template_version/u);
 });
 
-test("Today exposes the resolved load and its exact source reference", () => {
-  assert.ok(html.includes('id="todayResolvedLoad"'));
-  assert.ok(html.includes('id="todayResolvedLoadValue"'));
-  assert.ok(html.includes('id="todayResolvedLoadSource"'));
+test("Today exposes the coach's session-level note for the upcoming session", () => {
+  assert.match(todayPanel, /const sessionNotes = session\?\.template_session_coaching_notes/u);
+  assert.match(todayPanel, /sessionNotes \? <p className="muted">\{String\(sessionNotes\)\}<\/p> : null/u);
 
-  assert.match(js, /function renderTodayResolvedLoad/u);
-  assert.match(js, /strengthSourceLabel\(source\.source_type\)/u);
+  assert.match(
+    todayService,
+    /template_session_coaching_notes:\s*cleanString\(execution\.template_session_coaching_notes\)/u
+  );
+});
+
+test("Today exposes the resolved load and its exact source reference", () => {
+  assert.match(todayPanel, /className="today-resolved-load"/u);
+  assert.match(todayPanel, /className="today-resolved-load-value"/u);
+  assert.match(todayPanel, /resolvedLoad\.value/u);
+  assert.match(todayPanel, /resolvedLoadSource\.source_type/u);
+  assert.match(todayPanel, /formatDate\(resolvedLoadSource\.effective_date\)/u);
 
   assert.match(todayService, /planned_items:\s*Array\.isArray\(materialised\.planned_items\)/u);
   assert.match(todayService, /resolvePercentageLoad|materialiseNextCoachTemplateProgram/u);
 });
 
 test("Today displays visible coach notes without letting them bind anything", () => {
-  assert.ok(html.includes('id="todayNotes"'));
-  assert.ok(html.includes('id="todayNotesList"'));
-  assert.match(js, /function renderTodayNotes/u);
+  assert.match(todayPanel, /className="today-notes"/u);
+  assert.match(todayPanel, /className="today-notes-list"/u);
+  assert.match(todayPanel, /notes\.map\(\(note\) =>/u);
 
   assert.match(todayNotesService, /visibility = 'athlete_visible'/u);
   assert.match(todayNotesService, /non_binding: true/u);
@@ -75,21 +78,21 @@ test("every declared empty/unavailable state has distinct copy and the correct l
   ];
 
   for (const stateName of declaredStates) {
-    assert.match(js, new RegExp(`${stateName}:\\s*Object\\.freeze`, "u"), `Expected copy for ${stateName}`);
+    assert.match(todayPanel, new RegExp(`${stateName}:\\s*\\{`, "u"), `Expected copy for ${stateName}`);
     assert.match(todayService, new RegExp(`"${stateName}"`, "u"), `Expected server state ${stateName}`);
   }
 
   // service_unavailable is a client-only state (no server response to be
   // unavailable about) and event_unavailable is scoped to the event card,
   // not the primary route state - both still need their own explicit UI.
-  assert.ok(html.includes('id="todayServiceUnavailable"'));
-  assert.match(js, /state\.athleteToday\.state === "service_unavailable"|today\.state === "service_unavailable"/u);
+  assert.match(todayPanel, /Today is unavailable right now/u);
+  assert.match(todayPanel, /stateKey === "service_unavailable"/u);
   assert.match(todayService, /status: "unavailable"/u);
   assert.match(todayService, /reason: "event_cancelled"|event_archived|event_not_found/u);
 
-  assert.match(js, /createSessionButton\.textContent = "Start session"/u);
-  assert.match(js, /createSessionButton\.textContent = "Start next session"/u);
-  assert.match(js, /continueSessionButton/u);
+  assert.match(todayPanel, /stateKey === "no_session"\) return "Start session"/u);
+  assert.match(todayPanel, /stateKey === "session_already_complete"\) return "Start next session"/u);
+  assert.match(todayPanel, /function continueToSession/u);
 });
 
 test("Today uses server state after refresh and never lets stale local cache pick the session", () => {
@@ -116,6 +119,20 @@ test("Today uses server state after refresh and never lets stale local cache pic
   assert.match(js, /view === "today"[\s\S]{0,80}loadAthleteToday\(\)/u);
 });
 
+test("Today reports an open self-directed session as current even without a coach assignment", () => {
+  // A self-directed (no-coach) session has no assignment/template to derive
+  // Today's state from - without this, the server's own next authoritative
+  // fetch (which createSession()'s own loadAthleteToday() call, and any
+  // later reload, both trigger) would report session: null and silently
+  // clobber the activeSessionId the client just set.
+  assert.match(todayService, /function latestOpenSelfDirectedSession/u);
+  assert.match(todayService, /beta_subject_user_id = \$1[\s\S]{0,40}beta_coach_user_id IS NULL/u);
+  assert.match(
+    todayService,
+    /if \(!assignment\) \{[\s\S]{0,200}latestOpenSelfDirectedSession\(athleteUserId\)/u
+  );
+});
+
 test("beta-athlete-today route and its handler are mounted", () => {
   assert.match(sessionsRoutes, /"\/beta-athlete-today"/u);
   assert.match(sessionsRoutes, /getAthleteTodayView/u);
@@ -132,10 +149,7 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
     for (const selector of [
       "today-resolved-load",
       "today-programme-summary",
-      "today-notes",
-      "todayResolvedLoad",
-      "todaySessionEmpty",
-      "todaySessionContent"
+      "today-notes"
     ]) {
       assert.doesNotMatch(
         block,
@@ -147,4 +161,37 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
 
   assert.match(css, /\.today-resolved-load\b/u);
   assert.match(css, /\.today-notes\b/u);
+});
+
+// DEV NOTE: an athlete who leaves activity declaration blank at signup (a
+// deliberately supported "declare it later" path) could never start a
+// coach-assigned session - the compile call always genuinely fails
+// server-side for that account (no valid beta16_phase1_declaration record
+// exists to admit against), but the client attempted it anyway and showed
+// only a generic "request could not be completed" error, with no hint the
+// fix is to declare an activity. createSession() now checks its own
+// already-available state.phase1Input.activity_id first and routes the
+// athlete straight to Declarations instead of attempting a doomed compile.
+test("starting a session checks for a declared activity before attempting to create one, and routes to Declarations if missing", () => {
+  const createSessionBody = js.slice(
+    js.indexOf("async function createSession()"),
+    js.indexOf("async function loadSessionState()")
+  );
+
+  assert.match(createSessionBody, /if \(!state\.phase1Input\?\.activity_id\) \{/u);
+  assert.match(createSessionBody, /Declare a training activity before starting a session\./u);
+  assert.match(createSessionBody, /document\.getElementById\("athleteOnboardingNav"\)\?\.click\(\);/u);
+
+  // The guard must run and return before showBusy()/the real compile call -
+  // never alongside it.
+  const guardIndex = createSessionBody.indexOf("if (!state.phase1Input");
+  const busyIndex = createSessionBody.indexOf('showBusy("Creating session');
+  assert.ok(guardIndex >= 0 && busyIndex >= 0 && guardIndex < busyIndex);
+});
+
+test("a raw BETA16_APP_PATH_ADMISSION_FAILED error still maps to an actionable message, not a generic fallback, as defense in depth", () => {
+  assert.match(js, /BETA16_APP_PATH_ADMISSION_FAILED:\s*"Your training declaration could not be verified\./u);
+
+  const friendlyErrorTs = read("public/app-src/utils/friendlyError.ts");
+  assert.match(friendlyErrorTs, /BETA16_APP_PATH_ADMISSION_FAILED:\s*"Your training declaration could not be verified\./u);
 });

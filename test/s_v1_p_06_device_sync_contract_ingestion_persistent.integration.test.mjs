@@ -201,6 +201,13 @@ async function registerCoach(baseUrl, nonce) {
   );
   assertStatus(onboardingTerms, 200, "coach onboarding terms");
 
+  const onboardingAccessibility = await request(
+    baseUrl, "PATCH", "/account/coach-onboarding/accessibility",
+    { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } },
+    { cookie, csrf }
+  );
+  assertStatus(onboardingAccessibility, 200, "coach onboarding accessibility");
+
   const onboardingComplete = await request(
     baseUrl, "POST", "/account/coach-onboarding/complete",
     { completion_confirmed: true },

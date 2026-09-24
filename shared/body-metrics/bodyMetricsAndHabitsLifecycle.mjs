@@ -6,6 +6,10 @@
 // or combined into a single derived figure. This module is limited to declared facts
 // and deterministic reconstruction, mirroring
 // shared/strength-reference/strengthReferenceLifecycle.mjs's own boundary.
+// calories_kcal/protein_g/carbs_g/fat_g reuse this same open metric-type
+// registry rather than a parallel record type - a daily macro figure is
+// exactly the same shape as a body measurement (a numeric value against
+// an effective_date), so body_metric_entry already covers it.
 
 const METRIC_TYPES =
   new Map([
@@ -15,7 +19,11 @@ const METRIC_TYPES =
     ["thigh_circumference_cm", { unit: "cm", min: 10, max: 300 }],
     ["hip_circumference_cm", { unit: "cm", min: 10, max: 300 }],
     ["body_fat_percentage", { unit: "percent", min: 1, max: 60 }],
-    ["body_weight_kg", { unit: "kg", min: 20, max: 400 }]
+    ["body_weight_kg", { unit: "kg", min: 20, max: 400 }],
+    ["calories_kcal", { unit: "kcal", min: 0, max: 20000 }],
+    ["protein_g", { unit: "g", min: 0, max: 1000 }],
+    ["carbs_g", { unit: "g", min: 0, max: 2000 }],
+    ["fat_g", { unit: "g", min: 0, max: 1000 }]
   ]);
 
 const METRIC_SOURCES =

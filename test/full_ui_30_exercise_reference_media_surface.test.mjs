@@ -12,6 +12,7 @@ const routes = read("src/api/exercise_reference_media.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("ci/schemas/exercise.registry.schema.json");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+const stylesCss = read("public/app/styles.css");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -57,6 +58,41 @@ test("no live exercise entry has a reference_media value yet (content-free infra
   for (const exercise of Object.values(exerciseRegistry.entries)) {
     assert.equal("reference_media" in exercise, false, `${exercise.exercise_id}: expected no reference_media value yet`);
   }
+});
+
+// The manifest marks exercise_reference_media_lookup implemented for BOTH
+// athlete and coach actors. Both call sites fetch and render reference
+// media independently now - the athlete's session focus panel and the
+// coach's template builder work-item-info panel formerly shared app.js's
+// loadExerciseHowto()/renderExerciseHowto() insertion point; both are
+// React now, sharing components/ExerciseHowtoBody.tsx's render logic
+// instead, each with their own client fetch functions.
+test("both the athlete and coach call sites fetch the reference-media route alongside exercise content, and ExerciseHowtoBody shows it to both", () => {
+  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+  const sessionClient = read("public/app-src/api/athleteSessionClient.ts");
+  const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");
+  const coachClient = read("public/app-src/api/coachWorkspaceClient.ts");
+  const howtoBody = read("public/app-src/components/ExerciseHowtoBody.tsx");
+
+  assert.match(sessionClient, /export async function loadExerciseContent/u);
+  assert.match(sessionClient, /export async function loadExerciseReferenceMedia/u);
+  assert.match(sessionPanel, /ExerciseHowtoBody content=\{active\.content/u);
+
+  assert.match(coachClient, /export async function loadExerciseContent/u);
+  assert.match(coachClient, /export async function loadExerciseReferenceMedia/u);
+  assert.match(howtoHook, /referenceMedia(?:Result)?\?\.reference_media/u);
+
+  assert.match(howtoBody, /referenceMedia\?\.video_url/u);
+  assert.match(howtoBody, /referenceMedia\?\.thumbnail_url/u);
+});
+
+test("the reference-video link and thumbnail have their own styling, rendered as real JSX attributes (never raw innerHTML) so nothing needs manual escaping", () => {
+  const howtoBody = read("public/app-src/components/ExerciseHowtoBody.tsx");
+  assert.match(howtoBody, /href=\{videoUrl\}/u);
+  assert.match(howtoBody, /src=\{referenceMedia\.thumbnail_url\}/u);
+  assert.doesNotMatch(howtoBody, /dangerouslySetInnerHTML/u);
+  assert.match(stylesCss, /\.exercise-reference-media-link/u);
+  assert.match(stylesCss, /\.exercise-reference-media-thumbnail/u);
 });
 
 test("the FULL-UI-30 manifest area declares the lookup function as implemented with a real route and tests", () => {

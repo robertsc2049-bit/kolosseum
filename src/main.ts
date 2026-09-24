@@ -16,11 +16,24 @@ function getPort(): number {
   return n;
 }
 
-const port = getPort();
+// DEV NOTE: defaults to loopback-only, matching this project's original
+// bare-metal/local-dev posture. A container's loopback interface is not
+// reachable through its published port, so containerised deployments
+// (see docker-compose.yml) set HOST=0.0.0.0 explicitly - never the default.
+function getHost(): string {
+  const raw = process.env.HOST;
+  if (!raw) return "127.0.0.1";
 
-const server = app.listen(port, "127.0.0.1", () => {
+  const trimmed = raw.trim();
+  return trimmed || "127.0.0.1";
+}
+
+const port = getPort();
+const host = getHost();
+
+const server = app.listen(port, host, () => {
   // eslint-disable-next-line no-console
-  console.log(`OK: server listening on http://127.0.0.1:${port}`);
+  console.log(`OK: server listening on http://${host}:${port}`);
 });
 
 server.on("error", (err) => {

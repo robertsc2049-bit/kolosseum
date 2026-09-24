@@ -3,18 +3,18 @@
     "record_id":  "controlled_v1_release_evidence_snapshot",
     "title":  "Controlled v1 release evidence snapshot",
     "status":  "recorded",
-    "created_at_utc":  "2026-06-19T13:19:21.6411444Z",
+    "created_at_utc":  "2026-09-17T16:20:19.403Z",
     "evidence_type":  "post_tag_release_state",
     "release":  {
-                    "tag_name":  "v1-controlled-launch",
+                    "tag_name":  "v1.0.0",
                     "tag_object_type":  "tag",
-                    "tag_object_sha":  "f604363aeabe67257bf6157efa2e0dc32d8d9287",
-                    "tag_ref_summary":  "v1-controlled-launch|tag|f604363aeabe67257bf6157efa2e0dc32d8d9287|2026-06-19T14:04:17+01:00|Kolosseum controlled v1 release tag. Source: S-V1-F-06 verified mainline. Commit: 43510e4c4d791effda647e80dc74d8452dc61f1f.",
-                    "verified_main_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
-                    "main_head_at_snapshot":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
-                    "origin_main_at_snapshot":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
-                    "local_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
-                    "remote_tag_commit":  "43510e4c4d791effda647e80dc74d8452dc61f1f",
+                    "tag_object_sha":  "2d3f6fd561241b4574cdcc442cf66fe1ae980e00",
+                    "tag_ref_summary":  "v1.0.0|tag|2d3f6fd561241b4574cdcc442cf66fe1ae980e00|2026-09-17T17:13:19+01:00|v1.0.0",
+                    "verified_main_commit":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
+                    "main_head_at_snapshot":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
+                    "origin_main_at_snapshot":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
+                    "local_tag_commit":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
+                    "remote_tag_commit":  "fb32206e3a178954ed7fbeda5b67e68159618a46",
                     "tag_points_to_verified_main_commit":  true
                 },
     "ship_decision":  {
@@ -40,15 +40,15 @@
                            },
                            {
                                "command_id":  "local_tag_commit_verification",
-                               "command":  "git rev-list -n 1 v1-controlled-launch",
+                               "command":  "git rev-list -n 1 v1.0.0",
                                "required":  true,
-                               "required_result":  "43510e4c4d791effda647e80dc74d8452dc61f1f"
+                               "required_result":  "fb32206e3a178954ed7fbeda5b67e68159618a46"
                            },
                            {
                                "command_id":  "remote_tag_commit_verification",
-                               "command":  "git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}",
+                               "command":  "git ls-remote --tags origin refs/tags/v1.0.0 refs/tags/v1.0.0^{}",
                                "required":  true,
-                               "required_result":  "peeled remote tag resolves to 43510e4c4d791effda647e80dc74d8452dc61f1f"
+                               "required_result":  "peeled remote tag resolves to fb32206e3a178954ed7fbeda5b67e68159618a46"
                            },
                            {
                                "command_id":  "lint_fast_after_evidence_change",
@@ -91,6 +91,15 @@
                                                   "value":  [
                                                                 {
                                                                     "baseRefName":  "main",
+                                                                    "headRefName":  "chore/v1-tag-cycle-part1",
+                                                                    "mergedAt":  "2026-09-17T14:45:17Z",
+                                                                    "number":  1110,
+                                                                    "state":  "MERGED",
+                                                                    "title":  "chore(release): retarget S-V1-F-04 candidate tag to v1.0.0",
+                                                                    "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/1110"
+                                                                },
+                                                                {
+                                                                    "baseRefName":  "main",
                                                                     "headRefName":  "ticket/s-v1-f-04-v1-release-tag-preparation",
                                                                     "mergedAt":  "2026-06-19T08:58:41Z",
                                                                     "number":  725,
@@ -99,7 +108,7 @@
                                                                     "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/725"
                                                                 }
                                                             ],
-                                                  "Count":  1
+                                                  "Count":  2
                                               }
                                           ]
                           },
@@ -111,6 +120,15 @@
                                                   "value":  [
                                                                 {
                                                                     "baseRefName":  "main",
+                                                                    "headRefName":  "chore/v1-tag-cycle-part2-ship-decision",
+                                                                    "mergedAt":  "2026-09-17T15:02:45Z",
+                                                                    "number":  1111,
+                                                                    "state":  "MERGED",
+                                                                    "title":  "chore(release): re-record S-V1-F-05 final ship decision against current main",
+                                                                    "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/1111"
+                                                                },
+                                                                {
+                                                                    "baseRefName":  "main",
                                                                     "headRefName":  "ticket/s-v1-f-05-v1-final-ship-decision",
                                                                     "mergedAt":  "2026-06-19T12:50:09Z",
                                                                     "number":  726,
@@ -119,7 +137,7 @@
                                                                     "url":  "https://github.com/robertsc2049-bit/kolosseum/pull/726"
                                                                 }
                                                             ],
-                                                  "Count":  1
+                                                  "Count":  2
                                               }
                                           ]
                           },

@@ -42,9 +42,9 @@ const expectedAliasMap = Object.freeze({
     legacy_registry_id: "exercise",
     alias_scope: "legacy_compact_exercise_alias"
   }),
-  sport_program_profile_registry_5d: Object.freeze({
+  sport_program_template_registry_5f: Object.freeze({
     legacy_registry_id: "program",
-    alias_scope: "legacy_compact_program_profile_alias_no_template_structure"
+    alias_scope: "legacy_compact_program_template_predecessor_alias"
   })
 });
 
@@ -283,7 +283,7 @@ async function main() {
     }
 
     if (resolved.registry_completion_claim !== false || resolved.content_migration_claim !== false || resolved.template_structure_claim !== false) {
-      fail("S-REG-04 bridge must not claim registry completion, content migration, or template structure.", {
+      fail("S-REG-04 bridge must not claim registry completion, content migration, or completed template structure.", {
         canonical_registry_id: canonicalRegistryId,
         resolved
       });
@@ -312,7 +312,7 @@ async function main() {
     "activity -> activity_registry_1",
     "movement -> movement_registry_3",
     "exercise -> exercise_registry_3a",
-    "program -> sport_program_profile_registry_5d"
+    "program -> sport_program_template_registry_5f"
   ]) {
     assertIncludes(doc, marker, files.doc);
   }

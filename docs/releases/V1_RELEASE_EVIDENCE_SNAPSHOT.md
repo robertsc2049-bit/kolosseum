@@ -5,7 +5,7 @@
 Slice: S-V1-F-08
 Record type: controlled v1 release evidence snapshot
 Status: recorded
-Created at UTC: 2026-06-19T13:19:21.6411444Z
+Created at UTC: 2026-09-17T16:20:19.403Z
 
 ## Purpose
 
@@ -13,18 +13,18 @@ This snapshot records the exact controlled v1 release state after the release ta
 
 ## Release identity
 
-Tag: v1-controlled-launch
+Tag: v1.0.0
 Tag object type: tag
-Tag object SHA: f604363aeabe67257bf6157efa2e0dc32d8d9287
-Verified main commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
-Main HEAD at snapshot: 43510e4c4d791effda647e80dc74d8452dc61f1f
-Origin main at snapshot: 43510e4c4d791effda647e80dc74d8452dc61f1f
-Local tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
-Remote tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
+Tag object SHA: 2d3f6fd561241b4574cdcc442cf66fe1ae980e00
+Verified main commit: fb32206e3a178954ed7fbeda5b67e68159618a46
+Main HEAD at snapshot: fb32206e3a178954ed7fbeda5b67e68159618a46
+Origin main at snapshot: fb32206e3a178954ed7fbeda5b67e68159618a46
+Local tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
+Remote tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
 Tag points to verified main commit: true
 
 Tag reference summary:
-v1-controlled-launch|tag|f604363aeabe67257bf6157efa2e0dc32d8d9287|2026-06-19T14:04:17+01:00|Kolosseum controlled v1 release tag. Source: S-V1-F-06 verified mainline. Commit: 43510e4c4d791effda647e80dc74d8452dc61f1f.
+v1.0.0|tag|2d3f6fd561241b4574cdcc442cf66fe1ae980e00|2026-09-17T17:13:19+01:00|v1.0.0
 
 ## Ship decision reference
 
@@ -39,8 +39,8 @@ Required success marker: S-V1-F-05 V1_FINAL_SHIP_DECISION_CHECK_PASS
 
 1. npm.cmd run proof:s-v1-f-05
 2. node ci/guards/postv1_packaging_surface_registry_guard.mjs
-3. git rev-list -n 1 v1-controlled-launch
-4. git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}
+3. git rev-list -n 1 v1.0.0
+4. git ls-remote --tags origin refs/tags/v1.0.0 refs/tags/v1.0.0^{}
 5. npm.cmd run lint:fast
 
 Any failed required proof command blocks this evidence snapshot from closing.

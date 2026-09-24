@@ -19,8 +19,8 @@ function readText(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
 }
 
-const EXPECTED_TAG = "v1-controlled-launch";
-const EXPECTED_COMMIT = "43510e4c4d791effda647e80dc74d8452dc61f1f";
+const EXPECTED_TAG = "v1.0.0";
+const EXPECTED_COMMIT = "fb32206e3a178954ed7fbeda5b67e68159618a46";
 
 test("S-V1-F-08 release evidence snapshot files exist", () => {
   assert.equal(fs.existsSync(SNAPSHOT_JSON_PATH), true);
@@ -57,8 +57,8 @@ test("S-V1-F-08 references the final ship decision and required proof", () => {
 
   assert.ok(commands.includes("npm.cmd run proof:s-v1-f-05"));
   assert.ok(commands.includes("node ci/guards/postv1_packaging_surface_registry_guard.mjs"));
-  assert.ok(commands.includes("git rev-list -n 1 v1-controlled-launch"));
-  assert.ok(commands.includes("git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{}"));
+  assert.ok(commands.includes("git rev-list -n 1 v1.0.0"));
+  assert.ok(commands.includes("git ls-remote --tags origin refs/tags/v1.0.0 refs/tags/v1.0.0^{}"));
   assert.ok(commands.includes("npm.cmd run lint:fast"));
 });
 

@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Kolosseum Organisation Owner</title>
+  <meta name="theme-color" content="#0A0C0A" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" />
   <link rel="stylesheet" href="/app/styles.css" />
 </head>
 <body>
@@ -58,8 +62,98 @@
     <section id="orgWorkspaceSection" class="panel" hidden>
       <div class="button-row" style="justify-content: space-between;">
         <p>Signed in as <strong id="orgDisplayName"></strong></p>
-        <button id="orgSignOutButton" class="button secondary" type="button">Sign out</button>
+        <div class="button-row">
+          <div class="notification-bell-wrap">
+            <button id="orgNotificationBellButton" class="icon-button notification-bell" type="button" aria-label="Open notifications" aria-haspopup="true" aria-expanded="false">
+              <span aria-hidden="true">&#128276;</span>
+              <span id="orgNotificationUnreadBadge" class="notification-unread-badge" hidden>0</span>
+            </button>
+            <div id="orgNotificationPanel" class="notification-panel" role="menu" aria-label="Notifications" hidden>
+              <div class="notification-panel-header">
+                <strong>Notifications</strong>
+              </div>
+              <div id="orgNotificationPanelBody"></div>
+            </div>
+          </div>
+          <button id="orgSignOutButton" class="button secondary" type="button">Sign out</button>
+        </div>
       </div>
+    </section>
+
+    <section id="orgAccountSection" class="panel" hidden>
+      <p class="eyebrow">Account</p>
+      <h2>Data rights &amp; account closure</h2>
+
+      <h3>Data export</h3>
+      <p class="muted small">Download a copy of your account, organisation, coach-membership, sent-message and audit data.</p>
+      <div class="button-row">
+        <button id="orgAccountExportRequestButton" class="button secondary" type="button">Request data export</button>
+      </div>
+      <p id="orgAccountExportResult" class="muted small" hidden></p>
+      <div id="orgAccountExportList" class="record-list"></div>
+      <p id="orgAccountExportError" class="muted small" hidden></p>
+
+      <h3>Delete my data</h3>
+      <div class="button-row">
+        <button id="orgAccountDeletionReviewButton" class="button secondary" type="button">Review deletion consequences</button>
+      </div>
+      <div id="orgAccountDeletionReview" hidden>
+        <p id="orgAccountDeletionNotice" class="muted small"></p>
+        <div id="orgAccountDeletionRetentionList" class="record-list"></div>
+        <form id="orgAccountDeletionConfirmForm">
+          <label class="field">
+            <span>Type DELETE to confirm</span>
+            <input id="orgAccountDeletionConfirmText" type="text" autocomplete="off" required />
+          </label>
+          <div class="button-row">
+            <button class="button danger" type="submit">Request deletion</button>
+          </div>
+        </form>
+      </div>
+      <p id="orgAccountDeletionResult" class="muted small" hidden></p>
+      <div id="orgAccountDeletionList" class="record-list"></div>
+      <p id="orgAccountDeletionError" class="muted small" hidden></p>
+
+      <h3>Close account</h3>
+      <p class="muted small">This closes your own owner account. Organisations you own are not deleted or handed off automatically.</p>
+      <form id="orgAccountClosureForm">
+        <label class="field">
+          <span>Type CLOSE to confirm</span>
+          <input id="orgAccountClosureConfirmText" type="text" autocomplete="off" required />
+        </label>
+        <div class="button-row">
+          <button class="button danger" type="submit">Close account</button>
+        </div>
+      </form>
+      <p id="orgAccountClosureError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgSupportSection" class="panel" hidden>
+      <p class="eyebrow">Support</p>
+      <h2>Report a problem</h2>
+      <p class="muted small">Opens a form that shows exactly what route, timestamp, browser context and correlation ID will be attached before you submit a description.</p>
+      <div class="button-row">
+        <button id="orgSupportReportButton" class="button primary" type="button">Report a problem</button>
+      </div>
+
+      <div id="orgSupportReportPanel" hidden>
+        <div id="orgSupportReportContext" class="record-list"></div>
+        <form id="orgSupportReportForm">
+          <label class="field">
+            <span>What happened?</span>
+            <textarea id="orgSupportDescription" required maxlength="4000" rows="4"></textarea>
+          </label>
+          <div class="button-row">
+            <button class="button secondary" type="button" id="orgSupportCancelButton">Cancel</button>
+            <button class="button primary" type="submit">Submit report</button>
+          </div>
+        </form>
+        <p id="orgSupportResult" class="muted small" hidden></p>
+      </div>
+      <p id="orgSupportError" class="muted small" hidden></p>
+
+      <h3>Your submitted reports</h3>
+      <div id="orgSupportHistoryList" class="record-list"></div>
     </section>
 
     <section id="orgListSection" class="panel" hidden>
@@ -75,6 +169,19 @@
         <label class="field">
           <span>Organisation name</span>
           <input id="orgCreateName" type="text" required />
+        </label>
+        <label class="field">
+          <span>Sport</span>
+          <select id="orgCreateActivityId" required>
+            <option value="" selected disabled>Choose</option>
+            <option value="powerlifting">Powerlifting</option>
+            <option value="general_strength">General strength</option>
+            <option value="rugby_union">Rugby union</option>
+            <option value="strongman">Strongman</option>
+            <option value="hyrox">Hyrox</option>
+            <option value="crossfit">CrossFit</option>
+          </select>
+          <span class="muted small">Purely informational - this doesn't restrict any athlete's own declared sport or position.</span>
         </label>
         <label class="field">
           <span>Type</span>
@@ -144,11 +251,187 @@
           <p class="eyebrow">Athletes</p>
           <h2>Athlete visibility for <strong id="orgVisibilityOrgName"></strong></h2>
         </div>
-        <button id="orgVisibilityBackButton" class="button secondary" type="button">Back to organisations</button>
+        <div class="button-row">
+          <a id="orgVisibilityRosterExportLink" class="button secondary" href="#">Export roster (.csv)</a>
+          <button id="orgVisibilityBackButton" class="button secondary" type="button">Back to organisations</button>
+        </div>
       </div>
 
       <div id="orgVisibilityList" class="record-list"></div>
       <p id="orgVisibilityError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgProgressSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Progress</p>
+          <h2>Athlete progress for <strong id="orgProgressOrgName"></strong></h2>
+        </div>
+        <button id="orgProgressBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <div id="orgProgressList" class="record-list"></div>
+      <p id="orgProgressError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgAttendanceSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Attendance</p>
+          <h2>Gym-wide events for <strong id="orgAttendanceOrgName"></strong></h2>
+        </div>
+        <div class="button-row">
+          <a id="orgAttendanceCalendarExportLink" class="button secondary" href="#">Export calendar (.ics)</a>
+          <button id="orgAttendanceBackButton" class="button secondary" type="button">Back to organisations</button>
+        </div>
+      </div>
+
+      <form id="orgAttendanceCreateForm">
+        <label class="field">
+          <span>Title</span>
+          <input id="orgAttendanceTitle" type="text" maxlength="120" required />
+        </label>
+        <label class="field">
+          <span>Description</span>
+          <textarea id="orgAttendanceDescription" maxlength="1000"></textarea>
+        </label>
+        <label class="field">
+          <span>Location</span>
+          <input id="orgAttendanceLocation" type="text" maxlength="200" />
+        </label>
+        <label class="field">
+          <span>Activity</span>
+          <input id="orgAttendanceActivity" type="text" maxlength="80" placeholder="e.g. CrossFit class" />
+        </label>
+        <label class="field">
+          <span>Date</span>
+          <input id="orgAttendanceDate" type="date" required />
+        </label>
+        <label class="field">
+          <span>Start time</span>
+          <input id="orgAttendanceStartTime" type="time" />
+        </label>
+        <label class="field">
+          <span>End time</span>
+          <input id="orgAttendanceEndTime" type="time" />
+        </label>
+
+        <fieldset>
+          <legend>Repeats</legend>
+          <label class="checkbox-field">
+            <input id="orgAttendanceRepeats" type="checkbox" />
+            <span>This event repeats</span>
+          </label>
+
+          <div id="orgAttendanceRecurrenceFields" hidden>
+            <label class="field">
+              <span>Frequency</span>
+              <select id="orgAttendanceFrequency">
+                <option value="weekly">Weekly</option>
+                <option value="daily">Daily</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Every</span>
+              <input id="orgAttendanceInterval" type="number" min="1" max="52" value="1" />
+            </label>
+
+            <fieldset id="orgAttendanceWeekdaysFieldset">
+              <legend>On these days</legend>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="mon" /><span>Mon</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="tue" /><span>Tue</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="wed" /><span>Wed</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="thu" /><span>Thu</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="fri" /><span>Fri</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="sat" /><span>Sat</span></label>
+              <label class="checkbox-field"><input type="checkbox" data-weekday="sun" /><span>Sun</span></label>
+            </fieldset>
+
+            <fieldset>
+              <legend>Ends</legend>
+              <label class="radio-field">
+                <input type="radio" name="orgAttendanceEndsType" value="after_count" checked />
+                <span>After a number of occurrences</span>
+              </label>
+              <label class="field">
+                <span>Number of occurrences</span>
+                <input id="orgAttendanceEndsAfterCount" type="number" min="1" max="200" value="10" />
+              </label>
+              <label class="radio-field">
+                <input type="radio" name="orgAttendanceEndsType" value="on_date" />
+                <span>On a specific date</span>
+              </label>
+              <label class="field">
+                <span>End date</span>
+                <input id="orgAttendanceEndsOnDate" type="date" />
+              </label>
+            </fieldset>
+          </div>
+        </fieldset>
+
+        <p class="muted small">Every currently-accepted athlete across every coach in this organisation is invited automatically.</p>
+        <div class="button-row">
+          <button class="button primary" type="submit">Create event</button>
+        </div>
+      </form>
+      <p id="orgAttendanceCreateError" class="muted small" hidden></p>
+      <p id="orgAttendanceCreateSuccess" class="muted small" hidden></p>
+
+      <div id="orgAttendanceList" class="record-list"></div>
+      <p id="orgAttendanceError" class="muted small" hidden></p>
+    </section>
+
+    <section id="orgAttendanceDetailSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Attendance</p>
+          <h2 id="orgAttendanceDetailTitle"></h2>
+        </div>
+        <button id="orgAttendanceDetailBackButton" class="button secondary" type="button">Back to events</button>
+      </div>
+
+      <h3>Occurrences</h3>
+      <div id="orgAttendanceDetailOccurrences" class="record-list"></div>
+
+      <div id="orgAttendanceRescheduleForm" hidden>
+        <label class="field">
+          <span>New date</span>
+          <input id="orgAttendanceRescheduleDate" type="date" />
+        </label>
+        <label class="field">
+          <span>New start time</span>
+          <input id="orgAttendanceRescheduleStartTime" type="time" />
+        </label>
+        <label class="field">
+          <span>New end time</span>
+          <input id="orgAttendanceRescheduleEndTime" type="time" />
+        </label>
+        <div class="button-row">
+          <button id="orgAttendanceRescheduleConfirmButton" class="button primary small-button" type="button">Confirm reschedule</button>
+          <button id="orgAttendanceRescheduleCancelButton" class="button secondary small-button" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <h3>Roster</h3>
+      <div id="orgAttendanceDetailRoster" class="record-list"></div>
+      <p id="orgAttendanceDetailError" class="muted small" hidden></p>
+
+      <div class="button-row">
+        <button id="orgAttendanceCancelEventButton" class="button secondary" type="button">Cancel event</button>
+      </div>
+    </section>
+
+    <section id="orgAuditSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Activity</p>
+          <h2>Activity log for <strong id="orgAuditOrgName"></strong></h2>
+        </div>
+        <button id="orgAuditBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+
+      <div id="orgAuditList" class="record-list"></div>
+      <p id="orgAuditError" class="muted small" hidden></p>
     </section>
 
     <section id="orgMessagesSection" class="panel" hidden>
@@ -159,6 +442,29 @@
         </div>
         <button id="orgMessagesBackButton" class="button secondary" type="button">Back to organisations</button>
       </div>
+
+      <p class="eyebrow">Broadcast</p>
+      <form id="orgBroadcastForm">
+        <label class="field">
+          <span>Audience</span>
+          <select id="orgBroadcastAudience">
+            <option value="coaches">All coaches</option>
+            <option value="athletes" id="orgBroadcastAudienceAthletesOption">All athletes</option>
+          </select>
+        </label>
+        <p id="orgBroadcastAthleteHint" class="muted small" hidden>Athletes can only be broadcast to in shared-visibility organisations.</p>
+        <label class="field">
+          <span>Message</span>
+          <textarea id="orgBroadcastText" required maxlength="4000"></textarea>
+        </label>
+        <div class="button-row">
+          <button class="button primary" type="submit">Send broadcast</button>
+        </div>
+      </form>
+      <p id="orgBroadcastError" class="muted small" hidden></p>
+      <p id="orgBroadcastResult" class="muted small" hidden></p>
+      <div id="orgBroadcastReadStatus" class="record-list" hidden></div>
+      <button id="orgBroadcastRefreshButton" class="button secondary" type="button" hidden>Refresh read status</button>
 
       <p class="eyebrow">Coach threads</p>
       <div id="orgCoachThreadList" class="record-list"></div>

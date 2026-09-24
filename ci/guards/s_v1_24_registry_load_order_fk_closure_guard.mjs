@@ -423,7 +423,7 @@ function validateFkClosure(bundle) {
       contractFail("substitution_record_not_object", "substitution registry record must be an object");
     }
 
-    const substitutionId = firstStringField(substitution, ["substitution_edge_id", "id"]) ?? "unknown_substitution_edge";
+    const substitutionId = firstStringField(substitution, ["substitution_edge_id"]) ?? "unknown_substitution_edge";
 
     for (const field of ["source_exercise_id", "target_exercise_id"]) {
       if (hasOwn(substitution, field) && exerciseIds.size > 0 && !exerciseIds.has(substitution[field])) {
@@ -441,7 +441,7 @@ function validateFkClosure(bundle) {
       contractFail("programme_template_record_not_object", "programme template registry record must be an object");
     }
 
-    const templateId = firstStringField(template, ["template_id", "program_id", "id"]) ?? "unknown_programme_template";
+    const templateId = firstStringField(template, ["template_id"]) ?? "unknown_programme_template";
 
     if (hasOwn(template, "activity_id") && activityIds.size > 0 && !activityIds.has(template.activity_id)) {
       contractFail("unknown_activity_reference", "programme template references an unknown activity registry id", {

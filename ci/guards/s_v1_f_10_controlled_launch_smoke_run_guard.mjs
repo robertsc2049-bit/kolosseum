@@ -19,8 +19,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 
 const TOKEN = "CI_V1_CONTROLLED_LAUNCH_SMOKE_RUN";
-const EXPECTED_TAG = "v1-controlled-launch";
-const EXPECTED_TAG_COMMIT = "43510e4c4d791effda647e80dc74d8452dc61f1f";
+const EXPECTED_TAG = "v1.0.0";
+const EXPECTED_TAG_COMMIT = "fb32206e3a178954ed7fbeda5b67e68159618a46";
 
 const REQUIRED_FILES = [
   "docs/releases/CONTROLLED_LAUNCH_SMOKE_RUN.md",
@@ -182,7 +182,7 @@ for (const [key, value] of Object.entries(record.claim_boundary ?? {})) {
 assert(markdown.includes("# Controlled Launch Smoke Run"), "markdown title missing.");
 assert(markdown.includes("Slice: S-V1-F-10"), "markdown slice marker missing.");
 assert(markdown.includes("Overall result: pass"), "markdown result missing.");
-assert(markdown.includes("Release tag: v1-controlled-launch"), "markdown tag missing.");
+assert(markdown.includes(`Release tag: ${EXPECTED_TAG}`), "markdown tag missing.");
 assert(markdown.includes("## Smoke commands"), "markdown smoke command section missing.");
 assert(markdown.includes("## Minimum controlled-launch path evidence"), "markdown path evidence section missing.");
 assert(markdown.includes("## Blocker rule"), "markdown blocker section missing.");

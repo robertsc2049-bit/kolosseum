@@ -67,6 +67,12 @@ The activity registry, program registry, and registry bundle must not contain ac
 
 Future roadmap documents may describe later activity expansion only as inactive future scope. They must not alter the active v0 manifest, Phase 1 schema, registry bundle, activity registry, program registry, or executable v0 tests.
 
+## Amendment - shared registry boundary widened for v1's strongman activation
+
+`registries/activity/activity.registry.json`, `registries/program/program.registry.json`, and `registries/registry_bundle.json` are shared with v1's registry governance system (see `docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md`), which activated `strongman` as v1's fourth locked activity inside these same files. S-V0-07's registry/domain invariant check on these three files now allows `strongman` alongside the original three activities.
+
+This amendment does not widen v0 itself: the active v0 manifest's `allowed_activities`, the Phase 1 declaration schema's `activity_id` enum, and the rejected-value fixture all remain locked to exactly powerlifting, rugby_union, and general_strength. `strongman` is still rejected as a v0 declaration value - v0's closed engine never processes it. Only the registry-content checks on the three shared files above widened, via a new `V0_SHARED_REGISTRY_ACTIVITY_IDS` constant in `test/s_v0_07_v0_enumeration_activity_set_lock.test.mjs`.
+
 ## Completion condition
 
 S-V0-07 is complete only when:

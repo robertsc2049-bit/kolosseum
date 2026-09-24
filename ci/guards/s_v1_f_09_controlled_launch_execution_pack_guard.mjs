@@ -19,8 +19,8 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "../..");
 
-const EXPECTED_TAG = "v1-controlled-launch";
-const EXPECTED_TAG_COMMIT = "43510e4c4d791effda647e80dc74d8452dc61f1f";
+const EXPECTED_TAG = "v1.0.0";
+const EXPECTED_TAG_COMMIT = "fb32206e3a178954ed7fbeda5b67e68159618a46";
 const TOKEN = "CI_V1_CONTROLLED_LAUNCH_EXECUTION_PACK";
 
 const REQUIRED_FILES = [
@@ -170,7 +170,7 @@ assert(markdown.includes("## Founding user account setup instructions"), "accoun
 assert(markdown.includes("## Founder test instructions"), "founder test section missing.");
 assert(markdown.includes("## Support and defect route references"), "support and defect section missing.");
 assert(markdown.includes("This pack does not mark v1 live by itself."), "must state pack does not mark live.");
-assert(markdown.includes("v1-controlled-launch"), "tag reference missing.");
+assert(markdown.includes(EXPECTED_TAG), "tag reference missing.");
 assert(markdown.includes("docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md"), "release evidence snapshot reference missing.");
 assert(markdown.includes("docs/releases/V1_FINAL_SHIP_DECISION.md"), "final ship decision reference missing.");
 assert(markdown.includes("docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md"), "controlled launch readiness record reference missing.");

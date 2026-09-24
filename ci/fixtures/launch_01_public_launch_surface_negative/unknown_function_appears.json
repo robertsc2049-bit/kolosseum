@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "unknown_function_appears",
+  "mutation": {
+    "operation": "append_unknown_function",
+    "area_id": "identity_account",
+    "function_id": "launch_01_unknown_function"
+  },
+  "expected_token": "UNKNOWN_FUNCTION_APPEARED"
+}

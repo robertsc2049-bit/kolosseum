@@ -19,21 +19,45 @@ const repoRoot = process.cwd();
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman",
+  "hyrox",
+  "crossfit",
+  "football_soccer",
+  "netball",
+  "basketball",
+  "rugby_sevens",
+  "field_hockey",
+  "ice_hockey",
+  "volleyball",
+  "cricket",
+  "american_football",
+  "athletics",
+  "swimming",
+  "olympic_weightlifting",
+  "cycling",
+  "rowing",
+  "kayaking",
+  "boxing",
+  "wrestling",
+  "judo",
+  "brazilian_jiu_jitsu",
+  "muay_thai",
+  "mma",
+  "tennis",
+  "triathlon",
+  "rugby_league",
+  "street_lifting"
 ]);
 
 const rejectedExamples = Object.freeze([
-  "strongman",
   "bodybuilding",
   "weightlifting",
   "combat_sports",
   "tactical",
   "running",
-  "cycling",
-  "swimming",
   "football",
-  "soccer",
-  "basketball"
+  "soccer"
 ]);
 
 const requiredDocs = Object.freeze([

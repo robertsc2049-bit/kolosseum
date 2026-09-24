@@ -15,12 +15,14 @@
     "functions":  [
                       "coach_profile_setup",
                       "coach_terms",
+                      "coach_accessibility_preferences",
                       "subscription_state",
                       "seat_allowance",
                       "checkout_entry",
                       "payment_return",
                       "billing_portal",
-                      "entitlement_error"
+                      "entitlement_error",
+                      "webhook_confirmation"
                   ],
     "factual_states":  [
                            "active",

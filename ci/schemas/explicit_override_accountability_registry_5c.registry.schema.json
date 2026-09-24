@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/explicit_override_accountability_registry_5c.registry.schema.json",
+  "title": "explicit_override_accountability_registry_5c",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "explicit_override_accountability_registry_5c"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "array",
+      "maxItems": 0,
+      "items": false
+    }
+  },
+  "description": "REG-FULL-01 hard-closes rows because the supplied authority explicitly says not to fabricate an unsurfaced entry schema."
+}

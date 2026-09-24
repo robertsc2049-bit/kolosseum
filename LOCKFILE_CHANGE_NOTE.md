@@ -75,6 +75,31 @@ Verified totals after remediation:
 
 This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
 
+## Dependency audit refresh: fast-uri and qs
+
+Commit subject: Fix fast-uri and qs transitive dependency vulnerabilities
+
+Production dependency audit totals before remediation:
+
+- high: 1;
+- moderate: 1;
+- critical: 0;
+- affected audit entries: fast-uri (high), qs (moderate).
+
+package-lock.json was refreshed through:
+
+`npm audit fix`
+
+No direct dependency declaration was added to or removed from package.json by the audit repair; both are transitive dependencies.
+
+Verified totals after remediation:
+
+- high: 0;
+- moderate: 0;
+- critical: 0.
+
+This refresh does not alter Kolosseum engine law, deterministic output, registry content, sealed artefact bytes, access-policy decisions, runtime scope, or intended user-facing behaviour.
+
 ## Part E live messaging: add ws dependency
 
 Commit subject: feat(messaging): add live delivery via WebSocket push (part E)
@@ -121,3 +146,130 @@ resolution from this addition.
 This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or any
 existing user-facing behaviour - it is purely additive.
+
+## Stripe checkout live: add stripe dependency
+
+Commit subject: feat(commercial): real Stripe Checkout + Billing Portal for coach subscriptions
+
+package-lock.json changed because a new direct dependency was added:
+
+- `stripe` (`^22.5.0`) added to `dependencies`.
+
+`stripe` is the official Node SDK, used to wire real Stripe Checkout
+Sessions, Billing Portal Sessions, and webhook signature verification
+into the existing (previously fully mocked) coach commercial/billing
+surface at `src/api/product_commercial_service.ts`. This is a single,
+purpose-specific dependency for the one live-payment-provider
+integration point in the product, matching the repo's existing posture
+of small, purpose-specific additions (`ws` for live messaging, `multer`
+for attachments, `express`/`pg`/`ajv`/`dotenv` otherwise). No other
+dependency versions were intentionally changed; any other lockfile
+movement is transitive resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour outside the coach billing surface it
+directly wires - it is purely additive.
+
+## React migration foundation: add React, Vite and component-test dependencies
+
+Commit subject: feat(app): React migration foundation + Account identity pilot
+
+package-lock.json changed because new dependencies were added:
+
+- `react` (`^18.3.1`), `react-dom` (`^18.3.1`) added to `dependencies`.
+- `vite` (`^6.0.7`), `@vitejs/plugin-react` (`^4.3.4`), `@types/react`
+  (`^18.3.18`), `@types/react-dom` (`^18.3.5`) added to `devDependencies`
+  - the build toolchain for the new `public/app-src/` React source, which
+    compiles to static output served from the existing
+    `public/app/react-dist/` directory via the already-in-place
+    `express.static("public/app")` mount. No server code changes.
+- `jsdom` (`^25.0.1`), `@testing-library/react` (`^16.1.0`), `tsx`
+  (`^4.19.2`) added to `devDependencies` - the component-test toolchain
+  for the migrated screens, run through the repo's existing `node --test`
+  runner (via a `tsx/esm` loader for TSX transformation, not a new test
+  framework) in place of the legacy pattern of regex-matching frontend
+  source text.
+
+This is the first slice of an explicit, incremental frontend migration
+from the existing ~21,000-line hand-written vanilla-JS app to React,
+scoped to foundational tooling plus one pilot screen (the Account
+identity/profile/security sub-panel). No other dependency versions were
+intentionally changed; any other lockfile movement is transitive
+resolution from these additions.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+backend behaviour - the backend REST API surface is unchanged; React is
+purely a new consumer of the same existing routes.
+
+## Coach accessibility preferences: add express-rate-limit dependency
+
+Commit subject: feat(onboarding): add accessibility preferences to coach onboarding
+
+package-lock.json changed because a new direct dependency was added:
+
+- `express-rate-limit` (`^8.7.0`) added to `dependencies`.
+
+`express-rate-limit` is the standard Express rate-limiting middleware,
+applied only to the new `PATCH /account/coach-onboarding/accessibility`
+route added in this change, to satisfy CodeQL's `js/missing-rate-limiting`
+query on a newly-added authorising route. No other route in the codebase
+was modified. No other dependency versions were intentionally changed;
+any other lockfile movement is transitive resolution from this addition.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or any
+existing user-facing behaviour - it is purely additive.
+
+## Coach accessibility preferences: multer dependency audit refresh
+
+Commit subject: fix(deps): resolve multer high-severity advisory
+
+Production dependency audit totals before remediation:
+
+- high: 1;
+- critical: 0;
+- affected audit entries: multer.
+
+package-lock.json was refreshed through:
+
+`npm audit fix --package-lock-only --omit=dev --audit-level=high`
+
+- `multer` resolved version moved from `2.2.0` to `2.3.0`, within the
+  existing declared `^2.2.0` range in `package.json` - no direct
+  dependency declaration was added to, removed from, or changed in
+  `package.json` by this remediation.
+
+This advisory newly applied to the already-committed `2.2.0` pin between
+main's last green CI run and this PR's CI run - it predates and is
+unrelated to this PR's own change, but is fixed here because it blocks
+the same required CI dependency-audit gate this PR must pass through.
+
+Verified totals after remediation:
+
+- high: 0;
+- critical: 0.
+
+This refresh does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, runtime
+scope, or intended user-facing behaviour.
+
+## v1.0.0 controlled-launch release tag: version bump
+
+Commit subject: chore(release): bump version to 1.0.0 for the v1.0.0 controlled-launch tag
+
+package-lock.json changed because package.json's `version` field was
+bumped from `0.1.24` to `1.0.0`, to satisfy `scripts/version-gate.ps1`
+(run as part of `npm run release:tag`) ahead of cutting a fresh
+`v1.0.0` release tag for the planned 2026-10-01 founder-group
+controlled beta - the prior go-live decision was pinned to a tag 812+
+commits stale.
+
+`npm install --package-lock-only` was used to regenerate the lockfile's
+own `version` fields to match; no dependency additions, removals, or
+version changes were intended by this bump.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or
+any existing user-facing behaviour.

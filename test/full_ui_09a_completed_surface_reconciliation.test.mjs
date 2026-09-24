@@ -22,9 +22,9 @@ const targets = [
     "id": "assignment_confirmation",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/useAthleteProfileAssignment.ts",
         [
-          "assignmentTemplateVersion(current)"
+          "version ${templateVersion}"
         ]
       ],
       [
@@ -42,8 +42,13 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"athleteAssignmentCurrent\"",
-          "id=\"assignmentCurrentState\""
+          "id=\"athlete-profile-assignment-root\""
+        ]
+      ],
+      [
+        "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
+        [
+          "Current assignment"
         ]
       ],
       [
@@ -77,9 +82,9 @@ const targets = [
     "id": "assignment_separate_event",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx",
         [
-          "Event links are shown separately."
+          "<p className=\"eyebrow\">Event links</p>"
         ]
       ],
       [
@@ -95,9 +100,9 @@ const targets = [
     "id": "athlete_current_event",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailCurrentEvent\""
+          "AthleteCurrentEventCard"
         ]
       ],
       [
@@ -119,9 +124,9 @@ const targets = [
     "id": "athlete_current_programme",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailCurrentProgramme\""
+          "AthleteCurrentProgrammeCard"
         ]
       ],
       [
@@ -142,6 +147,12 @@ const targets = [
     "area": "athlete_directory",
     "id": "athlete_event_history",
     "evidence": [
+      [
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
+        [
+          "AthleteEventLinkHistoryList"
+        ]
+      ],
       [
         "src/api/beta19_coach_workspace_service.ts",
         [
@@ -167,9 +178,9 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailSessionHistory\""
+          "AthleteSessionHistoryList"
         ]
       ],
       [
@@ -191,9 +202,9 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/AthleteHistoryPanels.tsx",
         [
-          "id=\"athleteDetailStrengthHistory\""
+          "AthleteStrengthHistoryList"
         ]
       ],
       [
@@ -249,7 +260,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"coachUpcomingEventCount\"",
+          "id=\"coach-overview-metrics-root\"",
           "Upcoming events"
         ]
       ],
@@ -266,24 +277,21 @@ const targets = [
     "id": "review_athlete_search",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"reviewSearch\"",
           "placeholder=\"Athlete, session or programme\""
         ]
       ],
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/useCoachReview.ts",
         [
-          "function filteredCoachReviewRecords()",
-          "elements.reviewSearch.addEventListener(\"input\""
+          "setSelectedAthleteId"
         ]
       ],
       [
         "test/full_ui_07_review_queue.test.mjs",
         [
-          "FULL-UI-07 exposes searchable review queue controls and factual detail",
-          "\"reviewSearch\""
+          "FULL-UI-07 exposes searchable review queue controls and factual detail"
         ]
       ]
     ]
@@ -295,8 +303,8 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"coachOverviewReviewQueue\"",
-          "Awaiting review"
+          "id=\"coach-overview-review-queue-root\"",
+          "Completed since review"
         ]
       ],
       [
@@ -312,15 +320,15 @@ const targets = [
     "id": "review_factual_detail",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "function renderCoachReviewDetail(record)"
+          "function ReviewDetail("
         ]
       ],
       [
         "public/app/index.html",
         [
-          "id=\"reviewDetailContent\""
+          "id=\"coach-review-root\""
         ]
       ],
       [
@@ -336,10 +344,9 @@ const targets = [
     "id": "review_live_status",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"reviewStatusFilter\"",
-          "id=\"reviewStatus\"",
+          "Open · read only",
           "live read-only status"
         ]
       ],
@@ -356,9 +363,10 @@ const targets = [
     "id": "review_note_visibility",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
-          "id=\"coachNoteVisibility\""
+          "value=\"coach_private\"",
+          "value=\"athlete_visible\""
         ]
       ],
       [
@@ -374,7 +382,7 @@ const targets = [
     "id": "review_provenance",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachReviewPanel.tsx",
         [
           "assignment_provenance",
           "event_provenance"
@@ -401,7 +409,7 @@ const targets = [
     "id": "account_create",
     "evidence": [
       [
-        "public/app/account_ui.js",
+        "public/app-src/api/authClient.ts",
         [
           "\"/account/register\""
         ]
@@ -425,16 +433,16 @@ const targets = [
     "id": "sign_out",
     "evidence": [
       [
-        "public/app/account_ui.js",
+        "public/app-src/api/client.ts",
         [
           "signOutAccount",
           "\"/account/sign-out\""
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/account/SignOutPanel.tsx",
         [
-          "id=\"signOutButton\""
+          "Sign out"
         ]
       ],
       [
@@ -448,7 +456,7 @@ const targets = [
         "test/full_ui_02_account_ui.test.mjs",
         [
           "\"signOutButton\"",
-          "\"signOutAccount\""
+          "signOutAccount"
         ]
       ]
     ]
@@ -478,7 +486,7 @@ const targets = [
       [
         "public/app/index.html",
         [
-          "id=\"templateBuilderSaveState\""
+          "id=\"programme-builder-save-badge-root\""
         ]
       ],
       [
@@ -519,7 +527,7 @@ const targets = [
         ]
       ],
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachProgrammeDetailPanel.tsx",
         [
           "Programme detail"
         ]
@@ -537,9 +545,9 @@ const targets = [
     "id": "programme_preview",
     "evidence": [
       [
-        "public/app/app.js",
+        "public/app-src/screens/coach/CoachProgrammePreviewPanel.tsx",
         [
-          "function programmePreviewHtml("
+          "function CoachProgrammePreviewPanel("
         ]
       ],
       [
@@ -561,7 +569,7 @@ const targets = [
     "id": "programme_states",
     "evidence": [
       [
-        "public/app/index.html",
+        "public/app-src/screens/coach/CoachProgrammeLibraryPanel.tsx",
         [
           "Draft programmes",
           "Complete programmes",

@@ -33,8 +33,9 @@ The v1 supported activities remain exactly:
 - powerlifting
 - general_strength
 - rugby_union
+- strongman
 
-No implementation slice may add, imply, seed, expose, copy, or test support for another active v1 activity unless a later accepted decision record replaces the locked set.
+No implementation slice may add, imply, seed, expose, copy, or test support for another active v1 activity unless a later accepted decision record replaces the locked set. (See the amendment below for how strongman entered this list.)
 
 ## Files changed
 
@@ -69,10 +70,11 @@ This slice must not modify:
 The S19 guard must prove:
 
 - V1_SUPPORTED_ACTIVITIES exists
-- the set length is exactly 3
+- the set length is exactly 4
 - the set contains powerlifting
 - the set contains general_strength
 - the set contains rugby_union
+- the set contains strongman
 - the set contains no additional activity ids
 - assertActivityIsV1Supported accepts the locked set
 - assertActivityIsV1Supported rejects excluded activity examples
@@ -84,7 +86,6 @@ The S19 guard must prove:
 
 The guard must reject examples outside v1, including:
 
-- strongman
 - bodybuilding
 - weightlifting
 - combat_sports
@@ -118,7 +119,7 @@ S19 is accepted when:
 - the S19 CI guard exists
 - the S19 guard is indexed in docs/GUARDS_INDEX.md
 - lint:fast invokes the S19 guard
-- the locked activity set is exactly powerlifting, general_strength, and rugby_union
+- the locked activity set is exactly powerlifting, general_strength, rugby_union, and strongman
 - excluded activity examples are rejected
 - no registry content is added
 - no template content is added
@@ -151,3 +152,27 @@ Do not widen v1 beyond powerlifting, general_strength, and rugby_union.
 The next lane is S20 - v1 registry schema target hardening.
 
 S20 should harden schema expectations before registry expansion content begins.
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, and strongman (length 4), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` and `rejectedExamples` were updated accordingly, and "strongman" was removed from the "Excluded examples" list above since it is no longer an excluded activity.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, strongman, and hyrox (length 5), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` was updated accordingly.
+
+## Amendment - CrossFit activated as v1's sixth locked activity
+
+The locked activity set is now exactly powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit (length 6), per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. ci/guards/v1_locked_activity_set_guard.mjs's `expectedActivities` was updated accordingly.
+
+## Amendment - 23 further sports activated (seventh through twenty-ninth locked activities)
+
+The locked activity set now additionally includes: `football_soccer`, `netball`, `basketball`, `rugby_sevens`, `field_hockey`, `ice_hockey`, `volleyball`, `cricket`, `american_football`, `athletics`, `swimming`, `olympic_weightlifting`, `cycling`, `rowing`, `kayaking`, `boxing`, `wrestling`, `judo`, `brazilian_jiu_jitsu`, `muay_thai`, `mma`, `tennis`, `triathlon`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Each reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Rugby league activated (thirtieth locked activity)
+
+The locked activity set now additionally includes `rugby_league`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. It reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Street lifting activated (thirty-first locked activity)
+
+The locked activity set now additionally includes `street_lifting`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Unlike rugby_union/rugby_league's full-pool reuse, it uses a small curated exercise set (25 exercises, including one new exercise, `air_squat`) rather than the full registry.

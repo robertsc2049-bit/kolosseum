@@ -430,6 +430,65 @@ test(
       note.changes_engine_output,
       false
     );
+
+    assert.equal(
+      note.exercise_id,
+      null
+    );
+  }
+);
+
+test(
+  "BETA-17 coach can record a note scoped to a specific exercise",
+  () => {
+    const {
+      coachProfile,
+      relationship
+    } = acceptedContext();
+
+    const result =
+      createBeta17CoachNoteRecord({
+        ...clone(
+          fixture.note_input
+        ),
+        coach_profile:
+          coachProfile,
+        relationship,
+        exercise_id: "back_squat"
+      });
+
+    assert.equal(result.status, 201);
+
+    const note =
+      result.body.coach_note;
+
+    assert.equal(
+      note.exercise_id,
+      "back_squat"
+    );
+  }
+);
+
+test(
+  "BETA-17 rejects a coach note with a non-string exercise_id",
+  () => {
+    const {
+      coachProfile,
+      relationship
+    } = acceptedContext();
+
+    const result =
+      createBeta17CoachNoteRecord({
+        ...clone(
+          fixture.note_input
+        ),
+        coach_profile:
+          coachProfile,
+        relationship,
+        exercise_id: 42
+      });
+
+    assert.equal(result.status, 400);
   }
 );
 

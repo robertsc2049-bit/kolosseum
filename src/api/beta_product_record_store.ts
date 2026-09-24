@@ -27,7 +27,18 @@ type SupportedRecordType =
   | "habit_definition"
   | "habit_completion"
   | "device_connection_record"
-  | "device_metric_entry";
+  | "device_metric_entry"
+  | "athlete_goal"
+  | "weekly_checkin_entry"
+  | "coach_brand_preference"
+  | "programme_template_sharing_preference"
+  | "programme_template_release"
+  | "attendance_event"
+  | "attendance_event_occurrence"
+  | "attendance_event_invite"
+  | "attendance_event_rsvp"
+  | "athlete_activity_change_request"
+  | "beta17_relationship_athlete_ended";
 
 type ProductRecordMetadata =
   Readonly<{
@@ -56,7 +67,18 @@ const supportedRecordTypes =
     "habit_definition",
     "habit_completion",
     "device_connection_record",
-    "device_metric_entry"
+    "device_metric_entry",
+    "athlete_goal",
+    "weekly_checkin_entry",
+    "coach_brand_preference",
+    "programme_template_sharing_preference",
+    "programme_template_release",
+    "attendance_event",
+    "attendance_event_occurrence",
+    "attendance_event_invite",
+    "attendance_event_rsvp",
+    "athlete_activity_change_request",
+    "beta17_relationship_athlete_ended"
   ]);
 
 function isRecord(
@@ -608,6 +630,334 @@ function recordMetadata(
             record,
             "ingested_at_iso8601",
             "device_metric_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "athlete_goal": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "athlete_goal_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "goal_id",
+            "athlete_goal_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "created_at_iso8601",
+            "athlete_goal_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "weekly_checkin_entry": {
+      const athleteUserId =
+        requiredString(
+          record,
+          "athlete_user_id",
+          "weekly_checkin_athlete_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "checkin_id",
+            "weekly_checkin_id_required"
+          ),
+        subject_user_id: athleteUserId,
+        actor_user_id: athleteUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "submitted_at_iso8601",
+            "weekly_checkin_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "coach_brand_preference": {
+      const coachUserId =
+        requiredString(
+          record,
+          "coach_user_id",
+          "coach_brand_preference_coach_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id: coachUserId,
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "coach_brand_preference_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "programme_template_sharing_preference": {
+      const coachUserId =
+        requiredString(
+          record,
+          "coach_user_id",
+          "programme_template_sharing_coach_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "template_id",
+            "programme_template_sharing_template_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "programme_template_sharing_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "programme_template_release": {
+      const buyerCoachUserId =
+        requiredString(
+          record,
+          "buyer_coach_user_id",
+          "programme_template_release_buyer_required"
+        );
+
+      const sellerCoachUserId =
+        requiredString(
+          record,
+          "seller_coach_user_id",
+          "programme_template_release_seller_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "release_id",
+            "programme_template_release_id_required"
+          ),
+        subject_user_id: buyerCoachUserId,
+        actor_user_id: sellerCoachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "released_at_iso8601",
+            "programme_template_release_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event": {
+      const coachUserId =
+        requiredString(
+          record,
+          "owner_coach_user_id",
+          "attendance_event_owner_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "event_id",
+            "attendance_event_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_occurrence": {
+      const coachUserId =
+        requiredString(
+          record,
+          "owner_coach_user_id",
+          "attendance_event_occurrence_owner_required"
+        );
+
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "occurrence_id",
+            "attendance_event_occurrence_id_required"
+          ),
+        subject_user_id: coachUserId,
+        actor_user_id: coachUserId,
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_occurrence_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_invite": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "invite_id",
+            "attendance_event_invite_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "attendance_event_invite_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "organizer_user_id",
+            "attendance_event_invite_organizer_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "updated_at_iso8601",
+            "attendance_event_invite_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "attendance_event_rsvp": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "rsvp_id",
+            "attendance_event_rsvp_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "attendance_event_rsvp_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "organizer_user_id",
+            "attendance_event_rsvp_organizer_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "responded_at_iso8601",
+            "attendance_event_rsvp_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    case "athlete_activity_change_request": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "request_id",
+            "activity_change_request_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "activity_change_request_athlete_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "actor_user_id",
+            "activity_change_request_actor_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "effective_at_iso8601",
+            "activity_change_request_effective_at_required"
+          ),
+        record_sha256: recordSha256
+      };
+    }
+
+    // DEV NOTE: a narrow marker record, written alongside (never instead
+    // of) the existing beta17_coach_relationship "revoked" transition -
+    // see schema.sql's beta_product_records_full_ui_89_type_migration for
+    // why this exists as its own record type. subject_user_id is the
+    // coach (the notification recipient), actor_user_id the athlete who
+    // actually ended things.
+    case "beta17_relationship_athlete_ended": {
+      return {
+        record_type: recordType,
+        record_id:
+          requiredString(
+            record,
+            "relationship_id",
+            "relationship_athlete_ended_relationship_id_required"
+          ),
+        subject_user_id:
+          requiredString(
+            record,
+            "coach_user_id",
+            "relationship_athlete_ended_coach_required"
+          ),
+        actor_user_id:
+          requiredString(
+            record,
+            "athlete_user_id",
+            "relationship_athlete_ended_athlete_required"
+          ),
+        effective_at_iso8601:
+          requiredString(
+            record,
+            "ended_at_iso8601",
+            "relationship_athlete_ended_effective_at_required"
           ),
         record_sha256: recordSha256
       };

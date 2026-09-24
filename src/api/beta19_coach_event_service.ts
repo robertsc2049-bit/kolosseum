@@ -21,6 +21,7 @@ import {
   eventWeekCalendar,
   EventProgrammeCompilerError
 } from "./event_programme_compiler_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -39,11 +40,7 @@ export class Beta19CoachEventError extends Error {
   }
 }
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -580,6 +577,81 @@ export async function listAthleteEventLinks(
     });
 }
 
+// DEV NOTE: FULL-UI-09 extension - the athlete-facing symmetric reverse of
+// listCoachEvents(): a coach can already export their own active events to
+// a personal calendar app (GET /coach-workspace/events/calendar.ics,
+// buildCoachEventsCalendar below), but an athlete linked to those same
+// events had no equivalent. Unlike listCoachEvents/listAthleteEventLinks
+// (both scoped to one coach's own actor_user_id), this is scoped by the
+// link's subject_user_id only, since an athlete's linked events may belong
+// to more than one coach (e.g. a team/org context) - latestEventById can't
+// be reused here for the same reason, since it requires a single
+// coachUserId to filter the event row by.
+export async function listAthleteLinkedEvents(
+  athleteUserIdInput: string
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const athleteUserId = cleanString(athleteUserIdInput);
+  if (!athleteUserId) {
+    throw new Beta19CoachEventError("athlete_user_id_required");
+  }
+
+  const linkResult = await pool.query(
+    `
+    SELECT DISTINCT ON (record_id)
+      record_payload
+    FROM beta_product_records
+    WHERE
+      record_type = 'beta19_event_athlete_link'
+      AND subject_user_id = $1
+    ORDER BY
+      record_id,
+      effective_at DESC,
+      created_at DESC,
+      record_sha256 DESC
+    `,
+    [athleteUserId]
+  );
+
+  const eventIds = Array.from(new Set(
+    linkResult.rows
+      .map((row: JsonRecord) => row.record_payload)
+      .filter(isRecord)
+      .filter((link) => link.link_state === "linked")
+      .map((link) => cleanString(link.event_id))
+      .filter(Boolean)
+  ));
+
+  if (!eventIds.length) return [];
+
+  const eventResult = await pool.query(
+    `
+    SELECT DISTINCT ON (record_id)
+      record_payload
+    FROM beta_product_records
+    WHERE
+      record_type = 'beta19_coach_event'
+      AND record_id = ANY($1::text[])
+    ORDER BY
+      record_id,
+      effective_at DESC,
+      created_at DESC,
+      record_sha256 DESC
+    `,
+    [eventIds]
+  );
+
+  return eventResult.rows
+    .map((row: JsonRecord) => row.record_payload)
+    .filter(isRecord)
+    .map((event) => deepFreeze(event))
+    .sort((left: JsonRecord, right: JsonRecord) => {
+      const leftPlan = isRecord(left.event_plan) ? left.event_plan : {};
+      const rightPlan = isRecord(right.event_plan) ? right.event_plan : {};
+      return cleanString(leftPlan.event_date).localeCompare(cleanString(rightPlan.event_date)) ||
+        cleanString(left.event_id).localeCompare(cleanString(right.event_id));
+    });
+}
+
 export async function assignAthleteProgrammeFromProfile(
   inputValue: unknown
 ): Promise<Readonly<{
@@ -750,6 +822,81 @@ export async function assignAthleteProgrammeFromProfile(
     assignment,
     event_link: eventLink
   });
+}
+
+// Exported for attendance_event_service.ts's own buildAttendanceEventsCalendar
+// (FULL-UI-92) to reuse rather than duplicate - these 4 helpers are pure
+// RFC 5545 text formatting with no beta19-specific knowledge.
+export function icsEscapeText(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
+export function icsDateOnly(dateOnly: string): string {
+  return dateOnly.replace(/-/g, "");
+}
+
+// ICS all-day events use an exclusive DTEND per RFC 5545 - a one-day event
+// spans DTSTART through DTSTART+1, not DTSTART itself.
+export function icsDateOnlyPlusOneDay(dateOnly: string): string {
+  const date = new Date(`${dateOnly}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10).replace(/-/g, "");
+}
+
+export function icsTimestamp(iso8601Value: string): string {
+  return iso8601Value.replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+/**
+ * FUNCTION NOTE:
+ * Purpose: Renders a coach's active events as an RFC 5545 calendar for external subscription.
+ * Boundary: Pure text formatting over already-persisted event facts; no query, no engine input.
+ * Determinism: The same event list always renders the same VEVENT bodies (DTSTAMP aside).
+ * Failure: An event missing event_date is silently skipped, never a partially-formed VEVENT.
+ */
+export function buildCoachEventsCalendar(
+  events: readonly Readonly<JsonRecord>[]
+): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Kolosseum//Coach Events//EN",
+    "CALSCALE:GREGORIAN"
+  ];
+
+  const dtstamp = icsTimestamp(new Date().toISOString());
+
+  for (const event of events) {
+    if (event.event_status !== "active") continue;
+
+    const plan = isRecord(event.event_plan) ? event.event_plan : {};
+    const eventDate = cleanString(plan.event_date);
+    if (!eventDate) continue;
+
+    lines.push(
+      "BEGIN:VEVENT",
+      `UID:${cleanString(event.event_id)}@kolosseum.app`,
+      `DTSTAMP:${dtstamp}`,
+      `DTSTART;VALUE=DATE:${icsDateOnly(eventDate)}`,
+      `DTEND;VALUE=DATE:${icsDateOnlyPlusOneDay(eventDate)}`,
+      `SUMMARY:${icsEscapeText(cleanString(plan.event_name) || "Event")}`
+    );
+
+    const location = cleanString(plan.location);
+    if (location) lines.push(`LOCATION:${icsEscapeText(location)}`);
+
+    const notes = cleanString(plan.notes);
+    if (notes) lines.push(`DESCRIPTION:${icsEscapeText(notes)}`);
+
+    lines.push("END:VEVENT");
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n") + "\r\n";
 }
 
 export async function loadEventBindingForAssignment(

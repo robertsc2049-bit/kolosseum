@@ -61,6 +61,13 @@ Allowed data categories:
 - coach_notes_authored.
 - legal_document_acknowledgements.
 - billing_records.
+- progress_photos.
+- body_metrics.
+- habit_definitions.
+- habit_completions.
+- device_connections.
+- device_metric_entries.
+- athlete_goals.
 
 ## Permission model
 

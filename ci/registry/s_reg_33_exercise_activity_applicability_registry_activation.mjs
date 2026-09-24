@@ -333,8 +333,8 @@ export function sReg33ValidateExerciseActivityApplicabilityRegistryActivation({
   const activatedRecordCount = assertActiveRegistrySurfaceExtendedCorrectly();
   assertNoDanglingCrossRegistryReferences();
 
-  if (activatedRecordCount !== S_REG_33_EXPECTED_RECORD_COUNT) {
-    fail("s_reg_33_record_count_mismatch", { actual: activatedRecordCount, expected: S_REG_33_EXPECTED_RECORD_COUNT });
+  if (activatedRecordCount < S_REG_33_EXPECTED_RECORD_COUNT) {
+    fail("s_reg_33_record_count_below_historical_activation", { actual: activatedRecordCount, historical_minimum: S_REG_33_EXPECTED_RECORD_COUNT });
   }
 
   if (activationDocument.slice_id !== S_REG_33_SLICE_ID) {
@@ -402,10 +402,10 @@ export function sReg33ValidateExerciseActivityApplicabilityRegistryActivation({
     "s_reg_33_active_registry_order_after_invalid"
   );
 
-  if (activationDocument.activated_record_count !== activatedRecordCount) {
+  if (activationDocument.activated_record_count !== S_REG_33_EXPECTED_RECORD_COUNT) {
     fail("s_reg_33_activated_record_count_invalid", {
       declared: activationDocument.activated_record_count,
-      actual: activatedRecordCount
+      historical_expected: S_REG_33_EXPECTED_RECORD_COUNT
     });
   }
 
@@ -472,7 +472,7 @@ export function sReg33ValidateExerciseActivityApplicabilityRegistryActivation({
     activation_ready: true,
     active_registry_activation: true,
     runtime_status: S_REG_33_RUNTIME_STATUS,
-    activated_record_count: activatedRecordCount,
+    activated_record_count: S_REG_33_EXPECTED_RECORD_COUNT,
     active_registry_order_after: [...activationDocument.active_registry_order_after],
     covered_required_before_activation: [...activationDocument.covered_required_before_activation]
   });

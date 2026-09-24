@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "operator_only_function_becomes_public",
+  "mutation": {
+    "operation": "set_function_override",
+    "function_id": "admin_no_engine_override",
+    "classification": "launch_active"
+  },
+  "expected_token": "OPERATOR_ONLY_FUNCTION_PUBLIC"
+}

@@ -1,0 +1,9 @@
+{
+  "schema_version": "LAUNCH-01.NEGATIVE.1.0.0",
+  "case_id": "launch_function_loses_route",
+  "mutation": {
+    "operation": "remove_route_action",
+    "function_id": "account_create"
+  },
+  "expected_token": "LAUNCH_FUNCTION_ROUTE_ACTION_MISSING"
+}

@@ -69,6 +69,7 @@
           "reps": 5,
           "resolved_load": null,
           "rest_seconds": 180,
+          "segment": "working",
           "sets": 4,
           "source": "program"
         },
@@ -83,6 +84,7 @@
           "reps": 5,
           "resolved_load": null,
           "rest_seconds": 180,
+          "segment": "working",
           "sets": 4,
           "source": "program"
         },
@@ -97,6 +99,7 @@
           "reps": 5,
           "resolved_load": null,
           "rest_seconds": 180,
+          "segment": "working",
           "sets": 4,
           "source": "program"
         },
@@ -111,6 +114,7 @@
           "reps": 5,
           "resolved_load": null,
           "rest_seconds": 180,
+          "segment": "working",
           "sets": 4,
           "source": "program"
         },
@@ -125,6 +129,7 @@
           "reps": 10,
           "resolved_load": null,
           "rest_seconds": 90,
+          "segment": "working",
           "sets": 3,
           "source": "program"
         },
@@ -139,6 +144,7 @@
           "reps": 10,
           "resolved_load": null,
           "rest_seconds": 90,
+          "segment": "working",
           "sets": 3,
           "source": "program"
         }

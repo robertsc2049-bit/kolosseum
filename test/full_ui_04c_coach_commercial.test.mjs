@@ -31,10 +31,69 @@ const onboardingUi =
     "utf8"
   );
 
-const commercialUi =
+// DEV NOTE: FULL-UI-04C profile/terms/completion rendering moved to React -
+// see CoachOnboardingPanel.tsx/useCoachOnboarding.ts/coachOnboardingClient.ts.
+// coach_onboarding_ui.js (checked as `onboardingUi` above) keeps only what
+// route_bootstrap.js needs to import as a plain, non-bundled ES module.
+const onboardingPanel =
   fs.readFileSync(
     new URL(
-      "../public/app/commercial_ui.js",
+      "../public/app-src/screens/coach/CoachOnboardingPanel.tsx",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+const onboardingClient =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/api/coachOnboardingClient.ts",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+// DEV NOTE: shared with athlete onboarding (test/full_ui_03c_athlete_onboarding
+// .test.mjs) - see accessibility_preferences_ui.js's own DEV NOTE for why a
+// declared-but-never-applied preference (PR #865) is checked directly
+// against this shared module rather than trusting the per-file wrapper alone.
+const accessibilityUi =
+  fs.readFileSync(
+    new URL(
+      "../public/app/accessibility_preferences_ui.js",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+// The coach-onboarding-view page-heading (title/description copy) is
+// static markup in index.html, matching every other migrated screen -
+// only the interactive body below it is React.
+const indexHtml =
+  fs.readFileSync(
+    new URL(
+      "../public/app/index.html",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+// DEV NOTE: FULL-UI-08 commercial/billing rendering moved to React
+// (CommercialPanel.tsx + useCommercialAccount.ts) - commercial_ui.js is
+// retired.
+const commercialPanel =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/screens/account/CommercialPanel.tsx",
+      import.meta.url
+    ),
+    "utf8"
+  );
+
+const commercialHook =
+  fs.readFileSync(
+    new URL(
+      "../public/app-src/screens/account/useCommercialAccount.ts",
       import.meta.url
     ),
     "utf8"
@@ -195,6 +254,42 @@ test(
       true
     );
 
+    assert.deepEqual(
+      service
+        .validateCoachOnboardingAccessibilityInput({
+          accessibility_preferences: {
+            reduced_motion: true,
+            high_contrast: false,
+            larger_text: true,
+            screen_reader_optimised:
+              false
+          }
+        }),
+      {
+        accessibility_preferences: {
+          reduced_motion: true,
+          high_contrast: false,
+          larger_text: true,
+          screen_reader_optimised:
+            false
+        }
+      }
+    );
+
+    assert.throws(
+      () =>
+        service
+          .validateCoachOnboardingAccessibilityInput({
+            accessibility_preferences: {
+              reduced_motion:
+                "yes"
+            }
+          }),
+      (error) =>
+        error.code ===
+        "coach_onboarding_accessibility_invalid"
+    );
+
     assert.throws(
       () =>
         service
@@ -229,6 +324,7 @@ test(
       '"/"',
       '"/profile"',
       '"/terms"',
+      '"/accessibility"',
       '"/complete"'
     ]) {
       assert.ok(
@@ -259,15 +355,21 @@ test(
 test(
   "FULL-UI-04C browser flow is server-authoritative and explicit",
   () => {
+    assert.ok(
+      accountUi.includes("/account/coach-onboarding"),
+      "Missing account transport /account/coach-onboarding"
+    );
+
     for (const endpoint of [
       "/account/coach-onboarding",
       "/account/coach-onboarding/profile",
       "/account/coach-onboarding/terms",
+      "/account/coach-onboarding/accessibility",
       "/account/coach-onboarding/complete"
     ]) {
       assert.ok(
-        accountUi.includes(endpoint),
-        `Missing account transport ${endpoint}`
+        onboardingClient.includes(endpoint),
+        `Missing coach onboarding transport ${endpoint}`
       );
     }
 
@@ -275,22 +377,58 @@ test(
       "Incomplete onboarding",
       "Coach profile",
       "Coach terms",
+      "Accessibility preferences",
       "Completed onboarding",
       "Open coach workspace",
-      "Update coach profile",
-      "cannot alter engine truth"
+      "Update coach profile"
     ]) {
       assert.ok(
-        onboardingUi.includes(
+        onboardingPanel.includes(
           token
         ),
         `Missing coach UI state ${token}`
       );
     }
 
+    assert.ok(
+      indexHtml.includes("doesn't affect how training is calculated"),
+      "Missing coach onboarding engine-truth boundary copy in index.html"
+    );
+
     assert.doesNotMatch(
       onboardingUi,
       /localStorage|sessionStorage/u
+    );
+    assert.doesNotMatch(
+      onboardingPanel,
+      /localStorage|sessionStorage/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-04C declared accessibility preferences are actually applied, not just stored",
+  () => {
+    // Same bug class as PR #865 on the athlete side (a declared, validated,
+    // stored preference with no downstream effect) - checked here directly
+    // against the shared module's own source, and against the coach route
+    // gate's call site, rather than trusting that persistence alone implies
+    // a visible effect.
+    for (const line of [
+      "root.dataset.a11yReducedMotion",
+      "root.dataset.a11yHighContrast",
+      "root.dataset.a11yLargerText",
+      "root.dataset.a11yScreenReaderOptimised"
+    ]) {
+      assert.ok(
+        accessibilityUi.includes(line),
+        `Missing accessibility effect ${line}`
+      );
+    }
+
+    assert.match(
+      onboardingUi,
+      /applyAccessibilityPreferences\(/u
     );
   }
 );
@@ -315,13 +453,46 @@ test(
     }
 
     assert.match(
-      commercialUi,
-      /commercialFactualState/u
+      commercialPanel,
+      /commercial\.factual_state/u
     );
 
     assert.match(
       commercialService,
       /commercial_seat_limit_reached/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-04C surfaces which specific settings are missing when checkout is misconfigured, not just a generic message",
+  () => {
+    // commercialConfig() has always computed and returned missing_configuration
+    // (the exact list of env vars absent) on the ProductCommercialError thrown
+    // for commercial_configuration_missing, and product_commercial.routes.ts
+    // has always serialized it into the JSON error response as `details`, but
+    // commercial_ui.js's (now useCommercialAccount.ts's) errorMessage() only
+    // ever mapped the error code to a static, generic string - a coach
+    // hitting misconfigured checkout could never see which setting was
+    // actually missing. Same phantom-field bug class as PR #877-#881.
+    assert.match(
+      commercialService,
+      /missing_configuration:/u
+    );
+
+    assert.match(
+      commercialHook,
+      /record\?\.details as JsonRecord \| undefined\)\?\.missing_configuration/u
+    );
+
+    assert.match(
+      commercialHook,
+      /const missingSuffix = Array\.isArray\(missing\) && missing\.length > 0/u
+    );
+
+    assert.match(
+      commercialHook,
+      /commercial_configuration_missing:\s*`[^`]*\$\{missingSuffix\}`/u
     );
   }
 );
@@ -377,7 +548,7 @@ test(
 
     assert.equal(
       area.functions.length,
-      8
+      10
     );
 
     assert.equal(

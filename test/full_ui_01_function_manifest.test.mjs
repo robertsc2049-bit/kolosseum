@@ -12,7 +12,7 @@ const manifest = JSON.parse(
 test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
   assert.equal(manifest.schema_version, "FULL-UI-01.0.0");
   assert.equal(manifest.source_issue, 798);
-  assert.equal(manifest.product_areas.length, 28);
+  assert.equal(manifest.product_areas.length, 35);
 
   const areaIds = new Set(manifest.product_areas.map((area) => area.area_id));
   for (const required of [
@@ -43,14 +43,18 @@ test("FULL-UI-01 manifest carries the complete product-area inventory", () => {
     "body_metrics_habits",
     "exercise_reference_media",
     "device_sync",
-    "exercise_content"
+    "exercise_content",
+    "video_feedback",
+    "progress_insights",
+    "athlete_goals",
+    "weekly_checkins"
   ]) {
     assert.ok(areaIds.has(required), required);
   }
 });
 
 test("FULL-UI-01 manifest retains every delivery slice", () => {
-  assert.equal(manifest.delivery_slices.length, 32);
+  assert.equal(manifest.delivery_slices.length, 67);
   const sliceIds = manifest.delivery_slices.map((slice) => slice.slice_id);
   assert.deepEqual(
     sliceIds.slice(0, 31),
@@ -58,7 +62,42 @@ test("FULL-UI-01 manifest retains every delivery slice", () => {
       "FULL-UI-" + String(index + 1).padStart(2, "0")
     )
   );
-  assert.equal(sliceIds[31], "FULL-UI-35");
+  assert.equal(sliceIds[31], "FULL-UI-32");
+  assert.equal(sliceIds[32], "FULL-UI-35");
+  assert.equal(sliceIds[33], "FULL-UI-36");
+  assert.equal(sliceIds[34], "FULL-UI-37");
+  assert.equal(sliceIds[35], "FULL-UI-64");
+  assert.equal(sliceIds[36], "FULL-UI-65");
+  assert.equal(sliceIds[37], "FULL-UI-66");
+  assert.equal(sliceIds[38], "FULL-UI-67");
+  assert.equal(sliceIds[39], "FULL-UI-68");
+  assert.equal(sliceIds[40], "FULL-UI-69");
+  assert.equal(sliceIds[41], "FULL-UI-70");
+  assert.equal(sliceIds[42], "FULL-UI-71");
+  assert.equal(sliceIds[43], "FULL-UI-72");
+  assert.equal(sliceIds[44], "FULL-UI-73");
+  assert.equal(sliceIds[45], "FULL-UI-74");
+  assert.equal(sliceIds[46], "FULL-UI-75");
+  assert.equal(sliceIds[47], "FULL-UI-76");
+  assert.equal(sliceIds[48], "FULL-UI-77");
+  assert.equal(sliceIds[49], "FULL-UI-78");
+  assert.equal(sliceIds[50], "FULL-UI-79");
+  assert.equal(sliceIds[51], "FULL-UI-80");
+  assert.equal(sliceIds[52], "FULL-UI-81");
+  assert.equal(sliceIds[53], "FULL-UI-82");
+  assert.equal(sliceIds[54], "FULL-UI-83");
+  assert.equal(sliceIds[55], "FULL-UI-84");
+  assert.equal(sliceIds[56], "FULL-UI-85");
+  assert.equal(sliceIds[57], "FULL-UI-86");
+  assert.equal(sliceIds[58], "FULL-UI-87");
+  assert.equal(sliceIds[59], "FULL-UI-88");
+  assert.equal(sliceIds[60], "FULL-UI-89");
+  assert.equal(sliceIds[61], "FULL-UI-90");
+  assert.equal(sliceIds[62], "FULL-UI-91");
+  assert.equal(sliceIds[63], "FULL-UI-92");
+  assert.equal(sliceIds[64], "FULL-UI-93");
+  assert.equal(sliceIds[65], "FULL-UI-94");
+  assert.equal(sliceIds[66], "FULL-UI-95");
   assert.ok(manifest.delivery_slices.every((slice) => slice.state === "implemented"));
 });
 

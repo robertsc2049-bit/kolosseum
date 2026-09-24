@@ -8,7 +8,7 @@ import test from "node:test";
 import path from "node:path";
 import { stageTempRepoRoot, runRegistryLawGuard, readJson, writeJsonUtf8Lf, cleanupTempRepoRoot } from "../test_support/registry_law_guard_harness.mjs";
 
-test("CI: registry_law_guard hard-fails on FK break (exercise.equipment token -> not in movement-scoped equipment_tokens)", () => {
+test("CI: registry_law_guard hard-fails on FK break (exercise.equipment_requirements token -> not in movement-scoped equipment_tokens)", () => {
   const tempRoot = stageTempRepoRoot();
 
   try {
@@ -26,8 +26,8 @@ test("CI: registry_law_guard hard-fails on FK break (exercise.equipment token ->
     assert.ok(e && typeof e === "object", "expected entry object");
 
     // Ensure equipment exists and is array-ish, then inject an invalid token.
-    if (!Array.isArray(e.equipment)) e.equipment = [];
-    e.equipment = [...e.equipment, "__fk_break_nonexistent_equipment_token__"];
+    if (!Array.isArray(e.equipment_requirements)) e.equipment_requirements = [];
+    e.equipment_requirements = [...e.equipment_requirements, "__fk_break_nonexistent_equipment_token__"];
 
     writeJsonUtf8Lf(exPath, doc);
 

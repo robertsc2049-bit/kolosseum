@@ -140,6 +140,16 @@ function enforceContractShape(summary: NeutralSessionSummary): NeutralSessionSum
     }
   }
 
+  // The contract doc also bans the projected_* and estimated_* wildcard
+  // patterns (docs/contracts/v1_neutral_session_summary_api_contract.md) -
+  // enforced here too, not just documented, since ALLOWED_KEYS is already a
+  // closed set and these would never legitimately appear.
+  for (const key of summaryKeys) {
+    if (key.startsWith("projected_") || key.startsWith("estimated_")) {
+      throw new Error(`neutral_session_summary_banned_semantic_key:${key}`);
+    }
+  }
+
   return summary;
 }
 
@@ -181,7 +191,11 @@ export function buildNeutralSessionSummary(
     prescribed_items_completed: prescribedItemsCompleted,
     prescribed_items_skipped: prescribedItemsSkipped,
     prescribed_items_remaining: prescribedItemsRemaining < 0 ? 0 : prescribedItemsRemaining,
-    extra_work_event_count: countEvents(runtimeEvents, new Set(["EXTRA_WORK", "ADD_EXTRA_WORK", "EXTRA_WORK_RECORDED"])),
+    // EXTRA_SET_REPORT / EXTRA_EXERCISE_REPORT are this codebase's real runtime
+    // event type names for logged extra work (src/api/session_state_write_service.ts);
+    // the other three names are kept accepted too in case a future event source
+    // uses them, but were never actually emitted anywhere.
+    extra_work_event_count: countEvents(runtimeEvents, new Set(["EXTRA_WORK", "ADD_EXTRA_WORK", "EXTRA_WORK_RECORDED", "EXTRA_SET_REPORT", "EXTRA_EXERCISE_REPORT"])),
     split_event_count: countEvents(runtimeEvents, new Set(["SPLIT_SESSION"])),
     return_continue_count: countEvents(runtimeEvents, new Set(["RETURN_CONTINUE"])),
     return_skip_count: countEvents(runtimeEvents, new Set(["RETURN_SKIP"])),

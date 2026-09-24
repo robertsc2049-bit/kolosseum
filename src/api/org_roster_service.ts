@@ -17,6 +17,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { assertOrgSeatCapacity } from "./org_billing_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -53,6 +54,19 @@ function cleanVisibilityMode(value: unknown): "individual" | "shared" {
   if (value === undefined || value === null || value === "") return "individual";
   if (value === "individual" || value === "shared") return value;
   throw new OrgRosterError("org_roster_visibility_mode_invalid", 400);
+}
+
+// Slice 3 - a team's own declared sport, required at creation (purely
+// informational; mirrors org_name's own required-field validator exactly).
+function cleanRequiredActivityId(value: unknown): string {
+  const activityId = cleanString(value);
+  if (!activityId) {
+    throw new OrgRosterError("org_roster_activity_required", 400);
+  }
+  if (!V1_ACTIVITY_IDS.includes(activityId)) {
+    throw new OrgRosterError("org_roster_activity_invalid", 400);
+  }
+  return activityId;
 }
 
 function canonicalJson(value: unknown): string {
@@ -110,7 +124,7 @@ function toAuditOutcome(row: JsonRecord, replayed: boolean): AuditOutcome {
   });
 }
 
-async function writeAuditRecord(
+export async function writeAuditRecord(
   client: PoolClient,
   args: {
     orgId: string;
@@ -195,6 +209,7 @@ export type OrganisationRow = Readonly<{
   org_state: "active" | "suspended" | "closed";
   seat_limit: number | null;
   visibility_mode: "individual" | "shared";
+  activity_id: string | null;
   created_at_iso8601: string;
 }>;
 
@@ -210,6 +225,7 @@ function mapOrganisationRow(value: unknown): OrganisationRow | null {
     org_state: state,
     seat_limit: Number.isInteger(value.seat_limit) ? (value.seat_limit as number) : null,
     visibility_mode: value.visibility_mode === "shared" ? "shared" : "individual",
+    activity_id: typeof value.activity_id === "string" && value.activity_id ? value.activity_id : null,
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : ""
   });
 }
@@ -225,12 +241,14 @@ function defaultSeatLimitFromEnv(): number | null {
 export async function createOrganisation(
   ownerUserId: string,
   orgName: unknown,
+  activityIdInput: unknown,
   visibilityModeInput?: unknown
 ): Promise<Readonly<{ organisation: OrganisationRow }>> {
   const cleanOrgName = cleanString(orgName);
   if (!cleanOrgName) {
     throw new OrgRosterError("org_roster_org_name_required", 400);
   }
+  const activityId = cleanRequiredActivityId(activityIdInput);
   const visibilityMode = cleanVisibilityMode(visibilityModeInput);
 
   const client = await pool.connect();
@@ -240,11 +258,11 @@ export async function createOrganisation(
     const orgId = randomId("org");
     const inserted = await client.query(
       `
-      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit, visibility_mode)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO product_organisations (org_id, owner_user_id, org_name, seat_limit, visibility_mode, activity_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
       `,
-      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv(), visibilityMode]
+      [orgId, ownerUserId, cleanOrgName, defaultSeatLimitFromEnv(), visibilityMode, activityId]
     );
 
     await writeAuditRecord(client, {
@@ -521,6 +539,57 @@ export async function listOrganisationRosterForCoach(
     }
 
     return await queryRosterRows(client, orgId);
+  }
+  finally {
+    client.release();
+  }
+}
+
+export type OrgAuditRecordRow = Readonly<{
+  audit_record_id: string;
+  action_type: string;
+  actor_role: string;
+  actor_user_id: string;
+  before_state: JsonRecord;
+  after_state: JsonRecord;
+  created_at: string;
+}>;
+
+// Every real mutation in this file and org_billing_service.ts already writes
+// a factual audit record via writeAuditRecord()/withIdempotentAudit() - but
+// until this function, the only SELECT against product_org_audit_records
+// anywhere was findExistingAudit()'s single-row idempotency lookup, which
+// discards the row immediately after replay-checking. The org owner had no
+// route to ever read their own organisation's recorded activity back.
+export async function listOrgAuditLog(
+  ownerUserId: string,
+  orgId: string
+): Promise<readonly OrgAuditRecordRow[]> {
+  const client = await pool.connect();
+  try {
+    await requireOrganisationOwnedBy(client, orgId, ownerUserId);
+    const result = await client.query(
+      `
+      SELECT audit_record_id, action_type, actor_role, actor_user_id, before_state, after_state, created_at
+      FROM product_org_audit_records
+      WHERE org_id = $1
+      ORDER BY created_at DESC, audit_record_id DESC
+      `,
+      [orgId]
+    );
+    return Object.freeze(
+      result.rows.map((row) =>
+        Object.freeze({
+          audit_record_id: cleanString(row.audit_record_id),
+          action_type: cleanString(row.action_type),
+          actor_role: cleanString(row.actor_role),
+          actor_user_id: cleanString(row.actor_user_id),
+          before_state: row.before_state as JsonRecord,
+          after_state: row.after_state as JsonRecord,
+          created_at: new Date(row.created_at).toISOString()
+        })
+      )
+    );
   }
   finally {
     client.release();

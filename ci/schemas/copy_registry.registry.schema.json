@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/copy_registry.registry.schema.json",
+  "title": "copy_registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "copy_registry"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "copy_id",
+          "copy_category",
+          "allowed_phrase",
+          "forbidden_phrase_references",
+          "supported_surface",
+          "activity_applicability",
+          "status",
+          "source_registry_id",
+          "source_record_id",
+          "source_file",
+          "source_authority",
+          "source",
+          "source_reference",
+          "source_git_blob_sha",
+          "source_file_sha256",
+          "license_status",
+          "commercial_use_status",
+          "manual_review_status",
+          "legal_review_status",
+          "record_sha256",
+          "exact_copy_policy",
+          "exact_copy_controls",
+          "provenance_notes"
+        ],
+        "properties": {
+          "copy_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "copy_category": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "allowed_phrase": {
+            "anyOf": [
+              { "type": "string", "minLength": 1 },
+              { "type": "null" }
+            ]
+          },
+          "forbidden_phrase_references": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "uniqueItems": true
+          },
+          "supported_surface": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_applicability": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "powerlifting",
+                "general_strength",
+                "rugby_union",
+                "strongman",
+                "hyrox",
+                "crossfit",
+                "football_soccer",
+                "netball",
+                "basketball",
+                "rugby_sevens",
+                "field_hockey",
+                "ice_hockey",
+                "volleyball",
+                "cricket",
+                "american_football",
+                "athletics",
+                "swimming",
+                "olympic_weightlifting",
+                "cycling",
+                "rowing",
+                "kayaking",
+                "boxing",
+                "wrestling",
+                "judo",
+                "brazilian_jiu_jitsu",
+                "muay_thai",
+                "mma",
+                "tennis",
+                "triathlon",
+                "rugby_league",
+                "street_lifting"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "status": {
+            "type": "string",
+            "const": "active"
+          },
+          "source_registry_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "source_record_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_authority": {
+            "type": "string",
+            "enum": [
+              "authoritative",
+              "compatibility_projection",
+              "compatibility_runtime"
+            ]
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "founder_original",
+              "licensed_source",
+              "canonical_project_document"
+            ]
+          },
+          "source_reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_git_blob_sha": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "source_file_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "license_status": {
+            "type": "string",
+            "enum": [
+              "project_owned",
+              "licensed",
+              "not_required_original"
+            ]
+          },
+          "commercial_use_status": {
+            "type": "string",
+            "enum": [
+              "permitted",
+              "restricted"
+            ]
+          },
+          "manual_review_status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "pending"
+            ]
+          },
+          "legal_review_status": {
+            "type": "string",
+            "enum": [
+              "project_owned_clear",
+              "licensed_clear",
+              "pending"
+            ]
+          },
+          "record_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "exact_copy_policy": {
+            "type": "string",
+            "const": "sha256_exact_utf8"
+          },
+          "exact_copy_controls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field_path",
+                "text_sha256"
+              ],
+              "properties": {
+                "field_path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "text_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              }
+            }
+          },
+          "provenance_notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

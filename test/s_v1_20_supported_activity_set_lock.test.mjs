@@ -9,7 +9,35 @@ const repoRoot = process.cwd();
 const expectedActivities = Object.freeze([
   "powerlifting",
   "general_strength",
-  "rugby_union"
+  "rugby_union",
+  "strongman",
+  "hyrox",
+  "crossfit",
+  "football_soccer",
+  "netball",
+  "basketball",
+  "rugby_sevens",
+  "field_hockey",
+  "ice_hockey",
+  "volleyball",
+  "cricket",
+  "american_football",
+  "athletics",
+  "swimming",
+  "olympic_weightlifting",
+  "cycling",
+  "rowing",
+  "kayaking",
+  "boxing",
+  "wrestling",
+  "judo",
+  "brazilian_jiu_jitsu",
+  "muay_thai",
+  "mma",
+  "tennis",
+  "triathlon",
+  "rugby_league",
+  "street_lifting"
 ]);
 
 const fixturePath = path.join(
@@ -34,7 +62,7 @@ test("S-V1-20 locks the supported activity set exactly", () => {
   assert.deepEqual(
     boundary.V1_SUPPORTED_ACTIVITIES,
     expectedActivities,
-    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union"
+    "V1_SUPPORTED_ACTIVITIES must stay exactly powerlifting, general_strength, rugby_union, strongman, hyrox"
   );
 
   for (const activityId of expectedActivities) {

@@ -390,12 +390,43 @@ test(
     assertStatus(unlawfulEdit, 422, "reject immutable field edit");
     assert.ok(unlawfulEdit.json.field_errors.activity_id);
 
+    // training_focus is optional on this endpoint - an omitted key must not
+    // reset it (there is none declared yet). Sending the other two fields
+    // unchanged too makes this a true no-op (matching every other
+    // already-current value) - proves omission falls back to the previous
+    // value, not just "doesn't error," since a genuine no-op never creates
+    // a new declaration version.
+    const preferenceUpdateWithoutTrainingFocus = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie,
+      csrf,
+      body: {
+        accessibility_preferences: accessibilityA,
+        instruction_density: "minimal"
+      }
+    });
+    assertStatus(preferenceUpdateWithoutTrainingFocus, 200, "update preferences without training_focus");
+    assert.equal(preferenceUpdateWithoutTrainingFocus.json.current_effective_declaration.declaration_id, originalDeclarationId, "a true no-op must not create a new declaration version");
+    assert.deepEqual(preferenceUpdateWithoutTrainingFocus.json.current_effective_declaration.fields.training_focus ?? [], []);
+
+    const invalidTrainingFocus = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie,
+      csrf,
+      body: {
+        accessibility_preferences: accessibilityA,
+        instruction_density: "standard",
+        training_focus: ["not_a_real_focus"]
+      }
+    });
+    assertStatus(invalidTrainingFocus, 422, "reject an unsupported training_focus token");
+    assert.ok(invalidTrainingFocus.json.field_errors.training_focus);
+
     const preferenceUpdate = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
       cookie,
       csrf,
       body: {
         accessibility_preferences: accessibilityB,
-        instruction_density: "detailed"
+        instruction_density: "detailed",
+        training_focus: ["strength", "power", "power"]
       }
     });
     assertStatus(preferenceUpdate, 200, "update lawful preferences");
@@ -404,6 +435,7 @@ test(
     assert.equal(preferenceUpdate.json.current_effective_declaration.fields.activity_id, "general_strength");
     assert.equal(preferenceUpdate.json.current_effective_declaration.fields.execution_scope, "coach_managed");
     assert.deepEqual(preferenceUpdate.json.current_effective_declaration.fields.accessibility_preferences, accessibilityB);
+    assert.deepEqual(preferenceUpdate.json.current_effective_declaration.fields.training_focus, ["strength", "power"]);
     assert.equal(preferenceUpdate.json.historical_declaration_count, 1);
     assert.equal(preferenceUpdate.json.historical_declarations[0].declaration_id, originalDeclarationId);
     assert.equal(preferenceUpdate.json.historical_declarations[0].declaration_status, "superseded");
@@ -434,6 +466,7 @@ test(
     assertStatus(reconstructed, 200, "fresh-process reconstruction");
     assert.equal(reconstructed.json.onboarding_status, "completed");
     assert.equal(reconstructed.json.current_effective_declaration.declaration_version, 2);
+    assert.deepEqual(reconstructed.json.current_effective_declaration.fields.training_focus, ["strength", "power"]);
     assert.equal(reconstructed.json.historical_declarations[0].declaration_id, originalDeclarationId);
 
     const signOut = await requestJson(server.baseUrl, "POST", "/account/sign-out", {

@@ -1,22 +1,30 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kolosseum://registries/sport_role.registry.schema.json",
-  "title": "Sport Role Registry Schema",
+  "title": "sport_role",
   "type": "object",
   "additionalProperties": false,
-  "required": ["registry_id", "version", "entries"],
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
   "properties": {
-    "registry_id": { "type": "string", "const": "sport_role" },
-    "version": { "type": "string", "minLength": 1 },
+    "registry_id": {
+      "type": "string",
+      "const": "sport_role"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
     "entries": {
       "type": "object",
-      "minProperties": 1,
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,
         "required": [
           "sport_role_id",
-          "id",
           "activity_id",
           "sport_subdivision_id",
           "display_label",
@@ -24,15 +32,38 @@
           "copy_boundary_notes"
         ],
         "properties": {
-          "sport_role_id": { "type": "string", "minLength": 1 },
-          "id": { "type": "string", "minLength": 1 },
-          "activity_id": { "type": "string", "minLength": 1 },
-          "sport_subdivision_id": { "type": "string", "minLength": 1 },
-          "display_label": { "type": "string", "minLength": 1 },
-          "context_type": { "type": "string", "minLength": 1 },
-          "copy_boundary_notes": { "type": "string", "minLength": 1 }
+          "sport_role_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "activity_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "sport_subdivision_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "display_label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "context_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "copy_boundary_notes": {
+            "type": "string",
+            "minLength": 1
+          }
         }
-      }
+      },
+      "minProperties": 1
     }
-  }
+  },
+  "x-kolosseum-authority": "compatibility_only",
+  "x-kolosseum-canonical-authority": "registries/final_registry_schema_manifest.json"
 }

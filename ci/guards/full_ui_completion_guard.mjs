@@ -316,7 +316,15 @@ function discoverApiRoutes() {
     ["src/api/habit_tracking.routes.ts", "/habits"],
     ["src/api/exercise_reference_media.routes.ts", "/exercises"],
     ["src/api/exercise_content.routes.ts", "/exercises"],
-    ["src/api/device_sync.routes.ts", "/device-sync"]
+    ["src/api/device_sync.routes.ts", "/device-sync"],
+    ["src/api/video_feedback.routes.ts", "/video-feedback"],
+    ["src/api/video_feedback_coach.routes.ts", "/coach-workspace"],
+    ["src/api/progress_insights.routes.ts", "/progress-insights"],
+    ["src/api/athlete_goals.routes.ts", "/athlete-goals"],
+    ["src/api/weekly_checkins.routes.ts", "/weekly-checkins"],
+    ["src/api/coach_branding.routes.ts", "/coach-branding"],
+    ["src/api/programme_template_sharing.routes.ts", "/programme-marketplace"],
+    ["src/api/attendance_event.routes.ts", "/attendance-events"]
   ];
   const routes = [];
   const pattern = /(?:router|[A-Za-z][A-Za-z0-9]*Router)\.(get|post|put|patch|delete)\(\s*["'`]([^"'`]+)["'`]/gu;

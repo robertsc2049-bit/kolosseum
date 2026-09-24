@@ -26,20 +26,40 @@
   "contract": "kolosseum:evidence_envelope@1",
   "engine": {
     "node": "25.9.0",
-    "version": "0.1.24"
+    "version": "1.0.0"
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "F0325F53047705E1B99E04D77C9A52CA7E8817BA0FFD796192A3084CED3D4E33",
+    "registry_bundle_sha256": "3A468BD33E246D44A4385C035C0790BB4138571978CDBC9E50D734964077B0C4",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
+        "path": "ci/schemas/activity_registry_1.registry.schema.json",
+        "sha256": "0A39C48A18BFBEAF1F50660F50229927469588B170D338E3B5B6E207ED62F5FF"
+      },
+      {
         "path": "ci/schemas/activity.registry.schema.json",
-        "sha256": "0BB4D745CA655437F099E0E7D20FBFC4300A5489B23CA104A3F164231F3A577C"
+        "sha256": "6F10D5CA583046E09D459A4346391C41DDDED1D477AC8A75DFB0CFF3A7A5E794"
+      },
+      {
+        "path": "ci/schemas/biomechanics_registry_4.registry.schema.json",
+        "sha256": "9A7E33149DDA6ACEB275DF14F1D3B8D02EDEB9D607EF847FF4E88A34363392FD"
+      },
+      {
+        "path": "ci/schemas/copy_registry.registry.schema.json",
+        "sha256": "07E9374CF7E902C06FD370B63E215D609B185FA4EC265BC7E1FDC5071E41AC73"
+      },
+      {
+        "path": "ci/schemas/equipment_environment_registry_3e.registry.schema.json",
+        "sha256": "AAE4D745A4B39070B50D33EB2058C4D00CDEDA4B9AFFCE63293C9345C0DE3CD6"
       },
       {
         "path": "ci/schemas/equipment.registry.schema.json",
-        "sha256": "BD0CC2378BCF7E9EC1A7B795C37DCFD32BAF2CB865275FD34FC654DF69DC4AA6"
+        "sha256": "0EE001716FCDF78C268F40EB5318F4BDEC5461D27DE211E0EC6D2AF9BBEED341"
+      },
+      {
+        "path": "ci/schemas/event_metric_registry_1d.registry.schema.json",
+        "sha256": "39C956F3ED6D1432AF94895AAB906B122860C84FB421AA8290AD58A49AC809EA"
       },
       {
         "path": "ci/schemas/evidence_envelope.schema.v1.0.0.json",
@@ -51,15 +71,39 @@
       },
       {
         "path": "ci/schemas/exercise_activity_applicability.registry.schema.json",
-        "sha256": "FD154211C212697D2991D3CD96E359AB5AA7E4671679E9D9F4A6FAE29102E77F"
+        "sha256": "9CADA41480D5FCF2870E7D42DDCBD454963FA667877704FB63ADB15C37A20423"
+      },
+      {
+        "path": "ci/schemas/exercise_alias_registry_3c.registry.schema.json",
+        "sha256": "B3B759F31F2089608BE8FC7C208B69A33F4B15EC2CFCC79C78F3B6B3D846A613"
+      },
+      {
+        "path": "ci/schemas/exercise_equipment_compatibility_registry.registry.schema.json",
+        "sha256": "DCE412F469CAA0C476C76ED1DA6D8F5B539C9BB003D74E56A282D8E72011D4E8"
+      },
+      {
+        "path": "ci/schemas/exercise_registry_3a.registry.schema.json",
+        "sha256": "EBD1F256DD96BB00DD4347651C48CD0AF67742869DEA22F8BEE2CFDDC4D29B65"
       },
       {
         "path": "ci/schemas/exercise_registry.schema.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "8C4D6617EF9E8C7F8AF1992D96627A3EC77F5728BFBE44B0D2F7441D542FB45B"
+      },
+      {
+        "path": "ci/schemas/exercise_sport_applicability_registry_6x.registry.schema.json",
+        "sha256": "425D917813938313968E166918E7ED23C9FF3C3D3FDEF93529EADEA3356EFE3E"
+      },
+      {
+        "path": "ci/schemas/exercise_token_registry_3b.registry.schema.json",
+        "sha256": "54CEAA768A3FE2DF1CF3662C393FEE20ED7E0FE5AB4488431C71C679AFC7D7C6"
       },
       {
         "path": "ci/schemas/exercise_token.registry.schema.json",
-        "sha256": "766994EEC986B314446BC5FA08BA3723EB7B11A54CF023FBF720F3C4ACB5E0CB"
+        "sha256": "EAC264C3BDF173850137A373D02BDA475595FE0CF99F4C8D7ECCF814D9478D23"
+      },
+      {
+        "path": "ci/schemas/exercise_variant_applicability_registry_3d.registry.schema.json",
+        "sha256": "599BD06F4A5CD7DDB80BF193A2549690F7DC84949A9DCE28C94AF1105394545F"
       },
       {
         "path": "ci/schemas/exercise_warmup_mapping.registry.schema.json",
@@ -67,19 +111,39 @@
       },
       {
         "path": "ci/schemas/exercise.registry.schema.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "A9558E733209A938941417FC75CF4266A7241616CE2E81F40204046EB8393F49"
       },
       {
         "path": "ci/schemas/exercise.registry.schema.v1.0.0.json",
-        "sha256": "13FAC52F37A52D38A8BCB0CCF6762ED17656A5E04F154B5B5928546FA6448B29"
+        "sha256": "14783A4F042BFB14897D972CD08C036316B9E20987D3CDD31D349E0DD057A5B9"
+      },
+      {
+        "path": "ci/schemas/explicit_override_accountability_registry_5c.registry.schema.json",
+        "sha256": "F6F67A3C1A0AD877F36B9E9C6E2494FC2AF6E9CCAAE64FE8FD534FCA66A55F2F"
+      },
+      {
+        "path": "ci/schemas/final_registry_schema_manifest.schema.json",
+        "sha256": "96EAB41AE92226F9E794DE675897E99CCFDC1D0F898D7C024A87FDA9DAC17BCD"
+      },
+      {
+        "path": "ci/schemas/final_registry_surface_manifest.schema.json",
+        "sha256": "38F62444F80FCB3007E264DCF943A8978BF68929F6E6274F3AA8B67D1E9D778F"
+      },
+      {
+        "path": "ci/schemas/metric_exercise_link_registry_1c_a.registry.schema.json",
+        "sha256": "C018BFB000DA03CDE75B66D71E02CD71AB2B492B9104EFFC697CAA3B7CDBEE86"
       },
       {
         "path": "ci/schemas/metric_exercise_link.registry.schema.json",
-        "sha256": "7FC037A47D0C9FE7C76F64D604F4E8AE61219B6F3E3FB64167EA3BBF15D62858"
+        "sha256": "205B897D71DA3562985783335AFEE97300ACB5B91CC2EB4145613C3BB23011AF"
+      },
+      {
+        "path": "ci/schemas/movement_registry_3.registry.schema.json",
+        "sha256": "916E55B9A6C731721EAE77CB33E5BDB8E60C59A86E57679B6D673BBD41FCAE6B"
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",
-        "sha256": "D7D2E3DBEFE2F8F65C809AFC3361010291DA6505285EACA07599D588236F6AB7"
+        "sha256": "063E7CA54B877A9F5F79034C2AC9EF33ABAE7B4E1998832ACFCADC4492462BCF"
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
@@ -91,15 +155,19 @@
       },
       {
         "path": "ci/schemas/phase6.output.schema.v1.0.0.json",
-        "sha256": "F0F4F21BD1B73950DC4B979C6405DB96F214728786150E87D9B6BDB2F80E879F"
+        "sha256": "31C6329F68D37FA720D76A5678F93D1EEE42927A4886EDE14D7AD4AE6B5919AC"
+      },
+      {
+        "path": "ci/schemas/physical_requirements_registry_1b.registry.schema.json",
+        "sha256": "05397B3AE2A50EBAF9CDA51727F757758A66936AA3CBA39181862B9DD9010EF4"
       },
       {
         "path": "ci/schemas/program.registry.schema.json",
-        "sha256": "31E37A7CB633FFAB7404B729A0D01364E80119B75487F90481D3C0B470C2BD5D"
+        "sha256": "8C103344E8A1A36CEC1CE66F714FD8AA7EA5D490184F849A43E804CF3713D902"
       },
       {
         "path": "ci/schemas/registry_entry.schema.json",
-        "sha256": "C686F8A96C8333FE7BC6D70C8B34CF8FF121893C78198BEBA687D7F9002B25BD"
+        "sha256": "F8BA23F38D0E06552BAEF25BFFBAF65601ECF031E5F97A38EFBE453706BECD95"
       },
       {
         "path": "ci/schemas/registry_seal_ledger.v1.schema.json",
@@ -126,20 +194,60 @@
         "sha256": "82E3DFA3130E3E35215944CC747078919E9BDC7D13CB000F8154949FADBFAFD5"
       },
       {
+        "path": "ci/schemas/sport_domain_structure_profiles_5b.registry.schema.json",
+        "sha256": "4AB2FB9EA444BF8929ED61222C5BCE83E16127FBB4AD5674BF5FA02EC51D161F"
+      },
+      {
+        "path": "ci/schemas/sport_event_model_registry_5e.registry.schema.json",
+        "sha256": "F6BA815BB34F6ABC62AC8DDC21552F6EC53700879E7280FB6C075F791AC1DE30"
+      },
+      {
+        "path": "ci/schemas/sport_metric_registry_1c.registry.schema.json",
+        "sha256": "4094C7F82DF1F5EF94324679A25FF9F1F70AC498BA0238F267C09E39F4AF55DD"
+      },
+      {
         "path": "ci/schemas/sport_metric.registry.schema.json",
-        "sha256": "5B62252634EB891C9437AB9EFD6195A09A3BF4369DD04463D83E9DECD84D0099"
+        "sha256": "73355F783BB48EBC686F3EDB82529B749CE41C47DC93F3734E39AA6EA3C6C9B6"
+      },
+      {
+        "path": "ci/schemas/sport_program_profile_registry_5d.registry.schema.json",
+        "sha256": "AD9C8F329639A82B8E8E10F9CC6C31FFA4DBBB4B76D7649B334955A738BEC041"
+      },
+      {
+        "path": "ci/schemas/sport_program_template_registry_5f.registry.schema.json",
+        "sha256": "70AA87AF556FD4DA4D1A231C7921D943CCF4BE03A1FF6BE38B1BCF41C6550BF8"
+      },
+      {
+        "path": "ci/schemas/sport_role_registry_2.registry.schema.json",
+        "sha256": "D2BEBA4D49E473F1A591870BA04CDFCC7C77FAE666C9CB828291CA8D54DC2891"
       },
       {
         "path": "ci/schemas/sport_role.registry.schema.json",
-        "sha256": "23E45F0424B1E4BC4CA46E39542394D1E1708E1B5876078DBFA506263746B7D2"
+        "sha256": "E228247BCF6CD39AFB9C458CE3EC09B0E8D25459615701ECCA1B0ECC5F9AA8CA"
+      },
+      {
+        "path": "ci/schemas/sport_subdivision_registry_1a.registry.schema.json",
+        "sha256": "0A299E547C9FDF58335C1F71C13B0C35837A6EEE4CE50E8D30C47D21A2D8165B"
       },
       {
         "path": "ci/schemas/sport_subdivision.registry.schema.json",
-        "sha256": "4B0A3C6435609E4E9466F0B226F628121EF870823FBE2783ACEA63DDE49736F1"
+        "sha256": "827744468342632A66BB14221D565268040944CF064B31CFC27E553844DBCA4A"
+      },
+      {
+        "path": "ci/schemas/structure_governance_registry_5a.registry.schema.json",
+        "sha256": "8E6743A8BF4FB0B0B9DD8888C14078C8499872B959A3BAA4A91AB165E3564D1C"
+      },
+      {
+        "path": "ci/schemas/substitution_registry.registry.schema.json",
+        "sha256": "A5D55BC487FD2289AB6BCEA1E83CF6A4FCECBD156928B68305FB6D0FDAA7A5FD"
       },
       {
         "path": "ci/schemas/threshold_marker.registry.schema.json",
-        "sha256": "50240A9BD81B0FCE38F5C68F5198FCF93BFBCC0B9E2EFC498A22B88CE4D6C658"
+        "sha256": "99E2481938856B005DD42781A19BA07A31D4190184F8070F5E3034D0DB84947A"
+      },
+      {
+        "path": "ci/schemas/training_structure_registry_5.registry.schema.json",
+        "sha256": "EC5D2FACE4CF55BC313DE6E57453AEA6FC18E85440D680178A4F53BF5D4A44FC"
       }
     ]
   },

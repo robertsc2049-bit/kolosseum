@@ -585,6 +585,7 @@ test(
       const invitedByType = byType(invitedList);
       assert.equal(invitedByType.relationship_invited?.length, 1, "invited athlete gets relationship_invited");
       assert.equal(invitedByType.relationship_invited[0].deep_link.route_id, "athlete_today");
+      assert.equal(invitedByType.relationship_invited[0].notification_payload.coach_user_id, coach.userId, "notification_payload names the inviting coach, not just the event type");
 
       const declinedAthleteList = await listNotifications(baseUrl, athleteDeclined);
       assert.equal(byType(declinedAthleteList).relationship_invited?.length, 1, "declined-relationship athlete still sees the original invite");
@@ -594,29 +595,36 @@ test(
       let coachByType = byType(coachList);
       assert.equal(coachByType.relationship_declined?.length, 1, "coach gets relationship_declined");
       assert.equal(coachByType.relationship_declined[0].deep_link.route_id, "coach_athletes");
+      assert.equal(coachByType.relationship_declined[0].notification_payload.athlete_user_id, athleteDeclined.userId, "notification_payload names which athlete declined, not just that some athlete did");
       assert.equal(coachByType.relationship_accepted?.length, 1, "coach gets relationship_accepted");
       assert.equal(coachByType.relationship_accepted[0].deep_link.route_id, "coach_athlete_detail");
       assert.equal(coachByType.relationship_accepted[0].deep_link.params.athlete_id, athlete.userId);
       assert.equal(coachByType.relationship_accepted[0].target_available, true, "active relationship: target available");
+      assert.equal(coachByType.relationship_accepted[0].notification_payload.athlete_user_id, athlete.userId, "notification_payload names which athlete accepted");
 
       let athleteList = await listNotifications(baseUrl, athlete);
       let athleteByType = byType(athleteList);
       assert.equal(athleteByType.relationship_invited?.length, 1);
       assert.equal(athleteByType.assignment_created?.length, 2, "assignment_created fires once per fresh assignment (the original, and the one that replaced the cancelled one)");
+      assert.equal(athleteByType.assignment_created[0].notification_payload.coach_user_id, coach.userId, "notification_payload names which coach assigned the programme");
       assert.equal(athleteByType.programme_available?.length, 2, "programme_available fires alongside every assignment_created");
       assert.equal(athleteByType.assignment_replaced?.length, 1, "assignment_replaced fires once");
       assert.equal(athleteByType.assignment_cancelled?.length, 1, "assignment_cancelled fires once");
       assert.equal(athleteByType.event_linked?.length, 1, "event_linked fires once despite link/unlink/re-link (distinct source rows would each fire, but link_state='linked' rows collapse to one link record id per (coach,athlete,event) triple across relink)");
+      assert.equal(athleteByType.event_linked[0].notification_payload.coach_user_id, coach.userId, "notification_payload names which coach linked the event");
+      assert.ok(athleteByType.event_linked[0].notification_payload.event_id, "notification_payload names which event was linked");
       assert.equal(athleteByType.event_unlinked?.length, 1, "event_unlinked fires once");
       assert.equal(athleteByType.event_cancelled?.length, 1, "event_cancelled fires for the athlete still linked when the event was cancelled");
       assert.equal(athleteByType.coach_note_visible?.length, 1, "coach_note_visible fires for the athlete-visible note");
       assert.equal(athleteByType.coach_note_visible[0].notification_payload.session_id, sessionId);
+      assert.equal(athleteByType.coach_note_visible[0].notification_payload.coach_user_id, coach.userId, "notification_payload names which coach left the visible note");
 
       coachList = await listNotifications(baseUrl, coach);
       coachByType = byType(coachList);
       assert.equal(coachByType.session_completed?.length, 1, "coach gets session_completed");
       assert.equal(coachByType.session_completed[0].deep_link.route_id, "coach_review_athlete");
       assert.equal(coachByType.session_completed[0].deep_link.params.athlete_id, athlete.userId);
+      assert.equal(coachByType.session_completed[0].notification_payload.athlete_user_id, athlete.userId, "notification_payload names which athlete completed the session");
       assert.equal(coachByType.billing_action_required?.length, 1, "coach gets billing_action_required");
       assert.equal(coachByType.billing_action_required[0].deep_link.route_id, "shared_account");
 

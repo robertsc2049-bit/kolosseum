@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
+
 const service = fs.readFileSync(
   new URL(
     "../src/api/product_account_service.ts",
@@ -55,19 +57,24 @@ test(
       /activity_id:\s*activity/u
     );
 
+    // Activity ids come from the shared v1 activity registry (single
+    // source of truth), not hardcoded literals in this service - see
+    // shared/v1-boundary/v1ActivityRegistry.mjs.
     assert.match(
       service,
-      /"powerlifting"/u
+      /V1_ACTIVITY_IDS/u
     );
 
-    assert.match(
-      service,
-      /"general_strength"/u
+    assert.ok(
+      V1_ACTIVITY_IDS.includes("powerlifting")
     );
 
-    assert.match(
-      service,
-      /"rugby_union"/u
+    assert.ok(
+      V1_ACTIVITY_IDS.includes("general_strength")
+    );
+
+    assert.ok(
+      V1_ACTIVITY_IDS.includes("rugby_union")
     );
   }
 );

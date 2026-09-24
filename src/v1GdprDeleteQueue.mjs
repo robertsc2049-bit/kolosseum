@@ -15,7 +15,8 @@ export const GDPR_DELETE_ALLOWED_REQUEST_TYPES = Object.freeze([
 
 export const GDPR_DELETE_ALLOWED_ACTOR_TYPES = Object.freeze([
   "athlete",
-  "coach"
+  "coach",
+  "org_owner"
 ]);
 
 export const GDPR_DELETE_ALLOWED_SCOPES = Object.freeze([

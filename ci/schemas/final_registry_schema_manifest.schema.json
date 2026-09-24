@@ -1,0 +1,350 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/final_registry_schema_manifest.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_id",
+    "manifest_version",
+    "slice_id",
+    "status",
+    "schema_scope",
+    "parent_surface_manifest_id",
+    "parent_surface_manifest_version",
+    "parent_surface_manifest_sha256",
+    "canonical_id_law",
+    "registries",
+    "legacy_field_mappings",
+    "legacy_registry_id_mappings",
+    "schema_conflicts",
+    "optional_field_justifications",
+    "summary"
+  ],
+  "properties": {
+    "manifest_id": {
+      "const": "kolosseum_final_registry_schema_authority"
+    },
+    "manifest_version": {
+      "const": "1.0.0"
+    },
+    "slice_id": {
+      "const": "REG-FULL-01"
+    },
+    "status": {
+      "const": "authoritative"
+    },
+    "schema_scope": {
+      "const": "required_active_registries"
+    },
+    "parent_surface_manifest_id": {
+      "const": "kolosseum_final_registry_surface_authority"
+    },
+    "parent_surface_manifest_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_surface_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "canonical_id_law": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "one_registry_id_per_authority",
+        "one_primary_key_per_row",
+        "generic_id_aliases_forbidden",
+        "foreign_keys_use_target_primary_key_vocabulary",
+        "display_labels_are_not_ids",
+        "permanent_dual_read_forbidden",
+        "forbidden_legacy_field_names"
+      ],
+      "properties": {
+        "one_registry_id_per_authority": {
+          "const": true
+        },
+        "one_primary_key_per_row": {
+          "const": true
+        },
+        "generic_id_aliases_forbidden": {
+          "const": true
+        },
+        "foreign_keys_use_target_primary_key_vocabulary": {
+          "const": true
+        },
+        "display_labels_are_not_ids": {
+          "const": true
+        },
+        "permanent_dual_read_forbidden": {
+          "const": true
+        },
+        "forbidden_legacy_field_names": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        }
+      }
+    },
+    "registries": {
+      "type": "array",
+      "minItems": 25,
+      "maxItems": 25,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "canonical_registry_id",
+          "load_position",
+          "schema_path",
+          "primary_key_field",
+          "row_contract_status",
+          "legacy_runtime_projection",
+          "fk_fields",
+          "optional_fields"
+        ],
+        "properties": {
+          "canonical_registry_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "load_position": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "schema_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "primary_key_field": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "row_contract_status": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "closed",
+              "deferred_no_rows"
+            ]
+          },
+          "legacy_runtime_projection": {
+            "anyOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "registry_id",
+                  "schema_path",
+                  "data_path",
+                  "authority"
+                ],
+                "properties": {
+                  "registry_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "schema_path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "data_path": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "authority": {
+                    "type": "string",
+                    "const": "compatibility_only"
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "fk_fields": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "field",
+                "target_registry_id",
+                "target_primary_key_field",
+                "cardinality",
+                "nullable",
+                "required"
+              ],
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "target_registry_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+                },
+                "target_primary_key_field": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "cardinality": {
+                  "type": "string",
+                  "const": "one"
+                },
+                "nullable": {
+                  "type": "boolean"
+                },
+                "required": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "optional_fields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "legacy_field_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope",
+          "legacy_field",
+          "canonical_field",
+          "action"
+        ],
+        "properties": {
+          "scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "legacy_field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canonical_field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "action": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "legacy_registry_id_mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "legacy_registry_id",
+          "canonical_registry_id",
+          "status"
+        ],
+        "properties": {
+          "legacy_registry_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canonical_registry_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "schema_conflicts": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "optional_field_justifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_path",
+          "field",
+          "reason",
+          "null_permitted"
+        ],
+        "properties": {
+          "schema_path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "null_permitted": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required_active_registry_count",
+        "authoritative_schema_count",
+        "deferred_no_row_schema_count",
+        "schema_conflict_count",
+        "legacy_dual_read_allowed"
+      ],
+      "properties": {
+        "required_active_registry_count": {
+          "const": 25
+        },
+        "authoritative_schema_count": {
+          "const": 25
+        },
+        "deferred_no_row_schema_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "schema_conflict_count": {
+          "const": 0
+        },
+        "legacy_dual_read_allowed": {
+          "const": false
+        }
+      }
+    }
+  }
+}

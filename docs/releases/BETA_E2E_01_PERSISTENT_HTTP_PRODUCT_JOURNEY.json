@@ -60,17 +60,17 @@
     ]
   },
   "sha256": {
-    "schema.sql": "a17a9f110861fe68b7736aae1ee4b2be614131a67f8583faa2e89af5efd01368",
-    "src/api/beta_product_record_store.ts": "18478fbf36979ce5bae844df7836c385d32351197d5caf72e1c6b43a518f3d8c",
+    "schema.sql": "6bbee4993bba58d6c2af07e5a3a2eb8396de0a6af317b89e2972ba47af28ad4c",
+    "src/api/beta_product_record_store.ts": "7b66e4c4431ed993bba82de43ee5a353cbe92a0ed08e6429ba34c27f5956e77e",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
-    "src/api/blocks.handlers.ts": "ef77dc0b648016ea35f802303ae3758c08aa16094cfaec57dcf7508c280a4b12",
-    "src/api/sessions.handlers.ts": "ecfc5443b57863840206133d36ce02e028fcc23912d150f328814fc6ea920343",
-    "src/api/sessions.routes.ts": "d44564ea5663a999bab2d2beaa0a1fa3001c2352a2473b0d921a2f20877b3ea7",
+    "src/api/blocks.handlers.ts": "71dded36693e761d46fe09ea9beb212094b711d2e4b860960df7b0f1ef818af1",
+    "src/api/sessions.handlers.ts": "57b06b8875d2df3cc2ca0e74c2b7707000f8230c96e9f7c4545ff71ac37096de",
+    "src/api/sessions.routes.ts": "cd8d7541eeaa8ecefd20e8ba7763f12d65966136c22b4b5fcfc77fead48553d5",
     "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "f7052c54712dc6730ef5baade2008abe8744bf67887e965a603692814eb00bcc"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4c1630535e8b6cbb3ed6d278cbac1e0de67720d5e91dbfe6515a173c8570785f"
   }
 }

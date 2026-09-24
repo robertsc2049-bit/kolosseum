@@ -414,7 +414,8 @@ export async function appendRuntimeEvent(req: Request, res: Response) {
     ok: result?.ok === true,
     session_id: result?.session_id ?? session_id,
     seq: result?.seq ?? null,
-    replayed: result?.replayed === true
+    replayed: result?.replayed === true,
+    ...(typeof result?.is_pr === "boolean" ? { is_pr: result.is_pr } : {})
   });
 }
 

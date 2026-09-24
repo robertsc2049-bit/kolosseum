@@ -38,35 +38,35 @@ function makePassingEntries() {
   return {
     bench_press: {
       exercise_id: "bench_press",
-      pattern: "horizontal_push",
+      movement_pattern_id: "horizontal_push",
     },
     single_arm_dumbbell_press: {
       exercise_id: "single_arm_dumbbell_press",
-      pattern: "horizontal_push",
+      movement_pattern_id: "horizontal_push",
     },
     overhead_press: {
       exercise_id: "overhead_press",
-      pattern: "vertical_push",
+      movement_pattern_id: "vertical_push",
     },
     single_arm_overhead_press: {
       exercise_id: "single_arm_overhead_press",
-      pattern: "vertical_push",
+      movement_pattern_id: "vertical_push",
     },
     back_squat: {
       exercise_id: "back_squat",
-      pattern: "squat",
+      movement_pattern_id: "squat",
     },
     split_squat: {
       exercise_id: "split_squat",
-      pattern: "squat",
+      movement_pattern_id: "squat",
     },
     deadlift: {
       exercise_id: "deadlift",
-      pattern: "hinge",
+      movement_pattern_id: "hinge",
     },
     single_leg_rdl: {
       exercise_id: "single_leg_rdl",
-      pattern: "hinge",
+      movement_pattern_id: "hinge",
     },
   };
 }
@@ -111,7 +111,7 @@ test("P67: verifier fails when hinge unilateral coverage is remapped to wrong la
   const entries = makePassingEntries();
   entries.single_leg_rdl = {
     exercise_id: "single_leg_rdl",
-    pattern: "squat",
+    movement_pattern_id: "squat",
   };
 
   const registryPath = makeTempRegistry(entries);
@@ -129,7 +129,7 @@ test("P67: verifier fails when unilateral exercise id is renamed", () => {
   const entries = makePassingEntries();
   entries.single_arm_overhead_press = {
     exercise_id: "single_arm_db_ohp",
-    pattern: "vertical_push",
+    movement_pattern_id: "vertical_push",
   };
 
   const registryPath = makeTempRegistry(entries);

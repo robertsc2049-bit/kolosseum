@@ -1,3 +1,9 @@
+// DEV NOTE: the commercial/billing panel moved to React (CommercialPanel.tsx
+// + useCommercialAccount.ts, mounted at #account-commercial-root;
+// commercial_ui.js is retired) - see
+// public/app-src/__tests__/CommercialPanel.test.tsx for its behavioral
+// proof. Backend routes, service and schema are untouched and still
+// asserted directly below.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -9,14 +15,17 @@ const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const accountUi =
   read("public/app/account_ui.js");
-const commercialUi =
-  read("public/app/commercial_ui.js");
 const service =
   read("src/api/product_commercial_service.ts");
 const routes =
   read("src/api/product_commercial.routes.ts");
 const server = read("src/server.ts");
 const schema = read("schema.sql");
+const client = read("public/app-src/api/commercialClient.ts");
+const hook = read("public/app-src/screens/account/useCommercialAccount.ts");
+const panel = read("public/app-src/screens/account/CommercialPanel.tsx");
+const reactAccountClient = read("public/app-src/api/client.ts");
+const entryAuthClient = read("public/app-src/api/authClient.ts");
 
 test("FULL-UI-08 mounts authenticated commercial account routes", () => {
   assert.match(
@@ -84,42 +93,25 @@ test("FULL-UI-08 persists immutable commercial records", () => {
 });
 
 test("FULL-UI-08 displays factual subscription and seat state", () => {
-  for (const id of [
-    "accountCommercialPanel",
-    "commercialSubscriptionState",
-    "commercialAccessState",
-    "commercialBillingStatus",
-    "commercialPlan",
-    "commercialSeatAllowance",
-    "commercialSeatUsage",
-    "commercialSeatAvailable",
-    "commercialCheckoutButton",
-    "commercialPortalButton",
-    "commercialEntitlementError",
-    "commercialHistory"
+  assert.match(html, /id="account-commercial-root"/u);
+  assert.doesNotMatch(html, /commercial_ui\.js/u);
+
+  for (const needle of [
+    "commercial.subscription_state",
+    "commercial.product_access_state",
+    "commercial.billing_status",
+    "commercial.plan_id",
+    "commercial.seat_limit",
+    "commercial.occupied_seat_count",
+    "commercial.available_seat_count"
   ]) {
-    assert.match(
-      html,
-      new RegExp(`id="${id}"`, "u")
-    );
+    assert.ok(panel.includes(needle), `Expected panel to render ${needle}`);
   }
 
-  assert.match(
-    html,
-    /No live provider SDK call is performed/u
-  );
-  assert.match(
-    html,
-    /commercial_ui\.js/u
-  );
-  assert.match(
-    css,
-    /\.commercial-fact-grid/u
-  );
-  assert.match(
-    css,
-    /min-height: 44px/u
-  );
+  assert.match(panel, /id="accountCommercialPanel"/u);
+  assert.match(panel, /no live payment provider call is made yet/u);
+  assert.match(css, /\.commercial-fact-grid/u);
+  assert.match(css, /min-height: 44px/u);
 });
 
 test("FULL-UI-08 uses persisted account APIs rather than browser-only state", () => {
@@ -130,52 +122,80 @@ test("FULL-UI-08 uses persisted account APIs rather than browser-only state", ()
     "/account/commercial/portal"
   ]) {
     assert.ok(
-      accountUi.includes(path),
+      client.includes(path),
       `Missing account API ${path}`
     );
   }
 
   assert.doesNotMatch(
-    commercialUi,
+    hook,
     /localStorage|sessionStorage/u
   );
   assert.match(
-    commercialUi,
-    /loadCommercialAccount/u
+    client,
+    /export function loadCommercialAccount/u
   );
   assert.match(
-    commercialUi,
-    /requestCommercialCheckout/u
+    client,
+    /export function requestCommercialCheckout/u
   );
   assert.match(
-    commercialUi,
-    /recordCommercialPaymentReturn/u
+    client,
+    /export function recordCommercialPaymentReturn/u
   );
   assert.match(
-    commercialUi,
-    /requestCommercialBillingPortal/u
+    client,
+    /export function requestCommercialBillingPortal/u
   );
 });
 
-test("FULL-UI-08 checkout remains controlled-launch and provider-inert", () => {
+// DEV NOTE: found via a post-migration audit sweep to have drifted from
+// the actual, documented architecture since 2026-08-17 ("feat(commercial):
+// real Stripe billing for individual-coach subscriptions", #885) -
+// docs/v1/V1_STRIPE_CHECKOUT_CONTROLLED_LAUNCH.md's own "Live implementation
+// note" explicitly states the real, live checkout/webhook path now lives in
+// product_commercial_service.ts and "makes real Stripe Checkout Session and
+// Billing Portal Session calls... the top-level release boundary already
+// permits this". Only the DORMANT reference contract module
+// (src/v1ControlledLaunchCheckout.mjs, proven by
+// test/s_v1_p_02_stripe_checkout_controlled_launch.test.mjs) stays
+// permanently provider-inert - product_commercial_service.ts was never
+// supposed to be, once this feature shipped. This test now checks the
+// actual, sanctioned, dual behavior: a real provider call only once a
+// coach's billing configuration is fully "ready" (refused otherwise, see
+// "FULL-UI-08 exposes factual entitlement failure and portal gating"
+// above), with engine/relationship truth staying untouched either way
+// (see "FULL-UI-08 commercial state cannot alter engine or relationship
+// truth" below).
+test("FULL-UI-08 checkout performs a real provider call only once fully configured, and stays inert/refused otherwise", () => {
   assert.match(
     service,
     /controlled_launch_checkout_requested/u
   );
+  // The live, sanctioned path: a fully-configured coach's checkout/portal
+  // request makes a real Stripe API call.
   assert.match(
     service,
-    /live_provider_call:\s*"not_performed_in_product_slice"/u
+    /live_provider_call:\s*"performed"/u
   );
+  assert.match(
+    service,
+    /provider_call_performed:\s*true/u
+  );
+  // An idempotent replay of an already-recorded request performs no NEW
+  // provider call.
   assert.match(
     service,
     /provider_call_performed:\s*false/u
   );
   assert.match(
-    service,
-    /trusted_provider_confirmation:\s*false/u
+    hook,
+    /Opening the configured provider page/u
   );
+  // Only when no real checkout/portal URL comes back (not fully
+  // configured) does the frontend correctly say no live call was made.
   assert.match(
-    commercialUi,
+    hook,
     /No live provider call was performed/u
   );
 });
@@ -188,7 +208,7 @@ test("FULL-UI-08 exposes factual entitlement failure and portal gating", () => {
     "commercial_portal_unavailable"
   ]) {
     assert.ok(
-      `${service}\n${commercialUi}`.includes(code),
+      `${service}\n${hook}`.includes(code),
       `Missing factual state ${code}`
     );
   }
@@ -247,23 +267,39 @@ test("FULL-UI-08 keeps commercial scope individual and controlled", () => {
     /commercial_coach_account_required/u
   );
   assert.doesNotMatch(
-    commercialUi,
+    `${hook}\n${panel}`,
     /organisation|organization|team|gym|unit|federation|enterprise/iu
   );
 });
 
 test("FULL-UI-08 preserves existing account controls", () => {
-  for (const token of [
-    "registerAccount",
-    "signInAccount",
-    "updateAccountProfile",
-    "changeAccountPassword",
-    "requestPasswordReset",
-    "requestEmailVerification",
-    "requestAccountClosure"
-  ]) {
-    assert.ok(
-      accountUi.includes(token),
+  // DEV NOTE: this test used to check `accountUi.includes(token)` for all
+  // seven of these - a plain substring check that kept passing for the
+  // WRONG reason once each function moved to React and account_ui.js's own
+  // DEV NOTE comments started mentioning them by name (found via a post-
+  // migration audit sweep: every one of these tokens' only remaining
+  // occurrence in account_ui.js was inside a comment, not a real
+  // definition). Now checks each function's actual current location.
+  for (const token of ["restoreAccountSession", "loadAccountDetail"]) {
+    assert.match(
+      accountUi,
+      new RegExp(`export function ${token}\\b`, "u"),
+      `Existing account control missing: ${token}`
+    );
+  }
+
+  for (const token of ["registerAccount", "signInAccount", "requestPasswordReset"]) {
+    assert.match(
+      entryAuthClient,
+      new RegExp(`export function ${token}\\b`, "u"),
+      `Existing account control missing: ${token}`
+    );
+  }
+
+  for (const token of ["updateAccountProfile", "changeAccountPassword", "requestEmailVerification", "requestAccountClosure"]) {
+    assert.match(
+      reactAccountClient,
+      new RegExp(`export function ${token}\\b`, "u"),
       `Existing account control missing: ${token}`
     );
   }

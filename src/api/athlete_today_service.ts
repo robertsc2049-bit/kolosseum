@@ -237,6 +237,40 @@ async function latestSessionForAssignment(
   return sessionId ? { session_id: sessionId } : null;
 }
 
+// A self-directed session (created via the individual/no-coach beta_path,
+// see createSession()'s beta_path_context branch in app.js) has no
+// assignment/template to derive Today's state from - it is only ever
+// tracked by beta_subject_user_id with no beta_coach_user_id. Without this,
+// loadAthleteTodayView had no way to report such a session as current, so
+// the app's own next server-authoritative Today fetch (which every mutation
+// and full reload triggers) would silently forget it.
+async function latestOpenSelfDirectedSession(
+  athleteUserId: string
+): Promise<{ session_id: string } | null> {
+  const result = await pool.query(
+    `
+    SELECT session_id
+    FROM sessions
+    WHERE beta_subject_user_id = $1
+      AND beta_coach_user_id IS NULL
+    ORDER BY created_at DESC, session_id DESC
+    LIMIT 1
+    `,
+    [athleteUserId]
+  );
+
+  const sessionId = cleanString(result.rows?.[0]?.session_id);
+  if (!sessionId) {
+    return null;
+  }
+
+  const sessionState = await getSessionStateQuery(sessionId).catch(() => null);
+  const executionStatus = cleanString((sessionState as JsonRecord | null)?.execution_status);
+  const terminal = executionStatus === "completed" || executionStatus === "partial";
+
+  return terminal ? null : { session_id: sessionId };
+}
+
 function sessionContextFromMaterialised(
   materialised: JsonRecord,
   action: "start" | "start_next" | "continue",
@@ -252,6 +286,7 @@ function sessionContextFromMaterialised(
     session_id: existingSessionId,
     template_session_index: Number(execution.template_session_index ?? 0),
     template_session_title: cleanString(execution.template_session_title),
+    template_session_coaching_notes: cleanString(execution.template_session_coaching_notes),
     template_block_id: cleanString(execution.template_block_id),
     template_block_name: cleanString(execution.template_block_name),
     template_block_order: execution.template_block_order ?? null,
@@ -276,7 +311,13 @@ export async function loadAthleteTodayView(
   const assignment = await loadCurrentAssignment(athleteUserId);
 
   if (!assignment) {
-    return baseResponse("no_current_assignment", athleteUserId);
+    const selfDirectedSession = await latestOpenSelfDirectedSession(athleteUserId);
+
+    return baseResponse("no_current_assignment", athleteUserId, {
+      session: selfDirectedSession
+        ? deepFreeze({ action: "continue", session_id: selfDirectedSession.session_id })
+        : null
+    });
   }
 
   const coachUserId = cleanString(assignment.assigned_by_coach_id);
@@ -332,23 +373,24 @@ export async function loadAthleteTodayView(
   catch (error) {
     if (error instanceof Beta18ProgrammeTemplateError) {
       if (error.reason === "assigned_template_sessions_exhausted") {
-        // The template has no further session to materialise, but that does
-        // not mean the athlete is done: the LAST session in the template may
-        // already have been created (e.g. via a prior compile) and still be
-        // open. Check for it before declaring the programme complete, using
-        // the same existing-session helpers the non-exhausted path below
-        // uses, so an unstarted/in-progress final session is never hidden.
-        const existingForExhausted = await latestSessionForAssignment(assignmentId);
+        // "Exhausted" only means every session row has been created at
+        // least once - it says nothing about whether the LAST one was
+        // ever finished. Without this check, starting a programme's
+        // final session (a perfectly normal, everyday action) made every
+        // subsequent Today refresh report the whole programme as
+        // complete and null out the session, silently stranding the
+        // athlete on a just-created, not-yet-trained session they could
+        // no longer reach - confirmed live. Mirrors the identical
+        // existing/terminal check already used below for the
+        // nextIndex > 0 path, just reached from the exhaustion branch
+        // instead.
+        const existingOnExhaustion = await latestSessionForAssignment(assignmentId);
+        if (existingOnExhaustion) {
+          const existingOnExhaustionState = await getSessionStateQuery(existingOnExhaustion.session_id);
+          const executionStatusOnExhaustion = cleanString((existingOnExhaustionState as JsonRecord)?.execution_status);
+          const terminalOnExhaustion = executionStatusOnExhaustion === "completed" || executionStatusOnExhaustion === "partial";
 
-        if (existingForExhausted) {
-          const existingStateForExhausted = await getSessionStateQuery(existingForExhausted.session_id);
-          const executionStatusForExhausted = cleanString(
-            (existingStateForExhausted as JsonRecord)?.execution_status
-          );
-          const terminalForExhausted =
-            executionStatusForExhausted === "completed" || executionStatusForExhausted === "partial";
-
-          if (!terminalForExhausted) {
+          if (!terminalOnExhaustion) {
             const currentSessionMaterialised = (await materialiseNextCoachTemplateProgram({
               coach_user_id: coachUserId,
               athlete_user_id: athleteUserId,
@@ -364,7 +406,7 @@ export async function loadAthleteTodayView(
               session: sessionContextFromMaterialised(
                 currentSessionMaterialised,
                 "continue",
-                existingForExhausted.session_id,
+                existingOnExhaustion.session_id,
                 totalSessionCount
               ),
               event,

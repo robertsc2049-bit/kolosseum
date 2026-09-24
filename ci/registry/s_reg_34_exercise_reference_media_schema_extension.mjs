@@ -1,26 +1,30 @@
 /**
  * DEV NOTE: S-REG-34 exercise registry schema extension.
- * Purpose: adds an optional `reference_media` field to the already-active
- * `exercise` registry's schema, so a later product-facing slice can attach
- * coach/admin-entered video references to exercises. Unlike S-REG-32 (which
- * added two required fields with real derived values to all 19 live
- * entries), this slice adds a purely optional field and gives it a value on
- * zero of the 19 live entries - there is no reference-media content to
- * populate yet, only the schema shape to receive it later.
- * Because no entry's data changes, `registries/exercise/exercise.registry.json`
- * and `registries/registry_bundle.json` are untouched - only the 3 schema
- * files under `ci/schemas/` change. This is lighter than S-REG-32: no bundle
- * regeneration and no registry-seal re-pin are needed, since the seal scope
- * hashes registry data files only, never schema files.
- * Boundary: extends the exercise registry's schema only. Must not touch
+ * Purpose: historically added an optional `reference_media` field to the
+ * already-active `exercise` registry's then-19 live entries, so a later
+ * product-facing slice could attach coach/admin-entered video references to
+ * exercises. Unlike S-REG-32 (which added two required fields with real
+ * derived values to the then-19 live entries), this slice added a purely
+ * optional field and gave it a value on zero entries - there was no
+ * reference-media content to populate, only the schema shape to receive it
+ * later.
+ * Historical boundary: S-REG-34 authored against 19 live exercise entries.
+ * That count remains evidence of the slice at authoring time, not a permanent
+ * exact count for the live exercise registry. Later authorised production
+ * slices may add exercises without rewriting S-REG-34 history. The current
+ * live surface must never shrink below the historical floor, and every current
+ * live exercise must still satisfy S-REG-34's content-free invariant until a
+ * separately authorised content slice lawfully populates `reference_media`.
+ * Boundary: extends the exercise registry's schema only. Must not itself touch
  * exercise.registry.json's content, registry_index.json, registry_bundle.json,
  * or the registry seal. `runtime_status` stays `non_runtime` - nothing
  * consumes this field yet; the product-facing read surface that will expose
  * it is built separately in FULL-UI-30, as ordinary product work.
  * Determinism: validates the 3 exercise schema files declare an identical,
- * well-formed optional `reference_media` property, and independently
- * re-derives the content-free invariant by reading every one of the 19 live
- * exercise entries and confirming none carries the field yet.
+ * well-formed optional `reference_media` property, preserves the historical
+ * 19-record floor, and independently re-derives the content-free invariant by
+ * reading every current live exercise entry and confirming none carries the
+ * field yet.
  * Failure: throws CI_S_REG_34_EXERCISE_REFERENCE_MEDIA_SCHEMA_EXTENSION.
  */
 
@@ -31,12 +35,33 @@ export const S_REG_34_FAILURE_TOKEN = "CI_S_REG_34_EXERCISE_REFERENCE_MEDIA_SCHE
 export const S_REG_34_EXTENSION_ID = "exercise_reference_media_schema_extension";
 export const S_REG_34_RUNTIME_STATUS = "non_runtime";
 export const S_REG_34_EXTENDED_REGISTRY_ID = "exercise";
+
+// Historical authoring-time count. This is evidence, not a permanent exact
+// count for the live exercise registry after later authorised expansion.
 export const S_REG_34_EXPECTED_EXERCISE_COUNT = 19;
 export const S_REG_34_EXTENDED_FIELD_NAMES = Object.freeze(["reference_media"]);
 
-export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze(["video_url", "source"]);
-export const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze(["thumbnail_url"]);
-export const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze(["coach_entered", "admin_entered"]);
+// S-REG-34 originally introduced `reference_media` as an optional, content-free
+// field. S-V1-25 later hardened the nested media object with source/licence,
+// commercial-use, review and copy-boundary controls. Keep the historical
+// optional/content-free boundary, but validate the current lawful nested shape.
+export const S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS = Object.freeze([
+  "video_url",
+  "thumbnail_url",
+  "source",
+  "source_reference",
+  "license_status",
+  "commercial_use_status",
+  "manual_review_status",
+  "legal_review_status",
+  "copy_boundary_flags"
+]);
+export const S_REG_34_REFERENCE_MEDIA_OPTIONAL_KEYS = Object.freeze([]);
+export const S_REG_34_REFERENCE_MEDIA_SOURCES = Object.freeze([
+  "founder_original",
+  "licensed_source",
+  "canonical_project_document"
+]);
 
 export const S_REG_34_SCHEMA_FILES = Object.freeze([
   "ci/schemas/exercise.registry.schema.json",
@@ -139,35 +164,45 @@ function assertExactArray(actual, expected, reason) {
 }
 
 function assertSchemaFilesDeclareReferenceMedia() {
-  for (const schemaPath of S_REG_34_SCHEMA_FILES) {
-    const schema = readJson(schemaPath);
-    const entrySchema = schema?.properties?.entries?.additionalProperties;
+  const canonicalSchemaPath = S_REG_34_SCHEMA_FILES[0];
+  const canonicalSchema = readJson(canonicalSchemaPath);
+  const entrySchema = canonicalSchema?.properties?.entries?.additionalProperties;
 
-    assertPlainObject(entrySchema, "s_reg_34_schema_entry_shape_invalid");
+  assertPlainObject(entrySchema, "s_reg_34_schema_entry_shape_invalid");
 
-    const referenceMedia = entrySchema?.properties?.reference_media;
-    assertPlainObject(referenceMedia, "s_reg_34_schema_reference_media_missing");
+  const referenceMedia = entrySchema?.properties?.reference_media;
+  assertPlainObject(referenceMedia, "s_reg_34_schema_reference_media_missing");
 
-    if (referenceMedia.additionalProperties !== false) {
-      fail("s_reg_34_schema_reference_media_additional_properties_invalid", { schemaPath });
+  if (referenceMedia.additionalProperties !== false) {
+    fail("s_reg_34_schema_reference_media_additional_properties_invalid", { schemaPath: canonicalSchemaPath });
+  }
+
+  assertExactArray(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS], "s_reg_34_schema_reference_media_required_invalid");
+
+  if (Array.isArray(entrySchema.required) && entrySchema.required.includes("reference_media")) {
+    fail("s_reg_34_schema_reference_media_must_stay_optional", { schemaPath: canonicalSchemaPath });
+  }
+
+  const properties = referenceMedia.properties ?? {};
+  if (properties.video_url?.type !== "string" || properties.video_url?.minLength !== 1) {
+    fail("s_reg_34_schema_video_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.video_url });
+  }
+
+  if (properties.thumbnail_url?.type !== "string" || properties.thumbnail_url?.minLength !== 1) {
+    fail("s_reg_34_schema_thumbnail_url_invalid", { schemaPath: canonicalSchemaPath, actual: properties.thumbnail_url });
+  }
+
+  assertExactArray(properties.source?.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES], "s_reg_34_schema_source_enum_invalid");
+
+  for (const schemaPath of S_REG_34_SCHEMA_FILES.slice(1)) {
+    const compatibilitySchema = readJson(schemaPath);
+    if (
+      compatibilitySchema?.$ref !== canonicalSchema.$id ||
+      compatibilitySchema?.["x-kolosseum-authority"] !== "compatibility_reference" ||
+      compatibilitySchema?.["x-kolosseum-canonical-authority"] !== "registries/final_registry_schema_manifest.json"
+    ) {
+      fail("s_reg_34_schema_entry_shape_invalid", { schemaPath, actual: compatibilitySchema });
     }
-
-    assertExactArray(referenceMedia.required, [...S_REG_34_REFERENCE_MEDIA_REQUIRED_KEYS], "s_reg_34_schema_reference_media_required_invalid");
-
-    if (Array.isArray(entrySchema.required) && entrySchema.required.includes("reference_media")) {
-      fail("s_reg_34_schema_reference_media_must_stay_optional", { schemaPath });
-    }
-
-    const properties = referenceMedia.properties ?? {};
-    if (properties.video_url?.type !== "string" || properties.video_url?.minLength !== 1) {
-      fail("s_reg_34_schema_video_url_invalid", { schemaPath, actual: properties.video_url });
-    }
-
-    if (properties.thumbnail_url?.type !== "string" || properties.thumbnail_url?.minLength !== 1) {
-      fail("s_reg_34_schema_thumbnail_url_invalid", { schemaPath, actual: properties.thumbnail_url });
-    }
-
-    assertExactArray(properties.source?.enum, [...S_REG_34_REFERENCE_MEDIA_SOURCES], "s_reg_34_schema_source_enum_invalid");
   }
 }
 
@@ -175,8 +210,11 @@ function assertContentFreeInvariant() {
   const exerciseRegistry = readJson(S_REG_34_PATHS.exercise_registry);
   const entries = Object.values(exerciseRegistry.entries ?? {});
 
-  if (entries.length !== S_REG_34_EXPECTED_EXERCISE_COUNT) {
-    fail("s_reg_34_exercise_count_invalid", { actual: entries.length, expected: S_REG_34_EXPECTED_EXERCISE_COUNT });
+  if (entries.length < S_REG_34_EXPECTED_EXERCISE_COUNT) {
+    fail("s_reg_34_exercise_count_below_historical_extension", {
+      actual: entries.length,
+      historical_minimum: S_REG_34_EXPECTED_EXERCISE_COUNT
+    });
   }
 
   let extendedRecordCount = 0;

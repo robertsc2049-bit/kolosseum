@@ -216,3 +216,27 @@ Required artefacts:
 
 The guard verifies the active v1 confirmation exists, is machine-readable, references the release boundary, and preserves engine isolation.
 <!-- S-V1-01:GUARD-BINDING:END -->
+
+## Amendment - strongman activated as v1's fourth locked activity
+
+shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, and strongman, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.
+
+## Amendment - Hyrox activated as v1's fifth locked activity
+
+shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, strongman, and hyrox, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.
+
+## Amendment - CrossFit activated as v1's sixth locked activity
+
+shared/v1-boundary/v1BoundaryGuards.mjs's `V1_SUPPORTED_ACTIVITIES` now contains powerlifting, general_strength, rugby_union, strongman, hyrox, and crossfit, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. The scaffolding and its guard remain otherwise unchanged.
+
+## Amendment - 23 further sports activated (seventh through twenty-ninth locked activities)
+
+The locked activity set now additionally includes: `football_soccer`, `netball`, `basketball`, `rugby_sevens`, `field_hockey`, `ice_hockey`, `volleyball`, `cricket`, `american_football`, `athletics`, `swimming`, `olympic_weightlifting`, `cycling`, `rowing`, `kayaking`, `boxing`, `wrestling`, `judo`, `brazilian_jiu_jitsu`, `muay_thai`, `mma`, `tennis`, `triathlon`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Each reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Rugby league activated (thirtieth locked activity)
+
+The locked activity set now additionally includes `rugby_league`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. It reuses rugby_union's existing template shape and exercise pool wholesale, with no new exercise or equipment content required.
+
+## Amendment - Street lifting activated (thirty-first locked activity)
+
+The locked activity set now additionally includes `street_lifting`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Unlike rugby_union/rugby_league's full-pool reuse, it uses a small curated exercise set (25 exercises, including one new exercise, `air_squat`) rather than the full registry.

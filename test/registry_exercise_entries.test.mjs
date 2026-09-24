@@ -29,4 +29,11 @@ test("exercise registry loads into entries map with required IDs", () => {
     assert.ok(entries[id], `missing exercise_id in registry: ${id}`);
     assert.equal(entries[id].exercise_id, id, `entry.exercise_id mismatch for ${id}`);
   }
+
+  // REG-FULL-01 keeps registry rows canonical while the substitution engine
+  // consumes its established internal ExerciseSignature vocabulary. The loader
+  // must project canonical fields exactly once at this boundary.
+  assert.equal(entries.bench_press.pattern, "horizontal_push");
+  assert.equal(entries.bench_press.stimulus, "strength");
+  assert.deepEqual(entries.bench_press.equipment_ids, ["barbell", "bench", "rack"]);
 });

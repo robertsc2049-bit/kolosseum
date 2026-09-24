@@ -26,8 +26,74 @@ const state = {
   selectedThreadKind: null,
   selectedThreadId: null,
   selectedCounterpartId: null,
-  selectedCounterpartName: ""
+  selectedCounterpartName: "",
+  selectedAttendanceEventId: null,
+  reschedulingOccurrenceId: null,
+  orgHasSharedVisibility: false,
+  coachCounterparts: [],
+  athleteCounterparts: [],
+  lastBroadcastAudience: null,
+  lastBroadcastId: null
 };
+
+// Slice 3 of the sport-declaration redesign - org-owner direct position
+// override, for athletes already visible on this owner's own
+// shared-visibility roster. Hand-synced with ATHLETE_POSITIONS_BY_ACTIVITY
+// (src/api/athlete_onboarding_service.ts) and PositionSelect.tsx's own
+// POSITION_OPTIONS_BY_ACTIVITY - this file shares no module with the React
+// bundle, matching its own established convention.
+const POSITION_OPTIONS_BY_ACTIVITY = {
+  rugby_union: [
+    ["loosehead_prop", "Loosehead prop"], ["tighthead_prop", "Tighthead prop"],
+    ["hooker", "Hooker"], ["lock", "Lock"], ["flanker", "Flanker"],
+    ["number8", "Number 8"], ["scrum_half", "Scrum-half"], ["fly_half", "Fly-half"],
+    ["centre", "Centre"], ["wing", "Wing"], ["fullback", "Fullback"]
+  ],
+  powerlifting: [["athlete", "Athlete"]],
+  general_strength: [["athlete", "Athlete"]],
+  strongman: [["athlete", "Athlete"]],
+  hyrox: [["athlete", "Athlete"]],
+  crossfit: [["athlete", "Athlete"]],
+  football_soccer: [["athlete", "Athlete"]],
+  netball: [["athlete", "Athlete"]],
+  basketball: [["athlete", "Athlete"]],
+  rugby_sevens: [["athlete", "Athlete"]],
+  field_hockey: [["athlete", "Athlete"]],
+  ice_hockey: [["athlete", "Athlete"]],
+  volleyball: [["athlete", "Athlete"]],
+  cricket: [["athlete", "Athlete"]],
+  american_football: [["athlete", "Athlete"]],
+  athletics: [["athlete", "Athlete"]],
+  swimming: [["athlete", "Athlete"]],
+  olympic_weightlifting: [["athlete", "Athlete"]],
+  cycling: [["athlete", "Athlete"]],
+  rowing: [["athlete", "Athlete"]],
+  kayaking: [["athlete", "Athlete"]],
+  boxing: [["athlete", "Athlete"]],
+  wrestling: [["athlete", "Athlete"]],
+  judo: [["athlete", "Athlete"]],
+  brazilian_jiu_jitsu: [["athlete", "Athlete"]],
+  muay_thai: [["athlete", "Athlete"]],
+  mma: [["athlete", "Athlete"]],
+  tennis: [["athlete", "Athlete"]],
+  triathlon: [["athlete", "Athlete"]],
+  rugby_league: [["athlete", "Athlete"]],
+  street_lifting: [["athlete", "Athlete"]]
+};
+
+function positionSelectHtml(activityId, currentPosition, athleteUserId) {
+  const options = POSITION_OPTIONS_BY_ACTIVITY[activityId] || [];
+  if (options.length === 0) return "";
+  return `
+    <select data-position-select="${escapeHtml(athleteUserId)}">
+      <option value="">Choose</option>
+      ${options.map(([id, optionLabel]) => `
+        <option value="${escapeHtml(id)}" ${id === currentPosition ? "selected" : ""}>${escapeHtml(optionLabel)}</option>
+      `).join("")}
+    </select>
+    <button type="button" class="button secondary small-button" data-position-override="${escapeHtml(athleteUserId)}">Update position</button>
+  `;
+}
 
 function el(id) {
   return document.getElementById(id);
@@ -70,6 +136,8 @@ function showSignedOut() {
   el("orgSignInSection").hidden = false;
   el("orgRegisterSection").hidden = false;
   el("orgWorkspaceSection").hidden = true;
+  el("orgAccountSection").hidden = true;
+  el("orgSupportSection").hidden = true;
   el("orgListSection").hidden = true;
   el("orgCreateSection").hidden = true;
 }
@@ -78,11 +146,132 @@ async function showWorkspace(displayName) {
   el("orgSignInSection").hidden = true;
   el("orgRegisterSection").hidden = true;
   el("orgWorkspaceSection").hidden = false;
+  el("orgAccountSection").hidden = false;
+  el("orgSupportSection").hidden = false;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
   el("orgDisplayName").textContent = displayName;
 
-  await refreshOrganisations();
+  el("orgAccountExportResult").hidden = true;
+  el("orgAccountDeletionReview").hidden = true;
+  el("orgAccountDeletionResult").hidden = true;
+  el("orgAccountExportError").hidden = true;
+  el("orgAccountDeletionError").hidden = true;
+  el("orgAccountClosureError").hidden = true;
+  el("orgSupportReportPanel").hidden = true;
+  el("orgSupportResult").hidden = true;
+  el("orgSupportError").hidden = true;
+
+  await Promise.all([
+    refreshOrganisations(),
+    refreshAccountDataRights().catch(console.error),
+    refreshOrgSupportHistory().catch(console.error),
+    refreshNotificationBadge().catch(console.error)
+  ]);
+}
+
+// FULL-UI-91 - the org owner's own bell, the mirror of the coach/athlete
+// bell's #notification-bell-root (NotificationBellPanel.tsx), reusing the
+// same .notification-bell-wrap/.notification-unread-badge/.notification-panel
+// CSS already shared via /app/styles.css. Deliberately minimal: no
+// per-notification read/unread toggle - the existing per-thread unread
+// badge in the Messages section (see renderThreadList's own "badge active")
+// already gives that precision once inside one org's thread list; this
+// bell's only job is the coarser cross-screen "something happened, go
+// look" nudge, grouped by organisation rather than itemised per message.
+async function refreshNotificationBadge() {
+  const result = await api("GET", "/org/notifications/unread-count");
+  const count = Number(result.unread_count ?? 0);
+  const badge = el("orgNotificationUnreadBadge");
+  badge.hidden = count <= 0;
+  badge.textContent = count > 99 ? "99+" : String(count);
+}
+
+function notificationOrgLabel(notification) {
+  const payload = notification.notification_payload || {};
+  return String(payload.org_name || "An organisation");
+}
+
+function renderNotificationPanel(notifications) {
+  const body = el("orgNotificationPanelBody");
+
+  if (notifications.length === 0) {
+    body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
+    return;
+  }
+
+  const countsByOrg = new Map();
+  for (const notification of notifications) {
+    const payload = notification.notification_payload || {};
+    const orgId = String(payload.org_id || "");
+    if (!orgId) continue;
+    const existing = countsByOrg.get(orgId) || { orgId, orgName: notificationOrgLabel(notification), count: 0 };
+    existing.count += 1;
+    countsByOrg.set(orgId, existing);
+  }
+
+  const groups = [...countsByOrg.values()];
+  if (groups.length === 0) {
+    body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
+    return;
+  }
+
+  body.innerHTML = `
+    <ul class="notification-list">
+      ${groups.map((group) => `
+        <li class="notification-item">
+          <button type="button" class="notification-item-open" data-open-org-notifications="${escapeHtml(group.orgId)}" data-org-name="${escapeHtml(group.orgName)}">
+            <span class="notification-item-dot" aria-hidden="true"></span>
+            <span class="notification-item-body">
+              <span class="notification-item-type">${escapeHtml(group.orgName)}</span>
+              <span class="notification-item-subject">${group.count} unread</span>
+            </span>
+          </button>
+        </li>
+      `).join("")}
+    </ul>
+  `;
+
+  for (const button of body.querySelectorAll("[data-open-org-notifications]")) {
+    button.addEventListener("click", () => {
+      closeNotificationPanel();
+      showMessagesSection(button.getAttribute("data-open-org-notifications"), button.getAttribute("data-org-name"));
+    });
+  }
+}
+
+async function openNotificationPanel() {
+  el("orgNotificationPanel").hidden = false;
+  el("orgNotificationBellButton").setAttribute("aria-expanded", "true");
+  el("orgNotificationPanelBody").innerHTML = '<div class="notification-loading">Loading notifications...</div>';
+
+  try {
+    const result = await api("GET", "/org/notifications");
+    renderNotificationPanel(Array.isArray(result.notifications) ? result.notifications : []);
+    // Opening the panel marks everything read at once - there is no
+    // bulk "mark read for org X" endpoint, and building one isn't
+    // proportionate for two notification types on a first version.
+    await api("POST", "/org/notifications/mark-all-read", {});
+    await refreshNotificationBadge();
+  }
+  catch (error) {
+    el("orgNotificationPanelBody").innerHTML = '<div class="notification-unavailable"><p>Notifications are unavailable right now.</p></div>';
+    console.error(error);
+  }
+}
+
+function closeNotificationPanel() {
+  el("orgNotificationPanel").hidden = true;
+  el("orgNotificationBellButton").setAttribute("aria-expanded", "false");
+}
+
+function toggleNotificationPanel() {
+  if (el("orgNotificationPanel").hidden) {
+    openNotificationPanel().catch(console.error);
+  }
+  else {
+    closeNotificationPanel();
+  }
 }
 
 function visibilityModeLabel(mode) {
@@ -111,7 +300,10 @@ function renderOrganisations(organisations) {
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
+        <button class="button secondary" type="button" data-view-progress="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Progress</button>
+        <button class="button secondary" type="button" data-view-attendance="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Attendance</button>
         <button class="button secondary" type="button" data-view-messages="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Messages</button>
+        <button class="button secondary" type="button" data-view-audit="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Activity log</button>
       </div>
     </article>
   `).join("");
@@ -134,9 +326,27 @@ function renderOrganisations(organisations) {
     });
   }
 
+  for (const button of container.querySelectorAll("[data-view-progress]")) {
+    button.addEventListener("click", () => {
+      showProgressSection(button.getAttribute("data-view-progress"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-attendance]")) {
+    button.addEventListener("click", () => {
+      showAttendanceSection(button.getAttribute("data-view-attendance"), button.getAttribute("data-org-name"));
+    });
+  }
+
   for (const button of container.querySelectorAll("[data-view-messages]")) {
     button.addEventListener("click", () => {
       showMessagesSection(button.getAttribute("data-view-messages"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-view-audit]")) {
+    button.addEventListener("click", () => {
+      showAuditSection(button.getAttribute("data-view-audit"), button.getAttribute("data-org-name"));
     });
   }
 }
@@ -163,6 +373,11 @@ function renderRoster(roster) {
       <div>
         <h3>${escapeHtml(membership.coach_display_name || membership.coach_user_id)}</h3>
         <p>${escapeHtml(membership.coach_email || "")}</p>
+        <p class="muted small">
+          Invited ${escapeHtml(formatDate(membership.invited_at_iso8601))}
+          ${membership.activated_at_iso8601 ? ` &middot; Joined ${escapeHtml(formatDate(membership.activated_at_iso8601))}` : ""}
+          ${membership.removed_at_iso8601 ? ` &middot; Removed ${escapeHtml(formatDate(membership.removed_at_iso8601))}` : ""}
+        </p>
       </div>
       <div class="record-meta">
         <span class="badge ${membership.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(membership.membership_status)}</span>
@@ -193,6 +408,10 @@ function showRosterSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -236,6 +455,10 @@ function showBillingSection(orgId, orgName) {
   el("orgVisibilitySection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -292,15 +515,48 @@ function renderVisibility(visibility, coachNamesById) {
     <article class="record-card">
       <div>
         <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
-        <p>${coach.athletes.length === 0 ? "No athletes yet." : coach.athletes.map((athlete) => `
-          ${escapeHtml(athlete.display_name)} (${escapeHtml(athlete.email || "no email")}) - ${escapeHtml(relationshipStateLabel(athlete.relationship_state))}
-        `).join("<br />")}</p>
+        ${coach.athletes.length === 0 ? "<p>No athletes yet.</p>" : coach.athletes.map((athlete) => `
+          <div class="record-row">
+            <p>
+              ${escapeHtml(athlete.display_name)} (${escapeHtml(athlete.email || "no email")}) - ${escapeHtml(relationshipStateLabel(athlete.relationship_state))}
+              ${athlete.activity_id ? ` · ${escapeHtml(String(athlete.activity_id).replaceAll("_", " "))}` : " · No activity declared"}
+            </p>
+            ${athlete.activity_id ? positionSelectHtml(athlete.activity_id, athlete.position, athlete.athlete_user_id) : ""}
+          </div>
+        `).join("")}
       </div>
       <div class="record-meta">
         <span class="badge ${coach.membership_status === "active" ? "active" : "neutral"}">${membershipStatusLabel(coach.membership_status)}</span>
       </div>
     </article>
   `).join("");
+
+  for (const button of container.querySelectorAll("[data-position-override]")) {
+    button.addEventListener("click", () => {
+      const athleteUserId = button.getAttribute("data-position-override");
+      const select = container.querySelector(`[data-position-select="${CSS.escape(athleteUserId)}"]`);
+      const position = select ? select.value : "";
+      if (!position) return;
+      updateAthletePosition(athleteUserId, position).catch(console.error);
+    });
+  }
+}
+
+async function updateAthletePosition(athleteUserId, position) {
+  el("orgVisibilityError").hidden = true;
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athletes/${encodeURIComponent(athleteUserId)}/position-override`,
+      { position }
+    );
+    await refreshVisibility();
+  }
+  catch (error) {
+    el("orgVisibilityError").hidden = false;
+    el("orgVisibilityError").textContent = "Could not update the athlete's position.";
+    console.error(error);
+  }
 }
 
 async function refreshVisibility() {
@@ -325,8 +581,13 @@ function showVisibilitySection(orgId, orgName) {
   el("orgBillingSection").hidden = true;
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
+  el("orgVisibilityRosterExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/athlete-visibility/export.csv`;
   el("orgVisibilityError").hidden = true;
   refreshVisibility().catch((error) => {
     el("orgVisibilityError").hidden = false;
@@ -342,16 +603,648 @@ function hideVisibilitySection() {
   el("orgCreateSection").hidden = false;
 }
 
+// Progress graphs slice 4 - an org-wide progress rollup, one compact
+// adherence chart per accepted athlete across every coach on this
+// organisation's roster. Only ever populated for a 'shared'-mode
+// ("team") org - an 'individual'-mode ("gym") org's rollup call always
+// rejects with org_progress_rollup_not_available_for_individual_org,
+// shown here as a factual explanation rather than a generic error (the
+// "Progress" button itself always renders for every organisation,
+// matching the existing "View athletes" button precedent - the server
+// decides what comes back, never the client).
+//
+// renderLineChartSvg/adherenceSeriesPoints below deliberately duplicate
+// public/app-src/components/LineChart.tsx's geometry and design exactly
+// (same viewBox width, same padding, the same single-point-is-a-dot
+// rule, the same default color cycle reusing the identical CSS custom
+// properties from public/app/styles.css, which this app already links -
+// see index.html) rather than being imported from a shared module: this
+// file is a deliberately standalone, import-free module (see "org.js is
+// wholly separate..." below), and public/org/ has no bundler in any case
+// to share a .tsx React component with.
+const PROGRESS_CHART_COLORS = ["var(--k-accent)", "var(--k-warning)", "var(--k-danger)", "var(--k-accent-bright)"];
+const PROGRESS_CHART_VIEWBOX_WIDTH = 300;
+
+function progressChartCoordinate(point, index, total, height, minValue, valueRange, paddingY) {
+  const x = total > 1 ? (index / (total - 1)) * PROGRESS_CHART_VIEWBOX_WIDTH : PROGRESS_CHART_VIEWBOX_WIDTH / 2;
+  const y = height - paddingY - ((point.value - minValue) / valueRange) * (height - paddingY * 2);
+  return { x, y };
+}
+
+function progressChartPathFor(points, height, minValue, valueRange, paddingY) {
+  return points
+    .map((point, index) => {
+      const { x, y } = progressChartCoordinate(point, index, points.length, height, minValue, valueRange, paddingY);
+      return `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`;
+    })
+    .join(" ");
+}
+
+// series: [{ id, label, color?, points: [{ date, value }] }]
+function renderLineChartSvg(series, options = {}) {
+  const height = options.height ?? 80;
+  const compact = options.compact ?? false;
+  const emptyLabel = options.emptyLabel ?? "Not enough data yet.";
+
+  const nonEmptySeries = series.filter((entry) => entry.points.length > 0);
+  if (nonEmptySeries.length === 0) {
+    return `<div class="empty-state compact-empty"><p>${escapeHtml(emptyLabel)}</p></div>`;
+  }
+
+  const allValues = nonEmptySeries.flatMap((entry) => entry.points.map((point) => point.value));
+  const minValue = Math.min(...allValues);
+  const maxValue = Math.max(...allValues);
+  const valueRange = maxValue - minValue || 1;
+  const paddingY = compact ? 4 : 10;
+
+  const marks = nonEmptySeries.map((entry, seriesIndex) => {
+    const color = entry.color ?? PROGRESS_CHART_COLORS[seriesIndex % PROGRESS_CHART_COLORS.length];
+    if (entry.points.length === 1) {
+      const { x, y } = progressChartCoordinate(entry.points[0], 0, 1, height, minValue, valueRange, paddingY);
+      return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3" fill="${color}" />`;
+    }
+    return `<path d="${progressChartPathFor(entry.points, height, minValue, valueRange, paddingY)}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`;
+  }).join("");
+
+  const legend = !compact && nonEmptySeries.length > 1
+    ? `<div class="line-chart-legend">${nonEmptySeries.map((entry, seriesIndex) => {
+        const color = entry.color ?? PROGRESS_CHART_COLORS[seriesIndex % PROGRESS_CHART_COLORS.length];
+        return `<span class="line-chart-legend-item"><span class="line-chart-legend-swatch" style="background:${color}"></span>${escapeHtml(entry.label)}</span>`;
+      }).join("")}</div>`
+    : "";
+
+  const ariaLabel = nonEmptySeries.map((entry) => entry.label).join(", ");
+
+  return `
+    <div class="line-chart${compact ? " line-chart-compact" : ""}">
+      <svg viewBox="0 0 ${PROGRESS_CHART_VIEWBOX_WIDTH} ${height}" preserveAspectRatio="none" style="width:100%;height:${height}px;display:block" role="img" aria-label="${escapeHtml(ariaLabel)}">
+        ${marks}
+      </svg>
+      ${legend}
+    </div>
+  `;
+}
+
+// Mirrors CoachProgressOverviewPanel.tsx's adherenceSeriesPoints() exactly -
+// the one compact metric every athlete has data for, filtering out any
+// window with no adherence_percentage to plot.
+function adherenceSeriesPoints(insights) {
+  const series = insights?.session_adherence?.series;
+  if (!Array.isArray(series)) return [];
+  return series
+    .filter((window) => window.adherence_percentage !== null)
+    .map((window) => ({ date: String(window.window_end_date ?? ""), value: Number(window.adherence_percentage) }));
+}
+
+// Progress graphs slice 5 - an "individual"-mode ("gym") org's rollup
+// never carries an athlete_user_id, display_name or email (see
+// org_progress_rollup_service.ts's own DEV NOTE) - only a per-coach
+// AVERAGE adherence trend, itself withheld (insufficient_cohort) until
+// enough athletes contribute that the average could not trivially be
+// reverse-engineered to reveal one specific athlete's own number.
+function aggregateAdherenceSeriesPoints(coach) {
+  return (coach.adherence_series || [])
+    .filter((window) => window.average_adherence_percentage !== null)
+    .map((window) => ({ date: window.window_end_date, value: window.average_adherence_percentage }));
+}
+
+function renderAggregateProgress(coaches, coachNamesById) {
+  const container = el("orgProgressList");
+  if (coaches.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No coaches on this organisation's roster yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = coaches.map((coach) => `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge ${coach.insufficient_cohort ? "neutral" : "active"}">${coach.insufficient_cohort ? "Unavailable" : "Average adherence"}</span>
+      </div>
+      <div>
+        <h3>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</h3>
+        <p class="muted small">${escapeHtml(coach.active_athlete_count)} active athlete${coach.active_athlete_count === 1 ? "" : "s"}</p>
+      </div>
+      ${coach.insufficient_cohort
+        ? `<div class="empty-state compact-empty"><p>Not enough athletes yet for a privacy-safe average (fewer than 3).</p></div>`
+        : renderLineChartSvg(
+            [{ id: "average-adherence", label: "Average adherence %", points: aggregateAdherenceSeriesPoints(coach) }],
+            { compact: true, emptyLabel: "Not enough sessions to chart yet." }
+          )}
+    </article>
+  `).join("");
+}
+
+function renderRosterProgress(coaches, coachNamesById) {
+  const container = el("orgProgressList");
+  const athleteCount = coaches.reduce((total, coach) => total + coach.athletes.length, 0);
+
+  if (athleteCount === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No connected athletes yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = coaches.flatMap((coach) =>
+    coach.athletes.map((athlete) => `
+      <article class="record-card">
+        <div class="record-meta">
+          <span class="badge neutral">${athlete.insights ? "Adherence" : "Unavailable"}</span>
+        </div>
+        <div>
+          <h3>${escapeHtml(athlete.display_name)}</h3>
+          <p class="muted small">Coached by ${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</p>
+        </div>
+        ${renderLineChartSvg(
+          [{ id: "adherence", label: "Adherence %", points: adherenceSeriesPoints(athlete.insights) }],
+          {
+            compact: true,
+            emptyLabel: athlete.insights
+              ? "Not enough sessions to chart yet."
+              : "Progress could not be loaded for this athlete."
+          }
+        )}
+      </article>
+    `)
+  ).join("");
+}
+
+function renderProgress(rollup, coachNamesById) {
+  const coaches = Array.isArray(rollup.coaches) ? rollup.coaches : [];
+  if (rollup.visibility_mode === "individual") {
+    renderAggregateProgress(coaches, coachNamesById);
+    return;
+  }
+  renderRosterProgress(coaches, coachNamesById);
+}
+
+async function refreshProgress() {
+  const rosterResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`);
+  const coachNamesById = new Map();
+  for (const membership of Array.isArray(rosterResult.roster) ? rosterResult.roster : []) {
+    if (membership.coach_display_name) coachNamesById.set(membership.coach_user_id, membership.coach_display_name);
+  }
+
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/progress-rollup`);
+  renderProgress(result.rollup, coachNamesById);
+}
+
+function showProgressSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgProgressSection").hidden = false;
+  el("orgProgressOrgName").textContent = orgName;
+  el("orgProgressError").hidden = true;
+  el("orgProgressList").innerHTML = "";
+  refreshProgress().catch((error) => {
+    el("orgProgressError").hidden = false;
+    el("orgProgressError").textContent = "Could not load progress data.";
+    console.error(error);
+  });
+}
+
+function hideProgressSection() {
+  state.selectedOrgId = null;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+// Attendance events slice 4 - gym-mode (individual-visibility) org-wide
+// events, org-owner-only. Mirrors the "View athletes"/"Progress" pattern
+// exactly: the Attendance button always renders for every organisation
+// (the server decides what's allowed, never the client), and a
+// shared-mode org's create attempt is shown as a factual explanation
+// rather than a generic error. Creation deliberately has NO athlete
+// picker - see attendance_event_gym_roster_service.ts's own DEV NOTE for
+// why every currently-accepted athlete across the org's active coaches
+// is auto-invited server-side instead.
+function attendanceEventStatusLabel(status) {
+  return status === "cancelled" ? "Cancelled" : "Active";
+}
+
+function occurrenceStatusLabel(status) {
+  if (status === "skipped") return "Skipped";
+  if (status === "rescheduled") return "Rescheduled";
+  return "Scheduled";
+}
+
+function rsvpLabel(state_) {
+  if (state_ === "attending") return "Attending";
+  if (state_ === "maybe") return "Maybe";
+  if (state_ === "not_attending") return "Not attending";
+  return "No response yet";
+}
+
+function formatOccurrence(occurrence) {
+  const date = occurrence.occurrence_date || "";
+  const start = occurrence.start_time || null;
+  const end = occurrence.end_time || null;
+  if (start && end) return `${date}, ${start}–${end}`;
+  if (start) return `${date}, ${start}`;
+  return date;
+}
+
+function renderAttendanceEvents(events) {
+  const container = el("orgAttendanceList");
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No gym-wide events created yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = events.map((eventRecord) => `
+    <article class="record-card">
+      <div class="record-meta">
+        <span class="badge ${eventRecord.status === "cancelled" ? "neutral" : "active"}">${attendanceEventStatusLabel(eventRecord.status)}</span>
+      </div>
+      <h3>${escapeHtml(eventRecord.title)}</h3>
+      <button class="button secondary small-button" type="button" data-open-attendance-event="${escapeHtml(eventRecord.event_id)}">Open event</button>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-open-attendance-event]")) {
+    button.addEventListener("click", () => {
+      showAttendanceDetail(button.getAttribute("data-open-attendance-event")).catch(console.error);
+    });
+  }
+}
+
+async function refreshAttendanceEvents() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events`);
+  renderAttendanceEvents(Array.isArray(result.events) ? result.events : []);
+}
+
+function selectedWeekdayTokens() {
+  return Array.from(el("orgAttendanceWeekdaysFieldset").querySelectorAll("[data-weekday]"))
+    .filter((input) => input.checked)
+    .map((input) => input.getAttribute("data-weekday"));
+}
+
+function selectedEndsType() {
+  const checked = el("orgAttendanceCreateForm").querySelector('input[name="orgAttendanceEndsType"]:checked');
+  return checked ? checked.value : "after_count";
+}
+
+async function createAttendanceEvent(event) {
+  event.preventDefault();
+  el("orgAttendanceCreateError").hidden = true;
+  el("orgAttendanceCreateSuccess").hidden = true;
+
+  const repeats = el("orgAttendanceRepeats").checked;
+  let recurrenceRule = null;
+  if (repeats) {
+    const endsType = selectedEndsType();
+    recurrenceRule = {
+      frequency: el("orgAttendanceFrequency").value,
+      interval: Number.parseInt(el("orgAttendanceInterval").value, 10) || 1,
+      weekdays: el("orgAttendanceFrequency").value === "weekly" ? selectedWeekdayTokens() : [],
+      ends: endsType === "on_date"
+        ? { type: "on_date", value: el("orgAttendanceEndsOnDate").value }
+        : { type: "after_count", value: Number.parseInt(el("orgAttendanceEndsAfterCount").value, 10) || 1 }
+    };
+  }
+
+  try {
+    const result = await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events`, {
+      title: el("orgAttendanceTitle").value.trim(),
+      description: el("orgAttendanceDescription").value.trim(),
+      location: el("orgAttendanceLocation").value.trim(),
+      activity_label: el("orgAttendanceActivity").value.trim(),
+      occurrence_date: el("orgAttendanceDate").value,
+      start_time: el("orgAttendanceStartTime").value || null,
+      end_time: el("orgAttendanceEndTime").value || null,
+      recurrence_rule: recurrenceRule
+    });
+
+    el("orgAttendanceCreateForm").reset();
+    el("orgAttendanceRecurrenceFields").hidden = true;
+    el("orgAttendanceCreateSuccess").hidden = false;
+    el("orgAttendanceCreateSuccess").textContent =
+      `${result.event.title} created (${result.invited_count} athlete${result.invited_count === 1 ? "" : "s"} invited).`;
+    await refreshAttendanceEvents();
+  }
+  catch (error) {
+    el("orgAttendanceCreateError").hidden = false;
+    el("orgAttendanceCreateError").textContent = error.message;
+  }
+}
+
+function showAttendanceSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgAttendanceSection").hidden = false;
+  el("orgAttendanceOrgName").textContent = orgName;
+  el("orgAttendanceCalendarExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/attendance-events/calendar.ics`;
+  el("orgAttendanceCreateForm").reset();
+  el("orgAttendanceRecurrenceFields").hidden = true;
+  el("orgAttendanceCreateError").hidden = true;
+  el("orgAttendanceCreateSuccess").hidden = true;
+  el("orgAttendanceError").hidden = true;
+  refreshAttendanceEvents().catch((error) => {
+    el("orgAttendanceError").hidden = false;
+    el("orgAttendanceError").textContent = "Could not load attendance events.";
+    console.error(error);
+  });
+}
+
+function hideAttendanceSection() {
+  state.selectedOrgId = null;
+  el("orgAttendanceSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function renderAttendanceOccurrences(occurrences, roster) {
+  const container = el("orgAttendanceDetailOccurrences");
+  container.innerHTML = occurrences.map((occurrence) => {
+    const canAct = occurrence.status !== "skipped";
+    return `
+      <article class="record-card">
+        <div class="button-row" style="justify-content: space-between;">
+          <span>
+            <span class="badge ${occurrence.status === "skipped" ? "neutral" : occurrence.status === "rescheduled" ? "warning" : "active"}">${occurrenceStatusLabel(occurrence.status)}</span>
+            ${escapeHtml(formatOccurrence(occurrence))}
+          </span>
+          ${canAct ? `
+            <div class="button-row">
+              <button class="button secondary small-button" type="button" data-reschedule-occurrence="${escapeHtml(occurrence.occurrence_id)}">Reschedule</button>
+              <button class="button secondary small-button" type="button" data-skip-occurrence="${escapeHtml(occurrence.occurrence_id)}">Skip</button>
+            </div>
+          ` : ""}
+        </div>
+        ${occurrence.status === "rescheduled" && occurrence.rescheduled_to_date
+          ? `<p class="muted small">Moved to ${escapeHtml(occurrence.rescheduled_to_date)}${occurrence.rescheduled_to_start_time ? `, ${escapeHtml(occurrence.rescheduled_to_start_time)}` : ""}</p>`
+          : ""}
+        ${roster.length > 0 ? `
+          <div class="record-list">
+            ${roster.map((entry) => `
+              <div class="record-meta">
+                <span>${escapeHtml(entry.display_name)}</span>
+                <span class="badge neutral">${rsvpLabel(entry.rsvp_by_occurrence?.[occurrence.occurrence_id] ?? null)}</span>
+              </div>
+            `).join("")}
+          </div>
+        ` : ""}
+      </article>
+    `;
+  }).join("");
+
+  for (const button of container.querySelectorAll("[data-skip-occurrence]")) {
+    button.addEventListener("click", () => {
+      skipAttendanceOccurrence(button.getAttribute("data-skip-occurrence")).catch(console.error);
+    });
+  }
+  for (const button of container.querySelectorAll("[data-reschedule-occurrence]")) {
+    button.addEventListener("click", () => {
+      openRescheduleForm(button.getAttribute("data-reschedule-occurrence"));
+    });
+  }
+}
+
+function renderAttendanceRoster(roster) {
+  const container = el("orgAttendanceDetailRoster");
+  if (roster.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No athletes invited yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = roster.map((entry) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(entry.display_name)}</h3>
+        <p class="muted small">${escapeHtml(entry.email || "no email")}</p>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAttendanceDetail() {
+  const result = await api(
+    "GET",
+    `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}`
+  );
+  el("orgAttendanceDetailTitle").textContent = result.event.title;
+  renderAttendanceOccurrences(Array.isArray(result.occurrences) ? result.occurrences : [], Array.isArray(result.roster) ? result.roster : []);
+  renderAttendanceRoster(Array.isArray(result.roster) ? result.roster : []);
+  el("orgAttendanceCancelEventButton").hidden = result.event.status === "cancelled";
+}
+
+async function showAttendanceDetail(eventId) {
+  state.selectedAttendanceEventId = eventId;
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = false;
+  el("orgAttendanceRescheduleForm").hidden = true;
+  el("orgAttendanceDetailError").hidden = true;
+  try {
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = "Could not load event detail.";
+    console.error(error);
+  }
+}
+
+function hideAttendanceDetailSection() {
+  state.selectedAttendanceEventId = null;
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgAttendanceSection").hidden = false;
+  refreshAttendanceEvents().catch(console.error);
+}
+
+async function skipAttendanceOccurrence(occurrenceId) {
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/occurrences/${encodeURIComponent(occurrenceId)}/skip`
+    );
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
+}
+
+function openRescheduleForm(occurrenceId) {
+  state.reschedulingOccurrenceId = occurrenceId;
+  el("orgAttendanceRescheduleForm").hidden = false;
+  el("orgAttendanceRescheduleDate").value = "";
+  el("orgAttendanceRescheduleStartTime").value = "";
+  el("orgAttendanceRescheduleEndTime").value = "";
+}
+
+function closeRescheduleForm() {
+  state.reschedulingOccurrenceId = null;
+  el("orgAttendanceRescheduleForm").hidden = true;
+}
+
+async function confirmReschedule() {
+  const occurrenceId = state.reschedulingOccurrenceId;
+  if (!occurrenceId) return;
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/occurrences/${encodeURIComponent(occurrenceId)}/reschedule`,
+      {
+        new_date: el("orgAttendanceRescheduleDate").value,
+        new_start_time: el("orgAttendanceRescheduleStartTime").value || null,
+        new_end_time: el("orgAttendanceRescheduleEndTime").value || null
+      }
+    );
+    closeRescheduleForm();
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
+}
+
+async function cancelAttendanceEventFromDetail() {
+  try {
+    await api(
+      "POST",
+      `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/attendance-events/${encodeURIComponent(state.selectedAttendanceEventId)}/cancel`
+    );
+    await refreshAttendanceDetail();
+  }
+  catch (error) {
+    el("orgAttendanceDetailError").hidden = false;
+    el("orgAttendanceDetailError").textContent = error.message;
+  }
+}
+
+function auditActionTypeLabel(actionType) {
+  const labels = {
+    org_created: "Organisation created",
+    coach_invited: "Coach invited",
+    coach_membership_activated: "Coach joined",
+    coach_membership_removed: "Coach removed",
+    coach_membership_left: "Coach left",
+    seat_plan_changed: "Seat plan changed"
+  };
+  return labels[actionType] || actionType;
+}
+
+function auditActorRoleLabel(actorRole) {
+  return actorRole === "org_owner" ? "You" : "Coach";
+}
+
+function renderAuditLog(auditLog) {
+  const container = el("orgAuditList");
+  if (auditLog.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No recorded activity yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = auditLog.map((record) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(auditActionTypeLabel(record.action_type))}</h3>
+        <p>${escapeHtml(auditActorRoleLabel(record.actor_role))} · ${escapeHtml(formatDate(record.created_at))}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(record.actor_role)}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAuditLog() {
+  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/audit-log`);
+  renderAuditLog(Array.isArray(result.audit_log) ? result.audit_log : []);
+}
+
+function showAuditSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  el("orgListSection").hidden = true;
+  el("orgCreateSection").hidden = true;
+  el("orgRosterSection").hidden = true;
+  el("orgBillingSection").hidden = true;
+  el("orgVisibilitySection").hidden = true;
+  el("orgMessagesSection").hidden = true;
+  el("orgThreadDetailSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
+  el("orgAuditSection").hidden = false;
+  el("orgAuditOrgName").textContent = orgName;
+  el("orgAuditError").hidden = true;
+  refreshAuditLog().catch((error) => {
+    el("orgAuditError").hidden = false;
+    el("orgAuditError").textContent = "Could not load the activity log.";
+    console.error(error);
+  });
+}
+
+function hideAuditSection() {
+  state.selectedOrgId = null;
+  el("orgAuditSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+function formatAttachmentSize(bytes) {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) return "";
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function renderMessageAttachment(attachment) {
   if (!attachment) return "";
+  const sizeLabel = formatAttachmentSize(attachment.byte_size);
+  const sizeCaption = sizeLabel ? `<p class="message-attachment-size muted">${escapeHtml(sizeLabel)}</p>` : "";
   if (attachment.media_type === "image") {
-    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy" />`;
+    return `<img class="message-attachment-image" src="${escapeHtml(attachment.url)}" alt="Attached photo" loading="lazy" />${sizeCaption}`;
   }
   return `
     <video class="message-attachment-video" controls preload="metadata"
       ${attachment.thumbnail_url ? `poster="${escapeHtml(attachment.thumbnail_url)}"` : ""}>
       <source src="${escapeHtml(attachment.url)}" />
     </video>
+    ${sizeCaption}
   `;
 }
 
@@ -392,6 +1285,7 @@ function renderThreadList(container, entries, kind) {
         <p>${entry.thread ? `Updated ${escapeHtml(formatDate(entry.thread.updated_at_iso8601))}` : "No messages yet"}</p>
       </div>
       <div class="record-meta">
+        ${Number(entry.thread?.unread_count) > 0 ? `<span class="badge active">${Number(entry.thread.unread_count)} unread</span>` : ""}
         <button class="button secondary" type="button" data-open-counterpart="${index}">${entry.thread ? "Open" : "Message"}</button>
       </div>
     </article>
@@ -423,11 +1317,14 @@ async function refreshMessages() {
   // individual-mode org's visibility call below always resolves to
   // visibility_mode "individual" and simply yields no athlete counterparts
   // to message - matching the same boundary org_athlete_messaging_service.ts
-  // enforces server-side.
+  // enforces server-side. state.orgHasSharedVisibility drives the broadcast
+  // audience selector's "All athletes" option the same way.
   const athleteCounterparts = [];
+  let orgHasSharedVisibility = false;
   try {
     const visibilityResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/athlete-visibility`);
     if (visibilityResult.visibility.visibility_mode === "shared") {
+      orgHasSharedVisibility = true;
       for (const coach of visibilityResult.visibility.coaches) {
         for (const athlete of coach.athletes) {
           if (athlete.relationship_state === "accepted") {
@@ -440,6 +1337,11 @@ async function refreshMessages() {
   catch (error) {
     console.error(error);
   }
+
+  state.coachCounterparts = coachCounterparts;
+  state.athleteCounterparts = athleteCounterparts;
+  state.orgHasSharedVisibility = orgHasSharedVisibility;
+  updateBroadcastAudienceAvailability();
 
   const coachThreadsByCoachId = new Map();
   for (const thread of Array.isArray(coachThreadsResult.threads) ? coachThreadsResult.threads : []) {
@@ -454,6 +1356,97 @@ async function refreshMessages() {
   renderThreadList(el("orgAthleteThreadList"), buildCombinedThreadList(athleteCounterparts, athleteThreadsByAthleteId), "athlete");
 }
 
+// Kept separate from renderThreadList's counterpart names (which are only
+// current the moment refreshMessages() ran) - this reads state.*Counterparts
+// fresh each time it's called, so a broadcast sent moments after a roster
+// change still resolves the read-status list's display names correctly.
+function broadcastCounterpartName(audience, userId) {
+  const counterparts = audience === "coaches" ? state.coachCounterparts : state.athleteCounterparts;
+  return counterparts.find((entry) => entry.id === userId)?.name || userId;
+}
+
+function updateBroadcastAudienceAvailability() {
+  const athleteOption = el("orgBroadcastAudienceAthletesOption");
+  athleteOption.disabled = !state.orgHasSharedVisibility;
+  el("orgBroadcastAthleteHint").hidden = state.orgHasSharedVisibility;
+  if (!state.orgHasSharedVisibility && el("orgBroadcastAudience").value === "athletes") {
+    el("orgBroadcastAudience").value = "coaches";
+  }
+}
+
+function broadcastSendRoute(audience) {
+  return `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/broadcast/${audience}`;
+}
+
+function broadcastReadStatusRoute(audience, broadcastId) {
+  return `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/broadcast/${audience}/${encodeURIComponent(broadcastId)}/read-status`;
+}
+
+function renderBroadcastReadStatus(status, audience) {
+  const container = el("orgBroadcastReadStatus");
+  const entries = audience === "coaches" ? status.coaches : status.athletes;
+  const idKey = audience === "coaches" ? "coach_user_id" : "athlete_user_id";
+
+  container.hidden = entries.length === 0;
+  container.innerHTML = entries.map((entry) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(broadcastCounterpartName(audience, entry[idKey]))}</h3>
+      </div>
+      <div class="record-meta">
+        <span class="badge ${entry.read ? "active" : "neutral"}">${entry.read ? "Read" : "Unread"}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshBroadcastReadStatus() {
+  if (!state.lastBroadcastId || !state.lastBroadcastAudience) return;
+  const status = await api("GET", broadcastReadStatusRoute(state.lastBroadcastAudience, state.lastBroadcastId));
+  el("orgBroadcastResult").textContent = `Sent to ${status.sent_count} ${state.lastBroadcastAudience === "coaches" ? "coach(es)" : "athlete(s)"}. Read by ${status.read_count} of ${status.sent_count}.`;
+  renderBroadcastReadStatus(status, state.lastBroadcastAudience);
+}
+
+async function sendBroadcast(event) {
+  event.preventDefault();
+  el("orgBroadcastError").hidden = true;
+  el("orgBroadcastResult").hidden = true;
+  el("orgBroadcastRefreshButton").hidden = true;
+  el("orgBroadcastReadStatus").hidden = true;
+
+  const audience = el("orgBroadcastAudience").value;
+  try {
+    const result = await api("POST", broadcastSendRoute(audience), { body_text: el("orgBroadcastText").value });
+    el("orgBroadcastForm").reset();
+
+    const label = audience === "coaches" ? "coach(es)" : "athlete(s)";
+    el("orgBroadcastResult").hidden = false;
+    el("orgBroadcastResult").textContent = `Sent to ${result.sent_count} ${label}.`;
+
+    if (result.sent_count > 0) {
+      state.lastBroadcastAudience = audience;
+      state.lastBroadcastId = result.broadcast_id;
+      el("orgBroadcastRefreshButton").hidden = false;
+      await refreshBroadcastReadStatus();
+    }
+    else {
+      state.lastBroadcastAudience = null;
+      state.lastBroadcastId = null;
+    }
+
+    // A broadcast lazily creates a real thread per recipient, same as any
+    // other first send - refresh the coach/athlete thread-list previews so
+    // their "No messages yet" placeholders and unread badges reflect that
+    // immediately, matching hideThreadDetailSection()'s own precedent.
+    await refreshMessages();
+  }
+  catch (error) {
+    el("orgBroadcastError").hidden = false;
+    el("orgBroadcastError").textContent = "Could not send that broadcast.";
+    console.error(error);
+  }
+}
+
 function showMessagesSection(orgId, orgName) {
   state.selectedOrgId = orgId;
   el("orgListSection").hidden = true;
@@ -462,14 +1455,26 @@ function showMessagesSection(orgId, orgName) {
   el("orgBillingSection").hidden = true;
   el("orgVisibilitySection").hidden = true;
   el("orgThreadDetailSection").hidden = true;
+  el("orgAuditSection").hidden = true;
+  el("orgProgressSection").hidden = true;
+  el("orgAttendanceSection").hidden = true;
+  el("orgAttendanceDetailSection").hidden = true;
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
+  el("orgBroadcastForm").reset();
+  el("orgBroadcastError").hidden = true;
+  el("orgBroadcastResult").hidden = true;
+  el("orgBroadcastRefreshButton").hidden = true;
+  el("orgBroadcastReadStatus").hidden = true;
+  state.lastBroadcastAudience = null;
+  state.lastBroadcastId = null;
   refreshMessages().catch((error) => {
     el("orgMessagesError").hidden = false;
     el("orgMessagesError").textContent = "Could not load messages.";
     console.error(error);
   });
+  refreshNotificationBadge().catch(console.error);
 }
 
 function hideMessagesSection() {
@@ -549,6 +1554,10 @@ function hideThreadDetailSection() {
   state.selectedCounterpartName = "";
   el("orgThreadDetailSection").hidden = true;
   el("orgMessagesSection").hidden = false;
+
+  // Opening the thread we just left may have marked it read server-side -
+  // refresh the list so its unread badge reflects that immediately.
+  refreshMessages().catch(console.error);
 }
 
 async function sendThreadReply(event) {
@@ -697,6 +1706,7 @@ async function createOrganisation(event) {
   try {
     await api("POST", "/org/organisations", {
       org_name: el("orgCreateName").value,
+      activity_id: el("orgCreateActivityId").value,
       visibility_mode: el("orgCreateVisibilityMode").value
     });
     el("orgCreateForm").reset();
@@ -706,7 +1716,350 @@ async function createOrganisation(event) {
     el("orgCreateError").hidden = false;
     el("orgCreateError").textContent = error.message === "org_roster_org_name_required"
       ? "Enter an organisation name."
-      : "Could not create the organisation.";
+      : error.message === "org_roster_activity_required" || error.message === "org_roster_activity_invalid"
+        ? "Choose the organisation's sport."
+        : "Could not create the organisation.";
+    console.error(error);
+  }
+}
+
+// FULL-UI-79 data rights and closure - ported from useAccountDataRights.ts's
+// exact behavior (refresh via Promise.allSettled so one failing status read
+// never hides the other's real data; a real client_request_id idempotency
+// key kept in localStorage across a failed deletion submit, cleared only on
+// success) into this file's own vanilla state/el()/api() idiom, mirroring
+// the broadcast composer's own precedent from the prior slice. The
+// deletion-confirm form only exists in the DOM after a successful preview
+// fetch, so there is no client-side substitute for the server's own
+// "Type DELETE" check to bypass.
+const ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY = "kolosseum.org_owner.data_rights.deletion_client_request_id";
+
+function newOrgOwnerClientRequestId() {
+  if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+  return `crid_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+}
+
+function exportStatusLabel(status) {
+  if (status === "ready") return "Ready";
+  if (status === "expired") return "Expired";
+  if (status === "failed") return "Failed";
+  return "Pending";
+}
+
+function renderAccountExports(exportRequests) {
+  const container = el("orgAccountExportList");
+  if (exportRequests.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No exports requested yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = exportRequests.map((exportRequest) => `
+    <article class="record-card">
+      <div>
+        <h3>Requested ${escapeHtml(formatDate(exportRequest.requested_at_iso8601))}</h3>
+        ${exportRequest.downloaded_at_iso8601 ? `<p class="muted small">Downloaded ${escapeHtml(formatDate(exportRequest.downloaded_at_iso8601))}</p>` : ""}
+      </div>
+      <div class="record-meta">
+        <span class="badge ${exportRequest.status === "ready" ? "active" : "neutral"}">${exportStatusLabel(exportRequest.status)}</span>
+        ${exportRequest.status === "ready"
+          ? `<button class="button secondary small-button" type="button" data-download-export="${escapeHtml(exportRequest.export_request_id)}">Download</button>`
+          : ""}
+      </div>
+    </article>
+  `).join("");
+
+  for (const button of container.querySelectorAll("[data-download-export]")) {
+    button.addEventListener("click", () => {
+      downloadAccountExport(button.getAttribute("data-download-export")).catch(console.error);
+    });
+  }
+}
+
+function deletionStatusLabel(status) {
+  return status === "queued_for_review" ? "Queued for review" : status;
+}
+
+function renderAccountDeletionRequests(deletionRequests) {
+  const container = el("orgAccountDeletionList");
+  if (deletionRequests.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No deletion requests yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = deletionRequests.map((request) => `
+    <article class="record-card">
+      <div>
+        <h3>Requested ${escapeHtml(formatDate(request.requested_at_iso8601))}</h3>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(deletionStatusLabel(request.queue_status))}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshAccountDataRights() {
+  const [exportResult, deletionResult] = await Promise.allSettled([
+    api("GET", "/org/data-rights/export"),
+    api("GET", "/org/data-rights/deletion")
+  ]);
+
+  if (exportResult.status === "fulfilled") {
+    renderAccountExports(Array.isArray(exportResult.value.exports) ? exportResult.value.exports : []);
+  }
+  if (deletionResult.status === "fulfilled") {
+    renderAccountDeletionRequests(Array.isArray(deletionResult.value.deletion_requests) ? deletionResult.value.deletion_requests : []);
+  }
+  if (exportResult.status === "rejected" && deletionResult.status === "rejected") {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "Could not load data-rights status.";
+  }
+}
+
+async function requestAccountExport() {
+  el("orgAccountExportError").hidden = true;
+  el("orgAccountExportResult").hidden = true;
+
+  try {
+    const result = await api("POST", "/org/data-rights/export", {});
+    el("orgAccountExportResult").hidden = false;
+    el("orgAccountExportResult").textContent = `Export ready: ${result.export_request_id}`;
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "The export request could not be completed.";
+    console.error(error);
+  }
+}
+
+async function downloadAccountExport(exportRequestId) {
+  el("orgAccountExportError").hidden = true;
+
+  try {
+    const payload = await api("GET", `/org/data-rights/export/${encodeURIComponent(exportRequestId)}/download`);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `kolosseum-org-owner-data-export-${exportRequestId}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountExportError").hidden = false;
+    el("orgAccountExportError").textContent = "Could not download that export.";
+    console.error(error);
+  }
+}
+
+function renderDeletionRetentionNotices(notices) {
+  const container = el("orgAccountDeletionRetentionList");
+  container.innerHTML = notices.map((notice) => `
+    <article class="record-card">
+      <div>
+        <p>${escapeHtml(notice.copy)}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(notice.record_count)} record(s)</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function reviewAccountDeletion() {
+  el("orgAccountDeletionError").hidden = true;
+  el("orgAccountDeletionResult").hidden = true;
+
+  try {
+    const preview = await api("POST", "/org/data-rights/deletion/preview", {});
+    el("orgAccountDeletionNotice").textContent = preview.factual_notice || "";
+    renderDeletionRetentionNotices(Array.isArray(preview.retention_notices) ? preview.retention_notices : []);
+    el("orgAccountDeletionConfirmText").value = "";
+    el("orgAccountDeletionReview").hidden = false;
+  }
+  catch (error) {
+    el("orgAccountDeletionError").hidden = false;
+    el("orgAccountDeletionError").textContent = "Could not load deletion consequences.";
+    console.error(error);
+  }
+}
+
+async function confirmAccountDeletion(event) {
+  event.preventDefault();
+  el("orgAccountDeletionError").hidden = true;
+
+  const clientRequestId = window.localStorage.getItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY) || newOrgOwnerClientRequestId();
+  window.localStorage.setItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY, clientRequestId);
+
+  try {
+    const result = await api("POST", "/org/data-rights/deletion", {
+      confirmation: el("orgAccountDeletionConfirmText").value.trim(),
+      reason_code: "user_requested_erasure",
+      client_request_id: clientRequestId
+    });
+
+    window.localStorage.removeItem(ORG_OWNER_DELETION_CLIENT_REQUEST_ID_KEY);
+    el("orgAccountDeletionConfirmForm").reset();
+    el("orgAccountDeletionReview").hidden = true;
+    el("orgAccountDeletionResult").hidden = false;
+    el("orgAccountDeletionResult").textContent = result.replayed
+      ? `Deletion already requested: ${result.deletion_request_id}`
+      : `Deletion requested: ${result.deletion_request_id}`;
+    await refreshAccountDataRights();
+  }
+  catch (error) {
+    el("orgAccountDeletionError").hidden = false;
+    el("orgAccountDeletionError").textContent = error.message === "Type DELETE to confirm this request"
+      ? 'Type "DELETE" to confirm.'
+      : "The deletion request could not be completed.";
+    console.error(error);
+  }
+}
+
+// FULL-UI-95 org-owner support/error-reporting parity - ported from
+// useAccountSupport.ts's report-a-problem flow (FULL-UI-20) into this
+// file's own vanilla state/el()/api() idiom. Deliberately does not port
+// the React panel's separate "check platform status" or "retry the
+// failed GET request" features - this org page has no global fetch-error
+// interceptor to source a real failure_context from, so only the actual
+// identified gap (a report path org owner otherwise entirely lacks) is
+// built here; failure_context is simply omitted (the server accepts it as
+// optional).
+let orgSupportReportContext = null;
+
+function newOrgSupportCorrelationId() {
+  if (typeof crypto?.randomUUID === "function") return crypto.randomUUID();
+  return `corr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function orgSupportBrowserContextSnapshot() {
+  return {
+    user_agent: navigator.userAgent ?? "",
+    language: navigator.language ?? "",
+    viewport_width: window.innerWidth ?? null,
+    viewport_height: window.innerHeight ?? null,
+    timezone_offset_minutes: new Date().getTimezoneOffset()
+  };
+}
+
+function openOrgSupportReportForm() {
+  orgSupportReportContext = {
+    correlation_id: newOrgSupportCorrelationId(),
+    route_hash: "#/org",
+    occurred_at_iso8601: new Date().toISOString(),
+    browser_context: orgSupportBrowserContextSnapshot()
+  };
+
+  el("orgSupportResult").hidden = true;
+  el("orgSupportError").hidden = true;
+  el("orgSupportDescription").value = "";
+  el("orgSupportReportContext").innerHTML = `
+    <article class="record-card">
+      <div>
+        <h3>Correlation ID</h3>
+        <p class="muted small">${escapeHtml(orgSupportReportContext.correlation_id)}</p>
+      </div>
+      <div>
+        <h3>Timestamp</h3>
+        <p class="muted small">${escapeHtml(formatDate(orgSupportReportContext.occurred_at_iso8601))}</p>
+      </div>
+    </article>
+  `;
+  el("orgSupportReportPanel").hidden = false;
+}
+
+function closeOrgSupportReportForm() {
+  el("orgSupportReportPanel").hidden = true;
+}
+
+function supportRequestStatusLabel(status) {
+  if (status === "acknowledged") return "Acknowledged";
+  if (status === "closed") return "Closed";
+  return "Submitted";
+}
+
+function renderOrgSupportHistory(reports) {
+  const container = el("orgSupportHistoryList");
+  if (reports.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state compact-empty">
+        <p>No problems reported yet.</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = reports.map((report) => `
+    <article class="record-card">
+      <div>
+        <h3>${escapeHtml(formatDate(report.created_at_iso8601))}</h3>
+        <p class="muted small">${escapeHtml(report.description)}</p>
+      </div>
+      <div class="record-meta">
+        <span class="badge neutral">${escapeHtml(supportRequestStatusLabel(report.status))}</span>
+      </div>
+    </article>
+  `).join("");
+}
+
+async function refreshOrgSupportHistory() {
+  const result = await api("GET", "/org/support/reports");
+  renderOrgSupportHistory(Array.isArray(result.reports) ? result.reports : []);
+}
+
+async function submitOrgSupportReport(event) {
+  event.preventDefault();
+  el("orgSupportError").hidden = true;
+
+  const description = el("orgSupportDescription").value.trim();
+  if (!description || !orgSupportReportContext) return;
+
+  try {
+    const result = await api("POST", "/org/support/reports", {
+      correlation_id: orgSupportReportContext.correlation_id,
+      route_hash: orgSupportReportContext.route_hash,
+      occurred_at_iso8601: orgSupportReportContext.occurred_at_iso8601,
+      description,
+      browser_context: orgSupportReportContext.browser_context,
+      failure_context: {}
+    });
+    el("orgSupportReportPanel").hidden = true;
+    el("orgSupportResult").hidden = false;
+    el("orgSupportResult").textContent = `Report submitted. Correlation ID: ${result.report.correlation_id}`;
+    await refreshOrgSupportHistory();
+  }
+  catch (error) {
+    el("orgSupportError").hidden = false;
+    el("orgSupportError").textContent = "The report could not be submitted.";
+    console.error(error);
+  }
+}
+
+async function closeAccount(event) {
+  event.preventDefault();
+  el("orgAccountClosureError").hidden = true;
+
+  try {
+    await api("POST", "/org/closure", { confirmation: el("orgAccountClosureConfirmText").value.trim() });
+    location.reload();
+  }
+  catch (error) {
+    el("orgAccountClosureError").hidden = false;
+    el("orgAccountClosureError").textContent = error.message === "org_owner_account_closure_confirmation_required"
+      ? 'Type "CLOSE" to confirm.'
+      : "Could not close the account.";
     console.error(error);
   }
 }
@@ -722,15 +2075,36 @@ function boot() {
   el("orgSignInForm").addEventListener("submit", (event) => signIn(event).catch(console.error));
   el("orgRegisterForm").addEventListener("submit", (event) => register(event).catch(console.error));
   el("orgSignOutButton").addEventListener("click", () => signOut().catch(console.error));
+  el("orgNotificationBellButton").addEventListener("click", () => toggleNotificationPanel());
   el("orgCreateForm").addEventListener("submit", (event) => createOrganisation(event).catch(console.error));
   el("orgRosterInviteForm").addEventListener("submit", (event) => inviteCoach(event).catch(console.error));
   el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
+  el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
+  el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
+  el("orgAttendanceBackButton").addEventListener("click", () => hideAttendanceSection());
+  el("orgAttendanceCreateForm").addEventListener("submit", (event) => createAttendanceEvent(event).catch(console.error));
+  el("orgAttendanceRepeats").addEventListener("change", () => {
+    el("orgAttendanceRecurrenceFields").hidden = !el("orgAttendanceRepeats").checked;
+  });
+  el("orgAttendanceDetailBackButton").addEventListener("click", () => hideAttendanceDetailSection());
+  el("orgAttendanceRescheduleConfirmButton").addEventListener("click", () => confirmReschedule().catch(console.error));
+  el("orgAttendanceRescheduleCancelButton").addEventListener("click", () => closeRescheduleForm());
+  el("orgAttendanceCancelEventButton").addEventListener("click", () => cancelAttendanceEventFromDetail().catch(console.error));
   el("orgMessagesBackButton").addEventListener("click", () => hideMessagesSection());
+  el("orgBroadcastForm").addEventListener("submit", (event) => sendBroadcast(event).catch(console.error));
+  el("orgBroadcastRefreshButton").addEventListener("click", () => refreshBroadcastReadStatus().catch(console.error));
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));
+  el("orgAccountExportRequestButton").addEventListener("click", () => requestAccountExport().catch(console.error));
+  el("orgAccountDeletionReviewButton").addEventListener("click", () => reviewAccountDeletion().catch(console.error));
+  el("orgAccountDeletionConfirmForm").addEventListener("submit", (event) => confirmAccountDeletion(event).catch(console.error));
+  el("orgAccountClosureForm").addEventListener("submit", (event) => closeAccount(event).catch(console.error));
+  el("orgSupportReportButton").addEventListener("click", () => openOrgSupportReportForm());
+  el("orgSupportCancelButton").addEventListener("click", () => closeOrgSupportReportForm());
+  el("orgSupportReportForm").addEventListener("submit", (event) => submitOrgSupportReport(event).catch(console.error));
 }
 
 boot();

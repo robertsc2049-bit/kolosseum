@@ -349,6 +349,342 @@ ALTER TABLE beta_product_records
       )
     );
 
+-- beta_product_records_full_ui_37_type_migration
+-- Additive FULL-UI-37 athlete goal-setting record. A goal is a low-frequency
+-- self-declared fact, mirroring habit_definition's own shape and archival
+-- pattern exactly: one row per goal_id, superseded (never UPDATEd/DELETEd)
+-- by a new row when the athlete manually resolves it as achieved or
+-- abandoned - the newest row for a goal_id always wins on read. A goal
+-- optionally links to an existing body-metric type; when it does, its
+-- baseline value is captured once at creation time from the athlete's
+-- then-latest body_metric_entry and never backfilled. Progress toward the
+-- target is always computed fresh at read time from the athlete's current
+-- body_metric_entry rows - never stored, never engine-visible, never
+-- inferred.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal'
+      )
+    );
+
+-- beta_product_records_full_ui_64_type_migration
+-- Additive FULL-UI-64 athlete weekly check-in record. A check-in is a
+-- self-declared factual wellness snapshot - energy, motivation and
+-- sleep-quality ratings plus an optional note - mirroring
+-- habit_completion's own append-only, one-row-per-submission shape.
+-- Exactly one check-in is accepted per athlete per week_start_date; a
+-- second submission for an already-submitted week is rejected at the
+-- application layer rather than stored as a second row, so unlike
+-- athlete_goal/habit_definition there is never more than one row per
+-- checkin_id to disambiguate on read.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry'
+      )
+    );
+
+-- beta_product_records_full_ui_65_type_migration
+-- Additive FULL-UI-65 coach branding preference record. A brand
+-- preference (accent colour, optional tagline) is a coach's own declared
+-- presentation choice, additive to and separate from beta17_coach_profile
+-- - it never touches that record's fixed field shape, which the wider
+-- test suite creates directly via a strict exact-key contract. One
+-- preference exists per coach_user_id, superseded (never UPDATEd/
+-- DELETEd) by a new row on save, mirroring athlete_goal's own archival
+-- pattern.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference'
+      )
+    );
+
+-- beta_product_records_full_ui_67_type_migration
+-- Additive FULL-UI-67 programme template marketplace visibility record.
+-- Sharing a template is the owning coach's own declared visibility
+-- choice, additive to and separate from beta18_programme_template - it
+-- never touches that record's own field contract. One sharing
+-- preference exists per template_id, superseded (never UPDATEd/
+-- DELETEd) by a new row on save, mirroring coach_brand_preference's own
+-- archival pattern.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference'
+      )
+    );
+
+-- beta_product_records_full_ui_68_type_migration
+-- Additive FULL-UI-68 programme template release record. A release is a
+-- factual, immutable event: the owning coach released a copy of their
+-- own shared template to a specific buying coach, after being paid
+-- through whatever means the two coaches arranged off-platform - this
+-- application never processes, holds, or transmits any payment. Many
+-- release rows can exist per template (one per buyer); each is its own
+-- append-only record, never UPDATEd or DELETEd.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release'
+      )
+    );
+
+-- beta_product_records_full_ui_76_type_migration
+-- Additive FULL-UI-76 attendance events (a DIFFERENT, unrelated concept
+-- from beta19_coach_event/beta19_event_athlete_link - see
+-- src/api/attendance_event_service.ts's own DEV NOTE). attendance_event
+-- is the series/definition (descriptive fields only); attendance_event_
+-- occurrence is one row per computed calendar date, carrying the actual
+-- date/time/status; attendance_event_invite is the invited roster (one
+-- row per athlete, written once per series); attendance_event_rsvp is
+-- written only when an athlete actually responds. All four are
+-- append-only, never UPDATEd or DELETEd, "current" state = latest by
+-- effective_at, matching every other record type in this table.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp'
+      )
+    );
+
+-- beta_product_records_full_ui_83_type_migration
+-- Additive FULL-UI-83 athlete_activity_change_request. Tracks a single
+-- request/response timeline for changing an athlete's declared activity_id
+-- after onboarding - self-service (requested_by='athlete') or coach-proposed
+-- (requested_by='coach', requires the athlete's own confirm/decline before
+-- anything is applied). request_state transitions proposed -> declined |
+-- cancelled | queued | applied, or straight to queued|applied for
+-- self-service. Append-only, "current" = latest row by effective_at,
+-- matching every other record type in this table (e.g.
+-- beta17_coach_relationship's invited/accepted/declined shape).
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp',
+        'athlete_activity_change_request'
+      )
+    );
+
+-- beta_product_records_full_ui_89_type_migration
+-- Additive FULL-UI-89 beta17_relationship_athlete_ended. A narrow marker
+-- record written alongside (never instead of) the existing
+-- beta17_coach_relationship "revoked" transition whenever an athlete ends an
+-- accepted relationship from their own profile
+-- (relationship_invitation_service.ts's athleteEndsRelationship). The
+-- shared beta17_coach_relationship record type has no way to distinguish
+-- an athlete-initiated revoke from the coach's own - its actor_user_id is
+-- always the coach regardless of who acted - so this dedicated record type
+-- exists purely to let product_notification_service.ts notify the coach
+-- when it was the athlete who ended things, the symmetric reverse of the
+-- coach's own revoke (which the athlete is already notified of via
+-- relationship_revoked). subject_user_id is the coach (the recipient),
+-- actor_user_id is the athlete who actually acted - one row per end event,
+-- append-only like every other record type here.
+ALTER TABLE beta_product_records
+  DROP CONSTRAINT IF EXISTS beta_product_records_type_check;
+
+ALTER TABLE beta_product_records
+  ADD CONSTRAINT beta_product_records_type_check
+    CHECK (
+      record_type IN (
+        'beta16_auth',
+        'beta16_acknowledgement',
+        'beta16_phase1_declaration',
+        'beta17_coach_profile',
+        'beta17_coach_relationship',
+        'beta17_assignment_trigger',
+        'beta18_programme_template',
+        'beta19_athlete_strength_profile',
+        'beta19_coach_event',
+        'beta19_event_athlete_link',
+        'beta_progress_photo',
+        'body_metric_entry',
+        'habit_definition',
+        'habit_completion',
+        'device_connection_record',
+        'device_metric_entry',
+        'athlete_goal',
+        'weekly_checkin_entry',
+        'coach_brand_preference',
+        'programme_template_sharing_preference',
+        'programme_template_release',
+        'attendance_event',
+        'attendance_event_occurrence',
+        'attendance_event_invite',
+        'attendance_event_rsvp',
+        'athlete_activity_change_request',
+        'beta17_relationship_athlete_ended'
+      )
+    );
+
 -- FULL-UI-02 PRODUCT ACCOUNT ACCESS
 
 -- FULL-UI-02 runtime account principal bridge.
@@ -576,6 +912,11 @@ CREATE TABLE IF NOT EXISTS product_coach_notes (
     DEFAULT now()
 );
 
+-- Additive migration safety for existing DBs (if product_coach_notes was
+-- created earlier without the column).
+ALTER TABLE product_coach_notes
+  ADD COLUMN IF NOT EXISTS exercise_id TEXT;
+
 CREATE INDEX IF NOT EXISTS
   idx_product_coach_notes_coach_athlete_created
 ON product_coach_notes (
@@ -710,7 +1051,11 @@ CREATE TABLE IF NOT EXISTS product_notifications (
         'programme_available',
         'session_completed',
         'coach_note_visible',
-        'billing_action_required'
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved'
       )
     ),
   source_record_type    TEXT NOT NULL,
@@ -731,6 +1076,576 @@ ON product_notifications (
   read_at,
   occurred_at DESC
 );
+
+-- product_notifications_full_ui_68_type_migration
+-- Additive FULL-UI-68 marketplace_template_released notification type. The
+-- CREATE TABLE IF NOT EXISTS above never re-runs against an
+-- already-existing table, so widening its inline notification_type CHECK
+-- needs this explicit migration too - the same DROP/ADD pattern already
+-- used for beta_product_records_type_check, targeting Postgres's default
+-- column-check name for this table.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released'
+      )
+    );
+
+-- product_notifications_full_ui_71_type_migration
+-- Additive FULL-UI-71 weekly_checkin_submitted notification type - same
+-- reason and same DROP/ADD pattern as the FULL-UI-68 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted'
+      )
+    );
+
+-- product_notifications_full_ui_72_type_migration
+-- Additive FULL-UI-72 video_feedback_received notification type - same
+-- reason and same DROP/ADD pattern as the FULL-UI-68 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received'
+      )
+    );
+
+-- product_notifications_full_ui_73_type_migration
+-- Additive FULL-UI-73 athlete_goal_achieved notification type - same
+-- reason and same DROP/ADD pattern as the FULL-UI-68 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved'
+      )
+    );
+
+-- product_notifications_full_ui_74_type_migration
+-- Additive FULL-UI-74 video_submitted notification type - same reason and
+-- same DROP/ADD pattern as the FULL-UI-73 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted'
+      )
+    );
+
+-- product_notifications_full_ui_75_type_migration
+-- Additive FULL-UI-75 marketplace_template_sold notification type - same
+-- reason and same DROP/ADD pattern as the FULL-UI-74 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold'
+      )
+    );
+
+-- product_notifications_attendance_events_slice_5_type_migration
+-- Additive attendance-events slice 5 notification types
+-- (attendance_event_invited/attendance_event_cancelled/
+-- attendance_event_occurrence_changed) - same reason and same DROP/ADD
+-- pattern as the FULL-UI-75 migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed'
+      )
+    );
+
+-- product_notifications_full_ui_83_type_migration
+-- Additive FULL-UI-83 activity_change_proposed/activity_change_applied -
+-- same DROP/ADD pattern as every migration above. activity_change_proposed
+-- alerts the athlete a coach proposed changing their declared activity and
+-- is awaiting their confirm/decline; activity_change_applied is a courtesy
+-- factual notice once a change (immediate or deferred) actually takes
+-- effect, matching session_completed's existing precedent.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied'
+      )
+    );
+
+-- product_notifications_full_ui_86_type_migration
+-- Additive FULL-UI-86 athlete_position_overridden - alerts the athlete when
+-- a team coach or their org owner has DIRECTLY overridden their declared
+-- position (the no-confirmation-needed tier introduced by FULL-UI-85),
+-- since that tier previously left the athlete with no signal at all that
+-- their own declaration changed - same DROP/ADD pattern as every migration
+-- above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden'
+      )
+    );
+
+-- product_notifications_full_ui_87_type_migration
+-- Additive FULL-UI-87 attendance_rsvp_declined - alerts the organizing
+-- coach when an invited athlete RSVPs "not attending" to one of their
+-- attendance-event occurrences, the symmetric reverse of the existing
+-- attendance_event_invited/cancelled/occurrence_changed trio (athlete-
+-- facing) - the organizer previously had zero passive signal for this,
+-- only a manual roster check - same DROP/ADD pattern as every migration
+-- above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined'
+      )
+    );
+
+-- product_notifications_full_ui_88_type_migration
+-- Additive FULL-UI-88 activity_change_declined - alerts the proposing coach
+-- when an athlete declines their coach-proposed activity or position
+-- change, the symmetric reverse of the existing activity_change_proposed/
+-- applied pair (athlete-facing) - the coach previously had zero signal that
+-- their proposal was rejected, only a manual re-check - same DROP/ADD
+-- pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined'
+      )
+    );
+
+-- product_notifications_full_ui_89_type_migration
+-- Additive FULL-UI-89 relationship_ended_by_athlete - alerts the coach when
+-- an athlete ends the relationship themselves (athleteEndsRelationship,
+-- writing the new beta17_relationship_athlete_ended marker record above),
+-- the symmetric reverse of the athlete's existing relationship_revoked
+-- notification for a coach-initiated end - the coach previously had zero
+-- signal that an athlete had left, only noticing on their next visit to
+-- the athlete list - same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete'
+      )
+    );
+
+-- product_notifications_full_ui_90_type_migration
+-- Additive FULL-UI-90 coach_athlete_message_received / org_owner_message_received
+-- - alerts a coach or athlete when the other party sends a new direct message
+-- (coach_athlete_message_received, both directions), or when their org owner
+-- messages them (org_owner_message_received, owner-as-sender only) - every
+-- messaging surface previously had zero passive signal outside its own
+-- live unread-count badge. Deliberately excludes the 2 directions where an
+-- org owner would be the recipient (coach->owner, athlete->owner): org
+-- owners live in the separate product_org_owner_accounts table with no
+-- notification-bell infrastructure of their own - same DROP/ADD pattern as
+-- every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received'
+      )
+    );
+
+-- product_notifications_full_ui_91_recipient_fk_relaxation
+-- FULL-UI-91 gives org owners the same bell-notification capability
+-- coaches/athletes already have, for messages a coach or athlete sends TO
+-- their org owner. Org owners are a wholly separate identity
+-- (product_org_owner_accounts, not product_accounts) - recipient_user_id's
+-- REFERENCES product_accounts(user_id) FK below must be dropped so an org
+-- owner's user_id is a legal recipient too. Confirmed safe: every query
+-- against product_notifications already treats recipient_user_id as an
+-- opaque TEXT filter key, never joined against product_accounts; no
+-- production deletion flow relies on the FK's ON DELETE CASCADE actually
+-- firing (coach/athlete self-service deletion only queues a GDPR delete
+-- request, never hard-deletes; org-owner closure only sets
+-- account_state = 'closed'; the only real DELETE FROM product_accounts is a
+-- failed-registration rollback, before any notification could exist for
+-- that user_id).
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_recipient_user_id_fkey;
+
+-- product_notifications_full_ui_91_type_migration
+-- Additive FULL-UI-91 owner_message_received_from_coach /
+-- owner_message_received_from_athlete - alerts an org owner when a coach or
+-- athlete sends them a new direct message, the remaining 2 directions
+-- FULL-UI-90 deliberately left out (org owners had no notification-bell
+-- infrastructure of their own until this migration). Two types, not one,
+-- because unlike FULL-UI-90's coach_athlete_message_received (where the
+-- RECIPIENT's role alone determined the payload shape), the recipient here
+-- is always the owner in both directions - the payload shape differs by
+-- SENDER instead - same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete'
+      )
+    );
 
 -- FULL-UI-20 factual status, support and error-reporting.
 -- Every row stores only an explicit, narrow allowlist of caller-supplied
@@ -874,7 +1789,8 @@ CREATE TABLE IF NOT EXISTS product_admin_audit_records (
         'account_state_change',
         'test_account_marked',
         'test_account_unmarked',
-        'support_request_status_change'
+        'support_request_status_change',
+        'org_owner_support_request_status_change'
       )
     ),
   target_record_type    TEXT NOT NULL,
@@ -904,6 +1820,34 @@ ON product_admin_audit_records (
   target_record_id,
   created_at DESC
 );
+
+-- FULL-UI-95 migration for environments that already applied the original
+-- product_admin_audit_records shape (before org_owner_support_request_
+-- status_change was added to action_type's allowed set).
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_admin_audit_records'
+      AND constraint_name = 'product_admin_audit_records_action_type_check'
+  ) THEN
+    ALTER TABLE product_admin_audit_records
+      DROP CONSTRAINT product_admin_audit_records_action_type_check;
+    ALTER TABLE product_admin_audit_records
+      ADD CONSTRAINT product_admin_audit_records_action_type_check
+      CHECK (
+        action_type IN (
+          'account_state_change',
+          'test_account_marked',
+          'test_account_unmarked',
+          'support_request_status_change',
+          'org_owner_support_request_status_change'
+        )
+      );
+  END IF;
+END;
+$$;
 
 -- Organisation/team billing and roster shell (commercial expansion, part B).
 -- An org owner is a wholly separate identity/session surface from
@@ -964,6 +1908,143 @@ ON product_org_owner_sessions (
   expires_at DESC
 );
 
+-- Org-owner self-service closure/GDPR data rights. Mirrors
+-- product_account_closure_requests/data_export_requests/data_deletion_requests
+-- exactly (same columns, same CHECK constraints), but FK'd to
+-- product_org_owner_accounts instead of product_accounts - an org owner is
+-- never a row in that table, by the same physical-separation design already
+-- documented above.
+CREATE TABLE IF NOT EXISTS org_owner_closure_requests (
+  closure_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  request_state text NOT NULL
+    CHECK (
+      request_state IN (
+        'requested',
+        'completed',
+        'cancelled'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  completed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_closure_requests_user_idx
+ON org_owner_closure_requests(
+  user_id,
+  requested_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS org_owner_data_export_requests (
+  export_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'pending'
+    CHECK (
+      status IN (
+        'pending',
+        'ready',
+        'expired',
+        'failed'
+      )
+    ),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  ready_at timestamptz,
+  expires_at timestamptz,
+  export_payload jsonb,
+  export_payload_hash text,
+  included_category_counts jsonb,
+  downloaded_at timestamptz,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_data_export_requests_user_idx
+ON org_owner_data_export_requests(
+  user_id,
+  requested_at DESC
+);
+
+CREATE TABLE IF NOT EXISTS org_owner_data_deletion_requests (
+  deletion_request_id text PRIMARY KEY,
+  user_id text NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  reason_code text NOT NULL,
+  queue_status text NOT NULL DEFAULT 'queued_for_review',
+  request_hash text NOT NULL,
+  retained_records jsonb NOT NULL DEFAULT '[]'::jsonb,
+  retention_boundary jsonb NOT NULL,
+  client_request_id text NOT NULL,
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, client_request_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  org_owner_data_deletion_requests_user_idx
+ON org_owner_data_deletion_requests(
+  user_id,
+  requested_at DESC
+);
+
+-- FULL-UI-95 org-owner support/error-reporting parity - mirrors
+-- product_support_requests's exact shape (FULL-UI-20), but FK'd to
+-- product_org_owner_accounts instead of product_accounts, matching every
+-- other org_owner_* parity table above (never a shared/reused FK target).
+CREATE TABLE IF NOT EXISTS org_owner_support_requests (
+  correlation_id   TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL
+    REFERENCES product_org_owner_accounts(user_id)
+    ON DELETE CASCADE,
+  route_hash       TEXT NOT NULL,
+  occurred_at      TIMESTAMPTZ NOT NULL,
+  description      TEXT NOT NULL
+    CHECK (
+      char_length(description) BETWEEN 1 AND 4000
+    ),
+  browser_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(browser_context) = 'object'
+    ),
+  failure_context  JSONB NOT NULL DEFAULT '{}'::jsonb
+    CHECK (
+      jsonb_typeof(failure_context) = 'object'
+    ),
+  status           TEXT NOT NULL DEFAULT 'submitted'
+    CHECK (
+      status IN ('submitted', 'acknowledged', 'closed')
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_org_owner_support_requests_user_created
+ON org_owner_support_requests (
+  user_id,
+  created_at DESC
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'org_owner_support_requests_set_updated_at'
+  ) THEN
+    CREATE TRIGGER org_owner_support_requests_set_updated_at
+    BEFORE UPDATE ON org_owner_support_requests
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at();
+  END IF;
+END;
+$$;
+
 CREATE TABLE IF NOT EXISTS product_organisations (
   org_id        TEXT PRIMARY KEY,
   owner_user_id TEXT NOT NULL
@@ -992,6 +2073,28 @@ CREATE TABLE IF NOT EXISTS product_organisations (
   visibility_mode TEXT NOT NULL DEFAULT 'individual'
     CHECK (
       visibility_mode IN ('individual', 'shared')
+    ),
+  -- Slice 3 of the sport-declaration redesign - purely informational team
+  -- sport, independent of any athlete's own declared activity/position.
+  -- Nullable/no-default/no-backfill (mirrors seat_limit's own pattern
+  -- above, not visibility_mode's): existing/pre-migration orgs simply have
+  -- no declared sport; "required" is enforced at the application level for
+  -- new org creation only. The literal list is hand-synced with
+  -- V1_ACTIVITY_IDS (shared/v1-boundary/v1ActivityRegistry.mjs) - SQL
+  -- can't reference the JS constant, same limitation visibility_mode's own
+  -- CHECK already lives with.
+  activity_id   TEXT
+    CHECK (
+      activity_id IS NULL OR activity_id IN (
+        'powerlifting', 'general_strength', 'rugby_union', 'strongman',
+        'hyrox', 'crossfit', 'football_soccer', 'netball', 'basketball',
+        'rugby_sevens', 'field_hockey', 'ice_hockey', 'volleyball',
+        'cricket', 'american_football', 'athletics', 'swimming',
+        'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
+        'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
+        'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+        'street_lifting'
+      )
     ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -1031,6 +2134,36 @@ BEGIN
     ALTER TABLE product_organisations
       ADD CONSTRAINT product_organisations_visibility_mode_check
       CHECK (visibility_mode IN ('individual', 'shared'));
+  END IF;
+END;
+$$;
+
+-- Migration for environments that already applied the product_organisations
+-- shape from before slice 3 of the sport-declaration redesign (no
+-- activity_id column).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_name = 'product_organisations'
+      AND column_name = 'activity_id'
+  ) THEN
+    ALTER TABLE product_organisations ADD COLUMN activity_id TEXT;
+    ALTER TABLE product_organisations
+      ADD CONSTRAINT product_organisations_activity_id_check
+      CHECK (
+        activity_id IS NULL OR activity_id IN (
+          'powerlifting', 'general_strength', 'rugby_union', 'strongman',
+          'hyrox', 'crossfit', 'football_soccer', 'netball', 'basketball',
+          'rugby_sevens', 'field_hockey', 'ice_hockey', 'volleyball',
+          'cricket', 'american_football', 'athletics', 'swimming',
+          'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
+          'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
+          'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+          'street_lifting'
+        )
+      );
   END IF;
 END;
 $$;
@@ -1127,7 +2260,8 @@ CREATE TABLE IF NOT EXISTS product_org_audit_records (
         'coach_membership_activated',
         'coach_membership_removed',
         'coach_membership_left',
-        'seat_plan_changed'
+        'seat_plan_changed',
+        'athlete_position_overridden'
       )
     ),
   before_state     JSONB NOT NULL
@@ -1203,7 +2337,40 @@ BEGIN
           'coach_membership_activated',
           'coach_membership_removed',
           'coach_membership_left',
-          'seat_plan_changed'
+          'seat_plan_changed',
+          'athlete_position_overridden'
+        )
+      );
+  END IF;
+END;
+$$;
+
+-- Migration for environments that already applied product_org_audit_records
+-- before slice 3 of the sport-declaration redesign (action_type enum
+-- missing 'athlete_position_overridden'). Runs unconditionally (the block
+-- above only fires once, the first time the actor_role column is added) so
+-- every subsequent schema apply keeps the constraint's value list current.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.constraint_column_usage
+    WHERE table_name = 'product_org_audit_records'
+      AND constraint_name = 'product_org_audit_records_action_type_check'
+  ) THEN
+    ALTER TABLE product_org_audit_records
+      DROP CONSTRAINT product_org_audit_records_action_type_check;
+    ALTER TABLE product_org_audit_records
+      ADD CONSTRAINT product_org_audit_records_action_type_check
+      CHECK (
+        action_type IN (
+          'org_created',
+          'coach_invited',
+          'coach_membership_activated',
+          'coach_membership_removed',
+          'coach_membership_left',
+          'seat_plan_changed',
+          'athlete_position_overridden'
         )
       );
   END IF;
@@ -1292,6 +2459,29 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- Coach-athlete unread tracking. Each side's own last-read marker is
+-- null until that side has ever opened the thread; unread count for a
+-- viewer is a live COUNT of the peer's messages with created_at after
+-- their own marker, never a stored/cached number - re-derived on every
+-- read, the same "never a stale cache" posture used throughout this
+-- codebase. Originally scoped to coach_athlete threads only;
+-- owner_last_read_at (below) extends the same pattern to org_owner_coach
+-- and org_owner_athlete threads, reusing these same coach_last_read_at/
+-- athlete_last_read_at columns for the coach/athlete side of each -
+-- exactly the same column-reuse-across-thread-type convention this
+-- table's own coach_user_id/athlete_user_id columns already use.
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS coach_last_read_at TIMESTAMPTZ;
+
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS athlete_last_read_at TIMESTAMPTZ;
+
+-- The org owner's own last-read marker - shared across both
+-- org_owner_coach and org_owner_athlete threads (the owner is always the
+-- opposite party in each), mirroring the two columns above.
+ALTER TABLE product_message_threads
+  ADD COLUMN IF NOT EXISTS owner_last_read_at TIMESTAMPTZ;
 
 -- No length bound exists on product_coach_notes.note_text (this
 -- codebase's only prior free-text precedent) - messages are much
@@ -1421,3 +2611,95 @@ BEGIN
   END IF;
 END;
 $$;
+
+-- FULL-UI-32 VIDEO FEEDBACK
+-- Athlete-recorded, per-exercise form-check videos and the coach's text
+-- reply. A genuinely new grain from product_coach_notes/session review:
+-- those are keyed by session_id + a synthetic per-session artefact_id
+-- only, with nothing finer-grained than "this session" - work_item_id
+-- here is the specific exercise within the session the video is for
+-- (same id the athlete-side "today" plan and session-execution client
+-- already use, see beta18_programme_template_service.ts and app.js
+-- currentFocusExerciseId). Video-only (no photo variant), so unlike
+-- product_messages there is no attachment_media_type discriminator
+-- column. exercise_label is an immutable snapshot captured at upload
+-- time so the coach queue never has to re-derive it from programme
+-- state later.
+CREATE TABLE IF NOT EXISTS product_video_submissions (
+  submission_id                     TEXT PRIMARY KEY,
+  athlete_user_id                   TEXT NOT NULL,
+  coach_user_id                     TEXT NOT NULL,
+  relationship_id                   TEXT NOT NULL,
+  session_id                        TEXT NOT NULL,
+  work_item_id                      TEXT NOT NULL,
+  exercise_label                    TEXT NOT NULL
+    CHECK (
+      char_length(btrim(exercise_label)) BETWEEN 1 AND 200
+    ),
+  caption                           TEXT
+    CHECK (
+      caption IS NULL OR char_length(btrim(caption)) BETWEEN 1 AND 4000
+    ),
+  attachment_mime_type               TEXT NOT NULL,
+  attachment_byte_size               INTEGER NOT NULL
+    CHECK (
+      attachment_byte_size > 0
+    ),
+  attachment_storage_key             TEXT NOT NULL,
+  attachment_thumbnail_storage_key   TEXT,
+  review_status                     TEXT NOT NULL DEFAULT 'pending'
+    CHECK (
+      review_status IN ('pending', 'reviewed')
+    ),
+  reviewed_at                       TIMESTAMPTZ,
+  client_request_id                 TEXT NOT NULL,
+  created_at                        TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  UNIQUE (athlete_user_id, client_request_id),
+
+  CHECK (
+    (review_status = 'pending' AND reviewed_at IS NULL)
+    OR
+    (review_status = 'reviewed' AND reviewed_at IS NOT NULL)
+  )
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submissions_coach_queue
+ON product_video_submissions (
+  coach_user_id,
+  review_status,
+  created_at ASC
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submissions_athlete_session
+ON product_video_submissions (
+  athlete_user_id,
+  session_id,
+  created_at ASC
+);
+
+-- Append-only, immutable coach feedback - mirrors product_coach_notes.
+-- Writing the first feedback row for a submission is what flips that
+-- submission's review_status to 'reviewed' (video_feedback_service.ts),
+-- never a second write path against product_video_submissions itself.
+CREATE TABLE IF NOT EXISTS product_video_submission_feedback (
+  feedback_id      TEXT PRIMARY KEY,
+  submission_id    TEXT NOT NULL
+    REFERENCES product_video_submissions(submission_id)
+    ON DELETE CASCADE,
+  coach_user_id    TEXT NOT NULL,
+  feedback_text    TEXT NOT NULL
+    CHECK (
+      char_length(btrim(feedback_text)) BETWEEN 1 AND 4000
+    ),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_video_submission_feedback_submission
+ON product_video_submission_feedback (
+  submission_id,
+  created_at ASC
+);

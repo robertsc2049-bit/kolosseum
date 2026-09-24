@@ -2,16 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repoRoot = process.cwd();
 
 const TOKEN_PREFIX = "v1_exercise_activity_applicability_coverage_";
 
-const lockedActivityIds = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const lockedActivityIds = V1_ACTIVITY_IDS;
 
 const requiredActivityContexts = Object.freeze([
   "training",
@@ -436,7 +433,35 @@ test("S-V1-23 locks exercise activity applicability to v1 activities, contexts, 
   assert.deepEqual(lockedActivityIds, [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman",
+    "hyrox",
+    "crossfit",
+    "football_soccer",
+    "netball",
+    "basketball",
+    "rugby_sevens",
+    "field_hockey",
+    "ice_hockey",
+    "volleyball",
+    "cricket",
+    "american_football",
+    "athletics",
+    "swimming",
+    "olympic_weightlifting",
+    "cycling",
+    "rowing",
+    "kayaking",
+    "boxing",
+    "wrestling",
+    "judo",
+    "brazilian_jiu_jitsu",
+    "muay_thai",
+    "mma",
+    "tennis",
+    "triathlon",
+    "rugby_league",
+    "street_lifting"
   ]);
 
   assert.deepEqual(requiredActivityContexts, [
@@ -507,7 +532,7 @@ test("S-V1-23 refuses unsupported activity leakage, duplicate keys, and conditio
     () => validateExerciseActivityApplicabilityCoverage({
       exerciseRecords: [
         makeExerciseRecord({
-          primary_activity_applicability: "strongman",
+          primary_activity_applicability: "weightlifting",
           secondary_activity_applicability: []
         })
       ],

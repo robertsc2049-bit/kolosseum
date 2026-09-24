@@ -7,6 +7,7 @@ import test, { mock } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repo = process.cwd();
 const handlersSourcePath = path.join(repo, "src", "api", "sessions.handlers.ts");
@@ -49,7 +50,8 @@ function makeSupportedActivityResponse(activity) {
   const exercisesByActivity = {
     powerlifting: ["squat", "bench_press"],
     rugby_union: ["trap_bar_deadlift", "bench_press"],
-    general_strength: ["deadlift", "row"]
+    general_strength: ["deadlift", "row"],
+    strongman: ["farmers_carry", "atlas_stone_carry"]
   };
 
   const exerciseIds = exercisesByActivity[activity];
@@ -146,14 +148,10 @@ function assertSupportedActivityContract(payload, activity) {
   }
 }
 
-test("plan-session-api preserves supported activity contract end-to-end across powerlifting rugby_union and general_strength without DATABASE_URL dependency", async () => {
+test("plan-session-api preserves supported activity contract end-to-end across every v1 supported activity without DATABASE_URL dependency", async () => {
   planSessionServiceCalls.length = 0;
 
-  const supportedActivities = [
-    "powerlifting",
-    "rugby_union",
-    "general_strength"
-  ];
+  const supportedActivities = [...V1_ACTIVITY_IDS];
 
   for (const activity of supportedActivities) {
     const input = {
@@ -182,11 +180,7 @@ test("plan-session-api preserves supported activity contract end-to-end across p
 });
 
 test("plan-session-api supported activities do not fall through to stub-like empty exercise output", async () => {
-  const supportedActivities = [
-    "powerlifting",
-    "rugby_union",
-    "general_strength"
-  ];
+  const supportedActivities = [...V1_ACTIVITY_IDS];
 
   for (const activity of supportedActivities) {
     const req = makeReq({

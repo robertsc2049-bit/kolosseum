@@ -26,7 +26,9 @@ import {
   normalizeSummary,
   validateWireRuntimeEvent
 } from "@kolosseum/engine/runtime/session_summary.js";
-import { findSubstitutionRegistryEdge } from "./session_substitution_registry.js";
+import { findSubstitutionRegistryEdge, isKnownExerciseRegistryId } from "./session_substitution_registry.js";
+import { convertStrengthValue } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { applyQueuedActivityChangeIfDue } from "./athlete_activity_change_service.js";
 
 function cloneJson<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
@@ -253,13 +255,59 @@ async function allocNextSeq(client: any, session_id: string): Promise<number> {
 
 async function loadSessionForUpdate(client: any, session_id: string) {
   const r = await client.query(
-    `SELECT session_id, status, planned_session, session_state_summary
+    `SELECT session_id, block_id, status, planned_session, session_state_summary, beta_subject_user_id
      FROM sessions
      WHERE session_id = $1
      FOR UPDATE`,
     [session_id]
   );
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
+}
+
+async function loadBlockActivityId(client: any, block_id: string): Promise<string> {
+  const r = await client.query(
+    `SELECT phase1_input ->> 'activity_id' AS activity_id
+     FROM blocks
+     WHERE block_id = $1`,
+    [block_id]
+  );
+  return typeof r.rows[0]?.activity_id === "string" ? r.rows[0].activity_id : "";
+}
+
+// A logged extra set/exercise is a personal record when it beats every prior
+// logged weight for the same exercise - not an estimated-1RM/rep-max claim,
+// just the heaviest single weight this athlete has ever recorded. No prior
+// weight to beat means no PR (a first-ever entry has nothing to compare to).
+async function computeIsPersonalRecord(
+  client: any,
+  athleteUserId: string | null,
+  exerciseId: string,
+  newLoadValue: number,
+  newLoadUnit: "kg" | "lb"
+): Promise<boolean> {
+  if (!athleteUserId) return false;
+
+  const result = await client.query(
+    `SELECT re.event->>'load_value' AS load_value, re.event->>'load_unit' AS load_unit
+     FROM runtime_events re
+     JOIN sessions s ON s.session_id = re.session_id
+     WHERE s.beta_subject_user_id = $1
+       AND re.event->>'exercise_id' = $2
+       AND re.event->>'type' IN ('EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT')
+       AND re.event->>'load_value' IS NOT NULL`,
+    [athleteUserId, exerciseId]
+  );
+
+  if ((result.rowCount ?? 0) === 0) return false;
+
+  const newLoadKg = convertStrengthValue(newLoadValue, newLoadUnit, "kg");
+  const priorMaxKg = Math.max(
+    ...result.rows.map((row: any) =>
+      convertStrengthValue(Number(row.load_value), row.load_unit === "lb" ? "lb" : "kg", "kg")
+    )
+  );
+
+  return newLoadKg > priorMaxKg;
 }
 
 function rawEventType(raw: unknown): string | null {
@@ -495,7 +543,441 @@ function ensureRpeReportShapeValid(event: unknown, planned: PlannedSession, summ
   }
 }
 
-function ensureSubstitutionTagValid(event: unknown): void {
+const BORG_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "borg_value", "client_request_id"]);
+
+function ensureBorgReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "BORG_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!BORG_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (Borg report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_borg_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing Borg report exercise_id)", {
+      failure_token: "phase6_runtime_borg_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const borgValue = obj.borg_value;
+  if (!Number.isInteger(borgValue) || (borgValue as number) < 6 || (borgValue as number) > 20) {
+    throw badRequest("Runtime event rejected (Borg report must be a whole number between 6 and 20)", {
+      failure_token: "phase6_runtime_borg_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_BORG_REPORT_INVALID_SHAPE: borg_value"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (Borg report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_borg_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_BORG_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+const CR10_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "cr10_value", "client_request_id"]);
+
+function ensureCr10ReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "CR10_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!CR10_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (CR10 report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_cr10_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing CR10 report exercise_id)", {
+      failure_token: "phase6_runtime_cr10_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const cr10Value = obj.cr10_value;
+  if (
+    typeof cr10Value !== "number" ||
+    !Number.isFinite(cr10Value) ||
+    cr10Value < 0 ||
+    cr10Value > 10 ||
+    !Number.isInteger(cr10Value * 2)
+  ) {
+    throw badRequest("Runtime event rejected (CR10 report must be between 0 and 10 in half-point steps)", {
+      failure_token: "phase6_runtime_cr10_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_CR10_REPORT_INVALID_SHAPE: cr10_value"
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const knownIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) knownIds.add(id);
+  }
+
+  if (!knownIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (CR10 report exercise_id not part of this session)", {
+      failure_token: "phase6_runtime_cr10_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_CR10_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+const EXTRA_SET_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
+const EXTRA_SET_LOAD_UNITS = new Set(["kg", "lb"]);
+
+function ensureExtraSetReportShapeValid(event: unknown, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "EXTRA_SET_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!EXTRA_SET_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (extra set report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing extra set report exercise_id)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const reps = obj.reps;
+  if (!Number.isInteger(reps) || (reps as number) < 1) {
+    throw badRequest("Runtime event rejected (extra set report reps must be a positive whole number)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: reps"
+    });
+  }
+
+  const hasLoadValue = obj.load_value !== undefined;
+  const hasLoadUnit = obj.load_unit !== undefined;
+  if (hasLoadValue !== hasLoadUnit) {
+    throw badRequest("Runtime event rejected (extra set report load_value and load_unit must both be present or both absent)", {
+      failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load"
+    });
+  }
+
+  if (hasLoadValue) {
+    const loadValue = obj.load_value;
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue === 0) {
+      throw badRequest("Runtime event rejected (extra set report load_value must be a non-zero finite number)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load_value"
+      });
+    }
+
+    const loadUnit = obj.load_unit;
+    if (typeof loadUnit !== "string" || !EXTRA_SET_LOAD_UNITS.has(loadUnit)) {
+      throw badRequest("Runtime event rejected (extra set report load_unit must be kg or lb)", {
+        failure_token: "phase6_runtime_extra_set_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_SET_REPORT_INVALID_SHAPE: load_unit"
+      });
+    }
+  }
+
+  const trace = readSummaryTrace(summary);
+  const resolvedIds = new Set<string>([
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+
+  if (!resolvedIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra set report exercise_id is not an already-resolved exercise in this session)", {
+      failure_token: "phase6_runtime_extra_set_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_EXTRA_SET_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+const EXTRA_EXERCISE_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
+
+function ensureExtraExerciseReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "EXTRA_EXERCISE_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!EXTRA_EXERCISE_REPORT_ALLOWED_KEYS.has(key)) {
+      throw badRequest("Runtime event rejected (extra exercise report must record only the permitted factual input)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) {
+    throw badRequest("Runtime event rejected (missing extra exercise report exercise_id)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: exercise_id"
+    });
+  }
+
+  const reps = obj.reps;
+  if (!Number.isInteger(reps) || (reps as number) < 1) {
+    throw badRequest("Runtime event rejected (extra exercise report reps must be a positive whole number)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: reps"
+    });
+  }
+
+  const hasLoadValue = obj.load_value !== undefined;
+  const hasLoadUnit = obj.load_unit !== undefined;
+  if (hasLoadValue !== hasLoadUnit) {
+    throw badRequest("Runtime event rejected (extra exercise report load_value and load_unit must both be present or both absent)", {
+      failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load"
+    });
+  }
+
+  if (hasLoadValue) {
+    const loadValue = obj.load_value;
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue === 0) {
+      throw badRequest("Runtime event rejected (extra exercise report load_value must be a non-zero finite number)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load_value"
+      });
+    }
+
+    const loadUnit = obj.load_unit;
+    if (typeof loadUnit !== "string" || !EXTRA_SET_LOAD_UNITS.has(loadUnit)) {
+      throw badRequest("Runtime event rejected (extra exercise report load_unit must be kg or lb)", {
+        failure_token: "phase6_runtime_extra_exercise_report_invalid_shape",
+        cause: "PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_INVALID_SHAPE: load_unit"
+      });
+    }
+  }
+
+  const trace = readSummaryTrace(summary);
+  const prescribedIds = new Set<string>([
+    ...uniqStable(trace?.remaining_ids),
+    ...uniqStable(trace?.completed_ids),
+    ...uniqStable(trace?.dropped_ids)
+  ]);
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) prescribedIds.add(id);
+  }
+
+  if (prescribedIds.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra exercise report exercise_id is already part of this session's prescribed plan)", {
+      failure_token: "phase6_runtime_extra_exercise_report_already_prescribed",
+      cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_ALREADY_PRESCRIBED: ${exerciseId}`
+    });
+  }
+
+  if (!isKnownExerciseRegistryId(exerciseId)) {
+    throw badRequest("Runtime event rejected (extra exercise report exercise_id is not a recognized exercise)", {
+      failure_token: "phase6_runtime_extra_exercise_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_EXTRA_EXERCISE_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+// DEV NOTE: complex/AMRAP/EMOM/for-time work items execute and complete as
+// one group, not one exercise at a time. These helpers resolve a reported
+// group_id back to its member exercise_ids (and the group's own declared
+// group_type) from the frozen planned session - the only source of truth
+// for which work items belong to which group, since runtime state itself
+// only ever tracks flat exercise_id lists.
+function groupMembersFromPlanned(planned: PlannedSession, groupId: string): { exerciseIds: string[]; groupType: string | null } {
+  const exerciseIds: string[] = [];
+  let groupType: string | null = null;
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const record = ex as Record<string, unknown>;
+    if (typeof record?.exercise_id === "string" && record.group_id === groupId) {
+      exerciseIds.push(record.exercise_id);
+      if (typeof record.group_type === "string") groupType = record.group_type;
+    }
+  }
+  return { exerciseIds, groupType };
+}
+
+function ensureGroupResultReportShapeValid(
+  event: unknown,
+  planned: PlannedSession,
+  summary: any,
+  eventType: string,
+  allowedKeys: Set<string>,
+  expectedGroupType: string
+): void {
+  const t = rawEventType(event);
+  if (t !== eventType) return;
+
+  const obj = event as Record<string, unknown>;
+  for (const key of Object.keys(obj)) {
+    if (!allowedKeys.has(key)) {
+      throw badRequest(`Runtime event rejected (${eventType} must record only the permitted factual input)`, {
+        failure_token: "phase6_runtime_group_result_report_invalid_shape",
+        cause: `PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: ${key}`
+      });
+    }
+  }
+
+  const groupId = typeof obj.group_id === "string" ? obj.group_id.trim() : "";
+  if (!groupId) {
+    throw badRequest(`Runtime event rejected (missing ${eventType} group_id)`, {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: group_id"
+    });
+  }
+
+  const { exerciseIds, groupType } = groupMembersFromPlanned(planned, groupId);
+  if (exerciseIds.length === 0 || groupType !== expectedGroupType) {
+    throw badRequest(`Runtime event rejected (${eventType} group_id does not match a ${expectedGroupType} group in this session)`, {
+      failure_token: "phase6_runtime_group_result_report_unknown_group",
+      cause: `PHASE6_RUNTIME_GROUP_RESULT_REPORT_UNKNOWN_GROUP: ${groupId}`
+    });
+  }
+
+  const trace = readSummaryTrace(summary);
+  const remainingIds = uniqStable(trace?.remaining_ids);
+  const stillRemaining = exerciseIds.some((id) => remainingIds.includes(id));
+  if (!stillRemaining) {
+    throw conflict(`Runtime event rejected (${eventType} group already resolved)`, {
+      failure_token: "phase6_runtime_resolved_group_replay",
+      cause: `PHASE6_RUNTIME_RESOLVED_GROUP_REPLAY: ${groupId}`
+    });
+  }
+}
+
+const COMPLETE_GROUP_ALLOWED_KEYS = new Set(["type", "group_id", "client_request_id"]);
+
+function ensureCompleteGroupShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "COMPLETE_GROUP", COMPLETE_GROUP_ALLOWED_KEYS, "complex");
+}
+
+const AMRAP_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "extra_reps", "client_request_id"]);
+
+function ensureAmrapResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "AMRAP_RESULT_REPORT", AMRAP_RESULT_REPORT_ALLOWED_KEYS, "amrap");
+  const t = rawEventType(event);
+  if (t !== "AMRAP_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const roundsCompleted = obj.rounds_completed;
+  if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
+    throw badRequest("Runtime event rejected (AMRAP result rounds_completed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_completed"
+    });
+  }
+  const extraReps = obj.extra_reps;
+  if (!Number.isInteger(extraReps) || (extraReps as number) < 0) {
+    throw badRequest("Runtime event rejected (AMRAP result extra_reps must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: extra_reps"
+    });
+  }
+}
+
+const EMOM_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "rounds_missed", "client_request_id"]);
+
+function ensureEmomResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "EMOM_RESULT_REPORT", EMOM_RESULT_REPORT_ALLOWED_KEYS, "emom");
+  const t = rawEventType(event);
+  if (t !== "EMOM_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const roundsCompleted = obj.rounds_completed;
+  if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
+    throw badRequest("Runtime event rejected (EMOM result rounds_completed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_completed"
+    });
+  }
+  const roundsMissed = obj.rounds_missed;
+  if (!Number.isInteger(roundsMissed) || (roundsMissed as number) < 0) {
+    throw badRequest("Runtime event rejected (EMOM result rounds_missed must be a non-negative whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: rounds_missed"
+    });
+  }
+}
+
+const FOR_TIME_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "elapsed_seconds", "hit_time_cap", "client_request_id"]);
+
+function ensureForTimeResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  ensureGroupResultReportShapeValid(event, planned, summary, "FOR_TIME_RESULT_REPORT", FOR_TIME_RESULT_REPORT_ALLOWED_KEYS, "for_time");
+  const t = rawEventType(event);
+  if (t !== "FOR_TIME_RESULT_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const elapsedSeconds = obj.elapsed_seconds;
+  if (!Number.isInteger(elapsedSeconds) || (elapsedSeconds as number) <= 0) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must be a positive whole number)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds"
+    });
+  }
+  const hitTimeCap = obj.hit_time_cap;
+  if (typeof hitTimeCap !== "boolean") {
+    throw badRequest("Runtime event rejected (for-time result hit_time_cap must be a boolean)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: hit_time_cap"
+    });
+  }
+
+  const groupId = String(obj.group_id ?? "");
+  const { exerciseIds } = groupMembersFromPlanned(planned, groupId);
+  const capSeconds = exerciseIds.length > 0 ? Number((planned?.exercises ?? []).find((ex: any) => ex?.group_id === groupId)?.group_time_cap_seconds ?? 0) : 0;
+  if (hitTimeCap === true && capSeconds > 0 && elapsedSeconds !== capSeconds) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must equal the group's time cap when hit_time_cap is true)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds_vs_time_cap"
+    });
+  }
+  if (hitTimeCap === false && capSeconds > 0 && (elapsedSeconds as number) >= capSeconds) {
+    throw badRequest("Runtime event rejected (for-time result elapsed_seconds must be less than the group's time cap when hit_time_cap is false)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: elapsed_seconds_vs_time_cap"
+    });
+  }
+}
+
+const GROUP_COMPLETION_EVENT_TYPES = new Set(["COMPLETE_GROUP", "AMRAP_RESULT_REPORT", "EMOM_RESULT_REPORT", "FOR_TIME_RESULT_REPORT"]);
+
+function isGroupCompletionEventType(t: string | null): boolean {
+  return typeof t === "string" && GROUP_COMPLETION_EVENT_TYPES.has(t);
+}
+
+async function ensureSubstitutionTagValid(event: unknown, client: any, block_id: string): Promise<void> {
   const t = rawEventType(event);
   if (!isExerciseProgressEventType(t)) return;
 
@@ -515,7 +997,8 @@ function ensureSubstitutionTagValid(event: unknown): void {
   }
 
   const sourceExerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id : "";
-  const edge = findSubstitutionRegistryEdge(substitutionEdgeId, sourceExerciseId, substitutedExerciseId);
+  const activityId = await loadBlockActivityId(client, block_id);
+  const edge = findSubstitutionRegistryEdge(substitutionEdgeId, sourceExerciseId, substitutedExerciseId, activityId);
   if (!edge) {
     throw conflict("Runtime event rejected (substitution not declared by the substitution registry)", {
       failure_token: "phase6_runtime_substitution_tag_unlawful",
@@ -526,7 +1009,13 @@ function ensureSubstitutionTagValid(event: unknown): void {
 
 function ensureTerminalSessionEventRejected(summary: any, raw: unknown): void {
   const t = rawEventType(raw);
-  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t)) return;
+  // EXTRA_SET_REPORT/EXTRA_EXERCISE_REPORT are deliberately exempt: an
+  // athlete may log extra work (against an already-resolved prescribed
+  // exercise, or a brand-new one entirely) even after the whole session is
+  // terminal - see ensureExtraSetReportShapeValid/
+  // ensureExtraExerciseReportShapeValid, which independently scope which
+  // exercise_ids are eligible for each.
+  if (isExerciseProgressEventType(t) || isReturnDecisionEventType(t) || t === "EXTRA_SET_REPORT" || t === "EXTRA_EXERCISE_REPORT") return;
 
   const trace = readSummaryTrace(summary);
   const started = trace?.started === true;
@@ -640,7 +1129,7 @@ export async function appendRuntimeEventMutation(
   session_id: string,
   raw: unknown,
   clientRequestId?: string | null
-) {
+): Promise<{ ok: boolean; session_id: string; seq: number; replayed?: boolean; is_pr?: boolean }> {
   if (!raw) throw badRequest("Missing/invalid event");
 
   if (rawEventType(raw) === "START_SESSION") {
@@ -756,10 +1245,33 @@ export async function appendRuntimeEventMutation(
     ensureSkipReasonValid(event);
     ensurePainReportShapeValid(event, planned, workingSummary);
     ensureRpeReportShapeValid(event, planned, workingSummary);
-    ensureSubstitutionTagValid(event);
+    ensureBorgReportShapeValid(event, planned, workingSummary);
+    ensureCr10ReportShapeValid(event, planned, workingSummary);
+    ensureExtraSetReportShapeValid(event, workingSummary);
+    ensureExtraExerciseReportShapeValid(event, planned, workingSummary);
+    ensureCompleteGroupShapeValid(event, planned, workingSummary);
+    ensureAmrapResultReportShapeValid(event, planned, workingSummary);
+    ensureEmomResultReportShapeValid(event, planned, workingSummary);
+    ensureForTimeResultReportShapeValid(event, planned, workingSummary);
+    await ensureSubstitutionTagValid(event, client, s.block_id);
     ensureResolvedReturnDecisionReplayRejected(workingSummary, event);
     ensureExerciseReplayRejected(workingSummary, event);
     ensureTerminalSessionEventRejected(workingSummary, event);
+
+    let isPrResult: boolean | undefined;
+    if (
+      (event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT") &&
+      typeof event.load_value === "number"
+    ) {
+      isPrResult = await computeIsPersonalRecord(
+        client,
+        s.beta_subject_user_id ?? null,
+        event.exercise_id,
+        event.load_value,
+        event.load_unit === "lb" ? "lb" : "kg"
+      );
+      event = { ...event, is_pr: isPrResult };
+    }
 
     const seq = await allocNextSeq(client, session_id);
 
@@ -772,7 +1284,30 @@ export async function appendRuntimeEventMutation(
     let nextSummary: any;
     try {
       __kolosseumWireSentinel(event as any);
-      nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+
+      if (isGroupCompletionEventType(rawEventType(event))) {
+        // The one persisted runtime_events row above is the athlete's own
+        // reported fact (a complex mark-complete, or an AMRAP/EMOM/for-time
+        // result) - it never mutates reducer truth on its own (matching
+        // every other *_REPORT type, see toEngineEvent's default case).
+        // Completion is instead driven from here: every group member still
+        // in remaining_ids is folded through the exact same COMPLETE_EXERCISE
+        // path a single exercise already uses, so no new engine reducer
+        // case or export is needed for this.
+        const groupId = typeof (event as any)?.group_id === "string" ? (event as any).group_id : "";
+        const { exerciseIds: groupExerciseIds } = groupMembersFromPlanned(planned, groupId);
+        const trace0: any = deriveTrace(workingSummary as any) as any;
+        const remaining0 = new Set(uniqStable(trace0?.remaining_ids));
+
+        let folded = workingSummary;
+        for (const memberId of groupExerciseIds) {
+          if (!remaining0.has(memberId)) continue;
+          folded = applyWireEvent(folded, { type: "COMPLETE_EXERCISE", exercise_id: memberId } as any, planned as any) as any;
+        }
+        nextSummary = folded;
+      } else {
+        nextSummary = applyWireEvent(workingSummary, event as any, planned as any) as any;
+      }
     } catch (e: unknown) {
       mapEngineWireApplyError(e);
     }
@@ -813,6 +1348,14 @@ export async function appendRuntimeEventMutation(
          WHERE session_id = $1`,
         [session_id, JSON.stringify(nextSummary), terminalStatus]
       );
+
+      // FULL-UI-83: apply any activity change the athlete or their coach
+      // deferred until this session finished - same transaction, so it
+      // commits atomically with the session reaching its terminal state.
+      // Cheap no-op the overwhelming majority of the time.
+      if (s.beta_subject_user_id) {
+        await applyQueuedActivityChangeIfDue(client, s.beta_subject_user_id, session_id);
+      }
     } else {
       await client.query(
         `UPDATE sessions
@@ -830,7 +1373,12 @@ export async function appendRuntimeEventMutation(
     await client.query("COMMIT");
     invalidateSessionStateCache(session_id);
 
-    return { ok: true, session_id, seq };
+    return {
+      ok: true,
+      session_id,
+      seq,
+      ...(typeof isPrResult === "boolean" ? { is_pr: isPrResult } : {})
+    };
   } catch (err: unknown) {
     try { await client.query("ROLLBACK"); } catch {}
     throw err;

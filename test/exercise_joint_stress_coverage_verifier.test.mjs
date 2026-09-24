@@ -17,32 +17,32 @@ function buildRegistry() {
     entries: {
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         joint_stress_tags: ["knee_high", "hip_high"],
       },
       goblet_squat: {
         exercise_id: "goblet_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
         joint_stress_tags: ["knee_low", "hip_low"],
       },
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         joint_stress_tags: ["shoulder_medium"],
       },
       push_up: {
         exercise_id: "push_up",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
         joint_stress_tags: ["shoulder_low"],
       },
       overhead_press: {
         exercise_id: "overhead_press",
-        pattern: "vertical_push",
+        movement_pattern_id: "vertical_push",
         joint_stress_tags: ["shoulder_medium"],
       },
       pike_push_up: {
         exercise_id: "pike_push_up",
-        pattern: "vertical_push",
+        movement_pattern_id: "vertical_push",
         joint_stress_tags: ["shoulder_low"],
       },
     },
@@ -88,18 +88,18 @@ test("P73: fails when a lane has no low joint-stress option", () => {
     result.problems.some(
       (problem) =>
         problem.type === "missing_low_joint_stress_option" &&
-        problem.pattern === "horizontal_push",
+        problem.movement_pattern_id === "horizontal_push",
     ),
     true,
   );
 });
 
-test("P73: fails when an exercise is missing pattern", () => {
+test("P73: fails when an exercise is missing movement_pattern_id", () => {
   const registry = buildRegistry();
-  delete registry.entries.back_squat.pattern;
+  delete registry.entries.back_squat.movement_pattern_id;
 
   const result = evaluateJointStressCoverage(registry);
 
   assert.equal(result.ok, false);
-  assert.equal(result.problems[0].type, "missing_pattern");
+  assert.equal(result.problems[0].type, "missing_movement_pattern_id");
 });

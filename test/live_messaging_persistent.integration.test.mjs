@@ -161,6 +161,10 @@ async function registerCoach(baseUrl, nonce, label) {
     200, `${label} coach onboarding terms`
   );
   assertStatus(
+    await request(baseUrl, "PATCH", "/account/coach-onboarding/accessibility", { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } }, { cookie, csrf }),
+    200, `${label} coach onboarding accessibility`
+  );
+  assertStatus(
     await request(baseUrl, "POST", "/account/coach-onboarding/complete", { completion_confirmed: true }, { cookie, csrf }),
     200, `${label} coach onboarding complete`
   );
@@ -383,7 +387,7 @@ test(
     const coachB = await registerCoach(baseUrl, nonce, "b");
     coachUserIds.push(coachB.userId);
 
-    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Live Msg Test Gym" }, { cookie: owner.cookie, csrf: owner.csrf });
+    const org = await request(baseUrl, "POST", "/org/organisations", { org_name: "Live Msg Test Gym", activity_id: "powerlifting" }, { cookie: owner.cookie, csrf: owner.csrf });
     assertStatus(org, 201, "create organisation");
     const orgId = org.json?.organisation?.org_id;
 
@@ -440,7 +444,7 @@ test(
     // push mechanism is the same generic infra either way.
     // ============================================================
     const teamOrg = await request(
-      baseUrl, "POST", "/org/organisations", { org_name: "Live Msg Team Org", visibility_mode: "shared" },
+      baseUrl, "POST", "/org/organisations", { org_name: "Live Msg Team Org", activity_id: "powerlifting", visibility_mode: "shared" },
       { cookie: owner.cookie, csrf: owner.csrf }
     );
     assertStatus(teamOrg, 201, "create shared-mode organisation");

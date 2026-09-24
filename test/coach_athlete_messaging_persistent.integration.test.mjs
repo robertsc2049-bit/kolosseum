@@ -231,6 +231,13 @@ async function registerCoach(baseUrl, nonce, label) {
   );
   assertStatus(onboardingTerms, 200, `${label} coach onboarding terms`);
 
+  const onboardingAccessibility = await request(
+    baseUrl, "PATCH", "/account/coach-onboarding/accessibility",
+    { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } },
+    { cookie, csrf }
+  );
+  assertStatus(onboardingAccessibility, 200, `${label} coach onboarding accessibility`);
+
   const onboardingComplete = await request(
     baseUrl, "POST", "/account/coach-onboarding/complete",
     { completion_confirmed: true },
@@ -394,12 +401,26 @@ test(
     assertStatus(athleteThreads, 200, "athlete1 reads own threads");
     assert.equal(athleteThreads.json?.threads?.length, 1);
     assert.equal(athleteThreads.json?.threads?.[0]?.thread_id, threadId);
+    assert.equal(athleteThreads.json?.threads?.[0]?.unread_count, 1, "the coach's unread first message should count as 1 for athlete1");
 
     const athleteMessages = await request(baseUrl, "GET", `/messages/athlete/threads/${encodeURIComponent(threadId)}`, undefined, {
       cookie: athlete1.cookie
     });
     assertStatus(athleteMessages, 200, "athlete1 reads thread messages");
     assert.equal(athleteMessages.json?.messages?.length, 1);
+
+    // ============================================================
+    // Reading the thread's messages just marked it read for athlete1 -
+    // their own unread count drops to zero, while the coach side (who
+    // has never opened this thread) still shows their own unread state
+    // correctly (zero here too, since the coach sent the only message
+    // so far and never receives credit for their own send).
+    // ============================================================
+    const athleteThreadsAfterRead = await request(baseUrl, "GET", "/messages/athlete/threads", undefined, {
+      cookie: athlete1.cookie
+    });
+    assertStatus(athleteThreadsAfterRead, 200, "athlete1's threads after reading");
+    assert.equal(athleteThreadsAfterRead.json?.threads?.[0]?.unread_count, 0, "unread count drops to zero once the athlete has opened the thread");
 
     // ============================================================
     // Athlete replies - reuses the SAME thread, does not create a second.
@@ -417,6 +438,7 @@ test(
     });
     assertStatus(coachThreadsAfterReply, 200, "coachA's threads after the reply");
     assert.equal(coachThreadsAfterReply.json?.threads?.length, 1, "still exactly one thread, not two");
+    assert.equal(coachThreadsAfterReply.json?.threads?.[0]?.unread_count, 1, "the athlete's unread reply should count as 1 for coachA");
 
     const messagesAfterReply = await request(baseUrl, "GET", `/messages/coach/threads/${encodeURIComponent(threadId)}`, undefined, {
       cookie: coachA.cookie
@@ -427,6 +449,12 @@ test(
       messagesAfterReply.json?.messages?.map((m) => m.sender_role),
       ["coach", "athlete"]
     );
+
+    const coachThreadsAfterRead = await request(baseUrl, "GET", "/messages/coach/threads", undefined, {
+      cookie: coachA.cookie
+    });
+    assertStatus(coachThreadsAfterRead, 200, "coachA's threads after reading");
+    assert.equal(coachThreadsAfterRead.json?.threads?.[0]?.unread_count, 0, "unread count drops to zero once the coach has opened the thread");
 
     // ============================================================
     // Idempotent replay: the same client_request_id must not duplicate.
@@ -521,6 +549,12 @@ test(
       restartedMessages.json?.messages?.map((m) => m.sender_role),
       ["coach", "athlete"]
     );
+
+    const restartedThreads = await request(
+      restarted.baseUrl, "GET", "/messages/coach/threads", undefined, { cookie: coachA.cookie }
+    );
+    assertStatus(restartedThreads, 200, "coachA's threads after fresh-process restart");
+    assert.equal(restartedThreads.json?.threads?.[0]?.unread_count, 0, "the already-read state survives a fresh-process restart, reconstructed from Postgres");
   }
 );
 
@@ -647,6 +681,11 @@ test(
     assert.equal(imageSend.json?.message?.attachment?.media_type, "image");
     assert.equal(imageSend.json?.message?.attachment?.mime_type, "image/jpeg");
     assert.equal(imageSend.json?.message?.attachment?.thumbnail_url, null, "images never get a poster/thumbnail");
+    assert.ok(
+      typeof imageSend.json?.message?.attachment?.byte_size === "number" &&
+        imageSend.json.message.attachment.byte_size > 0,
+      "the attachment's real on-disk byte_size is returned, not a placeholder"
+    );
     assert.equal(imageSend.json?.message?.body_text, "Check your form on this rep.");
     const imageUrl = imageSend.json?.message?.attachment?.url;
     assert.ok(imageUrl?.startsWith("/messages/coach/attachments/"), "the sender's own URL uses the coach-side prefix");

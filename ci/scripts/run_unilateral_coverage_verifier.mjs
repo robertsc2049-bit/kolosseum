@@ -92,12 +92,12 @@ export function verifyUnilateralCoverage({
       }
 
       const actualPattern =
-        typeof entry.pattern === "string" && entry.pattern.trim() !== ""
-          ? entry.pattern
+        typeof entry.movement_pattern_id === "string" && entry.movement_pattern_id.trim() !== ""
+          ? entry.movement_pattern_id
           : null;
 
       if (!actualPattern) {
-        fail(`Required unilateral exercise '${requiredExerciseId}' is missing required field 'pattern'.`);
+        fail(`Required unilateral exercise '${requiredExerciseId}' is missing required field 'movement_pattern_id'.`);
       }
 
       if (actualPattern !== pattern) {

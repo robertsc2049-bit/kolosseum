@@ -1,0 +1,1 @@
+{"schema_version":"LAUNCH-02.NEGATIVE.1.0.0","slice_id":"LAUNCH-02","case_id":"founding_upgrade_restarts_clock","mutation":{"path":"founding_coach_offer.upgrade_does_not_restart_intro_clock","value":false},"expected_token":"LAUNCH_02_FOUNDING_CLOCK_RESTART_FORBIDDEN"}

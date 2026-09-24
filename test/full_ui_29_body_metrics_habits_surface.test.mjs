@@ -18,6 +18,28 @@ const recordStore = read("src/api/beta_product_record_store.ts");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
+// DEV NOTE: every rendering surface in this area - coach-side body-metric
+// history/log form, nutrition summary and habits mirror, plus the
+// athlete's own body-measurement log/history, nutrition log/summary and
+// habit create/complete/archive panel - has moved to React. See
+// public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx,
+// AthleteNutritionPanel.tsx, AthleteHabitsPanel.tsx,
+// public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx,
+// AthleteSelfNutritionPanel.tsx and AthleteSelfHabitsPanel.tsx (and their
+// __tests__ files) for behavioral coverage. Only the habit-streak
+// arithmetic itself (computeHabitStreak) stays server-side, as it always
+// was - see the DEV NOTE further down this file.
+const athleteBodyMetricsPanel = read("public/app-src/screens/coach/AthleteBodyMetricsPanel.tsx");
+const athleteNutritionPanel = read("public/app-src/screens/coach/AthleteNutritionPanel.tsx");
+const athleteHabitsPanel = read("public/app-src/screens/coach/AthleteHabitsPanel.tsx");
+const useAthleteHabits = read("public/app-src/screens/coach/useAthleteHabits.ts");
+const athleteSelfBodyMetricsPanel = read("public/app-src/screens/athlete/AthleteSelfBodyMetricsPanel.tsx");
+const useAthleteBodyMetricsSelf = read("public/app-src/screens/athlete/useAthleteBodyMetricsSelf.ts");
+const athleteSelfNutritionPanel = read("public/app-src/screens/athlete/AthleteSelfNutritionPanel.tsx");
+const useAthleteNutritionSelf = read("public/app-src/screens/athlete/useAthleteNutritionSelf.ts");
+const athleteSelfHabitsPanel = read("public/app-src/screens/athlete/AthleteSelfHabitsPanel.tsx");
+const useAthleteHabitsSelf = read("public/app-src/screens/athlete/useAthleteHabitsSelf.ts");
+const formatUtils = read("public/app-src/utils/format.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -113,29 +135,136 @@ test("no body-metric or habit file imports any engine-truth service", () => {
 });
 
 test("the athlete forms and coach read-only panels exist as real controls, and streak/caption text is escaped before rendering", () => {
-  assert.match(indexHtml, /id="bodyMetricLogForm"/u);
-  assert.match(indexHtml, /id="bodyMetricHistory"/u);
-  assert.match(indexHtml, /id="habitCreateForm"/u);
-  assert.match(indexHtml, /id="habitList"/u);
-  assert.match(indexHtml, /id="athleteDetailBodyMetricHistory"/u);
-  assert.match(indexHtml, /id="athleteDetailHabitList"/u);
+  assert.match(indexHtml, /id="athlete-self-body-metrics-root"/u);
+  assert.match(indexHtml, /id="athlete-self-habits-root"/u);
+  assert.match(indexHtml, /id="athlete-body-metrics-root"/u);
+  assert.match(indexHtml, /id="athlete-habits-root"/u);
 
-  assert.match(appJs, /escapeHtml\(habit\.habit_label\)/u);
-  assert.match(appJs, /escapeHtml\(entry\.note\)|escapeHtml\(label\)/u);
-  assert.match(appJs, /async function refreshBodyMetrics/u);
-  assert.match(appJs, /async function logBodyMetricEntry/u);
-  assert.match(appJs, /async function refreshCoachAthleteBodyMetrics/u);
-  assert.match(appJs, /async function createHabit/u);
-  assert.match(appJs, /async function logHabitCompletionToday/u);
-  assert.match(appJs, /async function refreshCoachAthleteHabits/u);
+  assert.match(athleteBodyMetricsPanel, /useAthleteBodyMetrics/u);
+
+  assert.match(athleteSelfBodyMetricsPanel, /export function AthleteSelfBodyMetricsPanel/u);
+  assert.match(athleteSelfBodyMetricsPanel, /type="submit"/u);
+  assert.match(useAthleteBodyMetricsSelf, /logAthleteBodyMetricSelf/u);
+
+  assert.match(athleteSelfHabitsPanel, /export function AthleteSelfHabitsPanel/u);
+  assert.match(athleteSelfHabitsPanel, /String\(habit\.habit_label\)/u);
+  assert.match(useAthleteHabitsSelf, /createHabitSelf/u);
+  assert.match(useAthleteHabitsSelf, /logHabitCompletionTodaySelf/u);
+  assert.match(useAthleteHabitsSelf, /archiveHabitSelf/u);
+  assert.match(athleteHabitsPanel, /useAthleteHabits/u);
+  assert.match(useAthleteHabits, /loadAthleteHabits/u);
 });
 
+// The manifest's body_metric_log function has declared actors ["athlete",
+// "coach"] and the /body-metrics/coach/:athlete_user_id route as
+// implemented since this slice first shipped - the coach-side route,
+// service function (logBodyMetricEntryAsCoach) and access check all
+// already existed, and until FULL-UI-29's original fix the coach's
+// athlete-detail panel only ever rendered a read-only history list, with
+// no form anywhere calling that route. That regression guard now checks
+// the React component (see the DEV NOTE above) which replaced the app.js
+// form this test used to check directly.
+test("the coach's athlete-detail panel actually renders a body-metric log form wired to the coach's own already-implemented write route", () => {
+  assert.match(athleteBodyMetricsPanel, /useAthleteBodyMetrics/u);
+  assert.match(athleteBodyMetricsPanel, /type="submit"/u);
+  assert.match(athleteBodyMetricsPanel, /Log measurement/u);
+
+  assert.match(
+    read("public/app-src/screens/coach/useAthleteBodyMetrics.ts"),
+    /saveAthleteBodyMetric/u
+  );
+  assert.match(
+    read("public/app-src/api/coachWorkspaceClient.ts"),
+    /`\/body-metrics\/coach\/\$\{encodeURIComponent\(athleteUserId\)\}`/u
+  );
+});
+
+// DEV NOTE: renderHabitCard() moved to AthleteSelfHabitsPanel.tsx's and
+// AthleteHabitsPanel.tsx's own HabitCard() - computeHabitStreak() itself
+// never moved (see the DEV NOTE at the top of this file); both components
+// just render the server-computed integers verbatim, same as this file
+// used to.
 test("habit streak counts are rendered as plain integers with factual copy, never a percentage or graded label", () => {
-  assert.match(appJs, /\$\{habit\.current_streak_length\} day\$\{habit\.current_streak_length === 1/u);
-  assert.doesNotMatch(appJs, /current_streak_length\}%|longest_streak_length\}%|adherence|readiness_/iu);
+  for (const source of [athleteSelfHabitsPanel, athleteHabitsPanel]) {
+    assert.match(source, /currentStreak\} day\{currentStreak === 1/u);
+
+    const habitCardMatch = source.match(/function HabitCard\(([\s\S]*?)\n\}\n/u);
+    assert.ok(habitCardMatch, "expected a HabitCard component body");
+    // Scoped to the habit-card renderer itself, not the whole file - the
+    // separate progress_insights feature (FULL-UI-36) legitimately renders
+    // "adherence" text elsewhere for session completion rates, an
+    // unrelated, already-accepted surface.
+    assert.doesNotMatch(habitCardMatch[1], /currentStreak\}%|longest_streak_length[^,]*%|adherence|readiness_/iu);
+  }
 });
 
-test("the FULL-UI-29 manifest area declares all seven functions as implemented with real tests", () => {
+test("nutrition reuses the body-metric type registry rather than a parallel record type or route", () => {
+  assert.match(lifecycle, /calories_kcal/u);
+  assert.match(lifecycle, /protein_g/u);
+  assert.match(lifecycle, /carbs_g/u);
+  assert.match(lifecycle, /fat_g/u);
+  // No new record_type, schema migration or route file for nutrition -
+  // it is exactly a body_metric_entry with a different metric_type.
+  assert.doesNotMatch(recordStore, /nutrition_entry|"nutrition_log"/u);
+});
+
+test("nutrition entries are excluded from the general body-measurements list and shown in their own dedicated panel", () => {
+  assert.match(formatUtils, /NUTRITION_METRIC_TYPES = \[/u);
+  assert.match(
+    athleteSelfBodyMetricsPanel,
+    /filter\(\(entry\) => !NUTRITION_METRIC_TYPES\.includes\(String\(entry\.metric_type\)\)\)/u
+  );
+  assert.match(athleteSelfNutritionPanel, /function groupByDate/u);
+  assert.match(athleteSelfNutritionPanel, /export function AthleteSelfNutritionPanel/u);
+  assert.match(useAthleteNutritionSelf, /logAthleteNutritionSelf/u);
+
+  assert.match(indexHtml, /id="athlete-self-nutrition-root"/u);
+  assert.match(indexHtml, /id="athlete-nutrition-root"/u);
+  assert.match(athleteNutritionPanel, /useAthleteNutrition/u);
+});
+
+test("every real METRIC_TYPES key has a display label - a device-synced body_weight_kg reading never renders as a raw field name", () => {
+  const sourceOfTruth = lifecycle.match(/const METRIC_TYPES =\s*\n?\s*new Map\(\[([\s\S]*?)\]\);/u);
+  assert.ok(sourceOfTruth, "expected METRIC_TYPES Map in bodyMetricsAndHabitsLifecycle.mjs");
+  const metricTypes = [...sourceOfTruth[1].matchAll(/\[\s*"([a-z_]+)"/gu)].map((match) => match[1]);
+  assert.ok(metricTypes.length > 0, "expected to parse at least one metric type");
+
+  const labelsBlock = formatUtils.match(/const BODY_METRIC_TYPE_LABELS: Record<string, string> = \{([\s\S]*?)\};/u);
+  assert.ok(labelsBlock, "expected BODY_METRIC_TYPE_LABELS object in public/app-src/utils/format.ts");
+
+  for (const metricType of metricTypes) {
+    assert.ok(
+      labelsBlock[1].includes(`${metricType}:`),
+      `expected BODY_METRIC_TYPE_LABELS to declare a label for ${metricType}`
+    );
+  }
+});
+
+test("every real METRIC_SOURCES value resolves to its own badge - device_synced never falls through to the athlete/coach badge", () => {
+  const sourceOfTruth = lifecycle.match(/const METRIC_SOURCES =\s*\n?\s*new Set\(\[([\s\S]*?)\]\);/u);
+  assert.ok(sourceOfTruth, "expected METRIC_SOURCES Set in bodyMetricsAndHabitsLifecycle.mjs");
+  const metricSources = [...sourceOfTruth[1].matchAll(/"([a-z_]+)"/gu)].map((match) => match[1]);
+  assert.ok(metricSources.length > 0, "expected to parse at least one metric source");
+
+  // DEV NOTE: bodyMetricSourceBadge() moved to
+  // AthleteSelfBodyMetricsPanel.tsx's sourceBadge() alongside the rest of
+  // the athlete's own body-metric rendering (see the DEV NOTE at the top of
+  // this file).
+  const badgeFn = athleteSelfBodyMetricsPanel.match(/function sourceBadge\(entry: JsonRecord\): string \{([\s\S]*?)\n\}/u);
+  assert.ok(badgeFn, "expected a sourceBadge helper in AthleteSelfBodyMetricsPanel.tsx");
+
+  for (const source of metricSources) {
+    if (source === "athlete_entered") continue;
+    assert.ok(
+      badgeFn[1].includes(`"${source}"`),
+      `expected sourceBadge to branch explicitly on ${source}`
+    );
+  }
+
+  assert.match(athleteSelfBodyMetricsPanel, /entry\.source === "device_synced"\) return "Device"/u);
+});
+
+test("the FULL-UI-29 manifest area declares all ten functions as implemented with real tests", () => {
   const area = manifest.product_areas.find((entry) => entry.area_id === "body_metrics_habits");
   assert.ok(area, "expected a body_metrics_habits product area");
   assert.equal(area.slice_id, "FULL-UI-29");
@@ -151,7 +280,10 @@ test("the FULL-UI-29 manifest area declares all seven functions as implemented w
       "habit_create",
       "habit_history_list",
       "habit_log_completion",
-      "habit_streak_display"
+      "habit_streak_display",
+      "nutrition_history_athlete",
+      "nutrition_history_coach",
+      "nutrition_log"
     ]
   );
 

@@ -168,6 +168,46 @@
       "state": "implemented"
     },
     {
+      "route_id": "coach_marketplace",
+      "pattern": "#/coach/marketplace",
+      "view": "marketplace",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_progress_overview",
+      "pattern": "#/coach/progress",
+      "view": "coach-progress",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "coach_attendance_events",
+      "pattern": "#/coach/attendance",
+      "view": "coach-attendance",
+      "actors": [
+        "coach"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
+      "route_id": "athlete_attendance_events",
+      "pattern": "#/athlete/attendance",
+      "view": "attendance",
+      "actors": [
+        "athlete"
+      ],
+      "entity_key": null,
+      "state": "implemented"
+    },
+    {
       "route_id": "shared_account",
       "pattern": "#/account",
       "view": "account",
@@ -200,7 +240,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/EntryAuthPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -223,7 +263,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/EntryAuthPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -270,7 +310,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -294,7 +334,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/EntryAuthPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -365,7 +405,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/EntryAuthPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -388,7 +428,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -411,7 +451,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -434,7 +474,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -457,7 +497,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -480,7 +520,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_02_account_ui.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountIdentityPanel.test.tsx",
           "integration_test": "test/full_ui_02c_identity_account_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -648,6 +688,31 @@
           }
         },
         {
+          "function_id": "training_focus_preferences",
+          "label": "Set zero or more training focus areas",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_onboarding",
+          "api_routes": [
+            "/account/onboarding",
+            "/account/onboarding/draft",
+            "/account/onboarding/confirm",
+            "/account/onboarding/preferences"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_03c_athlete_onboarding.test.mjs",
+          "integration_test": "test/full_ui_03c_athlete_onboarding_persistent_http.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "onboarding_review",
           "label": "Review and confirm onboarding declarations",
           "actors": [
@@ -721,6 +786,56 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_activity_change",
+          "label": "Change declared activity - self-service or coach-proposed, immediate or deferred",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_onboarding",
+          "api_routes": [
+            "/account/onboarding/activity-change",
+            "/account/onboarding/activity",
+            "/account/onboarding/activity-proposal-response",
+            "/account/onboarding/activity-proposal-cancel"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_83_athlete_activity_change_surface.test.mjs",
+          "integration_test": "test/full_ui_83_athlete_activity_change_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_position_change",
+          "label": "Declare or change position - self-service (immediate) or coach-proposed (immediate or deferred)",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_onboarding",
+          "api_routes": [
+            "/account/onboarding/preferences",
+            "/account/onboarding/activity-change",
+            "/account/onboarding/activity-proposal-response",
+            "/account/onboarding/activity-proposal-cancel"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -778,6 +893,29 @@
           }
         },
         {
+          "function_id": "coach_accessibility_preferences",
+          "label": "Declare accessibility preferences",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_onboarding",
+          "api_routes": [
+            "/account/coach-onboarding",
+            "/account/coach-onboarding/accessibility"
+          ],
+          "persistence": "append_only_account_events",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_04c_coach_commercial.test.mjs",
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "subscription_state",
           "label": "Display current subscription state",
           "actors": [
@@ -790,7 +928,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -812,7 +950,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -834,7 +972,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -856,7 +994,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -878,7 +1016,7 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -900,7 +1038,29 @@
           "persistence": "server_authoritative_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_09_manifest_reconciliation.test.mjs",
+          "direct_test": "public/app-src/__tests__/CommercialPanel.test.tsx",
+          "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "webhook_confirmation",
+          "label": "Record trusted Stripe webhook confirmation",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/webhooks/stripe"
+          ],
+          "persistence": "server_authoritative_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_04c_coach_commercial_webhook.test.mjs",
           "integration_test": "test/full_ui_04c_coach_commercial_persistent_http.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1132,6 +1292,52 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_04a_coach_athlete_directory.test.mjs",
           "integration_test": "test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_activity_change_proposal",
+          "label": "Propose a new activity for a connected athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/athlete-activity-change",
+            "/coach-workspace/athlete-activity-change-proposal"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_83_athlete_activity_change_surface.test.mjs",
+          "integration_test": "test/full_ui_83_athlete_activity_change_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_position_change_proposal",
+          "label": "Propose a new position for a connected athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athletes",
+          "api_routes": [
+            "/coach-workspace/athlete-position-change",
+            "/coach-workspace/athlete-position-change-proposal"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -1594,6 +1800,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "athlete_roster_csv_export",
+          "label": "Download a CSV of the coach's own athlete roster - name, email, activity, relationship state and connected-since date",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/coach-workspace/relationships/export.csv"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_70_athlete_roster_csv_export_surface.test.mjs",
+          "integration_test": "test/full_ui_70c_athlete_roster_csv_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -1616,7 +1844,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1638,7 +1866,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1660,7 +1888,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1682,7 +1910,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/product_template_builder_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1704,7 +1932,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1727,7 +1955,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1749,7 +1977,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_01_function_manifest.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1771,7 +1999,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1793,7 +2021,7 @@
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteStrengthProfilePanel.test.tsx",
           "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -1809,9 +2037,7 @@
             "coach"
           ],
           "route_id": "coach_athlete_detail",
-          "api_routes": [
-            "/coach-workspace/athlete-strength-preflight"
-          ],
+          "api_routes": [],
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
@@ -1833,13 +2059,13 @@
           ],
           "route_id": "athlete_session",
           "api_routes": [
-            "/coach-workspace/athlete-strength-resolve"
+            "/sessions/beta-athlete-today"
           ],
           "persistence": "append_only_immutable_strength_reference_snapshots",
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_08c_strength_reference_lifecycle.test.mjs",
-          "integration_test": "test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2125,6 +2351,50 @@
           "governing_boundary": null,
           "direct_test": "test/product_event_workspace_surface.test.mjs",
           "integration_test": "test/full_ui_09c_event_lifecycle_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "event_calendar_export",
+          "label": "Export the coach's active events as a downloadable RFC 5545 (.ics) calendar",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_events",
+          "api_routes": [
+            "/coach-workspace/events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/beta19_coach_event_service.test.mjs",
+          "integration_test": "test/beta19_coach_event_assignment.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_event_calendar_export",
+          "label": "Export the athlete's linked events as a downloadable RFC 5545 (.ics) calendar",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_today",
+          "api_routes": [
+            "/account/events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/product_event_workspace_surface.test.mjs",
+          "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -2726,7 +2996,7 @@
         },
         {
           "function_id": "builder_loading",
-          "label": "Set percentage, fixed load, bodyweight or RPE",
+          "label": "Set percentage, fixed load, bodyweight, RPE, Borg or CR10",
           "actors": [
             "coach"
           ],
@@ -2922,6 +3192,26 @@
             "empty": "incomplete",
             "error": "incomplete",
             "recovery": "incomplete"
+          }
+        },
+        {
+          "function_id": "builder_group_workout",
+          "label": "Author complex, AMRAP, EMOM or for-time exercise groups",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_programme_detail",
+          "api_routes": [],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_82_crossfit_group_workouts_surface.test.mjs",
+          "integration_test": "test/full_ui_82c_crossfit_group_workouts_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
           }
         }
       ]
@@ -3435,7 +3725,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3457,7 +3747,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3480,7 +3770,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3502,7 +3792,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3524,7 +3814,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3546,7 +3836,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3568,7 +3858,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3590,7 +3880,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3613,7 +3903,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteTodayPanel.test.tsx",
           "integration_test": "test/full_ui_14c_athlete_today_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -3707,6 +3997,26 @@
           "governing_boundary": null,
           "direct_test": "test/product_coach_programme_workspace.test.mjs",
           "integration_test": "test/full_ui_23_coach_athlete_journey_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "session_coaching_notes",
+          "label": "Show the coach's session-level notes before the athlete starts",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_14c_athlete_today_surface.test.mjs",
+          "integration_test": "test/beta_18_template_builder.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4012,6 +4322,28 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "session_group_workout",
+          "label": "Execute and record a complex, AMRAP, EMOM or for-time group",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/sessions/:id/events"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_82_crossfit_group_workouts_surface.test.mjs",
+          "integration_test": "test/full_ui_82c_crossfit_group_workouts_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -4034,7 +4366,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4056,7 +4388,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4078,7 +4410,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4100,7 +4432,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4122,7 +4454,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4144,7 +4476,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4166,7 +4498,7 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4210,8 +4542,30 @@
           "persistence": "server_sessions",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_16c_athlete_history_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
           "integration_test": "test/full_ui_16c_athlete_history_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "history_session_summary",
+          "label": "Display neutral session summary facts",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/sessions/:sessionId/summary"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteHistoryPanel.test.tsx",
+          "integration_test": "test/full_ui_81_neutral_session_summary_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -4468,6 +4822,28 @@
             "error": "incomplete",
             "recovery": "incomplete"
           }
+        },
+        {
+          "function_id": "review_session_summary",
+          "label": "Display neutral session summary facts",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/sessions/:sessionId/summary"
+          ],
+          "persistence": "server_sessions",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachReviewPanel.test.tsx",
+          "integration_test": "test/full_ui_81_neutral_session_summary_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -4685,6 +5061,294 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "notification_marketplace_release",
+          "label": "Notify a coach when another coach releases a marketplace template to their account, deep-linking straight to the new clone",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_69_marketplace_release_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_69c_marketplace_release_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_weekly_checkin",
+          "label": "Notify a coach when one of their accepted athletes submits a weekly check-in, deep-linking straight to that athlete's profile",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_71_weekly_checkin_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_71c_weekly_checkin_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_video_feedback",
+          "label": "Notify an athlete when their coach adds feedback on one of their video submissions, deep-linking straight to that session's history detail",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_72_video_feedback_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_72c_video_feedback_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_athlete_goal_achieved",
+          "label": "Notify a coach when one of their accepted athletes marks a goal achieved, deep-linking straight to that athlete's profile",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_73_athlete_goal_achieved_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_73c_athlete_goal_achieved_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_video_submitted",
+          "label": "Notify a coach when one of their accepted athletes submits a new exercise video, deep-linking straight to that athlete's review queue",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_74_video_submitted_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_74c_video_submitted_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_marketplace_template_sold",
+          "label": "Notify the selling coach when another coach buys their released marketplace template, deep-linking straight to their own original template",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_75_marketplace_template_sold_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_75c_marketplace_template_sold_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_attendance_event",
+          "label": "Notify an invited athlete when they're invited to an attendance event, when that event is cancelled, or when one of its occurrences is skipped or rescheduled - deep-linking to the athlete's own attendance view",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_77_attendance_event_notification_surface.test.mjs",
+          "integration_test": "test/attendance_events_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_athlete_position_overridden",
+          "label": "Notify an athlete when a team coach or their org owner has directly overridden their declared position, deep-linking to the athlete's own Today view",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_86_athlete_position_overridden_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_86c_athlete_position_overridden_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_attendance_rsvp_declined",
+          "label": "Notify the organizing coach when an invited athlete RSVPs not attending to one of their attendance events, deep-linking to the coach's own attendance view",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_87_attendance_rsvp_declined_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_87c_attendance_rsvp_declined_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_activity_change_declined",
+          "label": "Notify the proposing coach when an athlete declines their coach-proposed activity or position change, deep-linking to the coach's own detail view of that athlete",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_88_activity_change_declined_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_88c_activity_change_declined_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_relationship_ended_by_athlete",
+          "label": "Notify the coach when an athlete ends the relationship themselves, the symmetric reverse of the athlete's own relationship_revoked notification for a coach-initiated end",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_89_relationship_ended_by_athlete_notification_surface.test.mjs",
+          "integration_test": "test/full_ui_89c_relationship_ended_by_athlete_notification_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_coach_athlete_message",
+          "label": "Notify a coach or athlete when the other party sends a new direct message, deep-linking to the coach's athlete detail view or the athlete's shared account view",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_90_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_90c_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "notification_org_owner_message",
+          "label": "Notify a coach or athlete when their org owner sends them a new message, deep-linking to the recipient's own shared account view",
+          "actors": [
+            "athlete",
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/account/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_90_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_90c_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -4754,7 +5418,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4777,7 +5441,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4800,7 +5464,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4823,7 +5487,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4846,7 +5510,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4869,7 +5533,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4892,7 +5556,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4915,7 +5579,7 @@
           "persistence": "server_accounts",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_19_data_rights_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountDataRightsPanel.test.tsx",
           "integration_test": "test/full_ui_19_data_rights_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4946,7 +5610,7 @@
           "persistence": "runtime_health",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4969,7 +5633,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -4992,7 +5656,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -5015,7 +5679,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -5038,7 +5702,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -5061,7 +5725,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -5084,7 +5748,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_20_status_support_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AccountSupportPanel.test.tsx",
           "integration_test": "test/full_ui_20_status_support_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -5171,7 +5835,7 @@
         },
         {
           "function_id": "admin_entitlement",
-          "label": "Review coach entitlement and seats",
+          "label": "Review coach entitlement and seats, searchable by user ID, record type or billing access state",
           "actors": [
             "founder_admin"
           ],
@@ -5215,7 +5879,7 @@
         },
         {
           "function_id": "admin_support",
-          "label": "Review support and error records",
+          "label": "Review support and error records, searchable by correlation id, user ID, description or status",
           "actors": [
             "founder_admin"
           ],
@@ -5260,7 +5924,7 @@
         },
         {
           "function_id": "admin_data_requests",
-          "label": "Review export and deletion requests",
+          "label": "Review export and deletion requests, searchable by request ID, user ID, status or reason",
           "actors": [
             "founder_admin"
           ],
@@ -5283,7 +5947,7 @@
         },
         {
           "function_id": "admin_audit_action",
-          "label": "Record operational action audit",
+          "label": "Record operational action audit, searchable by actor, action type, target or correlation id",
           "actors": [
             "founder_admin"
           ],
@@ -5316,6 +5980,74 @@
           "governing_boundary": null,
           "direct_test": "test/full_ui_21_founder_admin_surface.test.mjs",
           "integration_test": "test/full_ui_21_founder_admin_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "admin_org_owner_account_search",
+          "label": "Search org owner accounts and review one account's identity and organisations owned",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-accounts",
+            "/admin/org-owner-accounts/:user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "admin_org_owner_account_state",
+          "label": "Change an org owner account's state between active and suspended, with an audited before/after record",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-accounts/:user_id/state"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "admin_org_owner_data_requests",
+          "label": "Review org owner GDPR export and deletion requests",
+          "actors": [
+            "founder_admin"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/admin/org-owner-data-rights/exports",
+            "/admin/org-owner-data-rights/deletions"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_80_admin_org_owner_visibility_surface.test.mjs",
+          "integration_test": "test/full_ui_80_admin_org_owner_visibility_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5448,6 +6180,72 @@
           }
         },
         {
+          "function_id": "org_owner_athlete_roster_csv_export",
+          "label": "Org owner downloads a CSV of their organisation's athlete roster - one row per athlete with real identity for shared-visibility (team) organisations, or aggregate per-coach counts only (never any athlete identity) for individual-visibility (gym) organisations, matching the same visibility_mode boundary as the athlete-visibility screen",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/athlete-visibility/export.csv"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_94_org_owner_athlete_roster_csv_export_surface.test.mjs",
+          "integration_test": "test/full_ui_94c_org_owner_athlete_roster_csv_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_progress_rollup",
+          "label": "View an org-wide progress rollup - a real per-athlete adherence chart per accepted athlete across every coach on the roster for shared-visibility (team) organisations, or a privacy-preserving per-coach average adherence trend (never an athlete identity, withheld entirely below a 3-athlete cohort) for individual-visibility (gym) organisations",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/progress-rollup"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/org_progress_rollup_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_audit_log",
+          "label": "View the organisation's recorded activity log",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/audit-log"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/org_audit_log_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "coach_org_membership",
           "label": "Coach reads, accepts and leaves org memberships from their own session",
           "actors": [
@@ -5495,7 +6293,7 @@
         },
         {
           "function_id": "org_coach_messaging",
-          "label": "Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only",
+          "label": "Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments - each thread carries a live unread count for its viewer, cleared when that viewer opens it. The coach side renders in the product app's account view (org owner side remains API-only, no dedicated frontend)",
           "actors": [
             "org_owner",
             "coach"
@@ -5528,7 +6326,7 @@
         },
         {
           "function_id": "org_athlete_messaging",
-          "label": "Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only",
+          "label": "Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only - each thread carries a live unread count for its owner/athlete viewer, cleared when that viewer opens it",
           "actors": [
             "org_owner",
             "athlete",
@@ -5565,6 +6363,250 @@
           }
         },
         {
+          "function_id": "org_owner_notification_coach_message",
+          "label": "Notify the org owner when a coach sends them a new direct message, deep-linking to that organisation's Messages section",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_91_org_owner_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_91c_org_owner_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_notification_athlete_message",
+          "label": "Notify the org owner when an athlete sends them a new direct message, deep-linking to that organisation's Messages section",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/notifications"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_91_org_owner_message_notifications_surface.test.mjs",
+          "integration_test": "test/full_ui_91c_org_owner_message_notifications_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_coach_broadcast_message",
+          "label": "Org owner sends the same message into every active coach's thread at once, with a live read-by-N-of-M receipt for that broadcast",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/broadcast/coaches",
+            "/org/organisations/:org_id/broadcast/coaches/:broadcast_id/read-status"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_78_org_broadcast_messaging_surface.test.mjs",
+          "integration_test": "test/full_ui_78c_org_broadcast_messaging_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_athlete_broadcast_message",
+          "label": "Org owner sends the same message into every accepted athlete's thread at once, gated to team (shared-visibility) orgs only, with a live read-by-N-of-M receipt for that broadcast",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/broadcast/athletes",
+            "/org/organisations/:org_id/broadcast/athletes/:broadcast_id/read-status"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_78_org_broadcast_messaging_surface.test.mjs",
+          "integration_test": "test/full_ui_78c_org_broadcast_messaging_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_account_closure",
+          "label": "Org owner requests self-service closure of their own owner account - a synchronous, non-cascading state flip; organisation(s) they own are untouched",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/closure"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_request",
+          "label": "Org owner requests a personal-data export covering their account, owned organisations, coach memberships, sent messages and audit records",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_status",
+          "label": "Display org owner export status",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_export_download",
+          "label": "Download available org owner export",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/export/:export_request_id/download"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_review",
+          "label": "Org owner reviews deletion consequences before confirming - which of their own records would be retained pending audit-integrity review",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion/preview"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_confirm",
+          "label": "Org owner confirms a deletion request, queuing it for review - never an immediate hard delete",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_data_deletion_status",
+          "label": "Display org owner deletion-request status",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/data-rights/deletion"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_79_org_owner_data_rights_surface.test.mjs",
+          "integration_test": "test/org_owner_data_rights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
           "function_id": "athlete_org_context",
           "label": "Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster",
           "actors": [
@@ -5585,6 +6627,165 @@
             "error": "covered_or_declared",
             "recovery": "covered_or_declared"
           }
+        },
+        {
+          "function_id": "org_owner_attendance_events",
+          "label": "Org owner creates a gym-wide attendance event (with no athlete picker - every currently-accepted athlete across every active coach is auto-invited server-side) for an individual-visibility ('gym') organisation they own, views full real identity and RSVP state on the roster for that one event, cancels it, and skips or reschedules a single occurrence - the fourth, narrowly-scoped exception to org_visibility_service.ts's gym-mode identity-hiding invariant",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/attendance-events",
+            "/org/organisations/:org_id/attendance-events/:event_id",
+            "/org/organisations/:org_id/attendance-events/:event_id/cancel",
+            "/org/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+            "/org/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_26_organisation_billing_surface.test.mjs",
+          "integration_test": "test/attendance_events_org_individual.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_attendance_calendar_export",
+          "label": "Org owner exports their gym-wide attendance events as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/attendance-events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_92_org_owner_attendance_calendar_export_surface.test.mjs",
+          "integration_test": "test/full_ui_92c_org_owner_attendance_calendar_export_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_team_position_override",
+          "label": "Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/coach-workspace/organisations/:org_id/athlete-roster",
+            "/coach-workspace/organisations/:org_id/team-athletes/:athlete_user_id/position-override"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_position_override",
+          "label": "Org owner directly overrides the position of an athlete already visible on their own shared-visibility roster",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/organisations/:org_id/athletes/:athlete_user_id/position-override"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_85_team_sport_position_surface.test.mjs",
+          "integration_test": "test/full_ui_85_team_sport_position_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_support_report_problem",
+          "label": "Report a problem",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_support_context",
+          "label": "Attach route, timestamp, browser and correlation ID",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "org_owner_support_history",
+          "label": "Display support request history",
+          "actors": [
+            "org_owner"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/org/support/reports"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_95_org_owner_support_surface.test.mjs",
+          "integration_test": "test/org_owner_support_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
         }
       ]
     },
@@ -5596,7 +6797,7 @@
       "functions": [
         {
           "function_id": "coach_athlete_messaging",
-          "label": "Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted",
+          "label": "Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted - each thread carries a live unread count for its viewer, cleared when that viewer opens it",
           "actors": [
             "coach",
             "athlete"
@@ -5620,6 +6821,29 @@
           "governing_boundary": null,
           "direct_test": "test/coach_athlete_messaging_surface.test.mjs",
           "integration_test": "test/coach_athlete_messaging_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_broadcast_message",
+          "label": "Coach sends the same message into every currently-accepted athlete's thread at once, with a live read-by-N-of-M receipt for that broadcast",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/messages/coach/broadcast",
+            "/messages/coach/broadcasts/:broadcast_id/read-status"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_66_coach_broadcast_messaging_surface.test.mjs",
+          "integration_test": "test/full_ui_66c_coach_broadcast_messaging_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -5992,7 +7216,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfProgressPhotosPanel.test.tsx",
           "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6003,7 +7227,7 @@
         },
         {
           "function_id": "progress_photo_athlete_history",
-          "label": "Display own progress photo history",
+          "label": "Display own progress photo history, with a side-by-side before/after comparison of any two selected photos",
           "actors": [
             "athlete"
           ],
@@ -6014,7 +7238,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfProgressPhotosPanel.test.tsx",
           "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6025,7 +7249,7 @@
         },
         {
           "function_id": "progress_photo_coach_view",
-          "label": "Display athlete progress photo history (read-only)",
+          "label": "Display athlete progress photo history (read-only), with the same side-by-side before/after comparison of any two selected photos",
           "actors": [
             "coach"
           ],
@@ -6036,7 +7260,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_28_progress_photos_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteProgressPhotosPanel.test.tsx",
           "integration_test": "test/full_ui_28c_progress_photos_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6090,7 +7314,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfBodyMetricsPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6112,7 +7336,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteBodyMetricsPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6135,7 +7359,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfHabitsPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6157,7 +7381,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfHabitsPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6206,6 +7430,72 @@
           "state": "implemented",
           "governing_boundary": null,
           "direct_test": "test/full_ui_29_body_metrics_habits_surface.test.mjs",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "nutrition_log",
+          "label": "Log daily calories, protein, carbs and fat as body_metric_entry facts under the same open metric-type registry",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/body-metrics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfNutritionPanel.test.tsx",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "nutrition_history_athlete",
+          "label": "Display own nutrition history grouped by day, separate from the general body-measurements list",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/body-metrics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfNutritionPanel.test.tsx",
+          "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "nutrition_history_coach",
+          "label": "Display an accepted athlete's nutrition history grouped by day, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/body-metrics/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteNutritionPanel.test.tsx",
           "integration_test": "test/full_ui_29c_body_metrics_habits_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6297,7 +7587,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6319,7 +7609,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6363,7 +7653,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6385,7 +7675,7 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteSelfDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
@@ -6408,8 +7698,647 @@
           "persistence": "server_product_records",
           "state": "implemented",
           "governing_boundary": null,
-          "direct_test": "test/full_ui_31_device_sync_surface.test.mjs",
+          "direct_test": "public/app-src/__tests__/AthleteDeviceSyncPanel.test.tsx",
           "integration_test": "test/s_v1_p_06_device_sync_contract_ingestion_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "video_feedback",
+      "title": "Exercise video feedback",
+      "slice_id": "FULL-UI-32",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "video_submission_capture",
+          "label": "Record or upload a form-check video for a specific exercise in a session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_session",
+          "api_routes": [
+            "/video-feedback"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSessionExecutionPanel.test.tsx",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_submission_history",
+          "label": "Display own video submissions and coach feedback for a session",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/video-feedback/submissions",
+            "/video-feedback/submissions/:submission_id",
+            "/video-feedback/submissions/:submission_id/media",
+            "/video-feedback/submissions/:submission_id/thumbnail"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_32_video_feedback_surface.test.mjs",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_queue",
+          "label": "Display pending video submissions awaiting coach review, across all athletes - searchable by athlete name or exercise",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/queue"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_detail",
+          "label": "Display a single video submission for coach review",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/submissions/:submission_id",
+            "/coach-workspace/video-feedback/submissions/:submission_id/media",
+            "/coach-workspace/video-feedback/submissions/:submission_id/thumbnail"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "video_feedback_reply",
+          "label": "Reply to a video submission with text feedback, marking it reviewed",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_review",
+          "api_routes": [
+            "/coach-workspace/video-feedback/submissions/:submission_id/feedback"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachVideoFeedbackQueuePanel.test.tsx",
+          "integration_test": "test/full_ui_32_video_feedback_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "progress_insights",
+      "title": "Progress insights",
+      "slice_id": "FULL-UI-36",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "progress_insights_athlete_summary",
+          "label": "Display computed session adherence, strength trends, habit consistency and body-metric trends over a rolling window",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/progress-insights"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfProgressInsightsPanel.test.tsx",
+          "integration_test": "test/full_ui_36_progress_insights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "progress_insights_coach_summary",
+          "label": "Display the same computed progress summary for an accepted athlete, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/progress-insights/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteProgressInsightsPanel.test.tsx",
+          "integration_test": "test/full_ui_36_progress_insights_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "progress_insights_coach_roster",
+          "label": "Display a roster-wide progress overview - one adherence chart per accepted athlete, in one view",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_progress_overview",
+          "api_routes": [
+            "/progress-insights/coach-roster"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachProgressOverviewPanel.test.tsx",
+          "integration_test": "test/coach_progress_rollup_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "athlete_goals",
+      "title": "Athlete goal-setting",
+      "slice_id": "FULL-UI-37",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "athlete_goal_create",
+          "label": "Declare a goal, optionally linked to an existing body-metric type with a target value and date",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_resolve",
+          "label": "Manually mark one of the athlete's own goals as achieved or abandoned",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals/:goal_id/resolve"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_list_athlete",
+          "label": "Display own goal list, each enriched with current value and progress toward target",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/athlete-goals"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfGoalsPanel.test.tsx",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "athlete_goal_list_coach",
+          "label": "Display an accepted athlete's goal list with the same enrichment, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/athlete-goals/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteGoalsPanel.test.tsx",
+          "integration_test": "test/full_ui_37_athlete_goals_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "weekly_checkins",
+      "title": "Athlete weekly check-in",
+      "slice_id": "FULL-UI-64",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "weekly_checkin_submit",
+          "label": "Submit a self-reported weekly check-in (energy, motivation, sleep quality, optional note) for a given week",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/weekly-checkins"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfWeeklyCheckinsPanel.test.tsx",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "weekly_checkin_list_athlete",
+          "label": "Display own weekly check-in history",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_history",
+          "api_routes": [
+            "/weekly-checkins"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteSelfWeeklyCheckinsPanel.test.tsx",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "weekly_checkin_list_coach",
+          "label": "Display an accepted athlete's weekly check-in history, read-only",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_athlete_detail",
+          "api_routes": [
+            "/weekly-checkins/coach/:athlete_user_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteWeeklyCheckinsPanel.test.tsx",
+          "integration_test": "test/full_ui_64c_weekly_checkins_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "coach_branding",
+      "title": "Coach branding preference",
+      "slice_id": "FULL-UI-65",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "coach_branding_save",
+          "label": "Save an accent colour and optional tagline shown on the coach's own athletes' view of them",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-branding"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AccountBrandingPanel.test.tsx",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_branding_load_own",
+          "label": "Display own saved branding preference for editing",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-branding"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AccountBrandingPanel.test.tsx",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "coach_branding_athlete_view",
+          "label": "Display the accepted coach's accent colour and tagline on the athlete's own \"My coach\" card",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "shared_account",
+          "api_routes": [
+            "/coach-workspace/relationships/mine"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_65_coach_branding_surface.test.mjs",
+          "integration_test": "test/full_ui_65c_coach_branding_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "programme_marketplace",
+      "title": "Programme template marketplace visibility",
+      "slice_id": "FULL-UI-67",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "programme_marketplace_share",
+          "label": "Declare one of the coach's own complete or active templates publicly browsable by other coaches, with an optional display-only price label and payment-methods note",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/sharing"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_67_programme_marketplace_surface.test.mjs",
+          "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_browse",
+          "label": "Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note - searchable, filterable by activity and sortable",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_marketplace",
+          "api_routes": [
+            "/programme-marketplace/templates"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/CoachMarketplacePanel.test.tsx",
+          "integration_test": "test/full_ui_67c_programme_marketplace_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_release",
+          "label": "Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/release"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_68_programme_marketplace_release_surface.test.mjs",
+          "integration_test": "test/full_ui_68c_programme_marketplace_release_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "programme_marketplace_release_history",
+          "label": "Display the coach's own history of who a shared template has been released to",
+          "actors": [
+            "coach"
+          ],
+          "route_id": null,
+          "api_routes": [
+            "/programme-marketplace/templates/:template_id/releases"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_68_programme_marketplace_release_surface.test.mjs",
+          "integration_test": "test/full_ui_68c_programme_marketplace_release_persistent.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        }
+      ]
+    },
+    {
+      "area_id": "attendance_events",
+      "title": "Attendance events - invite and RSVP",
+      "slice_id": "FULL-UI-76",
+      "state": "implemented",
+      "functions": [
+        {
+          "function_id": "attendance_event_create",
+          "label": "Coach creates a real calendar event or a full recurring series (weekdays, interval, end date or occurrence count) for their own accepted athletes, or - as any ACTIVE coach in a shared-visibility org - for the whole org's accepted-athlete roster across every coach",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events",
+            "/attendance-events/org-roster/:org_id"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AttendanceEventCreatePanel.test.tsx",
+          "integration_test": "test/attendance_events_org_shared.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "attendance_event_roster_view",
+          "label": "Coach views their own created events (including full recurring series and org-wide events, with full identity for every invited athlete regardless of which coach they belong to) and each invited athlete's current RSVP state per occurrence, cancels an event, and skips or reschedules a single occurrence",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events",
+            "/attendance-events/:event_id",
+            "/attendance-events/:event_id/cancel",
+            "/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+            "/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AttendanceEventDetailPanel.test.tsx",
+          "integration_test": "test/attendance_events_recurrence.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "attendance_event_athlete_rsvp",
+          "label": "Athlete views every occurrence they are currently invited to across every coach (a skipped occurrence never appears, a rescheduled one shows its new date/time), and replies attending, maybe or not attending",
+          "actors": [
+            "athlete"
+          ],
+          "route_id": "athlete_attendance_events",
+          "api_routes": [
+            "/attendance-events/mine",
+            "/attendance-events/occurrences/:occurrence_id/rsvp"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "public/app-src/__tests__/AthleteAttendanceEventsPanel.test.tsx",
+          "integration_test": "test/attendance_events_recurrence.integration.test.mjs",
+          "coverage": {
+            "loading": "covered_or_declared",
+            "empty": "covered_or_declared",
+            "error": "covered_or_declared",
+            "recovery": "covered_or_declared"
+          }
+        },
+        {
+          "function_id": "attendance_event_calendar_export",
+          "label": "Coach exports their own individual attendance events (including shared-org events they organize) as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules",
+          "actors": [
+            "coach"
+          ],
+          "route_id": "coach_attendance_events",
+          "api_routes": [
+            "/attendance-events/calendar.ics"
+          ],
+          "persistence": "server_product_records",
+          "state": "implemented",
+          "governing_boundary": null,
+          "direct_test": "test/full_ui_93_coach_attendance_calendar_export_surface.test.mjs",
+          "integration_test": "test/full_ui_93c_coach_attendance_calendar_export_persistent.integration.test.mjs",
           "coverage": {
             "loading": "covered_or_declared",
             "empty": "covered_or_declared",
@@ -6546,7 +8475,147 @@
       "state": "implemented"
     },
     {
+      "slice_id": "FULL-UI-32",
+      "state": "implemented"
+    },
+    {
       "slice_id": "FULL-UI-35",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-36",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-37",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-64",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-65",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-66",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-67",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-68",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-69",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-70",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-71",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-72",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-73",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-74",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-75",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-76",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-77",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-78",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-79",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-80",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-81",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-82",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-83",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-84",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-85",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-86",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-87",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-88",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-89",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-90",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-91",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-92",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-93",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-94",
+      "state": "implemented"
+    },
+    {
+      "slice_id": "FULL-UI-95",
       "state": "implemented"
     }
   ],
@@ -6627,6 +8696,12 @@
       "path": "/account/email-verification/request",
       "source": "src/api/product_account.routes.ts",
       "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "GET",
+      "path": "/account/events/calendar.ics",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "events"
     },
     {
       "method": "GET",
@@ -6798,6 +8873,48 @@
     },
     {
       "method": "GET",
+      "path": "/admin/org-owner-accounts",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-accounts/:user_id",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/org-owner-accounts/:user_id/state",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-data-rights/exports",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-data-rights/deletions",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/org-owner-support-requests",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/org-owner-support-requests/:correlation_id/status",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
       "path": "/blocks/:block_id",
       "source": "src/api/blocks.routes.ts",
       "tracked_by_area": "session_execution"
@@ -6899,18 +9016,6 @@
       "tracked_by_area": "strength_references"
     },
     {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-preflight",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
-      "method": "POST",
-      "path": "/coach-workspace/athlete-strength-resolve",
-      "source": "src/api/coach_workspace.routes.ts",
-      "tracked_by_area": "strength_references"
-    },
-    {
       "method": "GET",
       "path": "/coach-workspace/athletes",
       "source": "src/api/coach_workspace.routes.ts",
@@ -6993,6 +9098,12 @@
       "path": "/health",
       "source": "src/server.ts",
       "tracked_by_area": "status_support"
+    },
+    {
+      "method": "GET",
+      "path": "/sessions/:sessionId/summary",
+      "source": "src/api/sessions.routes.ts",
+      "tracked_by_area": "athlete_history"
     },
     {
       "method": "GET",
@@ -7299,6 +9410,264 @@
       "path": "/device-sync/metrics/coach/:athlete_user_id",
       "source": "src/api/device_sync.routes.ts",
       "tracked_by_area": "device_sync"
+    },
+    {
+      "method": "POST",
+      "path": "/video-feedback",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id/media",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/video-feedback/submissions/:submission_id/thumbnail",
+      "source": "src/api/video_feedback.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/queue",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/feedback",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/media",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/video-feedback/submissions/:submission_id/thumbnail",
+      "source": "src/api/video_feedback_coach.routes.ts",
+      "tracked_by_area": "video_feedback"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-insights",
+      "source": "src/api/progress_insights.routes.ts",
+      "tracked_by_area": "progress_insights"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-insights/coach/:athlete_user_id",
+      "source": "src/api/progress_insights.routes.ts",
+      "tracked_by_area": "progress_insights"
+    },
+    {
+      "method": "GET",
+      "path": "/progress-insights/coach-roster",
+      "source": "src/api/progress_insights.routes.ts",
+      "tracked_by_area": "progress_insights"
+    },
+    {
+      "method": "POST",
+      "path": "/athlete-goals",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "GET",
+      "path": "/athlete-goals",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "POST",
+      "path": "/athlete-goals/:goal_id/resolve",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "GET",
+      "path": "/athlete-goals/coach/:athlete_user_id",
+      "source": "src/api/athlete_goals.routes.ts",
+      "tracked_by_area": "athlete_goals"
+    },
+    {
+      "method": "POST",
+      "path": "/weekly-checkins",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
+    },
+    {
+      "method": "GET",
+      "path": "/weekly-checkins",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
+    },
+    {
+      "method": "GET",
+      "path": "/weekly-checkins/coach/:athlete_user_id",
+      "source": "src/api/weekly_checkins.routes.ts",
+      "tracked_by_area": "weekly_checkins"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/events/calendar.ics",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/relationships/export.csv",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "athlete_directory"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-branding",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates/:template_id/sharing",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/programme-marketplace/templates/:template_id/sharing",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/programme-marketplace/templates/:template_id/release",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "GET",
+      "path": "/programme-marketplace/templates/:template_id/releases",
+      "source": "src/api/programme_template_sharing.routes.ts",
+      "tracked_by_area": "programme_marketplace"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/calendar.ics",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/mine",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/org-roster/:org_id",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/attendance-events/:event_id",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/cancel",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/:event_id/occurrences/:occurrence_id/reschedule",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "POST",
+      "path": "/attendance-events/occurrences/:occurrence_id/rsvp",
+      "source": "src/api/attendance_event.routes.ts",
+      "tracked_by_area": "attendance_events"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-activity-change",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-activity-change-proposal",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athlete-position-change",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athlete-position-change-proposal",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "relationships"
     }
   ],
   "completion_rules": [

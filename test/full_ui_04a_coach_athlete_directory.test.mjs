@@ -45,6 +45,40 @@ const styles =
     "public/app/styles.css"
   );
 
+// DEV NOTE: the relationship counts, search/filter controls and roster
+// list moved to React - see
+// public/app-src/screens/coach/AthleteDirectoryPanel.tsx and
+// useAthleteDirectory.ts. The invite-by-email, broadcast and
+// connect-athlete forms, plus the relationship-audit detail panel and its
+// revoke/cancel transitions, moved to React too - see
+// InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx/
+// ConnectAthletePanel.tsx/useConnectAthlete.ts/
+// AthleteRelationshipDetailPanel.tsx/useAthleteRelationshipDetail.ts.
+const athleteDirectoryPanel =
+  read(
+    "public/app-src/screens/coach/AthleteDirectoryPanel.tsx"
+  );
+
+const connectAthletePanel =
+  read(
+    "public/app-src/screens/coach/ConnectAthletePanel.tsx"
+  );
+
+const useConnectAthlete =
+  read(
+    "public/app-src/screens/coach/useConnectAthlete.ts"
+  );
+
+const athleteRelationshipDetailPanel =
+  read(
+    "public/app-src/screens/coach/AthleteRelationshipDetailPanel.tsx"
+  );
+
+const useAthleteRelationshipDetail =
+  read(
+    "public/app-src/screens/coach/useAthleteRelationshipDetail.ts"
+  );
+
 test(
   "FULL-UI-04A exposes latest factual relationship rows",
   () => {
@@ -75,6 +109,36 @@ test(
   }
 );
 
+// listCoachAthleteRelationships previously fetched every athlete's
+// auth/declaration records inside one outer Promise.all -
+// loadLatestBetaProductRecord throws on an empty subject_user_id, and a
+// transient failure on any single one of many parallel per-athlete
+// reads becomes increasingly likely as a coach's roster grows, so one
+// bad or unlucky athlete lookup could take the coach's ENTIRE roster
+// down instead of degrading just that one entry.
+test(
+  "FULL-UI-04A never lets one athlete's auth/declaration lookup failure take down the coach's entire roster",
+  () => {
+    const fn = service.slice(
+      service.indexOf("export async function listCoachAthleteRelationships"),
+      service.indexOf("export async function listConnectedCoachAthletes")
+    );
+
+    // Slice 3's declaredPosition/declaredTrainingFocus locals were added
+    // between these two defaults and the try block - only the ordering
+    // (both default to null/[] before the guarded read) matters here.
+    assert.match(
+      fn,
+      /let auth = null;[\s\S]*?let declaration = null;[\s\S]*?try \{/u
+    );
+
+    assert.match(
+      fn,
+      /catch \{/u
+    );
+  }
+);
+
 test(
   "FULL-UI-04A mounts a relationship directory endpoint",
   () => {
@@ -98,27 +162,26 @@ test(
 test(
   "FULL-UI-04A provides search filters counts and audit facts",
   () => {
-    for (const id of [
-      "refreshAthleteDirectoryButton",
-      "athleteDirectorySearch",
-      "athleteRelationshipFilter",
-      "athleteRelationshipCounts",
-      "athleteRoster",
-      "athleteRelationshipDetailPanel",
-      "athleteRelationshipAuditFacts",
-      "athleteRelationshipProfileButton",
-      "athleteRelationshipTransitionButton",
-      "connectAthleteRelationshipState",
-      "connectAthleteExpiry"
-    ]) {
-      assert.match(
-        html,
-        new RegExp(
-          `id="${id}"`,
-          "u"
-        )
-      );
-    }
+    assert.match(html, /id="refreshAthleteDirectoryButton"/u);
+
+    assert.match(html, /id="athlete-directory-root"/u);
+    assert.match(html, /id="connect-athlete-root"/u);
+    assert.match(html, /id="athlete-relationship-detail-root"/u);
+    assert.doesNotMatch(html, /id="athleteDirectorySearch"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipFilter"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipCounts"/u);
+    assert.doesNotMatch(html, /id="athleteRoster"/u);
+    assert.doesNotMatch(html, /id="athleteRelationshipDetailPanel"/u);
+    assert.doesNotMatch(html, /id="connectAthleteRelationshipState"/u);
+
+    assert.match(athleteDirectoryPanel, /useAthleteDirectory/u);
+    assert.match(athleteDirectoryPanel, /Search athletes/u);
+    assert.match(athleteDirectoryPanel, /Relationship state/u);
+    assert.match(athleteDirectoryPanel, /data-relationship-action="audit"/u);
+
+    assert.match(connectAthletePanel, /Relationship state/u);
+    assert.match(athleteRelationshipDetailPanel, /relationship-audit-grid/u);
+    assert.match(athleteRelationshipDetailPanel, /Open training profile/u);
   }
 );
 
@@ -131,22 +194,22 @@ test(
     );
 
     assert.match(
-      application,
-      /relationshipState === "invited"/u
+      useConnectAthlete,
+      /input\.relationshipState === "invited"/u
     );
 
     assert.match(
-      application,
+      useAthleteRelationshipDetail,
       /relationship_state:\s*"revoked"/u
     );
 
     assert.match(
-      application,
+      athleteRelationshipDetailPanel,
       /Historical records will be preserved/u
     );
 
     assert.match(
-      application,
+      athleteRelationshipDetailPanel,
       /window\.confirm/u
     );
   }
@@ -165,8 +228,12 @@ test(
       /Select an accepted connected athlete/u
     );
 
+    // relationshipEffectiveState() itself moved to React with the
+    // dashboard's "Connected athletes" card, the app.js copy's last
+    // remaining consumer - AthleteDirectoryPanel.tsx already has its own
+    // independent copy (predating this migration).
     assert.match(
-      application,
+      athleteDirectoryPanel,
       /relationshipEffectiveState/u
     );
   }

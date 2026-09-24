@@ -199,6 +199,7 @@ export type OrgAthleteThreadRow = Readonly<{
   athlete_user_id: string;
   created_at_iso8601: string;
   updated_at_iso8601: string;
+  unread_count?: number;
 }>;
 
 function mapThreadRow(value: unknown): OrgAthleteThreadRow | null {
@@ -207,14 +208,18 @@ function mapThreadRow(value: unknown): OrgAthleteThreadRow | null {
   const athleteUserId = cleanString(value.athlete_user_id);
   if (!orgId || !athleteUserId) return null;
 
-  return Object.freeze({
+  const row: Record<string, unknown> = {
     thread_id: cleanString(value.thread_id),
     org_id: orgId,
     org_name: cleanString(value.org_name),
     athlete_user_id: athleteUserId,
     created_at_iso8601: value.created_at instanceof Date ? value.created_at.toISOString() : "",
     updated_at_iso8601: value.updated_at instanceof Date ? value.updated_at.toISOString() : ""
-  });
+  };
+  if (value.unread_count !== undefined) {
+    row.unread_count = Number(value.unread_count) || 0;
+  }
+  return Object.freeze(row) as OrgAthleteThreadRow;
 }
 
 export type OrgAthleteMessageAttachment = Readonly<{
@@ -494,7 +499,13 @@ export async function listOrgAthleteThreadsForOwner(
     await requireOrgOwnedBy(client, orgId, ownerUserId);
     const result = await client.query(
       `
-      SELECT t.*, o.org_name
+      SELECT t.*, o.org_name,
+        (
+          SELECT COUNT(*) FROM product_messages m
+          WHERE m.thread_id = t.thread_id
+            AND m.sender_role = 'athlete'
+            AND m.created_at > COALESCE(t.owner_last_read_at, '-infinity'::timestamptz)
+        ) AS unread_count
       FROM product_message_threads t
       JOIN product_organisations o ON o.org_id = t.org_id
       WHERE t.thread_type = 'org_owner_athlete' AND t.org_id = $1
@@ -514,7 +525,13 @@ export async function listOrgAthleteThreadsForAthlete(
 ): Promise<readonly OrgAthleteThreadRow[]> {
   const result = await pool.query(
     `
-    SELECT t.*, o.org_name
+    SELECT t.*, o.org_name,
+      (
+        SELECT COUNT(*) FROM product_messages m
+        WHERE m.thread_id = t.thread_id
+          AND m.sender_role = 'org_owner'
+          AND m.created_at > COALESCE(t.athlete_last_read_at, '-infinity'::timestamptz)
+      ) AS unread_count
     FROM product_message_threads t
     JOIN product_organisations o ON o.org_id = t.org_id
     WHERE t.thread_type = 'org_owner_athlete' AND t.athlete_user_id = $1
@@ -607,6 +624,14 @@ export async function listOrgAthleteThreadMessagesForOwner(
       `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
       [threadId]
     );
+
+    // Opening this thread's messages marks it read for the owner only -
+    // mirrors coach_athlete_messaging_service.ts's identical convention.
+    await client.query(
+      `UPDATE product_message_threads SET owner_last_read_at = now() WHERE thread_id = $1`,
+      [threadId]
+    );
+
     const viewer: MessageViewer = { role: "org_owner", orgId: thread.org_id };
     return messages.rows
       .map((row) => mapMessageRow(row, viewer))
@@ -634,6 +659,12 @@ export async function listOrgAthleteThreadMessagesForAthlete(
     `SELECT * FROM product_messages WHERE thread_id = $1 ORDER BY created_at ASC`,
     [threadId]
   );
+
+  await pool.query(
+    `UPDATE product_message_threads SET athlete_last_read_at = now() WHERE thread_id = $1`,
+    [threadId]
+  );
+
   return messages.rows
     .map((row) => mapMessageRow(row, { role: "athlete" }))
     .filter((row): row is OrgAthleteMessageRow => row !== null);

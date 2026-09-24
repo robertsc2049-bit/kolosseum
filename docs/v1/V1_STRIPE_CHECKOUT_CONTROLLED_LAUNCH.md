@@ -2,7 +2,7 @@
 
 Status: active v1 controlled-launch boundary document.
 Slice: S-V1-P-02.
-Version: 1.0.0.
+Version: 1.1.0.
 
 ## Purpose
 
@@ -13,6 +13,21 @@ The slice creates a Stripe-ready or equivalent checkout contract. It does not ad
 The checkout path creates a billing/access record only.
 
 Webhook handling records provider event state against the billing/access record only.
+
+## Live implementation note (2026-08-17)
+
+The real, live individual-coach checkout and webhook implementation now lives outside this
+contract module, in `src/api/product_commercial_service.ts`,
+`src/api/product_commercial.routes.ts`, and `src/api/product_commercial_webhook.routes.ts`,
+under FULL-UI-08 authority. That live path makes real Stripe Checkout Session and Billing
+Portal Session calls and verifies real webhook signatures - the top-level release boundary
+already permits this ("Stripe self-serve purchase and seat management" as a controlled-launch
+exception).
+
+This contract module (`src/v1ControlledLaunchCheckout.mjs` and its two adapters) remains a
+dormant reference contract only: it still does not add a live Stripe SDK dependency itself,
+is not imported by the live path, and is not mounted as a live route. It continues to define
+the record shapes the live path's own state machine is modelled on.
 
 ## Allowed scope
 

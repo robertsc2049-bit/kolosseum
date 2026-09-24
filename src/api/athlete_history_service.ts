@@ -207,7 +207,7 @@ async function loadProvenanceCached(
   return cache.get(assignmentId)!;
 }
 
-type EnrichedHistorySession = {
+export type EnrichedHistorySession = {
   session_id: string;
   block_id: string;
   status: string;
@@ -260,14 +260,23 @@ function matchesFilters(session: EnrichedHistorySession, filters: AthleteHistory
   return true;
 }
 
-async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<EnrichedHistorySession[]> {
+export async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<EnrichedHistorySession[]> {
   const result = await pool.query(
     `
     SELECT
       s.session_id, s.block_id, s.status, s.planned_session, s.session_state_summary,
       s.beta_assignment_id, s.created_at, s.updated_at,
       b.phase1_input ->> 'activity_id' AS activity_id,
-      count(re.seq)::integer AS runtime_event_count
+      count(re.seq)::integer AS runtime_event_count,
+      bool_or(re.event->>'type' = 'SPLIT_SESSION') AS session_split_entered,
+      (
+        array_agg(
+          re.event->>'type'
+          ORDER BY re.seq DESC
+        ) FILTER (
+          WHERE re.event->>'type' IN ('RETURN_CONTINUE', 'RETURN_SKIP')
+        )
+      )[1] AS session_last_return_decision_type
     FROM sessions s
     JOIN blocks b ON b.block_id = s.block_id
     LEFT JOIN runtime_events re ON re.session_id = s.session_id
@@ -288,6 +297,20 @@ async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<Enric
     const assignmentId = cleanString(row.beta_assignment_id) || null;
     const provenance = await loadProvenanceCached(provenanceCache, assignmentId);
     const summary = projected.session_execution_summary?.[0] as JsonRecord | undefined;
+    // Mirrors beta19_coach_workspace_service.ts's own identical
+    // session_last_return_decision_type derivation - the persisted
+    // session_state_summary's runtime.split_return_decision doesn't
+    // reliably survive being folded across later events, so this reads
+    // the same ground truth straight from the ordered runtime_events
+    // instead of trusting summary?.split_return_decision (see the DEV
+    // NOTE on the athlete history detail endpoint below for the full
+    // explanation of the bug this works around).
+    const lastReturnDecisionType: "continue" | "skip" | null =
+      row.session_last_return_decision_type === "RETURN_CONTINUE"
+        ? "continue"
+        : row.session_last_return_decision_type === "RETURN_SKIP"
+          ? "skip"
+          : null;
 
     enriched.push({
       session_id: String(row.session_id),
@@ -302,8 +325,8 @@ async function loadEnrichedAthleteSessions(athleteUserId: string): Promise<Enric
       completed_count: projected.completed_exercises.length,
       dropped_count: projected.dropped_exercises.length,
       remaining_count: projected.remaining_exercises.length,
-      split_entered: Boolean(summary?.split_entered),
-      split_return_decision: (summary?.split_return_decision as "continue" | "skip" | null) ?? null,
+      split_entered: Boolean(summary?.split_entered) || Boolean(row.session_split_entered),
+      split_return_decision: lastReturnDecisionType,
       provenance
     });
   }
@@ -409,6 +432,11 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
   const skipReasons = new Map<string, string>();
   const painReports = new Set<string>();
+  const rpeReports = new Map<string, number>();
+  const borgReports = new Map<string, number>();
+  const cr10Reports = new Map<string, number>();
+  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
+  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
@@ -421,6 +449,44 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
     if (type === "PAIN_REPORT" && typeof event.exercise_id === "string" && event.pain_reported === true) {
       painReports.add(event.exercise_id);
+    }
+
+    if (type === "RPE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.rpe_value)) {
+      rpeReports.set(event.exercise_id, event.rpe_value as number);
+    }
+
+    if (type === "BORG_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.borg_value)) {
+      borgReports.set(event.exercise_id, event.borg_value as number);
+    }
+
+    if (type === "CR10_REPORT" && typeof event.exercise_id === "string" && Number.isFinite(event.cr10_value)) {
+      cr10Reports.set(event.exercise_id, event.cr10_value as number);
+    }
+
+    if (type === "EXTRA_SET_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.reps)) {
+      const list = extraSetReports.get(event.exercise_id) ?? [];
+      list.push({
+        reps: event.reps as number,
+        load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
+        load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        is_pr: event.is_pr === true,
+        seq,
+        created_at
+      });
+      extraSetReports.set(event.exercise_id, list);
+    }
+
+    if (type === "EXTRA_EXERCISE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.reps)) {
+      const list = addedExercises.get(event.exercise_id) ?? [];
+      list.push({
+        reps: event.reps as number,
+        load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
+        load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        is_pr: event.is_pr === true,
+        seq,
+        created_at
+      });
+      addedExercises.set(event.exercise_id, list);
     }
 
     if (
@@ -464,12 +530,44 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       recorded_state: recordedState,
       skip_reason: skipReasons.get(exerciseId) ?? null,
       pain_reported: painReports.has(exerciseId),
+      rpe_reported: rpeReports.get(exerciseId) ?? null,
+      borg_reported: borgReports.get(exerciseId) ?? null,
+      cr10_reported: cr10Reports.get(exerciseId) ?? null,
+      extra_sets: Object.freeze(extraSetReports.get(exerciseId) ?? []),
       substitution: substitutions.get(exerciseId) ?? null
     });
   });
 
   const summary = projected.session_execution_summary?.[0] as JsonRecord | undefined;
   const provenance = await loadProvenanceForAssignment(cleanString(row.beta_assignment_id) || null);
+
+  const addedExercisesList = Array.from(addedExercises, ([exerciseId, sets]) =>
+    Object.freeze({ exercise_id: exerciseId, sets: Object.freeze(sets) })
+  );
+
+  // The persisted session_state_summary's own runtime.split_return_decision
+  // doesn't survive being folded across the later events in a session (it's
+  // an extension field the engine's own event application doesn't know to
+  // carry forward), so session_state_read_model.ts's readSplitReturnDecision
+  // falls back to a heuristic - "does this session have ANY dropped
+  // exercise at all" - that wrongly reports "skip" whenever an athlete both
+  // returns-and-continues AND separately drops an unrelated exercise via
+  // the ordinary per-exercise Skip action (two orthogonal facts). This
+  // function already scans the raw, ordered event log directly for
+  // splitReturnEvents (SPLIT_SESSION/RETURN_CONTINUE/RETURN_SKIP) - the
+  // same ground truth the coach-side SQL-based derivation
+  // (beta19_coach_workspace_service.ts's session_last_return_decision_type)
+  // already correctly uses - so derive the summary field from that instead
+  // of the unreliable persisted runtime field.
+  const lastReturnDecisionEvent = [...splitReturnEvents]
+    .reverse()
+    .find((entry) => entry.type === "RETURN_CONTINUE" || entry.type === "RETURN_SKIP");
+  const splitReturnDecision: "continue" | "skip" | null =
+    lastReturnDecisionEvent?.type === "RETURN_CONTINUE"
+      ? "continue"
+      : lastReturnDecisionEvent?.type === "RETURN_SKIP"
+        ? "skip"
+        : null;
 
   return Object.freeze({
     status: 200,
@@ -485,8 +583,9 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       execution_status: projected.execution_status,
       started: projected.started === true,
       exercises: Object.freeze(exercises),
-      split_entered: Boolean(summary?.split_entered),
-      split_return_decision: (summary?.split_return_decision as "continue" | "skip" | null) ?? null,
+      added_exercises: Object.freeze(addedExercisesList),
+      split_entered: Boolean(summary?.split_entered) || splitReturnEvents.length > 0,
+      split_return_decision: splitReturnDecision,
       split_return_events: Object.freeze(splitReturnEvents),
       provenance,
       factual_records_only: true,
@@ -497,7 +596,6 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 }
 
 export {
-  loadEnrichedAthleteSessions,
   loadProvenanceForAssignment,
   loadOrderedRuntimeEvents,
   loadFullSessionRow,

@@ -39,6 +39,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/beta_29_production_beta_rehearsal_guard.mjs` | Repo Governance | high | release | DEV NOTE: BETA-29 production beta rehearsal composition guard. |
 | `ci/guards/beta_fix_01_copy_registry_reconciliation_guard.mjs` | Beta Copy Registry Authority | high | beta-copy | DEV NOTE: BETA-FIX-01 authoritative beta copy registry reconciliation guard. |
 | `ci/guards/clean_tree_guard.mjs` | Repo Hygiene | high | repo | DEV NOTE: Clean-tree guard. This script protects release, promotion, and CI |
+| `ci/guards/current_project_docs_currency_guard.mjs` | Repo Governance | medium | docs | DEV NOTE: The old status document treated one finite PR sequence as the |
 | `ci/guards/dev_function_note_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_function_note_policy |
 | `ci/guards/dev_note_comment_policy_guard.mjs` | Repo Governance | medium | repo | @law dev_note_comment_policy |
 | `ci/guards/developer_operating_conventions_guard.mjs` | Repo Governance | medium | repo |  |
@@ -64,9 +65,11 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/nonempty_critical_ci_files_guard.mjs` | Repo Hygiene | high | ci/guards | @rationale: |
 | `ci/guards/postv1_packaging_surface_registry_guard.mjs` | Release Packaging Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/readme_validation_contract_guard.mjs` | Contracts | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
+| `ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs` | Registry Law | high | registry | DEV NOTE: REG-FULL-00 final registry surface authority guard. |
+| `ci/guards/reg_full_01_registry_schema_closure_guard.mjs` | Registry Law | high | registry | DEV NOTE: REG-FULL-01 final registry schema and canonical ID closure guard. |
 | `ci/guards/registry_bundle_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/registry_law_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
-| `ci/guards/registry_schema_presence_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
+| `ci/guards/registry_schema_presence_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. This file enforces both the current loaded schema |
 | `ci/guards/repo_contract.mjs` | Contracts | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/run_pipeline_contract_version_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
 | `ci/guards/run_v0_boundary_claim_consistency_guard.mjs` | V0 Boundary Pack | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
@@ -154,11 +157,12 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_f_03_controlled_launch_readiness_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_04_v1_release_tag_preparation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_05_v1_final_ship_decision_guard.mjs` | Repo Governance | medium | repo |  |
-| `ci/guards/s_v1_f_08_release_evidence_snapshot_guard.mjs` | Repo Governance | medium | repo |  |
+| `ci/guards/s_v1_f_08_release_evidence_snapshot_guard.mjs` | Repo Governance | medium | repo | DEV NOTE: the commit itself is already verified five separate ways above |
 | `ci/guards/s_v1_f_09_controlled_launch_execution_pack_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_10_controlled_launch_smoke_run_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_f_12_controlled_launch_go_no_go_record_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_g_02_registry_workability_audit_launch_hold_guard.mjs` | Registry Law | high | registry |  |
+| `ci/guards/s_v1_g_03_controlled_launch_release_tag_currency_confirmation_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_01_legal_document_surfaces_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_02_gdpr_export_handling_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_l_03_gdpr_delete_queue_guard.mjs` | Repo Governance | medium | repo |  |
@@ -182,6 +186,7 @@ This file is **auto-generated** from `ci/guards/`.
 | `ci/guards/s_v1_u_04_template_assignment_ui_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/s_v1_u_05_session_execution_polish_guard.mjs` | Repo Governance | medium | repo |  |
 | `ci/guards/tag_version_guard.mjs` | Build Integrity | high | repo | DEV NOTE: CI guard surface. This file enforces a repo boundary and should fail closed with |
+| `ci/guards/v1_activity_surfaces_sync_guard.mjs` | Registry Law | high | registry | DEV NOTE: CI guard surface. Proves the static JSON layer (JSON Schema |
 | `ci/guards/v1_boundary_guard_scaffolding_guard.mjs` | Repo Governance | medium | repo | @law v1_boundary_guard_scaffolding |
 | `ci/guards/v1_locked_activity_set_guard.mjs` | Repo Governance | medium | repo | @law v1_locked_activity_set |
 | `ci/guards/v1_registry_content_production_contract_guard.mjs` | Registry Law | high | registry | @law v1_registry_content_production_contract |

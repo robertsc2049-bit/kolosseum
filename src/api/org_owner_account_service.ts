@@ -350,3 +350,44 @@ export function assertOrgOwnerCsrf(rawSessionToken: string, suppliedToken: unkno
     throw new OrgOwnerAuthError("org_owner_csrf_invalid", 403);
   }
 }
+
+// Mirrors requestProductAccountClosure (product_account_service.ts) exactly:
+// insert one closure-request row, flip account_state, revoke every active
+// session, done - it deliberately never touches the org(s) this owner owns
+// (org_state, coach memberships, messages) or performs a hard delete,
+// matching that same "closure = access revocation only, no cascade" shape.
+export async function requestOrgOwnerAccountClosure(
+  ownerUserId: string,
+  input: unknown
+): Promise<Readonly<JsonRecord>> {
+  if (!isRecord(input) || input.confirmation !== "CLOSE") {
+    throw new OrgOwnerAuthError("org_owner_account_closure_confirmation_required");
+  }
+
+  const closureRequestId = randomId("org_owner_closure_request");
+
+  await pool.query(
+    `
+    INSERT INTO org_owner_closure_requests (
+      closure_request_id, user_id, request_state, requested_at, completed_at
+    )
+    VALUES ($1, $2, 'requested', now(), NULL)
+    `,
+    [closureRequestId, ownerUserId]
+  );
+
+  await pool.query(
+    `UPDATE product_org_owner_accounts SET account_state = 'closed', updated_at = now() WHERE user_id = $1`,
+    [ownerUserId]
+  );
+
+  await pool.query(
+    `UPDATE product_org_owner_sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL`,
+    [ownerUserId]
+  );
+
+  return Object.freeze({
+    closure_request_id: closureRequestId,
+    request_state: "requested"
+  });
+}

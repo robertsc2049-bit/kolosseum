@@ -186,6 +186,48 @@ test("appendRuntimeEvent executed path: returns 201 with delegated JSON payload 
   });
 });
 
+test("appendRuntimeEvent executed path: forwards a personal-record flag when the mutation reports one", async () => {
+  mock.reset();
+  installSessionHandlerPersistenceIsolationMock();
+  installCommonMocks({
+    normalizedRaw: {
+      type: "EXTRA_SET_REPORT",
+      exercise_id: "ex_a",
+      reps: 5,
+      load_value: 100,
+      load_unit: "kg"
+    },
+    mutationResult: {
+      session_id: "sess_123",
+      ok: true,
+      seq: 8,
+      is_pr: true
+    }
+  });
+
+  const { appendRuntimeEvent } = await import(`${distHandlerUrl}?case=is_pr`);
+  const req = makeReq({
+    params: {
+      session_id: "sess_123"
+    },
+    body: {
+      event: {
+        type: "EXTRA_SET_REPORT",
+        exercise_id: "ex_a",
+        reps: 5,
+        load_value: 100,
+        load_unit: "kg"
+      }
+    }
+  });
+  const res = makeRes();
+
+  await appendRuntimeEvent(req, res);
+
+  assert.equal(res.statusCode, 201);
+  assert.equal(res.jsonBody.is_pr, true);
+});
+
 test("appendRuntimeEvent executed path: missing session_id throws 400 badRequest", async () => {
   mock.reset();
   installSessionHandlerPersistenceIsolationMock();

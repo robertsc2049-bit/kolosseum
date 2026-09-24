@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/exercise_variant_applicability_registry_3d.registry.schema.json",
+  "title": "exercise_variant_applicability_registry_3d",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "exercise_variant_applicability_registry_3d"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "variant_id",
+          "base_exercise_token_id",
+          "variant_exercise_token_id",
+          "relationship_type",
+          "directionality",
+          "movement_consistency",
+          "substitution_tier",
+          "allowed_contexts",
+          "notes"
+        ],
+        "properties": {
+          "variant_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "base_exercise_token_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "variant_exercise_token_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "relationship_type": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "regression",
+              "progression",
+              "lateral_equivalent"
+            ]
+          },
+          "directionality": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "unidirectional",
+              "bidirectional"
+            ]
+          },
+          "movement_consistency": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "same_movement_pattern_id",
+              "altered_rom",
+              "altered_stability",
+              "altered_loading"
+            ],
+            "properties": {
+              "same_movement_pattern_id": {
+                "type": "boolean"
+              },
+              "altered_rom": {
+                "type": "boolean"
+              },
+              "altered_stability": {
+                "type": "boolean"
+              },
+              "altered_loading": {
+                "type": "boolean"
+              }
+            }
+          },
+          "substitution_tier": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 4
+          },
+          "allowed_contexts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "enum": [
+                "training",
+                "testing",
+                "competition"
+              ]
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "notes": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  }
+}

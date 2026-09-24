@@ -54,7 +54,10 @@ concurrency:
 
 jobs:
   guard:
-    name: guard
+    # DEV NOTE: Required-status-check matching uses the resolved job name, not
+    # the workflow display name. Include the event so the pull-request gate
+    # cannot be satisfied by the same commit's feature-branch push run.
+    name: engine-status-guard-${{ github.event_name }}
     runs-on: ubuntu-latest
 
     env:
@@ -90,7 +93,8 @@ jobs:
         run: node ci/guards/ban_engine_status_guard.mjs
 
   smoke:
-    name: smoke
+    # DEV NOTE: Keep this context event-qualified for the same reason as guard.
+    name: engine-status-smoke-${{ github.event_name }}
     runs-on: ubuntu-latest
     needs: guard
 

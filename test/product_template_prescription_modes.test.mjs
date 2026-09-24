@@ -13,6 +13,11 @@ const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const phase4 = read("engine/src/phases/phase4/types.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
+// DEV NOTE: the builder's rep/load/duration/distance/prescription-mode
+// controls moved to React with the rest of the builder tree (FULL-UI-05B)
+// - see CoachProgrammeBuilderTree.tsx's RepControls()/LoadControls()/
+// DurationControls()/DistanceControls()/PrescriptionControls().
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
 
 test("template input supports fixed reps and rep ranges", () => {
   assert.match(service, /const repModes/u);
@@ -34,6 +39,20 @@ test("template input supports percentage, weight, bodyweight and RPE loading", (
   assert.match(service, /stored_rpe_value_invalid/u);
 });
 
+test("template input supports Borg and modified-Borg (CR10) loading", () => {
+  assert.match(service, /"rpe",\s*"borg",\s*"cr10"/u);
+  assert.match(service, /type: "borg"/u);
+  assert.match(service, /type: "cr10"/u);
+  assert.match(service, /borg_value_invalid/u);
+  assert.match(service, /stored_borg_value_invalid/u);
+  assert.match(service, /cr10_value_invalid/u);
+  assert.match(service, /stored_cr10_value_invalid/u);
+  assert.match(phase4, /type: "borg"; value: number/u);
+  assert.match(phase4, /type: "cr10"; value: number/u);
+  assert.match(phase6, /type: "borg"; value: number/u);
+  assert.match(phase6, /type: "cr10"; value: number/u);
+});
+
 test("engine carries the complete explicit prescription to the session", () => {
   assert.match(phase4, /rep_range\?: PlannedItemRepRange/u);
   assert.match(phase4, /unit\?: "kg" \| "lb"/u);
@@ -46,17 +65,26 @@ test("engine carries the complete explicit prescription to the session", () => {
 test("coach builder exposes conditional rep and loading controls", () => {
   assert.match(html, /Repetitions may be fixed or a range/u);
   assert.match(html, /fixed weight, bodyweight, or RPE/u);
-  assert.match(js, /renderTemplateRepControls/u);
-  assert.match(js, /renderTemplateLoadControls/u);
-  assert.match(js, />Fixed reps</u);
-  assert.match(js, />Rep range</u);
-  assert.match(js, />Weight</u);
-  assert.match(js, />Bodyweight</u);
-  assert.match(js, />RPE</u);
-  assert.match(js, /weight_unit/u);
+  assert.match(builderTree, /function RepControls/u);
+  assert.match(builderTree, /function LoadControls/u);
+  assert.match(builderTree, />Fixed reps</u);
+  assert.match(builderTree, />Rep range</u);
+  assert.match(builderTree, />Weight</u);
+  assert.match(builderTree, />Bodyweight</u);
+  assert.match(builderTree, />RPE</u);
+  assert.match(builderTree, /weight_unit/u);
   assert.match(js, /normalisePersistedTemplateDraft/u);
   assert.match(css, /\.template-prescription-grid/u);
   assert.match(css, /\.template-prescription-card/u);
+});
+
+test("coach builder exposes Borg and modified-Borg (CR10) loading controls", () => {
+  assert.match(builderTree, /function BorgLoadField/u);
+  assert.match(builderTree, /function Cr10LoadField/u);
+  assert.match(builderTree, /borg_value/u);
+  assert.match(builderTree, /cr10_value/u);
+  assert.match(builderTree, /Borg \(6-20\)/u);
+  assert.match(builderTree, /Modified Borg \/ CR10 \(0-10\)/u);
 });
 
 test("athlete session formatting distinguishes range and loading type", () => {
@@ -65,6 +93,8 @@ test("athlete session formatting distinguishes range and loading type", () => {
   assert.ok(js.includes("details.push(`${Number(intensity.value)} ${unit}`)"));
   assert.match(js, /details\.push\("Bodyweight"\)/u);
   assert.match(js, /RPE \$\{Number\(intensity\.value\)\}/u);
+  assert.match(js, /Borg \$\{Number\(intensity\.value\)\}/u);
+  assert.match(js, /CR10 \$\{Number\(intensity\.value\)\}/u);
 });
 
 test("template input supports duration and distance prescriptions alongside reps", () => {
@@ -86,13 +116,13 @@ test("template input supports an optional coaching tempo", () => {
 
 test("coach builder exposes a prescription mode selector with duration and distance controls", () => {
   assert.match(html, /timed hold or a distance/u);
-  assert.match(js, /function renderTemplatePrescriptionControls/u);
-  assert.match(js, /function renderTemplateDurationControls/u);
-  assert.match(js, /function renderTemplateDistanceControls/u);
-  assert.match(js, />Prescribe by</u);
-  assert.match(js, />Duration</u);
-  assert.match(js, />Distance</u);
-  assert.match(js, /Tempo \(optional\)/u);
+  assert.match(builderTree, /function PrescriptionControls/u);
+  assert.match(builderTree, /function DurationControls/u);
+  assert.match(builderTree, /function DistanceControls/u);
+  assert.match(builderTree, />Prescribe by</u);
+  assert.match(builderTree, />Duration</u);
+  assert.match(builderTree, />Distance</u);
+  assert.match(builderTree, /Tempo \(optional\)/u);
   assert.match(css, /\.template-tempo-field/u);
 });
 

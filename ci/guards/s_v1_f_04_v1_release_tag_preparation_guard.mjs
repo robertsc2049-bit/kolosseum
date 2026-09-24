@@ -132,7 +132,7 @@ if (record.record_state !== "preparation_only_not_tagged") {
   fail("record_state_mismatch", { actual: record.record_state });
 }
 
-if (record.candidate_tag !== "v1-controlled-launch") {
+if (record.candidate_tag !== "v1.0.0") {
   fail("candidate_tag_mismatch", { actual: record.candidate_tag });
 }
 

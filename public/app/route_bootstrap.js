@@ -10,9 +10,6 @@ import {
   resolveCoachOnboardingGate
 } from "./coach_onboarding_ui.js";
 
-// FULL-UI-09C installs the server-backed event library and stable detail route.
-import "./event_lifecycle_ui.js";
-
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
 export const PRODUCT_ROUTE_MAP = Object.freeze([
@@ -22,6 +19,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_history_detail", pattern: "#/athlete/history/:session_id", view: "history", actors: ["athlete"], entity_key: "session_id" },
+  { route_id: "athlete_attendance_events", pattern: "#/athlete/attendance", view: "attendance", actors: ["athlete"], entity_key: null },
   { route_id: "coach_overview", pattern: "#/coach/overview", view: "coach-overview", actors: ["coach"], entity_key: null },
   { route_id: "coach_athletes", pattern: "#/coach/athletes", view: "athletes", actors: ["coach"], entity_key: null },
   { route_id: "coach_athlete_detail", pattern: "#/coach/athletes/:athlete_id", view: "athletes", actors: ["coach"], entity_key: "athlete_id" },
@@ -31,6 +29,9 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "coach_programme_detail", pattern: "#/coach/programmes/:template_id", view: "templates", actors: ["coach"], entity_key: "template_id" },
   { route_id: "coach_review", pattern: "#/coach/review", view: "review", actors: ["coach"], entity_key: null },
   { route_id: "coach_review_athlete", pattern: "#/coach/review/:athlete_id", view: "review", actors: ["coach"], entity_key: "athlete_id" },
+  { route_id: "coach_marketplace", pattern: "#/coach/marketplace", view: "marketplace", actors: ["coach"], entity_key: null },
+  { route_id: "coach_progress_overview", pattern: "#/coach/progress", view: "coach-progress", actors: ["coach"], entity_key: null },
+  { route_id: "coach_attendance_events", pattern: "#/coach/attendance", view: "coach-attendance", actors: ["coach"], entity_key: null },
   { route_id: "shared_account", pattern: "#/account", view: "account", actors: ["athlete", "coach"], entity_key: null }
 ]);
 
@@ -114,6 +115,9 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "templates") return serializeProductRoute("coach_programmes");
     if (view === "review" && entity.athlete_id) return serializeProductRoute("coach_review_athlete", entity);
     if (view === "review") return serializeProductRoute("coach_review");
+    if (view === "marketplace") return serializeProductRoute("coach_marketplace");
+    if (view === "coach-progress") return serializeProductRoute("coach_progress_overview");
+    if (view === "coach-attendance") return serializeProductRoute("coach_attendance_events");
   }
   else {
     if (view === "onboarding") return serializeProductRoute("athlete_onboarding");
@@ -121,6 +125,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "history" && entity.session_id) return serializeProductRoute("athlete_history_detail", entity);
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
+    if (view === "attendance") return serializeProductRoute("athlete_attendance_events");
   }
 
   if (view === "account") return serializeProductRoute("shared_account");
@@ -185,14 +190,21 @@ let applyingRoute = false;
 async function applyEntityRoute(route) {
   const params = route.params ?? {};
 
-  if (route.route_id === "coach_athlete_detail") {
-    const button = await waitForSelector(
-      `.open-athlete-profile[data-athlete-id="${escapeSelector(params.athlete_id)}"]`
+  // DEV NOTE: React owns the athlete directory now
+  // (AthleteDirectoryPanel.tsx) - its "Open profile" button dispatches
+  // kolosseum:open-athlete-profile-request directly (app.js listens and
+  // calls the still-legacy openAthleteProfile()) rather than rendering a
+  // data-athlete-id attribute for a waitForSelector-based click
+  // simulation to find - that attribute was never part of the React
+  // port's markup, so this deep link was unreachable via a raw hash
+  // (bookmark, shared link, or the notification bell's own "Open") until
+  // fixed here, following the same pattern already used for
+  // coach_event_detail below.
+  if (route.route_id === "coach_athlete_detail" && params.athlete_id) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:open-athlete-profile-request", { detail: { athlete_user_id: params.athlete_id } })
     );
-    if (button) {
-      button.click();
-      return true;
-    }
+    return true;
   }
 
   if (route.route_id === "athlete_session") {
@@ -205,17 +217,21 @@ async function applyEntityRoute(route) {
     }
   }
 
-  if (route.route_id === "coach_event_detail") {
-    const card = await waitForSelector(
-      `[data-event-id="${escapeSelector(params.event_id)}"]`
+  // DEV NOTE: React owns the event detail/lifecycle view now
+  // (CoachEventDetailPanel.tsx/useCoachEventDetail.ts, mounted at
+  // #coach-event-detail-root) - this deep link dispatches
+  // kolosseum:open-event-detail the same way coach_review_athlete below
+  // dispatches kolosseum:open-session-review, rather than the old
+  // synchronous [data-event-id] card lookup (that card only ever
+  // highlighted the row - it never opened anything, since no detail view
+  // existed to open). The hook's own fetch validates event_id once it
+  // resolves and dispatches kolosseum:coach-event-detail-not-found
+  // (handled below) for a stale/invalid id.
+  if (route.route_id === "coach_event_detail" && params.event_id) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:open-event-detail", { detail: { event_id: params.event_id } })
     );
-    if (card) {
-      markRouteTarget(card);
-      return true;
-    }
-    // No matching event card - fall through to the generic
-    // "record not available" notice below rather than reporting success
-    // for a stale/invalid event_id.
+    return true;
   }
 
   if (route.route_id === "athlete_history_detail") {
@@ -245,20 +261,21 @@ async function applyEntityRoute(route) {
     }
   }
 
-  if (route.route_id === "coach_review_athlete") {
-    const select = await waitForSelector("#reviewAthlete");
-    const hasOption = select
-      ? [...select.options].some((option) => option.value === params.athlete_id)
-      : false;
-    if (select && hasOption) {
-      select.value = params.athlete_id;
-      select.dispatchEvent(new Event("change", { bubbles: true }));
-      document.getElementById("loadReviewButton")?.click();
-      return true;
-    }
-    // No matching athlete option - fall through to the generic
-    // "record not available" notice rather than silently leaving the
-    // select unchanged and reporting success for a stale athlete_id.
+  // DEV NOTE: React owns the review queue now (CoachReviewPanel.tsx/
+  // useCoachReview.ts, mounted at #coach-review-root) - its athlete filter
+  // listens for the same kolosseum:open-session-review event this file's
+  // other coach-review entry points already dispatch, so this deep link
+  // does the same rather than reaching into a now-removed #reviewAthlete
+  // select. The hook's own athlete list loads asynchronously (unlike the
+  // old select's synchronous options), so it validates athlete_id itself
+  // once loaded and dispatches kolosseum:coach-review-athlete-not-found
+  // (handled below) for a stale/invalid id, rather than this function
+  // validating synchronously before returning.
+  if (route.route_id === "coach_review_athlete" && params.athlete_id) {
+    document.dispatchEvent(
+      new CustomEvent("kolosseum:open-session-review", { detail: { athlete_user_id: params.athlete_id } })
+    );
+    return true;
   }
 
   return route.entity_key === null;
@@ -311,6 +328,20 @@ export async function applyCurrentProductRoute(options = {}) {
   const actor = readRole();
   if (!actor) return false;
 
+  // DEV NOTE: this guard against syncRouteFromElement's reverse sync
+  // (see its own DEV NOTE below) must cover the ENTIRE route-resolution
+  // window, not just the DOM-mutating part below - resolvedCoachRoute()/
+  // resolvedAthleteRoute() await a real onboarding-gate fetch, and a
+  // coincidental, unrelated re-render elsewhere in the app can land its
+  // MutationObserver callback in that gap. Previously applyingRoute was
+  // set true only after that await, so a stray sync landing in the gap
+  // would see location.hash already updated to the new route but the
+  // view not yet switched, and "helpfully" reset the hash back to
+  // whatever view was still visible - silently downgrading a just-opened
+  // entity-detail deep link (e.g. #/coach/events/:event_id) back to its
+  // bare list route moments after it opened.
+  applyingRoute = true;
+
   let route = parseProductRoute(location.hash);
   if (!route || !actorCanAccessRoute(actor, route)) {
     const hash = fallbackRouteForActor(actor);
@@ -325,7 +356,6 @@ export async function applyCurrentProductRoute(options = {}) {
     ? await resolvedAthleteRoute(route, options)
     : await resolvedCoachRoute(route, options);
 
-  applyingRoute = true;
   try {
     if (route.route_id === "athlete_onboarding") {
       await openAthleteOnboardingView();
@@ -387,6 +417,22 @@ function syncRouteFromElement(element, replace = false) {
       .find((section) => !section.hidden)
       ?.id.replace(/^view-/u, "");
 
+  // DEV NOTE: a mutation-triggered resync (the .views MutationObserver
+  // below, or a click on some element with no [data-*-id] of its own)
+  // reports no entity at all - entityFromElement() only ever walks UP the
+  // ancestor chain from the element it's given, and neither a bare .view
+  // section nor an unrelated button carries the open record's id. Without
+  // this guard, that "no entity" result would downgrade an already-open
+  // entity-detail route (e.g. #/coach/events/:event_id) back to its bare
+  // list route the moment anything else in the view re-renders - which is
+  // exactly what used to happen here: opening an event triggered
+  // setView()'s own refreshCoachEvents(), whose list re-render fired this
+  // observer and silently closed the event right back onto #/coach/events.
+  if (Object.keys(entity).length === 0) {
+    const currentRoute = parseProductRoute(location.hash);
+    if (currentRoute?.view === activeView && currentRoute.entity_key) return;
+  }
+
   const hash = routeForView(actor, activeView, entity);
   if (!hash || hash === location.hash) return;
   if (replace) history.replaceState({ kolosseum_route: hash }, "", hash);
@@ -400,6 +446,25 @@ function scheduleRouteApplication() {
 }
 
 function installProductRouting() {
+  // DEV NOTE: see the coach_review_athlete branch in applyEntityRoute()
+  // above - CoachReviewPanel's useCoachReview.ts dispatches this once it
+  // has loaded its own athlete list and found the requested athlete_id is
+  // not a real connected athlete, so the deep link reports the same
+  // "record is not available" notice the removed #reviewAthlete
+  // hasOption check used to report synchronously.
+  document.addEventListener("kolosseum:coach-review-athlete-not-found", () => {
+    showRouteNotice("The requested record is not available in this workspace.");
+  });
+
+  // DEV NOTE: see the coach_event_detail branch in applyEntityRoute() above
+  // - useCoachEventDetail.ts dispatches this when its own GET
+  // /coach-workspace/events/:event_id fetch resolves 404 for a stale/
+  // invalid event_id, the same async-validation pattern used for
+  // coach-review-athlete-not-found above.
+  document.addEventListener("kolosseum:coach-event-detail-not-found", () => {
+    showRouteNotice("The requested record is not available in this workspace.");
+  });
+
   document.addEventListener(
     "click",
     (event) => {
@@ -411,7 +476,12 @@ function installProductRouting() {
     true
   );
 
-  document.getElementById("entryForm")?.addEventListener("submit", scheduleRouteApplication);
+  // DEV NOTE: FULL-UI-02D the entry form moved to React (EntryAuthPanel.tsx)
+  // - a submit-triggered scheduleRouteApplication() here would need
+  // rebinding on every re-render anyway. The #appShell hidden-attribute
+  // MutationObserver below already covers the exact same moment (a
+  // successful sign-in/register unhides the shell synchronously as part of
+  // app.js's enterApplication()), so no replacement listener is needed.
   addEventListener("hashchange", () => applyCurrentProductRoute());
   addEventListener("popstate", () => applyCurrentProductRoute());
 

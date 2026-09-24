@@ -1,0 +1,10 @@
+{
+  "schema_version": "LAUNCH-00.NEGATIVE.1.0.0",
+  "slice_id": "LAUNCH-00",
+  "case_id": "excluded_product_area_activation",
+  "mutation": {
+    "append_public_area": "organisation_billing"
+  },
+  "expected_result": "reject",
+  "expected_token": "LAUNCH_00_EXCLUDED_AREA_ACTIVE"
+}

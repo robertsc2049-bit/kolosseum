@@ -35,6 +35,10 @@ import {
   previewDataDeletion,
   requestDataExport
 } from "./data_rights_service.js";
+import {
+  buildCoachEventsCalendar,
+  listAthleteLinkedEvents
+} from "./beta19_coach_event_service.js";
 import { badRequest } from "./http_errors.js";
 
 export const productAccountRouter = Router();
@@ -456,6 +460,34 @@ productAccountRouter.get(
     );
 
     return response.status(200).json(payload);
+  })
+);
+
+// DEV NOTE: FULL-UI-09 extension - the athlete-facing symmetric reverse of
+// GET /coach-workspace/events/calendar.ics (coach_workspace.handlers.ts's
+// getCoachEventsCalendar). Reuses the same buildCoachEventsCalendar RFC
+// 5545 formatter unchanged - only the event list it's fed differs
+// (listAthleteLinkedEvents, scoped by the athlete's own subject_user_id
+// rather than a single coach's actor_user_id, since an athlete's linked
+// events may span more than one coach).
+productAccountRouter.get(
+  "/events/calendar.ics",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    const session = await resolveProductSession(token);
+    if (session.account_row.actor_type !== "athlete") {
+      throw new ProductAccountError("account_events_export_athlete_required", 403);
+    }
+
+    const events = await listAthleteLinkedEvents(session.account_row.user_id);
+    const calendar = buildCoachEventsCalendar(events);
+
+    response.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    response.setHeader(
+      "Content-Disposition",
+      'attachment; filename="kolosseum-events.ics"'
+    );
+    return response.status(200).send(calendar);
   })
 );
 

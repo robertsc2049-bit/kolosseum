@@ -18,10 +18,11 @@ import {
 
 import {
   assertImmutableStrengthReferenceAppend,
-  compareProgrammeStrengthRequirements,
   projectStrengthReferenceLifecycle,
   resolveStrengthReferenceLoad
 } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -37,11 +38,7 @@ export class Beta19CoachWorkspaceError extends Error {
 }
 
 const weightUnits = new Set(["kg", "lb"]);
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 const benchmarkBases = new Set([
   "tested_1rm",
   "estimated_1rm",
@@ -200,7 +197,7 @@ async function requireActiveCoachAccount(
   return profile;
 }
 
-async function requireCoachAthleteAccess(
+export async function requireCoachAthleteAccess(
   coachUserId: string,
   athleteUserId: string
 ): Promise<void> {
@@ -481,19 +478,47 @@ export async function listCoachAthleteRelationships(
           relationship.athlete_user_id
         );
 
-      const [auth, declaration] =
-        await Promise.all([
-          loadLatestBetaProductRecord(
-            "beta16_auth",
-            athleteUserId,
-            athleteUserId
-          ),
-          loadLatestBetaProductRecord(
-            "beta16_phase1_declaration",
-            athleteUserId,
-            athleteUserId
-          )
-        ]);
+      // A failure enriching one athlete's auth/declaration record (a
+      // malformed relationship row, or just a transient read failure -
+      // more likely than it sounds once a coach's roster is large
+      // enough for many of these to run in parallel) must never take
+      // down the coach's ENTIRE roster. Falling back to null here
+      // degrades this one athlete to the exact same "record doesn't
+      // exist yet" defaults already used below, rather than rejecting
+      // the outer Promise.all and losing every other athlete's entry
+      // along with it.
+      let auth = null;
+      let declaration = null;
+      // Slice 3 of the sport-declaration redesign - position (and, since
+      // #1082, training_focus) is never itself projected into phase1Input
+      // below, so it needs its own read of the athlete's own current
+      // declaration.
+      let declaredPosition: string | null = null;
+      let declaredTrainingFocus: readonly string[] = [];
+      try {
+        let declared;
+        [auth, declaration, declared] =
+          await Promise.all([
+            loadLatestBetaProductRecord(
+              "beta16_auth",
+              athleteUserId,
+              athleteUserId
+            ),
+            loadLatestBetaProductRecord(
+              "beta16_phase1_declaration",
+              athleteUserId,
+              athleteUserId
+            ),
+            getAthleteDeclaredActivityAndPosition(athleteUserId)
+          ]);
+        declaredPosition = declared.position;
+        declaredTrainingFocus = declared.training_focus;
+      }
+      catch {
+        // auth/declaration/declaredPosition/declaredTrainingFocus stay at
+        // their defaults - handled identically to a legitimately-absent
+        // record by every read below.
+      }
 
       const phase1Input =
         declaration &&
@@ -532,6 +557,10 @@ export async function listCoachAthleteRelationships(
           supportedActivities.has(activityId)
             ? activityId
             : null,
+        position:
+          declaredPosition,
+        training_focus:
+          declaredTrainingFocus,
         relationship_state:
           expired
             ? "expired"
@@ -1233,190 +1262,6 @@ export function resolvePercentageLoad(
   }
 }
 
-export async function loadPersistedProgrammeStrengthPreflight(
-  coachUserIdInput: string,
-  athleteUserIdInput: string,
-  templateIdInput: string,
-  asOfDateInput =
-    new Date()
-      .toISOString()
-      .slice(0, 10)
-): Promise<Readonly<JsonRecord>> {
-  const coachUserId =
-    cleanString(
-      coachUserIdInput
-    );
-
-  const athleteUserId =
-    cleanString(
-      athleteUserIdInput
-    );
-
-  const templateId =
-    cleanString(
-      templateIdInput
-    );
-
-  if (
-    !coachUserId ||
-    !athleteUserId ||
-    !templateId
-  ) {
-    throw new Beta19CoachWorkspaceError(
-      "strength_preflight_identity_required"
-    );
-  }
-
-  await requireCoachAthleteAccess(
-    coachUserId,
-    athleteUserId
-  );
-
-  const [
-    profile,
-    templateResult
-  ] =
-    await Promise.all([
-      loadAthleteStrengthProfile(
-        coachUserId,
-        athleteUserId
-      ),
-      pool.query(
-        `
-        SELECT record_payload
-        FROM beta_product_records
-        WHERE
-          record_type =
-            'beta18_programme_template'
-          AND record_id = $1
-          AND actor_user_id = $2
-        ORDER BY
-          effective_at DESC,
-          created_at DESC,
-          record_sha256 DESC
-        LIMIT 1
-        `,
-        [
-          templateId,
-          coachUserId
-        ]
-      )
-    ]);
-
-  const template =
-    templateResult.rows?.[0]
-      ?.record_payload;
-
-  if (
-    !isRecord(template)
-  ) {
-    throw new Beta19CoachWorkspaceError(
-      "strength_preflight_template_not_found"
-    );
-  }
-
-  try {
-    return deepFreeze({
-      template_id:
-        templateId,
-      coach_user_id:
-        coachUserId,
-      athlete_user_id:
-        athleteUserId,
-      ...compareProgrammeStrengthRequirements(
-        template,
-        profile ?? [],
-        asOfDateInput,
-        cleanString(
-          profile
-            ?.preferred_weight_unit
-        ) || "kg"
-      )
-    });
-  }
-  catch (error) {
-    const code =
-      isRecord(error) &&
-      typeof error.code === "string"
-        ? error.code
-        : "strength_preflight_invalid";
-
-    throw new Beta19CoachWorkspaceError(
-      code
-    );
-  }
-}
-
-export async function reconstructResolvedStrengthLoadSource(
-  coachUserIdInput: string,
-  athleteUserIdInput: string,
-  exerciseIdInput: string,
-  percentageInput: number,
-  options: Readonly<JsonRecord> = {}
-): Promise<Readonly<JsonRecord> | null> {
-  const profile =
-    await loadAthleteStrengthProfile(
-      coachUserIdInput,
-      athleteUserIdInput
-    );
-
-  if (!profile) {
-    return null;
-  }
-
-  try {
-    const resolved =
-      resolveStrengthReferenceLoad(
-        profile,
-        exerciseIdInput,
-        percentageInput,
-        {
-          target_unit:
-            cleanString(
-              options.target_unit
-            ) ||
-            cleanString(
-              profile
-                .preferred_weight_unit
-            ) ||
-            "kg",
-          rounding_increment:
-            options.rounding_increment ??
-            profile
-              .load_rounding_increment,
-          as_of_date:
-            cleanString(
-              options.as_of_date
-            ) ||
-            new Date()
-              .toISOString()
-              .slice(0, 10)
-        }
-      );
-
-    return resolved
-      ? deepFreeze({
-          ...resolved,
-          athlete_profile_record_sha256:
-            cleanString(
-              profile.record_sha256
-            )
-        })
-      : null;
-  }
-  catch (error) {
-    const code =
-      isRecord(error) &&
-      typeof error.code === "string"
-        ? error.code
-        : "strength_reference_reconstruction_invalid";
-
-    throw new Beta19CoachWorkspaceError(
-      code
-    );
-  }
-}
-
 // FULL-UI-04B athlete-detail factual read model.
 // FUNCTION NOTE:
 // Purpose: Loads one accepted coach-athlete detail surface containing immutable
@@ -1485,10 +1330,114 @@ export async function loadCoachAthleteDetail(
         s.block_id,
         s.status,
         s.beta_assignment_id,
+        s.planned_session,
         s.created_at,
         s.updated_at,
         count(re.seq)::integer
-          AS runtime_event_count
+          AS runtime_event_count,
+        bool_or(
+          re.event->>'type' = 'PAIN_REPORT'
+          AND re.event->>'pain_reported' = 'true'
+        ) AS session_pain_reported,
+        array_remove(
+          array_agg(
+            DISTINCT CASE
+              WHEN re.event->>'type' = 'SKIP_EXERCISE'
+                THEN re.event->>'reason_code'
+              ELSE NULL
+            END
+          ),
+          NULL
+        ) AS session_skip_reasons,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'substituted_exercise_id', re.event->>'substituted_exercise_id'
+            )
+          ) FILTER (
+            WHERE re.event->>'substituted_exercise_id' IS NOT NULL
+              AND re.event->>'substituted_exercise_id' <> ''
+          ),
+          '[]'::json
+        ) AS session_substitutions,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'rpe_value', (re.event->>'rpe_value')::int
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'RPE_REPORT'
+              AND re.event->>'rpe_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_rpe_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'borg_value', (re.event->>'borg_value')::int
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'BORG_REPORT'
+              AND re.event->>'borg_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_borg_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'cr10_value', (re.event->>'cr10_value')::numeric
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'CR10_REPORT'
+              AND re.event->>'cr10_value' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_cr10_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'reps', (re.event->>'reps')::int,
+              'load_value', (re.event->>'load_value')::numeric,
+              'load_unit', re.event->>'load_unit',
+              'is_pr', (re.event->>'is_pr')::boolean
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'EXTRA_SET_REPORT'
+              AND re.event->>'reps' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_extra_set_reports,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'reps', (re.event->>'reps')::int,
+              'load_value', (re.event->>'load_value')::numeric,
+              'load_unit', re.event->>'load_unit',
+              'is_pr', (re.event->>'is_pr')::boolean
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'EXTRA_EXERCISE_REPORT'
+              AND re.event->>'reps' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_extra_exercise_reports,
+        bool_or(
+          re.event->>'type' = 'SPLIT_SESSION'
+        ) AS session_split_entered,
+        (
+          array_agg(
+            re.event->>'type'
+            ORDER BY re.seq DESC
+          ) FILTER (
+            WHERE re.event->>'type' IN ('RETURN_CONTINUE', 'RETURN_SKIP')
+          )
+        )[1] AS session_last_return_decision_type
       FROM sessions s
       LEFT JOIN runtime_events re
         ON re.session_id = s.session_id
@@ -1500,6 +1449,7 @@ export async function loadCoachAthleteDetail(
         s.block_id,
         s.status,
         s.beta_assignment_id,
+        s.planned_session,
         s.created_at,
         s.updated_at
       ORDER BY
@@ -1656,14 +1606,34 @@ export async function loadCoachAthleteDetail(
 
   const sessionHistory =
     sessionResult.rows.map(
-      (row) =>
-        deepFreeze({
+      (row) => {
+        const plannedSession =
+          isRecord(row.planned_session)
+            ? row.planned_session
+            : {};
+        const workItems =
+          Array.isArray(plannedSession.work_items)
+            ? plannedSession.work_items
+            : Array.isArray(plannedSession.exercises)
+              ? plannedSession.exercises
+              : [];
+        const exerciseIds =
+          workItems
+            .map((item: unknown) =>
+              isRecord(item)
+                ? cleanString(item.exercise_id ?? item.item_id)
+                : ""
+            )
+            .filter(Boolean);
+
+        return deepFreeze({
           session_id:
             String(row.session_id),
           artefact_id:
             `beta_e2e_artefact_${String(
               row.session_id
             )}`,
+          exercise_ids: exerciseIds,
           block_id:
             String(row.block_id ?? ""),
           session_status:
@@ -1676,6 +1646,96 @@ export async function loadCoachAthleteDetail(
             Number(
               row.runtime_event_count
             ),
+          pain_reported:
+            Boolean(
+              row.session_pain_reported
+            ),
+          skip_reasons:
+            Array.isArray(
+              row.session_skip_reasons
+            )
+              ? row.session_skip_reasons.filter(
+                  (reason: unknown) =>
+                    typeof reason === "string" &&
+                    reason.length > 0
+                )
+              : [],
+          substitutions:
+            Array.isArray(
+              row.session_substitutions
+            )
+              ? row.session_substitutions.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    typeof entry.substituted_exercise_id === "string"
+                )
+              : [],
+          rpe_reports:
+            Array.isArray(
+              row.session_rpe_reports
+            )
+              ? row.session_rpe_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.rpe_value)
+                )
+              : [],
+          borg_reports:
+            Array.isArray(
+              row.session_borg_reports
+            )
+              ? row.session_borg_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.borg_value)
+                )
+              : [],
+          cr10_reports:
+            Array.isArray(
+              row.session_cr10_reports
+            )
+              ? row.session_cr10_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isFinite(entry.cr10_value)
+                )
+              : [],
+          extra_set_reports:
+            Array.isArray(
+              row.session_extra_set_reports
+            )
+              ? row.session_extra_set_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.reps)
+                )
+              : [],
+          extra_exercise_reports:
+            Array.isArray(
+              row.session_extra_exercise_reports
+            )
+              ? row.session_extra_exercise_reports.filter(
+                  (entry: unknown) =>
+                    isRecord(entry) &&
+                    typeof entry.exercise_id === "string" &&
+                    Number.isInteger(entry.reps)
+                )
+              : [],
+          split_entered:
+            Boolean(
+              row.session_split_entered
+            ),
+          split_return_decision:
+            row.session_last_return_decision_type === "RETURN_CONTINUE"
+              ? "continue"
+              : row.session_last_return_decision_type === "RETURN_SKIP"
+                ? "skip"
+                : null,
           created_at:
             new Date(
               row.created_at
@@ -1684,7 +1744,8 @@ export async function loadCoachAthleteDetail(
             new Date(
               row.updated_at
             ).toISOString()
-        })
+        });
+      }
     );
 
   const noteHistory =

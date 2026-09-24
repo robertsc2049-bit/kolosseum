@@ -8,7 +8,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relativePath) => fs.readFileSync(path.join(root, relativePath), "utf8");
 
 const index = read("public/app/index.html");
-const app = read("public/app/app.js");
+const routeBootstrap = read("public/app/route_bootstrap.js");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const eventService = read("src/api/beta19_coach_event_service.ts");
@@ -17,11 +17,25 @@ const journey = read("src/api/beta_product_journey_service.ts");
 const blocks = read("src/api/blocks.handlers.ts");
 const templates = read("src/api/beta18_programme_template_service.ts");
 
+// DEV NOTE: the event library (metric counts + event card list) AND the
+// create-event form (with its live countdown/weeks preview) both moved to
+// React - see public/app-src/screens/coach/CoachEventsLibraryPanel.tsx/
+// CoachEventCreatePanel.tsx.
+const coachEventsLibraryPanel = read("public/app-src/screens/coach/CoachEventsLibraryPanel.tsx");
+// DEV NOTE: the profile-embedded assignment form moved to React too - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts.
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+const assignmentClient = read("public/app-src/api/coachWorkspaceClient.ts");
+const accountRoutes = read("src/api/product_account.routes.ts");
+const athleteTodayPanel = read("public/app-src/screens/athlete/AthleteTodayPanel.tsx");
+
 test("events are a separate coach workspace section", () => {
   assert.match(index, /data-view="events"/u);
   assert.match(index, /id="view-events"/u);
-  assert.match(index, /id="eventForm"/u);
-  assert.match(index, /id="eventList"/u);
+  assert.match(index, /id="coach-event-create-root"/u);
+  assert.match(index, /id="coach-events-list-root"/u);
+  assert.match(index, /id="coach-events-metrics-root"/u);
+  assert.doesNotMatch(index, /id="eventList"/u);
   assert.doesNotMatch(index, /class="nav-item coach-nav" data-view="assign"/u);
   // FULL-UI-12C: this section must actually render (not be permanently
   // display:none) - it hosts both the typed event_plan compiler and the
@@ -30,12 +44,63 @@ test("events are a separate coach workspace section", () => {
 });
 
 test("athlete profile owns programme and event assignment", () => {
-  assert.match(index, /id="athleteAssignmentForm"/u);
-  assert.match(index, /id="athleteAssignmentEvent"/u);
-  assert.match(index, /id="athleteAssignmentTemplate"/u);
-  assert.match(index, /id="athleteEventLinks"/u);
-  assert.match(app, /recordAthleteProfileAssignment/u);
-  assert.match(app, /\/coach-workspace\/athlete-assignment/u);
+  assert.match(index, /id="athlete-profile-assignment-root"/u);
+  assert.doesNotMatch(index, /id="athleteAssignmentForm"/u);
+
+  assert.match(assignmentPanel, /Event<\/span>/u);
+  assert.match(assignmentPanel, /Programme<\/span>/u);
+  assert.match(assignmentPanel, /Linked assignments/u);
+  assert.match(assignmentClient, /export function createAthleteAssignment/u);
+  assert.match(assignmentClient, /\/coach-workspace\/athlete-assignment/u);
+});
+
+test("the coach event library offers a real .ics calendar export link, mounted before the /events/:event_id param route", () => {
+  assert.match(index, /id="exportEventsCalendarLink"/u);
+  assert.match(index, /href="\/coach-workspace\/events\/calendar\.ics"/u);
+
+  assert.match(routes, /"\/events\/calendar\.ics"/u);
+  assert.match(handlers, /export async function getCoachEventsCalendar/u);
+  assert.match(eventService, /export function buildCoachEventsCalendar/u);
+
+  // If /events/calendar.ics were registered after /events/:event_id,
+  // Express would route "calendar.ics" as an event_id instead.
+  const calendarRouteIndex = routes.indexOf('"/events/calendar.ics"');
+  const paramRouteIndex = routes.indexOf('"/events/:event_id"');
+  assert.ok(calendarRouteIndex >= 0 && paramRouteIndex >= 0, "expected both routes to be present");
+  assert.ok(calendarRouteIndex < paramRouteIndex, "calendar.ics must be registered before the /:event_id param route");
+});
+
+test("the athlete's Today event card offers the symmetric .ics calendar export link", () => {
+  assert.match(athleteTodayPanel, /href="\/account\/events\/calendar\.ics"/u);
+
+  assert.match(accountRoutes, /"\/events\/calendar\.ics"/u);
+  assert.match(accountRoutes, /listAthleteLinkedEvents/u);
+  assert.match(accountRoutes, /buildCoachEventsCalendar/u);
+  assert.match(accountRoutes, /actor_type !== "athlete"/u);
+
+  assert.match(eventService, /export async function listAthleteLinkedEvents/u);
+});
+
+// DEV NOTE: event_lifecycle_ui.js (the legacy module this test used to
+// guard against an "/api/coach-workspace" prefix regression) is gone -
+// its DOM targets (#eventList/#eventForm/#athleteEventLinks) were removed
+// when the Events screen moved to React, orphaning it completely (every
+// call it made 404'd silently on render, or - before an earlier fix -
+// on a wrong URL prefix). The detail/lifecycle actions it implemented
+// (cancel/archive/re-version/link/unlink) are real, tested, DB-backed
+// backend routes with no other frontend caller, so this slice ports them
+// to React (useCoachEventDetail.ts/CoachEventDetailPanel.tsx) instead of
+// just deleting the dead file. This test preserves the same regression
+// intent for the new client.
+test("the event detail/lifecycle client's fetch paths actually match mounted routes - no unreachable prefix", () => {
+  assert.doesNotMatch(routeBootstrap, /event_lifecycle_ui/u);
+  assert.match(assignmentClient, /`\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}`/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/version/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/cancel/u);
+  assert.match(assignmentClient, /\/coach-workspace\/events\/\$\{encodeURIComponent\(eventId\)\}\/archive/u);
+  assert.match(assignmentClient, /\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/link/u);
+  assert.match(assignmentClient, /\/athletes\/\$\{encodeURIComponent\(athleteUserId\)\}\/unlink/u);
+  assert.doesNotMatch(assignmentClient, /\/api\/coach-workspace/u);
 });
 
 test("coach event routes persist separate event and link records", () => {
@@ -61,4 +126,18 @@ test("event workspace does not create team or organisation runtime", () => {
   assert.match(eventService, /creates_team_runtime: false/u);
   assert.match(eventService, /creates_organisation_runtime: false/u);
   assert.doesNotMatch(eventService, /recommend|readiness|safety|optimis/iu);
+});
+
+test("an event's timezone and notes are read back and rendered, not silently discarded", () => {
+  // The manifest's event_metadata function ("Display location, timezone,
+  // notes, activity and type") is marked implemented, but renderCoachEvents
+  // used to build each card from event_name/event_type/event_date/location
+  // only - timezone and notes were validated, persisted (beta19_coach_event_
+  // service.ts) and returned unmodified through GET /coach-workspace/events,
+  // but never appeared anywhere in the coach's own event list. Same bug
+  // class as the test-account-reason and support-context fixes before it.
+  // The renderer moved to React (CoachEventsLibraryPanel.tsx) - checked
+  // there now instead of the removed app.js block.
+  assert.match(coachEventsLibraryPanel, /plan\.timezone \? ` · \$\{String\(plan\.timezone\)\}` : ""/u);
+  assert.match(coachEventsLibraryPanel, /plan\.notes \? <p className="coach-event-notes">\{String\(plan\.notes\)\}<\/p> : null/u);
 });

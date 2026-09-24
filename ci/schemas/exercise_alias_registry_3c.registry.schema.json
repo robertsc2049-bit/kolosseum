@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kolosseum://registries/canonical/exercise_alias_registry_3c.registry.schema.json",
+  "title": "exercise_alias_registry_3c",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "registry_id",
+    "version",
+    "entries"
+  ],
+  "properties": {
+    "registry_id": {
+      "type": "string",
+      "const": "exercise_alias_registry_3c"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "entries": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "alias_id",
+          "alias_string",
+          "canonical_exercise_token_id",
+          "alias_type",
+          "locale",
+          "source_context",
+          "case_sensitive",
+          "exact_match_only",
+          "notes"
+        ],
+        "properties": {
+          "alias_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "alias_string": {
+            "type": "string",
+            "minLength": 1
+          },
+          "canonical_exercise_token_id": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          },
+          "alias_type": {
+            "type": "string",
+            "minLength": 1,
+            "enum": [
+              "legacy_name",
+              "colloquial",
+              "federation_term",
+              "imported_program",
+              "ui_label"
+            ]
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_context": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "case_sensitive": {
+            "type": "boolean"
+          },
+          "exact_match_only": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  }
+}

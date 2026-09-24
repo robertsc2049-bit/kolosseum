@@ -2,7 +2,7 @@
 
 Status: active v1 controlled-launch boundary document.
 Slice: S-V1-P-04.
-Version: 1.0.0.
+Version: 1.1.0.
 
 ## Purpose
 
@@ -19,6 +19,19 @@ This slice does not add a live Stripe SDK dependency.
 This slice does not call a provider API.
 
 Billing state is separate from coach-athlete relationship truth.
+
+## Live implementation note (2026-08-17)
+
+The real, live individual-coach customer-portal implementation now lives outside this
+contract module, in `src/api/product_commercial_service.ts` and
+`src/api/product_commercial.routes.ts`, under FULL-UI-08 authority. That live path makes a
+real Stripe Billing Portal Session call. The top-level release boundary already permits this
+("Stripe self-serve purchase and seat management" as a controlled-launch exception).
+
+This contract module (`src/v1BillingManagementSurface.mjs` and its adapter) remains a dormant
+reference contract only: it still does not add a live Stripe SDK dependency itself and is not
+mounted as a live route. Billing state continues to remain separate from coach-athlete
+relationship truth in the live path, exactly as this document requires.
 
 ## Allowed scope
 

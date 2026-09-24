@@ -77,7 +77,7 @@ const pkg = readJson("package.json");
 const scripts = pkg.scripts || {};
 
 const expectedScripts = {
-  "build": "tsc -p tsconfig.json && npm run engine:shim:check",
+  "build": "tsc -p tsconfig.json && npm run engine:shim:check && npm run build:react",
   "build:fast": "node ci/guards/green_entrypoint_guard.mjs && node ci/guards/clean_tree_guard.mjs && tsc -p tsconfig.json && npm run engine:shim:check && node ci/guards/run_pipeline_contract_version_guard.mjs",
   "lint": "npm run lint:fast && npm run test:ci",
   "test:ci": "node ci/scripts/run_test_ci_from_index.mjs",

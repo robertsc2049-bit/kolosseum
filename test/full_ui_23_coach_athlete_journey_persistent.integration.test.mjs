@@ -343,7 +343,15 @@ test(
       { cookie: coachCookie, csrf: coachCsrf }
     );
     assertStatus(onboardingTerms, 200, "coach onboarding terms");
-    assert.equal(onboardingTerms.json?.current_stage, "review");
+    assert.equal(onboardingTerms.json?.current_stage, "accessibility");
+
+    const onboardingAccessibility = await request(
+      baseUrl, "PATCH", "/account/coach-onboarding/accessibility",
+      { accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false } },
+      { cookie: coachCookie, csrf: coachCsrf }
+    );
+    assertStatus(onboardingAccessibility, 200, "coach onboarding accessibility");
+    assert.equal(onboardingAccessibility.json?.current_stage, "review");
 
     const onboardingComplete = await request(
       baseUrl, "POST", "/account/coach-onboarding/complete",
@@ -714,6 +722,228 @@ test(
       { session_id: sessionId, execution_status: terminalState.execution_status }
     );
 
+    // --- Step 14b: a second session records a real skip reason, a real
+    //     pain report and a real exercise substitution, and the coach's
+    //     athlete-detail surface reflects all three facts - not just an
+    //     opaque recorded-event count. ---
+    const secondCompiled = await request(baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      phase1_input: {
+        consent_granted: true,
+        engine_version: "EB2-1.0.0",
+        enum_bundle_version: "EB2-1.0.0",
+        phase1_schema_version: "1.0.0",
+        actor_type: "athlete",
+        execution_scope: "individual",
+        activity_id: "powerlifting",
+        nd_mode: false,
+        instruction_density: "standard",
+        exposure_prompt_density: "standard",
+        bias_mode: "none"
+      },
+      beta_user_id: athleteUserId,
+      beta_coach_user_id: coachUserId
+    });
+    assertStatus(secondCompiled, 201, "compile second session");
+    const secondSessionId = secondCompiled.json?.session_id;
+    assert.ok(secondSessionId, "expected a second session_id");
+    assert.notEqual(secondSessionId, sessionId, "expected a distinct second session");
+
+    assertStatus(await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/start`, {}), 200, "second session start");
+
+    const usedSkipReason = "pain_or_discomfort";
+    let secondTerminalState = null;
+    let skippedExerciseId = null;
+    let painReportedExerciseId = null;
+    let substitutedFromExerciseId = null;
+    let substitutedToExerciseId = null;
+    let rpeReportedExerciseId = null;
+    let splitRecorded = false;
+
+    for (let i = 0; i < 10; i += 1) {
+      const stateResult = await request(baseUrl, "GET", `/sessions/${encodeURIComponent(secondSessionId)}/state`);
+      assertStatus(stateResult, 200, `second session state probe ${i}`);
+      const currentStep = stateResult.json?.current_step;
+      if (!currentStep) {
+        secondTerminalState = stateResult.json;
+        break;
+      }
+      const exerciseId = currentStep.exercise?.exercise_id;
+      assert.ok(exerciseId, `second session probe ${i}: expected an exercise_id on current step`);
+
+      if (!splitRecorded) {
+        splitRecorded = true;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "SPLIT_SESSION" }
+          }),
+          201,
+          "split second session"
+        );
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "RETURN_CONTINUE" }
+          }),
+          201,
+          "return-continue second session"
+        );
+      }
+
+      if (!skippedExerciseId) {
+        skippedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "SKIP_EXERCISE", exercise_id: exerciseId, reason_code: usedSkipReason }
+          }),
+          201,
+          `skip exercise ${exerciseId} (second session)`
+        );
+        continue;
+      }
+
+      if (!painReportedExerciseId) {
+        painReportedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true }
+          }),
+          201,
+          `pain report ${exerciseId} (second session)`
+        );
+      }
+
+      if (exerciseId === "overhead_press" && !substitutedFromExerciseId) {
+        const substitutionRequest = await request(
+          baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/substitution-request`,
+          { exercise_id: "overhead_press", unavailable_equipment_ids: ["barbell"] }
+        );
+        const substitutionResult = substitutionRequest.json?.result;
+        const substitutionOutput = substitutionResult?.substitution_output;
+        if (substitutionRequest.response.status === 200 && substitutionResult?.substitution_status === "substitution_applied") {
+          substitutedFromExerciseId = substitutionOutput.source_exercise_id;
+          substitutedToExerciseId = substitutionOutput.target_exercise_id;
+          assertStatus(
+            await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+              event: {
+                type: "COMPLETE_EXERCISE",
+                exercise_id: exerciseId,
+                substituted_exercise_id: substitutionOutput.target_exercise_id,
+                substitution_edge_id: substitutionOutput.substitution_edge_id
+              }
+            }),
+            201,
+            `complete substituted exercise ${exerciseId} (second session)`
+          );
+          continue;
+        }
+      }
+
+      if (exerciseId === "deadlift" && !rpeReportedExerciseId) {
+        rpeReportedExerciseId = exerciseId;
+        assertStatus(
+          await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+            event: { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: 8 }
+          }),
+          201,
+          `rpe report ${exerciseId} (second session)`
+        );
+      }
+
+      assertStatus(
+        await request(baseUrl, "POST", `/sessions/${encodeURIComponent(secondSessionId)}/events`, {
+          event: { type: "COMPLETE_EXERCISE", exercise_id: exerciseId }
+        }),
+        201,
+        `complete exercise ${exerciseId} (second session)`
+      );
+    }
+    assert.ok(secondTerminalState, "second session did not reach a terminal state");
+    assert.equal(secondTerminalState.execution_status, "partial");
+    assert.ok(skippedExerciseId, "expected a skipped exercise in the second session");
+    assert.ok(painReportedExerciseId, "expected a pain-reported exercise in the second session");
+    assert.equal(substitutedFromExerciseId, "overhead_press", "expected the overhead_press substitution to be applied");
+    assert.equal(substitutedToExerciseId, "dumbbell_overhead_press", "expected the lawful registry substitution target");
+    assert.equal(rpeReportedExerciseId, "deadlift", "expected an RPE report on deadlift in the second session");
+
+    const athleteDetailAfterSecondSession = await request(
+      baseUrl, "GET",
+      `/coach-workspace/athlete-detail?athlete_user_id=${encodeURIComponent(athleteUserId)}`,
+      undefined, { cookie: coachCookie }
+    );
+    assertStatus(athleteDetailAfterSecondSession, 200, "coach athlete-detail after second session");
+    const secondSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === secondSessionId
+    );
+    assert.ok(secondSessionSummary, "expected the second session in the coach's session history");
+    assert.equal(secondSessionSummary.pain_reported, true);
+    assert.ok(
+      Array.isArray(secondSessionSummary.skip_reasons) && secondSessionSummary.skip_reasons.includes(usedSkipReason),
+      "expected the coach's session history to surface the athlete's recorded skip reason"
+    );
+    assert.ok(Array.isArray(secondSessionSummary.substitutions), "expected a substitutions array on the coach's session summary");
+    assert.ok(
+      secondSessionSummary.substitutions.some(
+        (entry) => entry.exercise_id === "overhead_press" && entry.substituted_exercise_id === "dumbbell_overhead_press"
+      ),
+      "expected the coach's session history to surface the athlete's recorded exercise substitution"
+    );
+    assert.ok(Array.isArray(secondSessionSummary.rpe_reports), "expected an rpe_reports array on the coach's session summary");
+    assert.ok(
+      secondSessionSummary.rpe_reports.some(
+        (entry) => entry.exercise_id === "deadlift" && entry.rpe_value === 8
+      ),
+      "expected the coach's session history to surface the athlete's recorded RPE report"
+    );
+    assert.equal(secondSessionSummary.split_entered, true, "expected the coach's session history to surface that the athlete split the session");
+    assert.equal(secondSessionSummary.split_return_decision, "continue", "expected the coach's session history to surface the athlete's return decision");
+
+    const firstSessionSummary = athleteDetailAfterSecondSession.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    assert.ok(firstSessionSummary, "expected the first session in the coach's session history");
+    assert.equal(firstSessionSummary.pain_reported, false);
+    assert.deepEqual(firstSessionSummary.skip_reasons, []);
+    assert.deepEqual(firstSessionSummary.substitutions, []);
+    assert.deepEqual(firstSessionSummary.rpe_reports, []);
+    assert.equal(firstSessionSummary.split_entered, false, "a session with no SPLIT_SESSION event must not be reported as split");
+    assert.equal(firstSessionSummary.split_return_decision, null);
+
+    record(
+      "step_14b_coach_sees_pain_skip_substitution_rpe_and_split_return_facts",
+      "Coach's session history surfaces the athlete's recorded pain report, skip reason, exercise substitution, RPE report and split/return decision, not just an event count",
+      secondSessionSummary.pain_reported === true &&
+        secondSessionSummary.skip_reasons.includes(usedSkipReason) &&
+        secondSessionSummary.substitutions.some((entry) => entry.exercise_id === "overhead_press") &&
+        secondSessionSummary.rpe_reports.some((entry) => entry.exercise_id === "deadlift") &&
+        secondSessionSummary.split_entered === true &&
+        secondSessionSummary.split_return_decision === "continue" &&
+        firstSessionSummary.pain_reported === false,
+      { session_id: secondSessionId, skip_reason: usedSkipReason, substituted_to: substitutedToExerciseId, rpe_exercise_id: rpeReportedExerciseId }
+    );
+
+    // --- Step 14c: logging a heavier extra set than any prior logged
+    //     weight for the same exercise is flagged as a personal record; a
+    //     first-ever logged weight is not. ---
+    const prExerciseId = exercises[0].exercise_id;
+
+    const firstExtraSet = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+      event: { type: "EXTRA_SET_REPORT", exercise_id: prExerciseId, reps: 5, load_value: 100, load_unit: "kg" }
+    });
+    assertStatus(firstExtraSet, 201, "first extra set report");
+    assert.equal(firstExtraSet.json?.is_pr, false, "a first-ever logged weight has nothing to beat, so it is not a personal record");
+
+    const secondExtraSet = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+      event: { type: "EXTRA_SET_REPORT", exercise_id: prExerciseId, reps: 5, load_value: 110, load_unit: "kg" }
+    });
+    assertStatus(secondExtraSet, 201, "second, heavier extra set report");
+    assert.equal(secondExtraSet.json?.is_pr, true, "a heavier logged weight than any prior is a personal record");
+
+    record(
+      "step_14c_personal_record_detected",
+      "A heavier logged extra set than any prior weight for the same exercise is flagged as a personal record, and a first-ever logged weight is not",
+      firstExtraSet.json?.is_pr === false && secondExtraSet.json?.is_pr === true,
+      { session_id: sessionId, exercise_id: prExerciseId }
+    );
+
     // --- Step 15: coach sees the factual completed-session record. ---
     const reviewQueue = await request(
       baseUrl, "GET",
@@ -762,6 +992,7 @@ test(
       athlete_user_id: athleteUserId,
       session_id: "not_applicable",
       artefact_id: "not_applicable",
+      exercise_id: null,
       note_text: athleteVisibleNoteText,
       visibility: "athlete_visible"
     }), 201, "athlete-visible note");
@@ -772,6 +1003,7 @@ test(
       athlete_user_id: athleteUserId,
       session_id: "not_applicable",
       artefact_id: "not_applicable",
+      exercise_id: null,
       note_text: coachPrivateNoteText,
       visibility: "coach_private"
     }), 201, "coach-private note");
@@ -780,6 +1012,47 @@ test(
       "Coach adds a non-binding athlete-visible note",
       true,
       { athlete_visible_note: athleteVisibleNoteText }
+    );
+
+    // --- Step 16b: a note can be scoped to a specific exercise on a real,
+    //     completed session - and is rejected if the exercise_id was never
+    //     part of that session's own prescribed plan. ---
+    const firstSessionExerciseId = exercises[0]?.exercise_id;
+    assert.ok(firstSessionExerciseId, "expected a real exercise_id from the first session's plan");
+
+    const exerciseNoteText = "Bar path drifted forward on the last two reps.";
+    const exerciseScopedNote = await request(baseUrl, "POST", "/sessions/beta-coach-notes", {
+      coach_profile: coachProfileForNotes,
+      relationship: persistedRelationship,
+      athlete_user_id: athleteUserId,
+      session_id: sessionId,
+      artefact_id: `beta_e2e_artefact_${sessionId}`,
+      exercise_id: firstSessionExerciseId,
+      note_text: exerciseNoteText,
+      visibility: "coach_private"
+    });
+    assertStatus(exerciseScopedNote, 201, "exercise-scoped note");
+    assert.equal(exerciseScopedNote.json?.coach_note?.exercise_id, firstSessionExerciseId);
+
+    const rejectedExerciseNote = await request(baseUrl, "POST", "/sessions/beta-coach-notes", {
+      coach_profile: coachProfileForNotes,
+      relationship: persistedRelationship,
+      athlete_user_id: athleteUserId,
+      session_id: sessionId,
+      artefact_id: `beta_e2e_artefact_${sessionId}`,
+      exercise_id: "not_a_real_exercise_on_this_session",
+      note_text: "This should never persist.",
+      visibility: "coach_private"
+    });
+    assertStatus(rejectedExerciseNote, 400, "note with an exercise_id not on the session's plan");
+    assert.equal(rejectedExerciseNote.json?.failure_token, "beta17_coach_note_exercise_id_not_in_session");
+
+    record(
+      "step_16b_coach_note_scoped_to_exercise",
+      "A coach note can be scoped to a real exercise on the session, and is rejected for an exercise_id not on that session's plan",
+      exerciseScopedNote.json?.coach_note?.exercise_id === firstSessionExerciseId &&
+        rejectedExerciseNote.response.status === 400,
+      { session_id: sessionId, exercise_id: firstSessionExerciseId }
     );
 
     // --- Step 17: athlete sees that note, and only that note - no engine or
@@ -830,10 +1103,20 @@ test(
       coachRefreshBefore.assignments?.assignments?.find((entry) => entry.assignment_id === assignmentId)
     );
     assert.deepEqual(athleteTodayRefetch, athleteRefreshBefore.today);
+
+    const sessionSummaryAfterRefresh = coachProfileRefetch.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    const personalRecordSurvivedRefresh = Array.isArray(sessionSummaryAfterRefresh?.extra_set_reports) &&
+      sessionSummaryAfterRefresh.extra_set_reports.some(
+        (entry) => entry.exercise_id === prExerciseId && entry.load_value === 110 && entry.is_pr === true
+      );
+    assert.ok(personalRecordSurvivedRefresh, "expected the personal-record fact to survive a refresh of the coach's session history");
+
     record(
       "step_18_refresh_reconstruction",
       "Refreshing both actor contexts reconstructs the same server-backed state",
-      true,
+      personalRecordSurvivedRefresh,
       { assignment_id: assignmentId }
     );
 
@@ -876,11 +1159,22 @@ test(
     );
     assert.equal(reviewedRecordAfterRestart?.review_status, "reviewed");
     assert.deepEqual(athleteTodayAfterRestart.json, athleteTodayRefetch);
+
+    const sessionSummaryAfterRestart = coachProfileAfterRestart.json?.detail?.session_history?.find(
+      (entry) => entry.session_id === sessionId
+    );
+    const personalRecordSurvivedRestart = Array.isArray(sessionSummaryAfterRestart?.extra_set_reports) &&
+      sessionSummaryAfterRestart.extra_set_reports.some(
+        (entry) => entry.exercise_id === prExerciseId && entry.load_value === 110 && entry.is_pr === true
+      );
+    assert.ok(personalRecordSurvivedRestart, "expected the personal-record fact to survive a fresh-process restart");
+
     record(
       "step_19_fresh_process_restart",
       "A fresh operating-system process reconstructs the same state",
       coachProfileAfterRestart.json?.detail?.current_assignment?.assignment_id === assignmentId &&
-        reviewedRecordAfterRestart?.review_status === "reviewed",
+        reviewedRecordAfterRestart?.review_status === "reviewed" &&
+        personalRecordSurvivedRestart,
       { first_pid: firstProcessId, restarted_pid: restarted.child.pid }
     );
 

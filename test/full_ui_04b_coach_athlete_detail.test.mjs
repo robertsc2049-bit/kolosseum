@@ -46,21 +46,37 @@ const coachNoteWriteRoute =
 const schema =
   read("schema.sql");
 
+// DEV NOTE: the coach-notes history list AND creation form both moved to
+// React - see public/app-src/screens/coach/AthleteCoachNotesPanel.tsx/
+// useAthleteCoachNotes.ts and their __tests__ file for behavioral
+// coverage. Note creation needs a signed "capability object" pair
+// (coach_profile/relationship) that no other coach write path requires -
+// see useAthleteCoachNotes.ts's own DEV NOTE for why.
+const athleteCoachNotesPanel =
+  read("public/app-src/screens/coach/AthleteCoachNotesPanel.tsx");
+const athleteCoachNotesHook =
+  read("public/app-src/screens/coach/useAthleteCoachNotes.ts");
+
+// DEV NOTE: current-programme, current-event, and the assignment/
+// strength/bodyweight/event-link/session history lists also moved to
+// React - see public/app-src/screens/coach/AthleteHistoryPanels.tsx,
+// useAthleteHistory.ts and their __tests__ file. Session history's own
+// bespoke pain/skip/substitution/RPE/split-return facts are covered
+// below, now checked against AthleteHistoryPanels.tsx instead of app.js.
+// The metric-card counts, status line and overall panel hide/show stay
+// legacy-owned.
+const athleteHistoryPanels =
+  read("public/app-src/screens/coach/AthleteHistoryPanels.tsx");
+const reviewHook =
+  read("public/app-src/screens/coach/useCoachReview.ts");
+
 test(
   "FULL-UI-04B exposes the complete athlete-detail surface",
   () => {
     for (const id of [
       "athleteDetailHistoryPanel",
       "athleteDetailRefreshButton",
-      "athleteDetailStatus",
-      "athleteDetailCurrentProgramme",
-      "athleteDetailCurrentEvent",
-      "athleteDetailAssignmentHistory",
-      "athleteDetailStrengthHistory",
-      "athleteDetailBodyweightHistory",
-      "athleteDetailSessionHistory",
-      "athleteDetailNoteHistory",
-      "athleteDetailNoteForm"
+      "athleteDetailStatus"
     ]) {
       assert.match(
         html,
@@ -70,6 +86,34 @@ test(
         )
       );
     }
+
+    for (const id of [
+      "athlete-coach-notes-root",
+      "athlete-history-current-programme-root",
+      "athlete-history-current-event-root",
+      "athlete-history-assignment-root",
+      "athlete-history-strength-root",
+      "athlete-history-bodyweight-root",
+      "athlete-history-event-link-root",
+      "athlete-history-session-root"
+    ]) {
+      assert.match(
+        html,
+        new RegExp(`id="${id}"`, "u")
+      );
+    }
+
+    assert.doesNotMatch(html, /id="athleteDetailCurrentProgramme"/u);
+    assert.doesNotMatch(html, /id="athleteDetailCurrentEvent"/u);
+    assert.doesNotMatch(html, /id="athleteDetailAssignmentHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailStrengthHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailBodyweightHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailEventHistory"/u);
+    assert.doesNotMatch(html, /id="athleteDetailSessionHistory"/u);
+
+    assert.match(athleteCoachNotesPanel, /useAthleteCoachNotes/u);
+    assert.match(athleteHistoryPanels, /useAthleteHistory/u);
+    assert.match(athleteHistoryPanels, /AthleteSessionHistoryList/u);
   }
 );
 
@@ -135,6 +179,209 @@ test(
 );
 
 test(
+  "FULL-UI-04B event_link_history is actually read and rendered, not just derived and stored",
+  () => {
+    // Same phantom-field bug class as PR #877 (notification_payload): the
+    // service has derived, persisted and returned event_link_history since
+    // FULL-UI-09C, but until now nothing in the UI ever read it - every
+    // sibling history array (assignments, strength, bodyweight, sessions,
+    // notes) had a renderer and a container, and this one had neither. The
+    // renderer/container now live in AthleteHistoryPanels.tsx (see that
+    // file's DEV NOTE); the count badge stays legacy.
+    assert.match(
+      athleteHistoryPanels,
+      /event_link_history/u
+    );
+
+    assert.match(
+      athleteHistoryPanels,
+      /AthleteEventLinkHistoryList/u
+    );
+
+    assert.match(
+      application,
+      /elements\.athleteDetailEventCount/u
+    );
+
+    assert.match(
+      html,
+      /id="athleteDetailEventCount"/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-04B session history surfaces the athlete's recorded pain report and skip reason - not just an opaque event count",
+  () => {
+    // The service used to select and expose only count(re.seq) as
+    // runtime_event_count, leaving the reason_code/pain_reported facts an
+    // athlete recorded stranded inside runtime_events' JSONB - visible on
+    // the athlete's own history surface but never surfaced to the coach.
+    assert.match(
+      service,
+      /session_pain_reported/u
+    );
+    assert.match(
+      service,
+      /session_skip_reasons/u
+    );
+    assert.match(
+      service,
+      /pain_reported:\s*\n?\s*Boolean/u
+    );
+    assert.match(
+      service,
+      /skip_reasons:/u
+    );
+
+    assert.match(
+      athleteHistoryPanels,
+      /session\.pain_reported/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.skip_reasons/u
+    );
+
+    // Same gap for exercise substitutions: the athlete's own history surface
+    // already exposes substituted_exercise_id/substitution_edge_id per
+    // exercise, but the coach's session history only ever exposed the
+    // opaque event count until this fix.
+    assert.match(
+      service,
+      /session_substitutions/u
+    );
+    assert.match(
+      service,
+      /substitutions:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.substitutions/u
+    );
+
+    // Same gap for RPE reports: an athlete's recorded RPE_REPORT was
+    // validated and persisted but read back nowhere - not even to the
+    // athlete themselves, let alone the coach's session history.
+    assert.match(
+      service,
+      /session_rpe_reports/u
+    );
+    assert.match(
+      service,
+      /rpe_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.rpe_reports/u
+    );
+
+    // Same gap for Borg/CR10 reports: an athlete's recorded BORG_REPORT/
+    // CR10_REPORT was validated and persisted but read back nowhere - not
+    // even to the athlete themselves, let alone the coach's session history.
+    assert.match(
+      service,
+      /session_borg_reports/u
+    );
+    assert.match(
+      service,
+      /borg_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.borg_reports/u
+    );
+    assert.match(
+      service,
+      /session_cr10_reports/u
+    );
+    assert.match(
+      service,
+      /cr10_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.cr10_reports/u
+    );
+
+    // Same gap for extra-set reports: an athlete's own logged extra work
+    // (EXTRA_SET_REPORT) on an already-resolved exercise was validated and
+    // persisted but read back nowhere - not even to the athlete themselves,
+    // let alone the coach's session history.
+    assert.match(
+      service,
+      /session_extra_set_reports/u
+    );
+    assert.match(
+      service,
+      /extra_set_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.extra_set_reports/u
+    );
+
+    // Same gap for added exercises: an athlete-added exercise not on the
+    // prescribed plan (EXTRA_EXERCISE_REPORT) was validated and persisted
+    // but read back nowhere - not even to the athlete themselves, let alone
+    // the coach's session history.
+    assert.match(
+      service,
+      /session_extra_exercise_reports/u
+    );
+    assert.match(
+      service,
+      /extra_exercise_reports:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.extra_exercise_reports/u
+    );
+
+    // A coach note can be scoped to a specific exercise, not just the whole
+    // session - the session's own prescribed exercise ids must reach the
+    // "Add note" flow so the note-composer's exercise picker can offer them.
+    assert.match(
+      service,
+      /s\.planned_session/u
+    );
+    assert.match(
+      service,
+      /exercise_ids: exerciseIds/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.exercise_ids/u
+    );
+
+    // Same gap for split/return: the athlete's own history detail already
+    // exposes split_entered/split_return_decision/split_return_events, but
+    // the coach's session history never surfaced whether an athlete split a
+    // session or what they decided on return - not even a badge.
+    assert.match(
+      service,
+      /session_split_entered/u
+    );
+    assert.match(
+      service,
+      /split_entered:/u
+    );
+    assert.match(
+      service,
+      /split_return_decision:/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.split_entered/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /session\.split_return_decision/u
+    );
+  }
+);
+
+test(
   "FULL-UI-04B persists non-binding notes separately from artefacts",
   () => {
     assert.match(
@@ -169,12 +416,7 @@ test(
   () => {
     for (const token of [
       "refreshAthleteDetail",
-      "renderAthleteDetail",
-      "recordAthleteDetailNote",
-      'data-athlete-detail-action="programme"',
-      'data-athlete-detail-action="event"',
-      'data-athlete-detail-action="review"',
-      'data-athlete-detail-action="note"'
+      "renderAthleteDetail"
     ]) {
       assert.match(
         application,
@@ -188,14 +430,96 @@ test(
       );
     }
 
+    // "Open programme"/"Open event" moved to React (current-programme/
+    // current-event cards and the assignment-history list's "Open"
+    // button) - they navigate the same way legacy's
+    // bindAthleteDetailActions() used to (set location.hash, then click
+    // the legacy nav button for that view), just without the
+    // data-athlete-detail-action delegation legacy used, since these
+    // buttons now live in a React-owned root bindAthleteDetailActions()
+    // no longer needs to reach into.
+    assert.doesNotMatch(
+      application,
+      /data-athlete-detail-action="programme"|data-athlete-detail-action="event"/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /#\/coach\/programmes\//u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /#\/coach\/events\//u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /data-view="templates"/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /data-view="events"/u
+    );
+
+    // "Review" (session history) also moved to React and no longer exists
+    // as data-athlete-detail-action-carrying legacy DOM -
+    // bindAthleteDetailActions() itself is retired, replaced by a
+    // reverse-bridge custom event app.js listens for, since it reaches
+    // into legacy-only state (the Review view's athlete selector). "Add
+    // note" moved to React too, but React now owns that event end to end
+    // (see useAthleteCoachNotesHook below) - app.js no longer listens for
+    // it at all.
+    assert.doesNotMatch(
+      application,
+      /data-athlete-detail-action="review"|data-athlete-detail-action="note"|function bindAthleteDetailActions/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /kolosseum:open-session-review/u
+    );
+    assert.match(
+      athleteHistoryPanels,
+      /kolosseum:open-session-note-form/u
+    );
+    assert.match(
+      application,
+      /kolosseum:open-session-review/u
+    );
+    assert.doesNotMatch(
+      application,
+      /addEventListener\(\s*\n?\s*"kolosseum:open-session-note-form"/u
+    );
+    assert.match(
+      athleteCoachNotesHook,
+      /const OPEN_NOTE_FORM_EVENT = "kolosseum:open-session-note-form"/u
+    );
+    // The review view's own athlete-filter/data-loading half moved to
+    // React too (CoachReviewPanel.tsx/useCoachReview.ts, which listens for
+    // this same kolosseum:open-session-review event independently) - this
+    // app.js listener now only owns navigation.
+    assert.match(
+      application,
+      /"kolosseum:open-session-review",\s*\n\s*\(event\) => \{\s*\n\s*const athleteUserId = event\.detail\?\.athlete_user_id;\s*\n\s*if \(!athleteUserId\) return;\s*\n\s*\n\s*setView\("review"\);/u
+    );
+    assert.match(
+      reviewHook,
+      /document\.addEventListener\(OPEN_SESSION_REVIEW_EVENT, handleOpenReview\)/u
+    );
+    assert.doesNotMatch(
+      application,
+      /elements\.athleteDetailNoteForm/u
+    );
+
     assert.match(
       application,
       /\/coach-workspace\/athlete-detail/u
     );
 
-    assert.match(
+    assert.doesNotMatch(
       application,
       /\/sessions\/beta-coach-notes/u
+    );
+    assert.match(
+      coachNoteWriteRoute,
+      /"\/beta-coach-notes"/u
     );
   }
 );

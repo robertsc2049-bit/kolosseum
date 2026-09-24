@@ -1,4 +1,9 @@
-// DEV NOTE: FULL-UI-07 durable review queue product proof.
+// DEV NOTE: FULL-UI-07 durable review queue product proof. The queue's
+// rendering (reviewList/coachNoteForm) moved to React - CoachReviewPanel.tsx
+// + useCoachReview.ts, mounted at #coach-review-root - see
+// public/app-src/__tests__/CoachReviewPanel.test.tsx for its behavioral
+// proof. Backend routes, schema and CSS are untouched and still asserted
+// directly below.
 
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -31,41 +36,41 @@ const routes =
     "src/api/product_review.routes.ts"
   );
 
+const panel =
+  read("public/app-src/screens/coach/CoachReviewPanel.tsx");
+
+// DEV NOTE: the dashboard's "Awaiting review"/"Session records" metric
+// counts also moved to React - see CoachOverviewMetricsPanel.tsx/
+// useCoachOverviewMetrics.ts, mounted at #coach-overview-metrics-root.
+// app.js's state.coachReviewRecords/refreshCoachReviewQueue() are fully
+// retired - their only remaining reader was renderCoachDashboard()'s own
+// metric-card computation.
+const overviewMetricsHook =
+  read("public/app-src/screens/coach/useCoachOverviewMetrics.ts");
+
+const hook =
+  read("public/app-src/screens/coach/useCoachReview.ts");
+
 test(
   "FULL-UI-07 exposes searchable review queue controls and factual detail",
   () => {
-    for (const id of [
-      "reviewAthlete",
-      "reviewSearch",
-      "reviewStatusFilter",
-      "reviewAllCount",
-      "reviewAwaitingCount",
-      "reviewReviewedCount",
-      "reviewOpenCount",
-      "reviewList",
-      "reviewDetail",
-      "reviewDetailContent"
-    ]) {
-      assert.match(
-        html,
-        new RegExp(
-          `id="${id}"`,
-          "u"
-        )
-      );
-    }
+    assert.match(html, /id="coach-review-root"/u);
+    assert.doesNotMatch(html, /id="reviewAthlete"/u);
 
     for (const token of [
-      "renderCoachReviewWorkspace",
-      "filteredCoachReviewRecords",
-      "renderCoachReviewDetail",
-      "reviewRecordMatches"
+      "reviewRecordMatches",
+      "ReviewDetail",
+      "reviewRecordStatus",
+      "reviewRecordDate"
     ]) {
       assert.match(
-        application,
+        panel,
         new RegExp(token, "u")
       );
     }
+
+    assert.match(hook, /const refresh = useCallback/u);
+    assert.match(hook, /const markReview = useCallback/u);
   }
 );
 
@@ -165,21 +170,28 @@ test(
     for (const token of [
       "assignment_provenance",
       "event_provenance",
-      "live_status_read_only",
-      "reviewNoteList",
-      "Athlete visible",
-      "Coach only",
-      "Non-binding product note"
+      "live_status_read_only"
     ]) {
       assert.match(
-        `${routes}\n${application}`,
+        routes,
+        new RegExp(token, "u")
+      );
+    }
+
+    for (const token of [
+      "Athlete visible",
+      "Coach only",
+      "Private note"
+    ]) {
+      assert.match(
+        panel,
         new RegExp(token, "u")
       );
     }
 
     assert.match(
-      html,
-      /cannot alter engine output or session facts/u
+      panel,
+      /can't change the recorded session/u
     );
   }
 );
@@ -188,24 +200,17 @@ test(
   "FULL-UI-07 drives dashboard completed-since-review from durable state",
   () => {
     assert.match(
-      application,
-      /state\.coachReviewRecords/u
+      overviewMetricsHook,
+      /loadCoachReviews/u
     );
 
     assert.match(
-      application,
-      /review_status[\s\S]*"unreviewed"/u
+      overviewMetricsHook,
+      /awaiting_review === true/u
     );
 
-    assert.match(
-      application,
-      /refreshCoachReviewQueue/u
-    );
-
-    assert.match(
-      application,
-      /completedSessions/u
-    );
+    assert.ok(!application.includes("state.coachReviewRecords"), "state.coachReviewRecords should be fully retired from app.js");
+    assert.ok(!application.includes("function refreshCoachReviewQueue"), "refreshCoachReviewQueue() should be fully retired from app.js");
   }
 );
 
@@ -241,6 +246,37 @@ test(
     assert.match(
       routes,
       /calls_engine: false/u
+    );
+  }
+);
+
+test(
+  "FULL-UI-07 a coach note can be scoped to a specific exercise on the session, not just the whole session",
+  () => {
+    // product_review.routes.ts already computes workItems from the session's
+    // planned_session for planned_work_item_count - exercise_ids exposes the
+    // actual ids instead of discarding them after only counting them.
+    assert.match(
+      routes,
+      /exercise_ids:/u
+    );
+
+    assert.match(
+      hook,
+      /recordNote = useCallback\(async \(record: ReviewRecord, noteText: string, visibility: string, exerciseId: string\)/u
+    );
+
+    assert.match(
+      panel,
+      /noteExerciseId/u
+    );
+    assert.match(
+      panel,
+      />Whole session</u
+    );
+    assert.match(
+      panel,
+      /Exercise: \{titleCase\(String\(note\.exercise_id\)\)\}/u
     );
   }
 );

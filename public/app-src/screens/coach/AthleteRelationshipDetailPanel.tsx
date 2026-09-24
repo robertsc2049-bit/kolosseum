@@ -1,0 +1,269 @@
+import React from "react";
+
+import { type JsonRecord } from "../../api/transport";
+import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
+import { PositionSelect } from "../../components/PositionSelect";
+import { TRAINING_FOCUS_OPTIONS } from "../../components/TrainingFocusCheckboxes";
+import { formatDate, titleCase } from "../../utils/format";
+import { useAthleteRelationshipDetail } from "./useAthleteRelationshipDetail";
+
+// Read-only for the coach - training_focus has no coach-initiated change
+// path (unlike activity_id/position), it is a soft athlete-declared
+// preference the coach just needs visibility into.
+function trainingFocusLabel(id: string): string {
+  return TRAINING_FOCUS_OPTIONS.find((option) => option.id === id)?.label ?? titleCase(id);
+}
+
+// DEV NOTE: ported from index.html's #athleteRelationshipDetailPanel
+// ("Relationship audit"). See useAthleteRelationshipDetail.ts for the
+// open/close bridge-event wiring with app.js's trimmed
+// openAthleteRelationshipDetail()/closeAthleteRelationshipDetail().
+function requestOpenProfile(athleteUserId: string) {
+  document.dispatchEvent(
+    new CustomEvent("kolosseum:open-athlete-profile-request", { detail: { athlete_user_id: athleteUserId } })
+  );
+}
+
+// Matches legacy's exact fact order, with the derived "Effective state"
+// spliced in after the second (stored) entry.
+const FACTS_BEFORE_EFFECTIVE: Array<[string, keyof JsonRecord]> = [
+  ["Stored state", "relationship_state"]
+];
+const FACTS_AFTER_EFFECTIVE: Array<[string, keyof JsonRecord]> = [
+  ["Scope", "relationship_scope"],
+  ["Created", "created_at_iso8601"],
+  ["Accepted", "accepted_at_iso8601"],
+  ["Updated", "updated_at_iso8601"],
+  ["Expires", "expires_at_iso8601"],
+  ["Revoked", "revoked_at_iso8601"]
+];
+
+function factValue(label: string, raw: unknown): string {
+  return label.includes("ID") || label === "Scope" || label.toLowerCase().includes("state")
+    ? String(raw ?? "Not recorded")
+    : formatDate(raw);
+}
+
+function FactRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="relationship-audit-fact">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+// DEV NOTE: FULL-UI-83 coach-proposed activity change - a coach can only
+// ever propose here, never apply directly; the athlete's own confirm
+// action (in AthleteOnboardingPanel.tsx) is what actually amends their
+// declaration. See src/api/athlete_activity_change_service.ts.
+function ActivityChangeSection({
+  currentActivityId,
+  activityChange,
+  proposing,
+  error,
+  onPropose
+}: {
+  currentActivityId: string;
+  activityChange: JsonRecord | null;
+  proposing: boolean;
+  error: string | null;
+  onPropose: (activityId: string) => void;
+}) {
+  const [selected, setSelected] = React.useState(currentActivityId);
+
+  if (activityChange) {
+    const requestState = String(activityChange.request_state ?? "");
+    const newActivityId = String(activityChange.new_activity_id ?? "");
+    if (requestState === "proposed") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Awaiting the athlete's response to change to ${titleCase(newActivityId)}.`}</p>
+        </div>
+      );
+    }
+    if (requestState === "queued") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Will change to ${titleCase(newActivityId)} once the athlete's current session finishes.`}</p>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div className="relationship-activity-change">
+      <ActivityCategoryFilter value={selected} onChange={setSelected} sportLabel="Propose a new activity" />
+      {error ? <p role="status" className="muted small error">{error}</p> : null}
+      <button
+        className="button secondary"
+        type="button"
+        disabled={proposing || selected === currentActivityId}
+        onClick={() => onPropose(selected)}
+      >
+        {proposing ? "Proposing…" : "Propose activity change"}
+      </button>
+    </div>
+  );
+}
+
+// Mirrors ActivityChangeSection exactly - a coach can only ever propose a
+// position change here, never apply it directly, unless they're also an
+// active member of the athlete's shared-visibility team (TeamRosterPanel.tsx,
+// a direct-override tier this 1:1 relationship view never exposes).
+function PositionChangeSection({
+  currentActivityId,
+  currentPosition,
+  positionChange,
+  proposing,
+  error,
+  onPropose
+}: {
+  currentActivityId: string;
+  currentPosition: string;
+  positionChange: JsonRecord | null;
+  proposing: boolean;
+  error: string | null;
+  onPropose: (position: string) => void;
+}) {
+  const [selected, setSelected] = React.useState(currentPosition);
+
+  if (!currentActivityId) return null;
+
+  if (positionChange) {
+    const requestState = String(positionChange.request_state ?? "");
+    const newPosition = String(positionChange.new_position ?? "");
+    if (requestState === "proposed") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Awaiting the athlete's response to change position to ${titleCase(newPosition)}.`}</p>
+        </div>
+      );
+    }
+    if (requestState === "queued") {
+      return (
+        <div className="relationship-activity-change">
+          <p className="muted small">{`Will change position to ${titleCase(newPosition)} once the athlete's current session finishes.`}</p>
+        </div>
+      );
+    }
+  }
+
+  return (
+    <div className="relationship-activity-change">
+      <PositionSelect activityId={currentActivityId} value={selected} onChange={setSelected} label="Propose a new position" />
+      {error ? <p role="status" className="muted small error">{error}</p> : null}
+      <button
+        className="button secondary"
+        type="button"
+        disabled={proposing || !selected || selected === currentPosition}
+        onClick={() => onPropose(selected)}
+      >
+        {proposing ? "Proposing…" : "Propose position change"}
+      </button>
+    </div>
+  );
+}
+
+export function AthleteRelationshipDetailPanel() {
+  const {
+    open, loading, notFound, athleteUserId, displayName, activityId, position, trainingFocus, effectiveState, relationship,
+    transitioning, transitionError, close, transition,
+    activityChange, proposingActivityChange, proposeActivityChangeError, proposeActivityChange,
+    positionChange, proposingPositionChange, proposePositionChangeError, proposePositionChange
+  } = useAthleteRelationshipDetail();
+
+  if (!open) return null;
+
+  const accepted = effectiveState === "accepted";
+  const invited = effectiveState === "invited" || effectiveState === "expired";
+  const action = accepted ? "revoke" : "cancel";
+  const verb = accepted ? "revoke this accepted relationship" : "cancel this invitation";
+
+  function handleTransitionClick() {
+    if (!window.confirm(`Confirm that you want to ${verb}. Historical records will be preserved.`)) return;
+    transition(action).catch(() => {});
+  }
+
+  return (
+    <article className="panel athlete-relationship-detail-panel">
+      <div className="panel-header">
+        <div>
+          <p className="eyebrow">Relationship audit</p>
+          <h3>{loading ? "Loading…" : displayName}</h3>
+          {!loading && !notFound ? (
+            <p className="muted">{titleCase(effectiveState)} · {titleCase(activityId)}</p>
+          ) : null}
+        </div>
+
+        <button className="button secondary" type="button" onClick={close}>Close audit</button>
+      </div>
+
+      {notFound ? <p role="status" className="muted small error">The relationship record could not be found.</p> : null}
+
+      {!loading && !notFound ? (
+        <>
+          <dl className="relationship-audit-grid">
+            {FACTS_BEFORE_EFFECTIVE.map(([label, key]) => (
+              <FactRow key={label} label={label} value={factValue(label, relationship[key])} />
+            ))}
+            <FactRow label="Effective state" value={titleCase(effectiveState)} />
+            {FACTS_AFTER_EFFECTIVE.map(([label, key]) => (
+              <FactRow key={label} label={label} value={factValue(label, relationship[key])} />
+            ))}
+          </dl>
+
+          <p className="muted small">
+            Training focus: {trainingFocus.length > 0 ? trainingFocus.map(trainingFocusLabel).join(", ") : "None declared"}
+          </p>
+
+          {transitionError ? <p role="status" className="muted small error">{transitionError}</p> : null}
+
+          <div className="relationship-detail-actions">
+            {accepted ? (
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => requestOpenProfile(athleteUserId)}
+              >
+                Open training profile
+              </button>
+            ) : null}
+
+            {accepted || invited ? (
+              <button
+                className="button danger"
+                type="button"
+                disabled={transitioning}
+                onClick={handleTransitionClick}
+              >
+                {accepted ? "Revoke relationship" : "Cancel invitation"}
+              </button>
+            ) : null}
+          </div>
+
+          {accepted ? (
+            <ActivityChangeSection
+              currentActivityId={activityId}
+              activityChange={activityChange}
+              proposing={proposingActivityChange}
+              error={proposeActivityChangeError}
+              onPropose={(newActivityId) => proposeActivityChange(newActivityId).catch(() => {})}
+            />
+          ) : null}
+
+          {accepted ? (
+            <PositionChangeSection
+              currentActivityId={activityId}
+              currentPosition={position}
+              positionChange={positionChange}
+              proposing={proposingPositionChange}
+              error={proposePositionChangeError}
+              onPropose={(newPosition) => proposePositionChange(newPosition).catch(() => {})}
+            />
+          ) : null}
+        </>
+      ) : null}
+    </article>
+  );
+}

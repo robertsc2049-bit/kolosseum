@@ -153,9 +153,9 @@ Required existing checks and records:
 
 Primary local gate:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
-This command is the current fast local gate. It does not replace later full release gates.
+This command is the canonical human local verification entrypoint. Lower-level checks remain available for diagnosis and deliberately named slice proof; they do not replace `verify` as the normal developer gate.
 
 ## Generated-file owners
 

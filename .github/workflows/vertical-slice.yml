@@ -14,16 +14,10 @@
 name: vertical-slice
 
 on:
-  # DEV NOTE: Pull request execution intentionally ignores documentation-only
-  # changes. This workflow is for runnable product/code confidence, while
-  # documentation authority is checked by the dedicated doc/spine gates.
-  pull_request:
-    paths-ignore:
-      - "**/*.md"
-      - "**/*.txt"
-      - "docs/**"
-      - ".github/ISSUE_TEMPLATE/**"
-      - ".github/PULL_REQUEST_TEMPLATE*"
+  # DEV NOTE: ADMIN-01 makes both vertical-slice jobs required merge contexts.
+  # Required contexts must be emitted for every PR; path filters would leave
+  # documentation-only PRs permanently waiting on checks GitHub never schedules.
+  pull_request: {}
   # DEV NOTE: Main-branch execution keeps the vertical slice visible after merge.
   # Do not remove this unless another main protection workflow proves the same
   # app/engine route.

@@ -13,6 +13,20 @@ const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
 const appJs = read("public/app/app.js");
 const indexHtml = read("public/app/index.html");
+// DEV NOTE: the athlete's own coach-messaging widget (embedded in "My
+// coach") moved to React - see AccountCoachRelationshipPanel.tsx/
+// useAccountCoachRelationship.ts/accountRelationshipsClient.ts. The
+// coach-side messaging UI (athleteDetailMessage*) stays legacy.
+const relationshipHook = read("public/app-src/screens/account/useAccountCoachRelationship.ts");
+const relationshipPanel = read("public/app-src/screens/account/AccountCoachRelationshipPanel.tsx");
+const relationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: the coach's own 1:1 messaging widget moved to React too - see
+// CoachAthleteMessagePanel.tsx/useCoachAthleteMessages.ts/
+// coachWorkspaceClient.ts, and the directory's unread badge moved with it
+// (useAthleteDirectory.ts already fetched it independently).
+const coachMessagePanel = read("public/app-src/screens/coach/CoachAthleteMessagePanel.tsx");
+const coachMessageHook = read("public/app-src/screens/coach/useCoachAthleteMessages.ts");
+const coachWorkspaceClient = read("public/app-src/api/coachWorkspaceClient.ts");
 
 const forbiddenEngineImports = /session_state_write_service\.js|session_state_query_service\.js|block_compile_write_service\.js|engine_runner_service\.js|@kolosseum\/engine|engine\/src\//u;
 
@@ -79,15 +93,48 @@ test("no messaging file imports any engine-truth service", () => {
   }
 });
 
-test("both the coach and athlete UIs exist as real focusable controls, and message bodies are escaped before rendering (never innerHTML'd raw)", () => {
-  assert.match(indexHtml, /id="athleteDetailMessageButton"/u);
-  assert.match(indexHtml, /id="athleteDetailMessageForm"/u);
-  assert.match(indexHtml, /id="athleteDetailMessageText"/u);
-  assert.match(indexHtml, /<button[^>]*id="athleteDetailMessageButton"[^>]*type="button"/u);
+test("an attachment's byte_size, which message_attachment_storage.ts and every messaging service already compute and return, is actually shown to the user as a human-readable file size", () => {
+  // message_attachment_storage.ts stat()s the uploaded file and every
+  // messaging service (coach_athlete_messaging_service.ts,
+  // org_coach_messaging_service.ts, org_athlete_messaging_service.ts) already
+  // returns attachment.byte_size on send/list - the coach-side render moved
+  // to React (CoachAthleteMessagePanel.tsx) along with the rest of the
+  // widget, and still reads it.
+  assert.match(coachMessagePanel, /function formatAttachmentSize/u);
+  assert.match(coachMessagePanel, /formatAttachmentSize\(attachment\.byte_size\)/u);
+});
 
-  assert.match(appJs, /escapeHtml\(message\.body_text/u);
-  assert.match(appJs, /async function refreshCoachAthleteMessages/u);
-  assert.match(appJs, /async function refreshAthleteOwnMessages/u);
-  assert.match(appJs, /async function confirmSendAthleteMessage/u);
-  assert.match(appJs, /async function confirmSendAthleteOwnMessage/u);
+test("each side has its own last-read marker, added as an explicit migration since CREATE TABLE IF NOT EXISTS never re-runs against an existing table", () => {
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS coach_last_read_at TIMESTAMPTZ/u);
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS athlete_last_read_at TIMESTAMPTZ/u);
+});
+
+test("unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number", () => {
+  assert.match(service, /SELECT COUNT\(\*\) FROM product_messages m/u);
+  assert.match(service, /m\.sender_role = \$2/u);
+  assert.match(service, /COALESCE\(t\.\$\{lastReadColumn\}, '-infinity'::timestamptz\)/u);
+});
+
+test("opening a thread's messages marks it read for that viewer only, updating only their own last-read column", () => {
+  assert.match(service, /UPDATE product_message_threads SET \$\{lastReadColumn\} = now\(\) WHERE thread_id = \$1/u);
+  assert.match(service, /const lastReadColumn = role === "coach" \? "coach_last_read_at" : "athlete_last_read_at";/u);
+});
+
+test("the coach directory shows a live unread-messages badge per athlete, fetched separately from the mark-read thread-detail call", () => {
+  assert.match(coachWorkspaceClient, /export async function loadCoachMessageUnreadCounts/u);
+  assert.match(coachWorkspaceClient, /"\/messages\/coach\/threads"/u);
+  assert.match(coachMessageHook, /loadCoachMessagesForThread/u);
+});
+
+test("both the coach and athlete UIs exist as real focusable controls, and message bodies are escaped before rendering (never innerHTML'd raw)", () => {
+  assert.match(indexHtml, /id="coach-athlete-message-root"/u);
+  assert.doesNotMatch(indexHtml, /id="athleteDetailMessageButton"/u);
+
+  assert.match(coachMessagePanel, /Send message/u);
+  assert.match(coachMessageHook, /export function useCoachAthleteMessages/u);
+  assert.match(relationshipHook, /export function useAccountCoachRelationship/u);
+  assert.match(relationshipsClient, /export async function sendAthleteOwnMessage/u);
+  // React escapes all rendered text by default - never dangerouslySetInnerHTML.
+  assert.doesNotMatch(relationshipPanel, /dangerouslySetInnerHTML/u);
+  assert.doesNotMatch(coachMessagePanel, /dangerouslySetInnerHTML/u);
 });

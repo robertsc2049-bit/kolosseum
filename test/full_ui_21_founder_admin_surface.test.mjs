@@ -63,9 +63,9 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
 
   const authCallCount = [...routes.matchAll(/authenticatedAdmin\(request,\s*(?:false|true)\)/gu)].length;
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
-  // once: 12 routes total, minus the 2 unauthenticated sign-in/sign-out
+  // once: 19 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 10, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 17, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -88,9 +88,19 @@ test("explicit prevention of engine override: no admin file imports any engine-t
   assert.doesNotMatch(reviewService, /FROM\s+blocks\b|FROM\s+sessions\b|FROM\s+runtime_events\b/iu);
 });
 
-test("no organisation, gym, team or roster administration exists anywhere in this slice", () => {
+test("no organisation, gym, team or roster ADMINISTRATION exists anywhere in this slice - read-only org-owner oversight (FULL-UI-80) is the sole, deliberate exception", () => {
+  // gym/team/roster stay banned everywhere - admin never gains any org
+  // administration capability (create/invite/roster-manage), only the
+  // read-only oversight added below.
   for (const source of [accountService, auth, reviewService, actionService, routes, html, js]) {
-    assert.doesNotMatch(source, /organisation|organization|\bgym\b|\bteam\b|\broster\b/iu);
+    assert.doesNotMatch(source, /\bgym\b|\bteam\b|\broster\b/iu);
+  }
+  // "organisation" itself stays banned everywhere except the FULL-UI-80
+  // read-only org-owner visibility layer (reviewService's organisations_owned
+  // read and its rendering in html/js) - identity/auth/action/routing files
+  // must still never reference it.
+  for (const source of [accountService, auth, actionService, routes]) {
+    assert.doesNotMatch(source, /organisation|organization/iu);
   }
 });
 
@@ -108,6 +118,47 @@ test("support/error-record review and data-rights review are read-only, and supp
   assert.match(reviewService, /export async function listAdminDataDeletionRequests/u);
   assert.match(actionService, /export async function changeSupportRequestStatus/u);
   assert.match(actionService, /SUPPORT_REQUEST_STATES = new Set\(\["submitted", "acknowledged", "closed"\]\)/u);
+});
+
+// The Acknowledge/Close buttons used to render unconditionally for every
+// report regardless of its current status (with a data-current-status
+// attribute that was set but never actually read anywhere), so an admin
+// could "Acknowledge" an already-closed ticket or "Close" one twice. The
+// backend accepted any of the three states as a target with no ordering
+// check at all. Both sides now enforce the same forward-only lifecycle:
+// submitted -> acknowledged -> closed, closed being terminal.
+test("the admin support-request lifecycle is forward-only in both the UI and the server, not just cosmetically hidden", () => {
+  assert.match(js, /report\.status === "submitted"/u);
+  assert.match(js, /report\.status !== "closed"/u);
+  assert.doesNotMatch(js, /data-current-status/u);
+
+  assert.match(actionService, /SUPPORT_REQUEST_ALLOWED_TRANSITIONS/u);
+  assert.match(actionService, /submitted:\s*new Set\(\["acknowledged", "closed"\]\)/u);
+  assert.match(actionService, /acknowledged:\s*new Set\(\["closed"\]\)/u);
+  assert.match(actionService, /closed:\s*new Set\(\)/u);
+  assert.match(
+    actionService,
+    /if \(!SUPPORT_REQUEST_ALLOWED_TRANSITIONS\[currentStatus\]\?\.has\(cleanStatus\)\) \{\s*\n\s*throw new AdminActionError\("admin_support_status_transition_invalid", 409\);/u
+  );
+});
+
+test("the export-requests review table shows ready/expiry/download facts, not just status - an admin can tell whether a user ever retrieved an export they requested", () => {
+  // listAdminDataExportRequests has always computed ready_at_iso8601,
+  // expires_at_iso8601 and downloaded_at_iso8601 from the real DB columns,
+  // but the admin table only ever rendered export_request_id/user_id/status/
+  // requested_at - a compliance reviewer had no way to see whether an export
+  // was ever fulfilled. Same phantom-field bug class as PR #877-#882.
+  assert.match(reviewService, /ready_at_iso8601: toIso\(row\.ready_at\)/u);
+  assert.match(reviewService, /expires_at_iso8601: toIso\(row\.expires_at\)/u);
+  assert.match(reviewService, /downloaded_at_iso8601: toIso\(row\.downloaded_at\)/u);
+
+  assert.match(js, /request\.ready_at_iso8601/u);
+  assert.match(js, /request\.expires_at_iso8601/u);
+  assert.match(js, /request\.downloaded_at_iso8601/u);
+
+  assert.match(html, /<th>Ready<\/th>/u);
+  assert.match(html, /<th>Expires<\/th>/u);
+  assert.match(html, /<th>Downloaded<\/th>/u);
 });
 
 test("account state changes are closed to active/suspended only - closed/deleted stays inside the sealed GDPR deletion queue", () => {
@@ -146,7 +197,7 @@ test("a repeated correlation_id replays the existing audit record instead of rep
   // same transaction as the mutation and the audit write - returning the
   // existing record as a replay rather than performing the mutation again.
   const replayCallCount = [...actionService.matchAll(/if \(existingAudit\) return toAuditOutcome\(existingAudit, true\);/gu)].length;
-  assert.equal(replayCallCount, 3, "each of the 3 mutating actions must check for and replay an existing audit record");
+  assert.equal(replayCallCount, 5, "each of the 5 mutating actions must check for and replay an existing audit record");
 });
 
 test("confirmed operational actions require an explicit second confirmation click before the request is sent", () => {
@@ -155,6 +206,211 @@ test("confirmed operational actions require an explicit second confirmation clic
   assert.match(js, /function requestAccountStateToggle/u);
   assert.match(js, /function confirmAccountStateToggle|async function confirmAccountStateToggle/u);
   assert.match(js, /pendingStateChange/u);
+});
+
+test("confirming an account state change refreshes the search-results table it was opened from, not just the detail panel - a still-visible stale row would otherwise misreport the account's actual state", () => {
+  // Same "sibling panel doesn't refresh after a mutation elsewhere" bug
+  // class found repeatedly across this session's live-walkthrough series
+  // (e.g. PR #1127's cross-panel org-membership-status fix) - here, within
+  // a single admin.js file: confirmAccountStateToggle/
+  // confirmOrgOwnerAccountStateToggle refreshed the just-opened detail
+  // panel and the audit log, but never re-issued the search that produced
+  // the still-visible results table above it, so a suspended account kept
+  // showing "active" in the search list until a fresh manual search.
+  assert.match(js, /async function refreshAccountSearchResults\(/u);
+  assert.match(js, /async function refreshOrgOwnerAccountSearchResults\(/u);
+
+  const stateToggleFn = js.slice(
+    js.indexOf("async function confirmAccountStateToggle"),
+    js.indexOf("function requestTestMarkingToggle")
+  );
+  assert.match(stateToggleFn, /await refreshAccountSearchResults\(\);/u);
+
+  const orgOwnerStateToggleFn = js.slice(
+    js.indexOf("async function confirmOrgOwnerAccountStateToggle"),
+    js.indexOf("async function refreshCommercialRecords")
+  );
+  assert.match(orgOwnerStateToggleFn, /await refreshOrgOwnerAccountSearchResults\(\);/u);
+});
+
+test("the reason an admin gives for marking a test account is authorable, stored, and read back - not silently discarded", () => {
+  // getAdminAccountDetail used to SELECT marked_by_admin_user_id and reason
+  // from product_test_accounts and then never place them on the returned
+  // object - a producer that validates and stores a real value with zero
+  // downstream readers, same bug class as PR #865/#866.
+  assert.match(reviewService, /SELECT marked_by_admin_user_id, reason, created_at FROM product_test_accounts/u);
+  assert.match(reviewService, /test_account_reason:/u);
+  assert.match(reviewService, /test_account_marked_by_admin_user_id:/u);
+
+  // The audit trail for this action must reflect the actual reason, not
+  // just the boolean flag, on both sides of the change.
+  const markingFunction = actionService.slice(
+    actionService.indexOf("export async function setTestAccountMarking"),
+    actionService.indexOf("const SUPPORT_REQUEST_STATES")
+  );
+  assert.match(markingFunction, /beforeState = \{[\s\S]{0,80}reason:/u);
+  assert.match(markingFunction, /afterState = \{[\s\S]{0,80}reason:/u);
+
+  // The admin UI previously had no input for reason at all - it could only
+  // be supplied via a direct API call, never through the product surface.
+  assert.match(html, /id="accountTestMarkingReason"/u);
+  assert.match(html, /id="accountDetailTestReason"/u);
+  assert.match(js, /accountTestMarkingReason.*\.value/u);
+  assert.match(js, /test_account_reason/u);
+});
+
+test("browser and failure context captured on a support report is read back and rendered for admin review, not silently discarded", () => {
+  // listAdminSupportRequests used to SELECT only correlation_id, user_id,
+  // route_hash, description, status, occurred_at and created_at from
+  // product_support_requests - the browser_context and failure_context
+  // JSONB columns were written by product_support_service.ts and returned
+  // to the reporting athlete/coach themselves, but never read back into the
+  // admin's own review query, so an admin reviewing a support/error report
+  // could never see the diagnostic context that gave the report its name.
+  // Same bug class as the test-account-reason fix above (PR #865/#866).
+  assert.match(reviewService, /SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,\s*\n\s*browser_context, failure_context/u);
+  assert.match(reviewService, /browser_context: isRecord\(row\.browser_context\) \? row\.browser_context : \{\}/u);
+  assert.match(reviewService, /failure_context: isRecord\(row\.failure_context\) \? row\.failure_context : \{\}/u);
+
+  // The admin UI previously had no rendering of these fields at all - they
+  // reached the client in the API response but nothing in admin.js ever
+  // read report.browser_context or report.failure_context off of it.
+  assert.match(js, /function supportContextDetailMarkup/u);
+  assert.match(js, /report\.browser_context/u);
+  assert.match(js, /report\.failure_context/u);
+  assert.match(js, /class="details-support"/u);
+
+  // Free-text/caller-influenceable context fields are escaped before being
+  // inserted into innerHTML.
+  assert.match(js, /function escapeHtml/u);
+  assert.match(js, /escapeHtml\(value\)/u);
+  assert.match(js, /listItems\(browserLines\)/u);
+  assert.match(js, /listItems\(failureLines\)/u);
+});
+
+test("email verification status is read and rendered on the account-detail panel, not silently discarded", () => {
+  // getAdminAccountDetail has always computed email_verified from
+  // email_verified_at, but nothing in admin.js ever read
+  // account.email_verified off the response, and index.html had no element
+  // for it - an admin reviewing an account had no way to see whether the
+  // user had verified their email at all. Same bug class as the
+  // test_account_reason and browser_context/failure_context fixes above.
+  assert.match(reviewService, /email_verified: row\.email_verified_at !== null/u);
+
+  assert.match(html, /id="accountDetailEmail"/u);
+  assert.match(html, /id="accountDetailEmailVerified"/u);
+  assert.match(js, /accountDetailEmail.*\.textContent = account\.email/u);
+  assert.match(js, /accountDetailEmailVerified.*\.textContent = account\.email_verified/u);
+});
+
+test("a deletion request's reason_code, which listAdminDataDeletionRequests already selects and returns, is actually shown to the admin in the deletion-request review table", () => {
+  // listAdminDataDeletionRequests has always selected reason_code off
+  // data_deletion_requests and returned it on every row, but
+  // refreshDataRightsReview only read deletion_request_id, user_id,
+  // queue_status and requested_at_iso8601 - reason_code was silently
+  // dropped, and the deletion-request table had no column for it, even
+  // though the athlete-facing twin of this same data (dataDeletionRecordCard
+  // in app.js) already renders it. Same phantom-field bug class as the
+  // email_verified fix above.
+  assert.match(reviewService, /reason_code: cleanString\(row\.reason_code\)/u);
+
+  assert.match(html, /<th>Reason<\/th>/u);
+  assert.match(js, /request\.reason_code/u);
+});
+
+test("an audit record's correlation_id, which listAdminAuditRecords already selects and returns, is actually shown in the operational audit table", () => {
+  // listAdminAuditRecords has always selected correlation_id off
+  // product_admin_audit_records and returned it on every row - it's the
+  // idempotency key every admin mutation sends - but refreshAuditRecords
+  // only read actor_user_id, action_type, target_record_type/_id,
+  // before_state, after_state and created_at_iso8601. An admin auditing a
+  // mutation had no way to correlate the audit row back to the client
+  // request that produced it. Same phantom-field bug class as the two
+  // fixes above.
+  assert.match(reviewService, /correlation_id: cleanString\(row\.correlation_id\)/u);
+
+  assert.match(html, /<th>Correlation<\/th>/u);
+  assert.match(js, /record\.correlation_id/u);
+});
+
+test("the export and deletion request tables have real search controls, filtering the already-fetched lists client-side rather than issuing a new request per keystroke", () => {
+  assert.match(html, /id="exportRequestsSearch"/u);
+  assert.match(html, /id="deletionRequestsSearch"/u);
+
+  assert.match(js, /function filteredExportRequests/u);
+  assert.match(js, /function filteredDeletionRequests/u);
+  assert.match(js, /function renderDataRightsReview/u);
+  assert.match(js, /state\.dataRightsExports\s*=\s*exportsResult\.requests/u);
+  assert.match(js, /state\.dataRightsDeletions\s*=\s*deletionsResult\.requests/u);
+  assert.match(js, /el\("exportRequestsSearch"\)\.addEventListener\("input", renderDataRightsReview\)/u);
+  assert.match(js, /el\("deletionRequestsSearch"\)\.addEventListener\("input", renderDataRightsReview\)/u);
+});
+
+test("the data-rights tables distinguish zero requests at all from zero matches for the current search", () => {
+  assert.match(js, /No export requests match/u);
+  assert.match(js, /No deletion requests match/u);
+});
+
+test("data-rights request fields are escaped before being inserted into the table rows - not raw string interpolation", () => {
+  assert.match(js, /escapeHtml\(request\.export_request_id\)/u);
+  assert.match(js, /escapeHtml\(request\.user_id\)/u);
+  assert.match(js, /escapeHtml\(request\.deletion_request_id\)/u);
+  assert.match(js, /escapeHtml\(request\.reason_code\)/u);
+});
+
+test("the audit records table has a real search control, filtering the already-fetched list client-side by actor, action, target or correlation id", () => {
+  assert.match(html, /id="auditRecordsSearch"/u);
+
+  assert.match(js, /function filteredAuditRecords/u);
+  assert.match(js, /function renderAuditRecords/u);
+  assert.match(js, /state\.auditRecords\s*=\s*result\.records/u);
+  assert.match(js, /el\("auditRecordsSearch"\)\.addEventListener\("input", renderAuditRecords\)/u);
+
+  const fn = js.slice(js.indexOf("function filteredAuditRecords"), js.indexOf("function renderAuditRecords"));
+  for (const field of ["record.actor_user_id", "record.action_type", "record.target_record_type", "record.target_record_id", "record.correlation_id"]) {
+    assert.ok(fn.includes(field), `expected the audit search to match on ${field}`);
+  }
+});
+
+test("the audit records table distinguishes zero records at all from zero matches for the current search, and escapes every field before inserting it into the row", () => {
+  assert.match(js, /No audit records match/u);
+  assert.match(js, /escapeHtml\(record\.actor_user_id\)/u);
+  assert.match(js, /escapeHtml\(record\.action_type\)/u);
+  assert.match(js, /escapeHtml\(record\.correlation_id\)/u);
+});
+
+test("the entitlement/commercial-records table has a real search control, filtering the already-fetched list client-side by user ID, record type or billing access state", () => {
+  assert.match(html, /id="commercialRecordsSearch"/u);
+
+  assert.match(js, /function filteredCommercialRecords/u);
+  assert.match(js, /function renderCommercialRecords/u);
+  assert.match(js, /state\.commercialRecords\s*=\s*result\.records/u);
+  assert.match(js, /el\("commercialRecordsSearch"\)\.addEventListener\("input", renderCommercialRecords\)/u);
+  assert.match(js, /No entitlement records match/u);
+  assert.match(js, /escapeHtml\(record\.user_id\)/u);
+});
+
+test("the support-requests table has a real search control, filtering the already-fetched list client-side by correlation id, user ID, description or status - and every field, including the reporter's own free-text description, is escaped before rendering", () => {
+  assert.match(html, /id="supportRequestsSearch"/u);
+
+  assert.match(js, /function filteredSupportRequests/u);
+  assert.match(js, /function renderSupportRequests/u);
+  assert.match(js, /state\.supportRequests\s*=\s*result\.reports/u);
+  assert.match(js, /el\("supportRequestsSearch"\)\.addEventListener\("input", renderSupportRequests\)/u);
+  assert.match(js, /No support requests match/u);
+
+  const fn = js.slice(js.indexOf("function renderSupportRequests"), js.indexOf("function renderSupportRequests") + 1200);
+  for (const field of ["escapeHtml(report.correlation_id)", "escapeHtml(report.user_id)", "escapeHtml(report.description)", "escapeHtml(report.status)"]) {
+    assert.ok(fn.includes(field), `expected the support row to render ${field}`);
+  }
+
+  // The details-toggle/acknowledge/close button wiring - and the
+  // detail-row pairing each report row relies on - must still work after
+  // the render function was split out of the fetch, exactly as before.
+  assert.match(js, /\.details-support/u);
+  assert.match(js, /\.ack-support/u);
+  assert.match(js, /\.close-support/u);
+  assert.match(js, /support-detail-row/u);
 });
 
 test("every route resolves the admin's own identity from the session, never a client-supplied admin id", () => {
@@ -179,4 +435,24 @@ test("every new interactive admin control is a real focusable button/form, not a
     const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
     assert.match(html, re, `${id} must be a real <button type="button">`);
   }
+});
+
+test("every table in the founder/admin surface is wrapped in a horizontally-scrollable container, so wide tables scroll instead of squashing illegibly on narrow viewports", () => {
+  const tableOpenTags = [...html.matchAll(/<table\b[^>]*>/gu)];
+  assert.equal(tableOpenTags.length, 12, "expected exactly 12 <table> elements in the admin surface");
+
+  // Every <table> must be the very first thing inside a div.table-scroll
+  // wrapper - not just present somewhere on the page - so a future table
+  // can't be added (or an existing one un-wrapped) without this failing.
+  const wrappedTables = [...html.matchAll(/<div class="table-scroll(?: table-scroll--wide)?">\s*<table\b/gu)];
+  assert.equal(
+    wrappedTables.length,
+    tableOpenTags.length,
+    "every <table> must be immediately wrapped in a `table-scroll` div, not left to overflow/squash on narrow viewports"
+  );
+
+  // The wrapper class is meaningless without the CSS rule that actually
+  // makes it scroll instead of squash.
+  assert.match(html, /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/u);
+  assert.match(html, /\.table-scroll table\s*\{[^}]*min-width:/u);
 });

@@ -30,7 +30,35 @@ test("S-V1-28 exposes a closed programme assignment contract surface", () => {
   assert.deepEqual(programmeAssignmentContract.locked_activity_ids, [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman",
+    "hyrox",
+    "crossfit",
+    "football_soccer",
+    "netball",
+    "basketball",
+    "rugby_sevens",
+    "field_hockey",
+    "ice_hockey",
+    "volleyball",
+    "cricket",
+    "american_football",
+    "athletics",
+    "swimming",
+    "olympic_weightlifting",
+    "cycling",
+    "rowing",
+    "kayaking",
+    "boxing",
+    "wrestling",
+    "judo",
+    "brazilian_jiu_jitsu",
+    "muay_thai",
+    "mma",
+    "tennis",
+    "triathlon",
+    "rugby_league",
+    "street_lifting"
   ]);
 
   for (const field of [
@@ -146,7 +174,7 @@ test("S-V1-28 template coverage must bind to S-V1-26 and S-V1-27", () => {
   );
 
   const unsupported = readValidRequest();
-  unsupported.template_coverage_entry.activity_id = "strongman";
+  unsupported.template_coverage_entry.activity_id = "weightlifting";
 
   assert.throws(
     () => createProgrammeAssignment(unsupported),

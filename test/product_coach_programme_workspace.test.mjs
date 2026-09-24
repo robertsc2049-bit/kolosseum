@@ -13,25 +13,30 @@ const js = read("public/app/app.js");
 const service = read("src/api/beta19_coach_workspace_service.ts");
 const templates = read("src/api/beta18_programme_template_service.ts");
 const phase6 = read("engine/src/phases/phase6.ts");
+// DEV NOTE: the strength-reference editor (settings + benchmark rows)
+// migrated to React - see public/app-src/screens/coach/
+// AthleteStrengthProfilePanel.tsx and public/app-src/__tests__/
+// AthleteStrengthProfilePanel.test.tsx for its behavioral coverage.
+const athleteStrengthProfilePanel = read(
+  "public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx"
+);
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx/useAthleteProfileAssignment.ts. The
+// standalone #view-assign twin is gone outright (unreachable dead code).
+const assignmentHook = read("public/app-src/screens/coach/useAthleteProfileAssignment.ts");
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
 
 test("athlete management includes durable strength-reference editing", () => {
-  for (const id of [
-    "athleteProfilePanel",
-    "athletePreferredUnit",
-    "athleteRoundingIncrement",
-    "athleteBodyweight",
-    "athleteBenchmarkList",
-    "addAthleteBenchmarkButton"
-  ]) {
+  for (const id of ["athleteProfilePanel", "athlete-profile-editor-root"]) {
     assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
   }
 
   assert.match(js, /\/coach-workspace\/athlete-strength-profile/u);
   assert.match(js, /\/coach-workspace\/athletes/u);
   assert.match(js, /\/coach-workspace\/assignments/u);
-  assert.match(js, /tested_1rm/u);
-  assert.match(js, /estimated_1rm/u);
-  assert.match(js, /training_max/u);
+  assert.match(athleteStrengthProfilePanel, /tested_1rm/u);
+  assert.match(athleteStrengthProfilePanel, /estimated_1rm/u);
+  assert.match(athleteStrengthProfilePanel, /training_max/u);
   assert.match(service, /record_sha256/u);
 });
 
@@ -52,11 +57,11 @@ test("programme management supports nested block, week and session authoring", (
 });
 
 test("programme assignment checks all percentage reference requirements", () => {
-  assert.match(html, /id="assignmentRequirements"/u);
-  assert.match(js, /requiredOneRmExerciseIds/u);
-  assert.match(js, /Missing current strength references/u);
-  assert.match(js, /assignmentSubmitButton\.disabled = true/u);
-  assert.match(js, /Assignment requirements complete/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
+  assert.match(assignmentHook, /compareProgrammeStrengthRequirements/u);
+  assert.match(assignmentHook, /Missing current strength references/u);
+  assert.match(assignmentPanel, /disabled=\{submitting \|\| !requirements\.canSubmit\}/u);
+  assert.match(assignmentHook, /Ready to assign/u);
 });
 
 test("athlete execution receives a resolved working load without hiding the source prescription", () => {

@@ -150,7 +150,7 @@ async function setUpAthlete(baseUrl, label, nonce) {
   const userId = `full_ui_14c_${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}`;
   const timestamp = new Date().toISOString();
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-auth", {
+  const authResult = await request(baseUrl, "POST", "/sessions/beta-auth", {
     user_id: userId,
     email: `${userId}@example.com`,
     display_name: label,
@@ -158,9 +158,10 @@ async function setUpAthlete(baseUrl, label, nonce) {
     account_state: "active",
     accepted_terms_version: "terms_v1",
     created_at_iso8601: timestamp
-  }), 201, `${label} athlete auth`);
+  });
+  assertStatus(authResult, 201, `${label} athlete auth`);
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-acknowledgement", {
+  const acknowledgementResult = await request(baseUrl, "POST", "/sessions/beta-acknowledgement", {
     acknowledgement_id: `ack_${userId}`,
     user_id: userId,
     beta_id: "september_beta_2026",
@@ -168,9 +169,10 @@ async function setUpAthlete(baseUrl, label, nonce) {
     jurisdiction_acknowledged: true,
     accepted_at_iso8601: timestamp,
     copy_acknowledgement_id: "BETA16_COPY_ACKNOWLEDGEMENT_LABEL"
-  }), 201, `${label} acknowledgement`);
+  });
+  assertStatus(acknowledgementResult, 201, `${label} acknowledgement`);
 
-  assertStatus(await request(baseUrl, "POST", "/sessions/beta-declaration", {
+  const declarationResult = await request(baseUrl, "POST", "/sessions/beta-declaration", {
     declaration_id: `declaration_${userId}`,
     user_id: userId,
     phase1_input: {
@@ -190,9 +192,15 @@ async function setUpAthlete(baseUrl, label, nonce) {
     declared_at_iso8601: timestamp,
     accepted_terms_version: "terms_v1",
     copy_acknowledgement_id: "BETA16_COPY_DECLARATION_ACKNOWLEDGEMENT"
-  }), 201, `${label} declaration`);
+  });
+  assertStatus(declarationResult, 201, `${label} declaration`);
 
-  return { userId };
+  return {
+    userId,
+    authRecord: authResult.json.auth_record,
+    acknowledgementRecord: acknowledgementResult.json.acknowledgement_record,
+    declarationRecord: declarationResult.json.declaration_record
+  };
 }
 
 async function connectRelationship(baseUrl, coachUserId, athleteUserId, relationshipId, state, timestamp) {
@@ -411,6 +419,7 @@ test(
         athlete_user_id: athleteA.userId,
         session_id: "not_applicable",
         artefact_id: "not_applicable",
+        exercise_id: null,
         note_text: "Great tempo control today.",
         visibility: "athlete_visible"
       }), 201, "athlete-visible note");
@@ -421,6 +430,7 @@ test(
         athlete_user_id: athleteA.userId,
         session_id: "not_applicable",
         artefact_id: "not_applicable",
+        exercise_id: null,
         note_text: "Consider a deload if grip keeps failing.",
         visibility: "coach_private"
       }), 201, "coach-private note");
@@ -502,6 +512,20 @@ test(
       );
       assertStatus(compiledSecond, 201, "compile second session");
       const secondSessionId = compiledSecond.json.session_id;
+
+      // --- Regression: starting the FINAL session of a programme must not
+      //     be confused with the whole programme being complete. Every
+      //     session row now exists (count === total_session_count), so
+      //     materialising "the next one to create" throws
+      //     assigned_template_sessions_exhausted even though this last
+      //     session hasn't been trained yet - Today must still report the
+      //     real, open, in-progress session here, not null it out. ---
+      const finalSessionStillOpen = await todayFor(baseUrl, athleteA.userId);
+      assert.equal(finalSessionStillOpen.state, "ok");
+      assert.equal(finalSessionStillOpen.session.action, "continue");
+      assert.equal(finalSessionStillOpen.session.session_id, secondSessionId);
+      assert.equal(finalSessionStillOpen.session.template_session_index, 1);
+      assert.equal(finalSessionStillOpen.session.total_session_count, 2);
 
       await advanceSessionToTerminal(baseUrl, secondSessionId);
 
@@ -618,6 +642,41 @@ test(
       assert.equal(withEvent.event.status, "active");
       assert.equal(withEvent.event.event_name, "Full14c Fixture Meet");
 
+      // ============================================================
+      // The athlete's symmetric .ics calendar export (GET /account/events/
+      // calendar.ics) reaches the wire for a real, session-authenticated
+      // athlete - proof that listAthleteLinkedEvents/buildCoachEventsCalendar
+      // actually serve the athlete's own linked event, not just the coach's.
+      // Registering a real product account with the same email the beta-auth
+      // identity above used claims that identity (see existingBetaIdentity in
+      // product_account_service.ts), reusing athleteD.userId rather than
+      // minting a new one.
+      // ============================================================
+      const athleteDRegistration = await request(baseUrl, "POST", "/account/register", {
+        actor_type: "athlete",
+        display_name: "Full14c Athlete D",
+        email: `${athleteD.userId}@example.com`,
+        password: "Full14cAthleteD!2026",
+        accepted_terms: true,
+        accepted_consent: true,
+        accepted_terms_version: "terms_v1",
+        accepted_consent_version: "consent_v1"
+      });
+      assertStatus(athleteDRegistration, 201, "athlete D account registration");
+      assert.equal(athleteDRegistration.json?.claimed_existing_identity, true);
+      assert.equal(athleteDRegistration.json?.account?.user_id, athleteD.userId);
+      const athleteDCookie = sessionCookie(athleteDRegistration, "athlete D account registration");
+
+      const athleteCalendar = await request(baseUrl, "GET", "/account/events/calendar.ics", undefined, { cookie: athleteDCookie });
+      assertStatus(athleteCalendar, 200, "athlete events calendar export");
+      assert.match(athleteCalendar.response.headers.get("content-type") ?? "", /text\/calendar/u);
+      assert.match(athleteCalendar.response.headers.get("content-disposition") ?? "", /attachment; filename="kolosseum-events\.ics"/u);
+      assert.match(athleteCalendar.text, new RegExp(`UID:${eventD.event_id}@kolosseum\\.app`, "u"));
+      assert.match(athleteCalendar.text, /SUMMARY:Full14c Fixture Meet/u);
+
+      const athleteCalendarUnauthenticated = await request(baseUrl, "GET", "/account/events/calendar.ics");
+      assert.equal(athleteCalendarUnauthenticated.response.status, 401, "athlete calendar export requires an authenticated session");
+
       assertStatus(await request(
         baseUrl,
         "POST",
@@ -633,79 +692,75 @@ test(
       assert.equal(withCancelledEvent.state, "no_session");
       assert.ok(withCancelledEvent.session);
 
-      // --- Athlete E: single-session template regression proof. The moment
-      //     the template's only (last) session is created but not yet
-      //     started, materialiseNextCoachTemplateProgram's eager "next
-      //     session" lookup is immediately exhausted (there is no session
-      //     after the one that already exists). Today must still fall back
-      //     to the existing, still-open session and report "ok"/"continue" -
-      //     never short-circuit to "programme_complete", which would hide
-      //     the session from the athlete entirely. ---
+      // --- Athlete E: no coach, no assignment at all - a self-directed
+      //     session (the "start a self-directed session" affordance on the
+      //     Today screen for athletes without a coach-assigned programme,
+      //     see createSession()'s beta_path_context branch in app.js) has no
+      //     template/assignment to derive Today's state from, but Today must
+      //     still report it as the athlete's current session (by
+      //     beta_subject_user_id, with no beta_coach_user_id) so a page
+      //     reload or the create-session flow's own immediate re-fetch
+      //     doesn't silently forget it. ---
       const athleteE = await setUpAthlete(baseUrl, "Full14c Athlete E", nonce);
       userIds.push(athleteE.userId);
 
-      await connectRelationship(
-        baseUrl,
-        coach.userId,
-        athleteE.userId,
-        `relationship_e_${nonce}`,
-        "accepted",
-        timestamp
-      );
-      await setUpStrengthProfile(baseUrl, coach, athleteE.userId);
+      const beforeSelfDirected = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(beforeSelfDirected.state, "no_current_assignment");
+      assert.equal(beforeSelfDirected.assignment, null);
+      assert.equal(beforeSelfDirected.session, null);
 
-      const templateE = await createActivatedTemplate(baseUrl, coach.userId, "Full14c Programme E", 1);
-      await assignTemplate(baseUrl, coach, athleteE.userId, templateE.template_id, nonce);
+      const selfDirectedPhase1Input = {
+        consent_granted: true,
+        engine_version: "EB2-1.0.0",
+        enum_bundle_version: "EB2-1.0.0",
+        phase1_schema_version: "1.0.0",
+        actor_type: "athlete",
+        execution_scope: "individual",
+        activity_id: "powerlifting",
+        nd_mode: false,
+        instruction_density: "standard",
+        exposure_prompt_density: "standard",
+        bias_mode: "none"
+      };
 
-      const beforeSessionE = await todayFor(baseUrl, athleteE.userId);
-      assert.equal(beforeSessionE.state, "no_session");
-
-      const compiledE = await request(
+      const selfDirectedCompiled = await request(
         baseUrl,
         "POST",
         "/blocks/compile?create_session=true&beta_path=true",
         {
-          phase1_input: {
-            consent_granted: true,
-            engine_version: "EB2-1.0.0",
-            enum_bundle_version: "EB2-1.0.0",
-            phase1_schema_version: "1.0.0",
-            actor_type: "athlete",
-            execution_scope: "individual",
-            activity_id: "powerlifting",
-            nd_mode: false,
-            instruction_density: "standard",
-            exposure_prompt_density: "standard",
-            bias_mode: "none"
-          },
-          beta_user_id: athleteE.userId,
-          beta_coach_user_id: coach.userId
+          phase1_input: selfDirectedPhase1Input,
+          beta_path_context: {
+            auth_record: athleteE.authRecord,
+            acknowledgement_record: athleteE.acknowledgementRecord,
+            declaration_record: athleteE.declarationRecord
+          }
         }
       );
-      assertStatus(compiledE, 201, "compile only session (athlete E)");
-      const sessionEId = compiledE.json.session_id;
-      assert.ok(sessionEId, "expected a created session id for athlete E");
+      assertStatus(selfDirectedCompiled, 201, "compile self-directed session");
+      const selfDirectedSessionId = selfDirectedCompiled.json.session_id;
+      assert.ok(selfDirectedSessionId, "expected a created self-directed session id");
 
-      // This is the exact repro: the template's only session now exists but
-      // has never been started. A repeated read (mirroring the app's normal
-      // polling of /sessions/beta-athlete-today right after session
-      // creation) must keep surfacing it, not hide it behind a premature
-      // "programme_complete".
-      for (let poll = 0; poll < 2; poll += 1) {
-        const afterOnlySessionCreated = await todayFor(baseUrl, athleteE.userId);
-        assert.equal(afterOnlySessionCreated.state, "ok", `poll ${poll}: expected state "ok"`);
-        assert.equal(afterOnlySessionCreated.session.action, "continue");
-        assert.equal(afterOnlySessionCreated.session.session_id, sessionEId);
-        assert.equal(afterOnlySessionCreated.session.template_session_index, 0);
-        assert.equal(afterOnlySessionCreated.session.total_session_count, 1);
-      }
+      const withSelfDirected = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(withSelfDirected.state, "no_current_assignment");
+      assert.equal(withSelfDirected.assignment, null);
+      assert.equal(withSelfDirected.session.action, "continue");
+      assert.equal(withSelfDirected.session.session_id, selfDirectedSessionId);
 
-      // Once the athlete actually finishes the (only) session, the programme
-      // genuinely is complete.
-      await advanceSessionToTerminal(baseUrl, sessionEId);
-      const afterOnlySessionComplete = await todayFor(baseUrl, athleteE.userId);
-      assert.equal(afterOnlySessionComplete.state, "programme_complete");
-      assert.equal(afterOnlySessionComplete.session, null);
+      const selfDirectedRow = await pool.query(
+        "SELECT beta_subject_user_id, beta_coach_user_id FROM sessions WHERE session_id = $1",
+        [selfDirectedSessionId]
+      );
+      assert.equal(selfDirectedRow.rows[0]?.beta_subject_user_id, athleteE.userId);
+      assert.equal(selfDirectedRow.rows[0]?.beta_coach_user_id, null);
+
+      await advanceSessionToTerminal(baseUrl, selfDirectedSessionId);
+
+      const afterSelfDirectedComplete = await todayFor(baseUrl, athleteE.userId);
+      assert.equal(afterSelfDirectedComplete.state, "no_current_assignment");
+      // A completed self-directed session has nothing left to continue -
+      // unlike the coach-assigned path, there is no next session to surface,
+      // since there is no template driving what comes next.
+      assert.equal(afterSelfDirectedComplete.session, null);
 
       // --- Fresh-process reconstruction: a brand-new Node process reconnects
       //     and reads back the same authoritative facts for every athlete. ---
@@ -718,7 +773,8 @@ test(
           athleteA: athleteA.userId,
           athleteB: athleteB.userId,
           athleteC: athleteC.userId,
-          athleteD: athleteD.userId
+          athleteD: athleteD.userId,
+          athleteE: athleteE.userId
         })})) {
           results[label] = await loadAthleteTodayView(athleteUserId);
         }
@@ -743,6 +799,8 @@ test(
       assert.equal(afterRestart.athleteC.state, "relationship_ended");
       assert.equal(afterRestart.athleteD.event.status, "unavailable");
       assert.equal(afterRestart.athleteD.event.reason, "event_cancelled");
+      assert.equal(afterRestart.athleteE.state, "no_current_assignment");
+      assert.equal(afterRestart.athleteE.session, null);
     }
     finally {
       await closeServer(server);

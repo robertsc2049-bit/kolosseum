@@ -42,7 +42,8 @@ export type ExerciseContentResult = Readonly<{
 function loadExerciseRegistryEntries(): Record<
   string,
   {
-    instruction?: ExerciseInstruction;
+    instruction_short_text?: string;
+    instruction_detail_text?: readonly string[];
     coaching_cues?: readonly string[];
     common_faults?: readonly string[];
   }
@@ -52,7 +53,8 @@ function loadExerciseRegistryEntries(): Record<
   return (parsed?.entries ?? {}) as Record<
     string,
     {
-      instruction?: ExerciseInstruction;
+      instruction_short_text?: string;
+      instruction_detail_text?: readonly string[];
       coaching_cues?: readonly string[];
       common_faults?: readonly string[];
     }
@@ -73,7 +75,10 @@ export async function getExerciseContent(exerciseId: string): Promise<ExerciseCo
 
   return Object.freeze({
     exercise_id: trimmedId,
-    instruction: entry.instruction ?? Object.freeze({ short: "" }),
+    instruction: Object.freeze({
+      short: entry.instruction_short_text ?? "",
+      detailed: Array.isArray(entry.instruction_detail_text) ? entry.instruction_detail_text : []
+    }),
     coaching_cues: entry.coaching_cues ?? [],
     common_faults: entry.common_faults ?? []
   });

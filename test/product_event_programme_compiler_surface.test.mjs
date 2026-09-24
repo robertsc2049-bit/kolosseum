@@ -15,12 +15,28 @@ const templateService = read("src/api/beta18_programme_template_service.ts");
 const routes = read("src/api/coach_workspace.routes.ts");
 const handlers = read("src/api/coach_workspace.handlers.ts");
 const blocks = read("src/api/blocks.handlers.ts");
+// DEV NOTE: the profile-embedded assignment panel moved to React - see
+// AthleteProfileAssignmentPanel.tsx. The standalone #view-assign twin is
+// gone outright (unreachable dead code).
+const assignmentPanel = read("public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx");
+// DEV NOTE: the builder tree (block/week/session/exercise) moved to
+// React (FULL-UI-05B) - see CoachProgrammeBuilderTree.tsx, mounted
+// directly into the still-legacy #templateBlocks.
+const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+// DEV NOTE: the event-plan detail fields (name/type/dates/location/
+// timezone/notes) moved to React too (FULL-UI-05B) - see
+// CoachProgrammeEventFields.tsx, mounted at
+// #template-event-fields-root. They no longer carry ids (matched by
+// data-field instead, mirroring the builder tree's own controls) - the
+// binding picker, countdown/allocation summary and compile/fit buttons
+// stay legacy, keeping their original ids.
+const eventFields = read("public/app-src/screens/coach/CoachProgrammeEventFields.tsx");
 
 test("programme builder exposes explicit weeks-per-block and a compact add-week action", () => {
   assert.match(html, /id="templateBlocks"/u);
-  assert.match(js, /Weeks in block/u);
-  assert.match(js, /data-field="week_count"/u);
-  assert.match(js, /small-inline-action add-template-week/u);
+  assert.match(builderTree, /Weeks in block/u);
+  assert.match(builderTree, /data-field="week_count"/u);
+  assert.match(builderTree, /small-inline-action add-template-week/u);
   assert.match(js, /resizeBlockWeeks/u);
   assert.match(templateService, /block_week_count_mismatch/u);
   assert.match(templateService, /week_count:\s*declaredWeekCount/u);
@@ -31,13 +47,6 @@ test("programme builder exposes explicit weeks-per-block and a compact add-week 
 test("event compiler captures the complete scheduling anchor", () => {
   for (const id of [
     "templateEventEnabled",
-    "templateEventName",
-    "templateEventType",
-    "templateProgrammeStartDate",
-    "templateEventDate",
-    "templateEventLocation",
-    "templateEventTimezone",
-    "templateEventNotes",
     "templateEventCountdown",
     "templateEventRequiredWeeks",
     "templateEventAllocatedWeeks",
@@ -45,6 +54,18 @@ test("event compiler captures the complete scheduling anchor", () => {
     "fitFinalBlockButton"
   ]) {
     assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
+  }
+
+  for (const field of [
+    "event_name",
+    "event_type",
+    "programme_start_date",
+    "event_date",
+    "location",
+    "timezone",
+    "notes"
+  ]) {
+    assert.match(eventFields, new RegExp(`data-field="${field}"`, "u"));
   }
 
   assert.match(service, /training_day_count/u);
@@ -68,11 +89,11 @@ test("event calendar is persisted with the immutable programme and enforced at a
 });
 
 test("athlete and assignment surfaces receive factual event countdown data", () => {
-  assert.match(html, /id="todayEventCard"/u);
-  assert.match(html, /id="assignmentEventSummary"/u);
+  assert.match(html, /id="athlete-today-event-root"/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(js, /countdownLabel/u);
   assert.match(js, /response\.beta_path\?\.event_plan/u);
-  assert.match(js, /renderAssignmentEventSummary/u);
+  assert.match(assignmentPanel, /countdownLabel\(plan\.event_date/u);
   assert.match(blocks, /event_compile_summary/u);
   assert.match(blocks, /template_session_title/u);
 });

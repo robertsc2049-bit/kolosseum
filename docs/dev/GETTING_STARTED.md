@@ -26,7 +26,7 @@ Read in this order:
 
 Use PowerShell from repo root.
 
-    $RepoRoot = "C:\Users\Chris\Github\kolosseum"
+    $RepoRoot = "C:\path\to\kolosseum"
     Set-Location $RepoRoot
     git status --short
     node --version
@@ -40,9 +40,11 @@ Do not use PowerShell `Set-Content -Encoding utf8` for repo files. It can write 
 
 Use the current scripts from `package.json`.
 
-Primary local gate for current v0 closure slices:
+Canonical local verification command:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
+
+`verify` is the normal human entrypoint. Lower-level gates remain available for targeted diagnosis and slice-specific proof.
 
 Engine public contract gate:
 
@@ -72,7 +74,7 @@ For current v0 closure work, do not add v1 product implementation, billing, dash
 4. Preserve file encoding: UTF-8 without BOM, LF only.
 5. Run targeted gates.
 6. Commit.
-7. Run `npm.cmd run lint:fast` from a clean tree.
+7. Run `npm.cmd run verify` from a clean tree.
 8. Run any slice-specific gate.
 9. Finish with a clean tree.
 
@@ -108,7 +110,7 @@ A documentation handover slice is complete only when:
 - the relevant handover docs are present
 - docs point to current source-of-truth files
 - no canonical source is duplicated unnecessarily
-- `npm.cmd run lint:fast` passes from a clean tree
+- `npm.cmd run verify` passes from a clean tree
 - final `git status --short` is empty
 
 <!-- S-V1-07:GETTING-STARTED-ENTRY-PACK:START -->
@@ -145,7 +147,7 @@ Do not replace GitHub workflow `npm run ...` syntax with local `npm.cmd ...` syn
 
 Primary local check:
 
-    npm.cmd run lint:fast
+    npm.cmd run verify
 
 Common targeted documentation and generated-surface checks:
 

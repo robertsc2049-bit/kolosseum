@@ -6,7 +6,7 @@ Slice: S-V1-F-09
 Record type: operational launch execution pack
 Status: prepared
 Scope: controlled launch only
-Created at UTC: 2026-06-19T13:41:45.2302621Z
+Created at UTC: 2026-09-17T16:41:29.140Z
 
 ## Purpose
 
@@ -16,8 +16,8 @@ It is operational evidence only. It does not create product code, change engine 
 
 ## Release identity required before launch operation
 
-Required tag: v1-controlled-launch
-Required tag commit: 43510e4c4d791effda647e80dc74d8452dc61f1f
+Required tag: v1.0.0
+Required tag commit: fb32206e3a178954ed7fbeda5b67e68159618a46
 Release evidence snapshot: docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md
 Final ship decision: docs/releases/V1_FINAL_SHIP_DECISION.md
 Controlled launch readiness record: docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md
@@ -31,7 +31,7 @@ Controlled launch operation may start only when the release tag exists locally a
 | Item ID | Phase | Operator check | Evidence | Blocks launch if missing |
 | --- | --- | --- | --- | --- |
 | CLX-001 | before_start | Confirm main is synced to the post-tag evidence state. | git rev-parse origin/main and docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.json | true |
-| CLX-002 | before_start | Confirm v1-controlled-launch exists locally and on origin. | git rev-list -n 1 v1-controlled-launch and git ls-remote --tags origin refs/tags/v1-controlled-launch refs/tags/v1-controlled-launch^{} | true |
+| CLX-002 | before_start | Confirm v1.0.0 exists locally and on origin. | git rev-list -n 1 v1.0.0 and git ls-remote --tags origin refs/tags/v1.0.0 refs/tags/v1.0.0^{} | true |
 | CLX-003 | before_start | Confirm the S-V1-F-05 final ship decision still records SHIP. | npm.cmd run proof:s-v1-f-05 | true |
 | CLX-004 | before_start | Confirm the S-V1-F-08 release evidence snapshot still passes. | npm.cmd run proof:s-v1-f-08 | true |
 | CLX-005 | before_start | Complete the controlled launch readiness record for the named launch group. | docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md | true |
@@ -47,7 +47,7 @@ Controlled launch operation may start only when the release tag exists locally a
 
 | Evidence ID | Evidence | Required reference |
 | --- | --- | --- |
-| CLE-001 | release_tag | v1-controlled-launch |
+| CLE-001 | release_tag | v1.0.0 |
 | CLE-002 | release_evidence_snapshot | docs/releases/V1_RELEASE_EVIDENCE_SNAPSHOT.md |
 | CLE-003 | final_ship_decision | docs/releases/V1_FINAL_SHIP_DECISION.md |
 | CLE-004 | controlled_launch_readiness_record | docs/releases/CONTROLLED_LAUNCH_READINESS_RECORD.md |

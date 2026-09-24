@@ -6,6 +6,13 @@ const repoRoot = process.cwd();
 const packagePath = path.join(repoRoot, "package.json");
 const scriptName = process.argv[2];
 
+function escapeWorkflowMessage(value) {
+  return String(value)
+    .replace(/%/gu, "%25")
+    .replace(/\r/gu, "%0D")
+    .replace(/\n/gu, "%0A");
+}
+
 if (!scriptName) {
   console.error("run_long_npm_script: missing script name argument.");
   process.exitCode = 1;
@@ -47,6 +54,9 @@ if (!scriptName) {
 
         if (status !== 0) {
           console.error(`run_long_npm_script: command failed with exit code ${status}`);
+          console.error(
+            `::error title=run_long_npm_script ${scriptName} [${index + 1}/${commands.length}]::${escapeWorkflowMessage(command)} exited with code ${status}`
+          );
           process.exitCode = status;
           break;
         }

@@ -5,8 +5,8 @@
                  "tool":  "run_pipeline_contract_version_guard"
              },
     "request":  {
-                    "shape_sha256":  "e7c491005928e26a590d17034252e0a571e3906c791f2814c8c879b66bebd115",
-                    "version":  3
+                    "shape_sha256":  "76c0660a7b073171d429126ab790828e751856374e299432715f920cf7f42177",
+                    "version":  4
                 },
     "response":  {
                      "shape_sha256":  "9c4ea6e10592c7b180b006cfa9593aef7e202607b6e5bc879ec53a1c79c38bfc",

@@ -80,6 +80,7 @@
     "athlete_user_id": "beta_user_001",
     "session_id": "beta17_session_001",
     "artefact_id": "beta17_artefact_001",
+    "exercise_id": "",
     "note_text": "Recorded discussion point for the next review.",
     "visibility": "coach_private"
   }

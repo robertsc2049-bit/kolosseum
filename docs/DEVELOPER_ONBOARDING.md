@@ -38,7 +38,7 @@ Common boundary mistakes include:
 
 Use this pattern:
 
-    Set-Location C:\Users\rober\kolosseum
+    Set-Location C:\path\to\kolosseum
     git fetch origin
     git switch main
     git reset --hard origin/main
@@ -55,6 +55,10 @@ Then create a branch:
 For normal development:
 
     npm run verify
+
+On Windows PowerShell, the equivalent explicit executable form is:
+
+    npm.cmd run verify
 
 For deeper diagnosis only:
 

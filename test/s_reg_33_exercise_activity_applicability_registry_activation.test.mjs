@@ -73,14 +73,14 @@ test("S-REG-33 extends the active registry surface with exercise_activity_applic
   assert.deepEqual(activation.active_registry_order_after, S_REG_33_ACTIVE_REGISTRY_ORDER_AFTER);
 
   assert.equal(applicabilityRegistry.registry_id, "exercise_activity_applicability");
-  assert.equal(Object.keys(applicabilityRegistry.entries).length, S_REG_33_EXPECTED_RECORD_COUNT);
+  assert.ok(Object.keys(applicabilityRegistry.entries).length >= S_REG_33_EXPECTED_RECORD_COUNT);
 });
 
-test("S-REG-33 has a genuinely complete closure - every exercise/applicable-activity pair, all 3 contexts, no front_plank", () => {
+test("S-REG-33 historical baseline remains present while the current registry has complete later exercise/activity/context closure", () => {
   const exerciseRegistry = readJson("registries/exercise/exercise.registry.json");
   const applicabilityRegistry = readJson("registries/exercise_activity_applicability/exercise_activity_applicability.registry.json");
 
-  assert.equal("front_plank" in exerciseRegistry.entries, false, "front_plank is not a live exercise");
+  assert.equal("front_plank" in exerciseRegistry.entries, true, "REG-FULL-03 activates front_plank as production exercise content");
 
   const expectedKeys = new Set();
   for (const exercise of Object.values(exerciseRegistry.entries)) {
@@ -92,7 +92,7 @@ test("S-REG-33 has a genuinely complete closure - every exercise/applicable-acti
     }
   }
 
-  assert.equal(expectedKeys.size, S_REG_33_EXPECTED_RECORD_COUNT);
+  assert.ok(expectedKeys.size >= S_REG_33_EXPECTED_RECORD_COUNT);
   assert.deepEqual(Object.keys(applicabilityRegistry.entries).sort(), [...expectedKeys].sort());
 
   for (const [id, record] of Object.entries(applicabilityRegistry.entries)) {

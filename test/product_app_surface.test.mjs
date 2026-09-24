@@ -14,6 +14,22 @@ const accountJs = fs.readFileSync(
   "utf8"
 );
 const applicationJs = `${js}\n${accountJs}`;
+// DEV NOTE: coach-relationship recording, athlete-assignment creation, and
+// coach-note creation all moved to React (ConnectAthletePanel.tsx/
+// AthleteProfileAssignmentPanel.tsx/AthleteCoachNotesPanel.tsx) - their
+// routes now live in coachWorkspaceClient.ts, not app.js/account_ui.js.
+const coachWorkspaceClientTs = fs.readFileSync(
+  path.join(root, "public", "app-src", "api", "coachWorkspaceClient.ts"),
+  "utf8"
+);
+// DEV NOTE: FULL-UI-02D account_create/account_sign_in moved to React
+// (EntryAuthPanel.tsx/useEntryAuth.ts) - their /account/register and
+// /account/sign-in routes now live in authClient.ts, not app.js/
+// account_ui.js.
+const authClientTs = fs.readFileSync(
+  path.join(root, "public", "app-src", "api", "authClient.ts"),
+  "utf8"
+);
 
 test("product application is served independently from diagnostic UI", () => {
   assert.match(server, /const productAppDir = path\.join\(publicDir, "app"\);/u);
@@ -27,17 +43,25 @@ test("product application contains bounded athlete and coach workspaces", () => 
   assert.match(html, /id="view-history"/u);
   assert.match(html, /id="view-coach-overview"/u);
   assert.match(html, /id="view-athletes"/u);
-  assert.match(html, /id="view-assign"/u);
+  assert.match(html, /id="athlete-profile-assignment-root"/u);
   assert.match(html, /id="view-review"/u);
   assert.match(html, /id="view-account"/u);
 });
 
 test("athlete session view exposes a lazily-loaded, cached exercise how-to disclosure", () => {
-  assert.match(js, /class="exercise-howto"/u);
-  assert.match(js, /summary>How to perform this exercise</u);
-  assert.match(js, /const exerciseContentCache = new Map\(\)/u);
-  assert.match(js, /elements\.currentExercise\.addEventListener\("toggle"/u);
-  assert.match(js, /\{ capture: true \}/u);
+  // DEV NOTE: the athlete session view itself (including this disclosure)
+  // is React now - see AthleteSessionExecutionPanel.tsx - so its markup
+  // and toggle handler are checked there. The coach's template-builder
+  // info panel is React too now (useExerciseHowto.ts) - app.js has no
+  // exercise-howto code left at all.
+  const sessionPanel = fs.readFileSync(
+    path.join(root, "public", "app-src", "screens", "athlete", "AthleteSessionExecutionPanel.tsx"),
+    "utf8"
+  );
+  assert.match(sessionPanel, /className="exercise-howto"/u);
+  assert.match(sessionPanel, /summary>How to perform this exercise</u);
+  assert.match(sessionPanel, /onToggle=\{\(event\) => \{/u);
+  assert.doesNotMatch(js, /exerciseContentCache/u);
 });
 
 test("normal product surface does not expose diagnostic output panels", () => {
@@ -53,16 +77,17 @@ test("product UI uses real persisted application endpoints", () => {
     "/account/detail",
     "/blocks/compile?create_session=true&beta_path=true",
     "/sessions/beta-athlete-history",
-    "/sessions/beta-coach-relationship",
-    "/sessions/beta-coach-assignment",
-    "/sessions/beta-coach-artefacts",
-    "/sessions/beta-coach-notes"
+    "/sessions/beta-coach-artefacts"
   ]) {
     assert.ok(
-      applicationJs.includes(route),
+      applicationJs.includes(route) || authClientTs.includes(route),
       `Expected application route ${route}`
     );
   }
+
+  assert.match(coachWorkspaceClientTs, /"\/sessions\/beta-coach-relationship"/u);
+  assert.match(coachWorkspaceClientTs, /"\/coach-workspace\/athlete-assignment"/u);
+  assert.match(coachWorkspaceClientTs, /"\/sessions\/beta-coach-notes"/u);
 });
 
 test("product UI assets are substantive", () => {

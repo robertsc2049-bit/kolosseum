@@ -67,15 +67,29 @@ const explicitLaterSliceAllowedChangedPaths =
     "ci/guards/golden_manifest_guard.mjs",
     "LOCKFILE_CHANGE_NOTE.md",
     "package-lock.json",
+    "product/ui/full_ui_04c_coach_commercial_closure.json",
     "product/ui/full_ui_08c_strength_reference_lifecycle_closure.json",
     "product/ui/function_manifest.json",
+    "shared/programme-marketplace/programmeTemplateSharingLifecycle.mjs",
+    "public/app/accessibility_preferences_ui.js",
     "public/app/account_ui.js",
     "public/app/app.js",
+    "public/app/athlete_onboarding_ui.js",
+    "public/app/coach_branding_ui.js",
+    "public/app/coach_onboarding_ui.js",
     "public/app/commercial_ui.js",
     "public/app/event_lifecycle_ui.js",
+    "public/app/icons/apple-touch-icon.png",
+    "public/app/icons/icon-192.png",
+    "public/app/icons/icon-512.png",
+    "public/app/icons/icon-maskable-512.png",
     "public/app/index.html",
+    "public/app/manifest.json",
+    "public/app/pwa_bootstrap.js",
     "public/app/route_bootstrap.js",
+    "public/app/section_tabs_bootstrap.js",
     "public/app/styles.css",
+    "public/app/sw.js",
     "replay/suite/beta_phase1_8/production_beta_rehearsal_manifest.json",
     "test/api_handlers_compile_block_persistence_args_contract.test.mjs",
     "test/api_handlers_compile_block_persistence_delegation.test.mjs",
@@ -221,11 +235,11 @@ if (!Array.isArray(guards.V1_SUPPORTED_ACTIVITIES)) {
   fail("V1_SUPPORTED_ACTIVITIES export is not an array");
 }
 
-for (const activityId of ["powerlifting", "general_strength", "rugby_union"]) {
+for (const activityId of guards.V1_SUPPORTED_ACTIVITIES) {
   guards.assertActivityIsV1Supported(activityId);
 }
 
-for (const activityId of ["strongman", "bodybuilding", "weightlifting", "combat_sports"]) {
+for (const activityId of ["bodybuilding", "weightlifting", "combat_sports"]) {
   assertThrowsWithCode(
     () => guards.assertActivityIsV1Supported(activityId),
     "v1_boundary_guard_unsupported_activity"
@@ -259,7 +273,7 @@ assertThrowsWithCode(
     relationshipState: "relationship_active",
     coachId: "coach_1",
     athleteId: "athlete_1",
-    assignmentActivityId: "strongman"
+    assignmentActivityId: "weightlifting"
   }),
   "v1_boundary_guard_unsupported_activity"
 );

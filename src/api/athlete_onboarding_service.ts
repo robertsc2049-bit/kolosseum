@@ -9,6 +9,11 @@ import {
   createBeta16AcknowledgementRecord,
   createBeta16Phase1DeclarationRecord
 } from "./beta16_app_path_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import {
+  type AccessibilityPreferences,
+  parseAccessibilityPreferences
+} from "./accessibility_preferences_service.js";
 
 type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -18,9 +23,7 @@ export const ATHLETE_ONBOARDING_STAGES = Object.freeze([
   "accessibility", "instruction_density", "review"
 ] as const);
 export type AthleteOnboardingStage = (typeof ATHLETE_ONBOARDING_STAGES)[number];
-export const ATHLETE_ACTIVITY_IDS = Object.freeze([
-  "powerlifting", "general_strength", "rugby_union"
-] as const);
+export const ATHLETE_ACTIVITY_IDS = V1_ACTIVITY_IDS;
 export const ATHLETE_EXECUTION_SCOPES = Object.freeze([
   "individual", "coach_managed"
 ] as const);
@@ -30,13 +33,64 @@ export const ATHLETE_JURISDICTIONS = Object.freeze([
 export const ATHLETE_INSTRUCTION_DENSITIES = Object.freeze([
   "minimal", "standard", "detailed"
 ] as const);
+// Same ids/labels as public/app-src/components/ActivityCategoryFilter.tsx's
+// CATEGORIES - a deliberately unrelated, non-persisted sport-picker filter -
+// kept matching purely for consistent language across the app. Training
+// focus is a genuinely persisted, zero-or-more preference with no
+// connection to activity_id/compile at all.
+export const ATHLETE_TRAINING_FOCUS_OPTIONS = Object.freeze([
+  "strength", "body_composition", "conditioning", "strength_and_conditioning",
+  "power", "plyometric"
+] as const);
+// Slice 3 of the sport-declaration redesign - every one of the 6 locked
+// activities gets a position field, not just rugby_union: rugby_union gets
+// a real position list, the other 5 (individual pursuits) each get a
+// single generic "Athlete" option. Position is driven entirely by the
+// athlete's own declared activity_id, independent of any team/org.
+export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  rugby_union: Object.freeze([
+    "loosehead_prop", "tighthead_prop", "hooker", "lock", "flanker", "number8",
+    "scrum_half", "fly_half", "centre", "wing", "fullback"
+  ]),
+  powerlifting: Object.freeze(["athlete"]),
+  general_strength: Object.freeze(["athlete"]),
+  strongman: Object.freeze(["athlete"]),
+  hyrox: Object.freeze(["athlete"]),
+  crossfit: Object.freeze(["athlete"]),
+  football_soccer: Object.freeze(["athlete"]),
+  netball: Object.freeze(["athlete"]),
+  basketball: Object.freeze(["athlete"]),
+  rugby_sevens: Object.freeze(["athlete"]),
+  field_hockey: Object.freeze(["athlete"]),
+  ice_hockey: Object.freeze(["athlete"]),
+  volleyball: Object.freeze(["athlete"]),
+  cricket: Object.freeze(["athlete"]),
+  american_football: Object.freeze(["athlete"]),
+  athletics: Object.freeze(["athlete"]),
+  swimming: Object.freeze(["athlete"]),
+  olympic_weightlifting: Object.freeze(["athlete"]),
+  cycling: Object.freeze(["athlete"]),
+  rowing: Object.freeze(["athlete"]),
+  kayaking: Object.freeze(["athlete"]),
+  boxing: Object.freeze(["athlete"]),
+  wrestling: Object.freeze(["athlete"]),
+  judo: Object.freeze(["athlete"]),
+  brazilian_jiu_jitsu: Object.freeze(["athlete"]),
+  muay_thai: Object.freeze(["athlete"]),
+  mma: Object.freeze(["athlete"]),
+  tennis: Object.freeze(["athlete"]),
+  triathlon: Object.freeze(["athlete"]),
+  rugby_league: Object.freeze(["athlete"]),
+  street_lifting: Object.freeze(["athlete"])
+});
+const ATHLETE_POSITION_IDS = Object.freeze(
+  [...new Set(Object.values(ATHLETE_POSITIONS_BY_ACTIVITY).flat())]
+);
 
-const ACCESSIBILITY_KEYS = [
-  "reduced_motion", "high_contrast", "larger_text", "screen_reader_optimised"
-] as const;
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
-  "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
+  "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density",
+  "training_focus", "position"
 ]);
 const INFERENCE_KEYS = new Set([
   "ability", "ability_score", "readiness", "readiness_score", "safety",
@@ -49,7 +103,7 @@ const BETA_VERSION = "september_beta_2026";
 const JURISDICTION_VERSION = "jurisdiction_v1";
 const SCHEMA_VERSION = "full_ui_03c_v1";
 
-type Accessibility = Readonly<Record<(typeof ACCESSIBILITY_KEYS)[number], boolean>>;
+type Accessibility = AccessibilityPreferences;
 type Fields = Readonly<{
   activity_id?: string;
   execution_scope?: string;
@@ -58,6 +112,8 @@ type Fields = Readonly<{
   jurisdiction_acknowledged?: boolean;
   accessibility_preferences?: Accessibility;
   instruction_density?: string;
+  training_focus?: readonly string[];
+  position?: string;
 }>;
 type StoredEvent = Readonly<{
   event_id: string;
@@ -150,20 +206,33 @@ export function validateAthleteInstructionDensity(value: unknown): string {
   return enumValue(value, ATHLETE_INSTRUCTION_DENSITIES, "instruction_density", "Choose an instruction-density preference.");
 }
 export function validateAthleteAccessibilityPreferences(value: unknown): Accessibility {
-  if (!record(value)) fail("accessibility_preferences", "Choose your accessibility preferences.");
-  for (const key of Object.keys(value)) {
-    if (!(ACCESSIBILITY_KEYS as readonly string[]).includes(key)) {
-      fail(`accessibility_preferences.${key}`, "This accessibility preference is not supported.");
-    }
+  return parseAccessibilityPreferences(value, fail);
+}
+// Zero or more selections from ATHLETE_TRAINING_FOCUS_OPTIONS - unlike
+// attendance_event_service.ts's weekdays (the closest existing precedent
+// for a persisted string[] tag array), an empty array is a valid,
+// meaningful state here ("no training focus declared"), not an error.
+export function validateAthleteTrainingFocus(value: unknown): readonly string[] {
+  if (!Array.isArray(value)) fail("training_focus", "Choose zero or more training focus areas.");
+  const selected = [...new Set((value as unknown[]).map((entry) => text(entry).toLowerCase()))];
+  if (selected.some((token) => !ATHLETE_TRAINING_FOCUS_OPTIONS.includes(token as typeof ATHLETE_TRAINING_FOCUS_OPTIONS[number]))) {
+    fail("training_focus", "Choose zero or more training focus areas.");
   }
-  const result = {} as Record<string, boolean>;
-  for (const key of ACCESSIBILITY_KEYS) {
-    if (typeof value[key] !== "boolean") {
-      fail(`accessibility_preferences.${key}`, "Select yes or no for this preference.");
-    }
-    result[key] = value[key] as boolean;
+  return Object.freeze(selected);
+}
+export function validateAthletePosition(value: unknown): string {
+  return enumValue(value, ATHLETE_POSITION_IDS, "position", "Choose a position.");
+}
+// Semantic cross-check that fields()'s single-field validators can't
+// express on their own - called at each declaration-write boundary, not
+// inside fields() itself. A no-op when no position is declared.
+export function assertPositionMatchesActivity(position: string | undefined, activityId: string | undefined): void {
+  if (!position) return;
+  if (!activityId) fail("position", "Choose an activity before choosing a position.");
+  const allowed = ATHLETE_POSITIONS_BY_ACTIVITY[activityId as string] ?? [];
+  if (!allowed.includes(position)) {
+    fail("position", "This position is not available for the declared activity.");
   }
-  return Object.freeze(result) as Accessibility;
 }
 
 function stage(value: unknown): AthleteOnboardingStage {
@@ -182,7 +251,14 @@ function fields(value: unknown, partial: boolean): Fields {
     if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
     else if (!partial) fail(key, missing);
   };
-  add("activity_id", validateAthleteActivityId, "Choose an activity.");
+  // Sport is optional - validated if present, but never required, even for
+  // a complete (partial=false) declaration. An athlete can finish onboarding
+  // without one and declare it later via the self-service activity-change
+  // flow (src/api/athlete_activity_change_service.ts).
+  const addOptional = (key: string, validator: (entry: unknown) => unknown) => {
+    if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
+  };
+  addOptional("activity_id", validateAthleteActivityId);
   add("execution_scope", validateAthleteExecutionScope, "Choose an execution scope.");
   add("product_acknowledged", (entry) => trueValue(
     entry, "product_acknowledged", "Acknowledge the controlled-beta product boundary."
@@ -193,23 +269,32 @@ function fields(value: unknown, partial: boolean): Fields {
   ), "Acknowledge the selected jurisdiction.");
   add("accessibility_preferences", validateAthleteAccessibilityPreferences, "Choose your accessibility preferences.");
   add("instruction_density", validateAthleteInstructionDensity, "Choose an instruction-density preference.");
+  // Never required, even for a complete declaration - zero selections is a
+  // valid, meaningful state, not an incomplete one.
+  addOptional("training_focus", validateAthleteTrainingFocus);
+  // Optional here too - structural validity only; assertPositionMatchesActivity
+  // (called separately at each write boundary) enforces the semantic link to
+  // whatever activity_id is actually declared.
+  addOptional("position", validateAthletePosition);
   return Object.freeze(out) as Fields;
 }
+// activity_id is deliberately never listed here - it's optional and must
+// never gate progression to a later stage (see addOptional above).
 const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   activity: [],
-  execution_scope: ["activity_id"],
-  product_acknowledgement: ["activity_id", "execution_scope"],
-  jurisdiction: ["activity_id", "execution_scope", "product_acknowledged"],
+  execution_scope: [],
+  product_acknowledgement: ["execution_scope"],
+  jurisdiction: ["execution_scope", "product_acknowledged"],
   accessibility: [
-    "activity_id", "execution_scope", "product_acknowledged",
+    "execution_scope", "product_acknowledged",
     "jurisdiction_code", "jurisdiction_acknowledged"
   ],
   instruction_density: [
-    "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences"
   ],
   review: [
-    "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
   ]
 };
@@ -450,6 +535,7 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
       throw new AthleteOnboardingError("athlete_onboarding_draft_required", 409);
     }
     const declared = validateCompleteAthleteDeclaration(draft.fields);
+    assertPositionMatchesActivity(declared.position, declared.activity_id);
     const at = new Date().toISOString();
     const core = {
       declaration_id: id("athlete_declaration"), declaration_version: 1,
@@ -460,7 +546,15 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
       declaration_source: "athlete_confirmed_onboarding", immutable: true,
       user_declared_factual_state: true, engine_visible: false
     };
-    await effectiveBetaDeclaration(client, userId, declared, at);
+    // The beta16 compile-admission records require a real activity_id
+    // (assertPhase1Input rejects a missing one) - skip creating them until
+    // the athlete actually declares one, here or later via the
+    // self-service activity-change flow. Onboarding still completes from
+    // the product's own perspective either way (see state() above, which
+    // derives onboarding_status from this DECLARATION_EVENT alone).
+    if (declared.activity_id) {
+      await effectiveBetaDeclaration(client, userId, declared, at);
+    }
     await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
     await client.query("COMMIT");
     return state(await events(client, userId));
@@ -475,12 +569,21 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
 export async function updateAthleteOnboardingPreferences(userId: string, input: unknown): Promise<Readonly<Json>> {
   if (!record(input)) throw new AthleteOnboardingError("athlete_onboarding_preferences_invalid", 422);
   for (const key of Object.keys(input)) {
-    if (key !== "accessibility_preferences" && key !== "instruction_density") {
-      fail(key, "Only accessibility and instruction-density preferences are editable after confirmation.");
+    if (key !== "accessibility_preferences" && key !== "instruction_density" &&
+        key !== "training_focus" && key !== "position") {
+      fail(key, "Only accessibility, instruction-density, training-focus and position preferences are editable after confirmation.");
     }
   }
   const accessibility = validateAthleteAccessibilityPreferences(input.accessibility_preferences);
   const density = validateAthleteInstructionDensity(input.instruction_density);
+  // training_focus and position are both optional on this endpoint, unlike
+  // the other two - a caller that doesn't know about them yet (an older
+  // client, an existing integration) must not have them silently reset;
+  // only a caller that actually supplies the key can change it.
+  const trainingFocusProvided = Object.prototype.hasOwnProperty.call(input, "training_focus");
+  const trainingFocusInput = trainingFocusProvided ? validateAthleteTrainingFocus(input.training_focus) : undefined;
+  const positionProvided = Object.prototype.hasOwnProperty.call(input, "position");
+  const positionInput = positionProvided ? validateAthletePosition(input.position) : undefined;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -492,13 +595,21 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
       throw new AthleteOnboardingError("athlete_onboarding_completion_required", 409);
     }
     const previous = validateCompleteAthleteDeclaration(current.fields);
+    const trainingFocus = trainingFocusProvided ? trainingFocusInput as readonly string[] : (previous.training_focus ?? []);
+    const position = positionProvided ? positionInput as string : previous.position;
+    if (positionProvided) {
+      assertPositionMatchesActivity(position, previous.activity_id);
+    }
     if (stable(previous.accessibility_preferences) === stable(accessibility) &&
-        previous.instruction_density === density) {
+        previous.instruction_density === density &&
+        stable(previous.training_focus ?? []) === stable(trainingFocus) &&
+        stable(previous.position ?? null) === stable(position ?? null)) {
       await client.query("COMMIT");
       return existing;
     }
     const declared = Object.freeze({
-      ...previous, accessibility_preferences: accessibility, instruction_density: density
+      ...previous, accessibility_preferences: accessibility, instruction_density: density,
+      training_focus: trainingFocus, position
     });
     const at = new Date().toISOString();
     const core = {
@@ -522,6 +633,88 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
     throw error;
+  }
+  finally { client.release(); }
+}
+
+// DEV NOTE: shared primitive for any caller that needs to amend an athlete's
+// declaration outside the plain preferences-editing flow above (e.g.
+// FULL-UI-83's activity-change request/response/deferred-apply state
+// machine in athlete_activity_change_service.ts). Takes an already-open
+// client/transaction - it never manages its own BEGIN/COMMIT, matching
+// effectiveBetaDeclaration()'s own convention - and does not re-verify
+// account state itself; the caller is responsible for whatever
+// authorization/locking its own context requires before calling this.
+export async function amendAthleteDeclaration(
+  client: QueryClient,
+  userId: string,
+  changes: Partial<Pick<Fields, "activity_id" | "instruction_density" | "accessibility_preferences" | "position">>,
+  declarationSource: string
+): Promise<Readonly<Json>> {
+  const existing = state(await events(client, userId));
+  const current = record(existing.current_effective_declaration)
+    ? existing.current_effective_declaration : null;
+  if (!current || !record(current.fields)) {
+    throw new AthleteOnboardingError("athlete_onboarding_completion_required", 409);
+  }
+  const previous = validateCompleteAthleteDeclaration(current.fields);
+  const merged = Object.freeze({ ...previous, ...changes });
+  // A position change never blocks an activity change - if the activity
+  // just moved and the previously-declared position no longer fits it
+  // (e.g. a rugby_union position surviving a switch to powerlifting),
+  // silently drop it rather than reject the write. JSON serialization
+  // already drops an undefined key cleanly, so this needs no further
+  // special-casing downstream.
+  const positionCompatible = !merged.position ||
+    (ATHLETE_POSITIONS_BY_ACTIVITY[merged.activity_id ?? ""] ?? []).includes(merged.position);
+  const declared = positionCompatible ? merged : Object.freeze({ ...merged, position: undefined });
+  const at = new Date().toISOString();
+  const core = {
+    declaration_id: id("athlete_declaration"),
+    declaration_version: Number(current.declaration_version ?? 1) + 1,
+    supersedes_declaration_id: text(current.declaration_id),
+    effective_at_iso8601: at, fields: clone(declared),
+    product_acknowledgement_version: BETA_VERSION,
+    jurisdiction_acknowledgement_version: JURISDICTION_VERSION,
+    declaration_schema_version: SCHEMA_VERSION,
+    declaration_source: declarationSource, immutable: true,
+    user_declared_factual_state: true, engine_visible: false
+  };
+  // activity_id and instruction_density are the only fields effectiveBetaDeclaration()
+  // projects into the engine-facing phase1 input - a pure position-only change
+  // has zero engine relevance and must not create a redundant beta16 record pair.
+  if (changes.activity_id !== undefined || changes.instruction_density !== undefined) {
+    await effectiveBetaDeclaration(client, userId, declared, at);
+  }
+  await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
+  return state(await events(client, userId));
+}
+
+// position and training_focus are deliberately never projected into the
+// phase1/engine record (see effectiveBetaDeclaration above) - coach/org-
+// roster views need a dedicated read of the athlete's own current
+// declaration to see them.
+export async function getAthleteDeclaredActivityAndPosition(
+  userId: string
+): Promise<Readonly<{ activity_id: string | null; position: string | null; training_focus: readonly string[] }>> {
+  const client = await pool.connect();
+  try {
+    const existing = state(await events(client, userId));
+    const current = record(existing.current_effective_declaration)
+      ? existing.current_effective_declaration : null;
+    if (!current || !record(current.fields)) {
+      return Object.freeze({ activity_id: null, position: null, training_focus: Object.freeze([]) });
+    }
+    const fieldsValue = current.fields as Json;
+    const trainingFocusRaw = fieldsValue.training_focus;
+    const trainingFocus = Array.isArray(trainingFocusRaw)
+      ? Object.freeze(trainingFocusRaw.filter((entry): entry is string => typeof entry === "string"))
+      : Object.freeze([]);
+    return Object.freeze({
+      activity_id: text(fieldsValue.activity_id) || null,
+      position: text(fieldsValue.position) || null,
+      training_focus: trainingFocus
+    });
   }
   finally { client.release(); }
 }

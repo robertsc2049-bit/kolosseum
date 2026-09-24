@@ -1,0 +1,249 @@
+{
+  "evidence_id": "reg_full_01_registry_schema_closure",
+  "evidence_version": "1.0.0",
+  "slice_id": "REG-FULL-01",
+  "base_main_commit": "e5b5f0dae6342f4b2fa858a7b3d25ed774cbb6d6",
+  "status": "migration_evidence",
+  "scope": "schema_and_id_normalization_only",
+  "supported_activity_scope": [
+    "powerlifting",
+    "general_strength",
+    "rugby_union"
+  ],
+  "supported_activity_scope_changed": false,
+  "runtime_registry_semantic_identity_proof": [
+    {
+      "runtime_domain": "activity",
+      "pre_version": "1.0.0",
+      "post_version": "1.0.0",
+      "pre_logical_record_count": 3,
+      "post_logical_record_count": 3,
+      "pre_identity_set_sha256": "f2535c201e44ace1403bf18352482ef4944709a9fb999f2b1604bd594b16db31",
+      "post_identity_set_sha256": "f2535c201e44ace1403bf18352482ef4944709a9fb999f2b1604bd594b16db31",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "movement",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 4,
+      "post_logical_record_count": 4,
+      "pre_identity_set_sha256": "a3facbe8dc9cf5841be52611cad749774587898cd12db0f611f679a74685dc84",
+      "post_identity_set_sha256": "a3facbe8dc9cf5841be52611cad749774587898cd12db0f611f679a74685dc84",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "exercise",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 19,
+      "post_logical_record_count": 19,
+      "pre_identity_set_sha256": "9978a5bbbad98d06ed9481793421263b0322100ae03cd12e0edb6838bd8f5af2",
+      "post_identity_set_sha256": "9978a5bbbad98d06ed9481793421263b0322100ae03cd12e0edb6838bd8f5af2",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "program",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 3,
+      "post_logical_record_count": 3,
+      "pre_identity_set_sha256": "eb1b935dd6d7709b2fa9345bc1b86128ec0f0dc4c4969115758bed8a55145239",
+      "post_identity_set_sha256": "eb1b935dd6d7709b2fa9345bc1b86128ec0f0dc4c4969115758bed8a55145239",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "equipment",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 17,
+      "post_logical_record_count": 17,
+      "pre_identity_set_sha256": "a2cd36dad7ff2079c68b3b8c3b91749b4f54b11da287d8d661609c5505503398",
+      "post_identity_set_sha256": "a2cd36dad7ff2079c68b3b8c3b91749b4f54b11da287d8d661609c5505503398",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "sport_subdivision",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 4,
+      "post_logical_record_count": 4,
+      "pre_identity_set_sha256": "010ddeca431f46c9c49637c6c1b3bf713df6e2413eba8fca2090eecdbdc3f188",
+      "post_identity_set_sha256": "010ddeca431f46c9c49637c6c1b3bf713df6e2413eba8fca2090eecdbdc3f188",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "sport_metric",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 9,
+      "post_logical_record_count": 9,
+      "pre_identity_set_sha256": "97b72fc9da8af46430d3cf628df6ab83490bbabb974cf3adc9d825ea5c397949",
+      "post_identity_set_sha256": "97b72fc9da8af46430d3cf628df6ab83490bbabb974cf3adc9d825ea5c397949",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "sport_role",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 3,
+      "post_logical_record_count": 3,
+      "pre_identity_set_sha256": "5152ab13719d34a003c75e53e3b655593e52660bdf77be675cb466cda34a2990",
+      "post_identity_set_sha256": "5152ab13719d34a003c75e53e3b655593e52660bdf77be675cb466cda34a2990",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "metric_exercise_link",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 12,
+      "post_logical_record_count": 12,
+      "pre_identity_set_sha256": "bcc415433d327b1d6cfba6aaa71a228d32d8466fcb04ef49849f68de892412b8",
+      "post_identity_set_sha256": "bcc415433d327b1d6cfba6aaa71a228d32d8466fcb04ef49849f68de892412b8",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "threshold_marker",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 5,
+      "post_logical_record_count": 5,
+      "pre_identity_set_sha256": "2b5d8c2fb8f335fa4e65a2be501e0ec9601ad12429c429b7adcc2f1145035258",
+      "post_identity_set_sha256": "2b5d8c2fb8f335fa4e65a2be501e0ec9601ad12429c429b7adcc2f1145035258",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "exercise_token",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 3,
+      "post_logical_record_count": 3,
+      "pre_identity_set_sha256": "23e3831e73aa0ffcd43bf11ff33d7c2b4ca7f07ff00288883f33ecb98f924a0b",
+      "post_identity_set_sha256": "23e3831e73aa0ffcd43bf11ff33d7c2b4ca7f07ff00288883f33ecb98f924a0b",
+      "identity_set_equal": true
+    },
+    {
+      "runtime_domain": "exercise_activity_applicability",
+      "pre_version": "1.0.0",
+      "post_version": "1.1.0",
+      "pre_logical_record_count": 159,
+      "post_logical_record_count": 159,
+      "pre_identity_set_sha256": "2e78bb94c2f0c3f825abeaa75310ff5fac56848b7dc738bf5a7541534469838c",
+      "post_identity_set_sha256": "2e78bb94c2f0c3f825abeaa75310ff5fac56848b7dc738bf5a7541534469838c",
+      "identity_set_equal": true
+    }
+  ],
+  "relationship_identity_proof": {
+    "exercise_activity_applicability": {
+      "pre_relationship_sha256": "9458470517a158772a57ea1401c9ba26eb0e17ab12b8f679a23a258893c07af9",
+      "post_relationship_sha256": "9458470517a158772a57ea1401c9ba26eb0e17ab12b8f679a23a258893c07af9",
+      "relationship_set_equal": true,
+      "relationship_count": 159
+    },
+    "metric_exercise_link": {
+      "pre_relationship_sha256": "8d4200e8ca243dc8e387eef0d4abcb46b157109a21515e7a23a1514dcb0a04da",
+      "post_relationship_sha256": "8d4200e8ca243dc8e387eef0d4abcb46b157109a21515e7a23a1514dcb0a04da",
+      "relationship_set_equal": true,
+      "relationship_count": 12
+    },
+    "sport_role": {
+      "pre_relationship_sha256": "50ef81881151e5fad60aa5bf0c3c4ea498b50ed9f716a4577341cf34232b3783",
+      "post_relationship_sha256": "50ef81881151e5fad60aa5bf0c3c4ea498b50ed9f716a4577341cf34232b3783",
+      "relationship_set_equal": true,
+      "relationship_count": 3
+    },
+    "sport_metric": {
+      "pre_relationship_sha256": "d0cce4d4efb513a70ec497bb155e1f1dd5ecbdbd30c19d1f39f71fab782c1fed",
+      "post_relationship_sha256": "d0cce4d4efb513a70ec497bb155e1f1dd5ecbdbd30c19d1f39f71fab782c1fed",
+      "relationship_set_equal": true,
+      "relationship_count": 9
+    }
+  },
+  "representation_changes": [
+    {
+      "runtime_domain": "movement",
+      "legacy_field": "movement_id",
+      "canonical_field": "movement_pattern_id",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "exercise",
+      "legacy_field": "pattern",
+      "canonical_field": "movement_pattern_id",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "exercise",
+      "legacy_field": "equipment",
+      "canonical_field": "equipment_requirements",
+      "rule": "collapse_duplicate_after_equivalence_proof"
+    },
+    {
+      "runtime_domain": "exercise",
+      "legacy_field": "equipment_tags",
+      "canonical_field": "equipment_requirements",
+      "rule": "remove_redundant_legacy_projection"
+    },
+    {
+      "runtime_domain": "exercise",
+      "legacy_field": "instruction.short",
+      "canonical_field": "instruction_short_text",
+      "rule": "flatten_same_value"
+    },
+    {
+      "runtime_domain": "exercise",
+      "legacy_field": "instruction.detailed",
+      "canonical_field": "instruction_detail_text",
+      "rule": "flatten_same_value"
+    },
+    {
+      "runtime_domain": "program",
+      "legacy_field": "program_id",
+      "canonical_field": "template_id",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "program",
+      "legacy_field": "id",
+      "canonical_field": "activity_id",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "program",
+      "legacy_field": "intent",
+      "canonical_field": "exercise_eligibility",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "exercise_token",
+      "legacy_field": "movement_id",
+      "canonical_field": "movement_pattern_id",
+      "rule": "rename_same_value"
+    },
+    {
+      "runtime_domain": "multiple",
+      "legacy_field": "id",
+      "canonical_field": "domain_specific_primary_key",
+      "rule": "remove_duplicate_alias"
+    }
+  ],
+  "content_neutrality": {
+    "new_registry_facts_added": false,
+    "factual_registry_records_deleted": false,
+    "logical_record_counts_preserved": true,
+    "identity_sets_preserved": true,
+    "relationship_sets_preserved_for_declared_fk_surfaces": true,
+    "compact_registry_index_changed": false
+  },
+  "generated_artifacts": {
+    "registry_bundle": "regenerated_from_current_index",
+    "registry_seal": "sealed_zero_drift_required",
+    "global_evidence_seal": "regenerated_for_schema_set"
+  },
+  "engine_parity_proof": {
+    "command": "npm run e2e:golden",
+    "update_mode_permitted": false,
+    "required_result": "pass_without_decision_change",
+    "proof_environment": "GitHub green/comprehensive CI after exact dependency install"
+  }
+}

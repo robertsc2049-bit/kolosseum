@@ -4,6 +4,7 @@
 // declarations, alter registries or override deterministic engine decisions.
 
 import crypto from "node:crypto";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -50,11 +51,7 @@ export const BETA17_COACH_COPY_IDS =
       "BETA17_COPY_STATUS_ERROR"
   });
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 const forbiddenKeys = new Set([
   "engine_input",
@@ -127,6 +124,7 @@ const noteInputKeys = new Set([
   "athlete_user_id",
   "session_id",
   "artefact_id",
+  "exercise_id",
   "note_text",
   "visibility"
 ]);
@@ -1275,6 +1273,21 @@ export function createBeta17CoachNoteRecord(
     const artefactId =
       cleanString(input.artefact_id);
 
+    if (
+      input.exercise_id !== null &&
+      typeof input.exercise_id !==
+        "string"
+    ) {
+      throw new Beta17CoachManagedError(
+        "coach_note_exercise_id_invalid"
+      );
+    }
+
+    const exerciseId =
+      cleanString(
+        input.exercise_id
+      );
+
     const noteText =
       typeof input.note_text ===
         "string"
@@ -1311,6 +1324,7 @@ export function createBeta17CoachNoteRecord(
         access.relationship_id,
       session_id: sessionId,
       artefact_id: artefactId,
+      exercise_id: exerciseId || null,
       note_text: noteText,
       visibility: input.visibility
     };

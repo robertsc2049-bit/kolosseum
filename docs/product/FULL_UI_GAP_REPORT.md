@@ -7,7 +7,7 @@ Counts are project-state facts. They are not product, coach, athlete, readiness 
 
 ## Overall function state
 
-- implemented: 274
+- implemented: 356
 - partial: 0
 - missing: 0
 - prohibited: 0
@@ -44,7 +44,7 @@ Slice: FULL-UI-03
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -54,9 +54,12 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `beta_acknowledgement` — Accept product acknowledgement
 - `jurisdiction_acknowledgement` — Accept jurisdiction acknowledgement
 - `accessibility_preferences` — Set accessibility and instruction-density preferences
+- `training_focus_preferences` — Set zero or more training focus areas
 - `onboarding_review` — Review and confirm onboarding declarations
 - `onboarding_completion` — Persist onboarding completion state
 - `declaration_history` — Display current and historical declarations
+- `athlete_activity_change` — Change declared activity - self-service or coach-proposed, immediate or deferred
+- `athlete_position_change` — Declare or change position - self-service (immediate) or coach-proposed (immediate or deferred)
 
 ### Coach onboarding and commercial state
 
@@ -64,18 +67,20 @@ Slice: FULL-UI-04
 
 Area state: implemented
 
-Implemented: 8 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `coach_profile_setup` — Create coach profile
 - `coach_terms` — Accept coach terms
+- `coach_accessibility_preferences` — Declare accessibility preferences
 - `subscription_state` — Display current subscription state
 - `seat_allowance` — Display seat allowance and usage
 - `checkout_entry` — Open checkout
 - `payment_return` — Handle payment success and cancellation
 - `billing_portal` — Open billing portal
 - `entitlement_error` — Display factual entitlement failure
+- `webhook_confirmation` — Record trusted Stripe webhook confirmation
 
 ### Coach–athlete relationships
 
@@ -83,7 +88,7 @@ Slice: FULL-UI-05
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -97,6 +102,8 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `relationship_lists` — Display pending and accepted relationships
 - `relationship_audit` — Display relationship detail and audit facts
 - `relationship_history_preserved` — Preserve historical records after relationship closure
+- `coach_activity_change_proposal` — Propose a new activity for a connected athlete
+- `coach_position_change_proposal` — Propose a new position for a connected athlete
 
 ### Coach overview
 
@@ -122,7 +129,7 @@ Slice: FULL-UI-07
 
 Area state: implemented
 
-Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 14 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -139,6 +146,7 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `athlete_session_history` — Display athlete session history
 - `athlete_relationship_revoke` — Revoke relationship from profile
 - `athlete_archive_inactive` — Archive inactive relationship without deleting history
+- `athlete_roster_csv_export` — Download a CSV of the coach's own athlete roster - name, email, activity, relationship state and connected-since date
 
 ### Strength-reference management
 
@@ -168,7 +176,7 @@ Slice: FULL-UI-09
 
 Area state: implemented
 
-Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 15 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -185,6 +193,8 @@ Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `event_link_unlink` — Link and unlink athlete
 - `event_history_preserved` — Preserve assignment and session history after unlink
 - `event_validation` — Validate conflicts and past dates
+- `event_calendar_export` — Export the coach's active events as a downloadable RFC 5545 (.ics) calendar
+- `athlete_event_calendar_export` — Export the athlete's linked events as a downloadable RFC 5545 (.ics) calendar
 
 ### Programme library
 
@@ -216,7 +226,7 @@ Slice: FULL-UI-11
 
 Area state: implemented
 
-Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 26 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -235,7 +245,7 @@ Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_role` — Set primary or accessory role
 - `builder_sets` — Set planned sets
 - `builder_repetitions` — Set fixed repetitions or range
-- `builder_loading` — Set percentage, fixed load, bodyweight or RPE
+- `builder_loading` — Set percentage, fixed load, bodyweight, RPE, Borg or CR10
 - `builder_prescription_mode` — Prescribe reps, a timed hold, or a distance per exercise
 - `builder_tempo` — Set an optional coaching tempo per exercise
 - `builder_load_unit` — Set load unit
@@ -245,6 +255,7 @@ Implemented: 25 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `builder_save_feedback` — Display save state and confirmation
 - `builder_validation_links` — Link validation failures to fields
 - `builder_keyboard_mobile` — Operate builder by keyboard and phone
+- `builder_group_workout` — Author complex, AMRAP, EMOM or for-time exercise groups
 
 ### Event-to-programme calendar
 
@@ -317,7 +328,7 @@ Slice: FULL-UI-15
 
 Area state: implemented
 
-Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 20 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -325,6 +336,7 @@ Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `session_ordered_exercises` — Display ordered exercises, grouped and annotated with coach notes
 - `session_exercise_howto` — Expand written instructions, coaching cues and common faults for the current exercise
 - `session_prescription` — Display sets, reps or a timed hold or distance, tempo, load and rest
+- `session_coaching_notes` — Show the coach's session-level notes before the athlete starts
 - `session_rest_timer` — Countdown prescribed rest with a completion cue
 - `session_start` — Start session
 - `session_complete_work` — Mark work complete
@@ -339,6 +351,7 @@ Implemented: 18 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `session_idempotent_retry` — Display idempotent retry state
 - `session_reload_recovery` — Recover session after refresh
 - `session_terminal_guard` — Prevent terminal-session resurrection
+- `session_group_workout` — Execute and record a complex, AMRAP, EMOM or for-time group
 
 ### Athlete history
 
@@ -346,7 +359,7 @@ Slice: FULL-UI-16
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -359,6 +372,7 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `history_provenance` — Display programme, assignment and event provenance
 - `history_export` — Export athlete history
 - `history_empty_unavailable` — Display empty and unavailable states
+- `history_session_summary` — Display neutral session summary facts
 
 ### Coach review and live status
 
@@ -366,7 +380,7 @@ Slice: FULL-UI-17
 
 Area state: implemented
 
-Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -382,6 +396,7 @@ Implemented: 12 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `review_nonbinding_copy` — Display exact non-binding note copy
 - `review_no_override` — Prevent coach override of engine truth
 - `review_state` — Store reviewed or unreviewed product state
+- `review_session_summary` — Display neutral session summary facts
 
 ### Notifications and task state
 
@@ -389,7 +404,7 @@ Slice: FULL-UI-18
 
 Area state: implemented
 
-Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 22 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -402,6 +417,19 @@ Implemented: 9 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `notification_billing` — Notify billing or entitlement action
 - `notification_read_state` — Mark notifications read or unread
 - `notification_deep_link` — Open notification target
+- `notification_marketplace_release` — Notify a coach when another coach releases a marketplace template to their account, deep-linking straight to the new clone
+- `notification_weekly_checkin` — Notify a coach when one of their accepted athletes submits a weekly check-in, deep-linking straight to that athlete's profile
+- `notification_video_feedback` — Notify an athlete when their coach adds feedback on one of their video submissions, deep-linking straight to that session's history detail
+- `notification_athlete_goal_achieved` — Notify a coach when one of their accepted athletes marks a goal achieved, deep-linking straight to that athlete's profile
+- `notification_video_submitted` — Notify a coach when one of their accepted athletes submits a new exercise video, deep-linking straight to that athlete's review queue
+- `notification_marketplace_template_sold` — Notify the selling coach when another coach buys their released marketplace template, deep-linking straight to their own original template
+- `notification_attendance_event` — Notify an invited athlete when they're invited to an attendance event, when that event is cancelled, or when one of its occurrences is skipped or rescheduled - deep-linking to the athlete's own attendance view
+- `notification_athlete_position_overridden` — Notify an athlete when a team coach or their org owner has directly overridden their declared position, deep-linking to the athlete's own Today view
+- `notification_attendance_rsvp_declined` — Notify the organizing coach when an invited athlete RSVPs not attending to one of their attendance events, deep-linking to the coach's own attendance view
+- `notification_activity_change_declined` — Notify the proposing coach when an athlete declines their coach-proposed activity or position change, deep-linking to the coach's own detail view of that athlete
+- `notification_relationship_ended_by_athlete` — Notify the coach when an athlete ends the relationship themselves, the symmetric reverse of the athlete's own relationship_revoked notification for a coach-initiated end
+- `notification_coach_athlete_message` — Notify a coach or athlete when the other party sends a new direct message, deep-linking to the coach's athlete detail view or the athlete's shared account view
+- `notification_org_owner_message` — Notify a coach or athlete when their org owner sends them a new message, deep-linking to the recipient's own shared account view
 
 ### Data rights and consent
 
@@ -448,20 +476,23 @@ Slice: FULL-UI-21
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 13 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
 - `admin_auth` — Guard founder and admin sign-in
 - `admin_account_search` — Search accounts
 - `admin_account_state` — Review account state
-- `admin_entitlement` — Review coach entitlement and seats
+- `admin_entitlement` — Review coach entitlement and seats, searchable by user ID, record type or billing access state
 - `admin_payment` — Review payment state
-- `admin_support` — Review support and error records
+- `admin_support` — Review support and error records, searchable by correlation id, user ID, description or status
 - `admin_test_users` — Manage test users
-- `admin_data_requests` — Review export and deletion requests
-- `admin_audit_action` — Record operational action audit
+- `admin_data_requests` — Review export and deletion requests, searchable by request ID, user ID, status or reason
+- `admin_audit_action` — Record operational action audit, searchable by actor, action type, target or correlation id
 - `admin_no_engine_override` — Prevent admin engine override
+- `admin_org_owner_account_search` — Search org owner accounts and review one account's identity and organisations owned
+- `admin_org_owner_account_state` — Change an org owner account's state between active and suspended, with an audited before/after record
+- `admin_org_owner_data_requests` — Review org owner GDPR export and deletion requests
 
 ### Organisation owner billing and roster (v1 shell)
 
@@ -469,7 +500,7 @@ Slice: FULL-UI-26
 
 Area state: implemented
 
-Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 31 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -478,11 +509,32 @@ Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `org_owner_roster` — Invite, list and remove coach roster memberships by email
 - `org_owner_billing` — View seat usage and change the org's seat plan
 - `org_owner_athlete_visibility` — View athlete-level visibility scoped by the organisation's declared visibility mode
+- `org_owner_athlete_roster_csv_export` — Org owner downloads a CSV of their organisation's athlete roster - one row per athlete with real identity for shared-visibility (team) organisations, or aggregate per-coach counts only (never any athlete identity) for individual-visibility (gym) organisations, matching the same visibility_mode boundary as the athlete-visibility screen
+- `org_owner_progress_rollup` — View an org-wide progress rollup - a real per-athlete adherence chart per accepted athlete across every coach on the roster for shared-visibility (team) organisations, or a privacy-preserving per-coach average adherence trend (never an athlete identity, withheld entirely below a 3-athlete cohort) for individual-visibility (gym) organisations
+- `org_owner_audit_log` — View the organisation's recorded activity log
 - `coach_org_membership` — Coach reads, accepts and leaves org memberships from their own session
 - `coach_org_roster_visibility` — Coach reads fellow coaches in a shared (team) org they're an active member of - individual (gym) orgs stay coach-private
-- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments, API-only
-- `org_athlete_messaging` — Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only
+- `org_coach_messaging` — Org owner and an active-member coach exchange threaded messages with live delivery and photo/video attachments - each thread carries a live unread count for its viewer, cleared when that viewer opens it. The coach side renders in the product app's account view (org owner side remains API-only, no dedicated frontend)
+- `org_athlete_messaging` — Org owner and an athlete currently coached by one of the org's active coaches exchange threaded messages with live delivery and photo/video attachments, gated to team (shared-visibility) orgs only - each thread carries a live unread count for its owner/athlete viewer, cleared when that viewer opens it
+- `org_owner_notification_coach_message` — Notify the org owner when a coach sends them a new direct message, deep-linking to that organisation's Messages section
+- `org_owner_notification_athlete_message` — Notify the org owner when an athlete sends them a new direct message, deep-linking to that organisation's Messages section
+- `org_coach_broadcast_message` — Org owner sends the same message into every active coach's thread at once, with a live read-by-N-of-M receipt for that broadcast
+- `org_athlete_broadcast_message` — Org owner sends the same message into every accepted athlete's thread at once, gated to team (shared-visibility) orgs only, with a live read-by-N-of-M receipt for that broadcast
+- `org_owner_account_closure` — Org owner requests self-service closure of their own owner account - a synchronous, non-cascading state flip; organisation(s) they own are untouched
+- `org_owner_data_export_request` — Org owner requests a personal-data export covering their account, owned organisations, coach memberships, sent messages and audit records
+- `org_owner_data_export_status` — Display org owner export status
+- `org_owner_data_export_download` — Download available org owner export
+- `org_owner_data_deletion_review` — Org owner reviews deletion consequences before confirming - which of their own records would be retained pending audit-integrity review
+- `org_owner_data_deletion_confirm` — Org owner confirms a deletion request, queuing it for review - never an immediate hard delete
+- `org_owner_data_deletion_status` — Display org owner deletion-request status
 - `athlete_org_context` — Athlete reads which org(s) their own accepted coach relationship gives them team context for - org_id, org_name and visibility_mode only, never a teammate roster
+- `org_owner_attendance_events` — Org owner creates a gym-wide attendance event (with no athlete picker - every currently-accepted athlete across every active coach is auto-invited server-side) for an individual-visibility ('gym') organisation they own, views full real identity and RSVP state on the roster for that one event, cancels it, and skips or reschedules a single occurrence - the fourth, narrowly-scoped exception to org_visibility_service.ts's gym-mode identity-hiding invariant
+- `org_owner_attendance_calendar_export` — Org owner exports their gym-wide attendance events as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules
+- `coach_team_position_override` — Coach who is an active member of an athlete's shared-visibility team directly overrides their position - no athlete confirmation needed
+- `org_owner_position_override` — Org owner directly overrides the position of an athlete already visible on their own shared-visibility roster
+- `org_owner_support_report_problem` — Report a problem
+- `org_owner_support_context` — Attach route, timestamp, browser and correlation ID
+- `org_owner_support_history` — Display support request history
 
 ### Coach-athlete messaging
 
@@ -490,11 +542,12 @@ Slice: FULL-UI-27
 
 Area state: implemented
 
-Implemented: 1 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 2 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
-- `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted
+- `coach_athlete_messaging` — Coach and athlete exchange threaded messages with live delivery and photo/video attachments while their relationship is accepted - each thread carries a live unread count for its viewer, cleared when that viewer opens it
+- `coach_broadcast_message` — Coach sends the same message into every currently-accepted athlete's thread at once, with a live read-by-N-of-M receipt for that broadcast
 
 ### Cross-product quality
 
@@ -534,8 +587,8 @@ Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
 #### implemented
 
 - `progress_photo_upload` — Upload dated progress photo
-- `progress_photo_athlete_history` — Display own progress photo history
-- `progress_photo_coach_view` — Display athlete progress photo history (read-only)
+- `progress_photo_athlete_history` — Display own progress photo history, with a side-by-side before/after comparison of any two selected photos
+- `progress_photo_coach_view` — Display athlete progress photo history (read-only), with the same side-by-side before/after comparison of any two selected photos
 
 ### Body metrics and habits
 
@@ -543,7 +596,7 @@ Slice: FULL-UI-29
 
 Area state: implemented
 
-Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
+Implemented: 10 · Partial: 0 · Missing: 0 · Prohibited: 0
 
 #### implemented
 
@@ -554,6 +607,9 @@ Implemented: 7 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `habit_log_completion` — Log a habit completion for a cadence unit
 - `habit_streak_display` — Display current/longest streak and total completions
 - `habit_history_list` — Display an athlete's habits list (read-only for coach)
+- `nutrition_log` — Log daily calories, protein, carbs and fat as body_metric_entry facts under the same open metric-type registry
+- `nutrition_history_athlete` — Display own nutrition history grouped by day, separate from the general body-measurements list
+- `nutrition_history_coach` — Display an accepted athlete's nutrition history grouped by day, read-only
 
 ### Exercise reference media
 
@@ -596,6 +652,109 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - `device_metric_history_athlete` — Display own synced metric history
 - `device_metric_history_coach` — Display athlete connected devices and synced metric history (read-only)
 
+### Exercise video feedback
+
+Slice: FULL-UI-32
+
+Area state: implemented
+
+Implemented: 5 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `video_submission_capture` — Record or upload a form-check video for a specific exercise in a session
+- `video_submission_history` — Display own video submissions and coach feedback for a session
+- `video_feedback_queue` — Display pending video submissions awaiting coach review, across all athletes - searchable by athlete name or exercise
+- `video_feedback_detail` — Display a single video submission for coach review
+- `video_feedback_reply` — Reply to a video submission with text feedback, marking it reviewed
+
+### Progress insights
+
+Slice: FULL-UI-36
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `progress_insights_athlete_summary` — Display computed session adherence, strength trends, habit consistency and body-metric trends over a rolling window
+- `progress_insights_coach_summary` — Display the same computed progress summary for an accepted athlete, read-only
+- `progress_insights_coach_roster` — Display a roster-wide progress overview - one adherence chart per accepted athlete, in one view
+
+### Athlete goal-setting
+
+Slice: FULL-UI-37
+
+Area state: implemented
+
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `athlete_goal_create` — Declare a goal, optionally linked to an existing body-metric type with a target value and date
+- `athlete_goal_resolve` — Manually mark one of the athlete's own goals as achieved or abandoned
+- `athlete_goal_list_athlete` — Display own goal list, each enriched with current value and progress toward target
+- `athlete_goal_list_coach` — Display an accepted athlete's goal list with the same enrichment, read-only
+
+### Athlete weekly check-in
+
+Slice: FULL-UI-64
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `weekly_checkin_submit` — Submit a self-reported weekly check-in (energy, motivation, sleep quality, optional note) for a given week
+- `weekly_checkin_list_athlete` — Display own weekly check-in history
+- `weekly_checkin_list_coach` — Display an accepted athlete's weekly check-in history, read-only
+
+### Coach branding preference
+
+Slice: FULL-UI-65
+
+Area state: implemented
+
+Implemented: 3 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `coach_branding_save` — Save an accent colour and optional tagline shown on the coach's own athletes' view of them
+- `coach_branding_load_own` — Display own saved branding preference for editing
+- `coach_branding_athlete_view` — Display the accepted coach's accent colour and tagline on the athlete's own "My coach" card
+
+### Programme template marketplace visibility
+
+Slice: FULL-UI-67
+
+Area state: implemented
+
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `programme_marketplace_share` — Declare one of the coach's own complete or active templates publicly browsable by other coaches, with an optional display-only price label and payment-methods note
+- `programme_marketplace_browse` — Browse other coaches' publicly-shared templates, read-only, with the sharing coach's identity, branding, price label and payment-methods note - searchable, filterable by activity and sortable
+- `programme_marketplace_release` — Release a full copy of a shared template to a specific buying coach's account code once paid off-platform, cloning it into the buyer's own independent library
+- `programme_marketplace_release_history` — Display the coach's own history of who a shared template has been released to
+
+### Attendance events - invite and RSVP
+
+Slice: FULL-UI-76
+
+Area state: implemented
+
+Implemented: 4 · Partial: 0 · Missing: 0 · Prohibited: 0
+
+#### implemented
+
+- `attendance_event_create` — Coach creates a real calendar event or a full recurring series (weekdays, interval, end date or occurrence count) for their own accepted athletes, or - as any ACTIVE coach in a shared-visibility org - for the whole org's accepted-athlete roster across every coach
+- `attendance_event_roster_view` — Coach views their own created events (including full recurring series and org-wide events, with full identity for every invited athlete regardless of which coach they belong to) and each invited athlete's current RSVP state per occurrence, cancels an event, and skips or reschedules a single occurrence
+- `attendance_event_athlete_rsvp` — Athlete views every occurrence they are currently invited to across every coach (a skipped occurrence never appears, a rescheduled one shows its new date/time), and replies attending, maybe or not attending
+- `attendance_event_calendar_export` — Coach exports their own individual attendance events (including shared-org events they organize) as a downloadable RFC 5545 (.ics) calendar, one VEVENT per occurrence, reflecting skips and reschedules
+
 ## Functions without persistent integration proof
 
 - None
@@ -633,7 +792,42 @@ Implemented: 6 · Partial: 0 · Missing: 0 · Prohibited: 0
 - FULL-UI-29: implemented
 - FULL-UI-30: implemented
 - FULL-UI-31: implemented
+- FULL-UI-32: implemented
 - FULL-UI-35: implemented
+- FULL-UI-36: implemented
+- FULL-UI-37: implemented
+- FULL-UI-64: implemented
+- FULL-UI-65: implemented
+- FULL-UI-66: implemented
+- FULL-UI-67: implemented
+- FULL-UI-68: implemented
+- FULL-UI-69: implemented
+- FULL-UI-70: implemented
+- FULL-UI-71: implemented
+- FULL-UI-72: implemented
+- FULL-UI-73: implemented
+- FULL-UI-74: implemented
+- FULL-UI-75: implemented
+- FULL-UI-76: implemented
+- FULL-UI-77: implemented
+- FULL-UI-78: implemented
+- FULL-UI-79: implemented
+- FULL-UI-80: implemented
+- FULL-UI-81: implemented
+- FULL-UI-82: implemented
+- FULL-UI-83: implemented
+- FULL-UI-84: implemented
+- FULL-UI-85: implemented
+- FULL-UI-86: implemented
+- FULL-UI-87: implemented
+- FULL-UI-88: implemented
+- FULL-UI-89: implemented
+- FULL-UI-90: implemented
+- FULL-UI-91: implemented
+- FULL-UI-92: implemented
+- FULL-UI-93: implemented
+- FULL-UI-94: implemented
+- FULL-UI-95: implemented
 
 ## Prohibited capabilities
 

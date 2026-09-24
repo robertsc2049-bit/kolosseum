@@ -18,26 +18,23 @@ function writeJsonFixture(payload) {
   return filePath;
 }
 
-test("P76: passes when every exercise has instruction.short and optional detailed cues", () => {
+test("P76: passes when every exercise has instruction_short_text and optional detailed cues", () => {
   const fixturePath = writeJsonFixture({
     bench_press: {
       exercise_id: "bench_press",
-      pattern: "horizontal_push",
-      instruction: {
-        short: "Lower bar to chest, press to full extension",
-        detailed: [
-          "Grip bar evenly",
-          "Retract shoulders before descent",
-          "Drive bar vertically"
-        ]
-      }
+      movement_pattern_id: "horizontal_push",
+      instruction_short_text: "Lower bar to chest, press to full extension",
+      instruction_detail_text: [
+        "Grip bar evenly",
+        "Retract shoulders before descent",
+        "Drive bar vertically"
+      ]
     },
     deadlift: {
       exercise_id: "deadlift",
-      pattern: "hinge",
-      instruction: {
-        short: "Pull bar from floor to lockout"
-      }
+      movement_pattern_id: "hinge",
+      instruction_short_text: "Pull bar from floor to lockout",
+      instruction_detail_text: ["Pull bar from floor to lockout"]
     }
   });
 
@@ -48,11 +45,11 @@ test("P76: passes when every exercise has instruction.short and optional detaile
   assert.deepEqual(result.failures, []);
 });
 
-test("P76: fails when instruction object is missing", () => {
+test("P76: fails when instruction fields are missing", () => {
   const fixturePath = writeJsonFixture({
     bench_press: {
       exercise_id: "bench_press",
-      pattern: "horizontal_push"
+      movement_pattern_id: "horizontal_push"
     }
   });
 
@@ -60,19 +57,19 @@ test("P76: fails when instruction object is missing", () => {
 
   assert.equal(result.ok, false);
   assert.equal(result.checked_exercise_count, 1);
-  assert.equal(result.failures.length, 1);
-  assert.equal(result.failures[0].code, "instruction_missing");
-  assert.match(result.failures[0].path, /bench_press\.instruction$/);
+  assert.equal(result.failures.length, 2);
+  assert.equal(result.failures[0].code, "instruction_short_missing");
+  assert.equal(result.failures[1].code, "instruction_detail_missing");
+  assert.match(result.failures[0].path, /bench_press\.instruction_short_text$/);
 });
 
-test("P76: fails when instruction.short is blank", () => {
+test("P76: fails when instruction_short_text is blank", () => {
   const fixturePath = writeJsonFixture({
     squat: {
       exercise_id: "squat",
-      pattern: "squat",
-      instruction: {
-        short: "   "
-      }
+      movement_pattern_id: "squat",
+      instruction_short_text: "   ",
+      instruction_detail_text: ["Squat with control"]
     }
   });
 
@@ -88,10 +85,8 @@ test("P76: fails when detailed cue is blank", () => {
     overhead_press: {
       exercise_id: "overhead_press",
       pattern: "vertical_push",
-      instruction: {
-        short: "Press bar overhead to lockout",
-        detailed: ["Brace trunk", "   "]
-      }
+      instruction_short_text: "Press bar overhead to lockout",
+      instruction_detail_text: ["Brace trunk", "   "]
     }
   });
 
@@ -99,15 +94,15 @@ test("P76: fails when detailed cue is blank", () => {
 
   assert.equal(result.ok, false);
   assert.equal(result.failures.length, 1);
-  assert.equal(result.failures[0].code, "instruction_detailed_item_empty");
-  assert.match(result.failures[0].path, /instruction\.detailed\[1\]$/);
+  assert.equal(result.failures[0].code, "instruction_detail_item_invalid");
+  assert.match(result.failures[0].path, /instruction_detail_text\[1\]$/);
 });
 
-test("P76: fails when instruction contains forbidden extra keys", () => {
+test("P76: fails when legacy instruction object is not part of canonical verifier", () => {
   const fixturePath = writeJsonFixture({
     row: {
       exercise_id: "row",
-      pattern: "horizontal_pull",
+      movement_pattern_id: "horizontal_pull",
       instruction: {
         short: "Pull handle to torso",
         warning: "Do not round your back"
@@ -118,7 +113,7 @@ test("P76: fails when instruction contains forbidden extra keys", () => {
   const result = verifyExerciseInstructionPresence(fixturePath);
 
   assert.equal(result.ok, false);
-  assert.equal(result.failures.length, 1);
-  assert.equal(result.failures[0].code, "instruction_extra_key");
-  assert.match(result.failures[0].message, /forbidden key 'warning'/);
+  assert.equal(result.failures.length, 2);
+  assert.equal(result.failures[0].code, "instruction_short_missing");
+  assert.equal(result.failures[1].code, "instruction_detail_missing");
 });

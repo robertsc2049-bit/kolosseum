@@ -255,6 +255,22 @@ test("standalone coach event links through athlete profile and reaches compile o
     assert.ok(eventId);
     assert.equal(event.json?.event?.event_compile_summary?.required_week_count, 2);
 
+    // ============================================================
+    // The coach's .ics calendar export includes the event just created,
+    // as a downloadable text/calendar response - real HTTP proof that
+    // buildCoachEventsCalendar's output actually reaches the wire, not
+    // just a unit-tested pure function in isolation.
+    // ============================================================
+    const calendar = await request(baseUrl, "GET", "/coach-workspace/events/calendar.ics", undefined, { cookie: coachCookie });
+    assertStatus(calendar, 200, "coach events calendar export");
+    assert.match(calendar.response.headers.get("content-type") ?? "", /text\/calendar/u);
+    assert.match(calendar.response.headers.get("content-disposition") ?? "", /attachment; filename="kolosseum-events\.ics"/u);
+    assert.match(calendar.text, new RegExp(`UID:${eventId}@kolosseum\\.app`, "u"));
+    assert.match(calendar.text, /SUMMARY:Standalone Test Meet/u);
+
+    const calendarUnauthenticated = await request(baseUrl, "GET", "/coach-workspace/events/calendar.ics");
+    assert.equal(calendarUnauthenticated.response.status, 401, "calendar export requires an authenticated coach session");
+
     const template = await request(baseUrl, "POST", "/templates", {
       coach_user_id: coachUserId,
       template_version: 1,

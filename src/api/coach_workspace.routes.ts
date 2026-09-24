@@ -1,6 +1,7 @@
 // DEV NOTE: BETA-19 coach programme workspace routes.
 
 import { Router } from "express";
+import { rateLimit } from "express-rate-limit";
 
 import { asyncHandler } from "./async_handler.js";
 import {
@@ -10,18 +11,22 @@ import {
   createCoachRelationshipInvitationHandler,
   declineAthleteRelationshipInvitationHandler,
   endAthleteRelationshipHandler,
+  exportCoachAthleteRosterCsv,
   getAthleteEventLinks,
   getAthleteStrengthProfile,
   getCoachAssignments,
   getCoachAthleteRelationships,
   getCoachEvents,
+  getCoachEventsCalendar,
   getAthleteOrgContextHandler,
   getConnectedCoachAthletes,
   listAthleteOwnRelationshipsHandler,
   listAthleteRelationshipInvitationsHandler,
-  preflightAthleteStrengthProfile,
+  getAthleteActivityChangeStateHandler,
+  getAthletePositionChangeStateHandler,
   previewEventProgrammeCalendar,
-  resolveAthleteStrengthLoad,
+  proposeAthleteActivityChangeHandler,
+  proposeAthletePositionChangeHandler,
   saveAthleteStrengthProfileHandler
 } from "./coach_workspace.handlers.js";
 import {
@@ -48,6 +53,11 @@ coachWorkspaceRouter.get(
 );
 
 coachWorkspaceRouter.get(
+  "/relationships/export.csv",
+  asyncHandler(exportCoachAthleteRosterCsv)
+);
+
+coachWorkspaceRouter.get(
   "/athletes",
   asyncHandler(getConnectedCoachAthletes)
 );
@@ -65,6 +75,13 @@ coachWorkspaceRouter.get(
 coachWorkspaceRouter.post(
   "/events",
   asyncHandler(createCoachEventHandler)
+);
+
+// Calendar export must be registered before the /events/:event_id param
+// route below, or "calendar.ics" would be swallowed as an event_id.
+coachWorkspaceRouter.get(
+  "/events/calendar.ics",
+  asyncHandler(getCoachEventsCalendar)
 );
 
 // FULL-UI-09C authenticated standalone event lifecycle.
@@ -121,14 +138,39 @@ coachWorkspaceRouter.post(
   asyncHandler(saveAthleteStrengthProfileHandler)
 );
 
-coachWorkspaceRouter.post(
-  "/athlete-strength-preflight",
-  asyncHandler(preflightAthleteStrengthProfile)
+// DEV NOTE: rate-limited (unlike this file's older neighbours) because
+// CodeQL's js/missing-rate-limiting query flags newly-added authorising
+// routes - see coach_onboarding.routes.ts's own accessibilityPreferencesRateLimit
+// for the identical precedent this mirrors.
+const athleteActivityChangeRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachWorkspaceRouter.get(
+  "/athlete-activity-change",
+  athleteActivityChangeRateLimit,
+  asyncHandler(getAthleteActivityChangeStateHandler)
 );
 
 coachWorkspaceRouter.post(
-  "/athlete-strength-resolve",
-  asyncHandler(resolveAthleteStrengthLoad)
+  "/athlete-activity-change-proposal",
+  athleteActivityChangeRateLimit,
+  asyncHandler(proposeAthleteActivityChangeHandler)
+);
+
+coachWorkspaceRouter.get(
+  "/athlete-position-change",
+  athleteActivityChangeRateLimit,
+  asyncHandler(getAthletePositionChangeStateHandler)
+);
+
+coachWorkspaceRouter.post(
+  "/athlete-position-change-proposal",
+  athleteActivityChangeRateLimit,
+  asyncHandler(proposeAthletePositionChangeHandler)
 );
 
 coachWorkspaceRouter.post(

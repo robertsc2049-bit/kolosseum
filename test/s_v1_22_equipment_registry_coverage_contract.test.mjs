@@ -2,16 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const repoRoot = process.cwd();
 
 const TOKEN_PREFIX = "v1_equipment_registry_coverage_contract_";
 
-const lockedActivityIds = Object.freeze([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const lockedActivityIds = V1_ACTIVITY_IDS;
 
 const requiredEquipmentFields = Object.freeze([
   "equipment_id",
@@ -274,11 +271,7 @@ function makeEquipmentRecord(equipmentId, overrides = {}) {
     equipment_id: equipmentId,
     display_label: equipmentId.replaceAll("_", " "),
     equipment_class: "contract_class",
-    activity_applicability: [
-      "powerlifting",
-      "general_strength",
-      "rugby_union"
-    ],
+    activity_applicability: [...lockedActivityIds],
     movement_pattern_applicability: [
       "squat",
       "hinge",
@@ -305,7 +298,35 @@ test("S-V1-22 locks equipment registry contract to v1 activities and required fi
   assert.deepEqual(lockedActivityIds, [
     "powerlifting",
     "general_strength",
-    "rugby_union"
+    "rugby_union",
+    "strongman",
+    "hyrox",
+    "crossfit",
+    "football_soccer",
+    "netball",
+    "basketball",
+    "rugby_sevens",
+    "field_hockey",
+    "ice_hockey",
+    "volleyball",
+    "cricket",
+    "american_football",
+    "athletics",
+    "swimming",
+    "olympic_weightlifting",
+    "cycling",
+    "rowing",
+    "kayaking",
+    "boxing",
+    "wrestling",
+    "judo",
+    "brazilian_jiu_jitsu",
+    "muay_thai",
+    "mma",
+    "tennis",
+    "triathlon",
+    "rugby_league",
+    "street_lifting"
   ]);
 
   assert.deepEqual(requiredEquipmentFields, [
@@ -405,7 +426,7 @@ test("S-V1-22 real active equipment and exercise registries satisfy the coverage
   });
 
   assert.equal(result.ok, true);
-  assert.equal(result.equipment_count, 17);
+  assert.equal(result.equipment_count, 39);
   assert.deepEqual(result.locked_activity_ids, lockedActivityIds);
 });
 

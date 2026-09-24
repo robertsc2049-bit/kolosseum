@@ -79,7 +79,7 @@ function normalizeString(value) {
 }
 
 function getPattern(exercise) {
-  return normalizeString(exercise?.pattern);
+  return normalizeString(exercise?.movement_pattern_id);
 }
 
 function getEquipmentClass(exercise) {
@@ -88,8 +88,8 @@ function getEquipmentClass(exercise) {
     return direct;
   }
 
-  const tags = Array.isArray(exercise?.equipment_tags)
-    ? exercise.equipment_tags.map((value) => normalizeString(value)).filter(Boolean)
+  const tags = Array.isArray(exercise?.equipment_requirements)
+    ? exercise.equipment_requirements.map((value) => normalizeString(value)).filter(Boolean)
     : [];
 
   if (tags.includes("barbell")) {
@@ -104,8 +104,8 @@ function getEquipmentClass(exercise) {
     return "bodyweight";
   }
 
-  const equipment = Array.isArray(exercise?.equipment)
-    ? exercise.equipment.map((value) => normalizeString(value)).filter(Boolean)
+  const equipment = Array.isArray(exercise?.equipment_requirements)
+    ? exercise.equipment_requirements.map((value) => normalizeString(value)).filter(Boolean)
     : [];
 
   if (equipment.includes("barbell")) {

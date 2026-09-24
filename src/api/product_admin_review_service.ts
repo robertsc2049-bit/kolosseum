@@ -98,6 +98,8 @@ export async function getAdminAccountDetail(
     created_at_iso8601: toIso(row.created_at),
     is_test_account: testAccountResult.rows.length > 0,
     test_account_marked_at_iso8601: toIso(testAccountResult.rows[0]?.created_at) ?? null,
+    test_account_marked_by_admin_user_id: cleanString(testAccountResult.rows[0]?.marked_by_admin_user_id) || null,
+    test_account_reason: cleanString(testAccountResult.rows[0]?.reason) || null,
     events: Object.freeze(
       eventsResult.rows.map((event) =>
         Object.freeze({
@@ -154,14 +156,16 @@ export async function listAdminSupportRequests(
   const result = await pool.query(
     statusFilter
       ? `
-        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
         FROM product_support_requests
         WHERE status = $1
         ORDER BY created_at DESC
         LIMIT 200
         `
       : `
-        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
         FROM product_support_requests
         ORDER BY created_at DESC
         LIMIT 200
@@ -178,7 +182,9 @@ export async function listAdminSupportRequests(
         description: cleanString(row.description),
         status: cleanString(row.status),
         occurred_at_iso8601: toIso(row.occurred_at),
-        created_at_iso8601: toIso(row.created_at)
+        created_at_iso8601: toIso(row.created_at),
+        browser_context: isRecord(row.browser_context) ? row.browser_context : {},
+        failure_context: isRecord(row.failure_context) ? row.failure_context : {}
       })
     )
   );
@@ -253,6 +259,204 @@ export async function listAdminDataDeletionRequests(
         reason_code: cleanString(row.reason_code),
         queue_status: cleanString(row.queue_status),
         requested_at_iso8601: toIso(row.requested_at)
+      })
+    )
+  );
+}
+
+// DEV NOTE: FULL-UI-80 - org-owner is a wholly separate identity surface
+// (own table, no actor_type column, no email_verified_at, no terms/consent
+// columns, a 3-value account_state with no 'deleted') from product_accounts,
+// not a filtered subset of it - so these are new, parallel read functions
+// rather than widening searchAdminAccounts/getAdminAccountDetail to union
+// two structurally different tables.
+
+export async function searchAdminOrgOwnerAccounts(
+  queryValue: unknown
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const query = cleanString(queryValue);
+
+  const result = await pool.query(
+    query
+      ? `
+        SELECT user_id, email_canonical, display_name, account_state, created_at
+        FROM product_org_owner_accounts
+        WHERE user_id ILIKE $1 OR email_canonical ILIKE $1 OR display_name ILIKE $1
+        ORDER BY created_at DESC
+        LIMIT 100
+        `
+      : `
+        SELECT user_id, email_canonical, display_name, account_state, created_at
+        FROM product_org_owner_accounts
+        ORDER BY created_at DESC
+        LIMIT 100
+        `,
+    query ? [`%${query}%`] : []
+  );
+
+  return Object.freeze(
+    result.rows.map((row) =>
+      Object.freeze({
+        user_id: cleanString(row.user_id),
+        email: cleanString(row.email_canonical),
+        display_name: cleanString(row.display_name),
+        account_state: cleanString(row.account_state),
+        created_at_iso8601: toIso(row.created_at)
+      })
+    )
+  );
+}
+
+export async function getAdminOrgOwnerAccountDetail(
+  userId: string
+): Promise<Readonly<JsonRecord> | null> {
+  const accountResult = await pool.query(
+    `SELECT * FROM product_org_owner_accounts WHERE user_id = $1`,
+    [userId]
+  );
+  const row = accountResult.rows[0];
+  if (!row) return null;
+
+  const organisationsResult = await pool.query(
+    `SELECT org_id, org_name, org_state, seat_limit, visibility_mode, created_at
+     FROM product_organisations
+     WHERE owner_user_id = $1
+     ORDER BY created_at ASC`,
+    [userId]
+  );
+
+  return Object.freeze({
+    user_id: cleanString(row.user_id),
+    email: cleanString(row.email_canonical),
+    display_name: cleanString(row.display_name),
+    account_state: cleanString(row.account_state),
+    created_at_iso8601: toIso(row.created_at),
+    organisations_owned: Object.freeze(
+      organisationsResult.rows.map((org) =>
+        Object.freeze({
+          org_id: cleanString(org.org_id),
+          org_name: cleanString(org.org_name),
+          org_state: cleanString(org.org_state),
+          seat_limit: org.seat_limit === null ? null : Number(org.seat_limit),
+          visibility_mode: cleanString(org.visibility_mode),
+          created_at_iso8601: toIso(org.created_at)
+        })
+      )
+    )
+  });
+}
+
+export async function listAdminOrgOwnerDataExportRequests(
+  filterUserId: unknown
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const userId = cleanString(filterUserId);
+
+  const result = await pool.query(
+    userId
+      ? `
+        SELECT export_request_id, user_id, status, requested_at, ready_at, expires_at, downloaded_at
+        FROM org_owner_data_export_requests
+        WHERE user_id = $1
+        ORDER BY requested_at DESC
+        LIMIT 200
+        `
+      : `
+        SELECT export_request_id, user_id, status, requested_at, ready_at, expires_at, downloaded_at
+        FROM org_owner_data_export_requests
+        ORDER BY requested_at DESC
+        LIMIT 200
+        `,
+    userId ? [userId] : []
+  );
+
+  return Object.freeze(
+    result.rows.map((row) =>
+      Object.freeze({
+        export_request_id: cleanString(row.export_request_id),
+        user_id: cleanString(row.user_id),
+        status: cleanString(row.status),
+        requested_at_iso8601: toIso(row.requested_at),
+        ready_at_iso8601: toIso(row.ready_at),
+        expires_at_iso8601: toIso(row.expires_at),
+        downloaded_at_iso8601: toIso(row.downloaded_at)
+      })
+    )
+  );
+}
+
+export async function listAdminOrgOwnerDataDeletionRequests(
+  filterUserId: unknown
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const userId = cleanString(filterUserId);
+
+  const result = await pool.query(
+    userId
+      ? `
+        SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
+        FROM org_owner_data_deletion_requests
+        WHERE user_id = $1
+        ORDER BY requested_at DESC
+        LIMIT 200
+        `
+      : `
+        SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
+        FROM org_owner_data_deletion_requests
+        ORDER BY requested_at DESC
+        LIMIT 200
+        `,
+    userId ? [userId] : []
+  );
+
+  return Object.freeze(
+    result.rows.map((row) =>
+      Object.freeze({
+        deletion_request_id: cleanString(row.deletion_request_id),
+        user_id: cleanString(row.user_id),
+        reason_code: cleanString(row.reason_code),
+        queue_status: cleanString(row.queue_status),
+        requested_at_iso8601: toIso(row.requested_at)
+      })
+    )
+  );
+}
+
+export async function listAdminOrgOwnerSupportRequests(
+  statusFilterValue: unknown
+): Promise<readonly Readonly<JsonRecord>[]> {
+  const statusFilter = cleanString(statusFilterValue);
+
+  const result = await pool.query(
+    statusFilter
+      ? `
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
+        FROM org_owner_support_requests
+        WHERE status = $1
+        ORDER BY created_at DESC
+        LIMIT 200
+        `
+      : `
+        SELECT correlation_id, user_id, route_hash, description, status, occurred_at, created_at,
+               browser_context, failure_context
+        FROM org_owner_support_requests
+        ORDER BY created_at DESC
+        LIMIT 200
+        `,
+    statusFilter ? [statusFilter] : []
+  );
+
+  return Object.freeze(
+    result.rows.map((row) =>
+      Object.freeze({
+        correlation_id: cleanString(row.correlation_id),
+        user_id: cleanString(row.user_id),
+        route_hash: cleanString(row.route_hash),
+        description: cleanString(row.description),
+        status: cleanString(row.status),
+        occurred_at_iso8601: toIso(row.occurred_at),
+        created_at_iso8601: toIso(row.created_at),
+        browser_context: isRecord(row.browser_context) ? row.browser_context : {},
+        failure_context: isRecord(row.failure_context) ? row.failure_context : {}
       })
     )
   );

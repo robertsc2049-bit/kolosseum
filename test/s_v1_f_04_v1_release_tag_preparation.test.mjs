@@ -17,7 +17,7 @@ test("S-V1-F-04 release tag preparation record exists and does not create a tag"
 
   assert.equal(record.slice_id, "S-V1-F-04");
   assert.equal(record.record_state, "preparation_only_not_tagged");
-  assert.equal(record.candidate_tag, "v1-controlled-launch");
+  assert.equal(record.candidate_tag, "v1.0.0");
 
   assert.equal(record.authority_boundary.creates_git_tag, false);
   assert.equal(record.authority_boundary.pushes_git_tag, false);

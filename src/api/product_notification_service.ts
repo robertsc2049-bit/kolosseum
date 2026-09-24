@@ -43,7 +43,26 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "event_cancelled",
   "programme_available",
   "session_completed",
-  "billing_action_required"
+  "billing_action_required",
+  "marketplace_template_released",
+  "weekly_checkin_submitted",
+  "video_feedback_received",
+  "athlete_goal_achieved",
+  "video_submitted",
+  "marketplace_template_sold",
+  "attendance_event_invited",
+  "attendance_event_cancelled",
+  "attendance_event_occurrence_changed",
+  "activity_change_proposed",
+  "activity_change_applied",
+  "athlete_position_overridden",
+  "attendance_rsvp_declined",
+  "activity_change_declined",
+  "relationship_ended_by_athlete",
+  "coach_athlete_message_received",
+  "org_owner_message_received",
+  "owner_message_received_from_coach",
+  "owner_message_received_from_athlete"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -53,10 +72,19 @@ export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 // invents a target route.
 const DEEP_LINK_ROUTE_IDS = Object.freeze({
   athleteToday: "athlete_today",
+  athleteHistoryDetail: "athlete_history_detail",
   coachAthleteDetail: "coach_athlete_detail",
   coachAthletes: "coach_athletes",
   coachReviewAthlete: "coach_review_athlete",
-  sharedAccount: "shared_account"
+  coachProgrammeDetail: "coach_programme_detail",
+  sharedAccount: "shared_account",
+  athleteAttendanceEvents: "athlete_attendance_events",
+  coachAttendanceEvents: "coach_attendance_events",
+  // The org console (public/org/) has no hash router/PRODUCT_ROUTE_MAP
+  // equivalent - this is a sentinel the org console's own bell click
+  // handler special-cases directly (calls showMessagesSection(org_id)),
+  // never resolved through public/app/route_bootstrap.js.
+  orgMessages: "org_messages"
 });
 
 function notificationId(
@@ -199,6 +227,43 @@ async function deriveRelationshipNotifications(
         notificationType === "relationship_accepted"
           ? { athlete_id: athleteUserId }
           : {},
+      notificationPayload: { athlete_user_id: athleteUserId },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Relationship ended by the athlete themselves --------------------------
+// The symmetric reverse of relationship_revoked (which only ever notifies
+// the athlete): a coach-initiated revoke and an athlete-initiated end both
+// produce the same beta17_coach_relationship "revoked" record, whose
+// actor_user_id is always the coach either way - so this reads the
+// dedicated beta17_relationship_athlete_ended marker record
+// athleteEndsRelationship writes instead (relationship_invitation_service.ts),
+// rather than trying to infer the true actor from the shared record.
+async function deriveRelationshipEndedByAthleteNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, actor_user_id AS athlete_user_id, effective_at
+    FROM beta_product_records
+    WHERE record_type = 'beta17_relationship_athlete_ended'
+      AND subject_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "relationship_ended_by_athlete",
+      sourceRecordType: "beta17_relationship_athlete_ended",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthletes,
       notificationPayload: { athlete_user_id: athleteUserId },
       occurredAtIso8601: toIso(row.effective_at)
     });
@@ -364,6 +429,146 @@ async function deriveEventCancelledNotifications(
   }
 }
 
+// --- Attendance events: invited / cancelled / occurrence changed -----------
+// A DIFFERENT, unrelated "event" concept from beta19_coach_event above -
+// see attendance_event_service.ts's own DEV NOTE. attendance_event_invite
+// rows are written once per (event, athlete) and never revoked by any
+// slice shipped so far, so this resolves the latest version per invite_id
+// the same defensive way listAttendanceInvitesForAthlete already does
+// (DISTINCT ON, then filter invite_state in application code) rather than
+// filtering invite_state inside the SQL WHERE clause, which would silently
+// pick a stale non-latest row once a revoke path exists.
+
+async function deriveAttendanceEventInvitedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT DISTINCT ON (record_id) record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+    ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    if (cleanString(row.record_payload?.invite_state) !== "invited") continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_invited",
+      sourceRecordType: "attendance_event_invite",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        organizer_user_id: cleanString(row.record_payload?.organizer_user_id),
+        event_id: cleanString(row.record_payload?.event_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+async function deriveAttendanceEventCancelledNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH my_invites AS (
+      SELECT DISTINCT ON (record_id) record_id, record_payload
+      FROM beta_product_records
+      WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT DISTINCT ON (e.record_id)
+      e.record_id AS event_record_id,
+      e.effective_at AS event_effective_at,
+      e.record_payload AS event_payload
+    FROM my_invites i
+    JOIN beta_product_records e
+      ON e.record_type = 'attendance_event'
+      AND e.record_id = i.record_payload->>'event_id'
+      AND e.record_payload->>'status' = 'cancelled'
+    WHERE i.record_payload->>'invite_state' = 'invited'
+    ORDER BY e.record_id, e.effective_at DESC, e.created_at DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_cancelled",
+      sourceRecordType: "attendance_event",
+      sourceRecordId: cleanString(row.event_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        event_id: cleanString(row.event_record_id),
+        title: cleanString(isRecord(row.event_payload) ? row.event_payload.title : null)
+      },
+      occurredAtIso8601: toIso(row.event_effective_at)
+    });
+  }
+}
+
+async function deriveAttendanceEventOccurrenceChangedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH my_invites AS (
+      SELECT DISTINCT ON (record_id) record_id, record_payload
+      FROM beta_product_records
+      WHERE record_type = 'attendance_event_invite' AND subject_user_id = $1
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    ),
+    my_events AS (
+      SELECT DISTINCT ON (e.record_id) e.record_id, e.record_payload
+      FROM beta_product_records e
+      WHERE e.record_type = 'attendance_event'
+        AND e.record_id IN (SELECT record_payload->>'event_id' FROM my_invites)
+      ORDER BY e.record_id, e.effective_at DESC, e.created_at DESC
+    )
+    SELECT DISTINCT ON (o.record_id)
+      o.record_id AS occurrence_record_id,
+      o.effective_at AS occurrence_effective_at,
+      o.record_payload AS occurrence_payload
+    FROM my_invites i
+    JOIN my_events ev ON ev.record_id = i.record_payload->>'event_id'
+    JOIN beta_product_records o
+      ON o.record_type = 'attendance_event_occurrence'
+      AND o.record_payload->>'event_id' = i.record_payload->>'event_id'
+    WHERE i.record_payload->>'invite_state' = 'invited'
+      AND ev.record_payload->>'status' != 'cancelled'
+    ORDER BY o.record_id, o.effective_at DESC, o.created_at DESC
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const status = cleanString(row.occurrence_payload?.status);
+    if (status !== "skipped" && status !== "rescheduled") continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_event_occurrence_changed",
+      sourceRecordType: "attendance_event_occurrence",
+      sourceRecordId: cleanString(row.occurrence_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteAttendanceEvents,
+      notificationPayload: {
+        event_id: cleanString(row.occurrence_payload?.event_id),
+        occurrence_id: cleanString(row.occurrence_record_id),
+        status
+      },
+      occurredAtIso8601: toIso(row.occurrence_effective_at)
+    });
+  }
+}
+
 // --- Session completed ------------------------------------------------------
 // Reuses the existing, already-tested execution_status projection
 // (getSessionStateQuery) rather than re-deriving completion state from the
@@ -430,17 +635,685 @@ async function deriveBillingNotifications(
   }
 }
 
+// --- Marketplace template released to this coach ----------------------------
+
+async function deriveMarketplaceReleaseNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, actor_user_id AS seller_coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'programme_template_release'
+      AND subject_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const clonedTemplateId = cleanString(row.record_payload?.cloned_template_id);
+    if (!clonedTemplateId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "marketplace_template_released",
+      sourceRecordType: "programme_template_release",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachProgrammeDetail,
+      deepLinkParams: { template_id: clonedTemplateId },
+      notificationPayload: {
+        seller_coach_user_id: cleanString(row.seller_coach_user_id),
+        source_template_id: cleanString(row.record_payload?.template_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Weekly check-in submitted (notify the athlete's coach) -----------------
+
+async function deriveWeeklyCheckinNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH latest_relationship AS (
+      SELECT DISTINCT ON (subject_user_id)
+        subject_user_id AS athlete_user_id,
+        record_payload->>'relationship_state' AS relationship_state
+      FROM beta_product_records
+      WHERE record_type = 'beta17_coach_relationship'
+        AND actor_user_id = $1
+      ORDER BY subject_user_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT checkin.record_id, checkin.subject_user_id AS athlete_user_id, checkin.effective_at, checkin.record_payload
+    FROM beta_product_records checkin
+    JOIN latest_relationship ON latest_relationship.athlete_user_id = checkin.subject_user_id
+    WHERE checkin.record_type = 'weekly_checkin_entry'
+      AND latest_relationship.relationship_state = 'accepted'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+    const recordId = cleanString(row.record_id);
+    if (!athleteUserId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "weekly_checkin_submitted",
+      sourceRecordType: "weekly_checkin_entry",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        week_start_date: cleanString(row.record_payload?.week_start_date)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Video feedback received (notify the submitting athlete) ---------------
+
+async function deriveVideoFeedbackNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT feedback.feedback_id, feedback.coach_user_id, feedback.created_at,
+      submission.submission_id, submission.session_id
+    FROM product_video_submission_feedback feedback
+    JOIN product_video_submissions submission
+      ON submission.submission_id = feedback.submission_id
+    WHERE submission.athlete_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const feedbackId = cleanString(row.feedback_id);
+    const sessionId = cleanString(row.session_id);
+    if (!feedbackId || !sessionId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "video_feedback_received",
+      sourceRecordType: "product_video_submission_feedback",
+      sourceRecordId: feedbackId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteHistoryDetail,
+      deepLinkParams: { session_id: sessionId },
+      notificationPayload: {
+        coach_user_id: cleanString(row.coach_user_id),
+        submission_id: cleanString(row.submission_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+// --- Athlete goal achieved (notify the athlete's coach) ---------------------
+
+async function deriveAthleteGoalAchievedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    WITH latest_relationship AS (
+      SELECT DISTINCT ON (subject_user_id)
+        subject_user_id AS athlete_user_id,
+        record_payload->>'relationship_state' AS relationship_state
+      FROM beta_product_records
+      WHERE record_type = 'beta17_coach_relationship'
+        AND actor_user_id = $1
+      ORDER BY subject_user_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    ),
+    latest_goal AS (
+      SELECT DISTINCT ON (record_id)
+        record_id, subject_user_id AS athlete_user_id, record_payload, effective_at
+      FROM beta_product_records
+      WHERE record_type = 'athlete_goal'
+      ORDER BY record_id, effective_at DESC, created_at DESC, record_sha256 DESC
+    )
+    SELECT latest_goal.record_id, latest_goal.athlete_user_id, latest_goal.record_payload, latest_goal.effective_at
+    FROM latest_goal
+    JOIN latest_relationship ON latest_relationship.athlete_user_id = latest_goal.athlete_user_id
+    WHERE latest_relationship.relationship_state = 'accepted'
+      AND latest_goal.record_payload->>'status' = 'achieved'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+    const recordId = cleanString(row.record_id);
+    if (!athleteUserId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_goal_achieved",
+      sourceRecordType: "athlete_goal",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        goal_label: cleanString(row.record_payload?.goal_label)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Video submitted (notify the reviewing coach) ---------------------------
+
+async function deriveVideoSubmittedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT submission_id, athlete_user_id, session_id, created_at
+    FROM product_video_submissions
+    WHERE coach_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const submissionId = cleanString(row.submission_id);
+    const athleteUserId = cleanString(row.athlete_user_id);
+    if (!submissionId || !athleteUserId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "video_submitted",
+      sourceRecordType: "product_video_submissions",
+      sourceRecordId: submissionId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachReviewAthlete,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        submission_id: submissionId
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+// --- Marketplace template sold (notify the selling coach) -------------------
+
+async function deriveMarketplaceTemplateSoldNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, subject_user_id AS buyer_coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'programme_template_release'
+      AND actor_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const templateId = cleanString(row.record_payload?.template_id);
+    const recordId = cleanString(row.record_id);
+    if (!templateId || !recordId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "marketplace_template_sold",
+      sourceRecordType: "programme_template_release",
+      sourceRecordId: recordId,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachProgrammeDetail,
+      deepLinkParams: { template_id: templateId },
+      notificationPayload: {
+        buyer_coach_user_id: cleanString(row.buyer_coach_user_id),
+        source_template_id: templateId
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Activity change proposed (coach) / applied (self-service or coach-confirmed) ---
+
+async function deriveActivityChangeNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const proposed = await client.query(
+    `
+    SELECT record_id, actor_user_id AS coach_user_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'athlete_activity_change_request'
+      AND subject_user_id = $1
+      AND record_payload->>'request_state' = 'proposed'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of proposed.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_proposed",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: {
+        coach_user_id: cleanString(row.coach_user_id),
+        new_activity_id: cleanString(row.record_payload?.new_activity_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+
+  // Only a change that was genuinely deferred (queued_for_session_id set)
+  // warrants a courtesy "this just took effect" notice - an immediate
+  // self-service change is synchronous and already obvious to the athlete
+  // who just requested it.
+  const applied = await client.query(
+    `
+    SELECT record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'athlete_activity_change_request'
+      AND subject_user_id = $1
+      AND record_payload->>'request_state' = 'applied'
+      AND record_payload->>'queued_for_session_id' IS NOT NULL
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of applied.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_applied",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: { new_activity_id: cleanString(row.record_payload?.new_activity_id) },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Activity/position change declined (coach-facing) ----------------------
+// The symmetric reverse of activity_change_proposed/applied above: a coach
+// proposes an activity or position change (proposeAthleteActivityChangeForCoach/
+// proposeAthletePositionChangeForCoach) and the athlete can decline it via
+// respondToActivityChangeProposal() - the coach previously had zero signal
+// that their proposal was rejected. Both change kinds share the same
+// athlete_activity_change_request record type/state machine (see
+// athlete_activity_change_service.ts's own DEV NOTE), so this one notifier
+// covers both, matching activity_change_proposed/applied's own precedent of
+// a single type name spanning both kinds. The declined record's own
+// actor_user_id/subject_user_id are both the athlete (it's their write, not
+// the coach's) - the proposing coach is only recoverable by following
+// supersedes_request_id back to the "proposed" record it declines, whose
+// actor_user_id is the coach - hence the self-join below rather than a
+// single-table filter like this file's other derive* functions.
+
+async function deriveActivityChangeDeclinedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT declined.record_id, declined.effective_at, declined.record_payload
+    FROM beta_product_records declined
+    JOIN beta_product_records proposed
+      ON proposed.record_type = 'athlete_activity_change_request'
+     AND proposed.record_payload->>'request_id' = declined.record_payload->>'supersedes_request_id'
+    WHERE declined.record_type = 'athlete_activity_change_request'
+      AND declined.record_payload->>'request_state' = 'declined'
+      AND proposed.actor_user_id = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteUserId = cleanString(row.record_payload?.athlete_user_id);
+    if (!athleteUserId) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "activity_change_declined",
+      sourceRecordType: "athlete_activity_change_request",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: {
+        athlete_user_id: athleteUserId,
+        change_kind: cleanString(row.record_payload?.change_kind) || "activity",
+        new_activity_id: cleanString(row.record_payload?.new_activity_id),
+        new_position: cleanString(row.record_payload?.new_position)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Athlete position overridden (coach-team or org-owner direct override,
+// no athlete confirmation - unlike the propose/confirm tier above, this tier
+// previously left the athlete with no signal at all that their declared
+// position had changed) ---
+
+async function deriveAthletePositionOverrideNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT audit_record_id, actor_role, created_at, after_state
+    FROM product_org_audit_records
+    WHERE action_type = 'athlete_position_overridden'
+      AND after_state->>'athlete_user_id' = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_position_overridden",
+      sourceRecordType: "product_org_audit_records",
+      sourceRecordId: cleanString(row.audit_record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: {
+        overridden_by_role: cleanString(row.actor_role),
+        new_position: cleanString(row.after_state?.position)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+// --- Attendance RSVP declined (organizer-facing) ---------------------------
+// The symmetric reverse of the athlete-facing attendance_event_* trio above:
+// an athlete's "not attending" response is time-sensitive, actionable
+// information the organizer previously had zero passive signal about (they
+// could only find out by opening the event's roster). Scoped to
+// not_attending only - "attending"/"maybe" are routine, not actionable, and
+// would just be noise (mirrors activity_change_applied's own precedent of
+// only notifying for the deferred case, not every immediate one).
+
+async function deriveAttendanceRsvpDeclinedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT record_id, effective_at, record_payload
+    FROM beta_product_records
+    WHERE record_type = 'attendance_event_rsvp'
+      AND actor_user_id = $1
+      AND record_payload->>'rsvp_state' = 'not_attending'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "attendance_rsvp_declined",
+      sourceRecordType: "attendance_event_rsvp",
+      sourceRecordId: cleanString(row.record_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAttendanceEvents,
+      notificationPayload: {
+        athlete_user_id: cleanString(row.record_payload?.athlete_user_id),
+        event_id: cleanString(row.record_payload?.event_id),
+        occurrence_id: cleanString(row.record_payload?.occurrence_id)
+      },
+      occurredAtIso8601: toIso(row.effective_at)
+    });
+  }
+}
+
+// --- Messaging: new messages, coach<->athlete and org-owner<->coach/athlete
+// Notification creation is gated on the recipient's own last-read marker on
+// product_message_threads - the same column the live unread-count queries in
+// coach_athlete_messaging_service.ts/org_coach_messaging_service.ts/
+// org_athlete_messaging_service.ts already use, reused verbatim here rather
+// than inventing a new "is unread" concept. This means a message the
+// recipient already read before their bell was ever queried never becomes a
+// notification at all - no separate suppression logic needed.
+// FULL-UI-90 covered the 4 directions where the recipient is a normal
+// product_accounts row (coach or athlete); FULL-UI-91 (below,
+// deriveMessageNotificationsForOrgOwner) covers the remaining 2 directions,
+// where an org owner is the recipient - org owners are a wholly separate
+// identity (product_org_owner_accounts, not product_accounts), which is why
+// this needed its own function and its own notification types rather than
+// just widening the ones above.
+
+async function deriveCoachAthleteMessageNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const asCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.athlete_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    WHERE t.thread_type = 'coach_athlete'
+      AND t.coach_user_id = $1
+      AND m.sender_role = 'athlete'
+      AND m.created_at > COALESCE(t.coach_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asCoach.rows) {
+    const athleteUserId = cleanString(row.athlete_user_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coach_athlete_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteUserId },
+      notificationPayload: { athlete_user_id: athleteUserId },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const asAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.coach_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    WHERE t.thread_type = 'coach_athlete'
+      AND t.athlete_user_id = $1
+      AND m.sender_role = 'coach'
+      AND m.created_at > COALESCE(t.athlete_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asAthlete.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coach_athlete_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { coach_user_id: cleanString(row.coach_user_id) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+async function deriveOrgOwnerMessageNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const asCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_coach'
+      AND t.coach_user_id = $1
+      AND m.sender_role = 'org_owner'
+      AND m.created_at > COALESCE(t.coach_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asCoach.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "org_owner_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.org_name) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const asAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_athlete'
+      AND t.athlete_user_id = $1
+      AND m.sender_role = 'org_owner'
+      AND m.created_at > COALESCE(t.athlete_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of asAthlete.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "org_owner_message_received",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.org_name) },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+// The mirror image of deriveOrgOwnerMessageNotifications above: that one
+// notifies a coach/athlete when the ORG OWNER is the sender; this one
+// notifies the ORG OWNER when a coach or athlete is the sender. Aggregated
+// across every org this owner owns (unlike the per-org live unread-count
+// queries in org_coach_messaging_service.ts/org_athlete_messaging_service.ts,
+// which are scoped to one org_id at a time), since a bell must summarise
+// activity across all of an owner's organisations at once.
+async function deriveMessageNotificationsForOrgOwner(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const fromCoach = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name, t.coach_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_coach'
+      AND o.owner_user_id = $1
+      AND m.sender_role = 'coach'
+      AND m.created_at > COALESCE(t.owner_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of fromCoach.rows) {
+    const orgId = cleanString(row.org_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "owner_message_received_from_coach",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgMessages,
+      deepLinkParams: { org_id: orgId },
+      notificationPayload: {
+        org_id: orgId,
+        org_name: cleanString(row.org_name),
+        coach_user_id: cleanString(row.coach_user_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+
+  const fromAthlete = await client.query(
+    `
+    SELECT m.message_id, m.created_at, t.org_id, o.org_name, t.athlete_user_id
+    FROM product_messages m
+    JOIN product_message_threads t ON t.thread_id = m.thread_id
+    JOIN product_organisations o ON o.org_id = t.org_id
+    WHERE t.thread_type = 'org_owner_athlete'
+      AND o.owner_user_id = $1
+      AND m.sender_role = 'athlete'
+      AND m.created_at > COALESCE(t.owner_last_read_at, '-infinity'::timestamptz)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of fromAthlete.rows) {
+    const orgId = cleanString(row.org_id);
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "owner_message_received_from_athlete",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgMessages,
+      deepLinkParams: { org_id: orgId },
+      notificationPayload: {
+        org_id: orgId,
+        org_name: cleanString(row.org_name),
+        athlete_user_id: cleanString(row.athlete_user_id)
+      },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
 ): Promise<void> {
   await deriveRelationshipNotifications(client, recipientUserId);
+  await deriveRelationshipEndedByAthleteNotifications(client, recipientUserId);
+  await deriveActivityChangeNotifications(client, recipientUserId);
+  await deriveActivityChangeDeclinedNotifications(client, recipientUserId);
+  await deriveAthletePositionOverrideNotifications(client, recipientUserId);
+  await deriveAttendanceRsvpDeclinedNotifications(client, recipientUserId);
   await deriveAssignmentNotifications(client, recipientUserId);
   await deriveEventLinkNotifications(client, recipientUserId);
   await deriveEventCancelledNotifications(client, recipientUserId);
+  await deriveAttendanceEventInvitedNotifications(client, recipientUserId);
+  await deriveAttendanceEventCancelledNotifications(client, recipientUserId);
+  await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
+  await deriveMarketplaceReleaseNotifications(client, recipientUserId);
+  await deriveWeeklyCheckinNotifications(client, recipientUserId);
+  await deriveVideoFeedbackNotifications(client, recipientUserId);
+  await deriveAthleteGoalAchievedNotifications(client, recipientUserId);
+  await deriveVideoSubmittedNotifications(client, recipientUserId);
+  await deriveMarketplaceTemplateSoldNotifications(client, recipientUserId);
+  await deriveCoachAthleteMessageNotifications(client, recipientUserId);
+  await deriveOrgOwnerMessageNotifications(client, recipientUserId);
+  await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

@@ -9,12 +9,28 @@ import { pathToFileURL } from "node:url";
 
 const NODE_TEST_CMD_RE = /^node test\/[A-Za-z0-9._/-]+\.test\.mjs$/;
 
+// DEV NOTE: Deliberately exhaustive, not an open door to arbitrary "npm run
+// <anything>" composition items - each entry here is a script whose own
+// invocation needs more than a bare `node test/X.test.mjs` (test:react runs
+// TSX component tests through a tsx/esm loader, which node's own --test
+// flag can't do unassisted). Adding a script here is the same kind of
+// reviewed, deliberate change as adding a new command/manifest item.
+const ALLOWED_NPM_COMMANDS = new Set([
+  "test:react"
+]);
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
 function assertNodeTestCommand(value, messagePrefix = "invalid node test command") {
   if (typeof value !== "string" || value.trim() !== value || value === "" || !NODE_TEST_CMD_RE.test(value)) {
+    throw new Error(`${messagePrefix}: ${String(value)}`);
+  }
+}
+
+function assertNpmCommand(value, messagePrefix = "invalid npm command") {
+  if (typeof value !== "string" || value.trim() !== value || value === "" || !ALLOWED_NPM_COMMANDS.has(value)) {
     throw new Error(`${messagePrefix}: ${String(value)}`);
   }
 }
@@ -40,6 +56,12 @@ export function composeTestCiFromIndex(repo = process.cwd()) {
     if (item.kind === "command") {
       assertNodeTestCommand(item.value, "invalid composition command");
       commands.push(item.value);
+      continue;
+    }
+
+    if (item.kind === "npm_command") {
+      assertNpmCommand(item.value, "invalid composition npm command");
+      commands.push(`npm run ${item.value}`);
       continue;
     }
 

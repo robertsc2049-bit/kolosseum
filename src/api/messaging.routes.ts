@@ -30,6 +30,11 @@ import {
   sendCoachAthleteMessage
 } from "./coach_athlete_messaging_service.js";
 import {
+  CoachBroadcastMessagingError,
+  getBroadcastReadStatus,
+  sendCoachBroadcastMessage
+} from "./coach_broadcast_messaging_service.js";
+import {
   OrgAthleteMessagingError,
   listOrgAthleteThreadMessagesForAthlete,
   listOrgAthleteThreadMessagesForCoach,
@@ -122,6 +127,24 @@ messagingRouter.post(
       attachment
     );
     return response.status(201).json({ ok: true, thread: result.thread, message: result.message });
+  })
+);
+
+messagingRouter.post(
+  "/coach/broadcast",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    const result = await sendCoachBroadcastMessage(coachUserId, request.body?.body_text, request.body?.client_request_id);
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+messagingRouter.get(
+  "/coach/broadcasts/:broadcast_id/read-status",
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    const status = await getBroadcastReadStatus(coachUserId, String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
   })
 );
 
@@ -318,6 +341,7 @@ messagingRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
     if (
       error instanceof CoachAthleteMessagingError ||
+      error instanceof CoachBroadcastMessagingError ||
       error instanceof OrgAthleteMessagingError ||
       error instanceof MessageAttachmentError
     ) {

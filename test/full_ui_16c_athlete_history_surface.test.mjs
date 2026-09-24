@@ -11,6 +11,8 @@ const html = read("public/app/index.html");
 const css = read("public/app/styles.css");
 const js = read("public/app/app.js");
 const routeBootstrap = read("public/app/route_bootstrap.js");
+const historyPanel = read("public/app-src/screens/athlete/AthleteHistoryPanel.tsx");
+const historyHook = read("public/app-src/screens/athlete/useTrainingHistory.ts");
 const historyService = read("src/api/athlete_history_service.ts");
 const historyExportService = read("src/api/athlete_history_export_service.ts");
 const sessionsRoutes = read("src/api/sessions.routes.ts");
@@ -32,16 +34,17 @@ test("history list and detail routes are mounted and delegate to the history ser
 });
 
 test("history filters cover status, date range, activity, programme and event without mutating the underlying record", () => {
-  for (const id of [
-    "historyFilterStatus", "historyFilterDateFrom", "historyFilterDateTo",
-    "historyFilterActivity", "historyFilterProgramme", "historyFilterEvent",
-    "applyHistoryFiltersButton", "clearHistoryFiltersButton"
-  ]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
+  assert.match(historyPanel, /draft\.status/u);
+  assert.match(historyPanel, /draft\.dateFrom/u);
+  assert.match(historyPanel, /draft\.dateTo/u);
+  assert.match(historyPanel, /draft\.activityId/u);
+  assert.match(historyPanel, /draft\.templateId/u);
+  assert.match(historyPanel, /draft\.eventId/u);
+  assert.match(historyPanel, />Apply filters</u);
+  assert.match(historyPanel, />Clear filters</u);
 
-  assert.match(js, /async function applyHistoryFilters/u);
-  assert.match(js, /function clearHistoryFilters/u);
+  assert.match(historyHook, /applyFilters = useCallback/u);
+  assert.match(historyHook, /clearFilters = useCallback/u);
 
   assert.match(historyService, /export type AthleteHistoryFilters/u);
   assert.match(historyService, /function matchesFilters/u);
@@ -56,8 +59,14 @@ test("history detail has a stable, entity-keyed route distinct from the live ses
   assert.match(routeBootstrap, /route\.route_id === "athlete_history_detail"/u);
   assert.match(routeBootstrap, /data-history-detail-id/u);
 
-  assert.match(js, /async function openHistoryDetail/u);
-  assert.match(js, /addEventListener\("kolosseum:history-detail-route"/u);
+  // The React card keeps the same data-history-detail-id attribute, which
+  // route_bootstrap.js's global (not per-render) click delegation still
+  // picks up unchanged to keep the URL in sync - see useTrainingHistory.ts's
+  // DEV NOTE for why no manual pushState/replaceState is needed here.
+  assert.match(historyPanel, /data-history-detail-id=/u);
+  assert.match(historyHook, /openDetail = useCallback/u);
+  assert.match(historyHook, /addEventListener\(DETAIL_ROUTE_EVENT/u);
+  assert.match(historyHook, /const DETAIL_ROUTE_EVENT = "kolosseum:history-detail-route"/u);
 });
 
 test("history detail rejects access to another athlete's session", () => {
@@ -72,10 +81,60 @@ test("planned versus recorded state, split/return record and partial/skip record
   assert.match(historyService, /pain_reported/u);
   assert.match(historyService, /substitution/u);
 
-  assert.match(js, /function renderHistoryDetail/u);
-  assert.match(js, /exercise\.recorded_state/u);
-  assert.match(js, /exercise\.skip_reason/u);
-  assert.match(js, /split_return_events/u);
+  assert.match(historyPanel, /exercise\.recorded_state/u);
+  assert.match(historyPanel, /exercise\.skip_reason/u);
+  assert.match(historyPanel, /splitReturnEvents/u);
+});
+
+test("the athlete's own recorded RPE report is surfaced back on their session history detail - not silently discarded", () => {
+  // RPE_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureRpeReportShapeValid exactly like
+  // SKIP_EXERCISE/PAIN_REPORT above it, but athlete_history_service.ts never
+  // read the rpe_value back out - not even to the athlete who submitted it.
+  assert.match(historyService, /rpe_reported/u);
+  assert.match(historyService, /RPE_REPORT/u);
+
+  assert.match(historyPanel, /exercise\.rpe_reported/u);
+});
+
+test("the athlete's own recorded Borg and CR10 reports are surfaced back on their session history detail - not silently discarded", () => {
+  // BORG_REPORT/CR10_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureBorgReportShapeValid/
+  // ensureCr10ReportShapeValid exactly like RPE_REPORT above, but
+  // athlete_history_service.ts must actually read the values back out - not
+  // even to the athlete who submitted them.
+  assert.match(historyService, /borg_reported/u);
+  assert.match(historyService, /BORG_REPORT/u);
+  assert.match(historyService, /cr10_reported/u);
+  assert.match(historyService, /CR10_REPORT/u);
+
+  assert.match(historyPanel, /exercise\.borg_reported/u);
+  assert.match(historyPanel, /exercise\.cr10_reported/u);
+});
+
+test("athlete-added extra sets on an already-resolved exercise are surfaced back on their session history detail", () => {
+  // EXTRA_SET_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureExtraSetReportShapeValid, scoped
+  // to exercises already in completed_ids/dropped_ids (not remaining_ids),
+  // and are allowed even once the whole session is terminal - see
+  // ensureTerminalSessionEventRejected's EXTRA_SET_REPORT exemption.
+  assert.match(historyService, /extra_sets/u);
+  assert.match(historyService, /EXTRA_SET_REPORT/u);
+
+  assert.match(historyPanel, /exercise\.extra_sets/u);
+});
+
+test("athlete-added exercises not on the prescribed plan are surfaced back on their session history detail", () => {
+  // EXTRA_EXERCISE_REPORT events are validated and persisted by
+  // session_state_write_service.ts's ensureExtraExerciseReportShapeValid,
+  // scoped to catalog exercise_ids that are NOT already part of this
+  // session's own prescribed plan (the inverse of EXTRA_SET_REPORT's
+  // scoping), and are allowed even once the whole session is terminal - see
+  // ensureTerminalSessionEventRejected's EXTRA_EXERCISE_REPORT exemption.
+  assert.match(historyService, /added_exercises/u);
+  assert.match(historyService, /EXTRA_EXERCISE_REPORT/u);
+
+  assert.match(historyPanel, /detail\?\.added_exercises/u);
 });
 
 test("programme, assignment and event provenance are derived from immutable stored records, not inferred", () => {
@@ -84,9 +143,9 @@ test("programme, assignment and event provenance are derived from immutable stor
   assert.match(historyService, /beta19_event_athlete_link/u);
   assert.match(historyService, /beta19_coach_event/u);
 
-  assert.match(js, /provenance\?\.programme/u);
-  assert.match(js, /provenance\?\.assignment/u);
-  assert.match(js, /provenance\?\.event/u);
+  assert.match(historyPanel, /provenance\?\.programme/u);
+  assert.match(historyPanel, /detail\.provenance as JsonRecord\)\.assignment/u);
+  assert.match(historyPanel, /provenance\?\.event/u);
 });
 
 test("history export is server-generated through the existing GDPR export boundary, not a browser-only CSV from cache", () => {
@@ -97,32 +156,26 @@ test("history export is server-generated through the existing GDPR export bounda
   assert.match(gdprContract, /own_user_data_only: true/u);
   assert.match(gdprApi, /handleGdprExportHandlingApiRequest/u);
 
+  // exportHistory() and its exportHistoryButton stay legacy - a
+  // self-contained action unrelated to the React-owned list/filter/detail
+  // state, so it's untouched by this migration.
   assert.match(js, /async function exportHistory/u);
   assert.match(js, /beta-athlete-history-export/u);
   assert.doesNotMatch(js, /exportHistory[\s\S]{0,600}\.csv/u);
 });
 
 test("history exposes explicit loading, error/unavailable and empty states", () => {
-  for (const id of ["historyLoading", "historyServiceUnavailable", "historyRetryButton"]) {
-    assert.ok(html.includes(`id="${id}"`), `Expected ${id}`);
-  }
+  assert.match(historyPanel, /Loading history…/u);
+  assert.match(historyPanel, /History could not be loaded/u);
+  assert.match(historyPanel, />Retry</u);
 
-  assert.match(js, /async function refreshHistory/u);
-  assert.match(js, /elements\.historyServiceUnavailable\.hidden = false/u);
-  assert.match(js, /No sessions recorded/u);
+  assert.match(historyHook, /refresh = useCallback/u);
+  assert.match(historyPanel, /No sessions recorded/u);
 });
 
-test("every new interactive history control is a real focusable button/select, not a div handler (keyboard reachability)", () => {
-  for (const id of [
-    "applyHistoryFiltersButton", "clearHistoryFiltersButton", "exportHistoryButton",
-    "refreshHistoryButton", "historyRetryButton"
-  ]) {
-    const re = new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`, "u");
-    assert.match(html, re, `${id} must be a real <button type="button">`);
-  }
-
-  for (const id of ["historyFilterStatus", "historyFilterActivity", "historyFilterProgramme", "historyFilterEvent"]) {
-    assert.match(html, new RegExp(`<select id="${id}">`, "u"));
+test("every history filter control is a real focusable select, not a div handler (keyboard reachability)", () => {
+  for (const label of ["Status", "Activity", "Programme", "Event"]) {
+    assert.match(historyPanel, new RegExp(`<span>${label}</span>\\s*<select`, "u"));
   }
 });
 

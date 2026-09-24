@@ -71,21 +71,21 @@ if ($tag -notmatch '^v(\d+)\.(\d+)\.(\d+)$') {
 $tagVersion = "$($Matches[1]).$($Matches[2]).$($Matches[3])"
 Info "Tag target: $tag (version $tagVersion)"
 
-# --- src/version.ts must match ---
+# --- src/version.ts must derive VERSION from package.json ---
+# DEV NOTE: src/version.ts no longer hardcodes a literal version string - it
+# reads package.json's own version at runtime (single source of truth), so
+# there is no separate file value to compare against the tag here. This gate
+# only confirms the sourcing pattern hasn't regressed back to a hardcoded
+# literal that could drift from package.json.
 $versionPath = Join-Path $repoRoot "src/version.ts"
 $versionText = Read-TextUtf8NoBom $versionPath
 Assert-NoMergeMarkers "src/version.ts" $versionText
 
-$reTs = 'export\s+const\s+VERSION\s*=\s*"(\d+\.\d+\.\d+)"\s*;'
+$reTs = 'export\s+const\s+VERSION:\s*string\s*=\s*require\(.*?"package\.json".*?\)\.version\s*;'
 if ($versionText -notmatch $reTs) {
-  Fail 'src/version.ts must contain: export const VERSION = "X.Y.Z";'
+  Fail 'src/version.ts must derive VERSION from package.json (export const VERSION: string = require(...).version;)'
 }
-$fileVersion = $Matches[1]
-Info "src/version.ts VERSION: $fileVersion"
-
-if ($fileVersion -ne $tagVersion) {
-  Fail "VERSION mismatch: src/version.ts=$fileVersion but tag=$tagVersion"
-}
+Info "src/version.ts derives VERSION from package.json (single source of truth)"
 
 # --- package.json version (optional) ---
 if ($EnforcePackageJson) {
@@ -109,22 +109,21 @@ if ($EnforcePackageJson) {
 }
 
 # --- dist/src/version.js (optional; only if exists) ---
+# DEV NOTE: same rationale as the src/version.ts check above - the compiled
+# output also derives VERSION from package.json at runtime rather than
+# baking in a literal, so this only confirms the sourcing pattern survived
+# compilation intact.
 if ($EnforceDist) {
   $distPath = Join-Path $repoRoot "dist/src/version.js"
   if (Test-Path $distPath) {
     $distText = Read-TextUtf8NoBom $distPath
     Assert-NoMergeMarkers "dist/src/version.js" $distText
 
-    $reJs = 'export\s+const\s+VERSION\s*=\s*"(\d+\.\d+\.\d+)"\s*;'
+    $reJs = 'export\s+const\s+VERSION\s*=\s*require\(.*?"package\.json".*?\)\.version\s*;'
     if ($distText -notmatch $reJs) {
-      Fail 'dist/src/version.js must contain: export const VERSION = "X.Y.Z";'
+      Fail 'dist/src/version.js must derive VERSION from package.json (export const VERSION = require(...).version;)'
     }
-    $distVersion = $Matches[1]
-    Info "dist/src/version.js VERSION: $distVersion"
-
-    if ($distVersion -ne $tagVersion) {
-      Fail "dist VERSION mismatch: dist/src/version.js=$distVersion but tag=$tagVersion"
-    }
+    Info "dist/src/version.js derives VERSION from package.json (single source of truth)"
   } else {
     Info "dist/src/version.js not found; skipping dist check"
   }

@@ -20,6 +20,7 @@ import {
 import {
   compileStandaloneCoachEvent
 } from "./beta19_coach_event_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -42,11 +43,7 @@ export class FullUi09cEventLifecycleError extends Error {
   }
 }
 
-const supportedActivities = new Set([
-  "powerlifting",
-  "general_strength",
-  "rugby_union"
-]);
+const supportedActivities = new Set(V1_ACTIVITY_IDS);
 
 const eventStates = new Set([
   "active",
@@ -327,7 +324,7 @@ async function serverDate(client: QueryClient): Promise<string> {
   return dateOnly(result.rows?.[0]?.server_date, "event_server_date_invalid");
 }
 
-async function latestOwnedEvent(
+export async function latestOwnedEvent(
   client: QueryClient,
   coachUserId: string,
   eventId: string,
@@ -857,6 +854,18 @@ export async function createStandaloneEventVersion(
       ...eventInput(inputValue),
       event_id: eventId
     });
+
+    // Re-versioning an event can move its event_date - the same
+    // no-same-date-double-booking rule linkAthleteToStandaloneEvent
+    // already enforces at link time must hold here too, for every
+    // athlete currently linked to this event, or a version could quietly
+    // create the exact double-booking linking was built to prevent.
+    const versionedEventForConflictCheck: JsonRecord = { event_id: eventId, event_plan: compiled.event_plan };
+    for (const link of await currentLinksForEvent(client, coachUserId, eventId)) {
+      const linkedAthleteUserId = cleanString(link.athlete_user_id);
+      if (!linkedAthleteUserId) continue;
+      await assertNoDateConflict(client, coachUserId, linkedAthleteUserId, versionedEventForConflictCheck);
+    }
     const occurredAt = await serverClock(
       client,
       cleanString(current.updated_at_iso8601)
@@ -1025,7 +1034,7 @@ async function assertRelationship(
   return context;
 }
 
-async function assertNoDateConflict(
+export async function assertNoDateConflict(
   client: QueryClient,
   coachUserId: string,
   athleteUserId: string,
@@ -1244,11 +1253,27 @@ export async function loadStandaloneEventDetail(
     const linkedAthletes = await Promise.all(
       currentLinks.map(async (link) => {
         const athleteUserId = cleanString(link.athlete_user_id);
-        const auth = await loadLatestBetaProductRecord(
-          "beta16_auth",
-          athleteUserId,
-          athleteUserId
-        );
+
+        // A failure loading one linked athlete's auth record (a malformed
+        // link row, or just a transient read failure) must never take down
+        // the ENTIRE event detail page - a group/class event can have many
+        // athletes linked to it, and one bad lookup would otherwise hide
+        // every other athlete's link/programme data too. Falling back to
+        // null degrades this one athlete to the same "record doesn't exist
+        // yet" default used below.
+        let auth = null;
+        try {
+          auth = await loadLatestBetaProductRecord(
+            "beta16_auth",
+            athleteUserId,
+            athleteUserId
+          );
+        }
+        catch {
+          // auth stays null - handled identically to a legitimately
+          // absent record by the fallback below.
+        }
+
         const programme = await templateById(
           client,
           coachUserId,

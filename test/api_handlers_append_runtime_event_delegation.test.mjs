@@ -63,7 +63,7 @@ test("sessions.handlers source contract: appendRuntimeEvent extracts raw body ev
 
   assert.match(
     src,
-    /return\s+res\.status\(201\)\.json\(\s*\{\s*\.\.\.statePayload\s*,\s*ok:\s*result\?\.ok\s*===\s*true\s*,\s*session_id:\s*result\?\.session_id\s*\?\?\s*session_id\s*,\s*seq:\s*result\?\.seq\s*\?\?\s*null\s*,\s*replayed:\s*result\?\.replayed\s*===\s*true\s*\}\s*\);/s,
-    "expected appendRuntimeEvent to preserve state-plus-ack 201 JSON response contract including the idempotent-replay flag"
+    /return\s+res\.status\(201\)\.json\(\s*\{\s*\.\.\.statePayload\s*,\s*ok:\s*result\?\.ok\s*===\s*true\s*,\s*session_id:\s*result\?\.session_id\s*\?\?\s*session_id\s*,\s*seq:\s*result\?\.seq\s*\?\?\s*null\s*,\s*replayed:\s*result\?\.replayed\s*===\s*true\s*,\s*\.\.\.\(typeof\s+result\?\.is_pr\s*===\s*"boolean"\s*\?\s*\{\s*is_pr:\s*result\.is_pr\s*\}\s*:\s*\{\}\)\s*\}\s*\);/s,
+    "expected appendRuntimeEvent to preserve state-plus-ack 201 JSON response contract including the idempotent-replay flag and the conditional personal-record flag"
   );
 });

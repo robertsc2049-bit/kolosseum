@@ -295,3 +295,23 @@ test("S-V1-O-01 boundary object is explicit and closed to claims and engine muta
   assert.equal(STATUS_PAGE_BOUNDARY.provider_call_performed, false);
   assert.equal(STATUS_PAGE_BOUNDARY.external_monitoring_call_performed, false);
 });
+
+// DEV NOTE: real-server mounting proof (GET /status against the actual built
+// Express app) deliberately does not live in this file - this file is wired
+// into lint:fast/test:unit's green-unit CI job, which runs source-only and
+// never builds dist/ first (only green-integration's job does, via its own
+// "Build (fast)" step). A dist-importing test here would always fail in
+// green-unit for that reason alone, not because of a real bug. Real mounting
+// was verified manually: built the server, curled GET /status, got a real
+// 200 with the expected service_state: "nominal" shape (see the PR that
+// added src/api/v1_status_page.routes.ts for the transcript).
+test("S-V1-O-01 the route module wires the API adapter into an Express router at /status", () => {
+  const routesSource = readFileSync("src/api/v1_status_page.routes.ts", "utf8");
+  assert.match(routesSource, /import \{ handleStatusPageApiJson \} from "\.\/v1StatusPageApi\.mjs";/u);
+  assert.match(routesSource, /v1StatusPageRouter\.get\("\/status"/u);
+  assert.match(routesSource, /handleStatusPageApiJson\(/u);
+
+  const serverSource = readFileSync("src/server.ts", "utf8");
+  assert.match(serverSource, /import \{ v1StatusPageRouter \} from "\.\/api\/v1_status_page\.routes\.js";/u);
+  assert.match(serverSource, /app\.use\(v1StatusPageRouter\);/u);
+});

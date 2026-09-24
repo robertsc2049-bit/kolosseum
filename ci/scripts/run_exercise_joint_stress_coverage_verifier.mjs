@@ -52,7 +52,7 @@ function normalizeString(value) {
 }
 
 function getPattern(exercise) {
-  return normalizeString(exercise?.pattern);
+  return normalizeString(exercise?.movement_pattern_id);
 }
 
 function deriveJointStressFromTags(exercise) {
@@ -104,7 +104,7 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
 
     if (!pattern) {
       problems.push({
-        type: "missing_pattern",
+        type: "missing_movement_pattern_id",
         exercise_id: exerciseId,
       });
       continue;
@@ -114,7 +114,7 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
       problems.push({
         type: "missing_joint_stress_tags",
         exercise_id: exerciseId,
-        pattern,
+        movement_pattern_id: pattern,
       });
       continue;
     }
@@ -123,7 +123,7 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
       problems.push({
         type: "invalid_joint_stress_tags",
         exercise_id: exerciseId,
-        pattern,
+        movement_pattern_id: pattern,
         joint_stress_tags: exercise?.joint_stress_tags ?? [],
       });
       continue;
@@ -131,7 +131,7 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
 
     if (!laneSummary.has(pattern)) {
       laneSummary.set(pattern, {
-        pattern,
+        movement_pattern_id: pattern,
         exercise_ids: [],
         low_stress_exercise_ids: [],
       });
@@ -149,7 +149,7 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
     if (lane.low_stress_exercise_ids.length === 0) {
       problems.push({
         type: "missing_low_joint_stress_option",
-        pattern: lane.pattern,
+        movement_pattern_id: lane.movement_pattern_id,
         exercise_ids: lane.exercise_ids.slice().sort(),
       });
     }
@@ -157,12 +157,12 @@ export function evaluateJointStressCoverage(exerciseRegistry) {
 
   const validated_lanes = Array.from(laneSummary.values())
     .map((lane) => ({
-      pattern: lane.pattern,
+      movement_pattern_id: lane.movement_pattern_id,
       exercise_count: lane.exercise_ids.length,
       low_stress_exercise_count: lane.low_stress_exercise_ids.length,
       low_stress_exercise_ids: lane.low_stress_exercise_ids.slice().sort(),
     }))
-    .sort((a, b) => a.pattern.localeCompare(b.pattern));
+    .sort((a, b) => a.movement_pattern_id.localeCompare(b.movement_pattern_id));
 
   return {
     ok: problems.length === 0,
@@ -182,14 +182,14 @@ export function verifyJointStressCoverage(
     const summary = result.problems
       .map((problem) => {
         switch (problem.type) {
-          case "missing_pattern":
-            return `missing_pattern:${problem.exercise_id}`;
+          case "missing_movement_pattern_id":
+            return `missing_movement_pattern_id:${problem.exercise_id}`;
           case "missing_joint_stress_tags":
             return `missing_joint_stress_tags:${problem.exercise_id}`;
           case "invalid_joint_stress_tags":
             return `invalid_joint_stress_tags:${problem.exercise_id}`;
           case "missing_low_joint_stress_option":
-            return `missing_low_joint_stress_option:${problem.pattern}`;
+            return `missing_low_joint_stress_option:${problem.movement_pattern_id}`;
           default:
             return `unknown_problem:${JSON.stringify(problem)}`;
         }

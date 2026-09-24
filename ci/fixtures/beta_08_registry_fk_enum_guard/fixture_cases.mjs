@@ -60,7 +60,7 @@ function beta08BaseFixture(activityId) {
           registry_id: "movement",
           version: "beta-08-fixture",
           entries: {
-            [movementId]: { movement_id: movementId }
+            [movementId]: { movement_pattern_id: movementId }
           }
         },
         exercise: {
@@ -69,8 +69,9 @@ function beta08BaseFixture(activityId) {
           entries: {
             [exerciseId]: {
               exercise_id: exerciseId,
-              movement_id: movementId,
-              activity_ids: [activityId]
+              movement_pattern_id: movementId,
+              primary_activity_applicability: activityId,
+              secondary_activity_applicability: []
             }
           }
         },
@@ -79,9 +80,9 @@ function beta08BaseFixture(activityId) {
           version: "beta-08-fixture",
           entries: [
             {
-              id: activityId,
-              program_id: `fixture_${activityId}_program`,
-              intent: [exerciseId]
+              activity_id: activityId,
+              template_id: `fixture_${activityId}_program`,
+              exercise_eligibility: [exerciseId]
             }
           ]
         }

@@ -38,15 +38,15 @@ test("the service reads the exercise registry file directly and never imports an
   }
 });
 
-test("coaching_cues and common_faults are declared optional (not required) in the exercise registry schema", () => {
+test("coaching_cues and common_faults are explicit required compatibility fields in the closed exercise schema", () => {
   assert.ok(schema.includes('"coaching_cues"'), "expected a coaching_cues property in the exercise schema");
   assert.ok(schema.includes('"common_faults"'), "expected a common_faults property in the exercise schema");
 
   const requiredBlockMatch = schema.match(/"required":\s*\[[^\]]*\]/gu) ?? [];
   const entryRequiredBlock = requiredBlockMatch.find((block) => block.includes("exercise_id"));
   assert.ok(entryRequiredBlock, "expected to find the exercise entry's required array");
-  assert.doesNotMatch(entryRequiredBlock, /"coaching_cues"/u);
-  assert.doesNotMatch(entryRequiredBlock, /"common_faults"/u);
+  assert.match(entryRequiredBlock, /"coaching_cues"/u);
+  assert.match(entryRequiredBlock, /"common_faults"/u);
 });
 
 test("every live exercise entry has real, non-empty written instructions, coaching cues and common faults", () => {
@@ -56,8 +56,8 @@ test("every live exercise entry has real, non-empty written instructions, coachi
 
   for (const exercise of entries) {
     assert.ok(
-      Array.isArray(exercise.instruction?.detailed) && exercise.instruction.detailed.length > 0,
-      `${exercise.exercise_id}: expected non-empty instruction.detailed`
+      Array.isArray(exercise.instruction_detail_text) && exercise.instruction_detail_text.length > 0,
+      `${exercise.exercise_id}: expected non-empty instruction_detail_text`
     );
     assert.ok(
       Array.isArray(exercise.coaching_cues) && exercise.coaching_cues.length > 0,
@@ -101,13 +101,45 @@ test("the builder and session-execution areas declare exercise-info lookup funct
   assert.deepEqual(sessionFn.api_routes, ["/exercises/:exercise_id/content"]);
 });
 
-test("app.js wires an exercise-content cache, a shared render helper and both surfaces' toggle handlers", () => {
+test("both the athlete session view and the coach builder's exercise-info toggle are React now, sharing one render helper", () => {
+  // DEV NOTE: the athlete session view's own exercise-howto toggle moved
+  // to React with FULL-UI-15C session execution - see
+  // AthleteSessionExecutionPanel.tsx's <details onToggle={...}>. The
+  // coach's template-builder info panel (formerly app.js's
+  // exerciseContentCache/loadExerciseHowto/renderExerciseHowto/
+  // toggleTemplateWorkItemInfo, now fully deleted from app.js) moved to
+  // React too - see useExerciseHowto.ts (the hook, since
+  // CoachProgrammeBuilderTree.tsx's BuilderWorkItem needs its button and
+  // panel at two different DOM positions sharing one toggle state) and
+  // components/ExerciseHowtoBody.tsx (the render helper both call sites
+  // share).
   const appJs = read("public/app/app.js");
-  assert.match(appJs, /const exerciseContentCache = new Map\(\)/u);
-  assert.match(appJs, /function renderExerciseHowto\(/u);
-  assert.match(appJs, /function loadExerciseHowto\(/u);
-  assert.match(appJs, /class="exercise-howto"/u);
-  assert.match(appJs, /elements\.currentExercise\.addEventListener\("toggle"/u);
-  assert.match(appJs, /class="template-work-item-info"/u);
-  assert.match(appJs, /function toggleTemplateWorkItemInfo\(/u);
+  const sessionPanel = read("public/app-src/screens/athlete/AthleteSessionExecutionPanel.tsx");
+  const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+  const howtoHook = read("public/app-src/screens/coach/useExerciseHowto.ts");
+  assert.doesNotMatch(appJs, /exerciseContentCache|function renderExerciseHowto\(|function loadExerciseHowto\(|function toggleTemplateWorkItemInfo\(/u);
+  assert.match(builderTree, /className="template-work-item-info"/u);
+  assert.match(howtoHook, /loadExerciseContent/u);
+  assert.match(howtoHook, /loadExerciseReferenceMedia/u);
+
+  assert.match(sessionPanel, /className="exercise-howto"/u);
+  assert.match(sessionPanel, /onToggle=\{\(event\) => \{/u);
+  assert.match(sessionPanel, /onOpen\(exerciseId\)/u);
+});
+
+test("ExerciseHowtoBody gates coaching cues and common faults on the athlete's declared instruction-density preference, but never for the coach's builder call site", () => {
+  // instruction_density is an athlete-only onboarding preference. The howto
+  // body is a shared component used by both the athlete's session focus
+  // panel and the coach's template-builder info panel, so the gate must be
+  // scoped with a respectDensity prop rather than applied globally -
+  // otherwise a coach authoring a template would see content vary based on
+  // whatever density some other athlete happened to declare.
+  const howtoBody = read("public/app-src/components/ExerciseHowtoBody.tsx");
+  assert.match(howtoBody, /respectDensity \? \(document\.documentElement\.dataset\.instructionDensity \|\| "standard"\) : "detailed"/u);
+  assert.match(howtoBody, /density !== "minimal" && Array\.isArray\(content\?\.coaching_cues\)/u);
+  assert.match(howtoBody, /density === "detailed" && Array\.isArray\(content\?\.common_faults\)/u);
+
+  // The coach's builder call site always sees full content.
+  const builderTree = read("public/app-src/screens/coach/CoachProgrammeBuilderTree.tsx");
+  assert.match(builderTree, /respectDensity=\{false\}/u);
 });

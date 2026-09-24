@@ -53,7 +53,7 @@ const REQUIRED_MARKERS = new Map([
     "Tests prove behaviour.",
     "Comments explain boundaries.",
     "CI blocks drift.",
-    "npm.cmd run lint:fast"
+    "npm.cmd run verify"
   ]],
   [FILES.gettingStarted, [
     "S-V1-07:GETTING-STARTED-ENTRY-PACK:START",
@@ -71,7 +71,7 @@ const REQUIRED_MARKERS = new Map([
     "Tests prove behaviour.",
     "Comments explain boundaries.",
     "CI blocks drift.",
-    "npm.cmd run lint:fast"
+    "npm.cmd run verify"
   ]],
   [FILES.commandGuide, [
     "# Command Guide",
@@ -80,7 +80,7 @@ const REQUIRED_MARKERS = new Map([
     "setup commands",
     "check commands",
     "npm.cmd ci",
-    "npm.cmd run lint:fast",
+    "npm.cmd run verify",
     "npm.cmd run guard:index",
     "node ci/scripts/run_failure_token_index_guard.mjs --write",
     "npm.cmd run hash:write",
@@ -101,7 +101,7 @@ const REQUIRED_MARKERS = new Map([
     "docs/GUARDS_INDEX.md",
     "docs/roadmap/ACTIVE_RELEASE_BOUNDARY.md",
     "what not to touch",
-    "npm.cmd run lint:fast",
+    "npm.cmd run verify",
     "Docs define law.",
     "Tests prove behaviour.",
     "Comments explain boundaries.",

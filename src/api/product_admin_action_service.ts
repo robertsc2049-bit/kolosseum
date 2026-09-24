@@ -212,6 +212,66 @@ export async function changeAccountState(
   });
 }
 
+// DEV NOTE: FULL-UI-80 - mirrors changeAccountState exactly, targeting
+// product_org_owner_accounts instead of product_accounts. Deliberately
+// reuses the existing "account_state_change" action_type (target_record_type
+// is what distinguishes it) rather than adding a new enum value, since
+// product_admin_audit_records.action_type's CHECK constraint would
+// otherwise need a schema migration for no real benefit.
+export async function changeOrgOwnerAccountState(
+  adminUserId: string,
+  correlationId: string,
+  targetUserId: string,
+  newState: string
+): Promise<AuditOutcome> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanTargetUserId = cleanString(targetUserId);
+  const cleanState = cleanString(newState);
+
+  if (!cleanCorrelationId || !cleanTargetUserId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+  // Deliberately closed to active/suspended only, matching
+  // changeAccountState's own reasoning - an org owner's account moving to
+  // closed must go through their own sealed self-service closure flow
+  // (requestOrgOwnerAccountClosure), never this lever.
+  if (!ADMIN_ACCOUNT_STATES.has(cleanState)) {
+    throw new AdminActionError("admin_account_state_invalid", 400);
+  }
+
+  return withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const current = await client.query(
+      `SELECT user_id, account_state FROM product_org_owner_accounts WHERE user_id = $1 FOR UPDATE`,
+      [cleanTargetUserId]
+    );
+    if (!current.rows[0]) {
+      throw new AdminActionError("admin_account_not_found", 404);
+    }
+
+    const beforeState = { account_state: cleanString(current.rows[0].account_state) };
+
+    await client.query(
+      `UPDATE product_org_owner_accounts SET account_state = $2 WHERE user_id = $1`,
+      [cleanTargetUserId, cleanState]
+    );
+
+    const afterState = { account_state: cleanState };
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "account_state_change",
+      targetRecordType: "product_org_owner_accounts",
+      targetRecordId: cleanTargetUserId,
+      beforeState,
+      afterState
+    });
+  });
+}
+
 export async function setTestAccountMarking(
   adminUserId: string,
   correlationId: string,
@@ -240,10 +300,13 @@ export async function setTestAccountMarking(
     }
 
     const before = await client.query(
-      `SELECT user_id FROM product_test_accounts WHERE user_id = $1`,
+      `SELECT user_id, reason FROM product_test_accounts WHERE user_id = $1`,
       [cleanTargetUserId]
     );
-    const beforeState = { is_test_account: before.rows.length > 0 };
+    const beforeState = {
+      is_test_account: before.rows.length > 0,
+      reason: cleanString(before.rows[0]?.reason) || null
+    };
 
     if (marked) {
       await client.query(
@@ -259,7 +322,7 @@ export async function setTestAccountMarking(
       await client.query(`DELETE FROM product_test_accounts WHERE user_id = $1`, [cleanTargetUserId]);
     }
 
-    const afterState = { is_test_account: marked };
+    const afterState = { is_test_account: marked, reason: marked ? reason : null };
 
     return writeAuditRecord(client, {
       adminUserId,
@@ -274,6 +337,15 @@ export async function setTestAccountMarking(
 }
 
 const SUPPORT_REQUEST_STATES = new Set(["submitted", "acknowledged", "closed"]);
+
+// Forward-only lifecycle - a closed ticket is terminal (matches the admin
+// UI, which stops offering Acknowledge/Close once they no longer apply),
+// and acknowledging never regresses status backward to submitted.
+const SUPPORT_REQUEST_ALLOWED_TRANSITIONS: Readonly<Record<string, ReadonlySet<string>>> = {
+  submitted: new Set(["acknowledged", "closed"]),
+  acknowledged: new Set(["closed"]),
+  closed: new Set()
+};
 
 export async function changeSupportRequestStatus(
   adminUserId: string,
@@ -304,7 +376,12 @@ export async function changeSupportRequestStatus(
       throw new AdminActionError("admin_support_request_not_found", 404);
     }
 
-    const beforeState = { status: cleanString(current.rows[0].status) };
+    const currentStatus = cleanString(current.rows[0].status);
+    if (!SUPPORT_REQUEST_ALLOWED_TRANSITIONS[currentStatus]?.has(cleanStatus)) {
+      throw new AdminActionError("admin_support_status_transition_invalid", 409);
+    }
+
+    const beforeState = { status: currentStatus };
 
     await client.query(
       `UPDATE product_support_requests SET status = $2 WHERE correlation_id = $1`,
@@ -318,6 +395,63 @@ export async function changeSupportRequestStatus(
       correlationId: cleanCorrelationId,
       actionType: "support_request_status_change",
       targetRecordType: "product_support_requests",
+      targetRecordId: cleanTargetCorrelationId,
+      beforeState,
+      afterState
+    });
+  });
+}
+
+// FULL-UI-95 org-owner support parity - mirrors changeSupportRequestStatus
+// exactly, targeting org_owner_support_requests instead.
+export async function changeOrgOwnerSupportRequestStatus(
+  adminUserId: string,
+  correlationId: string,
+  targetCorrelationId: string,
+  newStatus: string
+): Promise<AuditOutcome> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanTargetCorrelationId = cleanString(targetCorrelationId);
+  const cleanStatus = cleanString(newStatus);
+
+  if (!cleanCorrelationId || !cleanTargetCorrelationId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+  if (!SUPPORT_REQUEST_STATES.has(cleanStatus)) {
+    throw new AdminActionError("admin_support_status_invalid", 400);
+  }
+
+  return withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const current = await client.query(
+      `SELECT correlation_id, status FROM org_owner_support_requests WHERE correlation_id = $1 FOR UPDATE`,
+      [cleanTargetCorrelationId]
+    );
+    if (!current.rows[0]) {
+      throw new AdminActionError("admin_support_request_not_found", 404);
+    }
+
+    const currentStatus = cleanString(current.rows[0].status);
+    if (!SUPPORT_REQUEST_ALLOWED_TRANSITIONS[currentStatus]?.has(cleanStatus)) {
+      throw new AdminActionError("admin_support_status_transition_invalid", 409);
+    }
+
+    const beforeState = { status: currentStatus };
+
+    await client.query(
+      `UPDATE org_owner_support_requests SET status = $2 WHERE correlation_id = $1`,
+      [cleanTargetCorrelationId, cleanStatus]
+    );
+
+    const afterState = { status: cleanStatus };
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "org_owner_support_request_status_change",
+      targetRecordType: "org_owner_support_requests",
       targetRecordId: cleanTargetCorrelationId,
       beforeState,
       afterState

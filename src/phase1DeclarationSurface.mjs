@@ -106,7 +106,7 @@ const allowedPayloadKeys = new Set([
 
 const allowedActorTypes = new Set(["individual_user", "coach"]);
 const allowedExecutionScopes = new Set(["individual", "coach_managed"]);
-const allowedActivityIds = new Set(["powerlifting", "rugby_union", "general_strength"]);
+const allowedActivityIds = new Set(["powerlifting", "rugby_union", "general_strength", "strongman"]);
 
 const forbiddenTopLevelKeys = new Set([
   "engine_input",

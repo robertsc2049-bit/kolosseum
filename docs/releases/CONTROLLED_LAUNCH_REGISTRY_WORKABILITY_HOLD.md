@@ -26,10 +26,10 @@ This does not authorise open availability, marketplace access, organisation acce
 
 | Registry area | Count |
 | --- | ---: |
-| activity | 3 |
-| movement | 4 |
-| exercise | 19 |
-| program | 3 |
+| activity | 4 |
+| movement | 54 |
+| exercise | 244 |
+| program | 4 |
 
 ## Workability findings
 

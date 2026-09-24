@@ -13,15 +13,25 @@ import {
   type Response
 } from "express";
 import { MulterError } from "multer";
+import { rateLimit } from "express-rate-limit";
 
 import {
   ORG_OWNER_SESSION_COOKIE,
   ORG_OWNER_SESSION_MAX_AGE_SECONDS,
   OrgOwnerAuthError,
   registerAndSignInOrgOwnerAccount,
+  requestOrgOwnerAccountClosure,
   signInOrgOwnerAccount,
   signOutOrgOwnerSession
 } from "./org_owner_account_service.js";
+import {
+  confirmOrgOwnerDataDeletion,
+  downloadOrgOwnerDataExport,
+  getOrgOwnerDataDeletionStatus,
+  getOrgOwnerDataExportStatus,
+  previewOrgOwnerDataDeletion,
+  requestOrgOwnerDataExport
+} from "./org_owner_data_rights_service.js";
 import { authenticatedOrgOwner, orgOwnerCookieValue } from "./org_owner_auth.js";
 import {
   OrgBillingError,
@@ -32,14 +42,17 @@ import {
   OrgRosterError,
   createOrganisation,
   inviteCoachToOrganisation,
+  listOrgAuditLog,
   listOrganisationRoster,
   listOrganisationsForOwner,
   removeCoachMembership
 } from "./org_roster_service.js";
 import {
   OrgVisibilityError,
+  buildOrgAthleteRosterCsv,
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
+import { getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -57,11 +70,38 @@ import {
   sendOrgAthleteMessageFromOwner
 } from "./org_athlete_messaging_service.js";
 import {
+  OrgBroadcastMessagingError,
+  getOrgAthleteBroadcastReadStatus,
+  getOrgCoachBroadcastReadStatus,
+  sendOrgAthleteBroadcastMessage,
+  sendOrgCoachBroadcastMessage
+} from "./org_broadcast_messaging_service.js";
+import {
   MessageAttachmentError,
   attachmentUpload,
   sendAttachmentFile,
   validateStagedUpload
 } from "./message_attachment_storage.js";
+import { badRequest } from "./http_errors.js";
+import {
+  AttendanceEventError,
+  buildAttendanceEventsCalendar,
+  loadAttendanceOccurrenceRecords
+} from "./attendance_event_service.js";
+import {
+  AttendanceEventGymRosterError,
+  cancelGymWideAttendanceEventForOwner,
+  createGymWideAttendanceEventForOwner,
+  getGymAttendanceEventDetailForOwner,
+  listGymWideAttendanceEventsForOwner,
+  rescheduleGymWideAttendanceOccurrenceForOwner,
+  skipGymWideAttendanceOccurrenceForOwner
+} from "./attendance_event_gym_roster_service.js";
+import {
+  OrgOwnerPositionOverrideError,
+  overrideAthletePositionForOrgOwner
+} from "./org_owner_position_override_service.js";
+import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -144,7 +184,12 @@ orgOwnerRouter.post(
   "/organisations",
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
-    const result = await createOrganisation(user_id, request.body?.org_name, request.body?.visibility_mode);
+    const result = await createOrganisation(
+      user_id,
+      request.body?.org_name,
+      request.body?.activity_id,
+      request.body?.visibility_mode
+    );
     return response.status(201).json({ ok: true, organisation: result.organisation });
   })
 );
@@ -224,6 +269,175 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const visibility = await getOrgAthleteVisibility(user_id, String(request.params.org_id));
     return response.status(200).json({ ok: true, visibility });
+  })
+);
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors this file's own
+// orgOwnerAttendanceCalendarExportRateLimit/orgOwnerPositionOverrideRateLimit.
+const orgOwnerRosterCsvExportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// FULL-UI-94 roster CSV export. Reuses getOrgAthleteVisibility() exactly
+// as the JSON route above does - this is a pure serialization change,
+// never a new privacy decision, so the CSV's own shape varies by
+// visibility_mode exactly the way the JSON payload already does (see
+// buildOrgAthleteRosterCsv's own DEV NOTE in org_visibility_service.ts).
+orgOwnerRouter.get(
+  "/organisations/:org_id/athlete-visibility/export.csv",
+  orgOwnerRosterCsvExportRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const orgId = String(request.params.org_id);
+    const [visibility, roster] = await Promise.all([
+      getOrgAthleteVisibility(user_id, orgId),
+      listOrganisationRoster(user_id, orgId)
+    ]);
+    const coachNamesById = new Map(
+      roster
+        .filter((membership) => membership.coach_display_name)
+        .map((membership) => [membership.coach_user_id, membership.coach_display_name as string])
+    );
+    const csv = buildOrgAthleteRosterCsv(visibility, coachNamesById);
+    response.setHeader("Content-Type", "text/csv; charset=utf-8");
+    response.setHeader("Content-Disposition", 'attachment; filename="kolosseum-org-roster.csv"');
+    return response.status(200).send(csv);
+  })
+);
+
+// Progress graphs slices 4 & 5: an org-wide progress rollup - a real
+// per-athlete roster for 'shared'-mode ("team") organisations, or an
+// aggregate-only adherence trend (never any individual athlete's
+// identity) for 'individual'-mode ("gym") organisations - see
+// org_progress_rollup_service.ts's own DEV NOTE.
+orgOwnerRouter.get(
+  "/organisations/:org_id/progress-rollup",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const rollup = await getOrgProgressRollup(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, rollup });
+  })
+);
+
+// Attendance events slice 4: gym-mode (individual-visibility) org-wide
+// events, org-owner-only - the fourth exception to org_visibility_
+// service.ts's identity-hiding invariant, scoped precisely to events
+// the owner themselves created (see attendance_event_gym_roster_
+// service.ts's own DEV NOTE). Creation takes no explicit invite list at
+// all from the owner - every currently-accepted athlete across the
+// org's active coaches is auto-invited server-side.
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const created = await createGymWideAttendanceEventForOwner(user_id, request.params.org_id, request.body ?? {});
+    return response.status(201).json({
+      ok: true,
+      event: created.event,
+      occurrences: created.occurrences,
+      invited_count: created.invited_count
+    });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const events = await listGymWideAttendanceEventsForOwner(user_id, request.params.org_id);
+    return response.status(200).json({ ok: true, events });
+  })
+);
+
+// DEV NOTE: rate-limited because CodeQL's js/missing-rate-limiting query
+// flags newly-added authorising routes - mirrors this file's own
+// orgOwnerPositionOverrideRateLimit.
+const orgOwnerAttendanceCalendarExportRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// FULL-UI-92 calendar export - registered BEFORE the /:event_id route
+// below, or "calendar.ics" would be swallowed as an event_id (mirrors
+// coach_workspace.routes.ts's own identical ordering note for its calendar
+// route).
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events/calendar.ics",
+  orgOwnerAttendanceCalendarExportRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const events = await listGymWideAttendanceEventsForOwner(user_id, request.params.org_id);
+    const active = events.filter((event) => event.status === "active");
+    const eventsWithOccurrences = await Promise.all(
+      active.map(async (event) => ({
+        event,
+        occurrences: await loadAttendanceOccurrenceRecords(String(event.event_id))
+      }))
+    );
+    const calendar = buildAttendanceEventsCalendar(eventsWithOccurrences);
+    response.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    response.setHeader("Content-Disposition", 'attachment; filename="kolosseum-gym-events.ics"');
+    return response.status(200).send(calendar);
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/attendance-events/:event_id",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const detail = await getGymAttendanceEventDetailForOwner(user_id, request.params.org_id, request.params.event_id);
+    return response.status(200).json({
+      ok: true,
+      event: detail.event,
+      occurrences: detail.occurrences,
+      roster: detail.roster
+    });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/cancel",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const event = await cancelGymWideAttendanceEventForOwner(user_id, request.params.org_id, request.params.event_id);
+    return response.status(200).json({ ok: true, event });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const occurrence = await skipGymWideAttendanceOccurrenceForOwner(
+      user_id, request.params.org_id, request.params.event_id, request.params.occurrence_id
+    );
+    return response.status(200).json({ ok: true, occurrence });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const occurrence = await rescheduleGymWideAttendanceOccurrenceForOwner(
+      user_id, request.params.org_id, request.params.event_id, request.params.occurrence_id, request.body ?? {}
+    );
+    return response.status(200).json({ ok: true, occurrence });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/audit-log",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const auditLog = await listOrgAuditLog(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, audit_log: auditLog });
   })
 );
 
@@ -339,8 +553,191 @@ orgOwnerRouter.get(
   })
 );
 
+// DEV NOTE: rate-limited (unlike this file's older routes, which predate
+// this) because CodeQL's js/missing-rate-limiting query flags newly-added
+// authorising routes - one shared limiter across all four broadcast routes
+// keeps a fan-out capability (naturally more expensive per call than a
+// single-recipient send) from being hammered, without adding four separate
+// limiter instances for what is one logical capability.
+const orgBroadcastRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/broadcast/coaches",
+  orgBroadcastRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await sendOrgCoachBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/broadcast/coaches/:broadcast_id/read-status",
+  orgBroadcastRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const status = await getOrgCoachBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/broadcast/athletes",
+  orgBroadcastRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await sendOrgAthleteBroadcastMessage(user_id, String(request.params.org_id), request.body?.body_text);
+    return response.status(201).json({ ok: true, ...result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/broadcast/athletes/:broadcast_id/read-status",
+  orgBroadcastRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const status = await getOrgAthleteBroadcastReadStatus(user_id, String(request.params.org_id), String(request.params.broadcast_id));
+    return response.status(200).json({ ok: true, ...status });
+  })
+);
+
+// FULL-UI-79 data rights and closure: org-owner self-service export,
+// deletion-request and account closure - mirrors FULL-UI-19's exact
+// productAccountRouter shapes (product_account.routes.ts), reusing this
+// router's own authenticatedOrgOwner(request, mutation) pattern instead of
+// resolveProductSession, since an org owner is never a row in
+// product_accounts. Rate-limited like the broadcast routes above, for the
+// same CodeQL js/missing-rate-limiting reason.
+const orgOwnerDataRightsRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.post(
+  "/closure",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await requestOrgOwnerAccountClosure(user_id, request.body);
+    clearOrgOwnerSessionCookie(response);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/export",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await requestOrgOwnerDataExport(user_id);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/export",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const result = await getOrgOwnerDataExportStatus(user_id);
+    return response.status(200).json({ ok: true, exports: result });
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/export/:export_request_id/download",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const payload = await downloadOrgOwnerDataExport(user_id, String(request.params.export_request_id));
+
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="kolosseum-org-owner-data-export-${encodeURIComponent(String(request.params.export_request_id))}.json"`
+    );
+
+    return response.status(200).json(payload);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/deletion/preview",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await previewOrgOwnerDataDeletion(user_id);
+    return response.status(200).json(result);
+  })
+);
+
+orgOwnerRouter.post(
+  "/data-rights/deletion",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const body: Record<string, unknown> =
+      request.body !== null && typeof request.body === "object" && !Array.isArray(request.body)
+        ? request.body
+        : {};
+
+    const clientRequestId = typeof body.client_request_id === "string" ? body.client_request_id.trim() : "";
+    if (!clientRequestId) {
+      throw badRequest("Missing client_request_id", {
+        failure_token: "org_owner_data_rights_deletion_client_request_id_required"
+      });
+    }
+
+    const result = await confirmOrgOwnerDataDeletion(user_id, body.confirmation, body.reason_code, clientRequestId);
+    return response.status(202).json(result);
+  })
+);
+
+orgOwnerRouter.get(
+  "/data-rights/deletion",
+  orgOwnerDataRightsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const result = await getOrgOwnerDataDeletionStatus(user_id);
+    return response.status(200).json({ ok: true, deletion_requests: result });
+  })
+);
+
+// Slice 3 of the sport-declaration redesign - the one deliberate, narrowly
+// scoped exception to this router's own documented boundary that an org
+// owner has no schema path to any athlete-scoped data: direct position
+// override for an athlete already visible on the owner's own
+// shared-visibility roster. See org_owner_position_override_service.ts's
+// own DEV NOTE for the full authorization chain.
+const orgOwnerPositionOverrideRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/athletes/:athlete_user_id/position-override",
+  orgOwnerPositionOverrideRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    const result = await overrideAthletePositionForOrgOwner(user_id, request.params.org_id, {
+      athlete_user_id: request.params.athlete_user_id,
+      position: request.body?.position
+    });
+    return response.status(200).json({ ok: true, ...result });
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
-// OrgCoachMessagingError/OrgAthleteMessagingError/MessageAttachmentError
+// OrgCoachMessagingError/OrgAthleteMessagingError/OrgBroadcastMessagingError/
+// MessageAttachmentError/AttendanceEventGymRosterError/AttendanceEventError
 // are not ApiError, so without this router-scoped handler they would
 // otherwise reach the generic error mapper, which mistakes the string
 // message for a Postgres error code and returns a misleading 500 instead
@@ -356,9 +753,17 @@ orgOwnerRouter.use(
       error instanceof OrgVisibilityError ||
       error instanceof OrgCoachMessagingError ||
       error instanceof OrgAthleteMessagingError ||
-      error instanceof MessageAttachmentError
+      error instanceof OrgBroadcastMessagingError ||
+      error instanceof MessageAttachmentError ||
+      error instanceof AttendanceEventGymRosterError ||
+      error instanceof AttendanceEventError ||
+      error instanceof OrgOwnerPositionOverrideError
     ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof AthleteOnboardingError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.field_errors });
       return;
     }
     if (error instanceof MulterError) {

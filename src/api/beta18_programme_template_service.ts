@@ -25,6 +25,7 @@ import {
   compileEventProgrammeCalendar,
   eventWeekCalendar
 } from "./event_programme_compiler_service.js";
+import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -40,11 +41,7 @@ export class Beta18ProgrammeTemplateError
 }
 
 const supportedActivities =
-  new Set([
-    "powerlifting",
-    "general_strength",
-    "rugby_union"
-  ]);
+  new Set(V1_ACTIVITY_IDS);
 
 const templateStatuses =
   new Set([
@@ -71,7 +68,11 @@ const workItemGroupTypes =
   new Set([
     "straight",
     "superset",
-    "circuit"
+    "circuit",
+    "complex",
+    "amrap",
+    "emom",
+    "for_time"
   ]);
 
 const MAX_WORK_ITEMS_PER_SESSION = 12;
@@ -97,7 +98,9 @@ const loadModes =
     "percent_1rm",
     "fixed_weight",
     "bodyweight",
-    "rpe"
+    "rpe",
+    "borg",
+    "cr10"
   ]);
 
 const weightUnits =
@@ -198,6 +201,64 @@ function numberInRange(
   return normalised;
 }
 
+// Same shape as numberInRange, but bounds the value's magnitude rather than
+// the value itself - used only for fixed_weight, where a negative value is
+// meaningful (assisted exercises) and the floor/ceiling apply symmetrically
+// on either side of zero.
+function numberInSymmetricRange(
+  value: unknown,
+  minimumMagnitude: number,
+  maximumMagnitude: number,
+  reason: string
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    Math.abs(value) < minimumMagnitude ||
+    Math.abs(value) > maximumMagnitude
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+
+  const normalised =
+    Number(value.toFixed(3));
+
+  if (
+    Math.abs(
+      value - normalised
+    ) > 0.0000001
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      `${reason}_precision_invalid`
+    );
+  }
+
+  return normalised;
+}
+
+function cr10ValueInRange(
+  value: unknown,
+  reason: string
+): number {
+  if (
+    typeof value !== "number" ||
+    !Number.isFinite(value) ||
+    value < 0 ||
+    value > 10 ||
+    !Number.isInteger(
+      value * 2
+    )
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      reason
+    );
+  }
+
+  return value;
+}
+
 type RepPrescription =
   | Readonly<{
       type: "fixed";
@@ -224,6 +285,14 @@ type LoadingReference =
     }>
   | Readonly<{
       type: "rpe";
+      value: number;
+    }>
+  | Readonly<{
+      type: "borg";
+      value: number;
+    }>
+  | Readonly<{
+      type: "cr10";
       value: number;
     }>;
 
@@ -364,9 +433,33 @@ function loadingReferenceFromInput(
     });
   }
 
+  if (loadMode === "borg") {
+    return deepFreeze({
+      type: "borg",
+      value:
+        integerInRange(
+          workItem.borg_value,
+          6,
+          20,
+          "borg_value_invalid"
+        )
+    });
+  }
+
+  if (loadMode === "cr10") {
+    return deepFreeze({
+      type: "cr10",
+      value:
+        cr10ValueInRange(
+          workItem.cr10_value,
+          "cr10_value_invalid"
+        )
+    });
+  }
+
   if (loadMode === "fixed_weight") {
     const value =
-      numberInRange(
+      numberInSymmetricRange(
         workItem.weight_value,
         0.25,
         1000,
@@ -571,6 +664,10 @@ function validateWorkItemGrouping(
       order_index: number;
       group_id: string;
       group_type: string;
+      group_time_cap_seconds?: number;
+      group_round_seconds?: number;
+      group_total_rounds?: number;
+      loading_reference?: Readonly<{ type?: string; value?: number; unit?: string }>;
     }>
   >
 ): void {
@@ -578,6 +675,8 @@ function validateWorkItemGrouping(
     new Map<string, number[]>();
   const groupTypes =
     new Map<string, string>();
+  const groupMembers =
+    new Map<string, typeof workItems[number][]>();
 
   for (const workItem of workItems) {
     if (workItem.group_id === "") continue;
@@ -608,6 +707,11 @@ function validateWorkItemGrouping(
       workItem.group_id,
       workItem.group_type
     );
+
+    const members =
+      groupMembers.get(workItem.group_id) ?? [];
+    members.push(workItem);
+    groupMembers.set(workItem.group_id, members);
   }
 
   for (const [
@@ -636,6 +740,57 @@ function validateWorkItemGrouping(
       ) {
         throw new Beta18ProgrammeTemplateError(
           "work_item_group_not_contiguous"
+        );
+      }
+    }
+  }
+
+  for (const [groupId, members] of groupMembers) {
+    const groupType = groupTypes.get(groupId);
+
+    if (groupType === "complex") {
+      const allFixedWeight = members.every(
+        (member) => member.loading_reference?.type === "load"
+      );
+      if (!allFixedWeight) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_complex_requires_fixed_weight"
+        );
+      }
+      const first = members[0].loading_reference;
+      const sameWeight = members.every(
+        (member) =>
+          member.loading_reference?.value === first?.value &&
+          member.loading_reference?.unit === first?.unit
+      );
+      if (!sameWeight) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_complex_weight_mismatch"
+        );
+      }
+    }
+    else if (groupType === "amrap" || groupType === "for_time") {
+      const cap = members[0].group_time_cap_seconds ?? 0;
+      const sameCap = members.every(
+        (member) => (member.group_time_cap_seconds ?? 0) === cap
+      );
+      if (!(cap > 0) || !sameCap) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_time_cap_invalid"
+        );
+      }
+    }
+    else if (groupType === "emom") {
+      const roundSeconds = members[0].group_round_seconds ?? 0;
+      const totalRounds = members[0].group_total_rounds ?? 0;
+      const sameParams = members.every(
+        (member) =>
+          (member.group_round_seconds ?? 0) === roundSeconds &&
+          (member.group_total_rounds ?? 0) === totalRounds
+      );
+      if (!(roundSeconds > 0) || !(totalRounds > 0) || !sameParams) {
+        throw new Beta18ProgrammeTemplateError(
+          "work_item_group_emom_params_invalid"
         );
       }
     }
@@ -734,7 +889,7 @@ function loadingReferenceFromStored(
     return deepFreeze({
       type: "load",
       value:
-        numberInRange(
+        numberInSymmetricRange(
           raw.value,
           0.25,
           1000,
@@ -754,6 +909,30 @@ function loadingReferenceFromStored(
           1,
           10,
           "stored_rpe_value_invalid"
+        )
+    });
+  }
+
+  if (type === "borg") {
+    return deepFreeze({
+      type: "borg",
+      value:
+        integerInRange(
+          raw.value,
+          6,
+          20,
+          "stored_borg_value_invalid"
+        )
+    });
+  }
+
+  if (type === "cr10") {
+    return deepFreeze({
+      type: "cr10",
+      value:
+        cr10ValueInRange(
+          raw.value,
+          "stored_cr10_value_invalid"
         )
     });
   }
@@ -1109,7 +1288,43 @@ function loadExerciseRegistry(): Readonly<{
   });
 }
 
-async function requireActiveCoach(
+// DEV NOTE: FULL-UI-05B exercise picker equipment-catalog labels - the
+// equipment registry's own crafted display_label (e.g. "V-bar attachment")
+// reads far better than a mechanically titleCased equipment_id, especially
+// for the newer attachment/bar-variant ids. Read the same way
+// loadExerciseRegistry() reads its own registry file.
+function loadEquipmentRegistry(): Readonly<Record<string, JsonRecord>> {
+  const registryPath =
+    path.resolve(
+      process.cwd(),
+      "registries",
+      "equipment",
+      "equipment.registry.json"
+    );
+
+  const parsed =
+    JSON.parse(
+      fs.readFileSync(
+        registryPath,
+        "utf8"
+      )
+    ) as unknown;
+
+  if (
+    !isRecord(parsed) ||
+    cleanString(parsed.registry_id) !==
+      "equipment" ||
+    !isRecord(parsed.entries)
+  ) {
+    throw new Beta18ProgrammeTemplateError(
+      "active_equipment_registry_invalid"
+    );
+  }
+
+  return deepFreeze(parsed.entries as Record<string, JsonRecord>);
+}
+
+export async function requireActiveCoach(
   coachUserId: string
 ): Promise<Readonly<JsonRecord>> {
   const coachProfile =
@@ -1625,12 +1840,17 @@ function normaliseTemplateStructure(
                               "weight_value",
                               "weight_unit",
                               "rpe_value",
+                              "borg_value",
+                              "cr10_value",
                               "rest_seconds",
                               "role",
                               "coaching_notes",
                               "segment",
                               "group_id",
-                              "group_type"
+                              "group_type",
+                              "group_time_cap_seconds",
+                              "group_round_seconds",
+                              "group_total_rounds"
                             ],
                             "work_item"
                           );
@@ -1691,10 +1911,10 @@ function normaliseTemplateStructure(
 
                           const equipment =
                             Array.isArray(
-                              exercise.equipment
+                              exercise.equipment_requirements
                             )
                               ? exercise
-                                  .equipment
+                                  .equipment_requirements
                                   .map(cleanString)
                                   .filter(Boolean)
                               : [];
@@ -1862,6 +2082,57 @@ function normaliseTemplateStructure(
                             );
                           }
 
+                          const groupTimeCapSecondsRaw =
+                            rawWorkItem.group_time_cap_seconds;
+                          const groupTimeCapSeconds =
+                            groupTimeCapSecondsRaw === undefined ||
+                            groupTimeCapSecondsRaw === null
+                              ? 0
+                              : Number(groupTimeCapSecondsRaw);
+                          if (
+                            !Number.isInteger(groupTimeCapSeconds) ||
+                            groupTimeCapSeconds < 0 ||
+                            groupTimeCapSeconds > 7200
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_time_cap_invalid"
+                            );
+                          }
+
+                          const groupRoundSecondsRaw =
+                            rawWorkItem.group_round_seconds;
+                          const groupRoundSeconds =
+                            groupRoundSecondsRaw === undefined ||
+                            groupRoundSecondsRaw === null
+                              ? 0
+                              : Number(groupRoundSecondsRaw);
+                          if (
+                            !Number.isInteger(groupRoundSeconds) ||
+                            groupRoundSeconds < 0 ||
+                            groupRoundSeconds > 600
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_round_seconds_invalid"
+                            );
+                          }
+
+                          const groupTotalRoundsRaw =
+                            rawWorkItem.group_total_rounds;
+                          const groupTotalRounds =
+                            groupTotalRoundsRaw === undefined ||
+                            groupTotalRoundsRaw === null
+                              ? 0
+                              : Number(groupTotalRoundsRaw);
+                          if (
+                            !Number.isInteger(groupTotalRounds) ||
+                            groupTotalRounds < 0 ||
+                            groupTotalRounds > 100
+                          ) {
+                            throw new Beta18ProgrammeTemplateError(
+                              "work_item_group_total_rounds_invalid"
+                            );
+                          }
+
                           const workItemId =
                             cleanString(
                               rawWorkItem
@@ -1927,7 +2198,13 @@ function normaliseTemplateStructure(
                             group_id:
                               groupId,
                             group_type:
-                              groupType
+                              groupType,
+                            group_time_cap_seconds:
+                              groupTimeCapSeconds,
+                            group_round_seconds:
+                              groupRoundSeconds,
+                            group_total_rounds:
+                              groupTotalRounds
                           });
                         }
                       );
@@ -2075,7 +2352,7 @@ function normaliseTemplateStructure(
   });
 }
 
-function templateRecordInput(
+export function templateRecordInput(
   record: JsonRecord
 ): JsonRecord {
   const structure =
@@ -2351,7 +2628,15 @@ function templateRecordInput(
                                           loading.type
                                         ) === "rpe"
                                         ? "rpe"
-                                        : "percent_1rm",
+                                        : cleanString(
+                                            loading.type
+                                          ) === "borg"
+                                          ? "borg"
+                                          : cleanString(
+                                              loading.type
+                                            ) === "cr10"
+                                            ? "cr10"
+                                            : "percent_1rm",
                                 percent_1rm:
                                   cleanString(
                                     loading.type
@@ -2382,6 +2667,22 @@ function templateRecordInput(
                                         loading.value
                                       )
                                     : 8,
+                                borg_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "borg"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 13,
+                                cr10_value:
+                                  cleanString(
+                                    loading.type
+                                  ) === "cr10"
+                                    ? Number(
+                                        loading.value
+                                      )
+                                    : 5,
                                 rest_seconds:
                                   Number(
                                     workItem
@@ -2421,7 +2722,22 @@ function templateRecordInput(
                                         workItem
                                           .group_type
                                       )
-                                    : "straight"
+                                    : "straight",
+                                group_time_cap_seconds:
+                                  Number(
+                                    workItem
+                                      .group_time_cap_seconds ?? 0
+                                  ),
+                                group_round_seconds:
+                                  Number(
+                                    workItem
+                                      .group_round_seconds ?? 0
+                                  ),
+                                group_total_rounds:
+                                  Number(
+                                    workItem
+                                      .group_total_rounds ?? 0
+                                  )
                               };
                             }
                           );
@@ -2605,9 +2921,12 @@ export function listActiveExerciseOptions(): Readonly<{
   registry_id: string;
   registry_version: string;
   exercises: readonly Readonly<JsonRecord>[];
+  equipment_catalog: readonly Readonly<JsonRecord>[];
 }> {
   const registry =
     loadExerciseRegistry();
+  const equipmentRegistry =
+    loadEquipmentRegistry();
 
   const exercises =
     Object.values(
@@ -2632,14 +2951,23 @@ export function listActiveExerciseOptions(): Readonly<{
               ),
             pattern:
               cleanString(
-                entry.pattern
+                entry.movement_pattern_id
               ),
             equipment:
               Array.isArray(
-                entry.equipment
+                entry.equipment_requirements
               )
                 ? entry
-                    .equipment
+                    .equipment_requirements
+                    .map(cleanString)
+                    .filter(Boolean)
+                : [],
+            equipment_alternatives:
+              Array.isArray(
+                entry.equipment_alternatives
+              )
+                ? entry
+                    .equipment_alternatives
                     .map(cleanString)
                     .filter(Boolean)
                 : []
@@ -2657,12 +2985,21 @@ export function listActiveExerciseOptions(): Readonly<{
           )
       );
 
+  const equipmentCatalog =
+    Object.values(equipmentRegistry)
+      .map((entry) => deepFreeze({
+        equipment_id: cleanString(entry.equipment_id),
+        display_label: cleanString(entry.display_label) || titleFromId(cleanString(entry.equipment_id))
+      }))
+      .sort((left, right) => String(left.display_label).localeCompare(String(right.display_label)));
+
   return deepFreeze({
     registry_id:
       registry.registry_id,
     registry_version:
       registry.version,
-    exercises
+    exercises,
+    equipment_catalog: equipmentCatalog
   });
 }
 
@@ -4412,6 +4749,12 @@ export async function materialiseNextCoachTemplateProgram(
             )
               ? cleanString(workItem.group_type)
               : "straight",
+          group_time_cap_seconds:
+            Number(workItem.group_time_cap_seconds ?? 0),
+          group_round_seconds:
+            Number(workItem.group_round_seconds ?? 0),
+          group_total_rounds:
+            Number(workItem.group_total_rounds ?? 0),
           prescription_mode:
             prescriptionMode,
           tempo:
@@ -4585,6 +4928,8 @@ export async function materialiseNextCoachTemplateProgram(
           nextIndex,
         template_session_title:
           selectedSession.title,
+        template_session_coaching_notes:
+          selectedSession.coaching_notes,
         template_block_id:
           selectedSession
             .template_block_id,

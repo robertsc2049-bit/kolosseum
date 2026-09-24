@@ -56,10 +56,11 @@ function anyCookie(result, cookieName, label) {
 }
 
 async function registerAccount(baseUrl, actorType, label, nonce) {
+  const email = `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`;
   const registration = await request(baseUrl, "POST", "/account/register", {
     actor_type: actorType,
     display_name: label,
-    email: `${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`,
+    email,
     password: "Full21FounderAdmin!2026",
     activity_id: "powerlifting",
     accepted_terms: true,
@@ -75,7 +76,7 @@ async function registerAccount(baseUrl, actorType, label, nonce) {
   const csrf = registration.json?.csrf_token;
   assert.ok(csrf, `${label}: expected csrf token`);
 
-  return { userId, cookie, csrf };
+  return { userId, cookie, csrf, email };
 }
 
 async function createAdminAccountDirect(email, displayName, password) {
@@ -149,7 +150,7 @@ test(
         occurred_at_iso8601: new Date().toISOString(),
         description: "Full21 fixture support report",
         browser_context: { user_agent: "test", language: "en-GB", viewport_width: 1280, viewport_height: 800, timezone_offset_minutes: 0 },
-        failure_context: {}
+        failure_context: { status: 500, reason: "server_error", method: "GET", path: "/coach-workspace/athletes" }
       }, { cookie: athlete.cookie, csrf: athlete.csrf });
       assertStatus(supportReport, 201, "create support report fixture");
 
@@ -217,6 +218,8 @@ test(
       assertStatus(detail, 200, "account detail");
       assert.equal(detail.json.account.account_state, "active");
       assert.equal(detail.json.account.is_test_account, false);
+      assert.equal(detail.json.account.email, athlete.email);
+      assert.equal(detail.json.account.email_verified, false, "a freshly registered account has not verified its email yet");
 
       assertStatus(
         await request(baseUrl, "GET", "/admin/accounts/no-such-user", undefined, { cookie: admin.cookie }),
@@ -302,21 +305,27 @@ test(
       assertStatus(mark, 200, "mark test account");
       assert.equal(mark.json.audit.before_state.is_test_account, false);
       assert.equal(mark.json.audit.after_state.is_test_account, true);
+      // The reason an admin gives for marking an account was previously
+      // validated and stored, then silently discarded on every read path -
+      // never in the audit record, never in the account detail response.
+      assert.equal(mark.json.audit.after_state.reason, "fixture");
 
       const detailAfterMark = await request(baseUrl, "GET", `/admin/accounts/${encodeURIComponent(athlete.userId)}`, undefined, { cookie: admin.cookie });
       assert.equal(detailAfterMark.json.account.is_test_account, true);
+      assert.equal(detailAfterMark.json.account.test_account_reason, "fixture");
+      assert.equal(detailAfterMark.json.account.test_account_marked_by_admin_user_id, admin.userId);
 
       const unmarkCorrelationId = crypto.randomUUID();
       correlationIds.push(unmarkCorrelationId);
-      assertStatus(
-        await request(baseUrl, "POST", `/admin/accounts/${encodeURIComponent(athlete.userId)}/test-marking`,
-          { correlation_id: unmarkCorrelationId, marked: false },
-          { cookie: admin.cookie, csrf: admin.csrf }),
-        200,
-        "unmark test account"
-      );
+      const unmark = await request(baseUrl, "POST", `/admin/accounts/${encodeURIComponent(athlete.userId)}/test-marking`,
+        { correlation_id: unmarkCorrelationId, marked: false },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(unmark, 200, "unmark test account");
+      assert.equal(unmark.json.audit.before_state.reason, "fixture");
+      assert.equal(unmark.json.audit.after_state.reason, null);
       const detailAfterUnmark = await request(baseUrl, "GET", `/admin/accounts/${encodeURIComponent(athlete.userId)}`, undefined, { cookie: admin.cookie });
       assert.equal(detailAfterUnmark.json.account.is_test_account, false);
+      assert.equal(detailAfterUnmark.json.account.test_account_reason, null);
 
       // ============================================================
       // Coach entitlement/payment review (read-only, cross-user).
@@ -331,7 +340,24 @@ test(
       // ============================================================
       const supportList = await request(baseUrl, "GET", "/admin/support-requests", undefined, { cookie: admin.cookie });
       assertStatus(supportList, 200, "support request review");
-      assert.ok(supportList.json.reports.some((r) => r.correlation_id === supportCorrelationId));
+      const supportListEntry = supportList.json.reports.find((r) => r.correlation_id === supportCorrelationId);
+      assert.ok(supportListEntry, "expected the fixture support report in the admin's review list");
+
+      // The admin's review of a support/error report must include the same
+      // browser and failure diagnostic context the reporter submitted - not
+      // just the correlation id, description and status. This is what
+      // "review... error records" (the admin_support manifest label)
+      // actually requires; the fields exist in the database and are
+      // returned to the reporter's own history, but were previously
+      // dropped before ever reaching the admin's query.
+      assert.equal(supportListEntry.browser_context?.user_agent, "test");
+      assert.equal(supportListEntry.browser_context?.language, "en-GB");
+      assert.equal(supportListEntry.browser_context?.viewport_width, 1280);
+      assert.equal(supportListEntry.browser_context?.viewport_height, 800);
+      assert.equal(supportListEntry.failure_context?.status, 500);
+      assert.equal(supportListEntry.failure_context?.reason, "server_error");
+      assert.equal(supportListEntry.failure_context?.method, "GET");
+      assert.equal(supportListEntry.failure_context?.path, "/coach-workspace/athletes");
 
       const ackCorrelationId = crypto.randomUUID();
       correlationIds.push(ackCorrelationId);
@@ -348,6 +374,32 @@ test(
         supportOwnHistory.json.reports.find((r) => r.correlation_id === supportCorrelationId)?.status,
         "acknowledged"
       );
+
+      // ============================================================
+      // The support-request lifecycle is forward-only: acknowledged
+      // can never regress back to submitted, closed is terminal, and
+      // a rejected transition never writes an audit record at all.
+      // ============================================================
+      const regressCorrelationId = crypto.randomUUID();
+      const regress = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: regressCorrelationId, status: "submitted" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(regress, 409, "acknowledged cannot regress back to submitted");
+
+      const closeCorrelationId = crypto.randomUUID();
+      correlationIds.push(closeCorrelationId);
+      const close = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: closeCorrelationId, status: "closed" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(close, 200, "acknowledged can transition to closed");
+      assert.equal(close.json.audit.before_state.status, "acknowledged");
+      assert.equal(close.json.audit.after_state.status, "closed");
+
+      const reopenCorrelationId = crypto.randomUUID();
+      const reopen = await request(baseUrl, "POST", `/admin/support-requests/${encodeURIComponent(supportCorrelationId)}/status`,
+        { correlation_id: reopenCorrelationId, status: "acknowledged" },
+        { cookie: admin.cookie, csrf: admin.csrf });
+      assertStatus(reopen, 409, "closed is terminal - it can never transition anywhere");
 
       // ============================================================
       // Export/deletion request review (read-only).

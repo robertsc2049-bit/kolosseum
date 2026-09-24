@@ -659,6 +659,14 @@ async function listReviewRecords(
           ),
         planned_work_item_count:
           workItems.length,
+        exercise_ids:
+          workItems
+            .map((item: unknown) =>
+              isRecord(item)
+                ? cleanString(item.exercise_id ?? item.item_id)
+                : ""
+            )
+            .filter(Boolean),
         assignment_id:
           assignmentId || null,
         assignment_provenance:

@@ -18,6 +18,7 @@ const coachRoutes = read("src/api/coach_org_membership.routes.ts");
 const visibilityService = read("src/api/org_visibility_service.ts");
 const orgCoachMessagingService = read("src/api/org_coach_messaging_service.ts");
 const orgAthleteMessagingService = read("src/api/org_athlete_messaging_service.ts");
+const orgProgressRollupService = read("src/api/org_progress_rollup_service.ts");
 const messagingRoutes = read("src/api/messaging.routes.ts");
 const serverTs = read("src/server.ts");
 const schema = read("schema.sql");
@@ -27,6 +28,25 @@ const orgDashboardHtml = read("public/org/index.html");
 const orgDashboardJs = read("public/org/org.js");
 const coachWorkspaceRoutes = read("src/api/coach_workspace.routes.ts");
 const athleteOrgContextService = read("src/api/athlete_org_context_service.ts");
+// DEV NOTE: the athlete-side org-messages panel and the coach-side
+// org-context panel (both inside the product app's #view-account, not the
+// separate org-owner SPA above) moved to React - see
+// AccountOrgMessagesPanel.tsx/useAccountOrgMessages.ts and
+// AccountOrgContextPanel.tsx/useAccountOrgContext.ts,
+// accountRelationshipsClient.ts for both.
+const orgMessagesHook = read("public/app-src/screens/account/useAccountOrgMessages.ts");
+const orgMessagesPanel = read("public/app-src/screens/account/AccountOrgMessagesPanel.tsx");
+const orgContextHook = read("public/app-src/screens/account/useAccountOrgContext.ts");
+const orgContextPanel = read("public/app-src/screens/account/AccountOrgContextPanel.tsx");
+const accountRelationshipsClient = read("public/app-src/api/accountRelationshipsClient.ts");
+// DEV NOTE: Part O.9 - the coach-side org-owner<->coach messaging panel
+// (the org_coach_messaging function's coach half, previously API-only) -
+// see CoachOrgMessagesPanel.tsx/useCoachOrgMessages.ts.
+const coachOrgMessagesHook = read("public/app-src/screens/account/useCoachOrgMessages.ts");
+const coachOrgMessagesPanel = read("public/app-src/screens/account/CoachOrgMessagesPanel.tsx");
+const productAppIndexHtml = read("public/app/index.html");
+const mainTsx = read("public/app-src/main.tsx");
+const attendanceGymRosterService = read("src/api/attendance_event_gym_roster_service.ts");
 
 const orgFiles = [accountService, auth, ownerRoutes, rosterService, billingService, coachRoutes, orgCoachMessagingService];
 
@@ -59,7 +79,7 @@ test("org routes are mounted at their own /org and /coach-workspace prefixes, ne
     '"/organisations"', '"/organisations/:org_id/roster/invite"',
     '"/organisations/:org_id/roster"', '"/organisations/:org_id/roster/:membership_id/remove"',
     '"/organisations/:org_id/billing"', '"/organisations/:org_id/billing/seat-plan"',
-    '"/organisations/:org_id/athlete-visibility"',
+    '"/organisations/:org_id/athlete-visibility"', '"/organisations/:org_id/audit-log"',
     '"/organisations/:org_id/messages/threads"', '"/organisations/:org_id/messages/threads/:thread_id"',
     '"/organisations/:org_id/messages/coaches/:coach_user_id/send"',
     '"/organisations/:org_id/athlete-messages/threads"', '"/organisations/:org_id/athlete-messages/threads/:thread_id"',
@@ -98,22 +118,31 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 9, "all nine coach org-membership/org-messaging routes (including the two D.3 attachment routes and O.7's fellow-coach roster route) must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 11, "all eleven coach org-membership/org-messaging routes (including the two D.3 attachment routes, O.7's fellow-coach roster route and Slice 3's two team-position-override routes) must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);
 });
 
-// ownerRoutes is excluded from the athlete_user_id string check only (part
-// D.4): its new /organisations/:org_id/athlete-messages/athletes/
-// :athlete_user_id/send route genuinely names an athlete by id, purely as
-// a route param it passes straight through to org_athlete_messaging_
-// service.ts's own gated functions - it still never queries
-// beta_product_records itself (checked below, over the FULL orgFiles
-// list, unchanged), and the dedicated test further down proves its only
-// athlete_user_id occurrences are exactly that pass-through, never inline
-// business logic.
-const orgFilesForAthleteIdCheck = orgFiles.filter((source) => source !== ownerRoutes);
+// ownerRoutes and coachRoutes are excluded from the athlete_user_id string
+// check only. ownerRoutes (part D.4): its /organisations/:org_id/athlete-
+// messages/athletes/:athlete_user_id/send route genuinely names an athlete
+// by id, purely as a route param it passes straight through to
+// org_athlete_messaging_service.ts's own gated functions. ownerRoutes and
+// coachRoutes both also carry a Slice 3 sport-declaration-redesign
+// position-override route - ownerRoutes' /organisations/:org_id/athletes/
+// :athlete_user_id/position-override (org_owner_position_override_
+// service.ts) and coachRoutes' /organisations/:org_id/team-athletes/
+// :athlete_user_id/position-override (coach_team_position_override_
+// service.ts) - each likewise naming an athlete by id purely as a route
+// param passed straight through to its own gated function. None of these
+// ever queries beta_product_records itself (checked below, over the FULL
+// orgFiles list, unchanged), and the dedicated tests further down prove
+// each file's only athlete_user_id occurrences are exactly those route
+// params and pass-throughs, never inline business logic.
+const orgFilesForAthleteIdCheck = orgFiles.filter(
+  (source) => source !== ownerRoutes && source !== coachRoutes
+);
 
 test("no org file ever reads or writes any athlete-scoped table or record - the MVP boundary is structural, not policy", () => {
   for (const source of orgFilesForAthleteIdCheck) {
@@ -133,13 +162,27 @@ test("no org file ever reads or writes any athlete-scoped table or record - the 
   }
 });
 
-test("ownerRoutes' only athlete_user_id references are the D.4 route param and its pass-through to org_athlete_messaging_service.ts - never inline business logic", () => {
+test("ownerRoutes' only athlete_user_id references are the D.4 route param/pass-through and the Slice-3 position-override route param/pass-through - never inline business logic", () => {
   const occurrences = [...ownerRoutes.matchAll(/athlete_user_id/gu)].length;
-  // :athlete_user_id (route param) + request.params.athlete_user_id
-  // (passed straight to sendOrgAthleteMessageFromOwner) = exactly 2.
-  assert.equal(occurrences, 2, "expected exactly the route param and its single pass-through");
+  // D.4: :athlete_user_id (route param) + request.params.athlete_user_id
+  // (passed straight to sendOrgAthleteMessageFromOwner) = 2.
+  // Slice 3: :athlete_user_id (route param) + the athlete_user_id key/value
+  // pair passed straight to overrideAthletePositionForOrgOwner = 3.
+  // Total = 5.
+  assert.equal(occurrences, 5, "expected exactly the two route params and their pass-throughs");
   assert.match(ownerRoutes, /"\/organisations\/:org_id\/athlete-messages\/athletes\/:athlete_user_id\/send"/u);
   assert.match(ownerRoutes, /String\(request\.params\.athlete_user_id\)/u);
+  assert.match(ownerRoutes, /"\/organisations\/:org_id\/athletes\/:athlete_user_id\/position-override"/u);
+  assert.match(ownerRoutes, /athlete_user_id: request\.params\.athlete_user_id/u);
+});
+
+test("coachRoutes' only athlete_user_id references are the Slice-3 position-override route param and its pass-through to coach_team_position_override_service.ts - never inline business logic", () => {
+  const occurrences = [...coachRoutes.matchAll(/athlete_user_id/gu)].length;
+  // :athlete_user_id (route param) + the athlete_user_id key/value pair
+  // passed straight to overrideAthletePositionForCoach = exactly 3.
+  assert.equal(occurrences, 3, "expected exactly the route param and its pass-through");
+  assert.match(coachRoutes, /"\/organisations\/:org_id\/team-athletes\/:athlete_user_id\/position-override"/u);
+  assert.match(coachRoutes, /athlete_user_id: request\.params\.athlete_user_id/u);
 });
 
 test("no org file imports any engine-truth service - org billing/roster are product state only", () => {
@@ -205,23 +248,59 @@ function extractFunctionSource(source, functionName) {
   return nextBoundary === -1 ? source.slice(start) : source.slice(start, start + startMatch[0].length + nextBoundary);
 }
 
-// org_visibility_service.ts (part C) and org_athlete_messaging_service.ts
-// (part D.4) are the two deliberate, explicitly-gated exceptions to the
+// org_visibility_service.ts (part C), org_athlete_messaging_service.ts
+// (part D.4), org_progress_rollup_service.ts (progress graphs slices
+// 4-5) and attendance_event_gym_roster_service.ts (attendance events
+// slice 4) are the four deliberate, explicitly-gated exceptions to the
 // "no org file ever reads or writes athlete-scoped data" rule proved by
-// the test above - neither is added to orgFiles, and must never be:
-// doing so would make that test correctly fail the moment its real
+// the test above - none is added to orgFiles, and must never be: doing
+// so would make that test correctly fail the moment its real
 // athlete-scoped queries land. This test instead proves the boundary is
-// mode-aware: both files legitimately touch beta_product_records, but
-// org_visibility_service.ts's "individual"-mode aggregate path never
-// touches athlete identity, while its "shared"-mode roster path does -
-// and org_athlete_messaging_service.ts reuses that exact same
-// visibility_mode gate for its own messaging boundary (proved in the
-// dedicated D.4 test below).
-test("org_visibility_service.ts and org_athlete_messaging_service.ts are the only two explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
+// mode-aware: org_visibility_service.ts's "individual"-mode aggregate
+// path never touches athlete identity, while its "shared"-mode roster
+// path does. org_athlete_messaging_service.ts reuses that exact same
+// visibility_mode gate for its own boundary (proved in the dedicated
+// D.4 test below) - it is only ever reachable for 'shared'-mode orgs.
+// org_progress_rollup_service.ts is structurally different from the
+// other two: it never queries beta_product_records/
+// beta17_coach_relationship itself at all (its only direct data-access
+// path is calling getOrgAthleteVisibility()), but it IS reachable for
+// BOTH modes - its 'individual'-mode branch does its own separate
+// per-athlete reads (via listConnectedCoachAthletes/
+// getProgressInsightsForCoach) to compute an average, so it carries its
+// own additional k-anonymity-style cohort-size gate rather than simply
+// refusing the individual-mode branch outright.
+// attendance_event_gym_roster_service.ts is the fourth: like
+// org_progress_rollup_service.ts it never queries beta_product_records/
+// beta17_coach_relationship directly either, composing already-tested
+// attendance-events functions instead - but unlike every other
+// exception, it is reachable ONLY for 'individual'-mode orgs (a shared-
+// mode org's gym-wide event creation is rejected outright - proved by
+// the org-owner-only route), and reveals full, real athlete identity
+// with NO aggregation at all, scoped precisely to an event the org
+// owner themselves created (never a general gym-mode roster read) - see
+// that file's own DEV NOTE.
+test("org_visibility_service.ts, org_athlete_messaging_service.ts, org_progress_rollup_service.ts and attendance_event_gym_roster_service.ts are the only four explicitly-gated exceptions to the athlete-data boundary, and org_visibility_service.ts's individual-mode path never touches athlete identity", () => {
   assert.match(visibilityService, /beta_product_records/u);
   assert.match(visibilityService, /beta17_coach_relationship/u);
   assert.match(orgAthleteMessagingService, /beta_product_records/u);
   assert.match(orgAthleteMessagingService, /beta17_coach_relationship/u);
+
+  assert.match(orgProgressRollupService, /getOrgAthleteVisibility/u);
+  assert.doesNotMatch(orgProgressRollupService, /beta_product_records|beta17_coach_relationship/u);
+  assert.match(orgProgressRollupService, /visibility\.visibility_mode === "shared"/u);
+
+  // Progress graphs slice 5: the 'individual'-mode branch computes a
+  // per-coach AVERAGE adherence trend from real per-athlete data, but is
+  // never allowed to serialize an athlete_user_id, display_name or email
+  // - and withholds the average entirely below a k-anonymity-style
+  // cohort-size threshold, both at the whole-coach level and per window.
+  const aggregateForCoachFn = extractFunctionSource(orgProgressRollupService, "aggregateAdherenceForCoach");
+  assert.match(aggregateForCoachFn, /listConnectedCoachAthletes/u);
+  assert.doesNotMatch(aggregateForCoachFn, /athlete_user_id:|display_name:|email:/u);
+  assert.match(orgProgressRollupService, /const MIN_COHORT_SIZE = 3/u);
+  assert.match(orgProgressRollupService, /coach\.active_athlete_count < MIN_COHORT_SIZE/u);
+  assert.match(orgProgressRollupService, /contributorCount >= MIN_COHORT_SIZE/u);
 
   for (const source of orgFilesForAthleteIdCheck) {
     assert.doesNotMatch(source, /athlete_user_id/u);
@@ -234,6 +313,37 @@ test("org_visibility_service.ts and org_athlete_messaging_service.ts are the onl
   const rosterFn = extractFunctionSource(visibilityService, "fullRosterForOrg");
   assert.match(rosterFn, /athlete_user_id/u);
   assert.match(rosterFn, /display_name/u);
+
+  // The fourth exception: never queries beta_product_records/
+  // beta17_coach_relationship directly, gates every function on both
+  // active org ownership AND individual-visibility mode, and reveals
+  // real identity only for an event that specific event's owner_org_id/
+  // owner_coach_user_id already ties back to the caller.
+  assert.doesNotMatch(attendanceGymRosterService, /beta_product_records|beta17_coach_relationship/u);
+  assert.match(attendanceGymRosterService, /org\.visibility_mode !== "individual"/u);
+  assert.match(attendanceGymRosterService, /cleanString\(org\.owner_user_id\) !== ownerUserId/u);
+  assert.match(attendanceGymRosterService, /cleanString\(event\.owner_org_id\) !== orgId/u);
+});
+
+// fullRosterForOrg's per-athlete auth lookup used to run inside an inner
+// Promise.all nested within an outer Promise.all across every coach in the
+// org - loadLatestBetaProductRecord throws on an empty subject_user_id, so
+// one bad or transiently-failing athlete lookup for a single coach could
+// reject the inner Promise.all, cascade through the outer one, and take
+// down the entire org's shared-visibility roster for every coach and every
+// athlete, not just the one coach whose athlete lookup failed.
+test("fullRosterForOrg never lets one athlete's auth lookup failure take down the entire org's roster", () => {
+  const rosterFn = extractFunctionSource(visibilityService, "fullRosterForOrg");
+
+  assert.match(
+    rosterFn,
+    /let auth = null;\s*\n\s*try \{/u
+  );
+
+  assert.match(
+    rosterFn,
+    /catch \{/u
+  );
 });
 
 test("visibility_mode is declared once at org creation and immutable afterward - no route or function changes it", () => {
@@ -387,6 +497,26 @@ test("coach display names and emails rendered into the roster view are escaped b
   assert.match(orgDashboardJs, /escapeHtml\(membership\.coach_email \|\| ""\)/u);
 });
 
+test("membership invited/activated/removed dates are actually read and rendered on both the org owner's roster and the coach's own org-context panel, not just derived and stored", () => {
+  // org_roster_service.ts's mapMembershipRow has always computed
+  // invited_at_iso8601/activated_at_iso8601/removed_at_iso8601 from real
+  // DB timestamps and returned them on every roster read, but until now
+  // nothing in org.js or app.js ever read those fields - the org owner's
+  // roster cards and the coach's own org-context panel showed a status
+  // badge with no dates at all. Same phantom-field bug class as PR
+  // #877/#878/#879/#880.
+  assert.match(rosterService, /invited_at_iso8601: value\.invited_at instanceof Date/u);
+  assert.match(rosterService, /activated_at_iso8601: value\.activated_at instanceof Date/u);
+  assert.match(rosterService, /removed_at_iso8601: value\.removed_at instanceof Date/u);
+
+  assert.match(orgDashboardJs, /membership\.invited_at_iso8601/u);
+  assert.match(orgDashboardJs, /membership\.activated_at_iso8601/u);
+  assert.match(orgDashboardJs, /membership\.removed_at_iso8601/u);
+
+  assert.match(orgContextPanel, /membership\.activated_at_iso8601/u);
+  assert.match(orgContextPanel, /membership\.invited_at_iso8601/u);
+});
+
 test("org_roster_service.ts's coach_display_name/coach_email are display-only additions, populated solely by the roster-list join", () => {
   assert.match(rosterService, /coach_display_name: string \| null/u);
   assert.match(rosterService, /coach_email: string \| null/u);
@@ -458,6 +588,180 @@ test("athlete names and emails rendered into the visibility view are escaped bef
   assert.match(orgDashboardJs, /escapeHtml\(athlete\.email \|\| "no email"\)/u);
 });
 
+// Part O.9 - the activity log view. Every real mutation in
+// org_roster_service.ts/org_billing_service.ts already writes a factual
+// audit record via writeAuditRecord()/withIdempotentAudit(), but until this
+// slice the only SELECT against product_org_audit_records anywhere was the
+// write-side's own idempotency lookup (findExistingAudit) - the org owner
+// had no route to ever read their own organisation's recorded activity
+// back.
+test("org_roster_service.ts exposes a listOrgAuditLog read path over product_org_audit_records, distinct from the write-side's idempotency-only lookup", () => {
+  assert.match(rosterService, /export async function listOrgAuditLog/u);
+  assert.match(rosterService, /FROM product_org_audit_records/u);
+  assert.match(rosterService, /requireOrganisationOwnedBy/u);
+});
+
+test("the audit-log route resolves identity from authenticatedOrgOwner and delegates to listOrgAuditLog, mirroring the athlete-visibility route's own shape", () => {
+  assert.match(
+    ownerRoutes,
+    /"\/organisations\/:org_id\/audit-log"[\s\S]{0,200}authenticatedOrgOwner\(request, false\)[\s\S]{0,200}listOrgAuditLog/u
+  );
+});
+
+test("each organisation card exposes a real, keyboard-reachable button to view the activity log, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgAuditSection"/u);
+  assert.match(orgDashboardJs, /data-view-audit="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-audit=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-audit\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showAuditSection[\s\S]{0,300}orgRosterSection"\)\.hidden = true[\s\S]{0,300}orgBillingSection"\)\.hidden = true[\s\S]{0,300}orgVisibilitySection"\)\.hidden = true/u
+  );
+});
+
+test("the activity log view calls the new audit-log route, and its back button is a real, keyboard-reachable control", () => {
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAuditBackButton"[^>]*type="button"/u,
+    "orgAuditBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/audit-log`\)/u);
+});
+
+// Progress graphs slices 4-5 - the org-wide progress rollup view, real
+// per-athlete for 'shared'-mode ("team") organisations, aggregate-only
+// for 'individual'-mode ("gym") organisations.
+test("the progress-rollup route resolves identity from authenticatedOrgOwner and delegates to getOrgProgressRollup, mirroring the audit-log route's own shape", () => {
+  assert.match(
+    ownerRoutes,
+    /"\/organisations\/:org_id\/progress-rollup"[\s\S]{0,200}authenticatedOrgOwner\(request, false\)[\s\S]{0,200}getOrgProgressRollup/u
+  );
+});
+
+test("each organisation card exposes a real, keyboard-reachable button to view the progress rollup, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgProgressSection"/u);
+  assert.match(orgDashboardJs, /data-view-progress="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-progress=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-progress\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showProgressSection[\s\S]{0,300}orgRosterSection"\)\.hidden = true[\s\S]{0,300}orgBillingSection"\)\.hidden = true[\s\S]{0,300}orgVisibilitySection"\)\.hidden = true[\s\S]{0,300}orgAuditSection"\)\.hidden = true/u
+  );
+});
+
+test("the progress view calls the new progress-rollup route and the roster route, and its back button is a real, keyboard-reachable control", () => {
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgProgressBackButton"[^>]*type="button"/u,
+    "orgProgressBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/roster`\)/u);
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/progress-rollup`\)/u);
+});
+
+// Progress graphs slice 5 - an 'individual'-mode org's rollup renders a
+// distinct, real branch (never a rejected/error state) - the "Progress"
+// button itself is never hidden client-side regardless of
+// visibility_mode, same as "View athletes".
+test("renderProgress branches on the server's own visibility_mode, rendering a per-coach aggregate trend for individual-mode and a per-athlete roster for shared-mode", () => {
+  assert.match(orgDashboardJs, /rollup\.visibility_mode === "individual"/u);
+  assert.match(orgDashboardJs, /renderAggregateProgress\(coaches, coachNamesById\)/u);
+  assert.match(orgDashboardJs, /renderRosterProgress\(coaches, coachNamesById\)/u);
+  assert.doesNotMatch(orgDashboardJs, /organisation\.visibility_mode[\s\S]{0,80}data-view-progress/u);
+});
+
+test("an individual-mode org's per-coach average is withheld below a 3-athlete cohort, shown as a distinct factual message rather than a chart or a generic error", () => {
+  assert.match(orgDashboardJs, /coach\.insufficient_cohort/u);
+  assert.match(orgDashboardJs, /Not enough athletes yet for a privacy-safe average \(fewer than 3\)\./u);
+});
+
+test("athlete names rendered into the progress view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /escapeHtml\(athlete\.display_name\)/u);
+});
+
+test("coach names and athlete counts rendered into the aggregate progress view are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /coachLabel\(coach\.coach_user_id, coachNamesById\)/u);
+  assert.match(orgDashboardJs, /escapeHtml\(coach\.active_athlete_count\)/u);
+});
+
+test("the progress-view line chart mirrors LineChart.tsx's design exactly: a lone point renders as a dot, not a line, and colors cycle through the same shared CSS custom properties", () => {
+  assert.match(orgDashboardJs, /PROGRESS_CHART_COLORS = \["var\(--k-accent\)", "var\(--k-warning\)", "var\(--k-danger\)", "var\(--k-accent-bright\)"\]/u);
+  assert.match(orgDashboardJs, /entry\.points\.length === 1/u);
+  assert.match(orgDashboardJs, /<circle /u);
+  assert.match(orgDashboardJs, /<path /u);
+  // Deliberately does not import from a shared module - org.js is a
+  // standalone, import-free file (proved above).
+  assert.doesNotMatch(orgDashboardJs, /from ["']\.\/progressChart\.js["']/u);
+});
+
+// Attendance events slice 4 - gym-mode org-wide events, org-owner-only.
+// Mirrors the Progress button's own precedent exactly: the Attendance
+// button always renders for every organisation regardless of
+// visibility_mode, and the server (never the client) decides what's
+// actually allowed - a shared-mode org's create attempt surfaces as the
+// real 403 error text, not a client-side hidden button.
+test("each organisation card exposes a real, keyboard-reachable button to view gym-wide attendance events, and opening it hides every other detail section", () => {
+  assert.match(orgDashboardHtml, /<section id="orgAttendanceSection"/u);
+  assert.match(orgDashboardHtml, /<section id="orgAttendanceDetailSection"/u);
+  assert.match(orgDashboardJs, /data-view-attendance="\$\{escapeHtml\(organisation\.org_id\)\}"/u);
+  assert.match(orgDashboardJs, /<button class="button secondary" type="button" data-view-attendance=/u);
+  assert.match(orgDashboardJs, /querySelectorAll\("\[data-view-attendance\]"\)/u);
+  assert.match(
+    orgDashboardJs,
+    /function showAttendanceSection[\s\S]{0,400}orgRosterSection"\)\.hidden = true[\s\S]{0,400}orgBillingSection"\)\.hidden = true[\s\S]{0,400}orgVisibilitySection"\)\.hidden = true[\s\S]{0,400}orgProgressSection"\)\.hidden = true/u
+  );
+  assert.doesNotMatch(orgDashboardJs, /organisation\.visibility_mode[\s\S]{0,80}data-view-attendance/u);
+});
+
+test("the attendance section calls the new org-owner attendance routes, and its create form and back button are real, keyboard-reachable controls", () => {
+  assert.match(orgDashboardHtml, /<form id="orgAttendanceCreateForm">/u);
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAttendanceBackButton"[^>]*type="button"/u,
+    "orgAttendanceBackButton must be a real <button type=\"button\">"
+  );
+  assert.match(
+    orgDashboardHtml,
+    /<button[^>]*id="orgAttendanceDetailBackButton"[^>]*type="button"/u,
+    "orgAttendanceDetailBackButton must be a real <button type=\"button\">"
+  );
+
+  assert.match(orgDashboardJs, /api\("GET", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/attendance-events`\)/u);
+  assert.match(orgDashboardJs, /api\("POST", `\/org\/organisations\/\$\{encodeURIComponent\(state\.selectedOrgId\)\}\/attendance-events`/u);
+
+  for (const path_ of [
+    '"/organisations/:org_id/attendance-events"',
+    '"/organisations/:org_id/attendance-events/:event_id"',
+    '"/organisations/:org_id/attendance-events/:event_id/cancel"',
+    '"/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/skip"',
+    '"/organisations/:org_id/attendance-events/:event_id/occurrences/:occurrence_id/reschedule"'
+  ]) {
+    assert.ok(ownerRoutes.includes(path_), `expected org owner attendance route ${path_}`);
+  }
+});
+
+test("gym-wide event creation deliberately has no athlete picker in the UI - only descriptive/scheduling fields and the recurrence controls, matching the server's own auto-invite-the-whole-roster design", () => {
+  assert.doesNotMatch(orgDashboardJs, /athlete_user_ids/u, "org.js must never build an explicit invite list - the server auto-invites the whole roster");
+  assert.match(orgDashboardHtml, /invited automatically/u);
+});
+
+test("a skipped occurrence's controls disappear, and a rescheduled occurrence's new date\\/time is actually rendered", () => {
+  assert.match(orgDashboardJs, /occurrence\.status !== "skipped"/u);
+  assert.match(orgDashboardJs, /occurrence\.status === "rescheduled" && occurrence\.rescheduled_to_date/u);
+});
+
+test("athlete names and emails rendered into the gym-wide attendance roster are escaped before being inserted into innerHTML", () => {
+  assert.match(orgDashboardJs, /renderAttendanceRoster/u);
+  const fn = orgDashboardJs.slice(
+    orgDashboardJs.indexOf("function renderAttendanceRoster"),
+    orgDashboardJs.indexOf("function renderAttendanceRoster") + 600
+  );
+  assert.match(fn, /escapeHtml\(entry\.display_name\)/u);
+  assert.match(fn, /escapeHtml\(entry\.email \|\| "no email"\)/u);
+});
+
 // Part O.6 - athlete-facing team/org context. The athlete panel used to be
 // gated entirely on a message thread already existing, but threads are
 // created lazily on first send and the panel was the only place the
@@ -481,23 +785,24 @@ test("the athlete-facing org-context route exists on the coach-workspace router,
 });
 
 test("the athlete org-messages panel calls the new org-context route and merges it with existing threads by org_id, so it no longer requires a thread to already exist", () => {
-  assert.match(appJs, /api\("GET", "\/coach-workspace\/org-context\/mine"\)/u);
-  assert.match(appJs, /function combinedAthleteOrgEntries/u);
-  assert.match(appJs, /const entries = combinedAthleteOrgEntries\(\);/u);
-  assert.doesNotMatch(
-    appJs,
-    /const entries = Array\.isArray\(state\.athleteOrgMessageThreads\) \? state\.athleteOrgMessageThreads : \[\];\s*\n\s*if \(entries\.length === 0\)/u,
-    "the panel's emptiness check must no longer be gated solely on thread existence"
-  );
+  assert.match(accountRelationshipsClient, /export async function loadAthleteOrgContextMine/u);
+  assert.match(accountRelationshipsClient, /"\/coach-workspace\/org-context\/mine"/u);
+  assert.match(orgMessagesHook, /function combineEntries/u);
+  assert.match(orgMessagesHook, /combineEntries\(threadEntries, contexts\)/u);
+  // The panel's emptiness check is no longer gated solely on thread
+  // existence - it reads the merged entries (thread + org-context), not
+  // just whatever org-messages threads already happen to exist.
+  assert.match(orgMessagesHook, /Promise\.all\(\[\s*\n\s*loadAthleteOrgMessageThreadsMine\(\),\s*\n\s*loadAthleteOrgContextMine\(\)/u);
 });
 
 test("the athlete org-messages panel only renders a send form for shared-mode org context, never individual-mode", () => {
-  assert.match(appJs, /entry\.visibility_mode === "shared"/u);
-  assert.match(appJs, /no team messaging/u);
+  assert.match(orgMessagesPanel, /entry\.visibility_mode === "shared"/u);
+  assert.match(orgMessagesPanel, /no team messaging/u);
 });
 
-test("org names rendered into the athlete org-messages panel are escaped before being inserted into innerHTML", () => {
-  assert.match(appJs, /escapeHtml\(entry\.org_name\)/u);
+test("org names rendered into the athlete org-messages panel are inert text, never raw HTML", () => {
+  assert.doesNotMatch(orgMessagesPanel, /dangerouslySetInnerHTML/u);
+  assert.match(orgMessagesPanel, /<strong>\{entry\.org_name\}<\/strong>/u);
 });
 
 // Part O.7 - coach-facing org/team context, the mirror of O.6's athlete
@@ -516,23 +821,98 @@ test("the coach fellow-roster route is authorized by active membership, never by
   assert.match(scopedBody, /visibility_mode !== "shared"/u);
 });
 
-test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode orgs", () => {
-  assert.match(appJs, /api\("GET", "\/coach-workspace\/org-memberships"\)/u);
-  assert.match(appJs, /api\(\s*"GET",\s*`\/coach-workspace\/organisations\/\$\{encodeURIComponent\(membership\.org_id\)\}\/roster`/u);
-  assert.match(appJs, /if \(membership\.visibility_mode !== "shared"\)/u);
+test("the coach org-context panel calls both the org-memberships and fellow-roster routes, and only fetches the roster for shared-mode, currently-active memberships - never for a merely-invited one, which the roster route itself would 403 on", () => {
+  assert.match(accountRelationshipsClient, /"\/coach-workspace\/org-memberships"/u);
+  assert.match(accountRelationshipsClient, /`\/coach-workspace\/organisations\/\$\{encodeURIComponent\(orgId\)\}\/roster`/u);
+  assert.match(orgContextHook, /if \(membership\.visibility_mode !== "shared" \|\| membership\.membership_status !== "active"\)/u);
 });
 
-test("the coach org-context panel is gated to state.role === \"coach\" and mirrors the athlete panel's insertion pattern", () => {
-  assert.match(appJs, /function refreshCoachOrgContext/u);
-  assert.match(appJs, /if \(state\.role !== "coach"\) return;/u);
-  assert.match(appJs, /panel\.id = "coachOrgContextPanel";/u);
-  assert.match(appJs, /\.querySelector\("#view-account \.two-column"\)\s*\n\s*\.insertAdjacentElement\("afterend", panel\);/u);
+test("the coach org-context panel is gated to the coach role, since the org-memberships route 403s for an athlete session", () => {
+  assert.match(orgContextPanel, /useRole\(\) === "coach"/u);
+  assert.match(orgContextPanel, /if \(!isCoach\) return null;/u);
 });
 
-test("org names and fellow-coach names/emails rendered into the coach org-context panel are escaped before being inserted into innerHTML", () => {
-  assert.match(appJs, /escapeHtml\(entry\.membership\.org_name\)/u);
-  assert.match(appJs, /escapeHtml\(fellow\.coach_display_name \|\| fellow\.coach_user_id\)/u);
-  assert.match(appJs, /escapeHtml\(fellow\.coach_email\)/u);
+test("org names and fellow-coach names/emails rendered into the coach org-context panel are inert text, never raw HTML", () => {
+  assert.doesNotMatch(orgContextPanel, /dangerouslySetInnerHTML/u);
+  assert.match(orgContextPanel, /\{String\(membership\.org_name \?\? ""\)\}/u);
+  // #1076 replaced the raw coach_user_id fallback with plain consumer
+  // wording ("A connected coach") - see AccountOrgContextPanel.tsx.
+  assert.match(orgContextPanel, /\{String\(fellow\.coach_display_name \|\| "A connected coach"\)\}/u);
+});
+
+// The manifest's coach_org_membership function has claimed "accepts and
+// leaves org memberships" as implemented since Part B.2, backed by real,
+// already-tested routes - but until now nothing in the coach workspace
+// ever called them. A coach invited to an org had no way to ever move
+// past "invited", and an active member had no way to ever leave.
+test("the coach org-context panel actually renders Accept/Leave controls wired to the coach's own already-implemented accept/leave routes", () => {
+  assert.match(orgContextPanel, /membership\.membership_status === "invited"/u);
+  assert.match(orgContextPanel, />Accept invitation<\/button>/u);
+  assert.match(orgContextPanel, /membership\.membership_status === "active"/u);
+  assert.match(orgContextPanel, />Leave organisation<\/button>/u);
+
+  assert.match(accountRelationshipsClient, /export async function resolveCoachOrgMembershipAction/u);
+  assert.match(
+    accountRelationshipsClient,
+    /`\/coach-workspace\/org-memberships\/\$\{encodeURIComponent\(membershipId\)\}\/\$\{action\}`/u
+  );
+  assert.match(orgContextHook, /await refresh\(\);/u);
+  assert.match(orgContextPanel, /onClick=\{\(\) => accept\(membershipId\)\}/u);
+  assert.match(orgContextPanel, /onClick=\{\(\) => leave\(membershipId\)\}/u);
+});
+
+// Part O.9 - the coach's own org-owner<->coach thread (org_coach_messaging),
+// previously API-only. Mirrors the athlete org-messages panel's merge
+// pattern above as closely as the underlying data allows - see
+// useCoachOrgMessages.ts's DEV NOTE for why org_name is sourced from
+// loadCoachOrgMemberships rather than the thread row.
+test("the coach org-messages panel merges org-messages threads with the coach's own org-memberships by org_id, so it no longer requires a thread to already exist", () => {
+  assert.match(accountRelationshipsClient, /export async function loadCoachOrgMessageThreadsMine/u);
+  assert.match(accountRelationshipsClient, /"\/coach-workspace\/org-messages\/threads"/u);
+  assert.match(coachOrgMessagesHook, /function combineEntries/u);
+  assert.match(coachOrgMessagesHook, /combineEntries\(threadEntries, memberships\)/u);
+  assert.match(
+    coachOrgMessagesHook,
+    /Promise\.all\(\[\s*\n\s*loadCoachOrgMessageThreadsMine\(\),\s*\n\s*loadCoachOrgMemberships\(\)/u
+  );
+});
+
+test("the coach org-messages panel only renders a send form for an active membership in shared-mode - an invited or removed membership, or an individual (gym) org, gets explanatory text instead, never a form the send route would 403 on", () => {
+  assert.match(coachOrgMessagesPanel, /entry\.membership_status === "active" && entry\.visibility_mode === "shared"/u);
+  assert.match(coachOrgMessagesPanel, /no longer an active member/u);
+  assert.match(coachOrgMessagesPanel, /no organisation messaging/u);
+});
+
+test("the coach org-messages panel is gated to the coach role, since the org-memberships and org-messages routes 403 for an athlete session", () => {
+  assert.match(coachOrgMessagesPanel, /useRole\(\) === "coach"/u);
+  assert.match(coachOrgMessagesPanel, /if \(!isCoach\) return null;/u);
+});
+
+test("org names and message bodies rendered into the coach org-messages panel are inert text, never raw HTML", () => {
+  assert.doesNotMatch(coachOrgMessagesPanel, /dangerouslySetInnerHTML/u);
+  assert.match(coachOrgMessagesPanel, /const orgName = entry\.org_name \|\| "Organisation";/u);
+  assert.match(coachOrgMessagesPanel, /<strong>\{orgName\}<\/strong>/u);
+});
+
+test("sending a coach org-message posts to the send route with the coach's own csrf token, mirroring sendAthleteOrgMessage", () => {
+  assert.match(accountRelationshipsClient, /export async function sendCoachOrgMessage/u);
+  assert.match(
+    accountRelationshipsClient,
+    /sendMessageRequest\(`\/coach-workspace\/org-messages\/organisations\/\$\{encodeURIComponent\(orgId\)\}\/send`, bodyText, attachmentFile, csrfToken\)/u
+  );
+  assert.match(coachOrgMessagesHook, /await sendCoachOrgMessage\(orgId, trimmed, attachmentFile, csrfToken\);/u);
+});
+
+test("a live org_coach_message push is forwarded from app.js to the coach org-messages panel via a dedicated custom event, mirroring the org_athlete_message branch", () => {
+  assert.match(appJs, /envelope\.type === "org_coach_message" && state\.role === "coach"/u);
+  assert.match(appJs, /kolosseum:coach-org-message-received/u);
+  assert.match(coachOrgMessagesHook, /MESSAGE_RECEIVED_EVENT = "kolosseum:coach-org-message-received"/u);
+});
+
+test("the coach org-messages panel is mounted into the product app's shared account view, not the separate org-owner SPA", () => {
+  assert.match(productAppIndexHtml, /<div id="coach-org-messages-root"><\/div>/u);
+  assert.match(mainTsx, /import \{ CoachOrgMessagesPanel \} from ".\/screens\/account\/CoachOrgMessagesPanel";/u);
+  assert.match(mainTsx, /mount\("coach-org-messages-root", <CoachOrgMessagesPanel \/>\);/u);
 });
 
 // Part O.5 - the org<->coach and org<->athlete messaging inboxes, built
@@ -592,4 +972,47 @@ test("message body text and attachment URLs rendered into the thread view are es
 test("O.5 sends no attachment upload from the org-owner UI - text-only, matching public/app/app.js's own text-only send branch", () => {
   assert.doesNotMatch(orgDashboardJs, /FormData/u);
   assert.doesNotMatch(orgDashboardJs, /attachmentUpload|\.single\("attachment"\)/u);
+});
+
+test("an attachment's byte_size, already returned by org_coach_messaging_service.ts and org_athlete_messaging_service.ts, is shown to the user as a human-readable file size, matching the same fix in public/app/app.js", () => {
+  assert.match(orgDashboardJs, /function formatAttachmentSize/u);
+  assert.match(orgDashboardJs, /formatAttachmentSize\(attachment\.byte_size\)/u);
+});
+
+test("the org owner's own last-read marker is shared across both org_owner_coach and org_owner_athlete threads, reusing coach_last_read_at/athlete_last_read_at for the coach/athlete side of each - the same column-reuse-across-thread-type convention this table already uses", () => {
+  assert.match(schema, /ADD COLUMN IF NOT EXISTS owner_last_read_at TIMESTAMPTZ/u);
+});
+
+test("org-coach unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number, for both the owner and coach side", () => {
+  assert.match(orgCoachMessagingService, /m\.sender_role = 'coach'/u);
+  assert.match(orgCoachMessagingService, /COALESCE\(t\.owner_last_read_at, '-infinity'::timestamptz\)/u);
+  assert.match(orgCoachMessagingService, /m\.sender_role = 'org_owner'/u);
+  assert.match(orgCoachMessagingService, /COALESCE\(t\.coach_last_read_at, '-infinity'::timestamptz\)/u);
+});
+
+test("opening an org-coach thread's messages marks it read for that viewer only, on both the owner and coach side", () => {
+  assert.match(orgCoachMessagingService, /UPDATE product_message_threads SET owner_last_read_at = now\(\) WHERE thread_id = \$1/u);
+  assert.match(orgCoachMessagingService, /UPDATE product_message_threads SET coach_last_read_at = now\(\) WHERE thread_id = \$1/u);
+});
+
+test("org-athlete unread count is a live derived COUNT of the peer's messages since the viewer's own last-read marker, never a stored/cached number, for both the owner and athlete side", () => {
+  assert.match(orgAthleteMessagingService, /m\.sender_role = 'athlete'/u);
+  assert.match(orgAthleteMessagingService, /COALESCE\(t\.owner_last_read_at, '-infinity'::timestamptz\)/u);
+  assert.match(orgAthleteMessagingService, /m\.sender_role = 'org_owner'/u);
+  assert.match(orgAthleteMessagingService, /COALESCE\(t\.athlete_last_read_at, '-infinity'::timestamptz\)/u);
+});
+
+test("opening an org-athlete thread's messages marks it read for that viewer only, on both the owner and athlete side", () => {
+  assert.match(orgAthleteMessagingService, /UPDATE product_message_threads SET owner_last_read_at = now\(\) WHERE thread_id = \$1/u);
+  assert.match(orgAthleteMessagingService, /UPDATE product_message_threads SET athlete_last_read_at = now\(\) WHERE thread_id = \$1/u);
+});
+
+test("the org owner dashboard shows a live unread badge per thread, and refreshes the list when returning from a thread so the badge clears", () => {
+  assert.match(orgDashboardJs, /Number\(entry\.thread\?\.unread_count\) > 0/u);
+  assert.match(orgDashboardJs, /function hideThreadDetailSection/u);
+  const fn = orgDashboardJs.slice(
+    orgDashboardJs.indexOf("function hideThreadDetailSection"),
+    orgDashboardJs.indexOf("function hideThreadDetailSection") + 500
+  );
+  assert.match(fn, /refreshMessages\(\)/u);
 });

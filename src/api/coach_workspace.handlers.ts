@@ -14,10 +14,17 @@ import {
   listCoachAthleteRelationships,
   listConnectedCoachAthletes,
   loadAthleteStrengthProfile,
-  loadPersistedProgrammeStrengthPreflight,
-  reconstructResolvedStrengthLoadSource,
+  requireCoachAthleteAccess,
   saveAthleteStrengthProfile
 } from "./beta19_coach_workspace_service.js";
+import {
+  AthleteActivityChangeError,
+  getAthleteActivityChangeState,
+  getAthletePositionChangeState,
+  proposeAthleteActivityChangeForCoach,
+  proposeAthletePositionChangeForCoach
+} from "./athlete_activity_change_service.js";
+import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
 import {
   badRequest,
   conflict,
@@ -32,6 +39,7 @@ import {
 import {
   Beta19CoachEventError,
   assignAthleteProgrammeFromProfile,
+  buildCoachEventsCalendar,
   createCoachEvent as createCoachEventRecord,
   listAthleteEventLinks,
   listCoachEvents
@@ -110,6 +118,23 @@ function rethrowWorkspaceError(error: unknown): never {
     });
   }
 
+  if (error instanceof AthleteActivityChangeError) {
+    if (error.status === 404) {
+      throw notFound("ACTIVITY_CHANGE_PROPOSAL_NOT_FOUND", { failure_token: error.code });
+    }
+    if (error.status === 409) {
+      throw conflict("ACTIVITY_CHANGE_REQUEST_CONFLICT", { failure_token: error.code });
+    }
+    throw badRequest("ACTIVITY_CHANGE_REQUEST_INVALID", { failure_token: error.code });
+  }
+
+  // A coach-proposed position change can fail assertPositionMatchesActivity's
+  // own cross-check (athlete_onboarding_service.ts) - surface it the same
+  // way every other validation failure in this file is surfaced.
+  if (error instanceof AthleteOnboardingError) {
+    throw badRequest("POSITION_CHANGE_REQUEST_INVALID", { failure_token: error.code, field_errors: error.field_errors });
+  }
+
   throw error;
 }
 
@@ -131,6 +156,56 @@ export async function getCoachAthleteRelationships(
       coach_user_id: coachUserId,
       relationships
     });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+// DEV NOTE: FULL-UI-70 coach roster CSV export. A read-only reformatting
+// of the same factual relationship records the Athletes directory
+// already displays - no new record type, no engine involvement, and the
+// same session-derived coach identity every other handler in this file
+// uses. Distinct in purpose from data_rights' GDPR personal-data export:
+// this is the coach's own operational roster of their athletes, not an
+// account's export of its own personal data.
+export function csvEscapeField(value: string): string {
+  if (/[",\r\n]/u.test(value)) {
+    return `"${value.replace(/"/gu, '""')}"`;
+  }
+  return value;
+}
+
+export async function exportCoachAthleteRosterCsv(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const relationships = await listCoachAthleteRelationships(coachUserId);
+
+    const header = ["display_name", "email", "activity_id", "relationship_state", "connected_since"];
+    const rows = relationships.map((entry) => [
+      String(entry.display_name ?? ""),
+      String(entry.email ?? ""),
+      String(entry.activity_id ?? ""),
+      String(entry.relationship_state ?? ""),
+      String(
+        (entry.relationship as { accepted_at_iso8601?: string; created_at_iso8601?: string } | undefined)
+          ?.accepted_at_iso8601 ??
+        (entry.relationship as { created_at_iso8601?: string } | undefined)?.created_at_iso8601 ??
+        ""
+      )
+    ]);
+
+    const csv = [header, ...rows]
+      .map((row) => row.map(csvEscapeField).join(","))
+      .join("\r\n");
+
+    res.status(200);
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="athlete-roster-${coachUserId}.csv"`);
+    return res.send(csv);
   }
   catch (error) {
     rethrowWorkspaceError(error);
@@ -225,32 +300,24 @@ export async function saveAthleteStrengthProfileHandler(
   }
 }
 
-export async function preflightAthleteStrengthProfile(
+export async function getAthleteActivityChangeStateHandler(
   req: Request,
   res: Response
 ) {
   try {
-    const coachUserId = await authenticatedCoach(req, true);
-    const preflight =
-      await loadPersistedProgrammeStrengthPreflight(
-        coachUserId,
-        cleanString(
-          req.body?.athlete_user_id
-        ),
-        cleanString(
-          req.body?.template_id
-        ),
-        cleanString(
-          req.body?.as_of_date
-        ) ||
-        new Date()
-          .toISOString()
-          .slice(0, 10)
-      );
+    const coachUserId = await authenticatedCoach(req, false);
+    const athleteUserId = cleanString(req.query.athlete_user_id);
+    if (!athleteUserId) {
+      throw badRequest("ATHLETE_ACTIVITY_CHANGE_ATHLETE_REQUIRED", {
+        failure_token: "athlete_activity_change_athlete_required"
+      });
+    }
+    await requireCoachAthleteAccess(coachUserId, athleteUserId);
+    const activityChange = await getAthleteActivityChangeState(athleteUserId);
 
     return res.status(200).json({
       ok: true,
-      preflight
+      activity_change: activityChange
     });
   }
   catch (error) {
@@ -258,42 +325,17 @@ export async function preflightAthleteStrengthProfile(
   }
 }
 
-export async function resolveAthleteStrengthLoad(
+export async function proposeAthleteActivityChangeHandler(
   req: Request,
   res: Response
 ) {
   try {
     const coachUserId = await authenticatedCoach(req, true);
-    const resolved =
-      await reconstructResolvedStrengthLoadSource(
-        coachUserId,
-        cleanString(
-          req.body?.athlete_user_id
-        ),
-        cleanString(
-          req.body?.exercise_id
-        ),
-        Number(
-          req.body?.percentage
-        ),
-        {
-          target_unit:
-            cleanString(
-              req.body?.target_unit
-            ),
-          rounding_increment:
-            req.body
-              ?.rounding_increment,
-          as_of_date:
-            cleanString(
-              req.body?.as_of_date
-            )
-        }
-      );
+    const proposal = await proposeAthleteActivityChangeForCoach(coachUserId, req.body);
 
-    return res.status(200).json({
+    return res.status(201).json({
       ok: true,
-      resolved
+      proposal
     });
   }
   catch (error) {
@@ -301,6 +343,48 @@ export async function resolveAthleteStrengthLoad(
   }
 }
 
+export async function getAthletePositionChangeStateHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const athleteUserId = cleanString(req.query.athlete_user_id);
+    if (!athleteUserId) {
+      throw badRequest("ATHLETE_ACTIVITY_CHANGE_ATHLETE_REQUIRED", {
+        failure_token: "athlete_activity_change_athlete_required"
+      });
+    }
+    await requireCoachAthleteAccess(coachUserId, athleteUserId);
+    const positionChange = await getAthletePositionChangeState(athleteUserId);
+
+    return res.status(200).json({
+      ok: true,
+      position_change: positionChange
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function proposeAthletePositionChangeHandler(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, true);
+    const proposal = await proposeAthletePositionChangeForCoach(coachUserId, req.body);
+
+    return res.status(201).json({
+      ok: true,
+      proposal
+    });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
 
 export async function previewEventProgrammeCalendar(
   req: Request,
@@ -333,6 +417,27 @@ export async function getCoachEvents(
       coach_user_id: coachUserId,
       events
     });
+  }
+  catch (error) {
+    rethrowWorkspaceError(error);
+  }
+}
+
+export async function getCoachEventsCalendar(
+  req: Request,
+  res: Response
+) {
+  try {
+    const coachUserId = await authenticatedCoach(req, false);
+    const events = await listCoachEvents(coachUserId);
+    const calendar = buildCoachEventsCalendar(events);
+
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="kolosseum-events.ics"'
+    );
+    return res.status(200).send(calendar);
   }
   catch (error) {
     rethrowWorkspaceError(error);

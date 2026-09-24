@@ -62,7 +62,7 @@ const REQUIRED_DOC_MARKERS = [
   "auth and permissions",
   "proof, replay, and export",
   "no-coupling and engine truth",
-  "npm.cmd run lint:fast",
+  "npm.cmd run verify",
   "docs/GUARDS_INDEX.md",
   "docs/dev/FAILURE_TOKEN_INDEX.md",
   "docs/checksums.sha256",
@@ -74,7 +74,7 @@ const REQUIRED_COMMAND_GUIDE_MARKERS = [
   "docs/v1/V1_CI_MASTER_GATE.md",
   "docs/v1/V1_CI_MASTER_GATE.json",
   "node ci/guards/s_v1_08_ci_master_gate_definition_guard.mjs",
-  "npm.cmd run lint:fast",
+  "npm.cmd run verify",
   "v0 closure, v1 boundary, registry, copy/claims, auth/permissions, proof/replay/export, and no-coupling/engine-truth"
 ];
 
@@ -172,9 +172,9 @@ if (manifest) {
     });
   }
 
-  if (manifest.current_primary_local_gate !== "npm.cmd run lint:fast") {
+  if (manifest.current_primary_local_gate !== "npm.cmd run verify") {
     fail("Manifest primary local gate is wrong.", {
-      expected: "npm.cmd run lint:fast",
+      expected: "npm.cmd run verify",
       actual: manifest.current_primary_local_gate
     });
   }

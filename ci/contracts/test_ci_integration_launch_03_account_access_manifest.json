@@ -1,0 +1,7 @@
+{
+  "label": "test:ci:integration LAUNCH-03 public account access",
+  "commands": [
+    "node test/launch_03_public_account_access.test.mjs",
+    "node test/full_ui_25_relationship_lifecycle_persistent.integration.test.mjs"
+  ]
+}

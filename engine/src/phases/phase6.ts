@@ -24,6 +24,8 @@ export type Phase6SessionExercise = {
   intensity?:
     | { type: "percent_1rm"; value: number }
     | { type: "rpe"; value: number }
+    | { type: "borg"; value: number }
+    | { type: "cr10"; value: number }
     | {
         type: "load";
         value: number;
@@ -43,6 +45,41 @@ export type Phase6SessionExercise = {
     rounding_increment: number;
   } | null;
   rest_seconds?: number;
+
+  // Grouping trace (ONLY if the item belongs to a group)
+  group_id?: string;
+  group_type?: "superset" | "circuit" | "complex" | "amrap" | "emom" | "for_time";
+
+  // Timed-group parameters (ONLY if the group type declares them - amrap/
+  // for_time carry a time cap, emom carries a round length and round count;
+  // complex needs neither since it is a single pass through the exercises)
+  group_time_cap_seconds?: number;
+  group_round_seconds?: number;
+  group_total_rounds?: number;
+
+  // Session-structure annotation (always present; defaults to "working")
+  segment?: "warm_up" | "working" | "cool_down";
+
+  // Coaching annotation (ONLY if a non-empty note was authored)
+  coaching_notes?: string;
+
+  // Coaching tempo annotation (ONLY if a non-empty tempo was authored)
+  tempo?: string;
+
+  // Duration-based prescription (ONLY if the item is duration-prescribed)
+  duration_seconds?: number;
+  duration_range?: {
+    minimum: number;
+    maximum: number;
+  };
+
+  // Distance-based prescription (ONLY if the item is distance-prescribed)
+  distance_value?: number;
+  distance_unit?: "meters" | "feet";
+  distance_range?: {
+    minimum: number;
+    maximum: number;
+  };
 
   // Substitution trace (ONLY if the substituted exercise is emitted)
   substituted_from?: string;
@@ -64,6 +101,8 @@ type Phase5Like =
   | undefined;
 
 type SubRule = { target: string; sub: string };
+
+const GROUP_TYPE_VALUES = new Set(["superset", "circuit", "complex", "amrap", "emom", "for_time"]);
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return !!v && typeof v === "object" && !Array.isArray(v);
@@ -153,6 +192,42 @@ function repRangeFromItem(item: any): { minimum: number; maximum: number } | und
   return { minimum, maximum };
 }
 
+function durationRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.duration_range)) return undefined;
+
+  const minimum = Number(item.duration_range.minimum);
+  const maximum = Number(item.duration_range.maximum);
+
+  if (
+    !Number.isInteger(minimum) ||
+    !Number.isInteger(maximum) ||
+    minimum < 1 ||
+    maximum < minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
+function distanceRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.distance_range)) return undefined;
+
+  const minimum = Number(item.distance_range.minimum);
+  const maximum = Number(item.distance_range.maximum);
+
+  if (
+    !Number.isFinite(minimum) ||
+    !Number.isFinite(maximum) ||
+    minimum <= 0 ||
+    maximum < minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
 /**
  * Phase 6
  * Contract required by tests/goldens:
@@ -229,6 +304,50 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
         : null,
       rest_seconds: typeof it.rest_seconds === "number" ? it.rest_seconds : undefined
     };
+
+    // Grouping trace only exists if the item actually belongs to a group.
+    const groupId = typeof it.group_id === "string" ? it.group_id : "";
+    if (groupId) {
+      ex.group_id = groupId;
+      ex.group_type = GROUP_TYPE_VALUES.has(it.group_type as string) ? (it.group_type as Phase6SessionExercise["group_type"]) : "superset";
+
+      // Timed-group parameters only exist for the group types that need them
+      // (ONLY if the coach declared them - complex groups need neither).
+      const timeCapSeconds = typeof it.group_time_cap_seconds === "number" ? it.group_time_cap_seconds : 0;
+      if (timeCapSeconds > 0) ex.group_time_cap_seconds = timeCapSeconds;
+      const roundSeconds = typeof it.group_round_seconds === "number" ? it.group_round_seconds : 0;
+      if (roundSeconds > 0) ex.group_round_seconds = roundSeconds;
+      const totalRounds = typeof it.group_total_rounds === "number" ? it.group_total_rounds : 0;
+      if (totalRounds > 0) ex.group_total_rounds = totalRounds;
+    }
+
+    // Segment always carries a value (defaults to "working", same as the builder).
+    ex.segment = it.segment === "warm_up" || it.segment === "cool_down" ? it.segment : "working";
+
+    // Coaching annotations only exist if actually authored.
+    const coachingNotes = typeof it.coaching_notes === "string" ? it.coaching_notes.trim() : "";
+    if (coachingNotes) ex.coaching_notes = coachingNotes;
+
+    const tempo = typeof it.tempo === "string" ? it.tempo.trim() : "";
+    if (tempo) ex.tempo = tempo;
+
+    // Duration prescription only exists if the item is actually duration-prescribed.
+    const durationRange = durationRangeFromItem(it);
+    if (durationRange) {
+      ex.duration_range = durationRange;
+    } else if (typeof it.duration_seconds === "number" && Number.isInteger(it.duration_seconds) && it.duration_seconds > 0) {
+      ex.duration_seconds = it.duration_seconds;
+    }
+
+    // Distance prescription only exists if the item is actually distance-prescribed.
+    const distanceRange = distanceRangeFromItem(it);
+    if (distanceRange) {
+      ex.distance_range = distanceRange;
+      ex.distance_unit = it.distance_unit === "feet" ? "feet" : "meters";
+    } else if (typeof it.distance_value === "number" && Number.isFinite(it.distance_value) && it.distance_value > 0) {
+      ex.distance_value = it.distance_value;
+      ex.distance_unit = it.distance_unit === "feet" ? "feet" : "meters";
+    }
 
     // Trace only exists if the substituted exercise is actually emitted.
     if (finalId !== originalId) ex.substituted_from = originalId;

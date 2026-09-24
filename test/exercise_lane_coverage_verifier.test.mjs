@@ -52,27 +52,27 @@ function makeTempRegistries({ movementEntries, exerciseEntries }) {
 test("P60: verifier passes when every movement lane has at least one exercise", () => {
   const { movementRegistryPath, exerciseRegistryPath } = makeTempRegistries({
     movementEntries: {
-      horizontal_push: { movement_id: "horizontal_push" },
-      vertical_push: { movement_id: "vertical_push" },
-      squat: { movement_id: "squat" },
-      hinge: { movement_id: "hinge" },
+      horizontal_push: { movement_pattern_id: "horizontal_push" },
+      vertical_push: { movement_pattern_id: "vertical_push" },
+      squat: { movement_pattern_id: "squat" },
+      hinge: { movement_pattern_id: "hinge" },
     },
     exerciseEntries: {
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
       },
       overhead_press: {
         exercise_id: "overhead_press",
-        pattern: "vertical_push",
+        movement_pattern_id: "vertical_push",
       },
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
       },
       deadlift: {
         exercise_id: "deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
       },
     },
   });
@@ -103,23 +103,23 @@ test("P60: verifier passes when every movement lane has at least one exercise", 
 test("P60: verifier fails when a movement lane has zero exercises", () => {
   const { movementRegistryPath, exerciseRegistryPath } = makeTempRegistries({
     movementEntries: {
-      horizontal_push: { movement_id: "horizontal_push" },
-      vertical_push: { movement_id: "vertical_push" },
-      squat: { movement_id: "squat" },
-      hinge: { movement_id: "hinge" },
+      horizontal_push: { movement_pattern_id: "horizontal_push" },
+      vertical_push: { movement_pattern_id: "vertical_push" },
+      squat: { movement_pattern_id: "squat" },
+      hinge: { movement_pattern_id: "hinge" },
     },
     exerciseEntries: {
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
       },
       overhead_press: {
         exercise_id: "overhead_press",
-        pattern: "vertical_push",
+        movement_pattern_id: "vertical_push",
       },
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
       },
     },
   });
@@ -137,27 +137,27 @@ test("P60: verifier fails when a movement lane has zero exercises", () => {
 test("P60: verifier fails when an exercise references an unknown movement lane", () => {
   const { movementRegistryPath, exerciseRegistryPath } = makeTempRegistries({
     movementEntries: {
-      horizontal_push: { movement_id: "horizontal_push" },
-      vertical_push: { movement_id: "vertical_push" },
-      squat: { movement_id: "squat" },
-      hinge: { movement_id: "hinge" },
+      horizontal_push: { movement_pattern_id: "horizontal_push" },
+      vertical_push: { movement_pattern_id: "vertical_push" },
+      squat: { movement_pattern_id: "squat" },
+      hinge: { movement_pattern_id: "hinge" },
     },
     exerciseEntries: {
       bench_press: {
         exercise_id: "bench_press",
-        pattern: "horizontal_push",
+        movement_pattern_id: "horizontal_push",
       },
       strange_press: {
         exercise_id: "strange_press",
-        pattern: "diagonal_push",
+        movement_pattern_id: "diagonal_push",
       },
       back_squat: {
         exercise_id: "back_squat",
-        pattern: "squat",
+        movement_pattern_id: "squat",
       },
       deadlift: {
         exercise_id: "deadlift",
-        pattern: "hinge",
+        movement_pattern_id: "hinge",
       },
     },
   });
@@ -172,10 +172,10 @@ test("P60: verifier fails when an exercise references an unknown movement lane",
   );
 });
 
-test("P60: verifier fails when an exercise is missing pattern", () => {
+test("P60: verifier fails when an exercise is missing movement_pattern_id", () => {
   const { movementRegistryPath, exerciseRegistryPath } = makeTempRegistries({
     movementEntries: {
-      horizontal_push: { movement_id: "horizontal_push" },
+      horizontal_push: { movement_pattern_id: "horizontal_push" },
     },
     exerciseEntries: {
       bench_press: {
@@ -190,6 +190,6 @@ test("P60: verifier fails when an exercise is missing pattern", () => {
         movementRegistryPath,
         exerciseRegistryPath,
       }),
-    /missing required field 'pattern'/i
+    /missing required field 'movement_pattern_id'/i
   );
 });

@@ -1,14 +1,29 @@
 // DEV NOTE: Organisation/team billing commercial expansion (part C) - org
 // owner athlete visibility, scoped by the organisation's declared
-// visibility_mode. This is one of only TWO org-owner-facing files that
+// visibility_mode. This is one of only FOUR org-owner-facing files that
 // legitimately read athlete-scoped data (beta_product_records /
-// beta17_coach_relationship rows) - the other is org_athlete_messaging_
+// beta17_coach_relationship rows) - the others are org_athlete_messaging_
 // service.ts (part D.4), which reuses this file's same visibility_mode
-// boundary for its own gate. Every other org file (org_owner_account_
-// service.ts, org_owner_auth.ts, org_owner.routes.ts, org_roster_service.ts,
-// org_billing_service.ts, coach_org_membership.routes.ts,
-// org_coach_messaging_service.ts) never does, and must not be edited to do
-// so. Access is gated by
+// boundary for its own gate; org_progress_rollup_service.ts (progress
+// graphs slices 4-5), which calls getOrgAthleteVisibility() below
+// directly for both its own visibility_mode gate AND its per-coach
+// active_athlete_count; and attendance_event_gym_roster_service.ts
+// (attendance events slice 4), which reveals real athlete identity for
+// an 'individual'-mode org ONLY for an attendance event the owner
+// themselves created (never a general gym-mode roster read) - see that
+// file's own DEV NOTE for exactly how narrowly that exception is scoped.
+// For 'shared'-mode it enriches OrgVisibilityRoster with real per-
+// athlete progress; for 'individual'-mode it does its OWN separate
+// athlete-scoped reads (not via aggregateCountsForOrg() below) to
+// compute a per-coach AVERAGE adherence trend - see that file's own DEV
+// NOTE for the k-anonymity-style cohort-size threshold that keeps this
+// consistent with the "no athlete identity leaves individual mode"
+// invariant below, even though the averaging itself necessarily touches
+// real per-athlete numbers to get there.
+// Every other org file (org_owner_account_service.ts, org_owner_auth.ts,
+// org_owner.routes.ts, org_roster_service.ts, org_billing_service.ts,
+// coach_org_membership.routes.ts, org_coach_messaging_service.ts) never
+// does, and must not be edited to do so. Access is gated by
 // product_organisations.visibility_mode, which is declared once at org
 // creation and immutable afterward:
 //   - "individual" (default): AGGREGATE COUNTS ONLY per coach - no
@@ -25,6 +40,8 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { loadLatestBetaProductRecord } from "./beta_product_record_store.js";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
+import { csvEscapeField } from "./coach_workspace.handlers.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -221,6 +238,8 @@ export type OrgVisibilityRoster = Readonly<{
       display_name: string;
       email: string | null;
       relationship_state: RelationshipState;
+      activity_id: string | null;
+      position: string | null;
     }>[];
   }>[];
 }>;
@@ -241,17 +260,49 @@ async function fullRosterForOrg(
 
       const athletes = await Promise.all(
         forCoach.map(async (relationship) => {
-          const auth = await loadLatestBetaProductRecord(
-            "beta16_auth",
-            relationship.athlete_user_id,
-            relationship.athlete_user_id
-          );
+          // A failure loading one athlete's auth record (a malformed
+          // relationship row, or just a transient read failure) must never
+          // take down the ENTIRE org roster - this inner Promise.all sits
+          // inside an outer Promise.all across every coach in the org, so
+          // an unhandled rejection here would cascade and hide every other
+          // coach's athletes too. Falling back to null degrades this one
+          // athlete to the same "record doesn't exist yet" defaults used
+          // below for a legitimately-absent record.
+          let auth = null;
+          try {
+            auth = await loadLatestBetaProductRecord(
+              "beta16_auth",
+              relationship.athlete_user_id,
+              relationship.athlete_user_id
+            );
+          }
+          catch {
+            // auth stays null - handled identically to a legitimately
+            // absent record by the fallbacks below.
+          }
+
+          // Slice 3 of the sport-declaration redesign - the team-coach and
+          // org-owner override screens both need each athlete's own
+          // declared activity/position on the roster view. Never itself
+          // projected into the phase1/engine record, so this is a
+          // dedicated read of the athlete's own current declaration.
+          // Same never-take-down-the-whole-roster fallback as the auth
+          // read above.
+          let declared: { activity_id: string | null; position: string | null } = { activity_id: null, position: null };
+          try {
+            declared = await getAthleteDeclaredActivityAndPosition(relationship.athlete_user_id);
+          }
+          catch {
+            // declared stays at the null defaults.
+          }
 
           return Object.freeze({
             athlete_user_id: relationship.athlete_user_id,
             display_name: cleanString(auth?.display_name) || relationship.athlete_user_id,
             email: cleanString(auth?.email) || null,
-            relationship_state: relationship.relationship_state
+            relationship_state: relationship.relationship_state,
+            activity_id: declared.activity_id,
+            position: declared.position
           });
         })
       );
@@ -287,4 +338,48 @@ export async function getOrgAthleteVisibility(
   finally {
     client.release();
   }
+}
+
+// FULL-UI-94 roster CSV export. Deliberately reuses getOrgAthleteVisibility's
+// own output as-is rather than reading anything new - this is a pure
+// serialization change, never a new privacy decision. The CSV's own column
+// shape necessarily varies by visibility_mode because the underlying data
+// does: an 'individual'-mode ("gym") org only ever has aggregate per-coach
+// counts to show (see this file's own top DEV NOTE for why athlete
+// identity must never leave aggregateCountsForOrg()), so its CSV has no
+// athlete-identifying columns at all, while a 'shared'-mode ("team") org's
+// CSV lists one row per athlete exactly like fullRosterForOrg() already
+// exposes in JSON.
+export function buildOrgAthleteRosterCsv(
+  visibility: OrgAthleteVisibility,
+  coachNamesById: ReadonlyMap<string, string>
+): string {
+  const coachLabel = (coachUserId: string): string => coachNamesById.get(coachUserId) ?? coachUserId;
+
+  if (visibility.visibility_mode === "individual") {
+    const header = ["coach_user_id", "coach_display_name", "membership_status", "active_athlete_count", "invited_athlete_count"];
+    const rows = visibility.coaches.map((coach) => [
+      coach.coach_user_id,
+      coachLabel(coach.coach_user_id),
+      coach.membership_status,
+      String(coach.active_athlete_count),
+      String(coach.invited_athlete_count)
+    ]);
+    return [header, ...rows].map((row) => row.map(csvEscapeField).join(",")).join("\r\n") + "\r\n";
+  }
+
+  const header = ["coach_user_id", "coach_display_name", "athlete_user_id", "display_name", "email", "relationship_state", "activity_id", "position"];
+  const rows = visibility.coaches.flatMap((coach) =>
+    coach.athletes.map((athlete) => [
+      coach.coach_user_id,
+      coachLabel(coach.coach_user_id),
+      athlete.athlete_user_id,
+      athlete.display_name,
+      athlete.email ?? "",
+      athlete.relationship_state,
+      athlete.activity_id ?? "",
+      athlete.position ?? ""
+    ])
+  );
+  return [header, ...rows].map((row) => row.map(csvEscapeField).join(",")).join("\r\n") + "\r\n";
 }

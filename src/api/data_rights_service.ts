@@ -98,7 +98,7 @@ async function loadBetaProductRecordsByType(
 async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT note_id, coach_user_id, athlete_user_id, relationship_id, session_id,
-            artefact_id, visibility, created_at
+            artefact_id, exercise_id, visibility, created_at
      FROM product_coach_notes
      WHERE coach_user_id = $1
      ORDER BY created_at ASC`,
@@ -112,7 +112,46 @@ async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
     relationship_id: row.relationship_id,
     session_id: row.session_id,
     artefact_id: row.artefact_id,
+    exercise_id: row.exercise_id,
     visibility: row.visibility,
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
+async function loadCoachOrgMemberships(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT m.membership_id, m.org_id, m.coach_user_id, m.membership_status,
+            m.invited_at, m.activated_at, m.removed_at, m.created_at
+     FROM product_org_coach_memberships m
+     WHERE m.coach_user_id = $1
+     ORDER BY m.created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    membership_id: row.membership_id,
+    org_id: row.org_id,
+    coach_user_id: row.coach_user_id,
+    membership_status: row.membership_status,
+    invited_at_iso8601: isoString(row.invited_at),
+    activated_at_iso8601: isoString(row.activated_at),
+    removed_at_iso8601: isoString(row.removed_at),
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
+async function loadCoachOrgMessagesSent(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT message_id, thread_id, body_text, client_request_id, created_at
+     FROM product_messages
+     WHERE sender_user_id = $1 AND sender_role = 'coach'
+     ORDER BY created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    message_id: row.message_id,
+    thread_id: row.thread_id,
+    body_text: row.body_text,
+    client_request_id: row.client_request_id,
     created_at_iso8601: isoString(row.created_at)
   }));
 }
@@ -168,7 +207,16 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     sessions,
     runtimeEvents,
     coachNotes,
-    commercialRecords
+    commercialRecords,
+    progressPhotos,
+    bodyMetrics,
+    habitDefinitions,
+    habitCompletions,
+    deviceConnections,
+    deviceMetricEntries,
+    athleteGoals,
+    coachOrgMemberships,
+    coachOrgMessagesSent
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -177,7 +225,16 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadEnrichedAthleteSessions(userId),
     loadRuntimeEventRecords(userId),
     loadCoachNotesAuthored(userId),
-    loadCommercialRecords(userId)
+    loadCommercialRecords(userId),
+    loadBetaProductRecordsByType(userId, "beta_progress_photo"),
+    loadBetaProductRecordsByType(userId, "body_metric_entry"),
+    loadBetaProductRecordsByType(userId, "habit_definition"),
+    loadBetaProductRecordsByType(userId, "habit_completion"),
+    loadBetaProductRecordsByType(userId, "device_connection_record"),
+    loadBetaProductRecordsByType(userId, "device_metric_entry"),
+    loadBetaProductRecordsByType(userId, "athlete_goal"),
+    loadCoachOrgMemberships(userId),
+    loadCoachOrgMessagesSent(userId)
   ]);
 
   const account = [tagOwnedRecord({
@@ -201,7 +258,16 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     runtime_events: runtimeEvents.map((r) => tagOwnedRecord(r, userId)),
     coach_notes_authored: coachNotes.map((r) => tagOwnedRecord(r, userId)),
     legal_document_acknowledgements: acknowledgements.map((r) => tagOwnedRecord(r, userId)),
-    billing_records: commercialRecords.map((r) => tagOwnedRecord(r, userId))
+    billing_records: commercialRecords.map((r) => tagOwnedRecord(r, userId)),
+    progress_photos: progressPhotos.map((r) => tagOwnedRecord(r, userId)),
+    body_metrics: bodyMetrics.map((r) => tagOwnedRecord(r, userId)),
+    habit_definitions: habitDefinitions.map((r) => tagOwnedRecord(r, userId)),
+    habit_completions: habitCompletions.map((r) => tagOwnedRecord(r, userId)),
+    device_connections: deviceConnections.map((r) => tagOwnedRecord(r, userId)),
+    device_metric_entries: deviceMetricEntries.map((r) => tagOwnedRecord(r, userId)),
+    athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId)),
+    org_coach_memberships: coachOrgMemberships.map((r) => tagOwnedRecord(r, userId)),
+    org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(
@@ -427,7 +493,7 @@ async function buildRetentionRecords(userId: string): Promise<JsonRecord[]> {
 
 const RETENTION_REASON_COPY: Record<string, string> = {
   audit_integrity_review_required: "Session and training records are kept for audit integrity review before any deletion decision.",
-  engine_truth_immutability_boundary: "Recorded runtime events are immutable engine history and cannot be deleted; they can only be reviewed for retention.",
+  engine_truth_immutability_boundary: "Your session activity is kept as a permanent record and can't be deleted outright; it can only be reviewed for retention.",
   billing_retention_review_required: "Billing records are kept pending legal and financial retention review.",
   legal_retention_review_required: "Terms and consent acknowledgement records are kept pending legal retention review."
 };

@@ -2,121 +2,45 @@
 
 v0_scope_guard: boundary_doc
 
-Status: active v0 developer note.
+Status: active developer note.
 Scope: registry documentation binding.
 
 ## DEV NOTE: authority boundary
 
-This README explains the registry boundary for future developers. It does not create new engine law.
+This README explains the registry boundary for future developers. It does not create engine or registry law.
 
-Canonical docs define law. DEV NOTE comments explain boundaries. Tests prove behaviour.
+The current loaded registry surface comes from `registries/registry_index.json`. The final architectural classification and final required-active dependency/load order come from `registries/final_registry_surface_manifest.json`. The generated current bundle is `registries/registry_bundle.json`. This README is not authority.
 
-The registry authority chain for active v0 is:
+When documentation conflicts, use explicit current canonical/release law and supersession decisions first, then frozen canonical registry law, lawful later human-authorised extensions, executable current contracts/guards, current implementation evidence, planning documents, and developer notes in that order.
 
-1. Canonical release and boundary documents.
-2. Executable guard scripts.
-3. Executable tests.
-4. Developer notes and READMEs.
+## Current loaded registry files
 
-When this README appears to disagree with a canonical document or executable guard, treat the canonical document and guard result as the authority. Update this README only to explain the already-enforced boundary.
+Do not hard-code a domain list in this README. Read `registries/registry_index.json` for the current loaded implementation surface. REG-FULL-00 defined the final target architecture separately from the compact loader index. REG-FULL-01 preserves that compact index as a compatibility loading surface while closing canonical schema and ID authority.
 
-## Active v0 registry files
+The generated bundle must be produced from the current registry index and active registry files and must not be hand-edited.
 
-Active v0 registry content is limited to the domains listed in `registries/registry_index.json`:
+Use `npm run registry:bundle` or `node scripts/bundle_writer.cjs` only in slices authorised to mutate registry representation or truth. REG-FULL-01 lawfully regenerates the bundle after schema/ID normalization without adding registry facts.
 
-- `activity`
-- `movement`
-- `exercise`
-- `program`
+## Final registry architecture
 
-The generated bundle is `registries/registry_bundle.json`. It must be produced from `registries/registry_index.json` and the active registry files. It must not be hand-edited.
+`registries/final_registry_surface_manifest.json` is the sole machine-readable final registry architecture authority. Every discovered registry concept is classified exactly once as `required_active`, `derived_generated`, `retained_legacy`, `dormant`, or `prohibited`.
 
-Use:
+Later REG-FULL slices must consume the manifest rather than infer architecture from the current index, bundle, README, historical activation counts, or file presence. REG-FULL-01 consumes that authority through `registries/final_registry_schema_manifest.json`, which is the sole machine-readable final schema/ID authority.
 
-- `npm run registry:bundle`
-- or `node scripts/bundle_writer.cjs`
+## Schema validity and FK closure
 
-## Schema validity
+Every final `required_active` registry has exactly one authoritative Draft 2020-12 schema named by `registries/final_registry_schema_manifest.json`. Every canonical row uses one domain-specific primary-key vocabulary and closed-world properties; alternate aliases and undocumented fields are prohibited.
 
-Every active registry domain in `registries/registry_index.json` must have a matching schema at:
+The compact files named by `registries/registry_index.json` are compatibility loading projections, not parallel canonical schema authorities. Do not add a new field or alias to a compact projection without first changing the final schema authority deliberately.
 
-- `ci/schemas/<registry>.registry.schema.json`
+Existing proof includes `ci/guards/registry_schema_presence_guard.mjs`, `ci/guards/registry_bundle_guard.mjs`, `ci/guards/registry_law_guard.mjs`, `ci/guards/reg_full_00_final_registry_surface_authority_guard.mjs`, and `ci/guards/reg_full_01_registry_schema_closure_guard.mjs`.
 
-The schema presence rule is enforced by:
+## No fallback
 
-- `ci/guards/registry_schema_presence_guard.mjs`
+Registry loading must not use fallback, approximate, guessed, closest-match, inferred, or partial registry behaviour. Missing, malformed, stale or broken registry references are hard failures.
 
-The broader schema and registry checks are also covered by:
+Do not repair a failing registry guard by weakening the guard. Repair the underlying registry/schema/bundle/canonical boundary through the appropriate named slice.
 
-- `ci/scripts/schema_guard.mjs`
-- `ci/guards/registry_law_guard.mjs`
+## Historical records
 
-## FK closure
-
-Registry references are closed-world references.
-
-Active v0 registry references must resolve to committed registry targets. Missing targets are build failures, not warnings.
-
-Current registry FK examples include:
-
-- `exercise.pattern` -> movement registry IDs
-- `exercise.stimulus_intent` -> activity stimulus intents
-- exercise equipment tokens -> movement-scoped equipment vocabulary
-- exercise joint stress tags -> movement-scoped joint stress tag vocabulary
-
-The FK closure rule is enforced by:
-
-- `ci/guards/registry_law_guard.mjs`
-- `test/ci_registry_law_guard_fk_negative.test.mjs`
-- `test/ci_registry_law_guard_stimulus_fk_negative.test.mjs`
-- `test/ci_registry_law_guard_equipment_fk_negative.test.mjs`
-- `test/ci_registry_law_guard_joint_stress_fk_negative.test.mjs`
-- `test/s_v0_10_registry_bundle_closure.test.mjs`
-
-## Frozen store and bundle closure
-
-The registry bundle is a committed generated artefact.
-
-The bundle must match the current registry index and active registry files exactly. Changing a registry file without regenerating and committing the bundle is invalid.
-
-Bundle closure is enforced by:
-
-- `ci/guards/registry_bundle_guard.mjs`
-- `scripts/bundle_writer.cjs`
-- `test/s_v0_10_registry_bundle_closure.test.mjs`
-
-## No registry fallback
-
-Registry loading must not use fallback, approximate, guessed, closest-match, inferred, or partial registry behaviour.
-
-If a registry file is missing, malformed, stale, or contains a broken reference, the correct result is a hard failure with readable output.
-
-Do not repair a failing registry guard by weakening the guard. Repair the registry, schema, bundle, or canonical boundary deliberately.
-
-## v0/v1 boundary
-
-Active v0 registry content is limited to the active v0 boundary.
-
-Future v1 registry content may be documented or scaffolded only where it is clearly excluded from active v0 execution. Future-scope registry content must not enter:
-
-- `registries/registry_index.json`
-- `registries/registry_bundle.json`
-- active v0 registry files
-- active v0 engine execution paths
-- active v0 tests as accepted runtime capability
-
-The current v0 bundle closure record is:
-
-- `docs/release/V0_REGISTRY_BUNDLE_CLOSURE.md`
-
-## CI binding
-
-The registry law surfaces are wired through `lint:fast` and therefore through normal v0 gate execution:
-
-- `ci/guards/registry_schema_presence_guard.mjs`
-- `ci/guards/registry_bundle_guard.mjs`
-- `ci/guards/registry_law_guard.mjs`
-
-S-V0-11 binds this README to executable proof with:
-
-- `test/s_v0_11_registry_law_documentation_binding.test.mjs`
+S-REG activation and extension records remain historical truth. The final surface manifest supersedes architectural interpretation only; it does not rewrite what an earlier slice activated, extended, omitted or counted at that time.

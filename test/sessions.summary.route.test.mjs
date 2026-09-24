@@ -6,7 +6,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-const mod = await import("../src/api/sessions.summary.handlers.ts");
+const mod = await import("../dist/src/api/sessions.summary.handlers.js");
 const { createGetNeutralSessionSummaryHandler } = mod;
 
 function createResCapture() {

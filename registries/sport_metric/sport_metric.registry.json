@@ -1,10 +1,9 @@
 {
   "registry_id": "sport_metric",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "entries": {
     "powerlifting__load_kg": {
       "sport_metric_id": "powerlifting__load_kg",
-      "id": "powerlifting__load_kg",
       "activity_id": "powerlifting",
       "sport_subdivision_id": "powerlifting__competition_lift",
       "display_label": "Load",
@@ -15,7 +14,6 @@
     },
     "powerlifting__repetition_count": {
       "sport_metric_id": "powerlifting__repetition_count",
-      "id": "powerlifting__repetition_count",
       "activity_id": "powerlifting",
       "sport_subdivision_id": "powerlifting__competition_lift",
       "display_label": "Repetition count",
@@ -26,7 +24,6 @@
     },
     "general_strength__load_kg": {
       "sport_metric_id": "general_strength__load_kg",
-      "id": "general_strength__load_kg",
       "activity_id": "general_strength",
       "sport_subdivision_id": "general_strength__training",
       "display_label": "Load",
@@ -37,7 +34,6 @@
     },
     "general_strength__repetition_count": {
       "sport_metric_id": "general_strength__repetition_count",
-      "id": "general_strength__repetition_count",
       "activity_id": "general_strength",
       "sport_subdivision_id": "general_strength__training",
       "display_label": "Repetition count",
@@ -48,7 +44,6 @@
     },
     "rugby_union__body_mass_kg": {
       "sport_metric_id": "rugby_union__body_mass_kg",
-      "id": "rugby_union__body_mass_kg",
       "activity_id": "rugby_union",
       "sport_subdivision_id": "rugby_union__general_preparation",
       "display_label": "Body mass",
@@ -59,7 +54,6 @@
     },
     "rugby_union__sprint_time_seconds": {
       "sport_metric_id": "rugby_union__sprint_time_seconds",
-      "id": "rugby_union__sprint_time_seconds",
       "activity_id": "rugby_union",
       "sport_subdivision_id": "rugby_union__general_preparation",
       "display_label": "Sprint time",
@@ -70,7 +64,6 @@
     },
     "powerlifting__attempt_count": {
       "sport_metric_id": "powerlifting__attempt_count",
-      "id": "powerlifting__attempt_count",
       "activity_id": "powerlifting",
       "sport_subdivision_id": "powerlifting__competition_lift",
       "display_label": "Attempt count",
@@ -81,7 +74,6 @@
     },
     "general_strength__set_count": {
       "sport_metric_id": "general_strength__set_count",
-      "id": "general_strength__set_count",
       "activity_id": "general_strength",
       "sport_subdivision_id": "general_strength__training",
       "display_label": "Set count",
@@ -92,7 +84,6 @@
     },
     "general_strength__duration_seconds": {
       "sport_metric_id": "general_strength__duration_seconds",
-      "id": "general_strength__duration_seconds",
       "activity_id": "general_strength",
       "sport_subdivision_id": "general_strength__training",
       "display_label": "Duration",
