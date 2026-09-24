@@ -32,7 +32,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "rugby_league"
       ],
       "movement_pattern_id": "squat",
       "token_kind": "exercise_name_token",
@@ -68,7 +69,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "rugby_league"
       ],
       "movement_pattern_id": "hinge",
       "token_kind": "exercise_name_token",
@@ -104,7 +106,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "rugby_league"
       ],
       "movement_pattern_id": "horizontal_push",
       "token_kind": "exercise_name_token",
@@ -139,7 +142,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "rugby_league"
       ],
       "movement_pattern_id": "core_anti_extension",
       "token_kind": "exercise_name_token",

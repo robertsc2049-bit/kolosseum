@@ -46,7 +46,8 @@ const EXPECTED_LEGACY_PROGRAM = Object.freeze({
     { activity_id: "muay_thai", template_id: "PROGRAM_MUAY_THAI_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
     { activity_id: "mma", template_id: "PROGRAM_MMA_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
     { activity_id: "tennis", template_id: "PROGRAM_TENNIS_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
-    { activity_id: "triathlon", template_id: "PROGRAM_TRIATHLON_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] }
+    { activity_id: "triathlon", template_id: "PROGRAM_TRIATHLON_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] },
+    { activity_id: "rugby_league", template_id: "PROGRAM_RUGBY_LEAGUE_V1", exercise_eligibility: ["back_squat", "bench_press", "deadlift", "overhead_press", "incline_bench_press", "push_up"] }
   ]
 });
 

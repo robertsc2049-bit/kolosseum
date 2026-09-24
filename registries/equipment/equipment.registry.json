@@ -10,6 +10,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -53,6 +54,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -95,6 +97,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -136,6 +139,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -180,6 +184,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -226,6 +231,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -270,6 +276,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -312,6 +319,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -354,6 +362,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -400,6 +409,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -441,6 +451,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -481,6 +492,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -522,6 +534,7 @@
       "equipment_class": "conditioning_tool",
       "activity_applicability": [
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -563,6 +576,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -604,6 +618,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -647,6 +662,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -687,6 +703,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "hyrox",
         "football_soccer",
         "netball",
@@ -732,6 +749,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -772,6 +790,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -812,6 +831,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -852,6 +872,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -898,6 +919,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -943,6 +965,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -984,6 +1007,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1025,6 +1049,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1065,6 +1090,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1107,6 +1133,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1146,6 +1173,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1186,6 +1214,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1227,6 +1256,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1267,6 +1297,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1308,6 +1339,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "hyrox",
         "football_soccer",
@@ -1350,6 +1382,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1392,6 +1425,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "strongman",
         "football_soccer",
         "netball",
@@ -1434,6 +1468,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",
@@ -1474,6 +1509,7 @@
         "general_strength",
         "powerlifting",
         "rugby_union",
+        "rugby_league",
         "football_soccer",
         "netball",
         "basketball",

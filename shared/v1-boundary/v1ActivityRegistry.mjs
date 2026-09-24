@@ -459,6 +459,19 @@ const V1_ACTIVITIES = Object.freeze([
       "triathlon_intermediate",
       "triathlon_low_equipment"
     ])
+  }),
+  Object.freeze({
+    activity_id: "rugby_league",
+    display_label: "Rugby league",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "rugby_league_match", display_label: "Rugby league match" }),
+      Object.freeze({ event_type_id: "rugby_league_tournament", display_label: "Rugby league tournament" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "rugby_league_off_season", "rugby_league_pre_season", "rugby_league_in_season", "rugby_league_low_equipment"
+    ])
   })
 ]);
 

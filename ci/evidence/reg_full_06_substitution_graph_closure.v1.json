@@ -41,12 +41,12 @@
     }
   },
   "hashes": {
-    "exercise_registry_sha256": "74ad5666dc98982ee9466674d91a672ce63779c0849c2be1e9f21f372a86cb52",
-    "movement_registry_sha256": "caa499ae4035da9cbd1e390009047e69e36afd49e3ce504e65d4af4ab71c8a9c",
-    "equipment_registry_sha256": "54030f7267cb580443ce9aa1a05dea2de5375e95159976ad680db7e44d7ae0f5",
+    "exercise_registry_sha256": "cf949ed99133e04b859e9501e3a53e4f7453bee45819677e5b23e556f286e070",
+    "movement_registry_sha256": "15bb44b4e1f6dc4bddac9ec4fcf4ccd58136b795409e2898679859c009bc7a33",
+    "equipment_registry_sha256": "afc3f71491c1d3f0165fa4f834dc6edd8c8777af79f46488f301cdefb52cf740",
     "equipment_compatibility_registry_sha256": "bd586f7bcc72f6e1023a956708ad1ad04e58ff067f87721b93d93839d3dde4cb",
-    "activity_applicability_registry_sha256": "b8bb013deb26fc8eed31f46fce8a55bb7779a6f83d464f4b52a45fd786e69579",
-    "substitution_registry_sha256": "1afeb1b840b8c361ef33d5b82485c5226b3f6ac2d1c65d453fd1a482bb4cbd5b",
+    "activity_applicability_registry_sha256": "29af256a905ba2a845f5e64bc62208a865ec559c51dd31dca0ec094d35be63b6",
+    "substitution_registry_sha256": "c0c320fc21e7d18822b7a16d6d93e19d50d5aaf8d9739196d74650db1704df47",
     "legacy_graph_sha256": "8d97eab5a2149e6e8634f7bf82f3179ae78c2906825bc46fe6588c1d984852c9"
   }
 }
