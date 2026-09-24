@@ -6,11 +6,11 @@
   "entries": [
     {
       "path": "registries/activity/activity.registry.json",
-      "sha256": "e5cdbf3029b3ee8875c3f062d7f5bf9d5791267b4a11e8c011327017328e4a4c"
+      "sha256": "ead97cc76527c83ae6a0381ae8d4faeef7d4d394619c21f7b058868cfd1f1ccf"
     },
     {
       "path": "registries/exercise/exercise.registry.json",
-      "sha256": "7c236c295d15414626bad2f4011131ff9709469434075cb83bf96fcdcf23760f"
+      "sha256": "e2987e171eb9f3383b482e418aea23464ff06acefb2c49dfa4d293151fa23068"
     },
     {
       "path": "registries/exercise/exercise_substitution_graph.json",
@@ -22,7 +22,7 @@
     },
     {
       "path": "registries/movement/movement.registry.json",
-      "sha256": "cba300d7b68e905920705faeb328f737eb25c1ee035d74deec46011f3872f802"
+      "sha256": "34b039fc1dd7558b327e2e1ba325c5564ffa78da7398a5623d24329ba1c36a4f"
     },
     {
       "path": "registries/program/program.registry.json",
@@ -58,7 +58,7 @@
     },
     {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "aaeb0afb7675abbb35a84ea86c8c04ad34f40fedcd52712e06ebb5daca9b4688"
+      "sha256": "8a3f0fa6b32645b4b75fa8605f0f6e8c944d4f416d402297a9a29ba4f63efbbf"
     }
   ]
 }
