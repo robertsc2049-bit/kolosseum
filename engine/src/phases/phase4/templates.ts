@@ -6,11 +6,22 @@
 import type { Phase4GroupType, Phase4ItemGroup, Phase4ItemPrescription, Phase4Template } from "./types.js";
 import { loadRegistryBundle } from "../../registries/loadRegistryBundle.js";
 
-type ProgramTemplateEntry = {
+type ProgramLevelVariant = {
+  exercise_eligibility: string[];
+  item_prescriptions: Phase4ItemPrescription[];
+};
+
+// The base entry is the amateur programme; beginner and pro may each declare
+// their own session. A level with no variant falls back to the base entry.
+export const PROGRAM_LEVELS = ["beginner", "amateur", "pro"] as const;
+export type ProgramLevel = (typeof PROGRAM_LEVELS)[number];
+
+export type ProgramTemplateEntry = {
   activity_id: string;
   template_id: string;
   exercise_eligibility: string[];
   item_prescriptions?: Phase4ItemPrescription[];
+  level_variants?: Partial<Record<"beginner" | "pro", ProgramLevelVariant>>;
 };
 
 type ProgramTemplateRegistry = {
@@ -118,6 +129,25 @@ function validateItemPrescriptions(raw: unknown, i: number, eligibility: string[
   return prescriptions;
 }
 
+function validateLevelVariants(raw: unknown, i: number): Partial<Record<"beginner" | "pro", ProgramLevelVariant>> {
+  const at = `program.entries[${i}].level_variants`;
+  if (!isPlainObject(raw)) die(`${at} must be an object`);
+  const out: Partial<Record<"beginner" | "pro", ProgramLevelVariant>> = {};
+  for (const [level, variant] of Object.entries(raw)) {
+    if (level !== "beginner" && level !== "pro") die(`${at} may only declare beginner or pro (amateur is the base entry), got ${level}`);
+    if (!isPlainObject(variant)) die(`${at}.${level} must be an object`);
+    const elig = variant["exercise_eligibility"];
+    if (!Array.isArray(elig) || elig.length === 0 || !elig.every((x) => typeof x === "string" && x.trim() !== "")) {
+      die(`${at}.${level}.exercise_eligibility must be a non-empty string array`);
+    }
+    out[level] = {
+      exercise_eligibility: elig as string[],
+      item_prescriptions: validateItemPrescriptions(variant["item_prescriptions"], i, elig as string[])
+    };
+  }
+  return out;
+}
+
 function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
   if (!isPlainObject(doc)) die(`program registry not an object`);
 
@@ -157,6 +187,9 @@ function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
     if (row["item_prescriptions"] !== undefined) {
       entry.item_prescriptions = validateItemPrescriptions(row["item_prescriptions"], i, exerciseEligibilityOut);
     }
+    if (row["level_variants"] !== undefined) {
+      entry.level_variants = validateLevelVariants(row["level_variants"], i);
+    }
     out.push(entry);
   }
 
@@ -179,7 +212,7 @@ function loadProgramRegistry(): ProgramTemplateRegistry {
   return _cache;
 }
 
-export function selectTemplate(activity: string): Phase4Template | null {
+export function selectTemplate(activity: string, level?: string): Phase4Template | null {
   const act = String(activity ?? "").trim();
   if (!act) return null;
 
@@ -187,7 +220,17 @@ export function selectTemplate(activity: string): Phase4Template | null {
   const hit = reg.entries.find((t) => t.activity_id === act);
   if (!hit) return null;
 
-  return hit.item_prescriptions
-    ? { program_id: hit.template_id, intent: hit.exercise_eligibility, prescriptions: hit.item_prescriptions }
-    : { program_id: hit.template_id, intent: hit.exercise_eligibility };
+  return templateForLevel(hit, level);
+}
+
+// Pure level resolution for one program entry: a declared beginner/pro variant
+// wins; amateur, an unknown level or a missing variant use the base entry.
+export function templateForLevel(entry: ProgramTemplateEntry, level?: string): Phase4Template {
+  const variant = level === "beginner" || level === "pro" ? entry.level_variants?.[level] : undefined;
+  if (variant) {
+    return { program_id: entry.template_id, intent: variant.exercise_eligibility, prescriptions: variant.item_prescriptions };
+  }
+  return entry.item_prescriptions
+    ? { program_id: entry.template_id, intent: entry.exercise_eligibility, prescriptions: entry.item_prescriptions }
+    : { program_id: entry.template_id, intent: entry.exercise_eligibility };
 }

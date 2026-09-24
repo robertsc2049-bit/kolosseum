@@ -92,6 +92,7 @@ const phase1AllowedKeys = new Set([
   ...phase1RequiredKeys,
   "governing_authority_id",
   "sport_role_id",
+  "experience_level",
   "constraints"
 ]);
 

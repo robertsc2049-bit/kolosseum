@@ -155,6 +155,14 @@
     "sport_role_id": {
       "type": "string"
     },
+    "experience_level": {
+      "type": "string",
+      "enum": [
+        "beginner",
+        "amateur",
+        "pro"
+      ]
+    },
     "nd_mode": {
       "type": "boolean"
     },
