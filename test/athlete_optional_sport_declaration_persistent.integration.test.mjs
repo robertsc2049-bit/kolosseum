@@ -162,6 +162,7 @@ test(
             jurisdiction_code: "england_wales",
             jurisdiction_acknowledged: true,
             accessibility_preferences: accessibilityPreferences(),
+            experience_level: "amateur",
             instruction_density: "standard"
           }
         },
