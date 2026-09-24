@@ -2092,7 +2092,8 @@ CREATE TABLE IF NOT EXISTS product_organisations (
         'cricket', 'american_football', 'athletics', 'swimming',
         'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
         'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
-        'muay_thai', 'mma', 'tennis', 'triathlon'
+        'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+        'street_lifting'
       )
     ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -2159,7 +2160,8 @@ BEGIN
           'cricket', 'american_football', 'athletics', 'swimming',
           'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
           'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
-          'muay_thai', 'mma', 'tennis', 'triathlon'
+          'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+          'street_lifting'
         )
       );
   END IF;
