@@ -10,6 +10,12 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 import { CoachOnboardingPanel } from "../screens/coach/CoachOnboardingPanel";
 
+// Each save/complete handler awaits a CSRF fetch, the mutation, then several
+// state updates, so the confirmation can land after the wrapping act() returns.
+// The 1000ms findBy* default was exceeded on a slow CI runner (1058ms); allow
+// ample headroom so these waits don't flake.
+const SETTLE_TIMEOUT = { timeout: 5000 };
+
 function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
   return { ok, status, text: async () => JSON.stringify(body) } as Response;
 }
@@ -85,7 +91,7 @@ test.afterEach(() => {
 test("shows the incomplete-onboarding status and the profile stage on first load", async () => {
   installMocks({});
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Incomplete onboarding");
+  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Current step: Profile"));
   assert.ok(screen.getByText("Identity details"));
 });
@@ -102,14 +108,14 @@ test("shows the unavailable state on a load failure, with a working retry", asyn
   }) as typeof fetch;
 
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Coach onboarding is available to coach accounts only.");
+  await screen.findByText("Coach onboarding is available to coach accounts only.", undefined, SETTLE_TIMEOUT);
 
   fail = false;
   await act(async () => {
     screen.getByText("Retry").click();
   });
 
-  await screen.findByText("Incomplete onboarding");
+  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
 });
 
 test("a stale sign-in-required error from before registration clears itself once entry auth succeeds, with no manual retry needed", async () => {
@@ -131,14 +137,14 @@ test("a stale sign-in-required error from before registration clears itself once
   }) as typeof fetch;
 
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Sign in to continue coach onboarding.");
+  await screen.findByText("Sign in to continue coach onboarding.", undefined, SETTLE_TIMEOUT);
 
   authenticated = true;
   await act(async () => {
     document.dispatchEvent(new CustomEvent("kolosseum:entry-auth-succeeded", { detail: { mode: "create" } }));
   });
 
-  await screen.findByText("Incomplete onboarding");
+  await screen.findByText("Incomplete onboarding", undefined, SETTLE_TIMEOUT);
 });
 
 test("saving the profile moves to the terms stage and shows a confirmation and history entry", async () => {
@@ -150,7 +156,7 @@ test("saving the profile moves to the terms stage and shows a confirmation and h
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Identity details");
+  await screen.findByText("Identity details", undefined, SETTLE_TIMEOUT);
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Coach Test" } });
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "coach@example.test" } });
@@ -158,7 +164,7 @@ test("saving the profile moves to the terms stage and shows a confirmation and h
     fireEvent.click(screen.getByText("Save coach profile"));
   });
 
-  await screen.findByText("Coach profile saved.");
+  await screen.findByText("Coach profile saved.", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Explicit acceptance"));
   assert.ok(screen.getByText("Coach Onboarding Profile Saved"));
 });
@@ -173,7 +179,7 @@ test("accepting terms sends the current terms version and moves to the review st
     }
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Explicit acceptance");
+  await screen.findByText("Explicit acceptance", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Current version: terms_v7"));
 
   fireEvent.click(screen.getByLabelText(/I accept the current coach terms/u));
@@ -181,7 +187,7 @@ test("accepting terms sends the current terms version and moves to the review st
     fireEvent.click(screen.getByText("Accept coach terms"));
   });
 
-  await screen.findByText("Coach terms accepted.");
+  await screen.findByText("Coach terms accepted.", undefined, SETTLE_TIMEOUT);
   assert.equal(sentTermsVersion, "terms_v7");
   assert.ok(screen.getByText("Confirm coach onboarding"));
 });
@@ -191,14 +197,14 @@ test("saving accessibility preferences moves to the review stage and shows a con
     initialState: baseState({ current_stage: "accessibility", terms_accepted: true })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Presentation preferences");
+  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
 
   fireEvent.click(screen.getByText("Higher contrast"));
   await act(async () => {
     fireEvent.click(screen.getByText("Save accessibility preferences"));
   });
 
-  await screen.findByText("Accessibility preferences saved.");
+  await screen.findByText("Accessibility preferences saved.", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Confirm coach onboarding"));
 });
 
@@ -215,7 +221,7 @@ test("declared accessibility preferences are actually applied to the page immedi
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Presentation preferences");
+  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
 
   fireEvent.click(screen.getByText("Reduce motion"));
   fireEvent.click(screen.getByText("Screen-reader optimised"));
@@ -223,7 +229,7 @@ test("declared accessibility preferences are actually applied to the page immedi
     fireEvent.click(screen.getByText("Save accessibility preferences"));
   });
 
-  await screen.findByText("Accessibility preferences saved.");
+  await screen.findByText("Accessibility preferences saved.", undefined, SETTLE_TIMEOUT);
   assert.equal(document.documentElement.dataset.a11yReducedMotion, "true");
   assert.equal(document.documentElement.dataset.a11yHighContrast, "false");
   assert.equal(document.documentElement.dataset.a11yLargerText, "false");
@@ -247,7 +253,7 @@ test("the review stage shows the saved profile, accepted terms and accessibility
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Confirm coach onboarding");
+  await screen.findByText("Confirm coach onboarding", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Coach Review Test"));
   assert.ok(screen.getByText("terms_v3"));
   assert.ok(screen.getByText("reduced motion"));
@@ -256,7 +262,7 @@ test("the review stage shows the saved profile, accepted terms and accessibility
     fireEvent.click(screen.getByText("Complete coach onboarding"));
   });
 
-  await screen.findByText("Coach workspace available");
+  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Open coach workspace"));
   assert.ok(screen.getByText("Update coach profile"));
   assert.ok(screen.getByText("Open commercial account"));
@@ -268,13 +274,13 @@ test("completing onboarding navigates to the coach workspace route", async () =>
     onComplete: () => baseState({ onboarding_status: "completed" })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Confirm coach onboarding");
+  await screen.findByText("Confirm coach onboarding", undefined, SETTLE_TIMEOUT);
 
   await act(async () => {
     fireEvent.click(screen.getByText("Complete coach onboarding"));
   });
 
-  await screen.findByText("Coach workspace available");
+  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
   assert.equal(window.location.hash, "#/coach/overview");
   window.location.hash = "";
 });
@@ -289,7 +295,7 @@ test("the completed view keeps the profile and accessibility forms visible for e
     })
   });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Coach workspace available");
+  await screen.findByText("Coach workspace available", undefined, SETTLE_TIMEOUT);
 
   assert.ok(screen.getByText("Identity details"));
   assert.equal((screen.getByLabelText("Display name") as HTMLInputElement).value, "Coach Completed");
@@ -308,7 +314,7 @@ test("a validation failure on saving the profile shows a mapped error and does n
   }) as typeof fetch;
 
   render(<CoachOnboardingPanel />);
-  await screen.findByText("Identity details");
+  await screen.findByText("Identity details", undefined, SETTLE_TIMEOUT);
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Coach Test" } });
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "coach@example.test" } });
@@ -316,12 +322,12 @@ test("a validation failure on saving the profile shows a mapped error and does n
     fireEvent.click(screen.getByText("Save coach profile"));
   });
 
-  await screen.findByText("Check the coach profile details.");
+  await screen.findByText("Check the coach profile details.", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Identity details"));
 });
 
 test("the history list shows a factual empty state when there are no records", async () => {
   installMocks({ initialState: baseState({ history: [] }) });
   render(<CoachOnboardingPanel />);
-  await screen.findByText("No coach onboarding records.");
+  await screen.findByText("No coach onboarding records.", undefined, SETTLE_TIMEOUT);
 });
