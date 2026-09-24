@@ -2086,8 +2086,14 @@ CREATE TABLE IF NOT EXISTS product_organisations (
   activity_id   TEXT
     CHECK (
       activity_id IS NULL OR activity_id IN (
-        'powerlifting', 'general_strength', 'rugby_union',
-        'strongman', 'hyrox', 'crossfit'
+        'powerlifting', 'general_strength', 'rugby_union', 'strongman',
+        'hyrox', 'crossfit', 'football_soccer', 'netball', 'basketball',
+        'rugby_sevens', 'field_hockey', 'ice_hockey', 'volleyball',
+        'cricket', 'american_football', 'athletics', 'swimming',
+        'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
+        'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
+        'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+        'street_lifting'
       )
     ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -2148,8 +2154,14 @@ BEGIN
       ADD CONSTRAINT product_organisations_activity_id_check
       CHECK (
         activity_id IS NULL OR activity_id IN (
-          'powerlifting', 'general_strength', 'rugby_union',
-          'strongman', 'hyrox', 'crossfit'
+          'powerlifting', 'general_strength', 'rugby_union', 'strongman',
+          'hyrox', 'crossfit', 'football_soccer', 'netball', 'basketball',
+          'rugby_sevens', 'field_hockey', 'ice_hockey', 'volleyball',
+          'cricket', 'american_football', 'athletics', 'swimming',
+          'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
+          'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
+          'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+          'street_lifting'
         )
       );
   END IF;
