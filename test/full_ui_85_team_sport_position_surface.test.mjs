@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import { V1_ACTIVITY_IDS } from "../shared/v1-boundary/v1ActivityRegistry.mjs";
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
@@ -23,14 +24,22 @@ const orgOwnerRoutes = read("src/api/org_owner.routes.ts");
 const athleteOnboardingRoutes = read("src/api/athlete_onboarding.routes.ts");
 const manifest = JSON.parse(read("product/ui/function_manifest.json"));
 
-test("product_organisations.activity_id is a nullable, CHECK-constrained column, both inline and in the idempotent migration block", () => {
-  const lockedActivityListOccurrences = [
-    ...schema.matchAll(/'powerlifting', 'general_strength', 'rugby_union',\s*\n\s*'strongman', 'hyrox', 'crossfit'/gu)
+test("product_organisations.activity_id is a nullable, CHECK-constrained column, both inline and in the idempotent migration block, fully synced with V1_ACTIVITY_IDS", () => {
+  const activityCheckBlocks = [
+    ...schema.matchAll(/activity_id IS NULL OR activity_id IN \(([\s\S]*?)\)/gu)
   ];
   assert.ok(
-    lockedActivityListOccurrences.length >= 2,
-    "expected the inline column definition and the migration block to both carry the same locked-activity CHECK list"
+    activityCheckBlocks.length >= 2,
+    "expected the inline column definition and the migration block to both carry a locked-activity CHECK list"
   );
+  for (const [, listBody] of activityCheckBlocks) {
+    const activityIds = [...listBody.matchAll(/'([a-z_]+)'/gu)].map((match) => match[1]);
+    assert.deepEqual(
+      activityIds,
+      V1_ACTIVITY_IDS,
+      "schema.sql's activity_id CHECK list has drifted from V1_ACTIVITY_IDS (shared/v1-boundary/v1ActivityRegistry.mjs) - every v1 activity must be insertable at the database layer, not just validated at the application layer"
+    );
+  }
   assert.match(schema, /activity_id\s+TEXT\s*\n\s*CHECK \(\s*\n\s*activity_id IS NULL OR activity_id IN/u);
   assert.match(schema, /ALTER TABLE product_organisations ADD COLUMN activity_id TEXT;/u);
   assert.match(schema, /ADD CONSTRAINT product_organisations_activity_id_check/u);
