@@ -169,7 +169,8 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
     jurisdiction_code: "england_wales",
     jurisdiction_acknowledged: true,
     accessibility_preferences: accessibility,
-    instruction_density: "detailed"
+    instruction_density: "detailed",
+    experience_level: "amateur"
   };
 
   assert.deepEqual(
@@ -190,10 +191,20 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   // self-service activity-change flow).
   assert.deepEqual(
     service.validateAthleteOnboardingDraftInput({
-      current_stage: "execution_scope",
+      current_stage: "experience_level",
       fields: {}
     }).fields,
     {}
+  );
+  // Training level is required (no silent default): no stage after it can be
+  // reached without declaring one.
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "execution_scope", fields: {} }),
+    /athlete_onboarding_validation_failed/u
+  );
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...complete, experience_level: "expert" } }),
+    /athlete_onboarding_validation_failed/u
   );
   const completeWithoutActivity = { ...complete };
   delete completeWithoutActivity.activity_id;
@@ -229,7 +240,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Current declaration",
     "Superseded declaration",
     "Not available right now",
-    "Only accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
+    "Only training level, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
     assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));

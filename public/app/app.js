@@ -1273,6 +1273,18 @@ async function createSession() {
     return;
   }
 
+  // Training level is required (no silent default): athletes who onboarded
+  // before levels existed declare it once, via Edit preferences, before their
+  // next session - the declared level selects their programme.
+  if (!state.phase1Input?.experience_level) {
+    showNotice(
+      "Choose your training level (Beginner, Amateur or Pro) in Edit preferences before starting a session.",
+      "error"
+    );
+    document.getElementById("athleteOnboardingNav")?.click();
+    return;
+  }
+
   showBusy("Creating session…");
 
   try {
