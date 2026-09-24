@@ -112,9 +112,20 @@ export type Phase4Options = {
   entries?: Record<string, ExerciseSignature>;
 };
 
+// Optional per-exercise prescription declared by a program registry entry,
+// aligned 1:1 with its exercise_eligibility. Entries without one keep the
+// default primary/accessory prescription.
+export type Phase4ItemPrescription = {
+  sets: number;
+  reps: number;
+  intensity: PlannedItemIntensity;
+  rest_seconds: number;
+};
+
 export type Phase4Template = {
   program_id: string;
   intent: string[];
+  prescriptions?: Phase4ItemPrescription[];
 };
 
 export type RegistryLoad = {

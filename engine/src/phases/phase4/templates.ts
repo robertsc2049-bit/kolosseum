@@ -3,13 +3,14 @@
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
 
-import type { Phase4Template } from "./types.js";
+import type { Phase4ItemPrescription, Phase4Template } from "./types.js";
 import { loadRegistryBundle } from "../../registries/loadRegistryBundle.js";
 
 type ProgramTemplateEntry = {
   activity_id: string;
   template_id: string;
   exercise_eligibility: string[];
+  item_prescriptions?: Phase4ItemPrescription[];
 };
 
 type ProgramTemplateRegistry = {
@@ -24,6 +25,39 @@ function die(msg: string): never {
 
 function isPlainObject(x: unknown): x is Record<string, unknown> {
   return !!x && typeof x === "object" && !Array.isArray(x);
+}
+
+function positiveInt(x: unknown): x is number {
+  return typeof x === "number" && Number.isInteger(x) && x > 0;
+}
+
+// item_prescriptions is optional; when present it must align 1:1 with a
+// duplicate-free exercise_eligibility so planned item i gets prescription i.
+function validateItemPrescriptions(raw: unknown, i: number, eligibility: string[]): Phase4ItemPrescription[] {
+  const at = `program.entries[${i}].item_prescriptions`;
+  if (!Array.isArray(raw)) die(`${at} must be an array`);
+  if (raw.length !== eligibility.length) die(`${at} must align 1:1 with exercise_eligibility`);
+  if (new Set(eligibility).size !== eligibility.length) die(`${at} requires a duplicate-free exercise_eligibility`);
+
+  return raw.map((p, j) => {
+    if (!isPlainObject(p)) die(`${at}[${j}] not an object`);
+    const { sets, reps, rest_seconds, intensity } = p;
+    if (!positiveInt(sets)) die(`${at}[${j}].sets must be a positive integer`);
+    if (!positiveInt(reps)) die(`${at}[${j}].reps must be a positive integer`);
+    if (!positiveInt(rest_seconds)) die(`${at}[${j}].rest_seconds must be a positive integer`);
+    if (!isPlainObject(intensity)) die(`${at}[${j}].intensity not an object`);
+
+    const type = intensity["type"];
+    const value = intensity["value"];
+    if (type === "bodyweight") return { sets, reps, rest_seconds, intensity: { type } };
+    if (type === "percent_1rm" && typeof value === "number" && value > 0 && value <= 100) {
+      return { sets, reps, rest_seconds, intensity: { type, value } };
+    }
+    if (type === "rpe" && typeof value === "number" && value >= 1 && value <= 10) {
+      return { sets, reps, rest_seconds, intensity: { type, value } };
+    }
+    die(`${at}[${j}].intensity must be bodyweight, percent_1rm (0-100] or rpe [1-10]`);
+  });
 }
 
 function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
@@ -57,7 +91,15 @@ function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
       exerciseEligibilityOut.push(ex);
     }
 
-    out.push({ activity_id: activity_id.trim(), template_id: template_id.trim(), exercise_eligibility: exerciseEligibilityOut });
+    const entry: ProgramTemplateEntry = {
+      activity_id: activity_id.trim(),
+      template_id: template_id.trim(),
+      exercise_eligibility: exerciseEligibilityOut
+    };
+    if (row["item_prescriptions"] !== undefined) {
+      entry.item_prescriptions = validateItemPrescriptions(row["item_prescriptions"], i, exerciseEligibilityOut);
+    }
+    out.push(entry);
   }
 
   return { registry_id: "program", version, entries: out };
@@ -87,5 +129,7 @@ export function selectTemplate(activity: string): Phase4Template | null {
   const hit = reg.entries.find((t) => t.activity_id === act);
   if (!hit) return null;
 
-  return { program_id: hit.template_id, intent: hit.exercise_eligibility };
+  return hit.item_prescriptions
+    ? { program_id: hit.template_id, intent: hit.exercise_eligibility, prescriptions: hit.item_prescriptions }
+    : { program_id: hit.template_id, intent: hit.exercise_eligibility };
 }
