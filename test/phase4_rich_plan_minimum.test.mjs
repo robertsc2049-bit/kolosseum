@@ -287,6 +287,27 @@ test("Phase4: olympic_weightlifting timebox keeps the classic lifts' declared pr
   assert.equal(r.program.planned_items[0].reps, 2);
 });
 
+// A strongman programme must train the sport's implements and overhead work,
+// and prescribe carries by effort (one run per set), not as % 1RM reps.
+test("Phase4: strongman plans log press, yoke and carries with their declared prescriptions", () => {
+  const r = phase4AssembleProgram(mkInput("strongman"), mkPhase3());
+  assert.equal(r.ok, true);
+  assertPhase4PlanContract(r.program, { minItems: 2 });
+
+  const plan = r.program.planned_items.map((it) => [it.exercise_id, it.sets, it.reps, it.intensity.type, it.intensity.value]);
+  assert.deepEqual(plan, [
+    ["strongman_log_press", 5, 3, "percent_1rm", 75],
+    ["deadlift", 4, 3, "percent_1rm", 80],
+    ["yoke_walk", 4, 1, "rpe", 8],
+    ["zercher_squat", 3, 5, "percent_1rm", 70],
+    ["farmers_carry", 3, 1, "rpe", 8],
+    ["romanian_deadlift", 3, 8, "percent_1rm", 65]
+  ]);
+  for (const it of r.program.planned_items.filter((x) => x.exercise_id.includes("carry") || x.exercise_id === "yoke_walk")) {
+    assert.notEqual(it.intensity.type, "percent_1rm", `${it.exercise_id} must not be prescribed as % 1RM`);
+  }
+});
+
 // Activities without item_prescriptions keep the default primary/accessory
 // prescription exactly.
 test("Phase4: activities without item_prescriptions keep the default prescription", () => {
