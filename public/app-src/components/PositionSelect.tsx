@@ -49,7 +49,8 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   mma: [{ id: "athlete", label: "Athlete" }],
   tennis: [{ id: "athlete", label: "Athlete" }],
   triathlon: [{ id: "athlete", label: "Athlete" }],
-  rugby_league: [{ id: "athlete", label: "Athlete" }]
+  rugby_league: [{ id: "athlete", label: "Athlete" }],
+  street_lifting: [{ id: "athlete", label: "Athlete" }]
 };
 
 export function PositionSelect({ activityId, value, onChange, label = "Position" }: {
