@@ -1865,6 +1865,68 @@
             "conditioning_row",
             "conditioning_sled"
           ]
+        },
+        "street_lifting": {
+          "activity_id": "street_lifting",
+          "stimulus_intents": [
+            "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled"
+          ]
         }
       }
     },
@@ -1938,7 +2000,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "hinge": {
@@ -2008,7 +2071,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "single_leg_squat": {
@@ -2061,7 +2125,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "single_leg_hinge": {
@@ -2115,7 +2180,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "knee_extension_isolation": {
@@ -2162,7 +2228,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "knee_flexion_isolation": {
@@ -2210,7 +2277,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "hip_abduction_isolation": {
@@ -2257,7 +2325,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "hip_adduction_isolation": {
@@ -2304,7 +2373,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "hip_extension_isolation": {
@@ -2356,7 +2426,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "hip_flexion_isolation": {
@@ -2403,7 +2474,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "calf_raise": {
@@ -2451,7 +2523,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "tibialis_raise": {
@@ -2499,7 +2572,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "horizontal_push": {
@@ -2565,7 +2639,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "incline_push": {
@@ -2618,7 +2693,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "decline_push": {
@@ -2673,7 +2749,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "vertical_push": {
@@ -2741,7 +2818,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "angled_push": {
@@ -2796,7 +2874,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "horizontal_pull": {
@@ -2853,7 +2932,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "vertical_pull": {
@@ -2909,7 +2989,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "scapular_retraction": {
@@ -2957,7 +3038,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "scapular_protraction": {
@@ -3004,7 +3086,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "scapular_upward_rotation": {
@@ -3053,7 +3136,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "scapular_depression": {
@@ -3100,7 +3184,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "shoulder_external_rotation": {
@@ -3148,7 +3233,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "shoulder_internal_rotation": {
@@ -3196,7 +3282,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "shoulder_abduction_isolation": {
@@ -3245,7 +3332,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "shoulder_horizontal_abduction_isolation": {
@@ -3294,7 +3382,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "elbow_flexion_isolation": {
@@ -3344,7 +3433,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "elbow_extension_isolation": {
@@ -3395,7 +3485,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "forearm_flexion_isolation": {
@@ -3443,7 +3534,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "forearm_extension_isolation": {
@@ -3491,7 +3583,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "grip_crush": {
@@ -3539,7 +3632,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "grip_support": {
@@ -3587,7 +3681,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "carry_bilateral": {
@@ -3645,7 +3740,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "carry_unilateral": {
@@ -3697,7 +3793,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "core_anti_extension": {
@@ -3744,7 +3841,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "core_anti_rotation": {
@@ -3792,7 +3890,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "core_anti_lateral_flexion": {
@@ -3839,7 +3938,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "trunk_flexion": {
@@ -3887,7 +3987,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "trunk_extension": {
@@ -3934,7 +4035,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "rotation": {
@@ -3982,7 +4084,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "locomotion_walk": {
@@ -4029,7 +4132,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "locomotion_run": {
@@ -4076,7 +4180,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "locomotion_crawl": {
@@ -4123,7 +4228,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "jump_vertical": {
@@ -4170,7 +4276,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "jump_horizontal": {
@@ -4217,7 +4324,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "sprint_acceleration": {
@@ -4263,7 +4371,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "sprint_max_velocity": {
@@ -4309,7 +4418,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "deceleration": {
@@ -4354,7 +4464,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "change_of_direction": {
@@ -4399,7 +4510,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "throw_slam": {
@@ -4446,7 +4558,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "conditioning_cyclical": {
@@ -4493,7 +4606,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "conditioning_row": {
@@ -4539,7 +4653,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         },
         "conditioning_sled": {
@@ -4587,7 +4702,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ]
         }
       }
@@ -4663,7 +4779,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -4976,7 +5093,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -5295,7 +5413,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -6136,7 +6255,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -6364,7 +6484,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -6519,7 +6640,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -8988,7 +9110,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -9300,7 +9423,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -9448,7 +9572,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -9966,7 +10091,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -10343,7 +10469,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [
             "overhead_loading"
@@ -10955,7 +11082,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11103,7 +11231,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11252,7 +11381,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11546,7 +11676,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11620,7 +11751,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11696,7 +11828,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11847,7 +11980,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11995,7 +12129,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15489,7 +15624,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -16295,7 +16431,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -16441,7 +16578,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -21574,7 +21712,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -23204,7 +23343,9 @@
             "pull_up_bar"
           ],
           "primary_activity_applicability": "crossfit",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "street_lifting"
+          ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
           "template_eligibility": "eligible",
@@ -23493,7 +23634,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "crossfit",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "street_lifting"
+          ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
           "template_eligibility": "eligible",
@@ -23852,6 +23995,16 @@
             "incline_bench_press",
             "push_up"
           ]
+        },
+        {
+          "activity_id": "street_lifting",
+          "template_id": "PROGRAM_STREET_LIFTING_V1",
+          "exercise_eligibility": [
+            "back_squat",
+            "pull_up",
+            "dip",
+            "muscle_up"
+          ]
         }
       ]
     },
@@ -23890,7 +24043,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -23934,7 +24088,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -23977,7 +24132,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -24019,7 +24175,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24065,7 +24222,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24112,7 +24270,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24156,7 +24315,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -24199,7 +24359,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -24243,7 +24404,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -24289,7 +24451,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
@@ -24456,7 +24619,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24498,7 +24662,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24629,7 +24794,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -24670,7 +24836,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -24752,7 +24919,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24799,7 +24967,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -24845,7 +25014,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -24887,7 +25057,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -24929,7 +25100,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -25013,7 +25185,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull"
@@ -25348,7 +25521,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "decline_push"
@@ -25435,7 +25609,8 @@
           "display_label": "Gymnastics rings",
           "equipment_class": "fixed_support",
           "activity_applicability": [
-            "crossfit"
+            "crossfit",
+            "street_lifting"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
@@ -25848,7 +26023,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "movement_pattern_id": "squat",
           "token_kind": "exercise_name_token",
@@ -25958,7 +26134,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "street_lifting"
           ],
           "movement_pattern_id": "core_anti_extension",
           "token_kind": "exercise_name_token",
@@ -256182,6 +256359,906 @@
           "applicability_id": "box_step_up__rugby_league__competition",
           "exercise_id": "box_step_up",
           "activity_id": "rugby_league",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__street_lifting__training": {
+          "applicability_id": "back_squat__street_lifting__training",
+          "exercise_id": "back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__street_lifting__testing": {
+          "applicability_id": "back_squat__street_lifting__testing",
+          "exercise_id": "back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__street_lifting__competition": {
+          "applicability_id": "back_squat__street_lifting__competition",
+          "exercise_id": "back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "paused_back_squat__street_lifting__training": {
+          "applicability_id": "paused_back_squat__street_lifting__training",
+          "exercise_id": "paused_back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "paused_back_squat__street_lifting__testing": {
+          "applicability_id": "paused_back_squat__street_lifting__testing",
+          "exercise_id": "paused_back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "paused_back_squat__street_lifting__competition": {
+          "applicability_id": "paused_back_squat__street_lifting__competition",
+          "exercise_id": "paused_back_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__street_lifting__training": {
+          "applicability_id": "goblet_squat__street_lifting__training",
+          "exercise_id": "goblet_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__street_lifting__testing": {
+          "applicability_id": "goblet_squat__street_lifting__testing",
+          "exercise_id": "goblet_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__street_lifting__competition": {
+          "applicability_id": "goblet_squat__street_lifting__competition",
+          "exercise_id": "goblet_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__street_lifting__training": {
+          "applicability_id": "romanian_deadlift__street_lifting__training",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__street_lifting__testing": {
+          "applicability_id": "romanian_deadlift__street_lifting__testing",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__street_lifting__competition": {
+          "applicability_id": "romanian_deadlift__street_lifting__competition",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__street_lifting__training": {
+          "applicability_id": "kettlebell_deadlift__street_lifting__training",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__street_lifting__testing": {
+          "applicability_id": "kettlebell_deadlift__street_lifting__testing",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_deadlift__street_lifting__competition": {
+          "applicability_id": "kettlebell_deadlift__street_lifting__competition",
+          "exercise_id": "kettlebell_deadlift",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bulgarian_split_squat__street_lifting__training": {
+          "applicability_id": "bulgarian_split_squat__street_lifting__training",
+          "exercise_id": "bulgarian_split_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bulgarian_split_squat__street_lifting__testing": {
+          "applicability_id": "bulgarian_split_squat__street_lifting__testing",
+          "exercise_id": "bulgarian_split_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bulgarian_split_squat__street_lifting__competition": {
+          "applicability_id": "bulgarian_split_squat__street_lifting__competition",
+          "exercise_id": "bulgarian_split_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "close_grip_bench_press__street_lifting__training": {
+          "applicability_id": "close_grip_bench_press__street_lifting__training",
+          "exercise_id": "close_grip_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "close_grip_bench_press__street_lifting__testing": {
+          "applicability_id": "close_grip_bench_press__street_lifting__testing",
+          "exercise_id": "close_grip_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "close_grip_bench_press__street_lifting__competition": {
+          "applicability_id": "close_grip_bench_press__street_lifting__competition",
+          "exercise_id": "close_grip_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__street_lifting__training": {
+          "applicability_id": "dumbbell_bench_press__street_lifting__training",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__street_lifting__testing": {
+          "applicability_id": "dumbbell_bench_press__street_lifting__testing",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__street_lifting__competition": {
+          "applicability_id": "dumbbell_bench_press__street_lifting__competition",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__street_lifting__training": {
+          "applicability_id": "push_up__street_lifting__training",
+          "exercise_id": "push_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__street_lifting__testing": {
+          "applicability_id": "push_up__street_lifting__testing",
+          "exercise_id": "push_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__street_lifting__competition": {
+          "applicability_id": "push_up__street_lifting__competition",
+          "exercise_id": "push_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "decline_bench_press__street_lifting__training": {
+          "applicability_id": "decline_bench_press__street_lifting__training",
+          "exercise_id": "decline_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "decline_bench_press__street_lifting__testing": {
+          "applicability_id": "decline_bench_press__street_lifting__testing",
+          "exercise_id": "decline_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "decline_bench_press__street_lifting__competition": {
+          "applicability_id": "decline_bench_press__street_lifting__competition",
+          "exercise_id": "decline_bench_press",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_overhead_press__street_lifting__training": {
+          "applicability_id": "dumbbell_overhead_press__street_lifting__training",
+          "exercise_id": "dumbbell_overhead_press",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_overhead_press__street_lifting__testing": {
+          "applicability_id": "dumbbell_overhead_press__street_lifting__testing",
+          "exercise_id": "dumbbell_overhead_press",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_overhead_press__street_lifting__competition": {
+          "applicability_id": "dumbbell_overhead_press__street_lifting__competition",
+          "exercise_id": "dumbbell_overhead_press",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__street_lifting__training": {
+          "applicability_id": "barbell_row__street_lifting__training",
+          "exercise_id": "barbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__street_lifting__testing": {
+          "applicability_id": "barbell_row__street_lifting__testing",
+          "exercise_id": "barbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__street_lifting__competition": {
+          "applicability_id": "barbell_row__street_lifting__competition",
+          "exercise_id": "barbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__street_lifting__training": {
+          "applicability_id": "single_arm_dumbbell_row__street_lifting__training",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__street_lifting__testing": {
+          "applicability_id": "single_arm_dumbbell_row__street_lifting__testing",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__street_lifting__competition": {
+          "applicability_id": "single_arm_dumbbell_row__street_lifting__competition",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__street_lifting__training": {
+          "applicability_id": "seated_cable_row__street_lifting__training",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__street_lifting__testing": {
+          "applicability_id": "seated_cable_row__street_lifting__testing",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__street_lifting__competition": {
+          "applicability_id": "seated_cable_row__street_lifting__competition",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__street_lifting__training": {
+          "applicability_id": "pull_up__street_lifting__training",
+          "exercise_id": "pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__street_lifting__testing": {
+          "applicability_id": "pull_up__street_lifting__testing",
+          "exercise_id": "pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__street_lifting__competition": {
+          "applicability_id": "pull_up__street_lifting__competition",
+          "exercise_id": "pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__street_lifting__training": {
+          "applicability_id": "chin_up__street_lifting__training",
+          "exercise_id": "chin_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__street_lifting__testing": {
+          "applicability_id": "chin_up__street_lifting__testing",
+          "exercise_id": "chin_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__street_lifting__competition": {
+          "applicability_id": "chin_up__street_lifting__competition",
+          "exercise_id": "chin_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__street_lifting__training": {
+          "applicability_id": "lat_pulldown__street_lifting__training",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__street_lifting__testing": {
+          "applicability_id": "lat_pulldown__street_lifting__testing",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__street_lifting__competition": {
+          "applicability_id": "lat_pulldown__street_lifting__competition",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__street_lifting__training": {
+          "applicability_id": "band_assisted_pull_up__street_lifting__training",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__street_lifting__testing": {
+          "applicability_id": "band_assisted_pull_up__street_lifting__testing",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__street_lifting__competition": {
+          "applicability_id": "band_assisted_pull_up__street_lifting__competition",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__street_lifting__training": {
+          "applicability_id": "face_pull__street_lifting__training",
+          "exercise_id": "face_pull",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__street_lifting__testing": {
+          "applicability_id": "face_pull__street_lifting__testing",
+          "exercise_id": "face_pull",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__street_lifting__competition": {
+          "applicability_id": "face_pull__street_lifting__competition",
+          "exercise_id": "face_pull",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__street_lifting__training": {
+          "applicability_id": "front_plank__street_lifting__training",
+          "exercise_id": "front_plank",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__street_lifting__testing": {
+          "applicability_id": "front_plank__street_lifting__testing",
+          "exercise_id": "front_plank",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__street_lifting__competition": {
+          "applicability_id": "front_plank__street_lifting__competition",
+          "exercise_id": "front_plank",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curl_up__street_lifting__training": {
+          "applicability_id": "curl_up__street_lifting__training",
+          "exercise_id": "curl_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curl_up__street_lifting__testing": {
+          "applicability_id": "curl_up__street_lifting__testing",
+          "exercise_id": "curl_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "curl_up__street_lifting__competition": {
+          "applicability_id": "curl_up__street_lifting__competition",
+          "exercise_id": "curl_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "weighted_crunch__street_lifting__training": {
+          "applicability_id": "weighted_crunch__street_lifting__training",
+          "exercise_id": "weighted_crunch",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "weighted_crunch__street_lifting__testing": {
+          "applicability_id": "weighted_crunch__street_lifting__testing",
+          "exercise_id": "weighted_crunch",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "weighted_crunch__street_lifting__competition": {
+          "applicability_id": "weighted_crunch__street_lifting__competition",
+          "exercise_id": "weighted_crunch",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__street_lifting__training": {
+          "applicability_id": "dip__street_lifting__training",
+          "exercise_id": "dip",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__street_lifting__testing": {
+          "applicability_id": "dip__street_lifting__testing",
+          "exercise_id": "dip",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dip__street_lifting__competition": {
+          "applicability_id": "dip__street_lifting__competition",
+          "exercise_id": "dip",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "muscle_up__street_lifting__training": {
+          "applicability_id": "muscle_up__street_lifting__training",
+          "exercise_id": "muscle_up",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "muscle_up__street_lifting__testing": {
+          "applicability_id": "muscle_up__street_lifting__testing",
+          "exercise_id": "muscle_up",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "muscle_up__street_lifting__competition": {
+          "applicability_id": "muscle_up__street_lifting__competition",
+          "exercise_id": "muscle_up",
+          "activity_id": "street_lifting",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__training": {
+          "applicability_id": "air_squat__street_lifting__training",
+          "exercise_id": "air_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__testing": {
+          "applicability_id": "air_squat__street_lifting__testing",
+          "exercise_id": "air_squat",
+          "activity_id": "street_lifting",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "air_squat__street_lifting__competition": {
+          "applicability_id": "air_squat__street_lifting__competition",
+          "exercise_id": "air_squat",
+          "activity_id": "street_lifting",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

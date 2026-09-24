@@ -32,7 +32,8 @@
     "mma",
     "tennis",
     "triathlon",
-    "rugby_league"
+    "rugby_league",
+    "street_lifting"
   ],
   "required_activity_contexts": [
     "training",

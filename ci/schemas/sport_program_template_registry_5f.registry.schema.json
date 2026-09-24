@@ -91,7 +91,8 @@
               "mma",
               "tennis",
               "triathlon",
-              "rugby_league"
+              "rugby_league",
+              "street_lifting"
             ]
           },
           "assignment_scope": {
@@ -317,7 +318,8 @@
                   "mma",
                   "tennis",
                   "triathlon",
-                  "rugby_league"
+                  "rugby_league",
+                  "street_lifting"
                 ]
               },
               "exercise_ids": {

@@ -32,7 +32,8 @@
     "mma",
     "tennis",
     "triathlon",
-    "rugby_league"
+    "rugby_league",
+    "street_lifting"
   ],
   "expected_failure_code": "v1_equipment_registry_coverage_contract_missing_equipment_reference",
   "missing_case": {
@@ -74,7 +75,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -118,7 +120,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -161,7 +164,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -203,7 +207,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -248,7 +253,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -294,7 +300,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -338,7 +345,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -381,7 +389,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -424,7 +433,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -470,7 +480,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "vertical_pull",
@@ -511,7 +522,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "hinge",
@@ -552,7 +564,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -593,7 +606,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
@@ -634,7 +648,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -676,7 +691,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -720,7 +736,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "conditioning_general"
@@ -760,7 +777,8 @@
         "muay_thai",
         "mma",
         "tennis",
-        "triathlon"
+        "triathlon",
+        "street_lifting"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",

@@ -3093,7 +3093,8 @@ function programmeActivationIssues(template) {
     "mma",
     "tennis",
     "triathlon",
-    "rugby_league"
+    "rugby_league",
+    "street_lifting"
   ]);
   const supportedBlockTypes = new Set([
     "general",
@@ -3925,6 +3926,12 @@ const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
   rugby_league: [
     ["rugby_league_match", "Rugby league match"],
     ["rugby_league_tournament", "Rugby league tournament"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  street_lifting: [
+    ["street_lifting_competition", "Street lifting competition"],
+    ["strength_event", "Strength event"],
     ["test_day", "Test day"],
     ["other", "Other event"]
   ]

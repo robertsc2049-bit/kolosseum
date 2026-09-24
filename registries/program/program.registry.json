@@ -345,6 +345,16 @@
         "incline_bench_press",
         "push_up"
       ]
+    },
+    {
+      "activity_id": "street_lifting",
+      "template_id": "PROGRAM_STREET_LIFTING_V1",
+      "exercise_eligibility": [
+        "back_squat",
+        "pull_up",
+        "dip",
+        "muscle_up"
+      ]
     }
   ]
 }

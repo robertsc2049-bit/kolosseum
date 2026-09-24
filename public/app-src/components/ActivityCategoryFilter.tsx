@@ -28,7 +28,7 @@ export const CATEGORIES = [
 export const CATEGORY_ACTIVITY_IDS: Record<string, readonly string[]> = {
   strength: [
     "powerlifting", "strongman", "american_football", "olympic_weightlifting",
-    "wrestling", "judo", "brazilian_jiu_jitsu", "mma"
+    "wrestling", "judo", "brazilian_jiu_jitsu", "mma", "street_lifting"
   ],
   body_composition: ["general_strength"],
   conditioning: [

@@ -77,7 +77,8 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   mma: [["athlete", "Athlete"]],
   tennis: [["athlete", "Athlete"]],
   triathlon: [["athlete", "Athlete"]],
-  rugby_league: [["athlete", "Athlete"]]
+  rugby_league: [["athlete", "Athlete"]],
+  street_lifting: [["athlete", "Athlete"]]
 };
 
 function positionSelectHtml(activityId, currentPosition, athleteUserId) {

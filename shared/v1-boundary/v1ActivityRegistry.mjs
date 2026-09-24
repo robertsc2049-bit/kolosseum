@@ -472,6 +472,21 @@ const V1_ACTIVITIES = Object.freeze([
     programme_template_family_ids: Object.freeze([
       "rugby_league_off_season", "rugby_league_pre_season", "rugby_league_in_season", "rugby_league_low_equipment"
     ])
+  }),
+  Object.freeze({
+    activity_id: "street_lifting",
+    display_label: "Street lifting",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "street_lifting_competition", display_label: "Street lifting competition" }),
+      Object.freeze({ event_type_id: "strength_event", display_label: "Strength event" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "street_lifting_novice",
+      "street_lifting_intermediate",
+      "street_lifting_low_equipment"
+    ])
   })
 ]);
 
