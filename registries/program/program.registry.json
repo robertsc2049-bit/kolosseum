@@ -848,24 +848,132 @@
       "activity_id": "athletics",
       "template_id": "PROGRAM_ATHLETICS_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "falling_start_sprint",
+        "pogo_jump",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "nordic_curl",
+        "single_leg_calf_raise"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 5,
+          "reps": 1,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 85
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "swimming",
       "template_id": "PROGRAM_SWIMMING_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "countermovement_jump",
+        "trap_bar_deadlift",
+        "chin_up",
+        "split_squat",
+        "cable_external_rotation",
+        "face_pull"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
@@ -930,36 +1038,201 @@
       "activity_id": "cycling",
       "template_id": "PROGRAM_CYCLING_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "squat_jump",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "single_leg_rdl",
+        "box_step_up",
+        "pallof_press"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "rowing",
       "template_id": "PROGRAM_ROWING_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "backward_overhead_medicine_ball_throw",
+        "trap_bar_deadlift",
+        "romanian_deadlift",
+        "chest_supported_row",
+        "split_squat",
+        "pallof_press"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 70
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "kayaking",
       "template_id": "PROGRAM_KAYAKING_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "rotational_medicine_ball_throw",
+        "chin_up",
+        "pendlay_row",
+        "trap_bar_deadlift",
+        "cable_external_rotation",
+        "half_kneeling_pallof_press"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 5,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
@@ -1104,12 +1377,67 @@
       "activity_id": "triathlon",
       "template_id": "PROGRAM_TRIATHLON_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "countermovement_jump",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "single_leg_calf_raise",
+        "chin_up",
+        "face_pull"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
