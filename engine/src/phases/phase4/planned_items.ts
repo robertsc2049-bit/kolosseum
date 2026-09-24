@@ -39,7 +39,7 @@ function plannedItemsFromIntent(
 
     const rest_seconds = declared ? declared.rest_seconds : (isAccessory ? 90 : 180);
 
-    return {
+    const item: PlannedItem = {
       block_id: "B0",
       item_id: `B0_I${i}`,
       exercise_id,
@@ -50,6 +50,17 @@ function plannedItemsFromIntent(
       intensity,
       rest_seconds
     };
+
+    const group = declared?.group;
+    if (group) {
+      item.group_id = group.group_id;
+      item.group_type = group.group_type;
+      if (group.time_cap_seconds !== undefined) item.group_time_cap_seconds = group.time_cap_seconds;
+      if (group.round_seconds !== undefined) item.group_round_seconds = group.round_seconds;
+      if (group.total_rounds !== undefined) item.group_total_rounds = group.total_rounds;
+    }
+
+    return item;
   });
 }
 

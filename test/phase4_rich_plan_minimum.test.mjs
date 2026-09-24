@@ -308,6 +308,37 @@ test("Phase4: strongman plans log press, yoke and carries with their declared pr
   }
 });
 
+// A CrossFit class is strength + a scored metcon + skill work - not a bodyweight
+// movement like toes-to-bar prescribed as % 1RM.
+test("Phase4: crossfit plans a strength lift, a 12-minute AMRAP metcon and skill work", () => {
+  const r = phase4AssembleProgram(mkInput("crossfit"), mkPhase3());
+  assert.equal(r.ok, true);
+  assertPhase4PlanContract(r.program, { minItems: 2 });
+
+  const plan = r.program.planned_items.map((it) => [it.exercise_id, it.sets, it.reps, it.intensity.type, it.group_type ?? null]);
+  assert.deepEqual(plan, [
+    ["power_clean", 5, 3, "percent_1rm", null],
+    ["pull_up", 1, 5, "bodyweight", "amrap"],
+    ["burpee", 1, 10, "bodyweight", "amrap"],
+    ["air_squat", 1, 15, "bodyweight", "amrap"],
+    ["toes_to_bar", 3, 10, "bodyweight", null],
+    ["double_under", 3, 50, "bodyweight", null]
+  ]);
+  for (const it of r.program.planned_items.filter((x) => x.group_id)) {
+    assert.equal(it.group_id, "metcon");
+    assert.equal(it.group_time_cap_seconds, 720);
+    assert.equal(it.rest_seconds, 0);
+  }
+});
+
+// Timebox pruning only drops accessories, so the metcon group survives whole.
+test("Phase4: crossfit short timebox keeps the whole AMRAP group", () => {
+  const r = phase4AssembleProgram(mkInput("crossfit", 25), mkPhase3());
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.program.planned_exercise_ids, ["power_clean", "pull_up", "burpee", "air_squat"]);
+  assert.equal(r.program.planned_items.filter((x) => x.group_type === "amrap").length, 3);
+});
+
 // Activities without item_prescriptions keep the default primary/accessory
 // prescription exactly.
 test("Phase4: activities without item_prescriptions keep the default prescription", () => {

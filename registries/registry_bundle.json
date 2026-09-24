@@ -23779,10 +23779,78 @@
           "activity_id": "crossfit",
           "template_id": "PROGRAM_CROSSFIT_V1",
           "exercise_eligibility": [
-            "thruster",
             "power_clean",
+            "pull_up",
+            "burpee",
+            "air_squat",
             "toes_to_bar",
-            "pull_up"
+            "double_under"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 75
+              },
+              "rest_seconds": 120
+            },
+            {
+              "sets": 1,
+              "reps": 5,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 0,
+              "group": {
+                "group_id": "metcon",
+                "group_type": "amrap",
+                "time_cap_seconds": 720
+              }
+            },
+            {
+              "sets": 1,
+              "reps": 10,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 0,
+              "group": {
+                "group_id": "metcon",
+                "group_type": "amrap",
+                "time_cap_seconds": 720
+              }
+            },
+            {
+              "sets": 1,
+              "reps": 15,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 0,
+              "group": {
+                "group_id": "metcon",
+                "group_type": "amrap",
+                "time_cap_seconds": 720
+              }
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 50,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 60
+            }
           ]
         },
         {
