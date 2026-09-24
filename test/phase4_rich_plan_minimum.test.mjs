@@ -436,6 +436,29 @@ test("Phase4: combat sports get power, pulling and grip work without hypertrophy
   for (const a of ["boxing", "muay_thai", "judo"]) assert.ok(ids(a).includes("rotational_medicine_ball_throw"), `${a}: rotational power`);
 });
 
+// General strength: every major movement pattern once, novice-safe loading.
+test("Phase4: general_strength covers every major pattern with novice-safe loading", () => {
+  const r = phase4AssembleProgram(mkInput("general_strength"), mkPhase3());
+  assert.equal(r.ok, true);
+  const ids = r.program.planned_exercise_ids;
+  assert.deepEqual(ids, ["trap_bar_deadlift", "goblet_squat", "dumbbell_bench_press", "single_arm_dumbbell_row", "farmers_carry", "pallof_press"]);
+  for (const it of r.program.planned_items.filter((x) => x.intensity.type === "percent_1rm")) {
+    assert.ok(it.intensity.value <= 75, `${it.exercise_id}: no heavy % 1RM work for an unknown-level adult`);
+  }
+});
+
+// Street lifting: weighted pull-up and dip by effort, never % 1RM of added load.
+test("Phase4: street_lifting trains weighted pull-up and dip by effort, without muscle-up volume", () => {
+  const r = phase4AssembleProgram(mkInput("street_lifting"), mkPhase3());
+  assert.equal(r.ok, true);
+  const [pull, dip] = r.program.planned_items;
+  assert.equal(pull.exercise_id, "pull_up");
+  assert.equal(dip.exercise_id, "dip");
+  for (const it of [pull, dip]) assert.equal(it.intensity.type, "rpe", `${it.exercise_id} must be prescribed by effort`);
+  assert.ok(!r.program.planned_exercise_ids.includes("muscle_up"), "no muscle-up volume without an athlete level");
+  assert.ok(r.program.planned_exercise_ids.includes("face_pull"), "elbow/shoulder care");
+});
+
 // Programs without item_prescriptions keep the default primary/accessory
 // prescription exactly (exercised directly now that every activity declares its own).
 test("Phase4: planned items without declared prescriptions keep the default prescription", () => {
