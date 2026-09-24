@@ -180,10 +180,47 @@ export function exerciseName(exercise: JsonRecord | null | undefined): string {
   return String(exercise?.display_name ?? exercise?.exercise_name ?? exercise?.exercise_id ?? exercise?.item_id ?? "Exercise");
 }
 
+const TIMED_GROUP_TYPES = new Set(["amrap", "emom", "for_time"]);
+
+// DEV NOTE: an AMRAP/EMOM/for-time member's own sets/rest_seconds are
+// placeholders (phase6 emits "1 sets"/"0s rest") - the group's cap/rounds
+// govern the work, so the per-exercise line leaves them out.
+export function isTimedGroupMember(exercise: JsonRecord | null | undefined): boolean {
+  return Boolean(exercise?.group_id) && TIMED_GROUP_TYPES.has(String(exercise?.group_type ?? ""));
+}
+
+function shortDurationLabel(seconds: number): string {
+  if (seconds % 60 === 0) return `${seconds / 60} min`;
+  if (seconds < 60) return `${seconds}s`;
+  return `${Math.floor(seconds / 60)} min ${seconds % 60}s`;
+}
+
+// DEV NOTE: one compact label per timed group - "AMRAP 12 min",
+// "EMOM 10 × 60s", "For time, 15 min cap". Accepts either a planned
+// exercise's group_* fields or a GROUP_WORKOUT step's time_cap_seconds/
+// round_seconds/total_rounds (session_state_read_model.ts's
+// deriveCurrentStepFromRemaining()). Falls back to the bare type name when
+// the coach declared no timing.
+export function groupTimingLabel(source: JsonRecord | null | undefined): string {
+  const groupType = String(source?.group_type ?? "");
+  const capSeconds = Number(source?.group_time_cap_seconds ?? source?.time_cap_seconds ?? 0);
+  const roundSeconds = Number(source?.group_round_seconds ?? source?.round_seconds ?? 0);
+  const totalRounds = Number(source?.group_total_rounds ?? source?.total_rounds ?? 0);
+
+  if (groupType === "amrap") return capSeconds > 0 ? `AMRAP ${shortDurationLabel(capSeconds)}` : "AMRAP";
+  if (groupType === "for_time") return capSeconds > 0 ? `For time, ${shortDurationLabel(capSeconds)} cap` : "For time";
+  if (groupType === "emom") {
+    if (totalRounds > 0 && roundSeconds > 0) return `EMOM ${totalRounds} × ${roundSeconds}s`;
+    return "EMOM";
+  }
+  return titleCase(groupType);
+}
+
 export function exerciseDetails(exercise: JsonRecord | null | undefined): string[] {
   const details: string[] = [];
+  const timedGroupMember = isTimedGroupMember(exercise);
 
-  if (Number.isInteger(exercise?.sets)) {
+  if (Number.isInteger(exercise?.sets) && !timedGroupMember) {
     details.push(`${exercise?.sets} sets`);
   }
 
@@ -252,7 +289,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
     details.push(`CR10 ${Number(intensity.value)}`);
   }
 
-  if (Number.isInteger(exercise?.rest_seconds)) {
+  if (Number.isInteger(exercise?.rest_seconds) && !timedGroupMember) {
     details.push(`${exercise?.rest_seconds}s rest`);
   }
 
