@@ -71,6 +71,8 @@
           },
           {
             "block_id": "B0",
+            "distance_unit": "meters",
+            "distance_value": 30,
             "exercise_id": "farmers_carry",
             "intensity": {
               "type": "rpe",
