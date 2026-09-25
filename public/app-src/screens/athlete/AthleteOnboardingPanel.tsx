@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
@@ -265,11 +265,16 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
 function DraftView({ api }: { api: OnboardingApi }) {
   const { serverState, draft, busy, validationError, currentStage, move, confirm } = api;
   const [localDraft, setLocalDraft] = useState<JsonRecord>(draft);
+  const [syncedFrom, setSyncedFrom] = useState({ stage: currentStage, draft });
 
-  useEffect(() => {
+  // Reset the local draft when the stage or server draft changes, during
+  // render rather than in an effect: an effect runs after the new stage is
+  // already on screen, so a choice made in that gap (a fast click on a slow
+  // device) was silently overwritten by the late sync.
+  if (syncedFrom.stage !== currentStage || syncedFrom.draft !== draft) {
+    setSyncedFrom({ stage: currentStage, draft });
     setLocalDraft(draft);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStage, draft]);
+  }
 
   const index = Math.max(0, STAGES.indexOf(currentStage));
 
