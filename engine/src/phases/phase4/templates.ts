@@ -16,12 +16,22 @@ type ProgramLevelVariant = {
 export const PROGRAM_LEVELS = ["beginner", "amateur", "pro"] as const;
 export type ProgramLevel = (typeof PROGRAM_LEVELS)[number];
 
+// A competition event (powerlifting's single-lift and push-pull divisions) is
+// its own programme with its own level variants. The base entry is full power.
+export const COMPETITION_EVENTS = ["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"] as const;
+export type CompetitionEvent = (typeof COMPETITION_EVENTS)[number];
+
+type ProgramEventVariant = ProgramLevelVariant & {
+  level_variants?: Partial<Record<"beginner" | "pro", ProgramLevelVariant>>;
+};
+
 export type ProgramTemplateEntry = {
   activity_id: string;
   template_id: string;
   exercise_eligibility: string[];
   item_prescriptions?: Phase4ItemPrescription[];
   level_variants?: Partial<Record<"beginner" | "pro", ProgramLevelVariant>>;
+  event_variants?: Partial<Record<Exclude<CompetitionEvent, "full_power">, ProgramEventVariant>>;
 };
 
 type ProgramTemplateRegistry = {
@@ -159,6 +169,29 @@ function validateLevelVariants(raw: unknown, i: number): Partial<Record<"beginne
   return out;
 }
 
+function validateEventVariants(raw: unknown, i: number): NonNullable<ProgramTemplateEntry["event_variants"]> {
+  const at = `program.entries[${i}].event_variants`;
+  if (!isPlainObject(raw)) die(`${at} must be an object`);
+  const out: NonNullable<ProgramTemplateEntry["event_variants"]> = {};
+  for (const [event, variant] of Object.entries(raw)) {
+    if (event === "full_power" || !(COMPETITION_EVENTS as readonly string[]).includes(event)) {
+      die(`${at} may only declare bench_only, deadlift_only, push_pull or squat_only (full_power is the base entry), got ${event}`);
+    }
+    if (!isPlainObject(variant)) die(`${at}.${event} must be an object`);
+    const elig = variant["exercise_eligibility"];
+    if (!Array.isArray(elig) || elig.length === 0 || !elig.every((x) => typeof x === "string" && x.trim() !== "")) {
+      die(`${at}.${event}.exercise_eligibility must be a non-empty string array`);
+    }
+    const parsed: ProgramEventVariant = {
+      exercise_eligibility: elig as string[],
+      item_prescriptions: validateItemPrescriptions(variant["item_prescriptions"], i, elig as string[])
+    };
+    if (variant["level_variants"] !== undefined) parsed.level_variants = validateLevelVariants(variant["level_variants"], i);
+    out[event as Exclude<CompetitionEvent, "full_power">] = parsed;
+  }
+  return out;
+}
+
 // Exported for tests: the load-time validator every registry entry passes through.
 export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
   if (!isPlainObject(doc)) die(`program registry not an object`);
@@ -202,6 +235,9 @@ export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
     if (row["level_variants"] !== undefined) {
       entry.level_variants = validateLevelVariants(row["level_variants"], i);
     }
+    if (row["event_variants"] !== undefined) {
+      entry.event_variants = validateEventVariants(row["event_variants"], i);
+    }
     out.push(entry);
   }
 
@@ -224,7 +260,7 @@ function loadProgramRegistry(): ProgramTemplateRegistry {
   return _cache;
 }
 
-export function selectTemplate(activity: string, level?: string): Phase4Template | null {
+export function selectTemplate(activity: string, level?: string, event?: string): Phase4Template | null {
   const act = String(activity ?? "").trim();
   if (!act) return null;
 
@@ -232,7 +268,23 @@ export function selectTemplate(activity: string, level?: string): Phase4Template
   const hit = reg.entries.find((t) => t.activity_id === act);
   if (!hit) return null;
 
-  return templateForLevel(hit, level);
+  return templateForLevel(entryForEvent(hit, event), level);
+}
+
+// Pure event resolution: a declared event variant (with its own level variants)
+// replaces the base programme; full_power, no event, or an event this activity
+// does not declare use the base entry.
+export function entryForEvent(entry: ProgramTemplateEntry, event?: string): ProgramTemplateEntry {
+  const variant = event && event !== "full_power" ? entry.event_variants?.[event as Exclude<CompetitionEvent, "full_power">] : undefined;
+  if (!variant) return entry;
+  const out: ProgramTemplateEntry = {
+    activity_id: entry.activity_id,
+    template_id: entry.template_id,
+    exercise_eligibility: variant.exercise_eligibility,
+    item_prescriptions: variant.item_prescriptions
+  };
+  if (variant.level_variants) out.level_variants = variant.level_variants;
+  return out;
 }
 
 // Pure level resolution for one program entry: a declared beginner/pro variant

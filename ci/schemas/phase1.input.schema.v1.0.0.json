@@ -163,6 +163,16 @@
         "pro"
       ]
     },
+    "competition_event": {
+      "type": "string",
+      "enum": [
+        "full_power",
+        "bench_only",
+        "deadlift_only",
+        "push_pull",
+        "squat_only"
+      ]
+    },
     "nd_mode": {
       "type": "boolean"
     },
@@ -210,6 +220,20 @@
         "required": [
           "governing_authority_id"
         ]
+      }
+    },
+    {
+      "if": {
+        "required": [
+          "competition_event"
+        ]
+      },
+      "then": {
+        "properties": {
+          "activity_id": {
+            "const": "powerlifting"
+          }
+        }
       }
     }
   ]
