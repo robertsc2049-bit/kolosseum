@@ -15,6 +15,8 @@ const pct = (value) => ({ type: "percent_1rm", value });
 const rpe = (value) => ({ type: "rpe", value });
 const bw = { type: "bodyweight" };
 const P = (sets, reps, intensity, rest_seconds) => ({ sets, reps, intensity, rest_seconds });
+// Distance-prescribed work (carries, sleds): one rep is one length of distance_m.
+const D = (sets, distance_m, intensity, rest_seconds) => ({ ...P(sets, 1, intensity, rest_seconds), distance_m });
 // Reactive plyometrics need landing competence first (skill: athlete-levels, beginner).
 const REACTIVE = new Set(["pogo_jump", "depth_jump", "repeated_broad_jump", "lateral_bound", "box_jump"]);
 const REACTIVE_REGRESSION = "drop_to_stick";
@@ -44,10 +46,10 @@ const HAND = {
       ["front_squat", P(5, 3, pct(85), 210)], ["snatch_grip_deadlift", P(4, 3, pct(85), 180)]]
   },
   strongman: {
-    beginner: [["strongman_log_press", P(4, 5, rpe(6), 150)], ["deadlift", P(3, 5, rpe(6), 150)], ["yoke_walk", P(3, 1, rpe(6), 150)],
-      ["goblet_squat", P(3, 8, rpe(7), 90)], ["farmers_carry", P(3, 1, rpe(7), 120)], ["romanian_deadlift", P(3, 8, rpe(6), 90)]],
-    pro: [["strongman_log_press", P(6, 2, pct(85), 210)], ["deadlift", P(5, 2, pct(87), 240)], ["yoke_walk", P(5, 1, rpe(9), 210)],
-      ["zercher_squat", P(4, 4, pct(78), 180)], ["farmers_carry", P(4, 1, rpe(9), 180)], ["romanian_deadlift", P(3, 6, pct(70), 120)]]
+    beginner: [["strongman_log_press", P(4, 5, rpe(6), 150)], ["deadlift", P(3, 5, rpe(6), 150)], ["yoke_walk", D(3, 20, rpe(6), 150)],
+      ["goblet_squat", P(3, 8, rpe(7), 90)], ["farmers_carry", D(3, 30, rpe(7), 120)], ["romanian_deadlift", P(3, 8, rpe(6), 90)]],
+    pro: [["strongman_log_press", P(6, 2, pct(85), 210)], ["deadlift", P(5, 2, pct(87), 240)], ["yoke_walk", D(5, 20, rpe(9), 210)],
+      ["zercher_squat", P(4, 4, pct(78), 180)], ["farmers_carry", D(4, 30, rpe(9), 180)], ["romanian_deadlift", P(3, 6, pct(70), 120)]]
   },
   street_lifting: {
     beginner: [["band_assisted_pull_up", P(4, 6, rpe(7), 120)], ["push_up", P(4, 8, rpe(7), 90)], ["goblet_squat", P(3, 8, rpe(7), 90)],
@@ -129,7 +131,7 @@ for (const entry of prog.entries) {
   const pro = h ? h.pro : proOf(entry);
   for (const [id] of [...beginner, ...pro]) if (!allowed(id, entry.activity_id)) throw new Error(`${entry.activity_id}: ${id} not training-allowed`);
   entry.level_variants = { beginner: variant(beginner), pro: variant(pro) };
-  report.push({ activity: entry.activity_id, source: h ? "hand" : "rules", beginner: beginner.map(([id, p]) => `${id} ${p.sets}x${p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`), pro: pro.map(([id, p]) => `${id} ${p.sets}x${p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`) });
+  report.push({ activity: entry.activity_id, source: h ? "hand" : "rules", beginner: beginner.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`), pro: pro.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`) });
 }
 fs.writeFileSync("registries/program/program.registry.json", JSON.stringify(prog, null, 2) + "\n");
 if (process.env.REPORT) fs.writeFileSync(process.env.REPORT, JSON.stringify(report, null, 1));

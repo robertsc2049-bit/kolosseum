@@ -276,7 +276,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "distance_m": 30
         }
       ],
       "level_variants": {
@@ -351,7 +352,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             }
           ]
         },
@@ -425,7 +427,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             }
           ]
         }
@@ -486,7 +489,8 @@
             "type": "rpe",
             "value": 7
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "distance_m": 30
         },
         {
           "sets": 3,
@@ -552,7 +556,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             },
             {
               "sets": 2,
@@ -618,7 +623,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             },
             {
               "sets": 3,
@@ -670,7 +676,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 180
+          "rest_seconds": 180,
+          "distance_m": 20
         },
         {
           "sets": 3,
@@ -688,7 +695,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 150
+          "rest_seconds": 150,
+          "distance_m": 30
         },
         {
           "sets": 3,
@@ -736,7 +744,8 @@
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "distance_m": 20
             },
             {
               "sets": 3,
@@ -754,7 +763,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 30
             },
             {
               "sets": 3,
@@ -802,7 +812,8 @@
                 "type": "rpe",
                 "value": 9
               },
-              "rest_seconds": 210
+              "rest_seconds": 210,
+              "distance_m": 20
             },
             {
               "sets": 4,
@@ -820,7 +831,8 @@
                 "type": "rpe",
                 "value": 9
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "distance_m": 30
             },
             {
               "sets": 3,
@@ -854,7 +866,8 @@
             "type": "rpe",
             "value": 7
           },
-          "rest_seconds": 60
+          "rest_seconds": 60,
+          "distance_m": 1000
         },
         {
           "sets": 4,
@@ -863,7 +876,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 120
+          "rest_seconds": 120,
+          "distance_m": 25
         },
         {
           "sets": 4,
@@ -872,7 +886,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 120
+          "rest_seconds": 120,
+          "distance_m": 25
         },
         {
           "sets": 3,
@@ -920,7 +935,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "distance_m": 1000
             },
             {
               "sets": 3,
@@ -929,7 +945,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 25
             },
             {
               "sets": 3,
@@ -938,7 +955,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 25
             },
             {
               "sets": 2,
@@ -986,7 +1004,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "distance_m": 1000
             },
             {
               "sets": 5,
@@ -995,7 +1014,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 25
             },
             {
               "sets": 5,
@@ -1004,7 +1024,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 25
             },
             {
               "sets": 4,
@@ -1875,7 +1896,8 @@
           "intensity": {
             "type": "bodyweight"
           },
-          "rest_seconds": 120
+          "rest_seconds": 120,
+          "distance_m": 10
         },
         {
           "sets": 4,
@@ -1883,7 +1905,8 @@
           "intensity": {
             "type": "bodyweight"
           },
-          "rest_seconds": 180
+          "rest_seconds": 180,
+          "distance_m": 20
         },
         {
           "sets": 3,
@@ -1948,7 +1971,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 3,
@@ -1956,7 +1980,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "distance_m": 20
             },
             {
               "sets": 2,
@@ -2022,7 +2047,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 5,
@@ -2030,7 +2056,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "distance_m": 20
             },
             {
               "sets": 4,
@@ -2098,7 +2125,8 @@
           "intensity": {
             "type": "bodyweight"
           },
-          "rest_seconds": 120
+          "rest_seconds": 120,
+          "distance_m": 10
         },
         {
           "sets": 3,
@@ -2162,7 +2190,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 2,
@@ -2227,7 +2256,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 4,
@@ -2350,7 +2380,8 @@
             "type": "rpe",
             "value": 7
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "distance_m": 20
         }
       ],
       "level_variants": {
@@ -2425,7 +2456,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 20
             }
           ]
         },
@@ -2500,7 +2532,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 20
             }
           ]
         }
@@ -2923,7 +2956,8 @@
           "intensity": {
             "type": "bodyweight"
           },
-          "rest_seconds": 120
+          "rest_seconds": 120,
+          "distance_m": 10
         },
         {
           "sets": 4,
@@ -2996,7 +3030,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 3,
@@ -3070,7 +3105,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 120
+              "rest_seconds": 120,
+              "distance_m": 10
             },
             {
               "sets": 5,
@@ -3146,7 +3182,8 @@
           "intensity": {
             "type": "bodyweight"
           },
-          "rest_seconds": 150
+          "rest_seconds": 150,
+          "distance_m": 20
         },
         {
           "sets": 3,
@@ -3209,7 +3246,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "distance_m": 20
             },
             {
               "sets": 3,
@@ -3273,7 +3311,8 @@
               "intensity": {
                 "type": "bodyweight"
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "distance_m": 20
             },
             {
               "sets": 3,
@@ -4580,7 +4619,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "duration_seconds": 20
         },
         {
           "sets": 3,
@@ -4589,7 +4629,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "distance_m": 30
         }
       ],
       "level_variants": {
@@ -4655,7 +4696,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 2,
@@ -4664,7 +4706,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             }
           ]
         },
@@ -4730,7 +4773,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 3,
@@ -4739,7 +4783,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             }
           ]
         }
@@ -4809,7 +4854,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "duration_seconds": 20
         },
         {
           "sets": 3,
@@ -4884,7 +4930,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 2,
@@ -4959,7 +5006,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 3,
@@ -5038,7 +5086,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "duration_seconds": 20
         },
         {
           "sets": 3,
@@ -5113,7 +5162,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 2,
@@ -5188,7 +5238,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "duration_seconds": 20
             },
             {
               "sets": 3,
@@ -5493,7 +5544,8 @@
             "type": "rpe",
             "value": 8
           },
-          "rest_seconds": 90
+          "rest_seconds": 90,
+          "distance_m": 30
         },
         {
           "sets": 3,
@@ -5567,7 +5619,8 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             },
             {
               "sets": 2,
@@ -5641,7 +5694,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "distance_m": 30
             },
             {
               "sets": 3,
