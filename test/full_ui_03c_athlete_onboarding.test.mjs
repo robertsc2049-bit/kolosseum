@@ -170,7 +170,8 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
     jurisdiction_acknowledged: true,
     accessibility_preferences: accessibility,
     instruction_density: "detailed",
-    experience_level: "amateur"
+    experience_level: "amateur",
+    training_days_per_week: 3
   };
 
   assert.deepEqual(
@@ -209,7 +210,7 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   // Powerlifters declare a competition event on the training-level stage: it is
   // required to move past that stage, must be a known event, and belongs to
   // powerlifting alone.
-  const powerlifter = { ...complete, activity_id: "powerlifting" };
+  const powerlifter = { ...complete, activity_id: "powerlifting", no_fixed_date: true };
   assert.equal(
     service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: powerlifter }).fields.activity_id,
     "powerlifting"
@@ -233,6 +234,37 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
     /athlete_onboarding_validation_failed/u,
     "a general_strength athlete cannot declare a powerlifting event"
   );
+
+  // Training plan: days (1-6) are required before any later stage; season
+  // sports plan to season dates and competitive sports to a competition date,
+  // or declare "no fixed date" explicitly; general strength declares neither.
+  const refused = (current_stage, fields) => assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage, fields }),
+    /athlete_onboarding_validation_failed/u,
+    JSON.stringify(fields)
+  );
+  const accepted = (current_stage, fields) => service.validateAthleteOnboardingDraftInput({ current_stage, fields });
+  const { training_days_per_week: _days, ...noDays } = complete;
+  refused("execution_scope", { activity_id: "general_strength", experience_level: "amateur" });
+  refused("review", noDays);
+  for (const bad of [0, 7, 2.5, "3"]) refused("review", { ...complete, training_days_per_week: bad });
+  accepted("training_plan", { activity_id: "rugby_union", experience_level: "pro" });
+  const rugby = { ...complete, activity_id: "rugby_union" };
+  refused("review", rugby);
+  refused("review", { ...rugby, season_start_date: "2026-09-05" });
+  refused("review", { ...rugby, season_start_date: "2026-09-05", season_end_date: "2026-09-01" });
+  refused("review", { ...rugby, season_start_date: "2026-02-30", season_end_date: "2026-09-01" });
+  refused("review", { ...rugby, competition_date: "2026-12-05" });
+  refused("review", { ...rugby, no_fixed_date: true, season_start_date: "2026-09-05", season_end_date: "2027-05-01" });
+  refused("review", { ...rugby, no_fixed_date: false });
+  assert.equal(accepted("review", { ...rugby, season_start_date: "2026-09-05", season_end_date: "2027-05-29" }).fields.season_end_date, "2027-05-29");
+  assert.equal(accepted("review", { ...rugby, no_fixed_date: true }).fields.no_fixed_date, true);
+  const boxer = { ...complete, activity_id: "boxing" };
+  refused("review", boxer);
+  refused("review", { ...boxer, season_start_date: "2026-09-05", season_end_date: "2027-05-29" });
+  assert.equal(accepted("review", { ...boxer, competition_date: "2026-12-12" }).fields.competition_date, "2026-12-12");
+  refused("review", { ...complete, no_fixed_date: true });
+  refused("review", { ...complete, competition_date: "2026-12-12" });
   const completeWithoutActivity = { ...complete };
   delete completeWithoutActivity.activity_id;
   assert.deepEqual(
@@ -267,7 +299,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Current declaration",
     "Superseded declaration",
     "Not available right now",
-    "Only training level, competition event, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
+    "Only training level, competition event, training plan, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
     assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));

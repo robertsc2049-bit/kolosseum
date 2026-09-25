@@ -12,6 +12,7 @@ import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
 import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_event.js";
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
+import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
 import { phase4AssembleProgram } from "@kolosseum/engine/phases/phase4.js";
@@ -318,7 +319,22 @@ export async function compileBlock(req: Request, res: Response) {
     );
   }
 
-  const p1 = phase1Validate(body.phase1_input);
+  // A self-directed athlete's session is periodised: the server adds where they
+  // are in their plan today (phase, mesocycle week, weekly slot). Admission
+  // above validated the declared input; the cycle is derived, never declared
+  // by the client. Coach-managed sessions follow the coach's programme.
+  let phase1ForCompile: unknown = body.phase1_input;
+  if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
+    const training_cycle = await trainingCycleForAthlete(beta_individual_subject_user_id);
+    // Training days are required (no silent default): an athlete who
+    // onboarded before plans existed declares them before their next session.
+    if (!training_cycle) {
+      throw badRequest("training_plan_required", { failure_token: "training_plan_required" });
+    }
+    phase1ForCompile = { ...body.phase1_input, training_cycle };
+  }
+
+  const p1 = phase1Validate(phase1ForCompile);
   if (!p1.ok) {
     throw badRequest("Phase 1 failed", { failure_token: p1.failure_token, details: p1.details });
   }

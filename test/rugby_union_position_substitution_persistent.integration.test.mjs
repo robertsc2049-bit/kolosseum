@@ -120,6 +120,8 @@ async function completeAthleteOnboarding(baseUrl, athlete, position) {
         jurisdiction_acknowledged: true,
         accessibility_preferences: accessibilityPreferences(),
         experience_level: "amateur",
+        training_days_per_week: 3,
+        no_fixed_date: true,
         instruction_density: "standard"
       }
     },

@@ -113,11 +113,11 @@ test.afterEach(() => {
   sessionStorage.clear();
 });
 
-test("shows the incomplete-onboarding status and stage 1 of 8 on first load, with Back disabled", async () => {
+test("shows the incomplete-onboarding status and stage 1 of 9 on first load, with Back disabled", async () => {
   installMocks({});
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Set up your account");
-  assert.ok(screen.getByText("Stage 1 of 8"));
+  assert.ok(screen.getByText("Stage 1 of 9"));
   assert.ok(screen.getByText("Activity declaration"));
   assert.equal((screen.getByText("Back") as HTMLButtonElement).disabled, true);
 });
@@ -185,7 +185,7 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
 
   await screen.findByText("Draft saved");
   assert.ok(screen.getByText("Training level"));
-  assert.ok(screen.getByText("Stage 2 of 8"));
+  assert.ok(screen.getByText("Stage 2 of 9"));
 });
 
 test("sport is optional - Save and continue proceeds from the activity stage with nothing chosen", async () => {
@@ -227,7 +227,7 @@ test("the Back button is enabled past the first stage and moves backward", async
     backButton.click();
   });
 
-  await screen.findByText("Training level");
+  await screen.findByText("Training plan");
 });
 
 test("the training-level stage saves the chosen level with the draft", async () => {
@@ -252,7 +252,7 @@ test("the training-level stage saves the chosen level with the draft", async () 
 
   await screen.findByText("Draft saved");
   assert.equal((savedFields ?? {}).experience_level, "pro");
-  assert.ok(screen.getByText("Execution-scope declaration"));
+  assert.ok(screen.getByText("Training plan"));
 });
 
 test("a powerlifter chooses a competition event on the training-level stage, saved with the draft", async () => {
@@ -308,8 +308,7 @@ test("a powerlifter without an event is prompted, and can set and later change i
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Current effective declaration");
   assert.ok(screen.getByText(/Choose your competition event in Edit preferences/));
-  assert.ok(screen.getByText("Competition event"));
-  assert.ok(screen.getByText("Not declared"));
+  assert.match(screen.getByText("Competition event").closest(".declaration-fact")?.textContent ?? "", /Not declared/);
 
   await act(async () => {
     fireEvent.click(screen.getByText("Edit preferences"));
@@ -744,4 +743,101 @@ test("cancelling the preference editor discards changes without saving", async (
 
   fireEvent.click(screen.getByText("Cancel"));
   assert.equal(screen.queryByText("Edit preferences", { selector: "h3" }), null);
+});
+
+// --- Training plan (periodisation) ---
+
+test("the training-plan stage asks a team athlete for days and season dates, and saves them with the draft", async () => {
+  let savedFields: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: draftState({ current_stage: "training_plan", draft: { fields: { activity_id: "rugby_union", experience_level: "pro" } } }),
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({ current_stage: body.current_stage, draft: { fields: body.fields }, saved_draft_state: true, saved_draft_at_iso8601: "2026-09-25T00:00:00.000Z" });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training plan");
+  assert.ok(screen.getByText("Stage 3 of 9"));
+  assert.equal(screen.queryByLabelText("Next competition date"), null, "team sports plan to a season, not a competition");
+
+  fireEvent.change(screen.getByLabelText("Training days per week"), { target: { value: "4" } });
+  fireEvent.change(screen.getByLabelText("Season start"), { target: { value: "2026-09-05" } });
+  fireEvent.change(screen.getByLabelText("Season end"), { target: { value: "2027-05-29" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save and continue"));
+  });
+
+  await screen.findByText("Draft saved");
+  assert.equal((savedFields ?? {}).training_days_per_week, 4);
+  assert.equal((savedFields ?? {}).season_start_date, "2026-09-05");
+  assert.equal((savedFields ?? {}).season_end_date, "2027-05-29");
+  assert.equal(Object.prototype.hasOwnProperty.call(savedFields ?? {}, "no_fixed_date"), false);
+  assert.ok(screen.getByText("Execution-scope declaration"));
+});
+
+test("choosing 'no fixed season' clears and disables the season dates", async () => {
+  installMocks({ initialState: draftState({ current_stage: "training_plan", draft: { fields: { activity_id: "netball", season_start_date: "2026-09-05", season_end_date: "2027-03-01" } } }) });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training plan");
+  await act(async () => {
+    fireEvent.click(screen.getByLabelText(/^No fixed season/));
+  });
+  const start = screen.getByLabelText("Season start") as HTMLInputElement;
+  assert.equal(start.value, "");
+  assert.equal(start.disabled, true);
+});
+
+test("competitive athletes plan to a competition date, and general strength to rolling blocks with no date", async () => {
+  installMocks({ initialState: draftState({ current_stage: "training_plan", draft: { fields: { activity_id: "boxing" } } }) });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training plan");
+  assert.ok(screen.getByLabelText("Next competition date"));
+  assert.ok(screen.getByLabelText(/^No fixed competition date/));
+  assert.equal(screen.queryByLabelText("Season start"), null);
+  cleanup();
+
+  installMocks({ initialState: draftState({ current_stage: "training_plan", draft: { fields: { activity_id: "general_strength" } } }) });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training plan");
+  assert.ok(screen.getByLabelText("Training days per week"));
+  assert.equal(screen.queryByLabelText("Next competition date"), null);
+  assert.equal(screen.queryByLabelText("Season start"), null);
+  assert.ok(screen.getByText(/rolling 4-week blocks/));
+});
+
+test("an athlete without a training plan is prompted, and sets days and a competition date in Edit preferences", async () => {
+  const fields = {
+    activity_id: "hyrox",
+    experience_level: "amateur",
+    accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+    instruction_density: "standard"
+  };
+  const posted: Record<string, unknown>[] = [];
+  installMocks({
+    initialState: completedState(fields),
+    onPreferences: (body) => {
+      posted.push(body);
+      return completedState({ ...fields, training_days_per_week: body.training_days_per_week, competition_date: body.competition_date });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Current effective declaration");
+  assert.ok(screen.getByText(/Set your training plan in Edit preferences/));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Edit preferences"));
+  });
+  await screen.findByText("Edit preferences", { selector: "h3" });
+  fireEvent.change(screen.getByLabelText("Training days per week"), { target: { value: "5" } });
+  fireEvent.change(screen.getByLabelText("Next competition date"), { target: { value: "2026-11-21" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save new declaration"));
+  });
+
+  await waitFor(() => assert.equal(posted.length, 1));
+  assert.equal(posted[0].training_days_per_week, 5);
+  assert.equal(posted[0].competition_date, "2026-11-21");
+  await screen.findByText("Next competition 2026-11-21");
+  assert.equal(screen.queryByText(/Set your training plan in Edit preferences/), null);
 });
