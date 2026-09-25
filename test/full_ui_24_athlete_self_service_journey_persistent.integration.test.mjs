@@ -460,13 +460,13 @@ test(
 
     const activityStage = await request(baseUrl, "PATCH", "/account/onboarding/draft", {
       current_stage: "execution_scope",
-      fields: { activity_id: "powerlifting", experience_level: "amateur" }
+      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power" }
     }, { cookie: athleteCookie, csrf: athleteCsrf });
     assertStatus(activityStage, 200, "onboarding activity stage");
 
     const executionScopeStage = await request(baseUrl, "PATCH", "/account/onboarding/draft", {
       current_stage: "product_acknowledgement",
-      fields: { activity_id: "powerlifting", experience_level: "amateur", execution_scope: "coach_managed" }
+      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power", execution_scope: "coach_managed" }
     }, { cookie: athleteCookie, csrf: athleteCsrf });
     assertStatus(executionScopeStage, 200, "onboarding execution scope stage");
 

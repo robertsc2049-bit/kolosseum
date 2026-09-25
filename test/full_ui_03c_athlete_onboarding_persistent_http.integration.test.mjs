@@ -531,3 +531,84 @@ test(
     assertStatus(invalidLevel, 422, "reject unknown training level");
   }
 );
+
+test(
+  "FULL-UI-03C a powerlifter must declare a competition event, which reaches the engine and stays editable",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Powerlifting Event Athlete", email: `pl-event-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    const draft = (current_stage, fields) => requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage, fields } });
+
+    const base = { activity_id: "powerlifting", experience_level: "amateur" };
+    const missingEvent = await draft("execution_scope", base);
+    assertStatus(missingEvent, 422, "a powerlifter cannot pass the training-level stage without an event");
+    assert.ok(missingEvent.json.field_errors?.competition_event, "the refusal names competition_event");
+    assertStatus(await draft("execution_scope", { ...base, competition_event: "bench" }), 422, "unknown event refused");
+
+    const fields = {
+      ...base,
+      competition_event: "bench_only",
+      execution_scope: "individual",
+      product_acknowledged: true,
+      jurisdiction_code: "england_wales",
+      jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await draft("review", fields), 200, "complete draft with an event");
+    const confirmed = await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } });
+    assertStatus(confirmed, 200, "confirm");
+    assert.equal(confirmed.json.current_effective_declaration.fields.competition_event, "bench_only");
+
+    const engineEvent = async () => {
+      const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+      assertStatus(detail, 200, "account detail");
+      return detail.json.bootstrap?.declaration_record?.engine_phase1_input?.competition_event;
+    };
+    assert.equal(await engineEvent(), "bench_only", "the event reaches the engine's phase-1 input");
+
+    const prefs = (extra) => requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf, body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", ...extra }
+    });
+    const changed = await prefs({ competition_event: "squat_only" });
+    assertStatus(changed, 200, "change event");
+    assert.equal(changed.json.current_effective_declaration.fields.competition_event, "squat_only");
+    assert.equal(await engineEvent(), "squat_only", "an event change refreshes the engine declaration");
+    assertStatus(await prefs({ competition_event: "strongman_medley" }), 422, "unknown event refused in preferences");
+
+    // Switching sport drops the event: it only applies to powerlifting.
+    const switched = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/activity", {
+      cookie, csrf, body: { new_activity_id: "general_strength", apply_at: "immediately" }
+    });
+    assertStatus(switched, 200, "switch to general strength");
+    const after = await requestJson(server.baseUrl, "GET", "/account/onboarding/", { cookie });
+    assert.equal(after.json.current_effective_declaration.fields.activity_id, "general_strength");
+    assert.equal(after.json.current_effective_declaration.fields.competition_event, undefined, "event dropped with the sport");
+    assert.equal(await engineEvent(), undefined, "the engine input no longer carries an event");
+    assertStatus(await prefs({ competition_event: "bench_only" }), 422, "a general-strength athlete cannot declare an event");
+  }
+);

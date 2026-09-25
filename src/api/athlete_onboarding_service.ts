@@ -90,7 +90,7 @@ const ATHLETE_POSITION_IDS = Object.freeze(
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
   "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density",
-  "training_focus", "position", "experience_level"
+  "training_focus", "position", "experience_level", "competition_event"
 ]);
 const INFERENCE_KEYS = new Set([
   "ability", "ability_score", "readiness", "readiness_score", "safety",
@@ -115,6 +115,7 @@ type Fields = Readonly<{
   training_focus?: readonly string[];
   position?: string;
   experience_level?: string;
+  competition_event?: string;
 }>;
 type StoredEvent = Readonly<{
   event_id: string;
@@ -207,6 +208,18 @@ export const ATHLETE_EXPERIENCE_LEVELS = Object.freeze(["beginner", "amateur", "
 export function validateAthleteExperienceLevel(value: unknown): string {
   return enumValue(value, ATHLETE_EXPERIENCE_LEVELS, "experience_level", "Choose your training level.");
 }
+// Powerlifting's competition divisions; each selects its own programme.
+export const ATHLETE_COMPETITION_EVENTS = Object.freeze(["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"] as const);
+export const COMPETITION_EVENT_ACTIVITY = "powerlifting";
+export function validateAthleteCompetitionEvent(value: unknown): string {
+  return enumValue(value, ATHLETE_COMPETITION_EVENTS, "competition_event", "Choose your competition event.");
+}
+// Like position: a cross-field check made at each declaration-write boundary.
+export function assertCompetitionEventMatchesActivity(event: string | undefined, activityId: string | undefined): void {
+  if (event && activityId !== COMPETITION_EVENT_ACTIVITY) {
+    fail("competition_event", "A competition event only applies to powerlifting.");
+  }
+}
 export function validateAthleteInstructionDensity(value: unknown): string {
   return enumValue(value, ATHLETE_INSTRUCTION_DENSITIES, "instruction_density", "Choose an instruction-density preference.");
 }
@@ -285,6 +298,9 @@ function fields(value: unknown, partial: boolean): Fields {
   // REQUIRED_BEFORE makes it mandatory for every new onboarding, and existing
   // athletes declare it through the preferences editor before their next session.
   addOptional("experience_level", validateAthleteExperienceLevel);
+  // Optional on a stored declaration (only powerlifters declare one, and
+  // pre-event powerlifters declare it via preferences before their next session).
+  addOptional("competition_event", validateAthleteCompetitionEvent);
   return Object.freeze(out) as Fields;
 }
 // activity_id is deliberately never listed here - it's optional and must
@@ -323,6 +339,12 @@ export function validateAthleteOnboardingDraftInput(value: unknown): Readonly<{
     if (!Object.prototype.hasOwnProperty.call(validatedFields, key)) {
       fail(key, "Complete this earlier onboarding stage before continuing.");
     }
+  }
+  assertCompetitionEventMatchesActivity(validatedFields.competition_event, validatedFields.activity_id);
+  // Powerlifters declare their competition event on the training-level stage.
+  if (REQUIRED_BEFORE[currentStage].includes("experience_level") &&
+      validatedFields.activity_id === COMPETITION_EVENT_ACTIVITY && !validatedFields.competition_event) {
+    fail("competition_event", "Choose your competition event before continuing.");
   }
   return Object.freeze({ current_stage: currentStage, fields: validatedFields });
 }
@@ -471,6 +493,11 @@ async function effectiveBetaDeclaration(client: QueryClient, userId: string, dec
   });
   if (declared.experience_level) phase1.experience_level = declared.experience_level;
   else delete phase1.experience_level;
+  // The engine admits an event only with activity_id powerlifting.
+  if (declared.competition_event && declared.activity_id === COMPETITION_EVENT_ACTIVITY) {
+    phase1.competition_event = declared.competition_event;
+  }
+  else delete phase1.competition_event;
   const acknowledgement = createBeta16AcknowledgementRecord({
     acknowledgement_id: id("beta16_ack"), user_id: userId, beta_id: BETA_VERSION,
     accepted: true, jurisdiction_acknowledged: true, accepted_at_iso8601: at,
@@ -548,6 +575,7 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
     }
     const declared = validateCompleteAthleteDeclaration(draft.fields);
     assertPositionMatchesActivity(declared.position, declared.activity_id);
+    assertCompetitionEventMatchesActivity(declared.competition_event, declared.activity_id);
     const at = new Date().toISOString();
     const core = {
       declaration_id: id("athlete_declaration"), declaration_version: 1,
@@ -582,8 +610,9 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   if (!record(input)) throw new AthleteOnboardingError("athlete_onboarding_preferences_invalid", 422);
   for (const key of Object.keys(input)) {
     if (key !== "accessibility_preferences" && key !== "instruction_density" &&
-        key !== "training_focus" && key !== "position" && key !== "experience_level") {
-      fail(key, "Only accessibility, instruction-density, training-focus, position and training-level preferences are editable after confirmation.");
+        key !== "training_focus" && key !== "position" && key !== "experience_level" &&
+        key !== "competition_event") {
+      fail(key, "Only accessibility, instruction-density, training-focus, position, training-level and competition-event preferences are editable after confirmation.");
     }
   }
   const accessibility = validateAthleteAccessibilityPreferences(input.accessibility_preferences);
@@ -599,6 +628,8 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   // Optional like position: an older client that doesn't send it must not reset it.
   const levelProvided = Object.prototype.hasOwnProperty.call(input, "experience_level");
   const levelInput = levelProvided ? validateAthleteExperienceLevel(input.experience_level) : undefined;
+  const eventProvided = Object.prototype.hasOwnProperty.call(input, "competition_event");
+  const eventInput = eventProvided ? validateAthleteCompetitionEvent(input.competition_event) : undefined;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -613,21 +644,27 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
     const trainingFocus = trainingFocusProvided ? trainingFocusInput as readonly string[] : (previous.training_focus ?? []);
     const position = positionProvided ? positionInput as string : previous.position;
     const experienceLevel = levelProvided ? levelInput as string : previous.experience_level;
+    const competitionEvent = eventProvided ? eventInput as string : previous.competition_event;
     if (positionProvided) {
       assertPositionMatchesActivity(position, previous.activity_id);
+    }
+    if (eventProvided) {
+      assertCompetitionEventMatchesActivity(competitionEvent, previous.activity_id);
     }
     if (stable(previous.accessibility_preferences) === stable(accessibility) &&
         previous.instruction_density === density &&
         stable(previous.training_focus ?? []) === stable(trainingFocus) &&
         stable(previous.position ?? null) === stable(position ?? null) &&
-        stable(previous.experience_level ?? null) === stable(experienceLevel ?? null)) {
+        stable(previous.experience_level ?? null) === stable(experienceLevel ?? null) &&
+        stable(previous.competition_event ?? null) === stable(competitionEvent ?? null)) {
       await client.query("COMMIT");
       return existing;
     }
     const declared = Object.freeze({
       ...previous, accessibility_preferences: accessibility, instruction_density: density,
       training_focus: trainingFocus, position,
-      ...(experienceLevel ? { experience_level: experienceLevel } : {})
+      ...(experienceLevel ? { experience_level: experienceLevel } : {}),
+      ...(competitionEvent ? { competition_event: competitionEvent } : {})
     });
     const at = new Date().toISOString();
     const core = {
@@ -641,10 +678,11 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
       declaration_source: "athlete_editable_preferences_updated", immutable: true,
       user_declared_factual_state: true, engine_visible: false
     };
-    // Both instruction density and training level are engine inputs, so a change to
-    // either refreshes the engine-side declaration (level selects the programme).
+    // Instruction density, training level and competition event are engine inputs, so a
+    // change to any refreshes the engine-side declaration (level and event select the programme).
     const levelChanged = (previous.experience_level ?? null) !== (experienceLevel ?? null);
-    if (previous.instruction_density !== density || (levelChanged && declared.activity_id)) {
+    const eventChanged = (previous.competition_event ?? null) !== (competitionEvent ?? null);
+    if (previous.instruction_density !== density || ((levelChanged || eventChanged) && declared.activity_id)) {
       await effectiveBetaDeclaration(client, userId, declared, at);
     }
     await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
@@ -688,7 +726,13 @@ export async function amendAthleteDeclaration(
   // special-casing downstream.
   const positionCompatible = !merged.position ||
     (ATHLETE_POSITIONS_BY_ACTIVITY[merged.activity_id ?? ""] ?? []).includes(merged.position);
-  const declared = positionCompatible ? merged : Object.freeze({ ...merged, position: undefined });
+  // Same for a competition event after a switch away from powerlifting.
+  const eventCompatible = !merged.competition_event || merged.activity_id === COMPETITION_EVENT_ACTIVITY;
+  const declared = Object.freeze({
+    ...merged,
+    ...(positionCompatible ? {} : { position: undefined }),
+    ...(eventCompatible ? {} : { competition_event: undefined })
+  });
   const at = new Date().toISOString();
   const core = {
     declaration_id: id("athlete_declaration"),

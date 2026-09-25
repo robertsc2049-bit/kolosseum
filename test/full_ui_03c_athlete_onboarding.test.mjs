@@ -206,6 +206,33 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
     () => service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...complete, experience_level: "expert" } }),
     /athlete_onboarding_validation_failed/u
   );
+  // Powerlifters declare a competition event on the training-level stage: it is
+  // required to move past that stage, must be a known event, and belongs to
+  // powerlifting alone.
+  const powerlifter = { ...complete, activity_id: "powerlifting" };
+  assert.equal(
+    service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: powerlifter }).fields.activity_id,
+    "powerlifting"
+  );
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "execution_scope", fields: powerlifter }),
+    /athlete_onboarding_validation_failed/u
+  );
+  for (const event of ["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"]) {
+    assert.equal(
+      service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...powerlifter, competition_event: event } }).fields.competition_event,
+      event
+    );
+  }
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...powerlifter, competition_event: "bench" } }),
+    /athlete_onboarding_validation_failed/u
+  );
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: { ...complete, competition_event: "bench_only" } }),
+    /athlete_onboarding_validation_failed/u,
+    "a general_strength athlete cannot declare a powerlifting event"
+  );
   const completeWithoutActivity = { ...complete };
   delete completeWithoutActivity.activity_id;
   assert.deepEqual(
@@ -240,7 +267,7 @@ test("FULL-UI-03C UI distinguishes all required product states", () => {
     "Current declaration",
     "Superseded declaration",
     "Not available right now",
-    "Only training level, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
+    "Only training level, competition event, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation",
     "does not infer ability, safety, readiness, suitability"
   ]) {
     assert.match(panel, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
