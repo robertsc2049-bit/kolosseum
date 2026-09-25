@@ -163,6 +163,7 @@ test(
             jurisdiction_acknowledged: true,
             accessibility_preferences: accessibilityPreferences(),
             experience_level: "amateur",
+            training_days_per_week: 3,
             instruction_density: "standard"
           }
         },

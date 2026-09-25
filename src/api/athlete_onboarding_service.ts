@@ -2,6 +2,7 @@
 // Records are explicit user declarations. No ability, safety, readiness,
 // suitability, risk or recommendation is inferred here.
 
+import { cycleModelFor } from "@kolosseum/engine/phases/phase4.js";
 import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 import { pool } from "../db/pool.js";
@@ -19,7 +20,7 @@ type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
 
 export const ATHLETE_ONBOARDING_STAGES = Object.freeze([
-  "activity", "experience_level", "execution_scope", "product_acknowledgement", "jurisdiction",
+  "activity", "experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction",
   "accessibility", "instruction_density", "review"
 ] as const);
 export type AthleteOnboardingStage = (typeof ATHLETE_ONBOARDING_STAGES)[number];
@@ -90,7 +91,8 @@ const ATHLETE_POSITION_IDS = Object.freeze(
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
   "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density",
-  "training_focus", "position", "experience_level", "competition_event"
+  "training_focus", "position", "experience_level", "competition_event",
+  "training_days_per_week", "season_start_date", "season_end_date", "competition_date", "no_fixed_date"
 ]);
 const INFERENCE_KEYS = new Set([
   "ability", "ability_score", "readiness", "readiness_score", "safety",
@@ -116,6 +118,11 @@ type Fields = Readonly<{
   position?: string;
   experience_level?: string;
   competition_event?: string;
+  training_days_per_week?: number;
+  season_start_date?: string;
+  season_end_date?: string;
+  competition_date?: string;
+  no_fixed_date?: true;
 }>;
 type StoredEvent = Readonly<{
   event_id: string;
@@ -211,6 +218,15 @@ export function validateAthleteExperienceLevel(value: unknown): string {
 // Powerlifting's competition divisions; each selects its own programme.
 export const ATHLETE_COMPETITION_EVENTS = Object.freeze(["full_power", "bench_only", "deadlift_only", "push_pull", "squat_only"] as const);
 export const COMPETITION_EVENT_ACTIVITY = "powerlifting";
+export const TRAINING_PLAN_KEYS: readonly string[] = Object.freeze([
+  "training_days_per_week", "season_start_date", "season_end_date", "competition_date", "no_fixed_date"
+]);
+function pickTrainingPlan(declared: Fields): Fields {
+  return Object.fromEntries(TRAINING_PLAN_KEYS.filter((key) => (declared as Json)[key] !== undefined).map((key) => [key, (declared as Json)[key]])) as Fields;
+}
+function withoutTrainingPlan(): Json {
+  return Object.fromEntries(TRAINING_PLAN_KEYS.map((key) => [key, undefined]));
+}
 export function validateAthleteCompetitionEvent(value: unknown): string {
   return enumValue(value, ATHLETE_COMPETITION_EVENTS, "competition_event", "Choose your competition event.");
 }
@@ -218,6 +234,55 @@ export function validateAthleteCompetitionEvent(value: unknown): string {
 export function assertCompetitionEventMatchesActivity(event: string | undefined, activityId: string | undefined): void {
   if (event && activityId !== COMPETITION_EVENT_ACTIVITY) {
     fail("competition_event", "A competition event only applies to powerlifting.");
+  }
+}
+// Training plan: how many days a week the athlete trains, and the dates their
+// year builds towards - a season (team sports) or a competition (strength,
+// endurance, hybrid and combat sports). "No fixed date" is an explicit choice,
+// never a default. General strength has no competition, so no date is asked.
+export function validateAthleteTrainingDaysPerWeek(value: unknown): number {
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 6) {
+    fail("training_days_per_week", "Choose how many days a week you train (1-6).");
+  }
+  return value as number;
+}
+function isoDate(field: string, message: string) {
+  return (value: unknown): string => {
+    const clean = text(value);
+    const parsed = /^\d{4}-\d{2}-\d{2}$/.test(clean) ? new Date(`${clean}T00:00:00Z`) : null;
+    if (!parsed || Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== clean) fail(field, message);
+    return clean;
+  };
+}
+export const validateAthleteSeasonStartDate = isoDate("season_start_date", "Enter your season start date.");
+export const validateAthleteSeasonEndDate = isoDate("season_end_date", "Enter your season end date.");
+export const validateAthleteCompetitionDate = isoDate("competition_date", "Enter your next competition date.");
+// Which dates an activity's plan builds towards.
+export function trainingPlanDateKind(activityId: string | undefined): "season" | "competition" | "none" {
+  if (!activityId || activityId === "general_strength") return "none";
+  return cycleModelFor(activityId) === "season" ? "season" : "competition";
+}
+// Cross-field check at each declaration-write boundary. When requireComplete,
+// the plan must be fully declared for the activity (days, plus dates or an
+// explicit "no fixed date"); otherwise only contradictions are refused.
+export function assertTrainingPlanMatchesActivity(declared: Fields, requireComplete: boolean): void {
+  const kind = trainingPlanDateKind(declared.activity_id);
+  const hasSeason = declared.season_start_date !== undefined || declared.season_end_date !== undefined;
+  const hasCompetition = declared.competition_date !== undefined;
+  if (hasSeason && kind !== "season") fail("season_start_date", "Season dates only apply to team and racket sports.");
+  if (hasCompetition && kind !== "competition") fail("competition_date", "A competition date only applies to competitive strength, endurance, hybrid and combat sports.");
+  if (declared.no_fixed_date && kind === "none") fail("no_fixed_date", "This activity has no season or competition to plan towards.");
+  if (declared.no_fixed_date && (hasSeason || hasCompetition)) fail("no_fixed_date", "Choose either your dates or \"no fixed date\", not both.");
+  if (declared.season_start_date && declared.season_end_date && declared.season_end_date < declared.season_start_date) {
+    fail("season_end_date", "The season must end on or after it starts.");
+  }
+  if (!requireComplete) return;
+  if (declared.training_days_per_week === undefined) fail("training_days_per_week", "Choose how many days a week you train (1-6).");
+  if (kind === "season" && !declared.no_fixed_date && (!declared.season_start_date || !declared.season_end_date)) {
+    fail("season_start_date", "Enter your season dates, or choose \"no fixed season\".");
+  }
+  if (kind === "competition" && !declared.no_fixed_date && !declared.competition_date) {
+    fail("competition_date", "Enter your next competition date, or choose \"no fixed date\".");
   }
 }
 export function validateAthleteInstructionDensity(value: unknown): string {
@@ -301,6 +366,14 @@ function fields(value: unknown, partial: boolean): Fields {
   // Optional on a stored declaration (only powerlifters declare one, and
   // pre-event powerlifters declare it via preferences before their next session).
   addOptional("competition_event", validateAthleteCompetitionEvent);
+  // Optional on a stored declaration (pre-plan athletes declare it via
+  // preferences before their next session); REQUIRED_BEFORE and
+  // assertTrainingPlanMatchesActivity make it mandatory for new onboarding.
+  addOptional("training_days_per_week", validateAthleteTrainingDaysPerWeek);
+  addOptional("season_start_date", validateAthleteSeasonStartDate);
+  addOptional("season_end_date", validateAthleteSeasonEndDate);
+  addOptional("competition_date", validateAthleteCompetitionDate);
+  addOptional("no_fixed_date", (entry) => trueValue(entry, "no_fixed_date", "Choose \"no fixed date\" or enter your dates."));
   return Object.freeze(out) as Fields;
 }
 // activity_id is deliberately never listed here - it's optional and must
@@ -308,19 +381,20 @@ function fields(value: unknown, partial: boolean): Fields {
 const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   activity: [],
   experience_level: [],
-  execution_scope: ["experience_level"],
-  product_acknowledgement: ["experience_level", "execution_scope"],
-  jurisdiction: ["experience_level", "execution_scope", "product_acknowledged"],
+  training_plan: ["experience_level"],
+  execution_scope: ["experience_level", "training_days_per_week"],
+  product_acknowledgement: ["experience_level", "training_days_per_week", "execution_scope"],
+  jurisdiction: ["experience_level", "training_days_per_week", "execution_scope", "product_acknowledged"],
   accessibility: [
-    "experience_level", "execution_scope", "product_acknowledged",
+    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged",
     "jurisdiction_code", "jurisdiction_acknowledged"
   ],
   instruction_density: [
-    "experience_level", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences"
   ],
   review: [
-    "experience_level", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
   ]
 };
@@ -346,6 +420,9 @@ export function validateAthleteOnboardingDraftInput(value: unknown): Readonly<{
       validatedFields.activity_id === COMPETITION_EVENT_ACTIVITY && !validatedFields.competition_event) {
     fail("competition_event", "Choose your competition event before continuing.");
   }
+  // The training plan (days, and dates or "no fixed date") is complete before
+  // any later stage.
+  assertTrainingPlanMatchesActivity(validatedFields, REQUIRED_BEFORE[currentStage].includes("training_days_per_week"));
   return Object.freeze({ current_stage: currentStage, fields: validatedFields });
 }
 export function validateAthleteOnboardingConfirmation(value: unknown): true {
@@ -576,6 +653,7 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
     const declared = validateCompleteAthleteDeclaration(draft.fields);
     assertPositionMatchesActivity(declared.position, declared.activity_id);
     assertCompetitionEventMatchesActivity(declared.competition_event, declared.activity_id);
+    assertTrainingPlanMatchesActivity(declared, true);
     const at = new Date().toISOString();
     const core = {
       declaration_id: id("athlete_declaration"), declaration_version: 1,
@@ -611,8 +689,8 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   for (const key of Object.keys(input)) {
     if (key !== "accessibility_preferences" && key !== "instruction_density" &&
         key !== "training_focus" && key !== "position" && key !== "experience_level" &&
-        key !== "competition_event") {
-      fail(key, "Only accessibility, instruction-density, training-focus, position, training-level and competition-event preferences are editable after confirmation.");
+        key !== "competition_event" && !TRAINING_PLAN_KEYS.includes(key)) {
+      fail(key, "Only accessibility, instruction-density, training-focus, position, training-level, competition-event and training-plan preferences are editable after confirmation.");
     }
   }
   const accessibility = validateAthleteAccessibilityPreferences(input.accessibility_preferences);
@@ -630,6 +708,10 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   const levelInput = levelProvided ? validateAthleteExperienceLevel(input.experience_level) : undefined;
   const eventProvided = Object.prototype.hasOwnProperty.call(input, "competition_event");
   const eventInput = eventProvided ? validateAthleteCompetitionEvent(input.competition_event) : undefined;
+  // The training plan is replaced as a whole when any part of it is supplied
+  // (so switching between dates and "no fixed date" never leaves both).
+  const planProvided = TRAINING_PLAN_KEYS.some((key) => Object.prototype.hasOwnProperty.call(input, key));
+  const planInput = planProvided ? fields(Object.fromEntries(TRAINING_PLAN_KEYS.filter((key) => Object.prototype.hasOwnProperty.call(input, key)).map((key) => [key, input[key]])), true) : undefined;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -651,12 +733,17 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
     if (eventProvided) {
       assertCompetitionEventMatchesActivity(competitionEvent, previous.activity_id);
     }
+    const plan = planProvided ? (planInput as Fields) : pickTrainingPlan(previous);
+    if (planProvided) {
+      assertTrainingPlanMatchesActivity({ activity_id: previous.activity_id, ...plan }, true);
+    }
     if (stable(previous.accessibility_preferences) === stable(accessibility) &&
         previous.instruction_density === density &&
         stable(previous.training_focus ?? []) === stable(trainingFocus) &&
         stable(previous.position ?? null) === stable(position ?? null) &&
         stable(previous.experience_level ?? null) === stable(experienceLevel ?? null) &&
-        stable(previous.competition_event ?? null) === stable(competitionEvent ?? null)) {
+        stable(previous.competition_event ?? null) === stable(competitionEvent ?? null) &&
+        stable(pickTrainingPlan(previous)) === stable(plan)) {
       await client.query("COMMIT");
       return existing;
     }
@@ -664,7 +751,8 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
       ...previous, accessibility_preferences: accessibility, instruction_density: density,
       training_focus: trainingFocus, position,
       ...(experienceLevel ? { experience_level: experienceLevel } : {}),
-      ...(competitionEvent ? { competition_event: competitionEvent } : {})
+      ...(competitionEvent ? { competition_event: competitionEvent } : {}),
+      ...withoutTrainingPlan(), ...plan
     });
     const at = new Date().toISOString();
     const core = {
@@ -728,10 +816,16 @@ export async function amendAthleteDeclaration(
     (ATHLETE_POSITIONS_BY_ACTIVITY[merged.activity_id ?? ""] ?? []).includes(merged.position);
   // Same for a competition event after a switch away from powerlifting.
   const eventCompatible = !merged.competition_event || merged.activity_id === COMPETITION_EVENT_ACTIVITY;
+  // And for plan dates the new activity doesn't plan towards (e.g. season
+  // dates after a switch to powerlifting); the athlete re-declares them.
+  const planCompatible = (() => {
+    try { assertTrainingPlanMatchesActivity(merged, false); return true; } catch { return false; }
+  })();
   const declared = Object.freeze({
     ...merged,
     ...(positionCompatible ? {} : { position: undefined }),
-    ...(eventCompatible ? {} : { competition_event: undefined })
+    ...(eventCompatible ? {} : { competition_event: undefined }),
+    ...(planCompatible ? {} : { season_start_date: undefined, season_end_date: undefined, competition_date: undefined, no_fixed_date: undefined })
   });
   const at = new Date().toISOString();
   const core = {
@@ -759,6 +853,24 @@ export async function amendAthleteDeclaration(
 // phase1/engine record (see effectiveBetaDeclaration above) - coach/org-
 // roster views need a dedicated read of the athlete's own current
 // declaration to see them.
+// The declared training plan for periodisation, or null when the athlete has
+// no current declaration, no activity or no training days declared yet.
+export async function getAthleteTrainingPlan(userId: string): Promise<Readonly<{
+  activity_id: string; training_days_per_week: number;
+  season_start_date?: string; season_end_date?: string; competition_date?: string; no_fixed_date?: true;
+}> | null> {
+  const client = await pool.connect();
+  try {
+    const existing = state(await events(client, userId));
+    const current = record(existing.current_effective_declaration) ? existing.current_effective_declaration : null;
+    if (!current || !record(current.fields)) return null;
+    const declared = validateCompleteAthleteDeclaration(current.fields);
+    if (!declared.activity_id || declared.training_days_per_week === undefined) return null;
+    return Object.freeze({ activity_id: declared.activity_id, training_days_per_week: declared.training_days_per_week, ...pickTrainingPlan(declared) });
+  }
+  finally { client.release(); }
+}
+
 export async function getAthleteDeclaredActivityAndPosition(
   userId: string
 ): Promise<Readonly<{ activity_id: string | null; position: string | null; training_focus: readonly string[] }>> {

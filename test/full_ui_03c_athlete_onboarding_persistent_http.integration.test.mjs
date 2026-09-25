@@ -255,7 +255,7 @@ test(
       csrf,
       body: {
         current_stage: "execution_scope",
-        fields: { activity_id: "general_strength", experience_level: "amateur" }
+        fields: { activity_id: "general_strength", experience_level: "amateur", training_days_per_week: 3 }
       }
     });
     assertStatus(activity, 200, "save activity");
@@ -270,6 +270,7 @@ test(
         fields: {
           activity_id: "general_strength",
           experience_level: "amateur",
+          training_days_per_week: 3,
           execution_scope: "coach_managed"
         }
       }
@@ -284,6 +285,7 @@ test(
         fields: {
           activity_id: "general_strength",
           experience_level: "amateur",
+          training_days_per_week: 3,
           execution_scope: "coach_managed"
         }
       }
@@ -300,6 +302,7 @@ test(
         fields: {
           activity_id: "general_strength",
           experience_level: "amateur",
+          training_days_per_week: 3,
           execution_scope: "coach_managed",
           product_acknowledged: true
         }
@@ -563,7 +566,7 @@ test(
     const csrf = registration.json?.csrf_token;
     const draft = (current_stage, fields) => requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage, fields } });
 
-    const base = { activity_id: "powerlifting", experience_level: "amateur" };
+    const base = { activity_id: "powerlifting", experience_level: "amateur", training_days_per_week: 4, competition_date: "2026-12-05" };
     const missingEvent = await draft("execution_scope", base);
     assertStatus(missingEvent, 422, "a powerlifter cannot pass the training-level stage without an event");
     assert.ok(missingEvent.json.field_errors?.competition_event, "the refusal names competition_event");
@@ -610,5 +613,135 @@ test(
     assert.equal(after.json.current_effective_declaration.fields.competition_event, undefined, "event dropped with the sport");
     assert.equal(await engineEvent(), undefined, "the engine input no longer carries an event");
     assertStatus(await prefs({ competition_event: "bench_only" }), 422, "a general-strength athlete cannot declare an event");
+  }
+);
+
+test(
+  "FULL-UI-03C a self-directed athlete's sessions follow their periodised training plan",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Periodised Athlete", email: `periodised-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "rugby_union", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+      }
+    });
+    assertStatus(registration, 201, "register rugby athlete");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register rugby athlete");
+    const csrf = registration.json?.csrf_token;
+    const draft = (current_stage, fields) => requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage, fields } });
+
+    const base = { activity_id: "rugby_union", experience_level: "amateur" };
+    const noPlan = await draft("execution_scope", base);
+    assertStatus(noPlan, 422, "training days are required before later stages");
+    assert.ok(noPlan.json.field_errors?.training_days_per_week);
+    const noDates = await draft("execution_scope", { ...base, training_days_per_week: 3 });
+    assertStatus(noDates, 422, "a team athlete declares season dates or no fixed season");
+    assert.ok(noDates.json.field_errors?.season_start_date);
+
+    // Season opens 5 weeks from today: pre-season.
+    const day = (offset) => new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
+    const fields = {
+      ...base,
+      training_days_per_week: 3,
+      season_start_date: day(35),
+      season_end_date: day(250),
+      execution_scope: "individual",
+      product_acknowledged: true,
+      jurisdiction_code: "england_wales",
+      jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await draft("review", fields), 200, "complete draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+
+    const compile = async () => {
+      const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+      const bootstrap = detail.json.bootstrap;
+      assert.equal(bootstrap.declaration_record.engine_phase1_input.training_cycle, undefined, "the cycle is never part of the declaration");
+      return requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+        cookie, csrf,
+        body: {
+          phase1_input: bootstrap.declaration_record.engine_phase1_input,
+          beta_path_context: {
+            auth_record: bootstrap.auth_record,
+            acknowledgement_record: bootstrap.acknowledgement_record,
+            declaration_record: bootstrap.declaration_record
+          }
+        }
+      });
+    };
+
+    const sessions = [];
+    for (let i = 0; i < 4; i++) {
+      const created = await compile();
+      assertStatus(created, 201, `create session ${i + 1}`);
+      sessions.push(created.json);
+    }
+    const cycles = sessions.map((s) => s.planned_session.training_cycle);
+    for (const c of cycles) {
+      assert.equal(c.macro_phase, "pre_season", "5 weeks before the season is pre-season");
+      assert.equal(c.cycle_model, "season");
+      assert.equal(c.days_per_week, 3);
+      assert.ok(c.meso_week >= 1 && c.meso_week <= 4);
+    }
+    assert.deepEqual(cycles.map((c) => c.session_slot), [0, 1, 2, 0], "the week rotates through the declared days");
+    const focus = cycles.map((c) => c.day_focus);
+    assert.deepEqual(focus.slice(0, 3), ["lower_body_power", "upper_body_strength", "full_body_power"]);
+    assert.equal(focus[3], focus[0]);
+    const ids = sessions.map((s) => s.planned_session.exercises.map((e) => e.exercise_id).join(","));
+    assert.equal(new Set(ids.slice(0, 3)).size, 3, "three different sessions in the week");
+
+    // The session state the athlete trains from carries the same plan position.
+    const state = await requestJson(server.baseUrl, "GET", `/sessions/${sessions[1].session_id}/state`, { cookie });
+    assertStatus(state, 200, "session state");
+    assert.equal(state.json.training_cycle?.day_focus, "upper_body_strength");
+
+    // Moving the season start into the past puts the athlete in-season, with a
+    // two-session strength week whatever days they have.
+    const prefs = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf,
+      body: {
+        accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard",
+        training_days_per_week: 5, season_start_date: day(-14), season_end_date: day(200)
+      }
+    });
+    assertStatus(prefs, 200, "update the training plan");
+    assert.equal(prefs.json.current_effective_declaration.fields.training_days_per_week, 5);
+    const inSeason = await compile();
+    assertStatus(inSeason, 201, "in-season session");
+    assert.equal(inSeason.json.planned_session.training_cycle.macro_phase, "in_season");
+    assert.equal(inSeason.json.planned_session.training_cycle.sessions_per_week, 2);
+
+    // Dates or "no fixed season" are replaced as a whole, never both.
+    const noFixed = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf,
+      body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", training_days_per_week: 5, no_fixed_date: true }
+    });
+    assertStatus(noFixed, 200, "switch to no fixed season");
+    const noFixedFields = noFixed.json.current_effective_declaration.fields;
+    assert.equal(noFixedFields.no_fixed_date, true);
+    assert.equal(noFixedFields.season_start_date, undefined);
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf,
+      body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", training_days_per_week: 5, competition_date: day(40) }
+    }), 422, "a team athlete cannot plan to a competition date");
   }
 );

@@ -127,3 +127,7 @@ export function phase4AssembleProgram(
 }
 
 export default phase4AssembleProgram;
+
+// Periodisation vocabulary for callers that declare an athlete's training cycle.
+export { ALL_MACRO_PHASES, MACRO_PHASES_BY_MODEL, cycleModelFor, sessionsPerWeek } from "./phase4/periodisation.js";
+export type { CycleModel, TrainingCycle, TrainingCycleOutput } from "./phase4/periodisation.js";

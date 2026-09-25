@@ -1319,11 +1319,27 @@ async function createSession() {
           }
         };
 
-    const response = await api(
-      "POST",
-      "/blocks/compile?create_session=true&beta_path=true",
-      body
-    );
+    let response;
+    try {
+      response = await api(
+        "POST",
+        "/blocks/compile?create_session=true&beta_path=true",
+        body
+      );
+    }
+    catch (error) {
+      // Self-directed sessions are periodised from the athlete's training plan;
+      // athletes who onboarded before plans existed declare one first.
+      if (error?.payload?.error === "training_plan_required") {
+        showNotice(
+          "Set your training plan (days per week, and your season or competition dates) in Edit preferences before starting a session.",
+          "error"
+        );
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
+      throw error;
+    }
 
     state.activeSessionId = response.session_id ?? null;
     state.activeSessionState = null;
