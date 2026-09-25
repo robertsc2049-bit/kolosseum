@@ -173,6 +173,49 @@
         "squat_only"
       ]
     },
+    "training_cycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "macro_phase",
+        "meso_week",
+        "days_per_week",
+        "session_slot"
+      ],
+      "properties": {
+        "macro_phase": {
+          "type": "string",
+          "enum": [
+            "off_season",
+            "pre_season",
+            "in_season",
+            "transition",
+            "accumulation",
+            "intensification",
+            "peak",
+            "base",
+            "build",
+            "specific",
+            "taper"
+          ]
+        },
+        "meso_week": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4
+        },
+        "days_per_week": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+        },
+        "session_slot": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5
+        }
+      }
+    },
     "nd_mode": {
       "type": "boolean"
     },

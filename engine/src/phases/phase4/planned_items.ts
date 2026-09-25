@@ -70,6 +70,14 @@ function plannedItemsFromIntent(
   });
 }
 
+// The prescription an item gets when its template declares none.
+export function defaultPrescription(index: number): Phase4ItemPrescription {
+  const isAccessory = index >= 4;
+  return isAccessory
+    ? { sets: 3, reps: 10, intensity: { type: "percent_1rm", value: 60 }, rest_seconds: 90 }
+    : { sets: 4, reps: 5, intensity: { type: "percent_1rm", value: 75 }, rest_seconds: 180 };
+}
+
 export function buildPlannedItems(
   intent: string[],
   session_id: string,

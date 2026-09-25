@@ -89,6 +89,8 @@ export type Phase6SessionOutput = {
   session_id: string;
   status: "ready";
   exercises: Phase6SessionExercise[];
+  // Where the session sits in the athlete's periodised plan (only when declared).
+  training_cycle?: Record<string, unknown>;
 };
 
 export type Phase6Result =
@@ -371,7 +373,10 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
 
   return {
     ok: true,
-    session: { session_id, status: "ready", exercises },
+    session: {
+      session_id, status: "ready", exercises,
+      ...(prog.training_cycle && typeof prog.training_cycle === "object" ? { training_cycle: { ...prog.training_cycle } } : {})
+    },
     notes: [
       emittedHasSubstitution
         ? "PHASE_6: emitted session from planned_items with Phase5 substitutions (deduped)"
