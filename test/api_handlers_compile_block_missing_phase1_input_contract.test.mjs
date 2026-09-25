@@ -19,9 +19,11 @@ test("compileBlock source contract: missing phase1_input fails fast with badRequ
     "expected compileBlock to reject missing phase1_input with badRequest('Missing phase1_input')"
   );
 
+  // The validated input is body.phase1_input, plus (for self-directed
+  // athletes) the server-derived training_cycle.
   assert.match(
     src,
-    /throw badRequest\("Missing phase1_input"\);[\s\S]*const\s+p1\s*=\s*phase1Validate\(body\.phase1_input\);/,
-    "expected missing phase1_input guard to run before phase1Validate(body.phase1_input)"
+    /throw badRequest\("Missing phase1_input"\);[\s\S]*let\s+phase1ForCompile:\s*unknown\s*=\s*body\.phase1_input;[\s\S]*const\s+p1\s*=\s*phase1Validate\(phase1ForCompile\);/,
+    "expected missing phase1_input guard to run before phase1Validate of the (cycle-augmented) phase1_input"
   );
 });
