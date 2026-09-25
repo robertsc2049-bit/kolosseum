@@ -52320,7 +52320,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "crossfit"
           ],
           "movement_pattern_id": "squat",
           "token_kind": "exercise_name_token",
@@ -52431,7 +52432,9 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "hyrox",
+            "crossfit"
           ],
           "movement_pattern_id": "core_anti_extension",
           "token_kind": "exercise_name_token",
@@ -52580,10 +52583,10 @@
           "exercise_id": "back_squat",
           "activity_id": "crossfit",
           "activity_context": "competition",
-          "applicability_state": "allowed",
+          "applicability_state": "prohibited",
           "conditions": [],
           "tier_cap": null,
-          "template_applicability": "eligible",
+          "template_applicability": "not_eligible",
           "substitution_applicability": "not_eligible",
           "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
         },
