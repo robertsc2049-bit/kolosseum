@@ -73,6 +73,12 @@ export type PlannedItem = {
   group_time_cap_seconds?: number;
   group_round_seconds?: number;
   group_total_rounds?: number;
+
+  // Distance- or time-prescribed work (carries, sleds, sprints, runs, holds),
+  // only when a template declares it. Phase 6 passes these through unchanged.
+  distance_value?: number;
+  distance_unit?: "meters";
+  duration_seconds?: number;
 };
 
 export type Phase4GroupType = "superset" | "circuit" | "complex" | "amrap" | "emom" | "for_time";
@@ -131,6 +137,9 @@ export type Phase4ItemPrescription = {
   intensity: PlannedItemIntensity;
   rest_seconds: number;
   group?: Phase4ItemGroup;
+  // Mutually exclusive: a distance (metres) or a duration (seconds) per rep.
+  distance_m?: number;
+  duration_seconds?: number;
 };
 
 // A group is declared on each member item; members must be contiguous,

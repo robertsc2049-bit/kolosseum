@@ -46,3 +46,19 @@ test("renderSessionText handles empty session deterministically", () => {
   // Current renderer contract: empty => no lines
   assert.deepEqual(out.lines, []);
 });
+
+test("renderSessionText prints distance- and time-prescribed work by its per-rep dose", () => {
+  const out = renderSessionText({
+    session_id: "S2",
+    exercises: [
+      { exercise_id: "yoke_walk", sets: 4, reps: 1, distance_value: 20, distance_unit: "meters", intensity: { type: "rpe", value: 8 }, rest_seconds: 180 },
+      { exercise_id: "prowler", sets: 3, reps: 1, distance_value: 60, distance_unit: "feet", rest_seconds: 90 },
+      { exercise_id: "trap_bar_static_hold", sets: 3, reps: 1, duration_seconds: 20, intensity: { type: "rpe", value: 8 }, rest_seconds: 90 }
+    ]
+  });
+  assert.deepEqual(out.lines, [
+    "1) yoke_walk — 4x20m @ RPE 8 rest 180s",
+    "2) prowler — 3x60ft rest 90s",
+    "3) trap_bar_static_hold — 3x20s @ RPE 8 rest 90s"
+  ]);
+});
