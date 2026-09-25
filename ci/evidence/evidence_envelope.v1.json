@@ -30,7 +30,7 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "1C22C0A7CA524C20F95A1004963251F8F5985D429FB7E1BB6307CE5392D0F215",
+    "registry_bundle_sha256": "C663E30522C8D7FBF48267A82ADA95A50D07A2987906CF24B5C7E118A6AD3C8C",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
@@ -147,7 +147,7 @@
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
-        "sha256": "D5CF89A134389A2DE40CEAD86A9632A9B88E7FDE0E8C3DD8577EFF8AAB58042C"
+        "sha256": "3DDAF709DA92980B173CA6156794309BC3E08ECBB48F02B17DCC6E9CF96BD7D2"
       },
       {
         "path": "ci/schemas/phase4.output.schema.v1.0.0.json",
@@ -163,7 +163,7 @@
       },
       {
         "path": "ci/schemas/program.registry.schema.json",
-        "sha256": "498ECD319D96EF8849B7E3ABCF3C1F409A90F11955E26D14831262B512B46809"
+        "sha256": "7C6E5D20CECDD97E859212D3A488B6D5F0E1F472300F3BDB697732B2FA4764C1"
       },
       {
         "path": "ci/schemas/registry_entry.schema.json",
