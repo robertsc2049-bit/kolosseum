@@ -153,3 +153,38 @@ test("athlete level: the CrossFit AMRAP group survives at every level", () => {
     assert.ok(amrap.every((x) => x.group_time_cap_seconds === 720));
   }
 });
+
+// Carries, sleds, sprints, runs and static holds are dosed by distance or time;
+// "4 x 1 rep" of a yoke walk is not a prescription an athlete can execute.
+const DISTANCE_OR_TIME = /carry|sled|sprint|acceleration|_run$|yoke_walk|static_hold/;
+
+test("athlete level: every carry, sled, sprint, run and hold is prescribed by distance or time at every level", () => {
+  let checked = 0;
+  for (const activity of ACTIVITIES) {
+    for (const level of ["beginner", "amateur", "pro"]) {
+      for (const it of plan(activity, level).filter((x) => DISTANCE_OR_TIME.test(x.exercise_id))) {
+        const hasDistance = typeof it.distance_value === "number" && it.distance_value > 0 && it.distance_unit === "meters";
+        const hasDuration = Number.isInteger(it.duration_seconds) && it.duration_seconds > 0;
+        assert.ok(hasDistance !== hasDuration, `${activity}/${level} ${it.exercise_id}: exactly one of distance or duration`);
+        assert.equal(it.reps, 1, `${activity}/${level} ${it.exercise_id}: one rep is one length or one hold`);
+        checked++;
+      }
+    }
+  }
+  assert.ok(checked >= 50, `expected the distance/time items across all levels, saw ${checked}`);
+});
+
+test("athlete level: distance and time doses match the coaching intent", () => {
+  const dose = (activity, level, id) => {
+    const it = plan(activity, level).find((x) => x.exercise_id === id);
+    assert.ok(it, `${activity}/${level}: ${id} planned`);
+    return it.distance_value ?? `${it.duration_seconds}s`;
+  };
+  assert.equal(dose("hyrox", "amateur", "tempo_run"), 1000, "HYROX runs 1 km repeats (race run segment)");
+  assert.equal(dose("hyrox", "pro", "sled_push"), 25, "HYROX sled push in 25 m lengths");
+  assert.equal(dose("strongman", "beginner", "yoke_walk"), 20);
+  assert.equal(dose("strongman", "pro", "farmers_carry"), 30);
+  assert.equal(dose("rugby_sevens", "amateur", "ten_metre_acceleration"), 10);
+  assert.equal(dose("rugby_sevens", "amateur", "flying_twenty_sprint"), 20);
+  assert.equal(dose("judo", "beginner", "trap_bar_static_hold"), "20s");
+});
