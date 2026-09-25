@@ -202,7 +202,7 @@ test("periodisation: the session output records where it sits in the plan", () =
   const program = run("rugby_union", "pro", cycle("in_season", 4, 5, 3));
   assert.deepEqual(program.training_cycle, {
     macro_phase: "in_season", meso_week: 4, days_per_week: 5, session_slot: 3,
-    cycle_model: "season", sessions_per_week: 2, day_index: 0, day_focus: "full_body", deload: true
+    cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true
   });
 });
 
@@ -234,4 +234,70 @@ test("general preparation never adds sets or reps to jumps, sprints, throws, Oly
   const acc = run("rugby_union", "amateur", cycle("off_season")).planned_items.find((x) => x.exercise_id === "trap_bar_deadlift");
   const pre = run("rugby_union", "amateur", cycle("pre_season")).planned_items.find((x) => x.exercise_id === "trap_bar_deadlift");
   assert.ok(acc.sets > pre.sets && acc.reps > pre.reps, "trap-bar deadlift still gains sets and reps off-season");
+});
+
+// --- Programme content: every sport trains a real week ---
+
+const PROGRAMS = JSON.parse(fs.readFileSync("registries/program/program.registry.json", "utf8")).entries;
+const ENDURANCE = ["athletics", "swimming", "cycling", "rowing", "kayaking", "triathlon"];
+const weekOf = (activity, level, days, phase, extra = {}) =>
+  Array.from({ length: days }, (_, slot) => run(activity, level, cycle(phase, 2, days, slot), extra));
+
+test("content: every sport, level and powerlifting event declares a training week of distinct sessions", () => {
+  for (const entry of PROGRAMS) {
+    const targets = [["amateur", entry], ["beginner", entry.level_variants.beginner], ["pro", entry.level_variants.pro]];
+    for (const [event, v] of Object.entries(entry.event_variants ?? {})) {
+      targets.push([`${event}/amateur`, v], [`${event}/beginner`, v.level_variants.beginner], [`${event}/pro`, v.level_variants.pro]);
+    }
+    for (const [label, t] of targets) {
+      assert.ok(Array.isArray(t.microcycle), `${entry.activity_id}/${label} declares a week`);
+      assert.equal(t.microcycle.length, ENDURANCE.includes(entry.activity_id) ? 2 : 3, `${entry.activity_id}/${label} day count`);
+      const sessions = t.microcycle.map((d) => d.exercise_eligibility.join(","));
+      assert.equal(new Set(sessions).size, sessions.length, `${entry.activity_id}/${label}: every day is a different session`);
+    }
+  }
+});
+
+test("content: a 3-day week rotates three different sessions, and every day assembles at every level and phase", () => {
+  for (const activity of ACTIVITIES) {
+    for (const level of LEVELS) {
+      for (const phase of MACRO_PHASES_BY_MODEL[cycleModelFor(activity)]) {
+        const week = weekOf(activity, level, 6, phase);
+        const perWeek = week[0].training_cycle.sessions_per_week;
+        const distinct = new Set(week.map((p) => p.planned_exercise_ids.join(","))).size;
+        const expected = Math.min(perWeek, ENDURANCE.includes(activity) ? 2 : 3);
+        assert.equal(distinct, expected, `${activity}/${level}/${phase}: ${expected} distinct sessions in a 6-day week`);
+      }
+    }
+  }
+});
+
+test("content: in-season, a team athlete's two sessions cover both lower-body power and upper-body strength", () => {
+  for (const activity of ACTIVITIES.filter((a) => cycleModelFor(a) === "season")) {
+    const focus = weekOf(activity, "amateur", 4, "in_season").map((p) => p.training_cycle.day_focus);
+    assert.ok(focus.some((f) => /lower|speed/.test(f)), `${activity}: in-season lower-body day (${focus})`);
+    assert.ok(focus.some((f) => /upper/.test(f)), `${activity}: in-season upper-body day (${focus})`);
+  }
+});
+
+test("content: strength sports train each competition lift on its own day", () => {
+  const leads = (activity, level, extra = {}) => weekOf(activity, level, 3, MACRO_PHASES_BY_MODEL.meet[1], extra).map((p) => p.planned_exercise_ids[0]);
+  for (const level of LEVELS) {
+    assert.deepEqual(leads("powerlifting", level), ["back_squat", "paused_bench_press", "deadlift"], `powerlifting/${level}`);
+    assert.deepEqual(leads("olympic_weightlifting", level).slice(0, 2), ["snatch", "power_clean"], `weightlifting/${level}`);
+    assert.equal(leads("powerlifting", level, { competition_event: "bench_only" })[0], "paused_bench_press");
+    assert.equal(leads("powerlifting", level, { competition_event: "deadlift_only" })[0], "deadlift");
+    assert.equal(leads("powerlifting", level, { competition_event: "squat_only" })[0], "back_squat");
+    assert.deepEqual(leads("powerlifting", level, { competition_event: "push_pull" }).slice(0, 2), ["paused_bench_press", "deadlift"]);
+  }
+});
+
+test("content: collision and combat athletes train the neck at least twice in a 3-day week", () => {
+  for (const activity of ["rugby_union", "rugby_league", "rugby_sevens", "american_football", "ice_hockey", "boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"]) {
+    for (const level of LEVELS) {
+      const phase = MACRO_PHASES_BY_MODEL[cycleModelFor(activity)][1];
+      const neckDays = weekOf(activity, level, 3, phase).filter((p) => p.planned_exercise_ids.some((id) => id.includes("neck"))).length;
+      assert.ok(neckDays >= 2, `${activity}/${level}: neck on ${neckDays} of 3 days`);
+    }
+  }
 });
