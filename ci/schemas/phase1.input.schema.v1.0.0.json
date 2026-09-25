@@ -221,20 +221,6 @@
           "governing_authority_id"
         ]
       }
-    },
-    {
-      "if": {
-        "required": [
-          "competition_event"
-        ]
-      },
-      "then": {
-        "properties": {
-          "activity_id": {
-            "const": "powerlifting"
-          }
-        }
-      }
     }
   ]
 }

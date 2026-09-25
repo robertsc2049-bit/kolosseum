@@ -263,6 +263,16 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   const obj = input as any;
 
+  // A competition event is powerlifting's alone (its programmes are powerlifting
+  // divisions); on any other activity it is refused, never ignored.
+  if (obj?.competition_event !== undefined && obj?.activity_id !== "powerlifting") {
+    return {
+      ok: false,
+      failure_token: "type_mismatch",
+      details: [{ instancePath: "/competition_event", message: "competition_event requires activity_id powerlifting" }]
+    };
+  }
+
   if (obj?.consent_granted !== true) {
     return { ok: false, failure_token: "consent_not_granted" };
   }
