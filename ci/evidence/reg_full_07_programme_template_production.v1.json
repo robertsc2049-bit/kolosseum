@@ -24,11 +24,11 @@
     },
     "applicability": {
       "path": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "sha256": "59a6ba82f086785cef5ccdb6c2ef8f2297c24f66e21e5931b48f0daf4d8ece51"
+      "sha256": "70ec502b7ffa7aed3023918703286322d386cf8e8e0a5152f68e7182d93a2210"
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "947fd6fb68b9cea684a9f00bee697862e011641fd23102f732d3fd427c0c1eac"
+      "sha256": "f95d49b4d57ee62e4dc8d003ce43c65b70db06978cefce2e3d184ee0d75240f4"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
