@@ -858,6 +858,7 @@ export async function amendAthleteDeclaration(
 export async function getAthleteTrainingPlan(userId: string): Promise<Readonly<{
   activity_id: string; training_days_per_week: number;
   season_start_date?: string; season_end_date?: string; competition_date?: string; no_fixed_date?: true;
+  plan_started_on: string;
 }> | null> {
   const client = await pool.connect();
   try {
@@ -866,7 +867,15 @@ export async function getAthleteTrainingPlan(userId: string): Promise<Readonly<{
     if (!current || !record(current.fields)) return null;
     const declared = validateCompleteAthleteDeclaration(current.fields);
     if (!declared.activity_id || declared.training_days_per_week === undefined) return null;
-    return Object.freeze({ activity_id: declared.activity_id, training_days_per_week: declared.training_days_per_week, ...pickTrainingPlan(declared) });
+    // The plan started with the first declaration that declared training days.
+    const all = await events(client, userId);
+    const first = all.find((entry) => entry.event_type === DECLARATION_EVENT &&
+      record(entry.event_payload.fields) && (entry.event_payload.fields as Json).training_days_per_week !== undefined);
+    const started = text(first?.event_payload.effective_at_iso8601) || text(current.effective_at_iso8601);
+    return Object.freeze({
+      activity_id: declared.activity_id, training_days_per_week: declared.training_days_per_week, ...pickTrainingPlan(declared),
+      plan_started_on: started.slice(0, 10)
+    });
   }
   finally { client.release(); }
 }

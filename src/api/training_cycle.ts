@@ -12,6 +12,9 @@ export type AthleteTrainingPlan = Readonly<{
   season_end_date?: string;
   competition_date?: string;
   no_fixed_date?: true;
+  // The date the athlete first declared a training plan: their 4-week blocks
+  // count from that week, so a new athlete starts on week 1, not a deload.
+  plan_started_on?: string;
 }>;
 
 const DAY_MS = 86_400_000;
@@ -32,10 +35,17 @@ export function weekStartMs(dayMs: number): number {
   return EPOCH_MONDAY_MS + weekIndex(dayMs) * WEEK_MS;
 }
 
+// Calendar weeks (Monday-based) since the athlete's plan started.
+export function planWeek(plan: AthleteTrainingPlan, dayMs: number): number {
+  const anchor = plan.plan_started_on ? weekIndex(dateMs(plan.plan_started_on)) : 0;
+  return Math.max(0, weekIndex(dayMs) - anchor);
+}
+
 // With no fixed date, the plan alternates 4-week general and specific blocks
-// (off-season/pre-season, accumulation/intensification, base/build).
-function rollingPhase(phases: readonly string[], dayMs: number): string {
-  return phases[Math.floor(weekIndex(dayMs) / 4) % 2 === 0 ? 0 : 1];
+// (off-season/pre-season, accumulation/intensification, base/build), starting
+// with a general block.
+function rollingPhase(plan: AthleteTrainingPlan, phases: readonly string[], dayMs: number): string {
+  return phases[Math.floor(planWeek(plan, dayMs) / 4) % 2 === 0 ? 0 : 1];
 }
 
 // Macrocycle phase for today:
@@ -53,7 +63,7 @@ export function macroPhaseFor(plan: AthleteTrainingPlan, today: Date): string {
   const day = utcDayMs(today);
 
   if (model === "season") {
-    if (!plan.season_start_date || !plan.season_end_date) return rollingPhase(phases, day);
+    if (!plan.season_start_date || !plan.season_end_date) return rollingPhase(plan, phases, day);
     const start = dateMs(plan.season_start_date);
     const end = dateMs(plan.season_end_date);
     if (day < start) return Math.ceil((start - day) / WEEK_MS) > 8 ? "off_season" : "pre_season";
@@ -61,7 +71,7 @@ export function macroPhaseFor(plan: AthleteTrainingPlan, today: Date): string {
     return day - end <= 21 * DAY_MS ? "transition" : "off_season";
   }
 
-  if (!plan.competition_date) return rollingPhase(phases, day);
+  if (!plan.competition_date) return rollingPhase(plan, phases, day);
   const competition = dateMs(plan.competition_date);
   if (day > competition) return day - competition <= 14 * DAY_MS ? "transition" : phases[0];
   const daysTo = (competition - day) / DAY_MS;
@@ -75,10 +85,11 @@ export function macroPhaseFor(plan: AthleteTrainingPlan, today: Date): string {
   return weeksTo <= 12 ? "build" : "base";
 }
 
-// Mesocycle weeks follow the calendar (3 loading weeks then a deload). A
-// competition-specific phase never deloads - it is already short and sharp.
-export function mesoWeekFor(macroPhase: string, today: Date): number {
-  const week = (weekIndex(utcDayMs(today)) % 4) + 1;
+// Mesocycle weeks follow the calendar from the plan's first week (3 loading
+// weeks then a deload). A competition-specific phase never deloads - it is
+// already short and sharp.
+export function mesoWeekFor(plan: AthleteTrainingPlan, macroPhase: string, today: Date): number {
+  const week = (planWeek(plan, utcDayMs(today)) % 4) + 1;
   return macroPhase === "peak" || macroPhase === "specific" ? Math.min(week, 3) : week;
 }
 
@@ -86,7 +97,7 @@ export function computeTrainingCycle(plan: AthleteTrainingPlan, today: Date, ses
   const macro_phase = macroPhaseFor(plan, today);
   return {
     macro_phase,
-    meso_week: mesoWeekFor(macro_phase, today),
+    meso_week: mesoWeekFor(plan, macro_phase, today),
     days_per_week: plan.training_days_per_week,
     session_slot: Math.max(0, sessionsThisWeek) % plan.training_days_per_week
   };

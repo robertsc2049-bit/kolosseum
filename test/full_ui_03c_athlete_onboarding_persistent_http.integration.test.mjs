@@ -700,7 +700,8 @@ test(
       assert.equal(c.macro_phase, "pre_season", "5 weeks before the season is pre-season");
       assert.equal(c.cycle_model, "season");
       assert.equal(c.days_per_week, 3);
-      assert.ok(c.meso_week >= 1 && c.meso_week <= 4);
+      assert.equal(c.meso_week, 1, "a new plan starts on week 1 of its first block, never on a deload");
+      assert.equal(c.deload, false);
     }
     assert.deepEqual(cycles.map((c) => c.session_slot), [0, 1, 2, 0], "the week rotates through the declared days");
     const focus = cycles.map((c) => c.day_focus);
