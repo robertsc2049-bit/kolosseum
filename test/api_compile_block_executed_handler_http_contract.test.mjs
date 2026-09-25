@@ -22,6 +22,10 @@ const PHASE6_SPEC = "@kolosseum/engine/phases/phase6.js";
 const SESSION_SUMMARY_SPEC = "@kolosseum/engine/runtime/session_summary.js";
 const APPLY_RUNTIME_EVENT_SPEC = "@kolosseum/engine/runtime/apply_runtime_event.js";
 
+// The API imports the engine's periodisation vocabulary through the phase-4
+// entry; the phase-4 mock keeps those real exports alongside its stub.
+const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4/periodisation.js", import.meta.url).href)) };
+
 function makeReq({ body = undefined, query = {}, headers = {} } = {}) {
   return {
     body,
@@ -129,6 +133,7 @@ function installCommonMocks({
 
   mock.module(PHASE4_SPEC, {
     namedExports: {
+      ...PERIODISATION_EXPORTS,
       phase4AssembleProgram() {
         return {
           ok: true,
