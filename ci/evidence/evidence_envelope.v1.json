@@ -147,7 +147,7 @@
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
-        "sha256": "3DDAF709DA92980B173CA6156794309BC3E08ECBB48F02B17DCC6E9CF96BD7D2"
+        "sha256": "6214285FE730110921B2257FE28706EC9D4E96EEC359BA86F178BBAEFFD9D901"
       },
       {
         "path": "ci/schemas/phase4.output.schema.v1.0.0.json",
