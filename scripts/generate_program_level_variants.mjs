@@ -59,6 +59,54 @@ const HAND = {
   }
 };
 
+// Powerlifting competition events (hand-tuned; full power is the base entry).
+// Each event trains its competition lift(s) as the primaries - timebox pruning
+// only drops accessories, so the event lifts always survive a short session.
+// Bench only: paused bench + Spoto/close-grip, upper back and triceps, legs kept
+//   as low-volume support. Deadlift only: competition pull + paused/deficit/
+//   block variations, squat for leg drive, grip holds. Push-pull: bench and
+//   deadlift, squat demoted to an accessory. Squat only: competition squat +
+//   paused/pin variations, hinge and bench as support. Beginners learn the
+//   event lift(s) by effort (no tested max) and keep some work on the others.
+const T = (sets, duration_seconds, intensity, rest_seconds) => ({ ...P(sets, 1, intensity, rest_seconds), duration_seconds });
+const EVENTS = {
+  powerlifting: {
+    bench_only: {
+      beginner: [["bench_press", P(4, 5, rpe(6), 150)], ["dumbbell_bench_press", P(3, 8, rpe(7), 90)], ["barbell_row", P(3, 8, rpe(7), 90)],
+        ["goblet_squat", P(3, 8, rpe(7), 90)], ["cable_triceps_pressdown", P(3, 12, rpe(7), 60)], ["face_pull", P(3, 15, rpe(7), 60)]],
+      amateur: [["paused_bench_press", P(5, 3, pct(80), 180)], ["spoto_press", P(4, 5, pct(70), 150)], ["close_grip_bench_press", P(3, 6, pct(72), 120)],
+        ["barbell_row", P(4, 8, rpe(8), 90)], ["back_squat", P(3, 5, rpe(6), 150)], ["overhead_cable_triceps_extension", P(3, 12, rpe(8), 60)], ["face_pull", P(3, 15, rpe(7), 60)]],
+      pro: [["paused_bench_press", P(6, 2, pct(85), 210)], ["spoto_press", P(4, 4, pct(75), 180)], ["close_grip_bench_press", P(4, 5, pct(75), 150)],
+        ["pendlay_row", P(4, 6, rpe(8), 120)], ["pin_press", P(3, 3, rpe(8), 150)], ["back_squat", P(2, 5, rpe(6), 150)],
+        ["overhead_cable_triceps_extension", P(3, 12, rpe(8), 60)], ["face_pull", P(3, 15, rpe(7), 60)]]
+    },
+    deadlift_only: {
+      beginner: [["deadlift", P(3, 5, rpe(6), 180)], ["goblet_squat", P(3, 8, rpe(7), 90)], ["romanian_deadlift", P(3, 8, rpe(6), 90)],
+        ["barbell_row", P(3, 8, rpe(7), 90)], ["dumbbell_bench_press", P(3, 8, rpe(7), 90)], ["dumbbell_static_hold", T(3, 20, rpe(7), 60)], ["back_extension", P(3, 12, rpe(7), 60)]],
+      amateur: [["deadlift", P(4, 3, pct(82), 240)], ["paused_deadlift", P(3, 3, pct(70), 180)], ["back_squat", P(3, 5, pct(72), 150)],
+        ["barbell_row", P(4, 8, rpe(8), 90)], ["romanian_deadlift", P(3, 8, rpe(7), 90)], ["barbell_static_hold", T(3, 20, rpe(8), 90)], ["back_extension", P(3, 12, rpe(7), 60)]],
+      pro: [["deadlift", P(5, 2, pct(87), 300)], ["deficit_deadlift", P(4, 3, pct(75), 210)], ["block_pull", P(3, 3, rpe(8), 210)],
+        ["back_squat", P(3, 5, pct(75), 180)], ["pendlay_row", P(4, 6, rpe(8), 120)], ["barbell_static_hold", T(3, 20, rpe(9), 90)], ["reverse_hyper", P(3, 12, rpe(7), 60)]]
+    },
+    push_pull: {
+      beginner: [["bench_press", P(3, 5, rpe(6), 150)], ["deadlift", P(3, 5, rpe(6), 180)], ["barbell_row", P(3, 8, rpe(7), 90)],
+        ["goblet_squat", P(3, 8, rpe(7), 90)], ["dumbbell_bench_press", P(3, 10, rpe(7), 90)], ["cable_triceps_pressdown", P(3, 12, rpe(7), 60)]],
+      amateur: [["paused_bench_press", P(5, 3, pct(77), 180)], ["deadlift", P(4, 3, pct(82), 240)], ["close_grip_bench_press", P(3, 6, pct(70), 120)],
+        ["barbell_row", P(3, 8, rpe(8), 90)], ["back_squat", P(3, 5, pct(70), 150)], ["cable_triceps_pressdown", P(3, 12, rpe(8), 60)]],
+      pro: [["paused_bench_press", P(6, 2, pct(85), 210)], ["deadlift", P(5, 2, pct(87), 300)], ["close_grip_bench_press", P(4, 5, pct(75), 150)],
+        ["deficit_deadlift", P(3, 3, pct(75), 210)], ["pendlay_row", P(4, 6, rpe(8), 120)], ["back_squat", P(3, 4, pct(75), 180)], ["cable_triceps_pressdown", P(3, 12, rpe(8), 60)]]
+    },
+    squat_only: {
+      beginner: [["back_squat", P(3, 5, rpe(6), 150)], ["goblet_squat", P(3, 8, rpe(7), 90)], ["romanian_deadlift", P(3, 8, rpe(6), 90)],
+        ["barbell_row", P(3, 8, rpe(7), 90)], ["dumbbell_bench_press", P(3, 8, rpe(7), 90)], ["front_plank", T(3, 30, rpe(6), 60)]],
+      amateur: [["back_squat", P(5, 3, pct(80), 210)], ["paused_back_squat", P(3, 4, pct(70), 180)], ["romanian_deadlift", P(3, 8, rpe(7), 120)],
+        ["barbell_row", P(3, 8, rpe(8), 90)], ["bulgarian_split_squat", P(3, 8, rpe(8), 90)], ["bench_press", P(3, 6, rpe(7), 120)], ["cable_crunch", P(3, 12, rpe(8), 60)]],
+      pro: [["back_squat", P(6, 2, pct(85), 240)], ["pin_squat", P(4, 3, pct(75), 180)], ["paused_back_squat", P(3, 3, pct(75), 180)],
+        ["romanian_deadlift", P(3, 6, pct(70), 120)], ["barbell_row", P(4, 8, rpe(8), 90)], ["bulgarian_split_squat", P(3, 8, rpe(8), 90)], ["bench_press", P(3, 5, rpe(7), 120)]]
+    }
+  }
+};
+
 // Beginner regression for an advanced exercise: a substitution edge that keeps
 // the movement pattern exactly, applies to this activity, is training-allowed
 // for it, and lands on a lower difficulty tier. Deterministic: lowest tier, then id.
@@ -131,6 +179,14 @@ for (const entry of prog.entries) {
   const pro = h ? h.pro : proOf(entry);
   for (const [id] of [...beginner, ...pro]) if (!allowed(id, entry.activity_id)) throw new Error(`${entry.activity_id}: ${id} not training-allowed`);
   entry.level_variants = { beginner: variant(beginner), pro: variant(pro) };
+  const events = EVENTS[entry.activity_id];
+  if (events) {
+    entry.event_variants = {};
+    for (const [event, lv] of Object.entries(events)) {
+      for (const [id] of [...lv.beginner, ...lv.amateur, ...lv.pro]) if (!allowed(id, entry.activity_id)) throw new Error(`${entry.activity_id}/${event}: ${id} not training-allowed`);
+      entry.event_variants[event] = { ...variant(lv.amateur), level_variants: { beginner: variant(lv.beginner), pro: variant(lv.pro) } };
+    }
+  }
   report.push({ activity: entry.activity_id, source: h ? "hand" : "rules", beginner: beginner.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`), pro: pro.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`) });
 }
 fs.writeFileSync("registries/program/program.registry.json", JSON.stringify(prog, null, 2) + "\n");
