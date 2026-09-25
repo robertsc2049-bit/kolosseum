@@ -15,6 +15,7 @@ import {
 import {
   assembleSupportedProgram,
   selectTemplate,
+  templateForCycle,
   type Phase4Options,
   type Phase4Result,
   type RegistryLoad,
@@ -105,7 +106,9 @@ export function phase4AssembleProgram(
   const registry = loadRegistry(opts);
   const level = typeof canonicalInput?.experience_level === "string" ? canonicalInput.experience_level : undefined;
   const event = typeof canonicalInput?.competition_event === "string" ? canonicalInput.competition_event : undefined;
-  const template = selectTemplate(activity, level, event);
+  const selected = selectTemplate(activity, level, event);
+  const cycle = canonicalInput?.training_cycle;
+  const template = selected && cycle ? templateForCycle(selected, activity, cycle, level) : selected;
 
   if (!template) {
     return {
