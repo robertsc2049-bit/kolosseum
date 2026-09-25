@@ -49,24 +49,30 @@ test("training cycle: no fixed date (and general strength) alternates 4-week gen
   assert.deepEqual([...seen(plan("rugby_union", { no_fixed_date: true }))].sort(), ["off_season", "pre_season"]);
   assert.deepEqual([...seen(plan("triathlon", { no_fixed_date: true }))].sort(), ["base", "build"]);
   // Each block lasts exactly four calendar weeks.
-  // Blocks align to 4-week boundaries counted from the Monday epoch.
-  const blockStart = Date.UTC(1970, 0, 5) + 728 * 28 * 86400000;
-  assert.equal(weekIndex(blockStart) % 4, 0);
-  const phases = Array.from({ length: 8 }, (_, w) => macroPhaseFor(plan("general_strength"), new Date(blockStart + w * 7 * 86400000)));
+  // Blocks count from the plan's first week, starting with a general block.
+  const started = plan("general_strength", { plan_started_on: "2026-09-24" });
+  const phases = Array.from({ length: 8 }, (_, w) => macroPhaseFor(started, new Date(Date.UTC(2026, 8, 21) + w * 7 * 86400000)));
+  assert.equal(phases[0], "accumulation");
   assert.equal(new Set(phases.slice(0, 4)).size, 1);
   assert.notEqual(phases[3], phases[4]);
 });
 
 test("training cycle: mesocycle weeks follow the calendar (Monday-based), and competition-specific phases never deload", () => {
   const monday = Date.UTC(2026, 8, 21);
-  const weeks = Array.from({ length: 8 }, (_, w) => mesoWeekFor("pre_season", new Date(monday + w * 7 * 86400000)));
+  const p = plan("rugby_union", { no_fixed_date: true, plan_started_on: "2026-09-23" });
+  const weeks = Array.from({ length: 8 }, (_, w) => mesoWeekFor(p, "pre_season", new Date(monday + w * 7 * 86400000)));
+  assert.deepEqual(weeks, [1, 2, 3, 4, 1, 2, 3, 4], "a new plan starts on week 1 of its first block");
   assert.deepEqual(weeks.slice(0, 4).sort(), [1, 2, 3, 4]);
   assert.deepEqual(weeks.slice(4), weeks.slice(0, 4), "the 4-week pattern repeats");
-  assert.equal(mesoWeekFor("pre_season", new Date(monday)), mesoWeekFor("pre_season", new Date(monday + 6 * 86400000 + 3600000)), "Monday to Sunday is one week");
+  assert.equal(mesoWeekFor(p, "pre_season", new Date(monday)), mesoWeekFor(p, "pre_season", new Date(monday + 6 * 86400000 + 3600000)), "Monday to Sunday is one week");
   for (let w = 0; w < 8; w++) {
-    assert.ok(mesoWeekFor("peak", new Date(monday + w * 7 * 86400000)) <= 3);
-    assert.ok(mesoWeekFor("specific", new Date(monday + w * 7 * 86400000)) <= 3);
+    assert.ok(mesoWeekFor(p, "peak", new Date(monday + w * 7 * 86400000)) <= 3);
+    assert.ok(mesoWeekFor(p, "specific", new Date(monday + w * 7 * 86400000)) <= 3);
   }
+  // Two athletes who started in different weeks deload in different weeks.
+  const other = plan("rugby_union", { no_fixed_date: true, plan_started_on: "2026-10-05" });
+  assert.equal(mesoWeekFor(other, "pre_season", new Date(Date.UTC(2026, 9, 5))), 1);
+  assert.equal(mesoWeekFor(p, "pre_season", new Date(Date.UTC(2026, 9, 5))), 3);
   assert.equal(weekIndex(Date.UTC(1970, 0, 5)), 0);
 });
 
