@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
+import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
 import { type JsonRecord } from "../../api/transport";
 import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
 import { useAthleteProgressInsights } from "./useAthleteProgressInsights";
@@ -117,6 +118,7 @@ export function AthleteProgressInsightsPanel() {
   if (!insights) return null;
 
   const strengthTrends = Array.isArray(insights.strength_trends) ? (insights.strength_trends as JsonRecord[]) : [];
+  const trainingE1rmTrends = Array.isArray(insights.training_e1rm_trends) ? (insights.training_e1rm_trends as JsonRecord[]) : [];
   const habitConsistency = Array.isArray(insights.habit_consistency) ? (insights.habit_consistency as JsonRecord[]) : [];
   const bodyMetricTrends = Array.isArray(insights.body_metric_trends) ? (insights.body_metric_trends as JsonRecord[]) : [];
 
@@ -135,6 +137,9 @@ export function AthleteProgressInsightsPanel() {
         }]}
         emptyLabel="No sessions recorded yet to chart adherence over time."
       />
+      {trainingE1rmTrends.map((trend) => (
+        <TrainingE1rmCard key={`e1rm-${String(trend.exercise_id)}`} trend={trend} exercises={exercises} />
+      ))}
       {strengthTrends.map((trend) => (
         <StrengthTrendCard key={String(trend.exercise_id)} trend={trend} exercises={exercises} />
       ))}

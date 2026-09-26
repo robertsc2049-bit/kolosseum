@@ -3976,3 +3976,12 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+/* Per-set logging on the current exercise: thumb-sized inputs, one row per set. */
+.set-logger { margin-top: 12px; }
+.set-log-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.set-log-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.set-log-row.logged strong { flex: 1; }
+.set-log-field input { width: 4.5rem; min-height: 44px; font-size: 1rem; }
+.set-log-row .field-error { flex-basis: 100%; margin: 0; color: var(--danger, #b3261e); font-size: 0.875rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
