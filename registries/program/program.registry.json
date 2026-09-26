@@ -18,12 +18,66 @@
       "activity_id": "rugby_union",
       "template_id": "PROGRAM_RUGBY_UNION_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "countermovement_jump",
+        "trap_bar_deadlift",
+        "landmine_press",
+        "chin_up",
+        "nordic_curl",
+        "front_rack_carry"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 4,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 1,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        }
       ]
     },
     {
@@ -200,108 +254,594 @@
       "activity_id": "football_soccer",
       "template_id": "PROGRAM_FOOTBALL_SOCCER_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "countermovement_jump",
+        "nordic_curl",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "cable_hip_adduction",
+        "single_leg_calf_raise"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "netball",
       "template_id": "PROGRAM_NETBALL_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "drop_to_stick",
+        "vertical_jump_to_stick",
+        "bulgarian_split_squat",
+        "single_leg_rdl",
+        "nordic_curl",
+        "single_leg_calf_raise"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "basketball",
       "template_id": "PROGRAM_BASKETBALL_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "drop_to_stick",
+        "countermovement_jump",
+        "trap_bar_deadlift",
+        "lateral_lunge",
+        "single_leg_calf_raise",
+        "pallof_press"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "rugby_sevens",
       "template_id": "PROGRAM_RUGBY_SEVENS_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "ten_metre_acceleration",
+        "flying_twenty_sprint",
+        "trap_bar_deadlift",
+        "split_squat",
+        "nordic_curl",
+        "single_leg_calf_raise"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 6,
+          "reps": 1,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 1,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "field_hockey",
       "template_id": "PROGRAM_FIELD_HOCKEY_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "ten_metre_acceleration",
+        "trap_bar_deadlift",
+        "lateral_lunge",
+        "chin_up",
+        "pallof_press",
+        "nordic_curl"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 5,
+          "reps": 1,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        }
       ]
     },
     {
       "activity_id": "ice_hockey",
       "template_id": "PROGRAM_ICE_HOCKEY_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "lateral_bound",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "cable_hip_adduction",
+        "chin_up",
+        "lateral_sled_drag"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 1,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 90
+        }
       ]
     },
     {
       "activity_id": "volleyball",
       "template_id": "PROGRAM_VOLLEYBALL_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "drop_to_stick",
+        "split_squat",
+        "romanian_deadlift",
+        "face_pull",
+        "cable_external_rotation",
+        "single_leg_calf_raise"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 70
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
       "activity_id": "cricket",
       "template_id": "PROGRAM_CRICKET_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "medicine_ball_rotational_throw",
+        "trap_bar_deadlift",
+        "split_squat",
+        "half_kneeling_pallof_press",
+        "cable_external_rotation",
+        "single_arm_dumbbell_row"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 5,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 150
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        }
       ]
     },
     {
       "activity_id": "american_football",
       "template_id": "PROGRAM_AMERICAN_FOOTBALL_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "three_point_start_sprint",
+        "box_jump",
+        "trap_bar_deadlift",
+        "landmine_press",
+        "chest_supported_row",
+        "nordic_curl"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 5,
+          "reps": 1,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 5,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 85
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 4,
+          "reps": 5,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        }
       ]
     },
     {
@@ -498,12 +1038,66 @@
       "activity_id": "tennis",
       "template_id": "PROGRAM_TENNIS_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "rotational_medicine_ball_throw",
+        "lateral_deceleration",
+        "bulgarian_split_squat",
+        "single_arm_dumbbell_row",
+        "cable_external_rotation",
+        "face_pull"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
@@ -522,12 +1116,66 @@
       "activity_id": "rugby_league",
       "template_id": "PROGRAM_RUGBY_LEAGUE_V1",
       "exercise_eligibility": [
-        "back_squat",
-        "bench_press",
-        "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "broad_jump_to_stick",
+        "trap_bar_deadlift",
+        "bulgarian_split_squat",
+        "pendlay_row",
+        "nordic_curl",
+        "pallof_press"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 4,
+          "reps": 4,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 6,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 75
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "bodyweight"
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
