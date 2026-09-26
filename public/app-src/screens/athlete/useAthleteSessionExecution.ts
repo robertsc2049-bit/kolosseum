@@ -784,9 +784,11 @@ export function useAthleteSessionExecution() {
 
     setState((current) => ({ ...current, howto: { exerciseId, status: "loading" } }));
     try {
+      // A repeat of an exercise in the session ("back_squat__r2") shows its exercise's how-to.
+      const contentId = exerciseId.replace(/__r[0-9]+$/, "");
       const [content, referenceMediaResult] = await Promise.all([
-        loadExerciseContent(exerciseId),
-        loadExerciseReferenceMedia(exerciseId).catch(() => null)
+        loadExerciseContent(contentId),
+        loadExerciseReferenceMedia(contentId).catch(() => null)
       ]);
       const referenceMedia = (referenceMediaResult?.reference_media as JsonRecord | undefined) ?? null;
       howtoCache.set(exerciseId, { content, referenceMedia });

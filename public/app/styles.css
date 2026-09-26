@@ -3991,3 +3991,6 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .programme-day-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .programme-item.fixed { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .programme-item select { min-height: 44px; max-width: 100%; }
+.programme-own-exercise { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin-top: 6px; }
+.programme-own-exercise input { min-height: 44px; }
+.programme-fit-note { margin: 4px 0 0; font-size: 0.9em; }
