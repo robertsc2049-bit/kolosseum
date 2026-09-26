@@ -30988,7 +30988,7 @@
                   "day_id": "engine",
                   "focus": "engine_and_strength",
                   "exercise_eligibility": [
-                    "back_squat",
+                    "air_squat",
                     "rowing_ergometer",
                     "dumbbell_overhead_press",
                     "pull_up",
@@ -40187,7 +40187,7 @@
                   "item_prescriptions": [
                     {
                       "sets": 5,
-                      "reps": 5,
+                      "reps": 2,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
@@ -40235,7 +40235,7 @@
                   "item_prescriptions": [
                     {
                       "sets": 4,
-                      "reps": 5,
+                      "reps": 2,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
@@ -40244,7 +40244,7 @@
                     },
                     {
                       "sets": 4,
-                      "reps": 5,
+                      "reps": 2,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
