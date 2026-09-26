@@ -101,6 +101,9 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
       <div className="declaration-fact"><span>Training level</span><strong>{fields.experience_level ? label(fields.experience_level) : "Not declared"}</strong></div>
+      {fields.activity_id === POWERLIFTING ? (
+        <div className="declaration-fact"><span>Competition event</span><strong>{competitionEventLabel(fields.competition_event)}</strong></div>
+      ) : null}
       <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
       <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
@@ -136,6 +139,20 @@ const EXPERIENCE_LEVEL_OPTIONS: [string, string, string][] = [
   ["pro", "Pro", "Full-time or high-performance athlete. Sessions carry more volume and heavier competition-style work."]
 ];
 
+// Powerlifting only: which competition lifts the athlete trains for. Each
+// event selects its own programme; the declaration is a self-description.
+const POWERLIFTING = "powerlifting";
+const COMPETITION_EVENT_OPTIONS: [string, string, string][] = [
+  ["full_power", "Full power", "Squat, bench press and deadlift."],
+  ["bench_only", "Bench only", "Bench press is your only competition lift."],
+  ["deadlift_only", "Deadlift only", "Deadlift is your only competition lift."],
+  ["push_pull", "Push-pull", "Bench press and deadlift."],
+  ["squat_only", "Squat only", "Squat is your only competition lift."]
+];
+function competitionEventLabel(event: unknown): string {
+  return COMPETITION_EVENT_OPTIONS.find(([value]) => value === event)?.[1] ?? "Not declared";
+}
+
 function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRecord; onChange: (fields: JsonRecord) => void }) {
   if (stage === "activity") {
     const activityId = String(draft.activity_id ?? "");
@@ -144,7 +161,7 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
         <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
         <ActivityCategoryFilter
           value={activityId}
-          onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined })}
+          onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined, competition_event: undefined })}
           sportLabel="Activity (optional)"
           allowEmptySport
         />
@@ -231,6 +248,17 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
             <span><strong>{title}</strong><small>{detail}</small></span>
           </label>
         ))}
+        {draft.activity_id === POWERLIFTING ? (
+          <div role="radiogroup" aria-label="Competition event">
+            <p><strong>Competition event</strong> - which lifts do you compete in? Your programme is built around them.</p>
+            {COMPETITION_EVENT_OPTIONS.map(([value, title, detail]) => (
+              <label className="onboarding-choice" key={value}>
+                <input type="radio" name="competition_event" value={value} checked={draft.competition_event === value} onChange={() => onChange({ ...draft, competition_event: value })} />
+                <span><strong>{title}</strong><small>{detail}</small></span>
+              </label>
+            ))}
+          </div>
+        ) : null}
       </>
     );
   }
@@ -324,6 +352,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
   );
   const [position, setPosition] = useState(() => String(fields.position ?? ""));
   const [level, setLevel] = useState(() => String(fields.experience_level ?? ""));
+  const [competitionEvent, setCompetitionEvent] = useState(() => String(fields.competition_event ?? ""));
   const activityId = String(fields.activity_id ?? "");
 
   function handleSubmit(event: React.FormEvent) {
@@ -335,14 +364,15 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
       // fails validateAthletePosition (position, unlike training_focus, is
       // never a valid "cleared" empty state) and would block the whole save.
       ...(activityId && position ? { position } : {}),
-      ...(level ? { experience_level: level } : {})
+      ...(level ? { experience_level: level } : {}),
+      ...(activityId === POWERLIFTING && competitionEvent ? { competition_event: competitionEvent } : {})
     });
   }
 
   return (
     <form className="onboarding-card" onSubmit={handleSubmit}>
       <h3>Edit preferences</h3>
-      <p>Only training level, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <p>Only training level, competition event, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
       <label className="field">
         <span>Training level</span>
         <select value={level} onChange={(event) => setLevel(event.target.value)}>
@@ -350,6 +380,15 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
           {EXPERIENCE_LEVEL_OPTIONS.map(([value, title]) => <option key={value} value={value}>{title}</option>)}
         </select>
       </label>
+      {activityId === POWERLIFTING ? (
+        <label className="field">
+          <span>Competition event</span>
+          <select value={competitionEvent} onChange={(event) => setCompetitionEvent(event.target.value)}>
+            {competitionEvent ? null : <option value="">Choose your event</option>}
+            {COMPETITION_EVENT_OPTIONS.map(([value, title]) => <option key={value} value={value}>{title}</option>)}
+          </select>
+        </label>
+      ) : null}
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
         <span>Instruction density</span>
@@ -582,6 +621,9 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {fields.experience_level ? null : (
         <p className="onboarding-boundary" role="status">Choose your training level in Edit preferences - it sets your programme and is required before your next session.</p>
       )}
+      {fields.activity_id === POWERLIFTING && !fields.competition_event ? (
+        <p className="onboarding-boundary" role="status">Choose your competition event in Edit preferences - it sets your powerlifting programme and is required before your next session.</p>
+      ) : null}
       {validationError ? <ValidationErrors error={validationError} /> : null}
       <article className="onboarding-card" data-declaration-status="current">
         <p className="eyebrow">Current declaration</p>

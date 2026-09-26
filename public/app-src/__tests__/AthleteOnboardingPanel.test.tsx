@@ -255,6 +255,102 @@ test("the training-level stage saves the chosen level with the draft", async () 
   assert.ok(screen.getByText("Execution-scope declaration"));
 });
 
+test("a powerlifter chooses a competition event on the training-level stage, saved with the draft", async () => {
+  let savedFields: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: draftState({ current_stage: "experience_level", draft: { fields: { activity_id: "powerlifting" } } }),
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({ current_stage: body.current_stage, draft: { fields: body.fields }, saved_draft_state: true, saved_draft_at_iso8601: "2026-09-25T00:00:00.000Z" });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training level");
+  assert.ok(screen.getByRole("radiogroup", { name: "Competition event" }));
+  for (const label of ["Full power", "Bench only", "Deadlift only", "Push-pull", "Squat only"]) assert.ok(screen.getByText(label));
+
+  await act(async () => {
+    fireEvent.click(screen.getByLabelText(/^Amateur/));
+    fireEvent.click(screen.getByLabelText(/^Bench only/));
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save and continue"));
+  });
+
+  await screen.findByText("Draft saved");
+  assert.equal((savedFields ?? {}).experience_level, "amateur");
+  assert.equal((savedFields ?? {}).competition_event, "bench_only");
+});
+
+test("athletes in other sports are never asked for a competition event", async () => {
+  installMocks({ initialState: draftState({ current_stage: "experience_level", draft: { fields: { activity_id: "rugby_union" } } }) });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training level");
+  assert.equal(screen.queryByRole("radiogroup", { name: "Competition event" }), null);
+  assert.equal(screen.queryByText("Bench only"), null);
+});
+
+test("a powerlifter without an event is prompted, and can set and later change it in Edit preferences", async () => {
+  const fields = {
+    activity_id: "powerlifting",
+    experience_level: "pro",
+    accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+    instruction_density: "standard"
+  };
+  const posted: Record<string, unknown>[] = [];
+  installMocks({
+    initialState: completedState(fields),
+    onPreferences: (body) => {
+      posted.push(body);
+      return completedState({ ...fields, competition_event: body.competition_event });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Current effective declaration");
+  assert.ok(screen.getByText(/Choose your competition event in Edit preferences/));
+  assert.ok(screen.getByText("Competition event"));
+  assert.ok(screen.getByText("Not declared"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Edit preferences"));
+  });
+  await screen.findByText("Edit preferences", { selector: "h3" });
+  fireEvent.change(screen.getByLabelText("Competition event"), { target: { value: "push_pull" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save new declaration"));
+  });
+
+  await waitFor(() => assert.equal(posted.length, 1));
+  assert.equal(posted[0].competition_event, "push_pull");
+  assert.equal(posted[0].experience_level, "pro");
+  await screen.findByText("Push-pull");
+  assert.equal(screen.queryByText(/Choose your competition event in Edit preferences/), null);
+});
+
+test("a non-powerlifter's preferences never show or send a competition event", async () => {
+  const fields = {
+    activity_id: "general_strength",
+    experience_level: "amateur",
+    accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+    instruction_density: "standard"
+  };
+  const posted: Record<string, unknown>[] = [];
+  installMocks({ initialState: completedState(fields), onPreferences: (body) => { posted.push(body); return completedState(fields); } });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Current effective declaration");
+  assert.equal(screen.queryByText("Competition event"), null);
+  await act(async () => {
+    fireEvent.click(screen.getByText("Edit preferences"));
+  });
+  await screen.findByText("Edit preferences", { selector: "h3" });
+  assert.equal(screen.queryByLabelText("Competition event"), null);
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save new declaration"));
+  });
+  await waitFor(() => assert.equal(posted.length, 1));
+  assert.equal(Object.prototype.hasOwnProperty.call(posted[0], "competition_event"), false);
+});
+
 test("continuing past the accessibility stage without touching any checkbox saves an explicit no-preferences default, not a validation error", async () => {
   let savedFields: Record<string, unknown> | undefined;
   installMocks({

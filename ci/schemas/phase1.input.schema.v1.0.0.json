@@ -163,6 +163,16 @@
         "pro"
       ]
     },
+    "competition_event": {
+      "type": "string",
+      "enum": [
+        "full_power",
+        "bench_only",
+        "deadlift_only",
+        "push_pull",
+        "squat_only"
+      ]
+    },
     "nd_mode": {
       "type": "boolean"
     },

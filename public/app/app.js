@@ -1285,6 +1285,17 @@ async function createSession() {
     return;
   }
 
+  // Powerlifters also declare their competition event, which selects the
+  // programme (full power, bench only, deadlift only, push-pull, squat only).
+  if (state.phase1Input?.activity_id === "powerlifting" && !state.phase1Input?.competition_event) {
+    showNotice(
+      "Choose your competition event (Full power, Bench only, Deadlift only, Push-pull or Squat only) in Edit preferences before starting a session.",
+      "error"
+    );
+    document.getElementById("athleteOnboardingNav")?.click();
+    return;
+  }
+
   showBusy("Creating session…");
 
   try {
