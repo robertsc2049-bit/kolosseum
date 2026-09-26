@@ -9,6 +9,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { CoachOnboardingPanel } from "../screens/coach/CoachOnboardingPanel";
+import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../screens/entry/useEntryAuth";
 
 // Each save/complete handler awaits a CSRF fetch, the mutation, then several
 // state updates, so the confirmation can land after the wrapping act() returns.
@@ -206,6 +207,36 @@ test("saving accessibility preferences moves to the review stage and shows a con
 
   await screen.findByText("Accessibility preferences saved.", undefined, SETTLE_TIMEOUT);
   assert.ok(screen.getByText("Confirm coach onboarding"));
+});
+
+test("ticked accessibility preferences survive the panel re-rendering before they are saved", async () => {
+  // The form used to reset to the saved preferences on every panel render
+  // (a new preferences object each time), silently discarding unsaved ticks
+  // - the cause of the intermittent failure of the test below.
+  const saved: Record<string, unknown>[] = [];
+  installMocks({
+    initialState: baseState({ current_stage: "accessibility", terms_accepted: true }),
+    onSaveAccessibility: (body) => {
+      saved.push(body);
+      return baseState({ current_stage: "review", terms_accepted: true, accessibility_preferences: body.accessibility_preferences });
+    }
+  });
+  render(<CoachOnboardingPanel />);
+  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+
+  fireEvent.click(screen.getByText("Reduce motion"));
+  // Anything that re-renders the panel - here a background refetch.
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent(ENTRY_AUTH_SUCCEEDED_EVENT));
+  });
+  await screen.findByText("Presentation preferences", undefined, SETTLE_TIMEOUT);
+  fireEvent.click(screen.getByText("Screen-reader optimised"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save accessibility preferences"));
+  });
+
+  await screen.findByText("Accessibility preferences saved.", undefined, SETTLE_TIMEOUT);
+  assert.deepEqual(saved[0]?.accessibility_preferences, { reduced_motion: true, high_contrast: false, larger_text: false, screen_reader_optimised: true });
 });
 
 test("declared accessibility preferences are actually applied to the page immediately after saving", async () => {

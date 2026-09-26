@@ -113,9 +113,14 @@ function AccessibilityForm({ preferences, busy, onSave }: {
 }) {
   const [value, setValue] = useState(preferences);
 
+  // Re-sync only when the saved preferences actually change. The parent
+  // builds a new preferences object on every render, so depending on the
+  // object itself reset the form - silently discarding the coach's unsaved
+  // ticks - whenever anything re-rendered the panel before they saved.
   useEffect(() => {
     setValue(preferences);
-  }, [preferences]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferences.reduced_motion, preferences.high_contrast, preferences.larger_text, preferences.screen_reader_optimised]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
