@@ -14,9 +14,12 @@
  const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
  const distHandlerUrl = new URL("../dist/src/api/blocks.handlers.js", import.meta.url).href;
 
- // The API imports the engine's periodisation vocabulary through the phase-4
-// entry; the phase-4 mock keeps those real exports alongside its stub.
-const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4/periodisation.js", import.meta.url).href)) };
+ // The API imports more than phase4AssembleProgram through the phase-4 entry
+// (periodisation vocabulary, programme slot listing); the phase-4 mock keeps
+// every real export alongside its stub.
+const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4.js", import.meta.url).href)) };
+delete PERIODISATION_EXPORTS.phase4AssembleProgram;
+delete PERIODISATION_EXPORTS.default;
 
 mock.module(distPoolUrl, {
    namedExports: {

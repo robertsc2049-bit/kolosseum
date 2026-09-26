@@ -22,9 +22,12 @@ const PHASE6_SPEC = "@kolosseum/engine/phases/phase6.js";
 const SESSION_SUMMARY_SPEC = "@kolosseum/engine/runtime/session_summary.js";
 const APPLY_RUNTIME_EVENT_SPEC = "@kolosseum/engine/runtime/apply_runtime_event.js";
 
-// The API imports the engine's periodisation vocabulary through the phase-4
-// entry; the phase-4 mock keeps those real exports alongside its stub.
-const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4/periodisation.js", import.meta.url).href)) };
+// The API imports more than phase4AssembleProgram through the phase-4 entry
+// (periodisation vocabulary, programme slot listing); the phase-4 mock keeps
+// every real export alongside its stub.
+const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4.js", import.meta.url).href)) };
+delete PERIODISATION_EXPORTS.phase4AssembleProgram;
+delete PERIODISATION_EXPORTS.default;
 
 function makeReq({ body = undefined, query = {}, headers = {} } = {}) {
   return {
