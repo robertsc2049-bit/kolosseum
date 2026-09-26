@@ -22,7 +22,7 @@ export const REQUIRED_MOVEMENTS = Object.freeze([
   "rotation", "locomotion_walk", "locomotion_run", "locomotion_crawl", "jump_vertical",
   "jump_horizontal", "sprint_acceleration", "sprint_max_velocity", "deceleration",
   "change_of_direction", "throw_slam", "conditioning_cyclical", "conditioning_row",
-  "conditioning_sled"
+  "conditioning_sled", "neck_isometric"
 ]);
 export const FORBIDDEN_MOVEMENT_ALIASES = Object.freeze([
   "carry", "lunge_split_stance", "brace", "jump_land", "deceleration_change_of_direction",
@@ -53,7 +53,7 @@ export function auditRegFull02(root) {
   const movementIds = Object.keys(movementEntries);
 
   if (!sameSet(activityIds, REQUIRED_ACTIVITIES)) fail("ACTIVITY_SET", activityIds);
-  if (!sameSet(movementIds, REQUIRED_MOVEMENTS)) fail("MOVEMENT_SET", `${movementIds.length}/54`);
+  if (!sameSet(movementIds, REQUIRED_MOVEMENTS)) fail("MOVEMENT_SET", `${movementIds.length}/55`);
   for (const alias of FORBIDDEN_MOVEMENT_ALIASES) {
     if (Object.prototype.hasOwnProperty.call(movementEntries, alias)) fail("FORBIDDEN_MOVEMENT_ALIAS", alias);
   }
@@ -64,7 +64,7 @@ export function auditRegFull02(root) {
     if (!isObject(row)) { fail("ACTIVITY_ROW_MISSING", activityId); continue; }
     if (row.activity_id !== activityId) fail("ACTIVITY_PRIMARY_KEY", activityId);
     const allowed = Array.isArray(row.allowed_movement_patterns) ? row.allowed_movement_patterns : [];
-    if (!sameSet(allowed, REQUIRED_MOVEMENTS)) fail("ACTIVITY_ALLOWED_MOVEMENTS", `${activityId}:${allowed.length}/54`);
+    if (!sameSet(allowed, REQUIRED_MOVEMENTS)) fail("ACTIVITY_ALLOWED_MOVEMENTS", `${activityId}:${allowed.length}/55`);
     else activityToMovement += allowed.length;
   }
 
@@ -94,7 +94,7 @@ export function auditRegFull02(root) {
     movement_to_activity_permissions: movementToActivity
   };
   const expectedPermissions = REQUIRED_ACTIVITIES.length * REQUIRED_MOVEMENTS.length;
-  if (summary.activity_count !== REQUIRED_ACTIVITIES.length || summary.movement_count !== 54 || activityToMovement !== expectedPermissions || movementToActivity !== expectedPermissions) {
+  if (summary.activity_count !== REQUIRED_ACTIVITIES.length || summary.movement_count !== 55 || activityToMovement !== expectedPermissions || movementToActivity !== expectedPermissions) {
     fail("SUMMARY_COUNTS", JSON.stringify(summary));
   }
   return { ok: errors.length === 0, errors, summary };
