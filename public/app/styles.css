@@ -3985,3 +3985,9 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .set-log-field input { width: 4.5rem; min-height: 44px; font-size: 1rem; }
 .set-log-row .field-error { flex-basis: 100%; margin: 0; color: var(--danger, #b3261e); font-size: 0.875rem; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Choosing programme exercises: one fieldset per training day. */
+.programme-day { border: 1px solid var(--border, #d0d7de); border-radius: 8px; padding: 8px 12px; margin: 10px 0; }
+.programme-day-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.programme-item.fixed { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.programme-item select { min-height: 44px; max-width: 100%; }

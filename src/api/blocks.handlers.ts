@@ -13,6 +13,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
+import { getAthleteExerciseSelections } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
 import { phase4AssembleProgram } from "@kolosseum/engine/phases/phase4.js";
@@ -331,7 +332,10 @@ export async function compileBlock(req: Request, res: Response) {
     if (!training_cycle) {
       throw badRequest("training_plan_required", { failure_token: "training_plan_required" });
     }
-    phase1ForCompile = { ...body.phase1_input, training_cycle };
+    // The athlete's own exercise for each open slot; the engine refuses the
+    // session if today's slots are not all chosen (never a default).
+    const exercise_selections = await getAthleteExerciseSelections(beta_individual_subject_user_id);
+    phase1ForCompile = { ...body.phase1_input, training_cycle, exercise_selections };
   }
 
   const p1 = phase1Validate(phase1ForCompile);

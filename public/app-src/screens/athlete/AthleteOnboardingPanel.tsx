@@ -19,6 +19,7 @@ import {
 import { titleCase } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
+import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported field-for-field from public/app/athlete_onboarding_ui.js's
@@ -661,6 +662,8 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         </div>
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
+      {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
+      <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <PositionChangeCard api={api} />
       <article className="onboarding-card">

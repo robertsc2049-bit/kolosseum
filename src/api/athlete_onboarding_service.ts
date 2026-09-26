@@ -2,7 +2,9 @@
 // Records are explicit user declarations. No ability, safety, readiness,
 // suitability, risk or recommendation is inferred here.
 
-import { cycleModelFor } from "@kolosseum/engine/phases/phase4.js";
+import { cycleModelFor, describeProgrammeSlots, type SlotListing } from "@kolosseum/engine/phases/phase4.js";
+import fs from "node:fs";
+import path from "node:path";
 import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 import { pool } from "../db/pool.js";
@@ -100,6 +102,9 @@ const INFERENCE_KEYS = new Set([
   "recommendation", "clearance", "fitness_to_train"
 ]);
 const DRAFT_EVENT = "athlete_onboarding_draft_saved";
+// The athlete's own exercise for each open slot of their programme (the
+// latest saved map wins; it is athlete-declared, never engine-inferred).
+const EXERCISE_SELECTIONS_EVENT = "athlete_exercise_selections_saved";
 const DECLARATION_EVENT = "athlete_declaration_confirmed";
 const BETA_VERSION = "september_beta_2026";
 const JURISDICTION_VERSION = "jurisdiction_v1";
@@ -877,6 +882,143 @@ export async function getAthleteTrainingPlan(userId: string): Promise<Readonly<{
       plan_started_on: started.slice(0, 10)
     });
   }
+  finally { client.release(); }
+}
+
+// --- Programme exercise choices ---
+
+let exerciseLabels: Map<string, string> | null = null;
+function exerciseLabel(exerciseId: string): string {
+  if (!exerciseLabels) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+    exerciseLabels = new Map(Object.values(record(doc?.entries) ? doc.entries : {})
+      .filter(record)
+      .map((entry: Json) => [text(entry.exercise_id), text(entry.display_label) || text(entry.exercise_id)] as [string, string]));
+  }
+  return exerciseLabels.get(exerciseId) ?? exerciseId;
+}
+
+async function latestExerciseSelections(client: QueryClient, userId: string): Promise<Record<string, string>> {
+  const result = await client.query(
+    `SELECT event_payload FROM product_account_events
+     WHERE user_id = $1 AND event_type = $2
+     ORDER BY occurred_at DESC, event_id DESC LIMIT 1`,
+    [userId, EXERCISE_SELECTIONS_EVENT]
+  );
+  const payload = result.rows?.[0]?.event_payload;
+  const selections = record(payload) && record(payload.selections) ? payload.selections : {};
+  return Object.fromEntries(Object.entries(selections).filter(([k, v]) => typeof k === "string" && typeof v === "string")) as Record<string, string>;
+}
+
+// The athlete's programme as it stands today (sport, level, event, training
+// days), or null before they have declared a sport.
+function programmeSlotsFor(declared: Fields): SlotListing[] | null {
+  if (!declared.activity_id) return null;
+  return describeProgrammeSlots({
+    activity_id: declared.activity_id,
+    experience_level: declared.experience_level,
+    competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
+    days_per_week: declared.training_days_per_week
+  });
+}
+
+async function currentDeclaredFields(client: QueryClient, userId: string): Promise<Fields | null> {
+  const existing = state(await events(client, userId));
+  const current = record(existing.current_effective_declaration) ? existing.current_effective_declaration : null;
+  return current && record(current.fields) ? validateCompleteAthleteDeclaration(current.fields) : null;
+}
+
+// Only choices that still fit the athlete's current programme count: a slot
+// that no longer exists (a new sport, level, event or week) or a choice that
+// is no longer eligible (e.g. a new level) must be chosen again.
+function projectExerciseChoices(days: SlotListing[], saved: Record<string, string>): Readonly<Json> {
+  const selections: Record<string, string> = {};
+  const missing: string[] = [];
+  let open = 0;
+  const outDays = days.map((day) => ({
+    day_id: day.day_id,
+    focus: day.focus,
+    items: day.items.map((item) => {
+      if (item.kind === "fixed") {
+        return { kind: "fixed", exercise_id: item.exercise_id, display_name: exerciseLabel(item.exercise_id), prescription: item.prescription };
+      }
+      open++;
+      const choice = saved[item.slot_id];
+      const valid = typeof choice === "string" && item.eligible_exercise_ids.includes(choice);
+      if (valid) selections[item.slot_id] = choice;
+      else missing.push(item.slot_id);
+      return {
+        kind: "slot",
+        slot_id: item.slot_id,
+        movement_pattern_id: item.movement_pattern_id,
+        explosive: item.explosive,
+        prescription: item.prescription,
+        selected_exercise_id: valid ? choice : null,
+        options: item.eligible_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id) }))
+      };
+    })
+  }));
+  return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0 });
+}
+
+export async function getAthleteProgrammeExercises(userId: string): Promise<Readonly<Json>> {
+  const client = await pool.connect();
+  try {
+    const declared = await currentDeclaredFields(client, userId);
+    const days = declared ? programmeSlotsFor(declared) : null;
+    if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, await latestExerciseSelections(client, userId)) });
+  }
+  finally { client.release(); }
+}
+
+// Save the athlete's choices (the whole map; partial progress is allowed).
+// Every key must be an open slot of their current programme and every value
+// one of that slot's eligible exercises, never the same exercise twice in a day.
+export async function saveAthleteProgrammeExercises(userId: string, input: unknown): Promise<Readonly<Json>> {
+  if (!record(input)) throw new AthleteOnboardingError("athlete_exercise_selections_invalid", 422);
+  for (const key of Object.keys(input)) if (key !== "selections") fail(key, "Only exercise selections can be saved here.");
+  if (!record(input.selections)) fail("selections", "Choose an exercise for each slot.");
+  const incoming = input.selections as Json;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await account(client, userId, true);
+    const declared = await currentDeclaredFields(client, userId);
+    const days = declared ? programmeSlotsFor(declared) : null;
+    if (!declared || !days) throw new AthleteOnboardingError("athlete_programme_not_declared", 409);
+    const slots = new Map<string, { day: string; eligible: string[] }>();
+    for (const day of days) for (const item of day.items) if (item.kind === "slot") slots.set(item.slot_id, { day: day.day_id, eligible: item.eligible_exercise_ids });
+    const clean: Record<string, string> = {};
+    const usedByDay = new Map<string, Set<string>>();
+    for (const day of days) usedByDay.set(day.day_id, new Set(day.items.filter((i) => i.kind === "fixed").map((i) => (i as { exercise_id: string }).exercise_id)));
+    for (const [slotId, value] of Object.entries(incoming)) {
+      const slot = slots.get(slotId);
+      if (!slot) fail(slotId, "This slot is not part of your current programme.");
+      const exerciseId = text(value);
+      if (!(slot as { eligible: string[] }).eligible.includes(exerciseId)) fail(slotId, "Choose one of the exercises offered for this slot.");
+      const used = usedByDay.get((slot as { day: string }).day) as Set<string>;
+      if (used.has(exerciseId)) fail(slotId, "This exercise is already in that session - choose a different one.");
+      used.add(exerciseId);
+      clean[slotId] = exerciseId;
+    }
+    const at = new Date().toISOString();
+    await append(client, userId, EXERCISE_SELECTIONS_EVENT, { selections: clean, saved_at_iso8601: at, schema_version: "exercise_selections_v1" }, at);
+    await client.query("COMMIT");
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, clean) });
+  }
+  catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  }
+  finally { client.release(); }
+}
+
+// The athlete's saved choices for the engine (the engine validates the
+// session's own slots and refuses an empty or ineligible one).
+export async function getAthleteExerciseSelections(userId: string): Promise<Record<string, string>> {
+  const client = await pool.connect();
+  try { return await latestExerciseSelections(client, userId); }
   finally { client.release(); }
 }
 

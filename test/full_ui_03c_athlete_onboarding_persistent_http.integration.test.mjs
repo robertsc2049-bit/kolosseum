@@ -163,6 +163,27 @@ async function withClient(databaseUrl, operation) {
   finally { await client.end(); }
 }
 
+// Choose the athlete's own exercise for every open slot of their week (the
+// first eligible one not already in that day), as they would in the app.
+async function chooseAllExercises(baseUrl, cookie, csrf, pick = (options) => options[0]) {
+  const listing = await requestJson(baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+  assertStatus(listing, 200, "load programme exercises");
+  const selections = {};
+  for (const day of listing.json.days) {
+    const used = new Set(day.items.filter((i) => i.kind === "fixed").map((i) => i.exercise_id));
+    for (const item of day.items.filter((i) => i.kind === "slot")) {
+      const options = item.options.map((o) => o.exercise_id).filter((id) => !used.has(id));
+      const choice = pick(options);
+      used.add(choice);
+      selections[item.slot_id] = choice;
+    }
+  }
+  const saved = await requestJson(baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf, body: { selections } });
+  assertStatus(saved, 200, "save programme exercises");
+  assert.equal(saved.json.complete, true);
+  return { listing: listing.json, selections };
+}
+
 async function cleanup(databaseUrl, userId) {
   if (!userId) return;
   await withClient(databaseUrl, async (client) => {
@@ -689,6 +710,13 @@ test(
       });
     };
 
+    // A session never starts with an empty slot: the athlete chooses first.
+    const unchosen = await compile();
+    assertStatus(unchosen, 400, "no session before exercises are chosen");
+    assert.equal(unchosen.json?.details?.failure_token, "exercise_selection_required");
+    assert.ok(unchosen.json.details.details.missing_slot_ids.length > 0);
+    const { selections: chosen } = await chooseAllExercises(server.baseUrl, cookie, csrf);
+
     const sessions = [];
     for (let i = 0; i < 4; i++) {
       const created = await compile();
@@ -709,6 +737,9 @@ test(
     assert.equal(focus[3], focus[0]);
     const ids = sessions.map((s) => s.planned_session.exercises.map((e) => e.exercise_id).join(","));
     assert.equal(new Set(ids.slice(0, 3)).size, 3, "three different sessions in the week");
+    // Every exercise in the sessions is the athlete's own choice (rugby names nothing).
+    const chosenIds = new Set(Object.values(chosen));
+    for (const s of sessions) for (const e of s.planned_session.exercises) assert.ok(chosenIds.has(e.exercise_id), `${e.exercise_id} was chosen by the athlete`);
 
     // The session state the athlete trains from carries the same plan position.
     const state = await requestJson(server.baseUrl, "GET", `/sessions/${sessions[1].session_id}/state`, { cookie });
@@ -744,5 +775,113 @@ test(
       cookie, csrf,
       body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", training_days_per_week: 5, competition_date: day(40) }
     }), 422, "a team athlete cannot plan to a competition date");
+  }
+);
+
+test(
+  "FULL-UI-03C a self-directed athlete chooses their own exercises; only competition lifts are named, and nothing is chosen for them",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Choosing Powerlifter", email: `choosing-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 3, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+
+    const listing = await requestJson(server.baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+    assertStatus(listing, 200, "programme exercises");
+    assert.equal(listing.json.status, "ok");
+    assert.equal(listing.json.complete, false);
+    const days = listing.json.days;
+    assert.deepEqual(days.map((d) => d.day_id), ["squat", "bench", "deadlift"]);
+    const fixed = days.flatMap((d) => d.items.filter((i) => i.kind === "fixed").map((i) => i.exercise_id));
+    for (const lift of ["back_squat", "paused_bench_press", "deadlift"]) assert.ok(fixed.includes(lift), `${lift} is named`);
+    const slots = days.flatMap((d) => d.items.filter((i) => i.kind === "slot").map((i) => ({ ...i, day: d.day_id })));
+    assert.ok(slots.length >= 10, "everything else is the athlete's to choose");
+    assert.ok(slots.every((slot) => slot.selected_exercise_id === null), "nothing is chosen for them");
+    assert.ok(slots.every((slot) => slot.options.length > 0 && slot.options.every((o) => o.display_name)), "every slot offers named options");
+    assert.equal(listing.json.missing_slot_ids.length, slots.length);
+
+    const squatSlot = slots.find((slot) => slot.day === "squat" && slot.movement_pattern_id === "squat");
+    const put = (selections) => requestJson(server.baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf, body: { selections } });
+    for (const [selections, label] of [
+      [{ "squat.made_up_1": "front_squat" }, "a slot that is not in the programme"],
+      [{ [squatSlot.slot_id]: "bench_press" }, "an exercise that does not train the slot"],
+      [{ [squatSlot.slot_id]: "back_squat" }, "the day's named lift again"]
+    ]) {
+      const refused = await put(selections);
+      assertStatus(refused, 422, `refuse ${label}`);
+      assert.ok(Object.keys(refused.json.field_errors ?? {}).length === 1, label);
+    }
+
+    // Partial progress saves, and the session names exactly what is still empty.
+    const partial = await put({ [squatSlot.slot_id]: "front_squat" });
+    assertStatus(partial, 200, "save one choice");
+    assert.equal(partial.json.complete, false);
+    assert.equal(partial.json.selections[squatSlot.slot_id], "front_squat");
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: detail.json.bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: detail.json.bootstrap.auth_record, acknowledgement_record: detail.json.bootstrap.acknowledgement_record, declaration_record: detail.json.bootstrap.declaration_record }
+      }
+    });
+    const refused = await compile();
+    assertStatus(refused, 400, "no session with empty slots");
+    assert.equal(refused.json.details.failure_token, "exercise_selection_required");
+    const squatDayMissing = slots.filter((slot) => slot.day === "squat" && slot.slot_id !== squatSlot.slot_id).map((slot) => slot.slot_id);
+    assert.deepEqual(refused.json.details.details.missing_slot_ids, squatDayMissing, "names the squat day's empty slots only");
+
+    // Choose everything: the session is the named lifts plus her own choices.
+    const pick = (options) => options[options.length - 1];
+    const { selections } = await chooseAllExercises(server.baseUrl, cookie, csrf, pick);
+    const created = await compile();
+    assertStatus(created, 201, "session with every slot chosen");
+    const squatDay = days.find((d) => d.day_id === "squat");
+    assert.deepEqual(created.json.planned_session.exercises.map((e) => e.exercise_id),
+      squatDay.items.map((i) => (i.kind === "fixed" ? i.exercise_id : selections[i.slot_id])));
+
+    // Becoming a beginner re-opens only the choices that are no longer suitable.
+    const prefs = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf, body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", experience_level: "beginner" }
+    });
+    assertStatus(prefs, 200, "change to beginner");
+    const after = await requestJson(server.baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+    for (const day of after.json.days) {
+      for (const item of day.items.filter((i) => i.kind === "slot")) {
+        if (item.selected_exercise_id) assert.ok(item.options.some((o) => o.exercise_id === item.selected_exercise_id), `${item.slot_id} keeps only a still-eligible choice`);
+      }
+    }
+    assert.deepEqual(after.json.missing_slot_ids, after.json.days.flatMap((d) => d.items.filter((i) => i.kind === "slot" && !i.selected_exercise_id).map((i) => i.slot_id)));
   }
 );
