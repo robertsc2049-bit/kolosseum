@@ -2,6 +2,7 @@
 // The base entry is the amateur session. Strength sports are hand-tuned; the
 // other activities use explicit coaching rules (documented below). Run from repo root.
 import fs from "node:fs";
+import { EVENT_MICROCYCLES, MICROCYCLES } from "./program_microcycles.mjs";
 
 const R = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const prog = R("registries/program/program.registry.json");
@@ -29,6 +30,11 @@ const BEGINNER_SWAPS = {
 };
 // Landing drills are low-rep quality work.
 const LANDING_DOSE = P(3, 5, bw, 60);
+// Olympic lifts are technique-limited: a beginner learns them in doubles and
+// triples, never in fives or eights (fatigue breaks the technique first).
+const OLYMPIC_LIFT = /^(snatch|power_snatch|hang_snatch|power_clean|hang_clean|hang_power_clean|clean|clean_and_jerk|push_jerk|split_jerk|jerk)$/;
+const BEGINNER_OLYMPIC_MAX_REPS = 3;
+const beginnerReps = (id, reps, floor) => OLYMPIC_LIFT.test(id) ? Math.min(reps, BEGINNER_OLYMPIC_MAX_REPS) : Math.max(reps, floor);
 
 // Hand-tuned strength sports: level matters most here, and generic regressions
 // would be wrong (a beginner powerlifter still learns the competition lifts).
@@ -146,10 +152,11 @@ function beginnerOf(entry) {
     if (!q.group) q.sets = Math.max(2, q.sets - 1);
     if (q.intensity.type === "percent_1rm") {
       q.intensity = rpe(6);
-      if (q.reps < 6) q.reps = 8;
+      q.reps = q.reps < 6 ? beginnerReps(target, q.reps, 8) : beginnerReps(target, q.reps, q.reps);
     } else if (q.intensity.type === "rpe" && q.intensity.value > 7) {
       q.intensity = rpe(7);
     }
+    if (OLYMPIC_LIFT.test(target)) q.reps = Math.min(q.reps, BEGINNER_OLYMPIC_MAX_REPS);
     out.push([target, q]);
   });
   return out;
@@ -172,6 +179,91 @@ function proOf(entry) {
 }
 
 const variant = (items) => ({ exercise_eligibility: items.map(([id]) => id), item_prescriptions: items.map(([, p]) => p) });
+
+// --- Microcycles (training weeks) ---
+// "<id> <sets>x<reps|Nm|Ns> @<N%|rpeN|bw> r<rest> [g=<id>:<type>:<cap>]" -> [id, prescription]
+function parseItem(text) {
+  const m = /^([a-z0-9_]+) (\d+)x(\d+)(m|s)? @(\d+(?:\.\d+)?%|rpe\d+|bw) r(\d+)(?: g=([a-z0-9_]+):([a-z_]+):(\d+))?$/.exec(text);
+  if (!m) throw new Error(`bad microcycle item: ${text}`);
+  const [, id, sets, dose, unit, inten, rest, gid, gtype, cap] = m;
+  const intensity = inten === "bw" ? bw : inten.startsWith("rpe") ? rpe(Number(inten.slice(3))) : pct(Number(inten.slice(0, -1)));
+  const q = P(Number(sets), unit ? 1 : Number(dose), intensity, Number(rest));
+  if (unit === "m") q.distance_m = Number(dose);
+  if (unit === "s") q.duration_seconds = Number(dose);
+  if (gid) q.group = { group_id: gid, group_type: gtype, time_cap_seconds: Number(cap) };
+  return [id, q];
+}
+const parseDays = (days) => days.map(([day_id, focus, items]) => ({ day_id, focus, items: items.map(parseItem) }));
+const dayOut = (d) => ({ day_id: d.day_id, focus: d.focus, ...variant(d.items) });
+
+// Strength sports keep their competition lifts at every level (a beginner
+// powerlifter still learns to squat, bench and deadlift):
+// beginner - assisted pulling/nordic swaps only; % 1RM becomes RPE 6 with at
+//   least 5 reps; one fewer set (min 2); RPE capped at 7.
+// pro - primaries +1 set (max 6), % 1RM +5 (max 90), RPE +1 (max 9).
+const STRENGTH = new Set(["powerlifting", "olympic_weightlifting", "strongman", "street_lifting"]);
+function strengthBeginner(items, activity) {
+  const used = new Set();
+  return items.map(([id, p]) => {
+    const swap = BEGINNER_SWAPS[id];
+    if (swap && allowed(swap[0], activity) && !used.has(swap[0]) && !items.some(([x]) => x === swap[0])) {
+      used.add(swap[0]);
+      return [swap[0], swap[1] ?? { ...JSON.parse(JSON.stringify(p)), intensity: rpe(7) }];
+    }
+    used.add(id);
+    const q = JSON.parse(JSON.stringify(p));
+    if (!q.group) q.sets = Math.max(2, q.sets - 1);
+    if (q.intensity.type === "percent_1rm") {
+      q.intensity = rpe(6);
+      if (!q.distance_m && !q.duration_seconds) q.reps = beginnerReps(id, q.reps, 5);
+    } else if (q.intensity.type === "rpe" && q.intensity.value > 7) q.intensity = rpe(7);
+    if (OLYMPIC_LIFT.test(id) && !q.group) q.reps = Math.min(q.reps, BEGINNER_OLYMPIC_MAX_REPS);
+    return [id, q];
+  });
+}
+function strengthPro(items) {
+  return items.map(([id, p], i) => {
+    const q = JSON.parse(JSON.stringify(p));
+    if (i < 4 && !q.group) {
+      q.sets = Math.min(6, q.sets + 1);
+      if (q.intensity.type === "percent_1rm") q.intensity = pct(Math.min(90, q.intensity.value + 5));
+      else if (q.intensity.type === "rpe") q.intensity = rpe(Math.min(9, q.intensity.value + 1));
+    }
+    return [id, q];
+  });
+}
+// Other sports reuse the session rules above, applied day by day.
+const asEntry = (activity, items) => ({ activity_id: activity, ...variant(items) });
+function weekForLevels(activity, days) {
+  const level = (fn) => days.map((d) => ({ ...d, items: fn(d.items) }));
+  if (STRENGTH.has(activity)) {
+    return { amateur: days, beginner: level((items) => strengthBeginner(items, activity)), pro: level(strengthPro) };
+  }
+  return {
+    amateur: days,
+    beginner: level((items) => beginnerOf(asEntry(activity, items))),
+    pro: level((items) => proOf(asEntry(activity, items)))
+  };
+}
+function checkWeek(label, activity, week) {
+  for (const [lvl, days] of Object.entries(week)) {
+    for (const d of days) {
+      const ids = d.items.map(([id]) => id);
+      if (new Set(ids).size !== ids.length) throw new Error(`${label}/${lvl}/${d.day_id}: duplicate exercise`);
+      for (const id of ids) if (!ex[id]) throw new Error(`${label}/${lvl}/${d.day_id}: unknown exercise ${id}`);
+      for (const id of ids) if (!allowed(id, activity)) throw new Error(`${label}/${lvl}/${d.day_id}: ${id} not training-allowed`);
+    }
+  }
+}
+const weekReport = [];
+function attachWeek(label, activity, target, levelTargets, days) {
+  const week = weekForLevels(activity, parseDays(days));
+  checkWeek(label, activity, week);
+  target.microcycle = week.amateur.map(dayOut);
+  levelTargets.beginner.microcycle = week.beginner.map(dayOut);
+  levelTargets.pro.microcycle = week.pro.map(dayOut);
+  weekReport.push({ label, days: week.amateur.map((d) => d.focus), beginner: week.beginner.map((d) => d.items.map(([id]) => id).join(" ")) });
+}
 const report = [];
 for (const entry of prog.entries) {
   const h = HAND[entry.activity_id];
@@ -189,6 +281,16 @@ for (const entry of prog.entries) {
   }
   report.push({ activity: entry.activity_id, source: h ? "hand" : "rules", beginner: beginner.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`), pro: pro.map(([id, p]) => `${id} ${p.sets}x${p.distance_m ? p.distance_m + "m" : p.duration_seconds ? p.duration_seconds + "s" : p.reps} ${p.intensity.type === "bodyweight" ? "BW" : p.intensity.type + ":" + p.intensity.value}`) });
 }
+for (const entry of prog.entries) {
+  const days = MICROCYCLES[entry.activity_id];
+  if (!days) throw new Error(`${entry.activity_id}: no microcycle declared`);
+  attachWeek(entry.activity_id, entry.activity_id, entry, entry.level_variants, days);
+  for (const [event, eventDays] of Object.entries(EVENT_MICROCYCLES[entry.activity_id] ?? {})) {
+    const v = entry.event_variants[event];
+    attachWeek(`${entry.activity_id}/${event}`, entry.activity_id, v, v.level_variants, eventDays);
+  }
+}
 fs.writeFileSync("registries/program/program.registry.json", JSON.stringify(prog, null, 2) + "\n");
+if (process.env.WEEK_REPORT) fs.writeFileSync(process.env.WEEK_REPORT, JSON.stringify(weekReport, null, 1));
 if (process.env.REPORT) fs.writeFileSync(process.env.REPORT, JSON.stringify(report, null, 1));
 console.log("variants written for", prog.entries.length, "activities");
