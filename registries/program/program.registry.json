@@ -774,6 +774,7 @@
         "trap_bar_deadlift",
         "bulgarian_split_squat",
         "cable_hip_adduction",
+        "self_resisted_neck_isometric",
         "chin_up",
         "lateral_sled_drag"
       ],
@@ -810,6 +811,15 @@
           "intensity": {
             "type": "rpe",
             "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "rpe",
+            "value": 6
           },
           "rest_seconds": 60
         },
@@ -975,6 +985,7 @@
         "box_jump",
         "trap_bar_deadlift",
         "landmine_press",
+        "self_resisted_neck_isometric",
         "chest_supported_row",
         "nordic_curl"
       ],
@@ -1012,6 +1023,15 @@
             "value": 8
           },
           "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 4,
+          "intensity": {
+            "type": "rpe",
+            "value": 6
+          },
+          "rest_seconds": 60
         },
         {
           "sets": 3,
