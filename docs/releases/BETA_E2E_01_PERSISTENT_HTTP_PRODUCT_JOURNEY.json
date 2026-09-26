@@ -67,10 +67,10 @@
     "src/api/blocks.handlers.ts": "58de918e28a4bf718e770129c6b335c0d1bfc0da3b78e140073a724f86f5644a",
     "src/api/sessions.handlers.ts": "57b06b8875d2df3cc2ca0e74c2b7707000f8230c96e9f7c4545ff71ac37096de",
     "src/api/sessions.routes.ts": "cd8d7541eeaa8ecefd20e8ba7763f12d65966136c22b4b5fcfc77fead48553d5",
-    "src/api/session_state_query_service.ts": "d2ab6d48933ce7d9535cd970956909f47351ff153b6ee975147ad4f1dfac92d8",
+    "src/api/session_state_query_service.ts": "dea4ef52ddee419d3baa5664550bac3d2f9c6988c17d6d8c519de2e161619228",
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4c1630535e8b6cbb3ed6d278cbac1e0de67720d5e91dbfe6515a173c8570785f"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4398fdbe2f6feaf20a14628d3d73602959f5e1dcd201a7e42a22208a81ea9777"
   }
 }
