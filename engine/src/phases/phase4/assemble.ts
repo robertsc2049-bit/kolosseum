@@ -40,7 +40,8 @@ export function assembleSupportedProgram(args: AssembleSupportedProgramArgs): Ph
       exercises,
       exercise_pool,
       target_exercise_id,
-      constraints: phase3.constraints
+      constraints: phase3.constraints,
+      ...(template.training_cycle ? { training_cycle: template.training_cycle } : {})
     },
     notes: ["PHASE_4_V1: prescription-ready planned_items emitted"]
   };

@@ -4,6 +4,7 @@
 
 import type { ExerciseSignature } from "../../substitution/types.js";
 import type { Phase3Constraints, Phase3Output } from "../phase3.js";
+import type { TrainingCycleOutput } from "./periodisation.js";
 
 export type Beta11ActivityId =
   | "general_strength"
@@ -101,6 +102,9 @@ export type Phase4Program = {
   // Phase5 target selection hint
   target_exercise_id: string;
 
+  // Where this session sits in the athlete's periodised plan (only when declared).
+  training_cycle?: TrainingCycleOutput;
+
   // Canonical constraints (Phase3 authoritative)
   constraints?: Phase3Constraints;
 
@@ -153,10 +157,21 @@ export type Phase4ItemGroup = {
   total_rounds?: number;
 };
 
+// One distinct session of a sport's training week (e.g. lower-body power,
+// upper-body strength). Days rotate through the athlete's declared week.
+export type Phase4MicrocycleDay = {
+  day_id: string;
+  focus: string;
+  exercise_eligibility: string[];
+  item_prescriptions: Phase4ItemPrescription[];
+};
+
 export type Phase4Template = {
   program_id: string;
   intent: string[];
   prescriptions?: Phase4ItemPrescription[];
+  microcycle?: Phase4MicrocycleDay[];
+  training_cycle?: TrainingCycleOutput;
 };
 
 export type RegistryLoad = {
