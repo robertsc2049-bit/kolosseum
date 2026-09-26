@@ -6,6 +6,7 @@ import { InfoTooltip } from "../../components/InfoTooltip";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
 import { trainingCycleSummary } from "../../utils/trainingPlan";
+import { SetLogger } from "./SetLogger";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -289,6 +290,14 @@ export function AthleteSessionExecutionPanel() {
                   <ExerciseHowto exerciseId={currentId} howto={session.howto} onOpen={session.loadHowto} />
                 ) : null}
                 <PlateWarmupCalculator exercise={exercise} />
+                {started && exercise && currentId ? (
+                  <SetLogger
+                    exercise={exercise}
+                    setLogs={Array.isArray((sessionState.set_logs as JsonRecord | undefined)?.[currentId]) ? ((sessionState.set_logs as JsonRecord)[currentId] as JsonRecord[]) : []}
+                    busy={session.busy}
+                    logSet={session.logSet}
+                  />
+                ) : null}
               </div>
             )}
           </div>

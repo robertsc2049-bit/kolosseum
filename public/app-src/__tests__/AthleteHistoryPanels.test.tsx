@@ -319,6 +319,36 @@ test("marks a logged extra set or added exercise as a personal record only when 
   assert.doesNotMatch(document.body.textContent ?? "", /Front Squat 5 reps @ 60kg \(PR\)/u);
 });
 
+test("the coach sees what was actually lifted on each prescribed set, including a missed rep, a failed set and a PR", async () => {
+  installStandardMocks({
+    session_history: [
+      {
+        session_id: "session_1",
+        artefact_id: "artefact_1",
+        updated_at: "2026-09-25T00:00:00.000Z",
+        runtime_event_count: 6,
+        session_status: "completed",
+        set_logs: [
+          { exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 144, load_unit: "kg", is_pr: false },
+          { exercise_id: "back_squat", set_index: 2, reps: 5, load_value: 144, load_unit: "kg", is_pr: false },
+          { exercise_id: "back_squat", set_index: 3, reps: 3, load_value: 144, load_unit: "kg", is_pr: false },
+          { exercise_id: "back_squat", set_index: 4, reps: 0, load_value: 150, load_unit: "kg", is_pr: false },
+          { exercise_id: "pull_up", set_index: 1, reps: 8, load_value: null, load_unit: null, is_pr: false },
+          { exercise_id: "paused_bench_press", set_index: 1, reps: 3, load_value: 102.5, load_unit: "kg", is_pr: true }
+        ]
+      }
+    ]
+  });
+  render(<AthleteSessionHistoryList />);
+  openProfile();
+  await waitFor(() => screen.getByText("Training session"));
+
+  const text = document.body.textContent ?? "";
+  assert.match(text, /Sets: Back Squat 5×144kg, 5×144kg, 3×144kg, 0×150kg/u);
+  assert.match(text, /Pull Up 8(?!×)/u, "a bodyweight set shows reps only");
+  assert.match(text, /Paused Bench Press 3×102\.5kg \(PR\)/u);
+});
+
 test("the Review button dispatches kolosseum:open-session-review with the open athlete's id", async () => {
   installStandardMocks({
     session_history: [{ session_id: "session_1", artefact_id: "artefact_1", updated_at: "2026-08-01T00:00:00.000Z", runtime_event_count: 1 }]
