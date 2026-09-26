@@ -24023,7 +24023,8 @@
                 "type": "percent_1rm",
                 "value": 80
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 5,
@@ -24032,7 +24033,8 @@
                 "type": "percent_1rm",
                 "value": 77
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -24041,7 +24043,8 @@
                 "type": "percent_1rm",
                 "value": 82
               },
-              "rest_seconds": 240
+              "rest_seconds": 240,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -24089,7 +24092,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -24098,7 +24102,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 2,
@@ -24107,7 +24112,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -24156,7 +24162,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -24165,7 +24172,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -24215,7 +24223,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -24282,7 +24291,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 240
+                      "rest_seconds": 240,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -24341,7 +24351,8 @@
                     "type": "percent_1rm",
                     "value": 85
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -24350,7 +24361,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -24359,7 +24371,8 @@
                     "type": "percent_1rm",
                     "value": 87
                   },
-                  "rest_seconds": 300
+                  "rest_seconds": 300,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -24408,7 +24421,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -24417,7 +24431,8 @@
                         "type": "percent_1rm",
                         "value": 77
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -24467,7 +24482,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -24534,7 +24550,8 @@
                         "type": "percent_1rm",
                         "value": 87
                       },
-                      "rest_seconds": 240
+                      "rest_seconds": 240,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -24596,7 +24613,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -24632,7 +24650,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -24671,7 +24690,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -24738,7 +24758,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -24854,7 +24875,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -24863,7 +24885,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -24915,7 +24938,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -24960,7 +24984,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25000,7 +25025,8 @@
                             "type": "percent_1rm",
                             "value": 85
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25116,7 +25142,8 @@
                             "type": "percent_1rm",
                             "value": 77
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25125,7 +25152,8 @@
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25178,7 +25206,8 @@
                         "type": "percent_1rm",
                         "value": 80
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25294,7 +25323,8 @@
                         "type": "percent_1rm",
                         "value": 72
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25303,7 +25333,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25354,7 +25385,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -25372,7 +25404,8 @@
                     "type": "percent_1rm",
                     "value": 72
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -25431,7 +25464,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25508,7 +25542,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 240
+                          "rest_seconds": 240,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -25575,7 +25610,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 3,
@@ -25624,7 +25660,8 @@
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 120
+                          "rest_seconds": 120,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -25676,7 +25713,8 @@
                         "type": "percent_1rm",
                         "value": 87
                       },
-                      "rest_seconds": 300
+                      "rest_seconds": 300,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -25703,7 +25741,8 @@
                         "type": "percent_1rm",
                         "value": 75
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -25753,7 +25792,8 @@
                             "type": "percent_1rm",
                             "value": 87
                           },
-                          "rest_seconds": 240
+                          "rest_seconds": 240,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25820,7 +25860,8 @@
                             "type": "percent_1rm",
                             "value": 77
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25869,7 +25910,8 @@
                             "type": "rpe",
                             "value": 8
                           },
-                          "rest_seconds": 120
+                          "rest_seconds": 120,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -25923,7 +25965,8 @@
                         "type": "percent_1rm",
                         "value": 82
                       },
-                      "rest_seconds": 240
+                      "rest_seconds": 240,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -25990,7 +26033,8 @@
                         "type": "percent_1rm",
                         "value": 72
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26039,7 +26083,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 120
+                      "rest_seconds": 120,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26090,7 +26135,8 @@
                     "type": "percent_1rm",
                     "value": 77
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -26099,7 +26145,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -26126,7 +26173,8 @@
                     "type": "percent_1rm",
                     "value": 70
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -26156,7 +26204,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26165,7 +26214,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26223,7 +26273,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -26281,7 +26332,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 240
+                          "rest_seconds": 240,
+                          "fixed": true
                         },
                         {
                           "sets": 3,
@@ -26299,7 +26351,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 3,
@@ -26338,7 +26391,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -26389,7 +26443,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -26398,7 +26453,8 @@
                         "type": "percent_1rm",
                         "value": 87
                       },
-                      "rest_seconds": 300
+                      "rest_seconds": 300,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -26434,7 +26490,8 @@
                         "type": "percent_1rm",
                         "value": 75
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26465,7 +26522,8 @@
                             "type": "percent_1rm",
                             "value": 85
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -26523,7 +26581,8 @@
                             "type": "percent_1rm",
                             "value": 87
                           },
-                          "rest_seconds": 240
+                          "rest_seconds": 240,
+                          "fixed": true
                         },
                         {
                           "sets": 5,
@@ -26541,7 +26600,8 @@
                             "type": "percent_1rm",
                             "value": 73
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -26580,7 +26640,8 @@
                             "type": "percent_1rm",
                             "value": 77
                           },
-                          "rest_seconds": 150
+                          "rest_seconds": 150,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -26633,7 +26694,8 @@
                         "type": "percent_1rm",
                         "value": 80
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26691,7 +26753,8 @@
                         "type": "percent_1rm",
                         "value": 82
                       },
-                      "rest_seconds": 240
+                      "rest_seconds": 240,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -26709,7 +26772,8 @@
                         "type": "percent_1rm",
                         "value": 68
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26748,7 +26812,8 @@
                         "type": "percent_1rm",
                         "value": 72
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26799,7 +26864,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -26844,7 +26910,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -26874,7 +26941,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -26941,7 +27009,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 210
+                          "rest_seconds": 210,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -27007,7 +27076,8 @@
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 120
+                          "rest_seconds": 120,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -27037,7 +27107,8 @@
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 2,
@@ -27089,7 +27160,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 240
+                      "rest_seconds": 240,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -27143,7 +27215,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 120
+                      "rest_seconds": 120,
+                      "fixed": true
                     }
                   ],
                   "microcycle": [
@@ -27164,7 +27237,8 @@
                             "type": "percent_1rm",
                             "value": 85
                           },
-                          "rest_seconds": 210
+                          "rest_seconds": 210,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -27230,7 +27304,8 @@
                             "type": "rpe",
                             "value": 8
                           },
-                          "rest_seconds": 120
+                          "rest_seconds": 120,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -27260,7 +27335,8 @@
                             "type": "percent_1rm",
                             "value": 75
                           },
-                          "rest_seconds": 180
+                          "rest_seconds": 180,
+                          "fixed": true
                         },
                         {
                           "sets": 4,
@@ -27313,7 +27389,8 @@
                         "type": "percent_1rm",
                         "value": 80
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -27379,7 +27456,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 120
+                      "rest_seconds": 120,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -27409,7 +27487,8 @@
                         "type": "percent_1rm",
                         "value": 70
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -27463,7 +27542,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -27472,7 +27552,8 @@
                     "type": "percent_1rm",
                     "value": 72
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -27522,7 +27603,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -27589,7 +27671,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -29262,7 +29345,8 @@
                 "type": "percent_1rm",
                 "value": 75
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -29271,7 +29355,8 @@
                 "type": "percent_1rm",
                 "value": 80
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -29281,7 +29366,8 @@
                 "value": 8
               },
               "rest_seconds": 180,
-              "distance_m": 20
+              "distance_m": 20,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -29300,7 +29386,8 @@
                 "value": 8
               },
               "rest_seconds": 150,
-              "distance_m": 30
+              "distance_m": 30,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -29330,7 +29417,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29339,7 +29427,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29349,7 +29438,8 @@
                     "value": 6
                   },
                   "rest_seconds": 150,
-                  "distance_m": 20
+                  "distance_m": 20,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29368,7 +29458,8 @@
                     "value": 7
                   },
                   "rest_seconds": 120,
-                  "distance_m": 30
+                  "distance_m": 30,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29398,7 +29489,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -29407,7 +29499,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -29448,7 +29541,8 @@
                         "value": 7
                       },
                       "rest_seconds": 180,
-                      "distance_m": 20
+                      "distance_m": 20,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -29458,7 +29552,8 @@
                         "value": 7
                       },
                       "rest_seconds": 150,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -29468,7 +29563,8 @@
                         "value": 7
                       },
                       "rest_seconds": 150,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -29477,7 +29573,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -29545,7 +29642,8 @@
                         "value": 7
                       },
                       "rest_seconds": 120,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     }
                   ]
                 }
@@ -29568,7 +29666,8 @@
                     "type": "percent_1rm",
                     "value": 85
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -29577,7 +29676,8 @@
                     "type": "percent_1rm",
                     "value": 87
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -29587,7 +29687,8 @@
                     "value": 9
                   },
                   "rest_seconds": 210,
-                  "distance_m": 20
+                  "distance_m": 20,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -29606,7 +29707,8 @@
                     "value": 9
                   },
                   "rest_seconds": 180,
-                  "distance_m": 30
+                  "distance_m": 30,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29636,7 +29738,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 6,
@@ -29645,7 +29748,8 @@
                         "type": "percent_1rm",
                         "value": 83
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -29686,7 +29790,8 @@
                         "value": 9
                       },
                       "rest_seconds": 180,
-                      "distance_m": 20
+                      "distance_m": 20,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -29696,7 +29801,8 @@
                         "value": 9
                       },
                       "rest_seconds": 150,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -29706,7 +29812,8 @@
                         "value": 9
                       },
                       "rest_seconds": 150,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -29715,7 +29822,8 @@
                         "type": "rpe",
                         "value": 9
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -29783,7 +29891,8 @@
                         "value": 7
                       },
                       "rest_seconds": 120,
-                      "distance_m": 30
+                      "distance_m": 30,
+                      "fixed": true
                     }
                   ]
                 }
@@ -29808,7 +29917,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -29817,7 +29927,8 @@
                     "type": "percent_1rm",
                     "value": 78
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29858,7 +29969,8 @@
                     "value": 8
                   },
                   "rest_seconds": 180,
-                  "distance_m": 20
+                  "distance_m": 20,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -29868,7 +29980,8 @@
                     "value": 8
                   },
                   "rest_seconds": 150,
-                  "distance_m": 30
+                  "distance_m": 30,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29878,7 +29991,8 @@
                     "value": 8
                   },
                   "rest_seconds": 150,
-                  "distance_m": 30
+                  "distance_m": 30,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -29887,7 +30001,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -29955,7 +30070,8 @@
                     "value": 7
                   },
                   "rest_seconds": 120,
-                  "distance_m": 30
+                  "distance_m": 30,
+                  "fixed": true
                 }
               ]
             }
@@ -29981,7 +30097,8 @@
                 "value": 7
               },
               "rest_seconds": 60,
-              "distance_m": 1000
+              "distance_m": 1000,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -29991,7 +30108,8 @@
                 "value": 8
               },
               "rest_seconds": 120,
-              "distance_m": 25
+              "distance_m": 25,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -30001,7 +30119,8 @@
                 "value": 8
               },
               "rest_seconds": 120,
-              "distance_m": 25
+              "distance_m": 25,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -30010,7 +30129,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -30019,7 +30139,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -30028,7 +30149,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 90
+              "rest_seconds": 90,
+              "fixed": true
             }
           ],
           "level_variants": {
@@ -30050,7 +30172,8 @@
                     "value": 7
                   },
                   "rest_seconds": 60,
-                  "distance_m": 1000
+                  "distance_m": 1000,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30060,7 +30183,8 @@
                     "value": 7
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30070,7 +30194,8 @@
                     "value": 7
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 2,
@@ -30079,7 +30204,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 2,
@@ -30088,7 +30214,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 2,
@@ -30097,7 +30224,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 }
               ],
               "microcycle": [
@@ -30129,7 +30257,8 @@
                         "value": 7
                       },
                       "rest_seconds": 120,
-                      "distance_m": 25
+                      "distance_m": 25,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30179,7 +30308,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -30189,7 +30319,8 @@
                         "value": 7
                       },
                       "rest_seconds": 120,
-                      "distance_m": 25
+                      "distance_m": 25,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30198,7 +30329,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30207,7 +30339,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30217,7 +30350,8 @@
                         "value": 7
                       },
                       "rest_seconds": 90,
-                      "distance_m": 50
+                      "distance_m": 50,
+                      "fixed": true
                     }
                   ]
                 },
@@ -30239,7 +30373,8 @@
                         "value": 7
                       },
                       "rest_seconds": 60,
-                      "distance_m": 1000
+                      "distance_m": 1000,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -30248,7 +30383,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30258,7 +30394,8 @@
                         "value": 7
                       },
                       "rest_seconds": 90,
-                      "distance_m": 500
+                      "distance_m": 500,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -30268,7 +30405,8 @@
                         "value": 7
                       },
                       "rest_seconds": 90,
-                      "distance_m": 500
+                      "distance_m": 500,
+                      "fixed": true
                     }
                   ]
                 }
@@ -30292,7 +30430,8 @@
                     "value": 8
                   },
                   "rest_seconds": 60,
-                  "distance_m": 1000
+                  "distance_m": 1000,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -30302,7 +30441,8 @@
                     "value": 8
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -30312,7 +30452,8 @@
                     "value": 8
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -30321,7 +30462,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30330,7 +30472,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30339,7 +30482,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 }
               ],
               "microcycle": [
@@ -30371,7 +30515,8 @@
                         "value": 8
                       },
                       "rest_seconds": 120,
-                      "distance_m": 25
+                      "distance_m": 25,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -30421,7 +30566,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -30431,7 +30577,8 @@
                         "value": 8
                       },
                       "rest_seconds": 120,
-                      "distance_m": 25
+                      "distance_m": 25,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -30440,7 +30587,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -30449,7 +30597,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 90,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -30459,7 +30608,8 @@
                         "value": 8
                       },
                       "rest_seconds": 90,
-                      "distance_m": 50
+                      "distance_m": 50,
+                      "fixed": true
                     }
                   ]
                 },
@@ -30481,7 +30631,8 @@
                         "value": 8
                       },
                       "rest_seconds": 60,
-                      "distance_m": 1000
+                      "distance_m": 1000,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -30490,7 +30641,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -30500,7 +30652,8 @@
                         "value": 8
                       },
                       "rest_seconds": 90,
-                      "distance_m": 500
+                      "distance_m": 500,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -30510,7 +30663,8 @@
                         "value": 8
                       },
                       "rest_seconds": 90,
-                      "distance_m": 500
+                      "distance_m": 500,
+                      "fixed": true
                     }
                   ]
                 }
@@ -30546,7 +30700,8 @@
                     "value": 8
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30596,7 +30751,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -30606,7 +30762,8 @@
                     "value": 8
                   },
                   "rest_seconds": 120,
-                  "distance_m": 25
+                  "distance_m": 25,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30615,7 +30772,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30624,7 +30782,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 90,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30634,7 +30793,8 @@
                     "value": 8
                   },
                   "rest_seconds": 90,
-                  "distance_m": 50
+                  "distance_m": 50,
+                  "fixed": true
                 }
               ]
             },
@@ -30656,7 +30816,8 @@
                     "value": 7
                   },
                   "rest_seconds": 60,
-                  "distance_m": 1000
+                  "distance_m": 1000,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -30665,7 +30826,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30675,7 +30837,8 @@
                     "value": 8
                   },
                   "rest_seconds": 90,
-                  "distance_m": 500
+                  "distance_m": 500,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -30685,7 +30848,8 @@
                     "value": 8
                   },
                   "rest_seconds": 90,
-                  "distance_m": 500
+                  "distance_m": 500,
+                  "fixed": true
                 }
               ]
             }
@@ -34065,7 +34229,7 @@
             "beginner": {
               "exercise_eligibility": [
                 "ten_metre_acceleration",
-                "flying_twenty_sprint",
+                "twenty_metre_acceleration",
                 "trap_bar_deadlift",
                 "split_squat",
                 "self_resisted_neck_isometric",
@@ -34088,7 +34252,7 @@
                   "intensity": {
                     "type": "bodyweight"
                   },
-                  "rest_seconds": 180,
+                  "rest_seconds": 150,
                   "distance_m": 20
                 },
                 {
@@ -34143,7 +34307,7 @@
                   "focus": "speed_and_lower_power",
                   "exercise_eligibility": [
                     "ten_metre_acceleration",
-                    "flying_twenty_sprint",
+                    "twenty_metre_acceleration",
                     "trap_bar_deadlift",
                     "split_squat",
                     "band_leg_curl",
@@ -34165,7 +34329,7 @@
                       "intensity": {
                         "type": "bodyweight"
                       },
-                      "rest_seconds": 180,
+                      "rest_seconds": 150,
                       "distance_m": 20
                     },
                     {
@@ -40079,7 +40243,8 @@
                 "type": "percent_1rm",
                 "value": 75
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -40088,7 +40253,8 @@
                 "type": "percent_1rm",
                 "value": 75
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -40097,7 +40263,8 @@
                 "type": "percent_1rm",
                 "value": 75
               },
-              "rest_seconds": 150
+              "rest_seconds": 150,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -40135,7 +40302,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -40144,7 +40312,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -40153,7 +40322,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
@@ -40192,7 +40362,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -40240,7 +40411,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -40249,7 +40421,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -40347,7 +40520,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -40356,7 +40530,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -40365,7 +40540,8 @@
                     "type": "percent_1rm",
                     "value": 82
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -40404,7 +40580,8 @@
                         "type": "percent_1rm",
                         "value": 80
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -40452,7 +40629,8 @@
                         "type": "percent_1rm",
                         "value": 83
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 6,
@@ -40461,7 +40639,8 @@
                         "type": "percent_1rm",
                         "value": 80
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -40562,7 +40741,8 @@
                     "type": "percent_1rm",
                     "value": 75
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -40610,7 +40790,8 @@
                     "type": "percent_1rm",
                     "value": 78
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -40619,7 +40800,8 @@
                     "type": "percent_1rm",
                     "value": 75
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -49621,7 +49803,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 5,
@@ -49630,7 +49813,8 @@
                 "type": "rpe",
                 "value": 8
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 4,
@@ -49639,7 +49823,8 @@
                 "type": "percent_1rm",
                 "value": 80
               },
-              "rest_seconds": 180
+              "rest_seconds": 180,
+              "fixed": true
             },
             {
               "sets": 3,
@@ -49687,7 +49872,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -49732,7 +49918,8 @@
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 120
+                  "rest_seconds": 120,
+                  "fixed": true
                 }
               ],
               "microcycle": [
@@ -49754,7 +49941,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -49812,7 +50000,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -49869,7 +50058,8 @@
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -49878,7 +50068,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 3,
@@ -49887,7 +50078,8 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 2,
@@ -49919,7 +50111,8 @@
                     "type": "rpe",
                     "value": 9
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 6,
@@ -49928,7 +50121,8 @@
                     "type": "rpe",
                     "value": 9
                   },
-                  "rest_seconds": 240
+                  "rest_seconds": 240,
+                  "fixed": true
                 },
                 {
                   "sets": 5,
@@ -49937,7 +50131,8 @@
                     "type": "percent_1rm",
                     "value": 85
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -49986,7 +50181,8 @@
                         "type": "rpe",
                         "value": 9
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -50044,7 +50240,8 @@
                         "type": "rpe",
                         "value": 9
                       },
-                      "rest_seconds": 210
+                      "rest_seconds": 210,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -50101,7 +50298,8 @@
                         "type": "percent_1rm",
                         "value": 85
                       },
-                      "rest_seconds": 180
+                      "rest_seconds": 180,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -50110,7 +50308,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 5,
@@ -50119,7 +50318,8 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 150
+                      "rest_seconds": 150,
+                      "fixed": true
                     },
                     {
                       "sets": 4,
@@ -50154,7 +50354,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -50212,7 +50413,8 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 210
+                  "rest_seconds": 210,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -50269,7 +50471,8 @@
                     "type": "percent_1rm",
                     "value": 80
                   },
-                  "rest_seconds": 180
+                  "rest_seconds": 180,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -50278,7 +50481,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 4,
@@ -50287,7 +50491,8 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 150
+                  "rest_seconds": 150,
+                  "fixed": true
                 },
                 {
                   "sets": 3,
