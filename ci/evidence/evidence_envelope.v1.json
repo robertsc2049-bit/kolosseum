@@ -30,16 +30,16 @@
   },
   "inputs": {
     "constraints_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-    "registry_bundle_sha256": "895C2A3723A0D01F9A17B91E5F4FFCF000AC42F6DCD7C7C9D3C0B392CA72BB9F",
+    "registry_bundle_sha256": "332C08F8CB6F851DD156F1C7CEB4BE8379866D59CFB7180A8378160FA28D2669",
     "request_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
     "schema_sha256s": [
       {
         "path": "ci/schemas/activity_registry_1.registry.schema.json",
-        "sha256": "0A39C48A18BFBEAF1F50660F50229927469588B170D338E3B5B6E207ED62F5FF"
+        "sha256": "21228D51BB51AACD412573EDEB6B292F9814EDF31C4DB961109382991F78A5CD"
       },
       {
         "path": "ci/schemas/activity.registry.schema.json",
-        "sha256": "6F10D5CA583046E09D459A4346391C41DDDED1D477AC8A75DFB0CFF3A7A5E794"
+        "sha256": "3CE545ED088B869FC99BF9622C165E6240574AF82DE708E766FE3D6EF8805D93"
       },
       {
         "path": "ci/schemas/biomechanics_registry_4.registry.schema.json",
@@ -139,11 +139,11 @@
       },
       {
         "path": "ci/schemas/movement_registry_3.registry.schema.json",
-        "sha256": "916E55B9A6C731721EAE77CB33E5BDB8E60C59A86E57679B6D673BBD41FCAE6B"
+        "sha256": "1A49BB14D5A8EB27F5A37B8166AE275FE39A9721D08A3BCB842E0B460A67E682"
       },
       {
         "path": "ci/schemas/movement.registry.schema.json",
-        "sha256": "063E7CA54B877A9F5F79034C2AC9EF33ABAE7B4E1998832ACFCADC4492462BCF"
+        "sha256": "3E92DCAE612DF65B7254E1F15B29702B3F54EC6319676AD52A8465004C118B29"
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",

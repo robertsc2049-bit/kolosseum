@@ -874,7 +874,8 @@ const EXERCISE_CATEGORY_BY_PATTERN: Record<string, string> = {
   sprint_max_velocity: "Speed, power & conditioning", deceleration: "Speed, power & conditioning",
   change_of_direction: "Speed, power & conditioning", throw_slam: "Speed, power & conditioning",
   conditioning_cyclical: "Speed, power & conditioning", conditioning_row: "Speed, power & conditioning",
-  conditioning_sled: "Speed, power & conditioning"
+  conditioning_sled: "Speed, power & conditioning",
+  neck_isometric: "Core & carries"
 };
 
 export const EXERCISE_CATEGORY_ORDER = [

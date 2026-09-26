@@ -23,9 +23,9 @@ test("REG-FULL-02 closes the exact activity and movement universe", () => {
   assert.equal(result.ok, true, JSON.stringify(result.errors));
   assert.deepEqual(result.summary, {
     activity_count: 31,
-    movement_count: 54,
-    activity_to_movement_permissions: 1674,
-    movement_to_activity_permissions: 1674
+    movement_count: 55,
+    activity_to_movement_permissions: 1705,
+    movement_to_activity_permissions: 1705
   });
 });
 
