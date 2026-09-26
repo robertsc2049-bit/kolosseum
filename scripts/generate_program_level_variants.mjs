@@ -26,7 +26,10 @@ const REACTIVE_REGRESSION = "drop_to_stick";
 const BEGINNER_SWAPS = {
   nordic_curl: ["band_leg_curl", P(2, 12, rpe(7), 60)],
   chin_up: ["band_assisted_pull_up", null],
-  pull_up: ["band_assisted_pull_up", null]
+  pull_up: ["band_assisted_pull_up", null],
+  // Every max-velocity sprint is an advanced drill; beginners build speed with
+  // accelerations first (lower hamstring risk, easier to coach alone).
+  flying_twenty_sprint: ["twenty_metre_acceleration", D(3, 20, bw, 150)]
 };
 // Landing drills are low-rep quality work.
 const LANDING_DOSE = P(3, 5, bw, 60);
@@ -288,6 +291,32 @@ for (const entry of prog.entries) {
   for (const [event, eventDays] of Object.entries(EVENT_MICROCYCLES[entry.activity_id] ?? {})) {
     const v = entry.event_variants[event];
     attachWeek(`${entry.activity_id}/${event}`, entry.activity_id, v, v.level_variants, eventDays);
+  }
+}
+// Fixed exercises: a sport's competition lifts (and HYROX's race stations and
+// strongman's event implements) are named; every other item outside a timed
+// group is an open slot the athlete or coach fills with their own choice.
+const FIXED = {
+  powerlifting: ["back_squat", "bench_press", "paused_bench_press", "deadlift"],
+  olympic_weightlifting: ["snatch", "power_clean", "push_jerk"],
+  strongman: ["yoke_walk", "farmers_carry", "sandbag_carry", "strongman_log_press", "axle_bar_press", "deadlift", "atlas_stone_carry", "tire_flip"],
+  street_lifting: ["pull_up", "band_assisted_pull_up", "dip", "back_squat", "muscle_up"],
+  hyrox: ["tempo_run", "sled_push", "sled_drag", "wall_ball", "burpee_broad_jump", "sandbag_lunge", "farmers_carry", "rowing_ergometer", "ski_erg"]
+};
+const markFixed = (target, activity) => {
+  const fixed = new Set(FIXED[activity] ?? []);
+  if (!target?.exercise_eligibility || !target.item_prescriptions) return;
+  target.item_prescriptions = target.item_prescriptions.map((pr, i) => {
+    const { fixed: _drop, ...rest } = pr;
+    return fixed.has(target.exercise_eligibility[i]) ? { ...rest, fixed: true } : rest;
+  });
+};
+for (const entry of prog.entries) {
+  const targets = [entry, ...Object.values(entry.level_variants ?? {})];
+  for (const ev of Object.values(entry.event_variants ?? {})) targets.push(ev, ...Object.values(ev.level_variants ?? {}));
+  for (const t of targets) {
+    markFixed(t, entry.activity_id);
+    for (const day of t.microcycle ?? []) markFixed(day, entry.activity_id);
   }
 }
 fs.writeFileSync("registries/program/program.registry.json", JSON.stringify(prog, null, 2) + "\n");
