@@ -5,7 +5,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { computeTrainingE1rmTrends, epleyE1rm, setE1rmKg } from "../dist/src/api/training_e1rm.js";
+import fs from "node:fs";
+import { computeTrainingE1rmTrends, epleyE1rm, isE1rmExercise, setE1rmKg } from "../dist/src/api/training_e1rm.js";
+
+const REGISTRY = JSON.parse(fs.readFileSync("registries/exercise/exercise.registry.json", "utf8")).entries;
+const patternOf = (id) => REGISTRY[id]?.movement_pattern_id;
 
 const set = (exercise_id, reps, load_value, date = "2026-09-20", load_unit = "kg") => ({ exercise_id, reps, load_value, load_unit, date });
 
@@ -38,7 +42,7 @@ test("training e1RM: the best set of each day forms the trend, and the change is
     set("back_squat", 5, 130, "2026-08-10"), set("back_squat", 3, 140, "2026-08-10"),
     set("back_squat", 3, 144, "2026-09-20"), set("back_squat", 0, 150, "2026-09-20"),
     set("bench_press", 5, 100, "2026-09-20")
-  ], null, "kg", 30);
+  ], null, "kg", 30, patternOf);
   const squat = trends.find((t) => t.exercise_id === "back_squat");
   assert.deepEqual(squat.series.map((p) => [p.date, p.e1rm]), [["2026-08-10", 154], ["2026-09-20", 158.4]]);
   assert.equal(squat.current_e1rm, 158.4);
@@ -51,9 +55,20 @@ test("training e1RM: the best set of each day forms the trend, and the change is
 });
 
 test("training e1RM: pounds convert, and the display unit is the athlete's", () => {
-  const [lb] = computeTrainingE1rmTrends([set("deadlift", 1, 500, "2026-09-20", "lb")], null, "kg", 30);
+  const [lb] = computeTrainingE1rmTrends([set("deadlift", 1, 500, "2026-09-20", "lb")], null, "kg", 30, patternOf);
   assert.equal(lb.current_e1rm, 226.8);
-  const [kgInLb] = computeTrainingE1rmTrends([set("deadlift", 1, 200, "2026-09-20")], null, "lb", 30);
+  const [kgInLb] = computeTrainingE1rmTrends([set("deadlift", 1, 200, "2026-09-20")], null, "lb", 30, patternOf);
   assert.equal(kgInLb.current_e1rm, 440.9);
   assert.equal(kgInLb.unit, "lb");
+});
+
+test("training e1RM: only strength lifts estimate a max - never jumps, sprints, throws, carries, swings or curls", () => {
+  for (const id of ["back_squat", "deadlift", "snatch", "bench_press", "pull_up", "dip", "bulgarian_split_squat", "strongman_log_press", "barbell_row"]) {
+    assert.equal(isE1rmExercise(id, patternOf), true, id);
+  }
+  for (const id of ["countermovement_jump", "ten_metre_acceleration", "medicine_ball_rotational_throw", "farmers_carry", "kettlebell_swing", "barbell_curl", "sled_push", "self_resisted_neck_isometric"]) {
+    assert.equal(isE1rmExercise(id, patternOf), false, id);
+  }
+  const trends = computeTrainingE1rmTrends([set("countermovement_jump", 3, 150), set("back_squat", 3, 150)], null, "kg", 30, patternOf);
+  assert.deepEqual(trends.map((t) => t.exercise_id), ["back_squat"]);
 });

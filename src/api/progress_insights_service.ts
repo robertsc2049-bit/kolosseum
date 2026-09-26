@@ -7,6 +7,9 @@
 // stored). Ownership/relationship checks are duplicated locally here
 // rather than shared, matching every other service in this file family.
 
+import fs from "node:fs";
+import path from "node:path";
+
 import { pool } from "../db/pool.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import {
@@ -193,6 +196,19 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
     });
   }
   return sets;
+}
+
+// Movement pattern per exercise, from the canonical exercise registry (read
+// once per process), so e1RMs are only estimated for strength lifts.
+let exercisePatterns: Map<string, string> | null = null;
+function exercisePatternOf(exerciseId: string): string | undefined {
+  if (!exercisePatterns) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+    exercisePatterns = new Map(Object.values(isRecord(doc?.entries) ? doc.entries : {})
+      .filter(isRecord)
+      .map((entry) => [cleanString(entry.exercise_id), cleanString(entry.movement_pattern_id)] as [string, string]));
+  }
+  return exercisePatterns.get(exerciseId) || undefined;
 }
 
 // Bodyweight for bodyweight-lift e1RMs: the strength profile's, else the
@@ -408,7 +424,7 @@ async function assembleProgressInsightsSummary(
     session_adherence: computeSessionAdherence(sessions),
     strength_trends: computeStrengthTrends(profilePayload),
     // Estimated maxes from what the athlete actually lifted in training.
-    training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, latestBodyweightKg(profilePayload, bodyMetricEntries), displayUnit, WINDOW_DAYS),
+    training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, latestBodyweightKg(profilePayload, bodyMetricEntries), displayUnit, WINDOW_DAYS, exercisePatternOf),
     habit_consistency: habitConsistency,
     body_metric_trends: computeBodyMetricTrends(bodyMetricEntries),
     factual_records_only: true,
