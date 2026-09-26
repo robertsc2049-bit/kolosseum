@@ -8,7 +8,12 @@ import { titleCase } from "../../utils/format";
 // The athlete chooses their own exercise for every open slot of their
 // programme; only competition lifts (and timed-group workouts) are named.
 // Nothing is pre-selected: an empty slot stays empty until they choose, and
-// a session with an empty slot does not start.
+// a session with an empty slot does not start. Nothing is locked out either:
+// the exercises that fit the slot are recommended first, every other
+// exercise can still be chosen, and a choice outside the recommendations
+// says why it is not one.
+
+const NOT_RECOMMENDED = "Not one of the recommended exercises for this slot.";
 
 function doseText(prescription: JsonRecord | null | undefined): string {
   if (!prescription) return "";
@@ -82,12 +87,14 @@ export function ProgrammeExercisesCard() {
   const open = Number(data.open_slot_count ?? 0);
   if (open === 0) return null;
   const chosen = open - (Array.isArray(data.missing_slot_ids) ? data.missing_slot_ids.length : 0);
+  const allExercises = Array.isArray(data.all_exercises) ? (data.all_exercises as JsonRecord[]) : [];
+  const savedSelections = (data.selections as Record<string, string> | undefined) ?? {};
 
   return (
     <article className="onboarding-card programme-exercises" data-testid="programme-exercises">
       <p className="eyebrow">Your programme exercises</p>
       <h3>{`${chosen} of ${open} exercises chosen`}</h3>
-      <p>Your programme names only your competition lifts. For everything else you choose the exercise - from ones that train the same thing and suit your level.</p>
+      <p>Your programme names only your competition lifts. For everything else you choose the exercise. We recommend ones that train the same thing and suit your level, but you can choose any exercise.</p>
       {data.complete !== true ? (
         <p className="onboarding-boundary" role="status">Choose an exercise for every open slot before your next session.</p>
       ) : null}
@@ -121,8 +128,20 @@ export function ProgrammeExercisesCard() {
                     }
                     const slotId = String(item.slot_id);
                     const options = Array.isArray(item.options) ? (item.options as JsonRecord[]) : [];
+                    const recommended = new Set(options.map((option) => String(option.exercise_id)));
+                    const others = allExercises.filter((exercise) => !recommended.has(String(exercise.exercise_id)));
                     const current = draft[slotId] ?? "";
                     const fieldError = fieldErrors[slotId];
+                    const fitNote = !current || recommended.has(current) ? null
+                      : current === savedSelections[slotId] && item.selected_fit_note ? String(item.selected_fit_note) : NOT_RECOMMENDED;
+                    const renderOption = (option: JsonRecord) => {
+                      const id = String(option.exercise_id);
+                      return (
+                        <option key={id} value={id} disabled={id !== current && usedInDay.has(id)}>
+                          {String(option.display_name ?? id)}
+                        </option>
+                      );
+                    };
                     return (
                       <li key={slotId} className="programme-item slot">
                         <label className="field">
@@ -138,16 +157,11 @@ export function ProgrammeExercisesCard() {
                             })}
                           >
                             <option value="">Choose an exercise</option>
-                            {options.map((option) => {
-                              const id = String(option.exercise_id);
-                              return (
-                                <option key={id} value={id} disabled={id !== current && usedInDay.has(id)}>
-                                  {String(option.display_name ?? id)}
-                                </option>
-                              );
-                            })}
+                            <optgroup label="Recommended">{options.map(renderOption)}</optgroup>
+                            {others.length ? <optgroup label="All other exercises">{others.map(renderOption)}</optgroup> : null}
                           </select>
                         </label>
+                        {fitNote ? <p className="muted programme-fit-note" role="note">{fitNote}</p> : null}
                         {fieldError ? <p className="field-error" role="alert">{String(fieldError)}</p> : null}
                       </li>
                     );

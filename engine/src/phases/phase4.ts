@@ -4,7 +4,7 @@
 // canonical registries, and validated contracts only.
 
 import { loadRegistryBundle } from "../registries/loadRegistryBundle.js";
-import { applySelectionsToDay, listProgrammeSlots, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
+import { applySelectionsToDay, listProgrammeSlots, type ExerciseSelections, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
 import path from "node:path";
 import { loadExerciseEntriesFromPath } from "../registries/loadExerciseEntries.js";
 import type { ExerciseSignature } from "../substitution/types.js";
@@ -149,19 +149,21 @@ function slotContext(activity: string, level: string | undefined, exercises: Rec
 }
 
 // Every day of an athlete's programme with its fixed exercises and open slots
-// (and the exercises eligible for each), so they can choose before training.
+// (and the exercises recommended for each), so they can choose before
+// training; with their saved choices, whether each is a recommended one.
 export function describeProgrammeSlots(input: {
   activity_id: string;
   experience_level?: string;
   competition_event?: string;
   days_per_week?: number;
   constraints?: SlotConstraints;
+  selections?: ExerciseSelections;
 }): SlotListing[] | null {
   const template = selectTemplate(input.activity_id, input.experience_level, input.competition_event);
   if (!template) return null;
   const registry = loadEntriesFromDisk();
   return listProgrammeSlots(programmeDays(template, input.days_per_week),
-    slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints));
+    slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints), input.selections);
 }
 
 export default phase4AssembleProgram;
@@ -169,5 +171,5 @@ export default phase4AssembleProgram;
 // Periodisation vocabulary for callers that declare an athlete's training cycle.
 export { ALL_MACRO_PHASES, MACRO_PHASES_BY_MODEL, cycleModelFor, sessionsPerWeek } from "./phase4/periodisation.js";
 export type { CycleModel, TrainingCycle, TrainingCycleOutput } from "./phase4/periodisation.js";
-export { eligibleExercisesForSlot, isEligibleForSlot, slotIdsForDay } from "./phase4/exercise_slots.js";
+export { recommendedExercisesForSlot, slotFitIssue, slotIdsForDay } from "./phase4/exercise_slots.js";
 export type { ExerciseSelections, SlotListing } from "./phase4/exercise_slots.js";

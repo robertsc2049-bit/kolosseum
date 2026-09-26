@@ -898,6 +898,26 @@ function exerciseLabel(exerciseId: string): string {
   return exerciseLabels.get(exerciseId) ?? exerciseId;
 }
 
+// Every exercise the athlete may choose from, by name: nothing is locked out.
+function allExercises(): Array<{ exercise_id: string; display_name: string }> {
+  exerciseLabel("");
+  return [...(exerciseLabels as Map<string, string>).entries()]
+    .filter(([id]) => id)
+    .map(([exercise_id, display_name]) => ({ exercise_id, display_name }))
+    .sort((a, b) => a.display_name.localeCompare(b.display_name));
+}
+
+// Why a chosen exercise is not one the programme recommends for its slot.
+const FIT_NOTES: Record<string, string> = {
+  movement_pattern_mismatch: "Trains a different movement from this slot.",
+  work_type_mismatch: "A different kind of work from this slot (explosive vs strength).",
+  not_allowed_for_activity: "Not usually part of training for your sport.",
+  above_athlete_level: "Usually for lifters more experienced than your level.",
+  joint_stress_avoided: "Loads a joint you asked to protect.",
+  equipment_banned: "Needs equipment you have said you cannot use.",
+  equipment_unavailable: "Needs equipment you have said you do not have."
+};
+
 async function latestExerciseSelections(client: QueryClient, userId: string): Promise<Record<string, string>> {
   const result = await client.query(
     `SELECT event_payload FROM product_account_events
@@ -912,13 +932,14 @@ async function latestExerciseSelections(client: QueryClient, userId: string): Pr
 
 // The athlete's programme as it stands today (sport, level, event, training
 // days), or null before they have declared a sport.
-function programmeSlotsFor(declared: Fields): SlotListing[] | null {
+function programmeSlotsFor(declared: Fields, selections: Record<string, string> = {}): SlotListing[] | null {
   if (!declared.activity_id) return null;
   return describeProgrammeSlots({
     activity_id: declared.activity_id,
     experience_level: declared.experience_level,
     competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
-    days_per_week: declared.training_days_per_week
+    days_per_week: declared.training_days_per_week,
+    selections
   });
 }
 
@@ -928,10 +949,11 @@ async function currentDeclaredFields(client: QueryClient, userId: string): Promi
   return current && record(current.fields) ? validateCompleteAthleteDeclaration(current.fields) : null;
 }
 
-// Only choices that still fit the athlete's current programme count: a slot
-// that no longer exists (a new sport, level, event or week) or a choice that
-// is no longer eligible (e.g. a new level) must be chosen again.
-function projectExerciseChoices(days: SlotListing[], saved: Record<string, string>): Readonly<Json> {
+// Choices for slots that still exist in the athlete's current programme
+// count; a slot that no longer exists (a new sport, level, event or week)
+// must be chosen again. Any exercise may be chosen - the recommended ones are
+// offered first, and a choice outside them carries a note saying why.
+function projectExerciseChoices(days: SlotListing[]): Readonly<Json> {
   const selections: Record<string, string> = {};
   const missing: string[] = [];
   let open = 0;
@@ -943,38 +965,40 @@ function projectExerciseChoices(days: SlotListing[], saved: Record<string, strin
         return { kind: "fixed", exercise_id: item.exercise_id, display_name: exerciseLabel(item.exercise_id), prescription: item.prescription };
       }
       open++;
-      const choice = saved[item.slot_id];
-      const valid = typeof choice === "string" && item.eligible_exercise_ids.includes(choice);
-      if (valid) selections[item.slot_id] = choice;
+      const choice = item.selected_exercise_id ?? null;
+      if (choice) selections[item.slot_id] = choice;
       else missing.push(item.slot_id);
+      const issue = choice ? item.selected_fit_issue ?? null : null;
       return {
         kind: "slot",
         slot_id: item.slot_id,
         movement_pattern_id: item.movement_pattern_id,
         explosive: item.explosive,
         prescription: item.prescription,
-        selected_exercise_id: valid ? choice : null,
-        options: item.eligible_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id) }))
+        selected_exercise_id: choice,
+        selected_fit_note: issue ? FIT_NOTES[issue] ?? "Not one of the recommended exercises for this slot." : null,
+        options: item.recommended_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id) }))
       };
     })
   }));
-  return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0 });
+  return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0, all_exercises: allExercises() });
 }
 
 export async function getAthleteProgrammeExercises(userId: string): Promise<Readonly<Json>> {
   const client = await pool.connect();
   try {
     const declared = await currentDeclaredFields(client, userId);
-    const days = declared ? programmeSlotsFor(declared) : null;
-    if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false });
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, await latestExerciseSelections(client, userId)) });
+    const days = declared ? programmeSlotsFor(declared, await latestExerciseSelections(client, userId)) : null;
+    if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false, all_exercises: [] });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(days) });
   }
   finally { client.release(); }
 }
 
 // Save the athlete's choices (the whole map; partial progress is allowed).
 // Every key must be an open slot of their current programme and every value
-// one of that slot's eligible exercises, never the same exercise twice in a day.
+// a real exercise - recommended or not, nothing is locked out - never the
+// same exercise twice in a day.
 export async function saveAthleteProgrammeExercises(userId: string, input: unknown): Promise<Readonly<Json>> {
   if (!record(input)) throw new AthleteOnboardingError("athlete_exercise_selections_invalid", 422);
   for (const key of Object.keys(input)) if (key !== "selections") fail(key, "Only exercise selections can be saved here.");
@@ -987,8 +1011,9 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
     const declared = await currentDeclaredFields(client, userId);
     const days = declared ? programmeSlotsFor(declared) : null;
     if (!declared || !days) throw new AthleteOnboardingError("athlete_programme_not_declared", 409);
-    const slots = new Map<string, { day: string; eligible: string[] }>();
-    for (const day of days) for (const item of day.items) if (item.kind === "slot") slots.set(item.slot_id, { day: day.day_id, eligible: item.eligible_exercise_ids });
+    const slots = new Map<string, { day: string }>();
+    for (const day of days) for (const item of day.items) if (item.kind === "slot") slots.set(item.slot_id, { day: day.day_id });
+    const known = new Set(allExercises().map((e) => e.exercise_id));
     const clean: Record<string, string> = {};
     const usedByDay = new Map<string, Set<string>>();
     for (const day of days) usedByDay.set(day.day_id, new Set(day.items.filter((i) => i.kind === "fixed").map((i) => (i as { exercise_id: string }).exercise_id)));
@@ -996,7 +1021,7 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
       const slot = slots.get(slotId);
       if (!slot) fail(slotId, "This slot is not part of your current programme.");
       const exerciseId = text(value);
-      if (!(slot as { eligible: string[] }).eligible.includes(exerciseId)) fail(slotId, "Choose one of the exercises offered for this slot.");
+      if (!known.has(exerciseId)) fail(slotId, "Choose an exercise from the list.");
       const used = usedByDay.get((slot as { day: string }).day) as Set<string>;
       if (used.has(exerciseId)) fail(slotId, "This exercise is already in that session - choose a different one.");
       used.add(exerciseId);
@@ -1005,7 +1030,7 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
     const at = new Date().toISOString();
     await append(client, userId, EXERCISE_SELECTIONS_EVENT, { selections: clean, saved_at_iso8601: at, schema_version: "exercise_selections_v1" }, at);
     await client.query("COMMIT");
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, clean) });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(programmeSlotsFor(declared, clean) as SlotListing[]) });
   }
   catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -1015,7 +1040,7 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
 }
 
 // The athlete's saved choices for the engine (the engine validates the
-// session's own slots and refuses an empty or ineligible one).
+// session's own slots and refuses an empty one or an unknown exercise).
 export async function getAthleteExerciseSelections(userId: string): Promise<Record<string, string>> {
   const client = await pool.connect();
   try { return await latestExerciseSelections(client, userId); }
