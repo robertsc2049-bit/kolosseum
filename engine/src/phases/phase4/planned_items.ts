@@ -51,6 +51,12 @@ function plannedItemsFromIntent(
       rest_seconds
     };
 
+    if (declared?.distance_m !== undefined) {
+      item.distance_value = declared.distance_m;
+      item.distance_unit = "meters";
+    }
+    if (declared?.duration_seconds !== undefined) item.duration_seconds = declared.duration_seconds;
+
     const group = declared?.group;
     if (group) {
       item.group_id = group.group_id;

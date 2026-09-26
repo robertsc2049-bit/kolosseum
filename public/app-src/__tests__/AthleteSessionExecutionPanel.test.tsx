@@ -204,6 +204,25 @@ test("loads the session and shows Start session before the session has started",
   assert.ok(screen.getByText("180s rest"));
 });
 
+// Engine-planned carries, sleds, sprints and holds arrive as reps: 1 plus a
+// per-rep distance or duration; the athlete must see the dose, never "1 reps".
+test("shows distance- and time-prescribed work by its dose, not as a single rep", async () => {
+  const yoke = { exercise_id: "yoke_walk", display_name: "Yoke walk", segment: "working", sets: 4, reps: 1, distance_value: 20, distance_unit: "meters", intensity: { type: "rpe", value: 8 }, rest_seconds: 180 };
+  const hold = { exercise_id: "trap_bar_static_hold", display_name: "Trap bar static hold", segment: "working", sets: 3, reps: 1, duration_seconds: 20, rest_seconds: 90 };
+  for (const [exercise, sets, dose] of [[yoke, "4 sets", "20m"], [hold, "3 sets", "Hold 20s"]] as const) {
+    seedActiveSession("session_1");
+    installMocks({ sessionState: baseSessionState({ current_step: { type: "EXERCISE", exercise }, remaining_exercises: [exercise] }) });
+    render(<AthleteSessionExecutionPanel />);
+
+    await waitFor(() => assert.equal(document.querySelector(".exercise-focus h3")?.textContent, exercise.display_name));
+    const details = Array.from(document.querySelectorAll(".exercise-focus .exercise-detail")).map((el) => el.textContent);
+    assert.ok(details.includes(sets), details.join(" | "));
+    assert.ok(details.includes(dose), details.join(" | "));
+    assert.ok(!details.some((d) => /reps?/.test(d ?? "")), details.join(" | "));
+    cleanup();
+  }
+});
+
 test("starting a session reveals the full action button set", async () => {
   seedActiveSession("session_1");
   installMocks({});

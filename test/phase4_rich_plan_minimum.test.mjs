@@ -11,6 +11,7 @@ import path from "node:path";
 // Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).
 import { phase4AssembleProgram } from "../dist/engine/src/phases/phase4.js";
 import { buildPlannedItems } from "../dist/engine/src/phases/phase4/planned_items.js";
+import { validateProgramRegistry } from "../dist/engine/src/phases/phase4/templates.js";
 import { loadExerciseEntriesFromPath } from "../dist/engine/src/registries/loadExerciseEntries.js";
 
 function mkPhase3(constraints = { constraints_version: "1.0.0" }) {
@@ -307,6 +308,32 @@ test("Phase4: strongman plans log press, yoke and carries with their declared pr
   for (const it of r.program.planned_items.filter((x) => x.exercise_id.includes("carry") || x.exercise_id === "yoke_walk")) {
     assert.notEqual(it.intensity.type, "percent_1rm", `${it.exercise_id} must not be prescribed as % 1RM`);
   }
+  const byId = Object.fromEntries(r.program.planned_items.map((it) => [it.exercise_id, it]));
+  assert.equal(byId.yoke_walk.distance_value, 20);
+  assert.equal(byId.yoke_walk.distance_unit, "meters");
+  assert.equal(byId.farmers_carry.distance_value, 30);
+  assert.equal(byId.deadlift.distance_value, undefined, "lifts keep reps, no distance");
+});
+
+// The load-time validator guards the distance/time fields: positive, bounded,
+// and never both on one item (the dose would be ambiguous).
+test("Phase4: program registry validation refuses ambiguous or invalid distance/time prescriptions", () => {
+  const doc = (extra) => ({
+    registry_id: "program",
+    version: "1.0.0",
+    entries: [{
+      activity_id: "strongman",
+      template_id: "T",
+      exercise_eligibility: ["yoke_walk"],
+      item_prescriptions: [{ sets: 4, reps: 1, intensity: { type: "rpe", value: 8 }, rest_seconds: 180, ...extra }]
+    }]
+  });
+  const ok = validateProgramRegistry(doc({ distance_m: 20 }));
+  assert.equal(ok.entries[0].item_prescriptions[0].distance_m, 20);
+  assert.equal(validateProgramRegistry(doc({ duration_seconds: 30 })).entries[0].item_prescriptions[0].duration_seconds, 30);
+  assert.throws(() => validateProgramRegistry(doc({ distance_m: 20, duration_seconds: 30 })), /not both/);
+  for (const bad of [0, -5, 10001, "20"]) assert.throws(() => validateProgramRegistry(doc({ distance_m: bad })), /distance_m/, `distance_m ${bad}`);
+  for (const bad of [0, 1.5, 3601, "30"]) assert.throws(() => validateProgramRegistry(doc({ duration_seconds: bad })), /duration_seconds/, `duration_seconds ${bad}`);
 });
 
 // A CrossFit class is strength + a scored metcon + skill work - not a bodyweight
