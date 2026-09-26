@@ -39,3 +39,15 @@ export function respondToActivityChangeProposal(input: JsonRecord, csrfToken: st
 export function cancelActivityChange(requestId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/onboarding/activity-proposal-cancel", { request_id: requestId }, csrfToken);
 }
+
+// The athlete's programme: fixed exercises, open slots (with what may fill
+// each) and their current choices.
+export function loadProgrammeExercises(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/exercises");
+}
+
+export type CustomExercise = { exercise_id: string; display_name: string };
+
+export function saveProgrammeExercises(selections: Record<string, string>, customExercises: CustomExercise[], csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/exercises", { selections, custom_exercises: customExercises }, csrfToken);
+}

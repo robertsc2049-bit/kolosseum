@@ -13,6 +13,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
+import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
 import { phase4AssembleProgram } from "@kolosseum/engine/phases/phase4.js";
@@ -331,7 +332,10 @@ export async function compileBlock(req: Request, res: Response) {
     if (!training_cycle) {
       throw badRequest("training_plan_required", { failure_token: "training_plan_required" });
     }
-    phase1ForCompile = { ...body.phase1_input, training_cycle };
+    // The athlete's own exercise for each open slot; the engine refuses the
+    // session if today's slots are not all chosen (never a default).
+    const exercise_selections = await getAthleteExerciseSelections(beta_individual_subject_user_id);
+    phase1ForCompile = { ...body.phase1_input, training_cycle, exercise_selections };
   }
 
   const p1 = phase1Validate(phase1ForCompile);
@@ -517,7 +521,20 @@ export async function compileBlock(req: Request, res: Response) {
   if (!p6.ok) {
     throw badRequest("Phase 6 failed", { failure_token: p6.failure_token, details: p6.details });
   }
-  const planned_session_from_engine: Phase6SessionOutput = p6.session;
+  // A self-directed athlete's own exercises and numbered repeats are named
+  // for the session ("Zercher squat", "Back squat (2)").
+  const displayNames = beta_individual_subject_user_id
+    ? sessionExerciseDisplayNames(
+        p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
+        await getAthleteCustomExerciseNames(beta_individual_subject_user_id))
+    : {};
+  const planned_session_from_engine: Phase6SessionOutput = {
+    ...p6.session,
+    exercises: p6.session.exercises.map((e: any) => {
+      const exId = String(e.exercise_id ?? "");
+      return displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
+    })
+  };
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));
 

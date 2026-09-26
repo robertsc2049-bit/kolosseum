@@ -4,7 +4,7 @@
 // canonical registries, and validated contracts only.
 
 import { loadRegistryBundle } from "../registries/loadRegistryBundle.js";
-import { applySelectionsToDay, listProgrammeSlots, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
+import { applySelectionsToDay, listProgrammeSlots, type ExerciseSelections, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
 import path from "node:path";
 import { loadExerciseEntriesFromPath } from "../registries/loadExerciseEntries.js";
 import type { ExerciseSignature } from "../substitution/types.js";
@@ -117,12 +117,15 @@ export function phase4AssembleProgram(
   // A caller that declares exercise choices gets the athlete's own exercises
   // in every open slot - and a refusal, never a default, for an empty one.
   let template = cycled;
+  let registryForSession = registry;
   const selections = canonicalInput?.exercise_selections;
   if (cycled && selections && typeof selections === "object") {
     const applied = applySelectionsToDay(cycled.day_id ?? "base", cycled.intent, cycled.prescriptions, selections,
       slotContext(activity, level, registry.entries, phase3?.constraints));
     if (!applied.ok) return { ok: false, failure_token: applied.failure_token, details: applied.details };
     template = { ...cycled, intent: applied.intent };
+    // The athlete's own exercises and numbered repeats join the session's pool.
+    registryForSession = { ...registry, entries: { ...registry.entries, ...(applied.exercises as Record<string, ExerciseSignature>) } };
   }
 
   if (!template) {
@@ -136,7 +139,7 @@ export function phase4AssembleProgram(
     canonicalInput,
     phase3,
     template,
-    registry
+    registry: registryForSession
   });
 }
 
@@ -149,19 +152,21 @@ function slotContext(activity: string, level: string | undefined, exercises: Rec
 }
 
 // Every day of an athlete's programme with its fixed exercises and open slots
-// (and the exercises eligible for each), so they can choose before training.
+// (and the exercises recommended for each), so they can choose before
+// training; with their saved choices, whether each is a recommended one.
 export function describeProgrammeSlots(input: {
   activity_id: string;
   experience_level?: string;
   competition_event?: string;
   days_per_week?: number;
   constraints?: SlotConstraints;
+  selections?: ExerciseSelections;
 }): SlotListing[] | null {
   const template = selectTemplate(input.activity_id, input.experience_level, input.competition_event);
   if (!template) return null;
   const registry = loadEntriesFromDisk();
   return listProgrammeSlots(programmeDays(template, input.days_per_week),
-    slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints));
+    slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints), input.selections);
 }
 
 export default phase4AssembleProgram;
@@ -169,5 +174,5 @@ export default phase4AssembleProgram;
 // Periodisation vocabulary for callers that declare an athlete's training cycle.
 export { ALL_MACRO_PHASES, MACRO_PHASES_BY_MODEL, cycleModelFor, sessionsPerWeek } from "./phase4/periodisation.js";
 export type { CycleModel, TrainingCycle, TrainingCycleOutput } from "./phase4/periodisation.js";
-export { eligibleExercisesForSlot, isEligibleForSlot, slotIdsForDay } from "./phase4/exercise_slots.js";
+export { CUSTOM_EXERCISE_PREFIX, baseExerciseId, isCustomExerciseId, recommendedExercisesForSlot, repeatOf, slotFitIssue, slotIdsForDay } from "./phase4/exercise_slots.js";
 export type { ExerciseSelections, SlotListing } from "./phase4/exercise_slots.js";
