@@ -459,6 +459,33 @@ test("Phase4: street_lifting trains weighted pull-up and dip by effort, without 
   assert.ok(r.program.planned_exercise_ids.includes("face_pull"), "elbow/shoulder care");
 });
 
+// HYROX is half running: the programme must run, and sleds/bodyweight
+// stations have no 1RM, so nothing may be prescribed as % 1RM.
+test("Phase4: hyrox runs, and prescribes every station by effort (never % 1RM)", () => {
+  const r = phase4AssembleProgram(mkInput("hyrox"), mkPhase3());
+  assert.equal(r.ok, true);
+  const ids = r.program.planned_exercise_ids;
+  assert.equal(ids[0], "tempo_run", "hyrox must include race-effort running");
+  for (const it of r.program.planned_items) {
+    assert.notEqual(it.intensity.type, "percent_1rm", `${it.exercise_id} must not be prescribed as % 1RM`);
+  }
+  for (const station of ["sled_push", "sled_drag", "wall_ball", "sandbag_lunge", "burpee_broad_jump"]) {
+    assert.ok(ids.includes(station), `hyrox: ${station}`);
+  }
+});
+
+// Powerlifting: the three competition lifts as top sets (competition-style
+// paused bench), no generic overhead/incline/push-up filler.
+test("Phase4: powerlifting trains squat, paused bench and deadlift as low-rep top sets", () => {
+  const r = phase4AssembleProgram(mkInput("powerlifting"), mkPhase3());
+  assert.equal(r.ok, true);
+  const plan = r.program.planned_items.slice(0, 3).map((it) => [it.exercise_id, it.reps, it.intensity.value]);
+  assert.deepEqual(plan, [["back_squat", 3, 80], ["paused_bench_press", 3, 77], ["deadlift", 3, 82]]);
+  for (const generic of ["overhead_press", "incline_bench_press", "push_up"]) {
+    assert.ok(!r.program.planned_exercise_ids.includes(generic), `powerlifting must not plan ${generic}`);
+  }
+});
+
 // Programs without item_prescriptions keep the default primary/accessory
 // prescription exactly (exercised directly now that every activity declares its own).
 test("Phase4: planned items without declared prescriptions keep the default prescription", () => {
@@ -496,11 +523,11 @@ test("Phase4: FAIL HARD if any planned exercise_id is missing from registry (no 
   const { regPath, entries } = loadEntriesForTest();
 
   assert.ok(entries && typeof entries === "object", "entries must load");
-  assert.ok(entries.bench_press, "registry must include bench_press for this test");
+  assert.ok(entries.back_squat, "registry must include back_squat for this test");
 
-  // Remove bench_press from the injected entries map (no filesystem writes).
+  // Remove back_squat (planned by powerlifting) from the injected entries map (no filesystem writes).
   const injected = { ...entries };
-  delete injected.bench_press;
+  delete injected.back_squat;
 
   const canonicalInput = { activity_id: "powerlifting" };
   const phase3 = mkPhase3();
@@ -512,7 +539,7 @@ test("Phase4: FAIL HARD if any planned exercise_id is missing from registry (no 
   assert.ok(r.details, "details must exist");
   assert.equal(r.details.registry_path, "INJECTED_ENTRIES", "should report injected registry source");
   assert.ok(Array.isArray(r.details.missing_exercise_ids), "details.missing_exercise_ids must be an array");
-  assert.ok(r.details.missing_exercise_ids.includes("bench_press"), "missing list must include bench_press");
+  assert.ok(r.details.missing_exercise_ids.includes("back_squat"), "missing list must include back_squat");
 
   // Extra guard: regPath exists and we didn't touch it; this variable is here to prevent accidental removal.
   assert.ok(typeof regPath === "string" && regPath.length > 0, "regPath must be present");

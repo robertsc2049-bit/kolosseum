@@ -64,15 +64,15 @@
     "duplicate_id_count": 0,
     "closed_materialized_registry_count": 14,
     "declared_fk_field_count": 17,
-    "fk_reference_count": 42045,
+    "fk_reference_count": 42057,
     "orphan_relationship_count": 0,
     "dependency_gate_count": 10,
     "dependency_failure_count": 0,
     "exercise_count": 259,
     "resolved_exercise_count": 259,
     "equipment_compatibility_edge_count": 524,
-    "activity_relation_pair_count": 6424,
-    "applicability_row_count": 19272,
+    "activity_relation_pair_count": 6426,
+    "applicability_row_count": 19278,
     "programme_template_count": 105,
     "templates_by_activity": {
       "powerlifting": 4,
@@ -114,9 +114,9 @@
     "substitution_target_count": 219,
     "substitution_reachability_gap_count": 0,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 21436,
-    "copy_provenance_record_count": 21436,
-    "exact_copy_control_count": 23864
+    "copy_source_record_count": 21442,
+    "copy_provenance_record_count": 21442,
+    "exact_copy_control_count": 23870
   },
   "dependency_gates": {
     "reg_full_00": "PASS",
