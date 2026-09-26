@@ -19,7 +19,7 @@ type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
 
 export const ATHLETE_ONBOARDING_STAGES = Object.freeze([
-  "activity", "execution_scope", "product_acknowledgement", "jurisdiction",
+  "activity", "experience_level", "execution_scope", "product_acknowledgement", "jurisdiction",
   "accessibility", "instruction_density", "review"
 ] as const);
 export type AthleteOnboardingStage = (typeof ATHLETE_ONBOARDING_STAGES)[number];
@@ -90,7 +90,7 @@ const ATHLETE_POSITION_IDS = Object.freeze(
 const FIELD_KEYS = new Set([
   "activity_id", "execution_scope", "product_acknowledged", "jurisdiction_code",
   "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density",
-  "training_focus", "position"
+  "training_focus", "position", "experience_level"
 ]);
 const INFERENCE_KEYS = new Set([
   "ability", "ability_score", "readiness", "readiness_score", "safety",
@@ -114,6 +114,7 @@ type Fields = Readonly<{
   instruction_density?: string;
   training_focus?: readonly string[];
   position?: string;
+  experience_level?: string;
 }>;
 type StoredEvent = Readonly<{
   event_id: string;
@@ -202,6 +203,10 @@ export function validateAthleteExecutionScope(value: unknown): string {
 export function validateAthleteJurisdiction(value: unknown): string {
   return enumValue(value, ATHLETE_JURISDICTIONS, "jurisdiction_code", "Choose the jurisdiction you are acknowledging.");
 }
+export const ATHLETE_EXPERIENCE_LEVELS = Object.freeze(["beginner", "amateur", "pro"] as const);
+export function validateAthleteExperienceLevel(value: unknown): string {
+  return enumValue(value, ATHLETE_EXPERIENCE_LEVELS, "experience_level", "Choose your training level.");
+}
 export function validateAthleteInstructionDensity(value: unknown): string {
   return enumValue(value, ATHLETE_INSTRUCTION_DENSITIES, "instruction_density", "Choose an instruction-density preference.");
 }
@@ -276,25 +281,30 @@ function fields(value: unknown, partial: boolean): Fields {
   // (called separately at each write boundary) enforces the semantic link to
   // whatever activity_id is actually declared.
   addOptional("position", validateAthletePosition);
+  // Optional on a stored declaration so pre-level declarations still validate;
+  // REQUIRED_BEFORE makes it mandatory for every new onboarding, and existing
+  // athletes declare it through the preferences editor before their next session.
+  addOptional("experience_level", validateAthleteExperienceLevel);
   return Object.freeze(out) as Fields;
 }
 // activity_id is deliberately never listed here - it's optional and must
 // never gate progression to a later stage (see addOptional above).
 const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   activity: [],
-  execution_scope: [],
-  product_acknowledgement: ["execution_scope"],
-  jurisdiction: ["execution_scope", "product_acknowledged"],
+  experience_level: [],
+  execution_scope: ["experience_level"],
+  product_acknowledgement: ["experience_level", "execution_scope"],
+  jurisdiction: ["experience_level", "execution_scope", "product_acknowledged"],
   accessibility: [
-    "execution_scope", "product_acknowledged",
+    "experience_level", "execution_scope", "product_acknowledged",
     "jurisdiction_code", "jurisdiction_acknowledged"
   ],
   instruction_density: [
-    "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "experience_level", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences"
   ],
   review: [
-    "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "experience_level", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
   ]
 };
@@ -459,6 +469,8 @@ async function effectiveBetaDeclaration(client: QueryClient, userId: string, dec
     activity_id: declared.activity_id,
     instruction_density: declared.instruction_density
   });
+  if (declared.experience_level) phase1.experience_level = declared.experience_level;
+  else delete phase1.experience_level;
   const acknowledgement = createBeta16AcknowledgementRecord({
     acknowledgement_id: id("beta16_ack"), user_id: userId, beta_id: BETA_VERSION,
     accepted: true, jurisdiction_acknowledged: true, accepted_at_iso8601: at,
@@ -570,8 +582,8 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   if (!record(input)) throw new AthleteOnboardingError("athlete_onboarding_preferences_invalid", 422);
   for (const key of Object.keys(input)) {
     if (key !== "accessibility_preferences" && key !== "instruction_density" &&
-        key !== "training_focus" && key !== "position") {
-      fail(key, "Only accessibility, instruction-density, training-focus and position preferences are editable after confirmation.");
+        key !== "training_focus" && key !== "position" && key !== "experience_level") {
+      fail(key, "Only accessibility, instruction-density, training-focus, position and training-level preferences are editable after confirmation.");
     }
   }
   const accessibility = validateAthleteAccessibilityPreferences(input.accessibility_preferences);
@@ -584,6 +596,9 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
   const trainingFocusInput = trainingFocusProvided ? validateAthleteTrainingFocus(input.training_focus) : undefined;
   const positionProvided = Object.prototype.hasOwnProperty.call(input, "position");
   const positionInput = positionProvided ? validateAthletePosition(input.position) : undefined;
+  // Optional like position: an older client that doesn't send it must not reset it.
+  const levelProvided = Object.prototype.hasOwnProperty.call(input, "experience_level");
+  const levelInput = levelProvided ? validateAthleteExperienceLevel(input.experience_level) : undefined;
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -597,19 +612,22 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
     const previous = validateCompleteAthleteDeclaration(current.fields);
     const trainingFocus = trainingFocusProvided ? trainingFocusInput as readonly string[] : (previous.training_focus ?? []);
     const position = positionProvided ? positionInput as string : previous.position;
+    const experienceLevel = levelProvided ? levelInput as string : previous.experience_level;
     if (positionProvided) {
       assertPositionMatchesActivity(position, previous.activity_id);
     }
     if (stable(previous.accessibility_preferences) === stable(accessibility) &&
         previous.instruction_density === density &&
         stable(previous.training_focus ?? []) === stable(trainingFocus) &&
-        stable(previous.position ?? null) === stable(position ?? null)) {
+        stable(previous.position ?? null) === stable(position ?? null) &&
+        stable(previous.experience_level ?? null) === stable(experienceLevel ?? null)) {
       await client.query("COMMIT");
       return existing;
     }
     const declared = Object.freeze({
       ...previous, accessibility_preferences: accessibility, instruction_density: density,
-      training_focus: trainingFocus, position
+      training_focus: trainingFocus, position,
+      ...(experienceLevel ? { experience_level: experienceLevel } : {})
     });
     const at = new Date().toISOString();
     const core = {
@@ -623,7 +641,10 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
       declaration_source: "athlete_editable_preferences_updated", immutable: true,
       user_declared_factual_state: true, engine_visible: false
     };
-    if (previous.instruction_density !== density) {
+    // Both instruction density and training level are engine inputs, so a change to
+    // either refreshes the engine-side declaration (level selects the programme).
+    const levelChanged = (previous.experience_level ?? null) !== (experienceLevel ?? null);
+    if (previous.instruction_density !== density || (levelChanged && declared.activity_id)) {
       await effectiveBetaDeclaration(client, userId, declared, at);
     }
     await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);

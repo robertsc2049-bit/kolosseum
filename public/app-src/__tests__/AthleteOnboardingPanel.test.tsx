@@ -113,11 +113,11 @@ test.afterEach(() => {
   sessionStorage.clear();
 });
 
-test("shows the incomplete-onboarding status and stage 1 of 7 on first load, with Back disabled", async () => {
+test("shows the incomplete-onboarding status and stage 1 of 8 on first load, with Back disabled", async () => {
   installMocks({});
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Set up your account");
-  assert.ok(screen.getByText("Stage 1 of 7"));
+  assert.ok(screen.getByText("Stage 1 of 8"));
   assert.ok(screen.getByText("Activity declaration"));
   assert.equal((screen.getByText("Back") as HTMLButtonElement).disabled, true);
 });
@@ -184,8 +184,8 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
   });
 
   await screen.findByText("Draft saved");
-  assert.ok(screen.getByText("Execution-scope declaration"));
-  assert.ok(screen.getByText("Stage 2 of 7"));
+  assert.ok(screen.getByText("Training level"));
+  assert.ok(screen.getByText("Stage 2 of 8"));
 });
 
 test("sport is optional - Save and continue proceeds from the activity stage with nothing chosen", async () => {
@@ -211,7 +211,7 @@ test("sport is optional - Save and continue proceeds from the activity stage wit
   });
 
   await screen.findByText("Draft saved");
-  assert.ok(screen.getByText("Execution-scope declaration"));
+  assert.ok(screen.getByText("Training level"));
   assert.equal(Object.prototype.hasOwnProperty.call(savedFields ?? {}, "activity_id"), false);
 });
 
@@ -227,7 +227,32 @@ test("the Back button is enabled past the first stage and moves backward", async
     backButton.click();
   });
 
-  await screen.findByText("Activity declaration");
+  await screen.findByText("Training level");
+});
+
+test("the training-level stage saves the chosen level with the draft", async () => {
+  let savedFields: Record<string, unknown> | null = null;
+  installMocks({
+    initialState: draftState({ current_stage: "experience_level", draft: { fields: { activity_id: "powerlifting" } } }),
+    onDraftSave: (body) => {
+      savedFields = body.fields as Record<string, unknown>;
+      return draftState({ current_stage: body.current_stage, draft: { fields: body.fields }, saved_draft_state: true, saved_draft_at_iso8601: "2026-09-25T00:00:00.000Z" });
+    }
+  });
+  render(<AthleteOnboardingPanel />);
+  await screen.findByText("Training level");
+  for (const label of ["Beginner", "Amateur", "Pro"]) assert.ok(screen.getByText(label));
+
+  await act(async () => {
+    fireEvent.click(screen.getByLabelText(/^Pro/));
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save and continue"));
+  });
+
+  await screen.findByText("Draft saved");
+  assert.equal((savedFields ?? {}).experience_level, "pro");
+  assert.ok(screen.getByText("Execution-scope declaration"));
 });
 
 test("continuing past the accessibility stage without touching any checkbox saves an explicit no-preferences default, not a validation error", async () => {

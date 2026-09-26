@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
@@ -100,6 +100,7 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
   return (
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
+      <div className="declaration-fact"><span>Training level</span><strong>{fields.experience_level ? label(fields.experience_level) : "Not declared"}</strong></div>
       <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
       <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
@@ -127,6 +128,13 @@ function ValidationErrors({ error }: { error: { message: string; payload: unknow
     </div>
   );
 }
+
+// What each level means to the athlete - a self-description, not an assessment.
+const EXPERIENCE_LEVEL_OPTIONS: [string, string, string][] = [
+  ["beginner", "Beginner", "New to structured training or to this sport's gym work. Sessions focus on technique with lighter, effort-based loading."],
+  ["amateur", "Amateur", "You train consistently and compete at club or regional level around work or study."],
+  ["pro", "Pro", "Full-time or high-performance athlete. Sessions carry more volume and heavier competition-style work."]
+];
 
 function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRecord; onChange: (fields: JsonRecord) => void }) {
   if (stage === "activity") {
@@ -213,6 +221,20 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
     );
   }
 
+  if (stage === "experience_level") {
+    return (
+      <>
+        <p>Your programme is set for your level. You can change it later in your preferences.</p>
+        {EXPERIENCE_LEVEL_OPTIONS.map(([value, title, detail]) => (
+          <label className="onboarding-choice" key={value}>
+            <input type="radio" name="experience_level" value={value} checked={draft.experience_level === value} onChange={() => onChange({ ...draft, experience_level: value })} />
+            <span><strong>{title}</strong><small>{detail}</small></span>
+          </label>
+        ))}
+      </>
+    );
+  }
+
   if (stage === "instruction_density") {
     const options: [string, string, string][] = [
       ["minimal", "Concise", "Essential instructions only."],
@@ -243,11 +265,16 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
 function DraftView({ api }: { api: OnboardingApi }) {
   const { serverState, draft, busy, validationError, currentStage, move, confirm } = api;
   const [localDraft, setLocalDraft] = useState<JsonRecord>(draft);
+  const [syncedFrom, setSyncedFrom] = useState({ stage: currentStage, draft });
 
-  useEffect(() => {
+  // Reset the local draft when the stage or server draft changes, during
+  // render rather than in an effect: an effect runs after the new stage is
+  // already on screen, so a choice made in that gap (a fast click on a slow
+  // device) was silently overwritten by the late sync.
+  if (syncedFrom.stage !== currentStage || syncedFrom.draft !== draft) {
+    setSyncedFrom({ stage: currentStage, draft });
     setLocalDraft(draft);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentStage, draft]);
+  }
 
   const index = Math.max(0, STAGES.indexOf(currentStage));
 
@@ -296,6 +323,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
     Array.isArray(fields.training_focus) ? fields.training_focus.map((entry) => String(entry)) : []
   );
   const [position, setPosition] = useState(() => String(fields.position ?? ""));
+  const [level, setLevel] = useState(() => String(fields.experience_level ?? ""));
   const activityId = String(fields.activity_id ?? "");
 
   function handleSubmit(event: React.FormEvent) {
@@ -306,14 +334,22 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
       // Only send position once a real selection exists - an empty value
       // fails validateAthletePosition (position, unlike training_focus, is
       // never a valid "cleared" empty state) and would block the whole save.
-      ...(activityId && position ? { position } : {})
+      ...(activityId && position ? { position } : {}),
+      ...(level ? { experience_level: level } : {})
     });
   }
 
   return (
     <form className="onboarding-card" onSubmit={handleSubmit}>
       <h3>Edit preferences</h3>
-      <p>Only accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <p>Only training level, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <label className="field">
+        <span>Training level</span>
+        <select value={level} onChange={(event) => setLevel(event.target.value)}>
+          {level ? null : <option value="">Choose your level</option>}
+          {EXPERIENCE_LEVEL_OPTIONS.map(([value, title]) => <option key={value} value={value}>{title}</option>)}
+        </select>
+      </label>
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
         <span>Instruction density</span>
@@ -543,6 +579,9 @@ function CompletedView({ api }: { api: OnboardingApi }) {
   return (
     <>
       <StatusBanner state={serverState} hasError={Boolean(validationError)} />
+      {fields.experience_level ? null : (
+        <p className="onboarding-boundary" role="status">Choose your training level in Edit preferences - it sets your programme and is required before your next session.</p>
+      )}
       {validationError ? <ValidationErrors error={validationError} /> : null}
       <article className="onboarding-card" data-declaration-status="current">
         <p className="eyebrow">Current declaration</p>
