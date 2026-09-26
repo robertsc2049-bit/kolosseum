@@ -26,7 +26,7 @@ import { applyAccessibilityPreferences as applySharedAccessibilityPreferences } 
 // as PR #865 - a declared preference with no downstream effect - already
 // fixed once here and must not regress).
 export const STAGES = [
-  "activity", "execution_scope", "product_acknowledgement", "jurisdiction",
+  "activity", "experience_level", "execution_scope", "product_acknowledgement", "jurisdiction",
   "accessibility", "instruction_density", "review"
 ] as const;
 
@@ -34,6 +34,7 @@ export type OnboardingStage = typeof STAGES[number];
 
 export const STAGE_TITLES: Record<OnboardingStage, string> = {
   activity: "Activity declaration",
+  experience_level: "Training level",
   execution_scope: "Execution-scope declaration",
   product_acknowledgement: "Beta/product acknowledgement",
   jurisdiction: "Jurisdiction acknowledgement",

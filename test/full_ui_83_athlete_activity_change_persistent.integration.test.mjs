@@ -113,6 +113,7 @@ async function completeAthleteOnboarding(baseUrl, athlete, activityId) {
         jurisdiction_code: "england_wales",
         jurisdiction_acknowledged: true,
         accessibility_preferences: accessibilityPreferences(),
+        experience_level: "amateur",
         instruction_density: "standard"
       }
     },
@@ -222,7 +223,8 @@ function phase1Input(activityId) {
     nd_mode: false,
     instruction_density: "standard",
     exposure_prompt_density: "standard",
-    bias_mode: "none"
+    bias_mode: "none",
+    experience_level: "amateur"
   };
 }
 

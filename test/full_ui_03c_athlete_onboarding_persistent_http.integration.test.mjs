@@ -255,7 +255,7 @@ test(
       csrf,
       body: {
         current_stage: "execution_scope",
-        fields: { activity_id: "general_strength" }
+        fields: { activity_id: "general_strength", experience_level: "amateur" }
       }
     });
     assertStatus(activity, 200, "save activity");
@@ -269,6 +269,7 @@ test(
         current_stage: "product_acknowledgement",
         fields: {
           activity_id: "general_strength",
+          experience_level: "amateur",
           execution_scope: "coach_managed"
         }
       }
@@ -282,6 +283,7 @@ test(
         current_stage: "activity",
         fields: {
           activity_id: "general_strength",
+          experience_level: "amateur",
           execution_scope: "coach_managed"
         }
       }
@@ -297,6 +299,7 @@ test(
         current_stage: "jurisdiction",
         fields: {
           activity_id: "general_strength",
+          experience_level: "amateur",
           execution_scope: "coach_managed",
           product_acknowledged: true
         }
@@ -493,5 +496,38 @@ test(
       readiness_inferred: false,
       suitability_inferred: false
     });
+
+    // Training level: the declared level reaches the engine's phase-1 input
+    // (it selects the level programme), and stays editable via preferences.
+    const current = signedInReconstruction.json.current_effective_declaration.fields;
+    assert.equal(current.experience_level, "amateur");
+    const detailBefore = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    assertStatus(detailBefore, 200, "account detail before level change");
+    assert.equal(detailBefore.json.bootstrap?.declaration_record?.engine_phase1_input?.experience_level, "amateur");
+
+    const levelChange = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie,
+      csrf,
+      body: {
+        accessibility_preferences: current.accessibility_preferences,
+        instruction_density: current.instruction_density,
+        experience_level: "pro"
+      }
+    });
+    assertStatus(levelChange, 200, "change training level");
+    assert.equal(levelChange.json.current_effective_declaration.fields.experience_level, "pro");
+    const detailAfter = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    assert.equal(detailAfter.json.bootstrap?.declaration_record?.engine_phase1_input?.experience_level, "pro");
+
+    const invalidLevel = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie,
+      csrf,
+      body: {
+        accessibility_preferences: current.accessibility_preferences,
+        instruction_density: current.instruction_density,
+        experience_level: "expert"
+      }
+    });
+    assertStatus(invalidLevel, 422, "reject unknown training level");
   }
 );
