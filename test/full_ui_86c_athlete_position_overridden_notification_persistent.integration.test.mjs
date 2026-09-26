@@ -143,7 +143,9 @@ async function completeAthleteOnboarding(baseUrl, athlete, activityId, position)
         jurisdiction_acknowledged: true,
         accessibility_preferences: accessibilityPreferences(),
         experience_level: "amateur",
-        instruction_density: "standard"
+        training_days_per_week: 3,
+        ...(activityId === "general_strength" ? {} : { no_fixed_date: true }),
+                instruction_density: "standard"
       }
     },
     { cookie: athlete.cookie, csrf: athlete.csrf }

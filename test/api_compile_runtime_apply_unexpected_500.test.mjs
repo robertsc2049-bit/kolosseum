@@ -14,7 +14,11 @@
  const distHttpErrorsUrl = new URL("../dist/src/api/http_errors.js", import.meta.url).href;
  const distHandlerUrl = new URL("../dist/src/api/blocks.handlers.js", import.meta.url).href;
 
- mock.module(distPoolUrl, {
+ // The API imports the engine's periodisation vocabulary through the phase-4
+// entry; the phase-4 mock keeps those real exports alongside its stub.
+const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4/periodisation.js", import.meta.url).href)) };
+
+mock.module(distPoolUrl, {
    namedExports: {
      pool: {
        connect: async () => {
@@ -62,7 +66,7 @@
    namedExports: { phase3ResolveConstraintsAndLoadRegistries: () => ({ ok: true, phase3: {} }) }
  });
  mock.module("@kolosseum/engine/phases/phase4.js", {
-   namedExports: { phase4AssembleProgram: () => ({ ok: true, program: { plan: [] } }) }
+   namedExports: { ...PERIODISATION_EXPORTS, phase4AssembleProgram: () => ({ ok: true, program: { plan: [] } }) }
  });
  mock.module("@kolosseum/engine/phases/phase6.js", {
    namedExports: {

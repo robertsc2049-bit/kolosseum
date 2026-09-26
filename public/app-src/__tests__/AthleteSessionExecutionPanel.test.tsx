@@ -223,6 +223,29 @@ test("shows distance- and time-prescribed work by its dose, not as a single rep"
   }
 });
 
+test("a periodised session shows where it sits in the plan, and flags a deload week", async () => {
+  const cycle = { macro_phase: "in_season", meso_week: 4, days_per_week: 4, session_slot: 1, cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true };
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ training_cycle: cycle }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-cycle"));
+  assert.equal(screen.getByTestId("session-cycle").textContent, "In-season · Week 4 of 4 · Session 2 of 2: Upper body strength");
+  assert.ok(screen.getByText("Deload week"));
+  cleanup();
+
+  installMocks({ sessionState: baseSessionState({ training_cycle: { ...cycle, meso_week: 2, deload: false } }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-cycle"));
+  assert.equal(screen.queryByText("Deload week"), null);
+  cleanup();
+
+  // Coach-managed and pre-periodisation sessions carry no cycle.
+  installMocks({});
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Start session"));
+  assert.equal(screen.queryByTestId("session-cycle"), null);
+});
+
 test("starting a session reveals the full action button set", async () => {
   seedActiveSession("session_1");
   installMocks({});

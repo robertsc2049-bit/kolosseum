@@ -5,6 +5,7 @@ import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
+import { trainingCycleSummary } from "../../utils/trainingPlan";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -220,6 +221,10 @@ export function AthleteSessionExecutionPanel() {
   const progress = total === 0 ? 0 : Math.round((counts.completed.length / total) * 100);
   const executionStatus = sessionState.execution_status;
   const isEnded = executionStatus === "completed" || executionStatus === "partial";
+  // Where this session sits in the athlete's periodised plan (self-directed only).
+  const cycle = sessionState.training_cycle as JsonRecord | undefined;
+  const cycleSummary = trainingCycleSummary(cycle);
+  const deload = cycle?.deload === true;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [
     ...counts.completed.map((row) => ({ exercise: row, status: "complete" as const })),
@@ -244,7 +249,9 @@ export function AthleteSessionExecutionPanel() {
           <p className="eyebrow">{activity}</p>
           <h2>{`${activity} session`}</h2>
           <p className="muted">{total ? `${total} exercises recorded in this session.` : "Session record loaded."}</p>
+          {cycleSummary ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
         </div>
+        {deload ? <span className="badge" title="A lighter week to absorb the last three weeks of training">Deload week</span> : null}
         <span className={`badge ${classification.className}`}>{classification.label}</span>
       </div>
 

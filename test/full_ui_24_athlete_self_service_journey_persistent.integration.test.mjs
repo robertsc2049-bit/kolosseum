@@ -460,13 +460,13 @@ test(
 
     const activityStage = await request(baseUrl, "PATCH", "/account/onboarding/draft", {
       current_stage: "execution_scope",
-      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power" }
+      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power", training_days_per_week: 3, no_fixed_date: true }
     }, { cookie: athleteCookie, csrf: athleteCsrf });
     assertStatus(activityStage, 200, "onboarding activity stage");
 
     const executionScopeStage = await request(baseUrl, "PATCH", "/account/onboarding/draft", {
       current_stage: "product_acknowledgement",
-      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power", execution_scope: "coach_managed" }
+      fields: { activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power", training_days_per_week: 3, no_fixed_date: true, execution_scope: "coach_managed" }
     }, { cookie: athleteCookie, csrf: athleteCsrf });
     assertStatus(executionScopeStage, 200, "onboarding execution scope stage");
 
@@ -681,7 +681,8 @@ test(
         instruction_density: "standard",
         exposure_prompt_density: "standard",
         bias_mode: "none",
-        experience_level: "amateur"
+        experience_level: "amateur",
+        competition_event: "full_power"
       },
       beta_user_id: athleteUserId,
       beta_coach_user_id: coachUserId

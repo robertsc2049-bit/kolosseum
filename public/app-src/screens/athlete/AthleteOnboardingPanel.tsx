@@ -17,6 +17,8 @@ import {
   useAthleteOnboarding
 } from "./useAthleteOnboarding";
 import { titleCase } from "../../utils/format";
+import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
+import { planDatesLabel } from "../../utils/trainingPlan";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
 // view - ported field-for-field from public/app/athlete_onboarding_ui.js's
@@ -104,6 +106,8 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
       {fields.activity_id === POWERLIFTING ? (
         <div className="declaration-fact"><span>Competition event</span><strong>{competitionEventLabel(fields.competition_event)}</strong></div>
       ) : null}
+      <div className="declaration-fact"><span>Training days per week</span><strong>{fields.training_days_per_week ? String(fields.training_days_per_week) : "Not declared"}</strong></div>
+      <div className="declaration-fact"><span>Season or competition</span><strong>{planDatesLabel(fields)}</strong></div>
       <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
       <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
@@ -161,7 +165,7 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
         <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
         <ActivityCategoryFilter
           value={activityId}
-          onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined, competition_event: undefined })}
+          onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined, competition_event: undefined, season_start_date: undefined, season_end_date: undefined, competition_date: undefined, no_fixed_date: undefined })}
           sportLabel="Activity (optional)"
           allowEmptySport
         />
@@ -233,6 +237,19 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
         <AccessibilityCheckboxes
           value={accessibilityOf(draft.accessibility_preferences)}
           onChange={(next) => onChange({ ...draft, accessibility_preferences: next })}
+        />
+      </>
+    );
+  }
+
+  if (stage === "training_plan") {
+    return (
+      <>
+        <p>Your programme is periodised: it builds through the year towards your season or competition, changes each 4-week block (three building weeks, then a deload) and rotates different sessions through your training week. You can change this later in your preferences.</p>
+        <TrainingPlanFields
+          activityId={draft.activity_id}
+          value={trainingPlanOf(draft)}
+          onChange={(plan) => onChange({ ...draft, training_days_per_week: undefined, season_start_date: undefined, season_end_date: undefined, competition_date: undefined, no_fixed_date: undefined, ...plan })}
         />
       </>
     );
@@ -353,6 +370,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
   const [position, setPosition] = useState(() => String(fields.position ?? ""));
   const [level, setLevel] = useState(() => String(fields.experience_level ?? ""));
   const [competitionEvent, setCompetitionEvent] = useState(() => String(fields.competition_event ?? ""));
+  const [plan, setPlan] = useState<JsonRecord>(() => trainingPlanOf(fields));
   const activityId = String(fields.activity_id ?? "");
 
   function handleSubmit(event: React.FormEvent) {
@@ -365,14 +383,16 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
       // never a valid "cleared" empty state) and would block the whole save.
       ...(activityId && position ? { position } : {}),
       ...(level ? { experience_level: level } : {}),
-      ...(activityId === POWERLIFTING && competitionEvent ? { competition_event: competitionEvent } : {})
+      ...(activityId === POWERLIFTING && competitionEvent ? { competition_event: competitionEvent } : {}),
+      // The plan is sent whole once training days are chosen (it replaces the old one).
+      ...(activityId && plan.training_days_per_week ? plan : {})
     });
   }
 
   return (
     <form className="onboarding-card" onSubmit={handleSubmit}>
       <h3>Edit preferences</h3>
-      <p>Only training level, competition event, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
+      <p>Only training level, competition event, training plan, accessibility, instruction-density, training-focus and position preferences can be changed after confirmation. Saving creates a new declaration and preserves the old one.</p>
       <label className="field">
         <span>Training level</span>
         <select value={level} onChange={(event) => setLevel(event.target.value)}>
@@ -389,6 +409,7 @@ function PreferenceEditor({ api, fields }: { api: OnboardingApi; fields: JsonRec
           </select>
         </label>
       ) : null}
+      {activityId ? <TrainingPlanFields activityId={activityId} value={plan} onChange={setPlan} /> : null}
       <AccessibilityCheckboxes value={accessibility} onChange={setAccessibility} />
       <label className="field">
         <span>Instruction density</span>
@@ -621,6 +642,9 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {fields.experience_level ? null : (
         <p className="onboarding-boundary" role="status">Choose your training level in Edit preferences - it sets your programme and is required before your next session.</p>
       )}
+      {fields.activity_id && !fields.training_days_per_week ? (
+        <p className="onboarding-boundary" role="status">Set your training plan in Edit preferences - your training days and season or competition dates shape every session, and are required before your next one.</p>
+      ) : null}
       {fields.activity_id === POWERLIFTING && !fields.competition_event ? (
         <p className="onboarding-boundary" role="status">Choose your competition event in Edit preferences - it sets your powerlifting programme and is required before your next session.</p>
       ) : null}
