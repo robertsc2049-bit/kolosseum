@@ -74,7 +74,9 @@ export function computeTrainingE1rmTrends(
   patternOf: (exerciseId: string) => string | undefined
 ): JsonRecord[] {
   const byExercise = new Map<string, Map<string, { e1rm_kg: number; includes_bodyweight: boolean }>>();
-  for (const set of sets) {
+  for (const logged of sets) {
+    // A repeat of an exercise in a session ("back_squat__r2") is that exercise.
+    const set = { ...logged, exercise_id: logged.exercise_id.replace(/__r[0-9]+$/, "") };
     if (!isE1rmExercise(set.exercise_id, patternOf)) continue;
     const est = setE1rmKg(set, bodyweightKg);
     if (!est) continue;

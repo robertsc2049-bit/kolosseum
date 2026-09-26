@@ -46,6 +46,8 @@ export function loadProgrammeExercises(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/exercises");
 }
 
-export function saveProgrammeExercises(selections: Record<string, string>, csrfToken: string): Promise<JsonRecord> {
-  return request("PUT", "/account/onboarding/exercises", { selections }, csrfToken);
+export type CustomExercise = { exercise_id: string; display_name: string };
+
+export function saveProgrammeExercises(selections: Record<string, string>, customExercises: CustomExercise[], csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/exercises", { selections, custom_exercises: customExercises }, csrfToken);
 }

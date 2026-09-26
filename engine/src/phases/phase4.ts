@@ -117,12 +117,15 @@ export function phase4AssembleProgram(
   // A caller that declares exercise choices gets the athlete's own exercises
   // in every open slot - and a refusal, never a default, for an empty one.
   let template = cycled;
+  let registryForSession = registry;
   const selections = canonicalInput?.exercise_selections;
   if (cycled && selections && typeof selections === "object") {
     const applied = applySelectionsToDay(cycled.day_id ?? "base", cycled.intent, cycled.prescriptions, selections,
       slotContext(activity, level, registry.entries, phase3?.constraints));
     if (!applied.ok) return { ok: false, failure_token: applied.failure_token, details: applied.details };
     template = { ...cycled, intent: applied.intent };
+    // The athlete's own exercises and numbered repeats join the session's pool.
+    registryForSession = { ...registry, entries: { ...registry.entries, ...(applied.exercises as Record<string, ExerciseSignature>) } };
   }
 
   if (!template) {
@@ -136,7 +139,7 @@ export function phase4AssembleProgram(
     canonicalInput,
     phase3,
     template,
-    registry
+    registry: registryForSession
   });
 }
 
@@ -171,5 +174,5 @@ export default phase4AssembleProgram;
 // Periodisation vocabulary for callers that declare an athlete's training cycle.
 export { ALL_MACRO_PHASES, MACRO_PHASES_BY_MODEL, cycleModelFor, sessionsPerWeek } from "./phase4/periodisation.js";
 export type { CycleModel, TrainingCycle, TrainingCycleOutput } from "./phase4/periodisation.js";
-export { recommendedExercisesForSlot, slotFitIssue, slotIdsForDay } from "./phase4/exercise_slots.js";
+export { CUSTOM_EXERCISE_PREFIX, baseExerciseId, isCustomExerciseId, recommendedExercisesForSlot, repeatOf, slotFitIssue, slotIdsForDay } from "./phase4/exercise_slots.js";
 export type { ExerciseSelections, SlotListing } from "./phase4/exercise_slots.js";

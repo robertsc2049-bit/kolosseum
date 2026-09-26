@@ -2,7 +2,7 @@
 // Records are explicit user declarations. No ability, safety, readiness,
 // suitability, risk or recommendation is inferred here.
 
-import { cycleModelFor, describeProgrammeSlots, type SlotListing } from "@kolosseum/engine/phases/phase4.js";
+import { CUSTOM_EXERCISE_PREFIX, cycleModelFor, describeProgrammeSlots, isCustomExerciseId, repeatOf, type SlotListing } from "@kolosseum/engine/phases/phase4.js";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -898,6 +898,31 @@ function exerciseLabel(exerciseId: string): string {
   return exerciseLabels.get(exerciseId) ?? exerciseId;
 }
 
+// The athlete's own exercises: a name they type, kept for reuse in any slot.
+// Its id is derived from the name, so the same name is always the same exercise.
+const MAX_CUSTOM_EXERCISES = 50;
+const MAX_CUSTOM_NAME = 60;
+export function customExerciseIdFor(name: string): string {
+  const slug = name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 48).replace(/_+$/g, "");
+  return slug ? `${CUSTOM_EXERCISE_PREFIX}${slug}` : "";
+}
+type CustomExercise = { exercise_id: string; display_name: string };
+
+// How a session entry that is not a plain registry exercise is named: the
+// athlete's own exercise by the name they gave it, and a repeat of an
+// exercise already in the session numbered after it ("Back squat (2)").
+export function sessionExerciseDisplayNames(ids: string[], custom: Record<string, string>): Record<string, string> {
+  const names: Record<string, string> = {};
+  for (const id of ids) {
+    const repeat = repeatOf(id);
+    const base = repeat?.base ?? id;
+    if (!repeat && !isCustomExerciseId(base)) continue;
+    const label = isCustomExerciseId(base) ? custom[base] ?? base : exerciseLabel(base);
+    names[id] = repeat ? `${label} (${repeat.n})` : label;
+  }
+  return names;
+}
+
 // Every exercise the athlete may choose from, by name: nothing is locked out.
 function allExercises(): Array<{ exercise_id: string; display_name: string }> {
   exerciseLabel("");
@@ -914,11 +939,16 @@ const FIT_NOTES: Record<string, string> = {
   not_allowed_for_activity: "Not usually part of training for your sport.",
   above_athlete_level: "Usually for lifters more experienced than your level.",
   joint_stress_avoided: "Loads a joint you asked to protect.",
+  custom_exercise: "Your own exercise - make sure it trains what this slot is for.",
   equipment_banned: "Needs equipment you have said you cannot use.",
   equipment_unavailable: "Needs equipment you have said you do not have."
 };
 
 async function latestExerciseSelections(client: QueryClient, userId: string): Promise<Record<string, string>> {
+  return (await latestExerciseChoices(client, userId)).selections;
+}
+
+async function latestExerciseChoices(client: QueryClient, userId: string): Promise<{ selections: Record<string, string>; custom_exercises: CustomExercise[] }> {
   const result = await client.query(
     `SELECT event_payload FROM product_account_events
      WHERE user_id = $1 AND event_type = $2
@@ -927,7 +957,11 @@ async function latestExerciseSelections(client: QueryClient, userId: string): Pr
   );
   const payload = result.rows?.[0]?.event_payload;
   const selections = record(payload) && record(payload.selections) ? payload.selections : {};
-  return Object.fromEntries(Object.entries(selections).filter(([k, v]) => typeof k === "string" && typeof v === "string")) as Record<string, string>;
+  const custom = record(payload) && Array.isArray(payload.custom_exercises) ? payload.custom_exercises : [];
+  return {
+    selections: Object.fromEntries(Object.entries(selections).filter(([k, v]) => typeof k === "string" && typeof v === "string")) as Record<string, string>,
+    custom_exercises: custom.filter(record).map((c: Json) => ({ exercise_id: text(c.exercise_id), display_name: text(c.display_name) })).filter((c) => isCustomExerciseId(c.exercise_id) && c.display_name)
+  };
 }
 
 // The athlete's programme as it stands today (sport, level, event, training
@@ -953,7 +987,7 @@ async function currentDeclaredFields(client: QueryClient, userId: string): Promi
 // count; a slot that no longer exists (a new sport, level, event or week)
 // must be chosen again. Any exercise may be chosen - the recommended ones are
 // offered first, and a choice outside them carries a note saying why.
-function projectExerciseChoices(days: SlotListing[]): Readonly<Json> {
+function projectExerciseChoices(days: SlotListing[], custom: CustomExercise[]): Readonly<Json> {
   const selections: Record<string, string> = {};
   const missing: string[] = [];
   let open = 0;
@@ -981,29 +1015,34 @@ function projectExerciseChoices(days: SlotListing[]): Readonly<Json> {
       };
     })
   }));
-  return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0, all_exercises: allExercises() });
+  return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0, all_exercises: allExercises(), custom_exercises: custom });
 }
 
 export async function getAthleteProgrammeExercises(userId: string): Promise<Readonly<Json>> {
   const client = await pool.connect();
   try {
     const declared = await currentDeclaredFields(client, userId);
-    const days = declared ? programmeSlotsFor(declared, await latestExerciseSelections(client, userId)) : null;
-    if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false, all_exercises: [] });
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(days) });
+    const saved = await latestExerciseChoices(client, userId);
+    const days = declared ? programmeSlotsFor(declared, saved.selections) : null;
+    if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false, all_exercises: [], custom_exercises: [] });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, saved.custom_exercises) });
   }
   finally { client.release(); }
 }
 
 // Save the athlete's choices (the whole map; partial progress is allowed).
 // Every key must be an open slot of their current programme and every value
-// a real exercise - recommended or not, nothing is locked out - never the
-// same exercise twice in a day.
+// a real exercise or one of the athlete's own - recommended or not, nothing is
+// locked out. The same exercise may fill more than one slot of a day (the
+// session tracks each repeat as its own entry). The athlete's own exercises
+// are saved with the choices, as the whole list.
 export async function saveAthleteProgrammeExercises(userId: string, input: unknown): Promise<Readonly<Json>> {
   if (!record(input)) throw new AthleteOnboardingError("athlete_exercise_selections_invalid", 422);
-  for (const key of Object.keys(input)) if (key !== "selections") fail(key, "Only exercise selections can be saved here.");
+  for (const key of Object.keys(input)) if (key !== "selections" && key !== "custom_exercises") fail(key, "Only exercise selections can be saved here.");
   if (!record(input.selections)) fail("selections", "Choose an exercise for each slot.");
   const incoming = input.selections as Json;
+  const incomingCustom = input.custom_exercises;
+  if (incomingCustom !== undefined && !Array.isArray(incomingCustom)) fail("custom_exercises", "Your own exercises must be a list.");
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -1011,26 +1050,33 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
     const declared = await currentDeclaredFields(client, userId);
     const days = declared ? programmeSlotsFor(declared) : null;
     if (!declared || !days) throw new AthleteOnboardingError("athlete_programme_not_declared", 409);
+    const custom: CustomExercise[] = [];
+    if (Array.isArray(incomingCustom)) {
+      if (incomingCustom.length > MAX_CUSTOM_EXERCISES) fail("custom_exercises", `You can keep up to ${MAX_CUSTOM_EXERCISES} of your own exercises.`);
+      for (const entry of incomingCustom) {
+        const name = record(entry) ? text(entry.display_name).replace(/\s+/g, " ") : "";
+        const id = customExerciseIdFor(name);
+        if (!name || name.length > MAX_CUSTOM_NAME || !id) fail("custom_exercises", `Name your exercise in 1 to ${MAX_CUSTOM_NAME} characters, using letters or numbers.`);
+        if (record(entry) && text(entry.exercise_id) && text(entry.exercise_id) !== id) fail("custom_exercises", `"${name}" does not match its exercise.`);
+        if (!custom.some((c) => c.exercise_id === id)) custom.push({ exercise_id: id, display_name: name });
+      }
+    }
+    else custom.push(...(await latestExerciseChoices(client, userId)).custom_exercises);
+    const customIds = new Set(custom.map((c) => c.exercise_id));
     const slots = new Map<string, { day: string }>();
     for (const day of days) for (const item of day.items) if (item.kind === "slot") slots.set(item.slot_id, { day: day.day_id });
     const known = new Set(allExercises().map((e) => e.exercise_id));
     const clean: Record<string, string> = {};
-    const usedByDay = new Map<string, Set<string>>();
-    for (const day of days) usedByDay.set(day.day_id, new Set(day.items.filter((i) => i.kind === "fixed").map((i) => (i as { exercise_id: string }).exercise_id)));
     for (const [slotId, value] of Object.entries(incoming)) {
-      const slot = slots.get(slotId);
-      if (!slot) fail(slotId, "This slot is not part of your current programme.");
+      if (!slots.has(slotId)) fail(slotId, "This slot is not part of your current programme.");
       const exerciseId = text(value);
-      if (!known.has(exerciseId)) fail(slotId, "Choose an exercise from the list.");
-      const used = usedByDay.get((slot as { day: string }).day) as Set<string>;
-      if (used.has(exerciseId)) fail(slotId, "This exercise is already in that session - choose a different one.");
-      used.add(exerciseId);
+      if (!known.has(exerciseId) && !customIds.has(exerciseId)) fail(slotId, "Choose an exercise from the list, or add your own.");
       clean[slotId] = exerciseId;
     }
     const at = new Date().toISOString();
-    await append(client, userId, EXERCISE_SELECTIONS_EVENT, { selections: clean, saved_at_iso8601: at, schema_version: "exercise_selections_v1" }, at);
+    await append(client, userId, EXERCISE_SELECTIONS_EVENT, { selections: clean, custom_exercises: custom, saved_at_iso8601: at, schema_version: "exercise_selections_v2" }, at);
     await client.query("COMMIT");
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(programmeSlotsFor(declared, clean) as SlotListing[]) });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(programmeSlotsFor(declared, clean) as SlotListing[], custom) });
   }
   catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
@@ -1041,6 +1087,13 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
 
 // The athlete's saved choices for the engine (the engine validates the
 // session's own slots and refuses an empty one or an unknown exercise).
+// The names of the athlete's own exercises, for naming them in a session.
+export async function getAthleteCustomExerciseNames(userId: string): Promise<Record<string, string>> {
+  const client = await pool.connect();
+  try { return Object.fromEntries((await latestExerciseChoices(client, userId)).custom_exercises.map((c) => [c.exercise_id, c.display_name])); }
+  finally { client.release(); }
+}
+
 export async function getAthleteExerciseSelections(userId: string): Promise<Record<string, string>> {
   const client = await pool.connect();
   try { return await latestExerciseSelections(client, userId); }

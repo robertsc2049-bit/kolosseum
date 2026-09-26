@@ -779,7 +779,7 @@ test(
 );
 
 test(
-  "FULL-UI-03C a self-directed athlete chooses their own exercises; only competition lifts are named, nothing is chosen for them and nothing is locked out",
+  "FULL-UI-03C a self-directed athlete chooses their own exercises; only competition lifts are named, nothing is chosen for them, nothing is locked out, and they can add their own or repeat one",
   { timeout: 180000 },
   async (testContext) => {
     const root = repoRoot();
@@ -837,7 +837,7 @@ test(
     for (const [selections, label] of [
       [{ "squat.made_up_1": "front_squat" }, "a slot that is not in the programme"],
       [{ [squatSlot.slot_id]: "made_up_lift" }, "an exercise that does not exist"],
-      [{ [squatSlot.slot_id]: "back_squat" }, "the day's named lift again"]
+      [{ [squatSlot.slot_id]: "custom_never_added" }, "an own exercise that was never added"]
     ]) {
       const refused = await put(selections);
       assertStatus(refused, 422, `refuse ${label}`);
@@ -872,14 +872,41 @@ test(
     const squatDayMissing = slots.filter((slot) => slot.day === "squat" && slot.slot_id !== squatSlot.slot_id).map((slot) => slot.slot_id);
     assert.deepEqual(refused.json.details.details.missing_slot_ids, squatDayMissing, "names the squat day's empty slots only");
 
-    // Choose everything: the session is the named lifts plus her own choices.
+    // Choose everything - including back-off sets of the named back squat and
+    // an exercise of her own - and the session is the named lifts plus her choices.
     const pick = (options) => options[options.length - 1];
-    const { selections } = await chooseAllExercises(server.baseUrl, cookie, csrf, pick);
+    const { selections: chosenAll } = await chooseAllExercises(server.baseUrl, cookie, csrf, pick);
+    const ownSlot = slots.find((slot) => slot.day === "squat" && slot.slot_id !== squatSlot.slot_id);
+    const selections = { ...chosenAll, [squatSlot.slot_id]: "back_squat", [ownSlot.slot_id]: "custom_zercher_squat" };
+    const zercher = { exercise_id: "custom_zercher_squat", display_name: "Zercher squat" };
+    const mismatched = await requestJson(server.baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf,
+      body: { selections, custom_exercises: [{ exercise_id: "custom_front_squat", display_name: "Zercher squat" }] } });
+    assertStatus(mismatched, 422, "an own exercise whose id does not match its name");
+    const withOwn = await requestJson(server.baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf, body: { selections, custom_exercises: [zercher] } });
+    assertStatus(withOwn, 200, "add her own exercise and repeat the back squat");
+    assert.deepEqual(withOwn.json.custom_exercises, [zercher]);
+    assert.equal(withOwn.json.complete, true);
+    const ownListed = withOwn.json.days.flatMap((d) => d.items).find((i) => i.slot_id === ownSlot.slot_id);
+    assert.equal(ownListed.selected_fit_note, "Your own exercise - make sure it trains what this slot is for.");
+    const reloaded = await requestJson(server.baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+    assert.deepEqual(reloaded.json.custom_exercises, [zercher], "her own exercises are kept");
+
     const created = await compile();
     assertStatus(created, 201, "session with every slot chosen");
     const squatDay = days.find((d) => d.day_id === "squat");
-    assert.deepEqual(created.json.planned_session.exercises.map((e) => e.exercise_id),
-      squatDay.items.map((i) => (i.kind === "fixed" ? i.exercise_id : selections[i.slot_id])));
+    const seen = new Map();
+    const expected = squatDay.items.map((i) => (i.kind === "fixed" ? i.exercise_id : selections[i.slot_id])).map((id) => {
+      const n = (seen.get(id) ?? 0) + 1;
+      seen.set(id, n);
+      return n === 1 ? id : `${id}__r${n}`;
+    });
+    const sessionExercises = created.json.planned_session.exercises;
+    assert.deepEqual(sessionExercises.map((e) => e.exercise_id), expected);
+    const named = (id) => sessionExercises.find((e) => e.exercise_id === id)?.display_name;
+    const backSquatLabel = squatDay.items.find((i) => i.exercise_id === "back_squat").display_name;
+    assert.equal(named("back_squat__r2"), `${backSquatLabel} (2)`, "the repeat is its own, numbered entry");
+    assert.equal(named("custom_zercher_squat"), "Zercher squat", "her own exercise by its name");
+    assert.equal(named("back_squat"), undefined, "registry exercises are unchanged");
 
     // Becoming a beginner keeps every choice - nothing is locked out - and
     // flags any that are no longer recommended for the new level.

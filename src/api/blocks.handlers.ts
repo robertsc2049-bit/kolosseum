@@ -13,7 +13,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
-import { getAthleteExerciseSelections } from "./athlete_onboarding_service.js";
+import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
 import { phase4AssembleProgram } from "@kolosseum/engine/phases/phase4.js";
@@ -595,9 +595,25 @@ export async function compileBlock(req: Request, res: Response) {
   const completedSet = new Set(completed_ids);
   const droppedSet = new Set(dropped_ids);
 
-  const planned_session_applied: Phase6SessionOutput = {
+  // A self-directed athlete's own exercises and numbered repeats are named
+  // for the session ("Zercher squat", "Back squat (2)").
+  const displayNames = beta_individual_subject_user_id
+    ? sessionExerciseDisplayNames(
+        planned_session_from_engine.exercises.map((e: any) => String(e.exercise_id ?? "")),
+        await getAthleteCustomExerciseNames(beta_individual_subject_user_id))
+    : {};
+
+  const planned_session_named: Phase6SessionOutput = {
     ...planned_session_from_engine,
     exercises: planned_session_from_engine.exercises.map((e: any) => {
+      const exId = String(e.exercise_id ?? "");
+      return displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
+    })
+  };
+
+  const planned_session_applied: Phase6SessionOutput = {
+    ...planned_session_named,
+    exercises: planned_session_named.exercises.map((e: any) => {
       const exId = String(e.exercise_id ?? "");
       const status = completedSet.has(exId) ? "completed" : (droppedSet.has(exId) ? "skipped" : "pending");
       return { ...e, status };
@@ -618,7 +634,7 @@ export async function compileBlock(req: Request, res: Response) {
     phase3_output: p3.phase3,
     phase4_program: programForSession,
     phase5_adjustments,
-    planned_session_from_engine,
+    planned_session_from_engine: planned_session_named,
     create_session,
     beta_subject_user_id:
       beta_session_binding
