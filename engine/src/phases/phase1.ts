@@ -3,6 +3,7 @@
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
 
+import { trainingCycleProblem, type TrainingCycle } from "./phase4/periodisation.js";
 import Ajv from "ajv";
 import fs from "node:fs";
 
@@ -34,6 +35,11 @@ export type Phase1CanonicalInput = {
   // Declared powerlifting competition event (the schema only admits it with
   // activity_id powerlifting). Absent selects the full-power programme.
   competition_event?: "full_power" | "bench_only" | "deadlift_only" | "push_pull" | "squat_only";
+
+  // Declared position in the periodised plan (macrocycle phase, mesocycle week,
+  // training days and this session's slot in the week). Absent keeps the
+  // single-session programme and the pre-periodisation canonical hash.
+  training_cycle?: TrainingCycle;
 
   nd_mode: boolean;
   instruction_density: string;
@@ -310,6 +316,20 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   if (typeof obj.competition_event === "string") {
     canonical.competition_event = obj.competition_event;
+  }
+
+  if (obj.training_cycle !== undefined) {
+    const cycle: TrainingCycle = {
+      macro_phase: obj.training_cycle.macro_phase,
+      meso_week: obj.training_cycle.meso_week,
+      days_per_week: obj.training_cycle.days_per_week,
+      session_slot: obj.training_cycle.session_slot
+    };
+    const problem = trainingCycleProblem(obj.activity_id, cycle);
+    if (problem) {
+      return { ok: false, failure_token: "type_mismatch", details: [{ instancePath: "/training_cycle", message: problem }] };
+    }
+    canonical.training_cycle = cycle;
   }
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");

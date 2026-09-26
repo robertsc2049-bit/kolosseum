@@ -3,12 +3,15 @@
 // free of product/UI/coach-note influence. Engine truth must come from explicit inputs,
 // canonical registries, and validated contracts only.
 
-import type { Phase4GroupType, Phase4ItemGroup, Phase4ItemPrescription, Phase4Template } from "./types.js";
+import type { Phase4GroupType, Phase4ItemGroup, Phase4ItemPrescription, Phase4MicrocycleDay, Phase4Template } from "./types.js";
+import { cycleModelFor, isPowerOrEccentricWork, periodisePrescriptions, sessionsPerWeek, type TrainingCycle } from "./periodisation.js";
+import { defaultPrescription } from "./planned_items.js";
 import { loadRegistryBundle } from "../../registries/loadRegistryBundle.js";
 
 type ProgramLevelVariant = {
   exercise_eligibility: string[];
   item_prescriptions: Phase4ItemPrescription[];
+  microcycle?: Phase4MicrocycleDay[];
 };
 
 // The base entry is the amateur programme; beginner and pro may each declare
@@ -30,6 +33,7 @@ export type ProgramTemplateEntry = {
   template_id: string;
   exercise_eligibility: string[];
   item_prescriptions?: Phase4ItemPrescription[];
+  microcycle?: Phase4MicrocycleDay[];
   level_variants?: Partial<Record<"beginner" | "pro", ProgramLevelVariant>>;
   event_variants?: Partial<Record<Exclude<CompetitionEvent, "full_power">, ProgramEventVariant>>;
 };
@@ -150,6 +154,28 @@ function validateItemPrescriptions(raw: unknown, i: number, eligibility: string[
   return prescriptions;
 }
 
+// A training week of 2-4 distinct sessions, in priority order (a two-session
+// in-season week uses the first two).
+function validateMicrocycle(raw: unknown, i: number, at: string): Phase4MicrocycleDay[] {
+  if (!Array.isArray(raw) || raw.length < 2 || raw.length > 4) die(`${at}.microcycle must list 2-4 sessions`);
+  const ids = new Set<string>();
+  return raw.map((day, d) => {
+    const here = `${at}.microcycle[${d}]`;
+    if (!isPlainObject(day)) die(`${here} must be an object`);
+    const day_id = day["day_id"];
+    const focus = day["focus"];
+    if (typeof day_id !== "string" || !/^[a-z][a-z0-9_]*$/.test(day_id)) die(`${here}.day_id invalid`);
+    if (ids.has(day_id)) die(`${here}.day_id ${day_id} duplicated`);
+    ids.add(day_id);
+    if (typeof focus !== "string" || !/^[a-z][a-z0-9_]*$/.test(focus)) die(`${here}.focus invalid`);
+    const elig = day["exercise_eligibility"];
+    if (!Array.isArray(elig) || elig.length === 0 || !elig.every((x) => typeof x === "string" && x.trim() !== "")) {
+      die(`${here}.exercise_eligibility must be a non-empty string array`);
+    }
+    return { day_id, focus, exercise_eligibility: elig as string[], item_prescriptions: validateItemPrescriptions(day["item_prescriptions"], i, elig as string[]) };
+  });
+}
+
 function validateLevelVariants(raw: unknown, i: number): Partial<Record<"beginner" | "pro", ProgramLevelVariant>> {
   const at = `program.entries[${i}].level_variants`;
   if (!isPlainObject(raw)) die(`${at} must be an object`);
@@ -165,6 +191,7 @@ function validateLevelVariants(raw: unknown, i: number): Partial<Record<"beginne
       exercise_eligibility: elig as string[],
       item_prescriptions: validateItemPrescriptions(variant["item_prescriptions"], i, elig as string[])
     };
+    if (variant["microcycle"] !== undefined) out[level]!.microcycle = validateMicrocycle(variant["microcycle"], i, `${at}.${level}`);
   }
   return out;
 }
@@ -186,6 +213,7 @@ function validateEventVariants(raw: unknown, i: number): NonNullable<ProgramTemp
       exercise_eligibility: elig as string[],
       item_prescriptions: validateItemPrescriptions(variant["item_prescriptions"], i, elig as string[])
     };
+    if (variant["microcycle"] !== undefined) parsed.microcycle = validateMicrocycle(variant["microcycle"], i, `${at}.${event}`);
     if (variant["level_variants"] !== undefined) parsed.level_variants = validateLevelVariants(variant["level_variants"], i);
     out[event as Exclude<CompetitionEvent, "full_power">] = parsed;
   }
@@ -231,6 +259,9 @@ export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
     };
     if (row["item_prescriptions"] !== undefined) {
       entry.item_prescriptions = validateItemPrescriptions(row["item_prescriptions"], i, exerciseEligibilityOut);
+    }
+    if (row["microcycle"] !== undefined) {
+      entry.microcycle = validateMicrocycle(row["microcycle"], i, `program.entries[${i}]`);
     }
     if (row["level_variants"] !== undefined) {
       entry.level_variants = validateLevelVariants(row["level_variants"], i);
@@ -283,6 +314,7 @@ export function entryForEvent(entry: ProgramTemplateEntry, event?: string): Prog
     exercise_eligibility: variant.exercise_eligibility,
     item_prescriptions: variant.item_prescriptions
   };
+  if (variant.microcycle) out.microcycle = variant.microcycle;
   if (variant.level_variants) out.level_variants = variant.level_variants;
   return out;
 }
@@ -292,9 +324,49 @@ export function entryForEvent(entry: ProgramTemplateEntry, event?: string): Prog
 export function templateForLevel(entry: ProgramTemplateEntry, level?: string): Phase4Template {
   const variant = level === "beginner" || level === "pro" ? entry.level_variants?.[level] : undefined;
   if (variant) {
-    return { program_id: entry.template_id, intent: variant.exercise_eligibility, prescriptions: variant.item_prescriptions };
+    const t: Phase4Template = { program_id: entry.template_id, intent: variant.exercise_eligibility, prescriptions: variant.item_prescriptions };
+    if (variant.microcycle) t.microcycle = variant.microcycle;
+    return t;
   }
-  return entry.item_prescriptions
+  const t: Phase4Template = entry.item_prescriptions
     ? { program_id: entry.template_id, intent: entry.exercise_eligibility, prescriptions: entry.item_prescriptions }
     : { program_id: entry.template_id, intent: entry.exercise_eligibility };
+  if (entry.microcycle) t.microcycle = entry.microcycle;
+  return t;
+}
+
+// Pure periodisation of a resolved template: pick this week's session for the
+// slot (the single full-body session when the phase allows one session a week
+// or the sport declares no microcycle), then apply the macrocycle phase,
+// mesocycle week and level ceilings to its prescriptions.
+export function templateForCycle(
+  template: Phase4Template,
+  activity: string,
+  cycle: TrainingCycle,
+  level?: string,
+  isFastExecution: (exerciseId: string) => boolean = () => false
+): Phase4Template {
+  const model = cycleModelFor(activity);
+  if (!model) throw new Error(`PHASE4_TEMPLATE_REGISTRY: activity ${activity} has no cycle model`);
+  const perWeek = sessionsPerWeek(cycle.macro_phase, cycle.days_per_week);
+  const week = perWeek > 1 && template.microcycle ? template.microcycle.slice(0, Math.min(template.microcycle.length, perWeek)) : null;
+  const day_index = week ? cycle.session_slot % week.length : 0;
+  const day = week ? week[day_index] : null;
+  const intent = day ? day.exercise_eligibility : template.intent;
+  const declared = day ? day.item_prescriptions : template.prescriptions;
+  const base = declared ?? intent.map((_, i) => defaultPrescription(i));
+  const deload = cycle.meso_week === 4 && cycle.macro_phase !== "taper" && cycle.macro_phase !== "transition";
+  return {
+    program_id: template.program_id,
+    intent,
+    prescriptions: periodisePrescriptions(base, cycle, level, intent.map((id) => isPowerOrEccentricWork(id, isFastExecution(id)))),
+    training_cycle: {
+      ...cycle,
+      cycle_model: model,
+      sessions_per_week: perWeek,
+      day_index,
+      day_focus: day ? day.focus : "full_body",
+      deload
+    }
+  };
 }

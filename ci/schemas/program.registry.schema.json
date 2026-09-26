@@ -104,6 +104,9 @@
                 "$ref": "#/$defs/event_variant"
               }
             }
+          },
+          "microcycle": {
+            "$ref": "#/$defs/microcycle"
           }
         }
       },
@@ -226,6 +229,9 @@
         },
         "item_prescriptions": {
           "$ref": "#/$defs/item_prescriptions"
+        },
+        "microcycle": {
+          "$ref": "#/$defs/microcycle"
         }
       }
     },
@@ -265,6 +271,47 @@
         },
         "level_variants": {
           "$ref": "#/$defs/level_variants"
+        },
+        "microcycle": {
+          "$ref": "#/$defs/microcycle"
+        }
+      }
+    },
+    "microcycle": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "day_id",
+          "focus",
+          "exercise_eligibility",
+          "item_prescriptions"
+        ],
+        "properties": {
+          "day_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "focus": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "exercise_eligibility": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "item_prescriptions": {
+            "$ref": "#/$defs/item_prescriptions"
+          }
         }
       }
     }
