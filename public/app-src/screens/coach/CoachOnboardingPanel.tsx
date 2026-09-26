@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
@@ -51,11 +51,6 @@ function ProfileForm({ profile, busy, onSave, formRef }: {
 }) {
   const [displayName, setDisplayName] = useState(clean(profile.display_name));
   const [email, setEmail] = useState(clean(profile.email));
-
-  useEffect(() => {
-    setDisplayName(clean(profile.display_name));
-    setEmail(clean(profile.email));
-  }, [profile.display_name, profile.email]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -112,15 +107,6 @@ function AccessibilityForm({ preferences, busy, onSave }: {
   onSave: (input: JsonRecord) => void;
 }) {
   const [value, setValue] = useState(preferences);
-
-  // Re-sync only when the saved preferences actually change. The parent
-  // builds a new preferences object on every render, so depending on the
-  // object itself reset the form - silently discarding the coach's unsaved
-  // ticks - whenever anything re-rendered the panel before they saved.
-  useEffect(() => {
-    setValue(preferences);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preferences.reduced_motion, preferences.high_contrast, preferences.larger_text, preferences.screen_reader_optimised]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -279,14 +265,19 @@ export function CoachOnboardingPanel() {
       </div>
       {validationError ? <p className="inline-result" data-tone="error">{errorMessage(validationError)}</p> : null}
       {!validationError && confirmation ? <p className="inline-result" data-tone="success">{confirmation}</p> : null}
+      {/* The forms start from the saved values and are remounted (keyed) when
+          those change. They used to copy them in with an effect, which could
+          run after the coach had already typed or ticked - silently wiping
+          their unsaved input (and, with a required field emptied, blocking
+          the save) - or on any re-render that rebuilt the preferences object. */}
       {(stage === "profile" || completed) ? (
-        <ProfileForm profile={profile} busy={busy} onSave={handleSaveProfile} formRef={profileFormRef} />
+        <ProfileForm key={`profile:${clean(profile.display_name)}|${clean(profile.email)}`} profile={profile} busy={busy} onSave={handleSaveProfile} formRef={profileFormRef} />
       ) : null}
       {stage === "terms" ? (
         <TermsForm termsVersion={clean(serverState.current_terms_version)} busy={busy} onAccept={handleAcceptTerms} />
       ) : null}
       {(stage === "accessibility" || completed) ? (
-        <AccessibilityForm preferences={accessibilityPreferences} busy={busy} onSave={handleSaveAccessibilityPreferences} />
+        <AccessibilityForm key={`a11y:${JSON.stringify(accessibilityPreferences)}`} preferences={accessibilityPreferences} busy={busy} onSave={handleSaveAccessibilityPreferences} />
       ) : null}
       {stage === "review" ? (
         <ReviewPanel
