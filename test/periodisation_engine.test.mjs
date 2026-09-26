@@ -301,3 +301,24 @@ test("content: collision and combat athletes train the neck at least twice in a 
     }
   }
 });
+
+// Olympic lifts are technique-limited; a beginner learns them in doubles and
+// triples - fatigue from fives, sevens or eights breaks the technique first.
+test("a beginner never does more than 3 reps of an Olympic lift, in any sport, phase, week or session", () => {
+  const OLYMPIC = /^(snatch|power_snatch|hang_snatch|power_clean|hang_clean|hang_power_clean|clean|clean_and_jerk|push_jerk|split_jerk|jerk)$/;
+  let checked = 0;
+  for (const activity of ACTIVITIES) {
+    for (const phase of MACRO_PHASES_BY_MODEL[cycleModelFor(activity)]) {
+      for (const week of [1, 2, 3, 4]) {
+        for (const slot of [0, 1, 2]) {
+          for (const it of run(activity, "beginner", cycle(phase, week, 3, slot)).planned_items) {
+            if (!OLYMPIC.test(it.exercise_id) || it.group_id) continue;
+            assert.ok(it.reps <= 3, `${activity}/${phase}/w${week}/s${slot}: beginner ${it.exercise_id} ${it.sets}x${it.reps}`);
+            checked++;
+          }
+        }
+      }
+    }
+  }
+  assert.ok(checked > 20, `checked ${checked} beginner Olympic lifts`);
+});

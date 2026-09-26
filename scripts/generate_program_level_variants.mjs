@@ -30,6 +30,11 @@ const BEGINNER_SWAPS = {
 };
 // Landing drills are low-rep quality work.
 const LANDING_DOSE = P(3, 5, bw, 60);
+// Olympic lifts are technique-limited: a beginner learns them in doubles and
+// triples, never in fives or eights (fatigue breaks the technique first).
+const OLYMPIC_LIFT = /^(snatch|power_snatch|hang_snatch|power_clean|hang_clean|hang_power_clean|clean|clean_and_jerk|push_jerk|split_jerk|jerk)$/;
+const BEGINNER_OLYMPIC_MAX_REPS = 3;
+const beginnerReps = (id, reps, floor) => OLYMPIC_LIFT.test(id) ? Math.min(reps, BEGINNER_OLYMPIC_MAX_REPS) : Math.max(reps, floor);
 
 // Hand-tuned strength sports: level matters most here, and generic regressions
 // would be wrong (a beginner powerlifter still learns the competition lifts).
@@ -147,10 +152,11 @@ function beginnerOf(entry) {
     if (!q.group) q.sets = Math.max(2, q.sets - 1);
     if (q.intensity.type === "percent_1rm") {
       q.intensity = rpe(6);
-      if (q.reps < 6) q.reps = 8;
+      q.reps = q.reps < 6 ? beginnerReps(target, q.reps, 8) : beginnerReps(target, q.reps, q.reps);
     } else if (q.intensity.type === "rpe" && q.intensity.value > 7) {
       q.intensity = rpe(7);
     }
+    if (OLYMPIC_LIFT.test(target)) q.reps = Math.min(q.reps, BEGINNER_OLYMPIC_MAX_REPS);
     out.push([target, q]);
   });
   return out;
@@ -209,8 +215,9 @@ function strengthBeginner(items, activity) {
     if (!q.group) q.sets = Math.max(2, q.sets - 1);
     if (q.intensity.type === "percent_1rm") {
       q.intensity = rpe(6);
-      if (!q.distance_m && !q.duration_seconds && q.reps < 5) q.reps = 5;
+      if (!q.distance_m && !q.duration_seconds) q.reps = beginnerReps(id, q.reps, 5);
     } else if (q.intensity.type === "rpe" && q.intensity.value > 7) q.intensity = rpe(7);
+    if (OLYMPIC_LIFT.test(id) && !q.group) q.reps = Math.min(q.reps, BEGINNER_OLYMPIC_MAX_REPS);
     return [id, q];
   });
 }
