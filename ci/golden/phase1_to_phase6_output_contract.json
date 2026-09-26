@@ -11,7 +11,7 @@
         "exercises": [
           {
             "block_id": "B0",
-            "exercise_id": "deadlift",
+            "exercise_id": "trap_bar_deadlift",
             "intensity": {
               "type": "percent_1rm",
               "value": 75
@@ -19,64 +19,49 @@
             "item_id": "B0_I0",
             "reps": 5,
             "resolved_load": null,
-            "rest_seconds": 180,
+            "rest_seconds": 150,
             "segment": "working",
-            "sets": 4,
+            "sets": 3,
             "source": "program"
           },
           {
             "block_id": "B0",
-            "exercise_id": "bench_press",
+            "exercise_id": "goblet_squat",
             "intensity": {
-              "type": "percent_1rm",
-              "value": 75
+              "type": "rpe",
+              "value": 7
             },
             "item_id": "B0_I1",
-            "reps": 5,
+            "reps": 8,
             "resolved_load": null,
-            "rest_seconds": 180,
+            "rest_seconds": 90,
             "segment": "working",
-            "sets": 4,
+            "sets": 3,
             "source": "program"
           },
           {
             "block_id": "B0",
-            "exercise_id": "back_squat",
+            "exercise_id": "dumbbell_bench_press",
             "intensity": {
-              "type": "percent_1rm",
-              "value": 75
+              "type": "rpe",
+              "value": 7
             },
             "item_id": "B0_I2",
-            "reps": 5,
+            "reps": 8,
             "resolved_load": null,
-            "rest_seconds": 180,
+            "rest_seconds": 90,
             "segment": "working",
-            "sets": 4,
+            "sets": 3,
             "source": "program"
           },
           {
             "block_id": "B0",
-            "exercise_id": "overhead_press",
+            "exercise_id": "single_arm_dumbbell_row",
             "intensity": {
-              "type": "percent_1rm",
-              "value": 75
+              "type": "rpe",
+              "value": 7
             },
             "item_id": "B0_I3",
-            "reps": 5,
-            "resolved_load": null,
-            "rest_seconds": 180,
-            "segment": "working",
-            "sets": 4,
-            "source": "program"
-          },
-          {
-            "block_id": "B0",
-            "exercise_id": "incline_bench_press",
-            "intensity": {
-              "type": "percent_1rm",
-              "value": 60
-            },
-            "item_id": "B0_I4",
             "reps": 10,
             "resolved_load": null,
             "rest_seconds": 90,
@@ -86,15 +71,30 @@
           },
           {
             "block_id": "B0",
-            "exercise_id": "push_up",
+            "exercise_id": "farmers_carry",
             "intensity": {
-              "type": "percent_1rm",
-              "value": 60
+              "type": "rpe",
+              "value": 7
+            },
+            "item_id": "B0_I4",
+            "reps": 1,
+            "resolved_load": null,
+            "rest_seconds": 90,
+            "segment": "working",
+            "sets": 3,
+            "source": "program"
+          },
+          {
+            "block_id": "B0",
+            "exercise_id": "pallof_press",
+            "intensity": {
+              "type": "rpe",
+              "value": 7
             },
             "item_id": "B0_I5",
             "reps": 10,
             "resolved_load": null,
-            "rest_seconds": 90,
+            "rest_seconds": 60,
             "segment": "working",
             "sets": 3,
             "source": "program"
