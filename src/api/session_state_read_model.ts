@@ -43,6 +43,32 @@ export async function loadSessionStateRow(client: any, session_id: string) {
   return (r.rowCount ?? 0) > 0 ? r.rows[0] : null;
 }
 
+// What the athlete has logged on each prescribed set (latest entry per
+// exercise and set), keyed by exercise_id; empty when nothing is logged.
+export async function loadSessionSetLogs(client: any, session_id: string): Promise<Record<string, unknown[]>> {
+  const logs = await client.query(
+    `SELECT DISTINCT ON (event->>'exercise_id', (event->>'set_index')::int)
+       event->>'exercise_id' AS exercise_id, (event->>'set_index')::int AS set_index,
+       (event->>'reps')::int AS reps, (event->>'load_value')::numeric AS load_value,
+       event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr
+     FROM runtime_events
+     WHERE session_id = $1 AND event->>'type' = 'SET_LOG_REPORT'
+     ORDER BY event->>'exercise_id', (event->>'set_index')::int, seq DESC`,
+    [session_id]
+  );
+  const setLogs: Record<string, unknown[]> = {};
+  for (const row of logs.rows ?? []) {
+    (setLogs[row.exercise_id] ??= []).push({
+      set_index: row.set_index,
+      reps: row.reps,
+      load_value: row.load_value === null ? null : Number(row.load_value),
+      load_unit: row.load_unit ?? null,
+      is_pr: row.is_pr === true
+    });
+  }
+  return setLogs;
+}
+
 export function uniqStable(ids: unknown): string[] {
   const arr = Array.isArray(ids) ? ids : [];
   const seen = new Set<string>();
