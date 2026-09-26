@@ -108,7 +108,11 @@ const repsLocked = (p: Phase4ItemPrescription) => p.distance_m !== undefined || 
 // Macrocycle phase: turns the authored (build/pre-season/intensification)
 // session into that phase's version. Timed groups are never altered - their
 // structure is the workout.
-function applyPhase(p: Phase4ItemPrescription, i: number, phase: string): Phase4ItemPrescription {
+// Power work (jumps, sprints, throws, Olympic lifts, conditioning) and
+// eccentric overload (Nordics) keep their authored sets and reps in general
+// preparation: power is low-volume, full-recovery quality work, and doubling
+// eccentric volume invites exactly the injury it is there to prevent.
+function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWork: boolean): Phase4ItemPrescription {
   if (p.group) return p;
   const q: Phase4ItemPrescription = { ...p, intensity: { ...p.intensity } as PlannedItemIntensity };
   const primary = i < PRIMARY_COUNT;
@@ -117,8 +121,10 @@ function applyPhase(p: Phase4ItemPrescription, i: number, phase: string): Phase4
     case "off_season":
     case "accumulation":
     case "base":
-      q.sets = Math.min(primary ? 6 : 4, q.sets + 1);
-      if (!repsLocked(q) && q.reps >= 2 && q.reps <= 6) q.reps += 2;
+      if (!powerWork) {
+        q.sets = Math.min(primary ? 6 : 4, q.sets + 1);
+        if (!repsLocked(q) && q.reps >= 2 && q.reps <= 6) q.reps += 2;
+      }
       q.intensity = shiftIntensity(q.intensity, -5, 0);
       return q;
     // Competition-specific: heavier, fewer reps on the primaries, less accessory work.
@@ -171,14 +177,23 @@ function applyLevelCeiling(p: Phase4ItemPrescription, level: string | undefined)
   return q;
 }
 
+// Exercises whose volume never grows in general preparation: registry
+// fast-execution work (jumps, sprints, throws, Olympic lifts, conditioning)
+// plus eccentric overload.
+const ECCENTRIC_OVERLOAD: ReadonlySet<string> = new Set(["nordic_curl", "glute_ham_raise"]);
+export function isPowerOrEccentricWork(exerciseId: string, fastExecution: boolean): boolean {
+  return fastExecution || ECCENTRIC_OVERLOAD.has(exerciseId);
+}
+
 export function periodisePrescriptions(
   prescriptions: Phase4ItemPrescription[],
   cycle: TrainingCycle,
-  level: string | undefined
+  level: string | undefined,
+  powerWork: readonly boolean[] = []
 ): Phase4ItemPrescription[] {
   const meso = cycle.macro_phase !== "taper" && cycle.macro_phase !== "transition";
   return prescriptions.map((p, i) => {
-    let q = applyPhase(p, i, cycle.macro_phase);
+    let q = applyPhase(p, i, cycle.macro_phase, powerWork[i] === true);
     if (meso) q = applyMesoWeek(q, cycle.meso_week);
     return applyLevelCeiling(q, level);
   });

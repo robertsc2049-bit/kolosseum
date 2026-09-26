@@ -205,3 +205,33 @@ test("periodisation: the session output records where it sits in the plan", () =
     cycle_model: "season", sessions_per_week: 2, day_index: 0, day_focus: "full_body", deload: true
   });
 });
+
+// Power work is low-volume, full-recovery quality work; doubling eccentric
+// (Nordic) volume invites the hamstring injury it is there to prevent.
+test("general preparation never adds sets or reps to jumps, sprints, throws, Olympic lifts, conditioning or Nordics", () => {
+  const REGISTRY = JSON.parse(fs.readFileSync("registries/exercise/exercise.registry.json", "utf8")).entries;
+  const protectedWork = (id) => REGISTRY[id]?.fast_execution === true || id === "nordic_curl" || id === "glute_ham_raise";
+  const GENERAL = { season: "off_season", meet: "accumulation", event: "base" };
+  const BUILD = { season: "pre_season", meet: "intensification", event: "build" };
+  let checked = 0;
+  for (const activity of ACTIVITIES) {
+    const model = cycleModelFor(activity);
+    for (const level of LEVELS) {
+      for (const slot of [0, 1, 2]) {
+        const general = run(activity, level, cycle(GENERAL[model], 2, 3, slot)).planned_items;
+        const build = run(activity, level, cycle(BUILD[model], 2, 3, slot)).planned_items;
+        for (const [i, it] of general.entries()) {
+          if (it.group_id || !protectedWork(it.exercise_id)) continue;
+          assert.equal(it.exercise_id, build[i].exercise_id);
+          assert.deepEqual([it.sets, it.reps], [build[i].sets, build[i].reps], `${activity}/${level} ${it.exercise_id}: ${it.sets}x${it.reps} in general prep vs ${build[i].sets}x${build[i].reps}`);
+          checked++;
+        }
+      }
+    }
+  }
+  assert.ok(checked > 100, `checked ${checked} power/eccentric items`);
+  // Strength lifts still build volume in general preparation.
+  const acc = run("rugby_union", "amateur", cycle("off_season")).planned_items.find((x) => x.exercise_id === "trap_bar_deadlift");
+  const pre = run("rugby_union", "amateur", cycle("pre_season")).planned_items.find((x) => x.exercise_id === "trap_bar_deadlift");
+  assert.ok(acc.sets > pre.sets && acc.reps > pre.reps, "trap-bar deadlift still gains sets and reps off-season");
+});
