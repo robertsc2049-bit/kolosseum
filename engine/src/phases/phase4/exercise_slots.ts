@@ -7,7 +7,10 @@
 // other item is an open slot with a purpose (its movement pattern and
 // whether it is explosive work) that the athlete or coach fills with an
 // exercise of their choice. The engine never picks one for them: when a
-// caller declares its choices, a slot left empty fails the session.
+// caller declares its choices, a slot left empty fails the session. It
+// recommends exercises that fit the slot, but never locks any out: any
+// exercise in the registry may be chosen, and a choice outside the
+// recommendations is reported with the reason it is not one.
 
 import type { Phase4ItemPrescription, Phase4MicrocycleDay } from "./types.js";
 
@@ -68,12 +71,14 @@ export function slotIdsForDay(
   });
 }
 
-// What may fill a slot: the same movement pattern and the same kind of work
-// (explosive vs strength) as the programme's reference exercise, training-
-// allowed for the sport, suitable for the level (no advanced lifts or
-// reactive plyometrics for beginners), and not excluded by a declared joint
-// stress to avoid or by equipment that is banned or not available.
-export function isEligibleForSlot(candidateId: string, referenceId: string, ctx: SlotContext): string | null {
+// What the engine recommends for a slot: the same movement pattern and the
+// same kind of work (explosive vs strength) as the programme's reference
+// exercise, training-allowed for the sport, suitable for the level (no
+// advanced lifts or reactive plyometrics for beginners), and not excluded by
+// a declared joint stress to avoid or by equipment that is banned or not
+// available. Returns why a candidate is not recommended, or null when it is.
+// A recommendation only - it never refuses a choice.
+export function slotFitIssue(candidateId: string, referenceId: string, ctx: SlotContext): string | null {
   const candidate = ctx.exercises[candidateId];
   const reference = ctx.exercises[referenceId];
   if (!candidate) return "unknown_exercise";
@@ -94,9 +99,9 @@ export function isEligibleForSlot(candidateId: string, referenceId: string, ctx:
   return null;
 }
 
-export function eligibleExercisesForSlot(referenceId: string, ctx: SlotContext): string[] {
+export function recommendedExercisesForSlot(referenceId: string, ctx: SlotContext): string[] {
   return Object.keys(ctx.exercises)
-    .filter((id) => isEligibleForSlot(id, referenceId, ctx) === null)
+    .filter((id) => slotFitIssue(id, referenceId, ctx) === null)
     .sort();
 }
 
@@ -105,8 +110,9 @@ export type SlotSelectionFailure =
   | { failure_token: "exercise_selection_invalid"; details: { slot_id: string; exercise_id: string; reason: string } };
 
 // Replace each open slot of the day with the athlete's choice. Fixed items keep
-// their named exercise. A missing choice, an ineligible one, or the same
-// exercise twice in one session fails the whole session - never a silent default.
+// their named exercise. Any known exercise may be chosen, recommended or not;
+// a missing choice, an exercise that does not exist, or the same exercise
+// twice in one session fails the whole session - never a silent default.
 export function applySelectionsToDay(
   dayId: string,
   intent: string[],
@@ -124,8 +130,8 @@ export function applySelectionsToDay(
   for (let i = 0; i < intent.length; i++) {
     const slotId = slotIds[i];
     if (slotId === null) continue;
-    const reason = isEligibleForSlot(chosen[i], intent[i], ctx)
-      ?? (chosen.indexOf(chosen[i]) !== i ? "duplicate_in_session" : null);
+    const reason = !ctx.exercises[chosen[i]] ? "unknown_exercise"
+      : chosen.indexOf(chosen[i]) !== i ? "duplicate_in_session" : null;
     if (reason) return { ok: false, failure_token: "exercise_selection_invalid", details: { slot_id: slotId, exercise_id: chosen[i], reason } };
   }
   return { ok: true, intent: chosen };
@@ -136,15 +142,21 @@ export type SlotListing = {
   focus: string;
   items: Array<
     | { kind: "fixed"; exercise_id: string; prescription: Phase4ItemPrescription | null }
-    | { kind: "slot"; slot_id: string; movement_pattern_id: string; explosive: boolean; prescription: Phase4ItemPrescription | null; eligible_exercise_ids: string[] }
+    | { kind: "slot"; slot_id: string; movement_pattern_id: string; explosive: boolean; prescription: Phase4ItemPrescription | null;
+        recommended_exercise_ids: string[];
+        // With choices given: the slot's choice and why it is not recommended (null when it is).
+        selected_exercise_id?: string | null; selected_fit_issue?: string | null }
   >;
 };
 
 // Every day of the athlete's programme with its fixed items and open slots
-// (and what may fill each), for choosing exercises before training.
+// (and what the engine recommends for each), for choosing exercises before
+// training. With the athlete's choices, each slot also says whether its
+// choice is a recommended one.
 export function listProgrammeSlots(
   days: Array<Pick<Phase4MicrocycleDay, "day_id" | "focus" | "exercise_eligibility" | "item_prescriptions">>,
-  ctx: SlotContext
+  ctx: SlotContext,
+  selections?: ExerciseSelections
 ): SlotListing[] {
   return days.map((day) => {
     const slotIds = slotIdsForDay(day.day_id, day.exercise_eligibility, day.item_prescriptions, ctx.exercises);
@@ -162,9 +174,15 @@ export function listProgrammeSlots(
           movement_pattern_id: patternOf(reference),
           explosive: isFast(reference),
           prescription,
-          eligible_exercise_ids: eligibleExercisesForSlot(referenceId, ctx)
+          recommended_exercise_ids: recommendedExercisesForSlot(referenceId, ctx),
+          ...(selections ? selectionFit(selections[slotId], referenceId, ctx) : {})
         };
       })
     };
   });
+}
+
+function selectionFit(choice: string | undefined, referenceId: string, ctx: SlotContext) {
+  if (typeof choice !== "string" || !ctx.exercises[choice]) return { selected_exercise_id: null, selected_fit_issue: null };
+  return { selected_exercise_id: choice, selected_fit_issue: slotFitIssue(choice, referenceId, ctx) };
 }

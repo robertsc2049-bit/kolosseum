@@ -779,7 +779,7 @@ test(
 );
 
 test(
-  "FULL-UI-03C a self-directed athlete chooses their own exercises; only competition lifts are named, and nothing is chosen for them",
+  "FULL-UI-03C a self-directed athlete chooses their own exercises; only competition lifts are named, nothing is chosen for them and nothing is locked out",
   { timeout: 180000 },
   async (testContext) => {
     const root = repoRoot();
@@ -828,14 +828,15 @@ test(
     const slots = days.flatMap((d) => d.items.filter((i) => i.kind === "slot").map((i) => ({ ...i, day: d.day_id })));
     assert.ok(slots.length >= 10, "everything else is the athlete's to choose");
     assert.ok(slots.every((slot) => slot.selected_exercise_id === null), "nothing is chosen for them");
-    assert.ok(slots.every((slot) => slot.options.length > 0 && slot.options.every((o) => o.display_name)), "every slot offers named options");
+    assert.ok(slots.every((slot) => slot.options.length > 0 && slot.options.every((o) => o.display_name)), "every slot recommends named options");
+    assert.ok(listing.json.all_exercises.length > 100 && listing.json.all_exercises.every((o) => o.display_name), "every exercise can be chosen");
     assert.equal(listing.json.missing_slot_ids.length, slots.length);
 
     const squatSlot = slots.find((slot) => slot.day === "squat" && slot.movement_pattern_id === "squat");
     const put = (selections) => requestJson(server.baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf, body: { selections } });
     for (const [selections, label] of [
       [{ "squat.made_up_1": "front_squat" }, "a slot that is not in the programme"],
-      [{ [squatSlot.slot_id]: "bench_press" }, "an exercise that does not train the slot"],
+      [{ [squatSlot.slot_id]: "made_up_lift" }, "an exercise that does not exist"],
       [{ [squatSlot.slot_id]: "back_squat" }, "the day's named lift again"]
     ]) {
       const refused = await put(selections);
@@ -843,11 +844,20 @@ test(
       assert.ok(Object.keys(refused.json.field_errors ?? {}).length === 1, label);
     }
 
+    // Nothing is locked out: an exercise the programme would not recommend for
+    // the slot can still be chosen, and the athlete is told why it is not one.
+    const offPlan = await put({ [squatSlot.slot_id]: "bench_press" });
+    assertStatus(offPlan, 200, "choose an exercise outside the recommendations");
+    const offPlanSlot = offPlan.json.days.flatMap((d) => d.items).find((i) => i.slot_id === squatSlot.slot_id);
+    assert.equal(offPlanSlot.selected_exercise_id, "bench_press");
+    assert.equal(offPlanSlot.selected_fit_note, "Trains a different movement from this slot.");
+
     // Partial progress saves, and the session names exactly what is still empty.
     const partial = await put({ [squatSlot.slot_id]: "front_squat" });
     assertStatus(partial, 200, "save one choice");
     assert.equal(partial.json.complete, false);
     assert.equal(partial.json.selections[squatSlot.slot_id], "front_squat");
+    assert.equal(partial.json.days.flatMap((d) => d.items).find((i) => i.slot_id === squatSlot.slot_id).selected_fit_note, null, "a recommended choice has no note");
     const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
     const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
       cookie, csrf,
@@ -871,17 +881,20 @@ test(
     assert.deepEqual(created.json.planned_session.exercises.map((e) => e.exercise_id),
       squatDay.items.map((i) => (i.kind === "fixed" ? i.exercise_id : selections[i.slot_id])));
 
-    // Becoming a beginner re-opens only the choices that are no longer suitable.
+    // Becoming a beginner keeps every choice - nothing is locked out - and
+    // flags any that are no longer recommended for the new level.
     const prefs = await requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
       cookie, csrf, body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", experience_level: "beginner" }
     });
     assertStatus(prefs, 200, "change to beginner");
     const after = await requestJson(server.baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+    assert.equal(after.json.complete, true, "no choice is dropped");
     for (const day of after.json.days) {
       for (const item of day.items.filter((i) => i.kind === "slot")) {
-        if (item.selected_exercise_id) assert.ok(item.options.some((o) => o.exercise_id === item.selected_exercise_id), `${item.slot_id} keeps only a still-eligible choice`);
+        assert.equal(item.selected_exercise_id, selections[item.slot_id], `${item.slot_id} keeps the athlete's choice`);
+        const recommended = item.options.some((o) => o.exercise_id === item.selected_exercise_id);
+        assert.equal(item.selected_fit_note === null, recommended, `${item.slot_id} is flagged only when no longer recommended`);
       }
     }
-    assert.deepEqual(after.json.missing_slot_ids, after.json.days.flatMap((d) => d.items.filter((i) => i.kind === "slot" && !i.selected_exercise_id).map((i) => i.slot_id)));
   }
 );

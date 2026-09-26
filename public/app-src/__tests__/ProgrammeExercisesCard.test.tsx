@@ -13,7 +13,14 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
 const rx = (sets: number, reps: number, intensity: Record<string, unknown>) => ({ sets, reps, intensity, rest_seconds: 120 });
 
 // A powerlifter's squat day: the squat and paused bench are named; the rest are hers to choose.
-function programme(selections: Record<string, string> = {}) {
+const ALL_EXERCISES = [
+  { exercise_id: "back_squat", display_name: "Back squat" }, { exercise_id: "barbell_row", display_name: "Barbell row" },
+  { exercise_id: "bench_press", display_name: "Bench press" }, { exercise_id: "front_squat", display_name: "Front squat" },
+  { exercise_id: "goblet_squat", display_name: "Goblet squat" }, { exercise_id: "leg_press", display_name: "Leg press" },
+  { exercise_id: "paused_back_squat", display_name: "Paused back squat" }, { exercise_id: "seated_cable_row", display_name: "Seated cable row" }
+];
+
+function programme(selections: Record<string, string> = {}, notes: Record<string, string> = {}) {
   const slots = [
     { slot_id: "squat.squat_1", movement_pattern_id: "squat", explosive: false, prescription: rx(3, 3, { type: "percent_1rm", value: 68 }), options: [{ exercise_id: "back_squat", display_name: "Back squat" }, { exercise_id: "paused_back_squat", display_name: "Paused back squat" }, { exercise_id: "front_squat", display_name: "Front squat" }, { exercise_id: "goblet_squat", display_name: "Goblet squat" }] },
     { slot_id: "squat.horizontal_pull_1", movement_pattern_id: "horizontal_pull", explosive: false, prescription: rx(3, 8, { type: "rpe", value: 8 }), options: [{ exercise_id: "barbell_row", display_name: "Barbell row" }, { exercise_id: "seated_cable_row", display_name: "Seated cable row" }] }
@@ -26,13 +33,14 @@ function programme(selections: Record<string, string> = {}) {
       items: [
         { kind: "fixed", exercise_id: "back_squat", display_name: "Back squat", prescription: rx(5, 3, { type: "percent_1rm", value: 80 }) },
         { kind: "fixed", exercise_id: "paused_bench_press", display_name: "Paused bench press", prescription: rx(4, 4, { type: "percent_1rm", value: 72 }) },
-        ...slots.map((s) => ({ kind: "slot", ...s, selected_exercise_id: selections[s.slot_id] ?? null }))
+        ...slots.map((s) => ({ kind: "slot", ...s, selected_exercise_id: selections[s.slot_id] ?? null, selected_fit_note: notes[s.slot_id] ?? null }))
       ]
     }],
     selections,
     open_slot_count: slots.length,
     missing_slot_ids: missing,
-    complete: missing.length === 0
+    complete: missing.length === 0,
+    all_exercises: ALL_EXERCISES
   };
 }
 
@@ -105,8 +113,38 @@ test("an exercise already in that session cannot be chosen twice", async () => {
   assert.equal(option("paused_back_squat").disabled, false);
 });
 
+test("nothing is locked out: an exercise outside the recommendations can be chosen, and says why it is not recommended", async () => {
+  const saves = installMocks({
+    onSave: (body) => jsonResponse(programme(body.selections as Record<string, string>, { "squat.squat_1": "Trains a different movement from this slot." }))
+  });
+  render(<ProgrammeExercisesCard />);
+  await screen.findByText("0 of 2 exercises chosen");
+  await act(async () => {
+    fireEvent.click(screen.getByText("Choose exercises"));
+  });
+  const squat = screen.getByLabelText("Squat Day: Squat") as HTMLSelectElement;
+  const groups = Array.from(squat.querySelectorAll("optgroup")).map((g) => [g.label, Array.from(g.querySelectorAll("option")).map((o) => o.value)]);
+  assert.deepEqual(groups, [
+    ["Recommended", ["back_squat", "paused_back_squat", "front_squat", "goblet_squat"]],
+    ["All other exercises", ["barbell_row", "bench_press", "leg_press", "seated_cable_row"]]
+  ]);
+  fireEvent.change(squat, { target: { value: "leg_press" } });
+  assert.ok(screen.getByText("Not one of the recommended exercises for this slot."));
+  fireEvent.change(screen.getByLabelText("Squat Day: Horizontal Pull"), { target: { value: "seated_cable_row" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save exercises"));
+  });
+  await waitFor(() => assert.equal(saves.length, 1));
+  assert.deepEqual(saves[0], { selections: { "squat.squat_1": "leg_press", "squat.horizontal_pull_1": "seated_cable_row" } });
+  await screen.findByText("2 of 2 exercises chosen");
+  await act(async () => {
+    fireEvent.click(screen.getByText("Change exercises"));
+  });
+  assert.ok(screen.getByText("Trains a different movement from this slot."), "the saved choice carries the programme's reason");
+});
+
 test("a choice the server refuses is shown on its slot", async () => {
-  installMocks({ onSave: () => jsonResponse({ error: "athlete_onboarding_validation_failed", field_errors: { "squat.squat_1": "Choose one of the exercises offered for this slot." } }, false, 422) });
+  installMocks({ onSave: () => jsonResponse({ error: "athlete_onboarding_validation_failed", field_errors: { "squat.squat_1": "Choose an exercise from the list." } }, false, 422) });
   render(<ProgrammeExercisesCard />);
   await screen.findByText("0 of 2 exercises chosen");
   await act(async () => {
@@ -116,7 +154,7 @@ test("a choice the server refuses is shown on its slot", async () => {
   await act(async () => {
     fireEvent.click(screen.getByText("Save exercises"));
   });
-  await screen.findByText("Choose one of the exercises offered for this slot.");
+  await screen.findByText("Choose an exercise from the list.");
   assert.ok(screen.getByText("Some choices could not be saved - check the highlighted slots."));
 });
 
