@@ -6,12 +6,68 @@
       "activity_id": "powerlifting",
       "template_id": "PROGRAM_POWERLIFTING_V1",
       "exercise_eligibility": [
-        "bench_press",
         "back_squat",
+        "paused_bench_press",
         "deadlift",
-        "overhead_press",
-        "incline_bench_press",
-        "push_up"
+        "close_grip_bench_press",
+        "barbell_row",
+        "cable_triceps_pressdown"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 5,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 80
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 5,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 77
+          },
+          "rest_seconds": 180
+        },
+        {
+          "sets": 3,
+          "reps": 3,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 82
+          },
+          "rest_seconds": 240
+        },
+        {
+          "sets": 3,
+          "reps": 6,
+          "intensity": {
+            "type": "percent_1rm",
+            "value": 70
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 12,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 60
+        }
       ]
     },
     {
@@ -220,12 +276,68 @@
       "activity_id": "hyrox",
       "template_id": "PROGRAM_HYROX_V1",
       "exercise_eligibility": [
+        "tempo_run",
         "sled_push",
         "sled_drag",
-        "sandbag_lunge",
-        "farmers_carry",
         "wall_ball",
+        "sandbag_lunge",
         "burpee_broad_jump"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 4,
+          "reps": 1,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 4,
+          "reps": 1,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 4,
+          "reps": 1,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120
+        },
+        {
+          "sets": 3,
+          "reps": 20,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 20,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 90
+        }
       ]
     },
     {
