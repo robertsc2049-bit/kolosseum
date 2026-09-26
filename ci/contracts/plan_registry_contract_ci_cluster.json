@@ -4,6 +4,7 @@
     "node test/athlete_level_engine.test.mjs",
     "node test/powerlifting_event_engine.test.mjs",
     "node test/periodisation_engine.test.mjs",
+    "node test/exercise_slots_engine.test.mjs",
     "node test/registry_exercise_entries.test.mjs",
     "node test/phase6_requires_planned_items.test.mjs"
   ]

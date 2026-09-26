@@ -41,6 +41,10 @@ export type Phase1CanonicalInput = {
   // single-session programme and the pre-periodisation canonical hash.
   training_cycle?: TrainingCycle;
 
+  // The athlete's chosen exercise for each open programme slot. Declaring it
+  // (even empty) opts into choice: an unfilled slot then fails the session.
+  exercise_selections?: Record<string, string>;
+
   nd_mode: boolean;
   instruction_density: string;
   exposure_prompt_density: string;
@@ -316,6 +320,10 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   if (typeof obj.competition_event === "string") {
     canonical.competition_event = obj.competition_event;
+  }
+
+  if (obj.exercise_selections !== undefined) {
+    canonical.exercise_selections = Object.fromEntries(Object.keys(obj.exercise_selections).sort().map((k) => [k, obj.exercise_selections[k]]));
   }
 
   if (obj.training_cycle !== undefined) {

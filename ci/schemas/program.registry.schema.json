@@ -205,6 +205,9 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 3600
+          },
+          "fixed": {
+            "const": true
           }
         }
       }
