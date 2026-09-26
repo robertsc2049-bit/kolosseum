@@ -81,6 +81,22 @@ export function restoreAccountSession() {
   );
 }
 
+// The athlete's current effective declaration, straight from the server.
+// app.js's bootstrap-time declarationRecord/phase1Input cache goes stale
+// the moment a self-service activity change (or a confirmed coach
+// proposal, or a queued change applied after the current session) lands
+// - session creation re-reads it through this instead of trusting that
+// cache, so a compile can never be built for the previous sport.
+export async function loadCurrentAthleteDeclaration() {
+  const response = await restoreAccountSession();
+  const record = response?.bootstrap?.declaration_record ?? null;
+
+  return {
+    declaration_record: record,
+    phase1_input: record?.engine_phase1_input ?? null
+  };
+}
+
 // DEV NOTE: FULL-UI-02 sign_out transport moved to React (client.ts's
 // signOutAccount()) - was only ever consumed by app.js's now-removed
 // clearLocalSession().

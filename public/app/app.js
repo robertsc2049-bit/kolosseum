@@ -1,5 +1,6 @@
 import {
   loadAccountDetail as fetchAccountDetail,
+  loadCurrentAthleteDeclaration,
   restoreAccountSession
 } from "./account_ui.js";
 
@@ -1224,7 +1225,39 @@ document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
   });
 });
 
+// Session creation must compile against the athlete's CURRENT declaration,
+// not the one cached at bootstrap - a same-tab activity change (see
+// useAthleteOnboarding.ts's changeActivity()) never re-runs
+// bootstrapApplication(), so without this the next session was silently
+// built for the previous sport.
+async function refreshAthleteDeclaration() {
+  const current = await loadCurrentAthleteDeclaration();
+
+  state.declarationRecord =
+    current.declaration_record ??
+    state.declarationRecord;
+
+  state.phase1Input =
+    current.phase1_input ??
+    state.phase1Input;
+
+  state.profile.activityId =
+    state.phase1Input?.activity_id ??
+    null;
+
+  saveState();
+}
+
 async function createSession() {
+  showBusy("Checking your declaration…");
+
+  try {
+    await refreshAthleteDeclaration();
+  }
+  finally {
+    hideBusy();
+  }
+
   // A missing/activity-less phase1Input is a real, supported state (sport
   // is optional at signup, declarable later) - but compile's own rejection
   // of it surfaces only as a generic "request could not be completed"

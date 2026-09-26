@@ -238,10 +238,11 @@ export function useAthleteOnboarding() {
         activityChange: requestState === "queued" ? result : null
       }));
       // An "applied" change takes effect on the stored declaration
-      // immediately - but the legacy app.js shell's own bootstrap-time
-      // phase1Input/declarationRecord cache (used by session creation) is
-      // never told, and only a real page load re-fetches it. Same
-      // mechanism confirm()/savePreferences() already use.
+      // immediately. Session creation no longer depends on this - app.js's
+      // createSession() re-reads the current declaration from the server
+      // itself - but the rest of the legacy shell's bootstrap-time state
+      // still re-initialises on the next real page load. Same mechanism
+      // confirm()/savePreferences() already use.
       if (requestState === "applied") {
         sessionStorage.setItem(RELOAD_KEY, "1");
         await refresh();

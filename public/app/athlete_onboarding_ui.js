@@ -125,6 +125,10 @@ export function installAthleteOnboardingUi() {
     if (!view || view === "onboarding" || view === "account") return;
     event.preventDefault(); event.stopImmediatePropagation();
     sessionStorage.removeItem(RELOAD_KEY);
-    location.assign(view === "history" ? "/app/#/athlete/history" : "/app/#/athlete/today");
+    // Not location.assign(): the app always lives at /app/, so assigning
+    // "/app/#/..." only changes the fragment - a same-document navigation
+    // that never reloads anything. Swap the URL in place, then reload.
+    history.replaceState(null, "", view === "history" ? "/app/#/athlete/history" : "/app/#/athlete/today");
+    location.reload();
   }, true);
 }

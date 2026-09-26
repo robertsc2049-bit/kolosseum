@@ -409,6 +409,10 @@
       "value": "node test/full_ui_coach_athlete_detail_tabs_surface.test.mjs"
     },
     {
+      "kind": "command",
+      "value": "node test/athlete_activity_change_session_declaration.test.mjs"
+    },
+    {
       "kind": "npm_command",
       "value": "test:react"
     },
