@@ -216,6 +216,17 @@
         }
       }
     },
+    "exercise_selections": {
+      "type": "object",
+      "maxProperties": 64,
+      "propertyNames": {
+        "pattern": "^[a-z0-9_]+\\.[a-z0-9_]+$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      }
+    },
     "nd_mode": {
       "type": "boolean"
     },

@@ -19,7 +19,7 @@ export type {
 } from "./phase4/types.js";
 
 export { uniqueStable } from "./phase4/util.js";
-export { selectTemplate, templateForCycle } from "./phase4/templates.js";
+export { programmeDays, selectTemplate, templateForCycle } from "./phase4/templates.js";
 
 export {
   plannedItemsFromIntent,

@@ -137,6 +137,11 @@ function validateItemPrescriptions(raw: unknown, i: number, eligibility: string[
       die(`${at}[${j}].intensity must be bodyweight, percent_1rm (0-100] or rpe [1-10]`);
     }
     if (group) out.group = group;
+    const fixed = p["fixed"];
+    if (fixed !== undefined) {
+      if (fixed !== true) die(`${at}[${j}].fixed may only be true`);
+      out.fixed = true;
+    }
     const distance = p["distance_m"];
     const duration = p["duration_seconds"];
     if (distance !== undefined && duration !== undefined) die(`${at}[${j}] may declare distance_m or duration_seconds, not both`);
@@ -302,6 +307,19 @@ export function selectTemplate(activity: string, level?: string, event?: string)
   return templateForLevel(entryForEvent(hit, event), level);
 }
 
+// The days an athlete trains in their week, for choosing exercises: the
+// sport's week, or the single full-body session when they train one day a
+// week or the sport declares no week.
+export function programmeDays(template: Phase4Template, daysPerWeek?: number): Phase4MicrocycleDay[] {
+  if (template.microcycle && daysPerWeek !== 1) return template.microcycle;
+  return [{
+    day_id: "base",
+    focus: "full_body",
+    exercise_eligibility: template.intent,
+    item_prescriptions: template.prescriptions ?? []
+  }];
+}
+
 // Pure event resolution: a declared event variant (with its own level variants)
 // replaces the base programme; full_power, no event, or an event this activity
 // does not declare use the base entry.
@@ -359,6 +377,7 @@ export function templateForCycle(
   return {
     program_id: template.program_id,
     intent,
+    day_id: day ? day.day_id : "base",
     prescriptions: periodisePrescriptions(base, cycle, level, intent.map((id) => isPowerOrEccentricWork(id, isFastExecution(id)))),
     training_cycle: {
       ...cycle,
