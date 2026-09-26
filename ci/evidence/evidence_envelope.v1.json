@@ -147,7 +147,7 @@
       },
       {
         "path": "ci/schemas/phase1.input.schema.v1.0.0.json",
-        "sha256": "B462E2441E39F9D8F5355281A1D9EFF6468EA478C62FFCC460BC15011653DC9E"
+        "sha256": "D5CF89A134389A2DE40CEAD86A9632A9B88E7FDE0E8C3DD8577EFF8AAB58042C"
       },
       {
         "path": "ci/schemas/phase4.output.schema.v1.0.0.json",
@@ -163,7 +163,7 @@
       },
       {
         "path": "ci/schemas/program.registry.schema.json",
-        "sha256": "C6DB588912A697DFFDD640D28879BED523A23F8852A10EB8F2E161709250D432"
+        "sha256": "40260EF933F15BBEA3CAB1B3111A98C47F67E1D8C53F0C02B54245C6A665D56C"
       },
       {
         "path": "ci/schemas/registry_entry.schema.json",

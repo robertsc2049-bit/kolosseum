@@ -27,6 +27,10 @@ export type Phase1CanonicalInput = {
   activity_id: string;
   sport_role_id?: string;
 
+  // Declared athlete level. Optional at the engine boundary: absent selects the
+  // default (amateur) programme, so pre-level inputs keep their canonical hash.
+  experience_level?: "beginner" | "amateur" | "pro";
+
   nd_mode: boolean;
   instruction_density: string;
   exposure_prompt_density: string;
@@ -284,6 +288,10 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   if (typeof obj.sport_role_id === "string") {
     canonical.sport_role_id = obj.sport_role_id;
+  }
+
+  if (typeof obj.experience_level === "string") {
+    canonical.experience_level = obj.experience_level;
   }
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
