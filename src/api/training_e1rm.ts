@@ -26,6 +26,23 @@ export const BODYWEIGHT_PLUS_LOAD_EXERCISES: ReadonlySet<string> = new Set([
   "pull_up", "chin_up", "dip", "muscle_up", "band_assisted_pull_up"
 ]);
 
+// An estimated max only means something for strength lifts: squat, hinge,
+// single-leg and pushing/pulling patterns. Jumps, sprints, throws, carries,
+// conditioning, isolation and ballistic work (a loaded extra set of jumps or
+// kettlebell swings) never produce an e1RM.
+export const E1RM_STRENGTH_PATTERNS: ReadonlySet<string> = new Set([
+  "squat", "hinge", "single_leg_squat", "single_leg_hinge",
+  "horizontal_push", "incline_push", "decline_push", "vertical_push", "angled_push",
+  "horizontal_pull", "vertical_pull"
+]);
+const E1RM_EXCLUDED_EXERCISES: ReadonlySet<string> = new Set(["kettlebell_swing", "tire_flip"]);
+
+export function isE1rmExercise(exerciseId: string, patternOf: (exerciseId: string) => string | undefined): boolean {
+  if (E1RM_EXCLUDED_EXERCISES.has(exerciseId)) return false;
+  const pattern = patternOf(exerciseId);
+  return pattern !== undefined && E1RM_STRENGTH_PATTERNS.has(pattern);
+}
+
 const round1 = (x: number) => Math.round(x * 10) / 10;
 const toKg = (value: number, unit: "kg" | "lb") => unit === "lb" ? value / LB_PER_KG : value;
 const fromKg = (kg: number, unit: "kg" | "lb") => unit === "lb" ? kg * LB_PER_KG : kg;
@@ -53,10 +70,12 @@ export function computeTrainingE1rmTrends(
   sets: readonly LoggedSet[],
   bodyweightKg: number | null,
   displayUnit: "kg" | "lb",
-  windowDays: number
+  windowDays: number,
+  patternOf: (exerciseId: string) => string | undefined
 ): JsonRecord[] {
   const byExercise = new Map<string, Map<string, { e1rm_kg: number; includes_bodyweight: boolean }>>();
   for (const set of sets) {
+    if (!isE1rmExercise(set.exercise_id, patternOf)) continue;
     const est = setE1rmKg(set, bodyweightKg);
     if (!est) continue;
     const days = byExercise.get(set.exercise_id) ?? new Map();
