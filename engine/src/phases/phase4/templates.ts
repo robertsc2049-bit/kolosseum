@@ -123,6 +123,17 @@ function validateItemPrescriptions(raw: unknown, i: number, eligibility: string[
       die(`${at}[${j}].intensity must be bodyweight, percent_1rm (0-100] or rpe [1-10]`);
     }
     if (group) out.group = group;
+    const distance = p["distance_m"];
+    const duration = p["duration_seconds"];
+    if (distance !== undefined && duration !== undefined) die(`${at}[${j}] may declare distance_m or duration_seconds, not both`);
+    if (distance !== undefined) {
+      if (typeof distance !== "number" || !(distance > 0) || distance > 10000) die(`${at}[${j}].distance_m must be a number in (0, 10000]`);
+      out.distance_m = distance;
+    }
+    if (duration !== undefined) {
+      if (!positiveInt(duration) || duration > 3600) die(`${at}[${j}].duration_seconds must be an integer in [1, 3600]`);
+      out.duration_seconds = duration;
+    }
     return out;
   });
   validateGroupLayout(prescriptions, at);
@@ -148,7 +159,8 @@ function validateLevelVariants(raw: unknown, i: number): Partial<Record<"beginne
   return out;
 }
 
-function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
+// Exported for tests: the load-time validator every registry entry passes through.
+export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
   if (!isPlainObject(doc)) die(`program registry not an object`);
 
   const registry_id = doc["registry_id"];

@@ -73,8 +73,15 @@ export function renderSessionText(session: unknown): RenderedSessionText {
     const id = typeof exAny.exercise_id === "string" ? exAny.exercise_id : "UNKNOWN_EXERCISE";
 
     // IMPORTANT: preserve legacy string exactly for tests (em dash)
+    // Distance- or time-prescribed work prints its per-rep dose (4x20m, 3x20s) in place of reps.
+    const dose =
+      typeof exAny.distance_value === "number"
+        ? `${exAny.distance_value}${exAny.distance_unit === "feet" ? "ft" : "m"}`
+        : typeof exAny.duration_seconds === "number"
+          ? `${exAny.duration_seconds}s`
+          : exAny.reps;
     const setsReps =
-      typeof exAny.sets === "number" && typeof exAny.reps === "number" ? ` \u2014 ${exAny.sets}x${exAny.reps}` : "";
+      typeof exAny.sets === "number" && typeof exAny.reps === "number" ? ` \u2014 ${exAny.sets}x${dose}` : "";
 
     const intensity = formatIntensity(exAny.intensity);
     const intensityTxt = intensity ? ` ${intensity}` : "";
