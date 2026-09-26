@@ -32,7 +32,7 @@
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
-      "sha256": "630d3357ffa5664804060eeee21221c0bd5e068d49202ba4f678af8beb22283c"
+      "sha256": "832b54c9fa92073326abcc6d3dfb46d40ef2b007c821ab5cbb672568b3b77d24"
     },
     "legacyWarmup": {
       "path": "registries/exercise/exercise_warmup_mapping.registry.json",

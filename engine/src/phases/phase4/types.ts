@@ -144,6 +144,9 @@ export type Phase4ItemPrescription = {
   // Mutually exclusive: a distance (metres) or a duration (seconds) per rep.
   distance_m?: number;
   duration_seconds?: number;
+  // A named exercise the athlete may not swap (a competition lift). Every
+  // other item outside a timed group is an open slot they choose for.
+  fixed?: true;
 };
 
 // A group is declared on each member item; members must be contiguous,
@@ -172,6 +175,9 @@ export type Phase4Template = {
   prescriptions?: Phase4ItemPrescription[];
   microcycle?: Phase4MicrocycleDay[];
   training_cycle?: TrainingCycleOutput;
+  // The week day this session is (open-slot ids are per day); "base" for the
+  // single full-body session.
+  day_id?: string;
 };
 
 export type RegistryLoad = {
