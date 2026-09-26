@@ -10,6 +10,7 @@ import path from "node:path";
 
 // Phase4 is compiled under dist/engine/... (node runs .mjs tests, so import JS output).
 import { phase4AssembleProgram } from "../dist/engine/src/phases/phase4.js";
+import { buildPlannedItems } from "../dist/engine/src/phases/phase4/planned_items.js";
 import { loadExerciseEntriesFromPath } from "../dist/engine/src/registries/loadExerciseEntries.js";
 
 function mkPhase3(constraints = { constraints_version: "1.0.0" }) {
@@ -377,12 +378,43 @@ test("Phase4: team sports include each sport's own injury-resilience work", () =
   assert.equal(ids("volleyball").filter((x) => /jump|bound/.test(x)).length, 0, "volleyball: no extra jump volume");
 });
 
-// Activities without item_prescriptions keep the default primary/accessory
-// prescription exactly.
-test("Phase4: activities without item_prescriptions keep the default prescription", () => {
-  const r = phase4AssembleProgram(mkInput("swimming"), mkPhase3());
-  assert.equal(r.ok, true);
-  const plan = r.program.planned_items.map((it) => [it.sets, it.reps, it.intensity.value, it.rest_seconds]);
+// Endurance athletes already carry huge sport volume: strength work is a
+// minimum effective dose - explosive first, low-rep heavy work, the sport's
+// own resilience work, and no generic pressing or hypertrophy volume.
+const ENDURANCE_SPORTS = ["athletics", "swimming", "cycling", "rowing", "kayaking", "triathlon"];
+
+test("Phase4: endurance sports get a minimum-effective-dose strength session", () => {
+  const plans = new Set();
+  for (const activity of ENDURANCE_SPORTS) {
+    const r = phase4AssembleProgram(mkInput(activity), mkPhase3());
+    assert.equal(r.ok, true, `${activity} must assemble`);
+    const items = r.program.planned_items;
+    const ids = r.program.planned_exercise_ids;
+    assert.match(ids[0], POWER, `${activity} must open with explosive work, got ${ids[0]}`);
+    for (const generic of ["bench_press", "incline_bench_press", "push_up", "overhead_press"]) {
+      assert.ok(!ids.includes(generic), `${activity} must not plan generic ${generic}`);
+    }
+    for (const it of items.filter((x) => x.intensity.type === "percent_1rm")) {
+      assert.ok(it.reps <= 6, `${activity} ${it.exercise_id}: loaded work stays low-rep, got ${it.reps}`);
+    }
+    const totalSets = items.reduce((n, it) => n + it.sets, 0);
+    assert.ok(totalSets <= 21, `${activity}: low total volume, got ${totalSets} sets`);
+    plans.add(ids.join(","));
+  }
+  assert.equal(plans.size, ENDURANCE_SPORTS.length, "no two endurance sports may share a session");
+
+  const ids = (a) => phase4AssembleProgram(mkInput(a), mkPhase3()).program.planned_exercise_ids;
+  assert.ok(ids("swimming").includes("cable_external_rotation"), "swimming: shoulder care");
+  assert.ok(!ids("swimming").some((x) => /overhead_press|landmine_press/.test(x)), "swimming: no added overhead pressing");
+  assert.ok(ids("triathlon").includes("single_leg_calf_raise"), "triathlon: calf/Achilles resilience");
+  assert.ok(ids("athletics").includes("nordic_curl"), "athletics: hamstring resilience");
+});
+
+// Programs without item_prescriptions keep the default primary/accessory
+// prescription exactly (exercised directly now that every activity declares its own).
+test("Phase4: planned items without declared prescriptions keep the default prescription", () => {
+  const items = buildPlannedItems(["a", "b", "c", "d", "e", "f"], "SESSION_V1", NaN);
+  const plan = items.map((it) => [it.sets, it.reps, it.intensity.value, it.rest_seconds]);
   assert.deepEqual(plan, [
     [4, 5, 75, 180], [4, 5, 75, 180], [4, 5, 75, 180], [4, 5, 75, 180],
     [3, 10, 60, 90], [3, 10, 60, 90]
