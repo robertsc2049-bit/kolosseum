@@ -348,7 +348,7 @@ const TEAM_SPORTS = [
   "ice_hockey", "netball", "basketball", "volleyball", "cricket", "tennis"
 ];
 const POWER = /jump|sprint|acceleration|bound|throw|drop_to_stick|deceleration/;
-const NECK_SPORTS = ["rugby_union", "rugby_league", "rugby_sevens", "boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"];
+const NECK_SPORTS = ["rugby_union", "rugby_league", "rugby_sevens", "american_football", "ice_hockey", "boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"];
 
 test("Phase4: every team sport gets its own power-first S&C session", () => {
   const plans = new Map();
@@ -487,9 +487,9 @@ test("Phase4: powerlifting trains squat, paused bench and deadlift as low-rep to
   }
 });
 
-// Collision and combat sports need neck strength. It sits in the first
+// Collision (rugby, American football, ice hockey) and combat sports need neck strength. It sits in the first
 // accessory slot, which timebox pruning keeps in 30-44 minute sessions.
-test("Phase4: rugby and combat programmes include neck work that survives a shorter session", () => {
+test("Phase4: collision and combat programmes include neck work that survives a shorter session", () => {
   for (const activity of NECK_SPORTS) {
     const full = phase4AssembleProgram(mkInput(activity), mkPhase3()).program.planned_items;
     const neck = full[4];
