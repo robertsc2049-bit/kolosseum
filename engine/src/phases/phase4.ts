@@ -108,7 +108,8 @@ export function phase4AssembleProgram(
   const event = typeof canonicalInput?.competition_event === "string" ? canonicalInput.competition_event : undefined;
   const selected = selectTemplate(activity, level, event);
   const cycle = canonicalInput?.training_cycle;
-  const template = selected && cycle ? templateForCycle(selected, activity, cycle, level) : selected;
+  const fastExecution = (exerciseId: string) => (registry.entries[exerciseId] as { fast_execution?: unknown } | undefined)?.fast_execution === true;
+  const template = selected && cycle ? templateForCycle(selected, activity, cycle, level, fastExecution) : selected;
 
   if (!template) {
     return {

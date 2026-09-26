@@ -4,7 +4,7 @@
 // canonical registries, and validated contracts only.
 
 import type { Phase4GroupType, Phase4ItemGroup, Phase4ItemPrescription, Phase4MicrocycleDay, Phase4Template } from "./types.js";
-import { cycleModelFor, periodisePrescriptions, sessionsPerWeek, type TrainingCycle } from "./periodisation.js";
+import { cycleModelFor, isPowerOrEccentricWork, periodisePrescriptions, sessionsPerWeek, type TrainingCycle } from "./periodisation.js";
 import { defaultPrescription } from "./planned_items.js";
 import { loadRegistryBundle } from "../../registries/loadRegistryBundle.js";
 
@@ -339,7 +339,13 @@ export function templateForLevel(entry: ProgramTemplateEntry, level?: string): P
 // slot (the single full-body session when the phase allows one session a week
 // or the sport declares no microcycle), then apply the macrocycle phase,
 // mesocycle week and level ceilings to its prescriptions.
-export function templateForCycle(template: Phase4Template, activity: string, cycle: TrainingCycle, level?: string): Phase4Template {
+export function templateForCycle(
+  template: Phase4Template,
+  activity: string,
+  cycle: TrainingCycle,
+  level?: string,
+  isFastExecution: (exerciseId: string) => boolean = () => false
+): Phase4Template {
   const model = cycleModelFor(activity);
   if (!model) throw new Error(`PHASE4_TEMPLATE_REGISTRY: activity ${activity} has no cycle model`);
   const perWeek = sessionsPerWeek(cycle.macro_phase, cycle.days_per_week);
@@ -353,7 +359,7 @@ export function templateForCycle(template: Phase4Template, activity: string, cyc
   return {
     program_id: template.program_id,
     intent,
-    prescriptions: periodisePrescriptions(base, cycle, level),
+    prescriptions: periodisePrescriptions(base, cycle, level, intent.map((id) => isPowerOrEccentricWork(id, isFastExecution(id)))),
     training_cycle: {
       ...cycle,
       cycle_model: model,
