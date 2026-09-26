@@ -73,10 +73,83 @@ test("athlete level: a declared variant wins; amateur, unknown and variant-less 
   assert.equal(templateForLevel(ENTRY, "beginner").program_id, "PROGRAM_TEST_V1");
 });
 
-test("athlete level: phase 4 reads the canonical level and falls back to the base programme when no variant exists", () => {
-  const base = phase4AssembleProgram({ activity_id: "powerlifting" }, { constraints: { constraints_version: "1.0.0" } });
-  const pro = phase4AssembleProgram({ activity_id: "powerlifting", experience_level: "pro" }, { constraints: { constraints_version: "1.0.0" } });
+test("athlete level: phase 4 reads the canonical level and serves that level's prescriptions", () => {
+  const constraints = { constraints: { constraints_version: "1.0.0" } };
+  const base = phase4AssembleProgram({ activity_id: "powerlifting" }, constraints);
+  const pro = phase4AssembleProgram({ activity_id: "powerlifting", experience_level: "pro" }, constraints);
   assert.equal(base.ok, true);
   assert.equal(pro.ok, true);
-  assert.deepEqual(pro.program.planned_exercise_ids, base.program.planned_exercise_ids);
+  // Same competition lifts, but the pro variant's heavier top sets.
+  assert.deepEqual(pro.program.planned_items.slice(0, 3).map((x) => [x.exercise_id, x.sets, x.reps, x.intensity.value]),
+    [["back_squat", 5, 2, 85], ["paused_bench_press", 5, 3, 80], ["deadlift", 4, 2, 87]]);
+  assert.deepEqual(base.program.planned_items.slice(0, 3).map((x) => [x.exercise_id, x.sets, x.reps, x.intensity.value]),
+    [["back_squat", 5, 3, 80], ["paused_bench_press", 5, 3, 77], ["deadlift", 3, 3, 82]]);
+});
+
+// --- Level content (every activity declares beginner and pro variants) ---
+
+import fs from "node:fs";
+const ACTIVITIES = Object.keys(JSON.parse(fs.readFileSync("registries/activity/activity.registry.json", "utf8")).entries);
+const APPLICABILITY = JSON.parse(fs.readFileSync("registries/exercise_activity_applicability/exercise_activity_applicability.registry.json", "utf8")).entries;
+const plan = (activity, level) => {
+  const input = level ? { activity_id: activity, experience_level: level } : { activity_id: activity };
+  const r = phase4AssembleProgram(input, { constraints: { constraints_version: "1.0.0" } });
+  assert.equal(r.ok, true, `${activity}/${level ?? "amateur"} must assemble`);
+  return r.program.planned_items;
+};
+const totalSets = (items) => items.reduce((n, it) => n + it.sets, 0);
+const REACTIVE = /pogo_jump|depth_jump|repeated_broad_jump|lateral_bound|box_jump/;
+
+test("athlete level: every activity has a distinct beginner, amateur and pro session of training-allowed exercises", () => {
+  for (const activity of ACTIVITIES) {
+    const sessions = ["beginner", "amateur", "pro"].map((level) => plan(activity, level));
+    for (const [i, items] of sessions.entries()) {
+      for (const it of items) {
+        assert.equal(APPLICABILITY[`${it.exercise_id}__${activity}__training`]?.applicability_state, "allowed",
+          `${activity}/${["beginner", "amateur", "pro"][i]}: ${it.exercise_id} must be training-allowed`);
+      }
+    }
+    const [b, a, p] = sessions.map((items) => JSON.stringify(items.map((x) => [x.exercise_id, x.sets, x.reps, x.intensity])));
+    assert.notEqual(b, a, `${activity}: beginner must differ from amateur`);
+    assert.notEqual(p, a, `${activity}: pro must differ from amateur`);
+    assert.deepEqual(plan(activity, "amateur"), plan(activity), `${activity}: amateur is the base programme`);
+  }
+});
+
+test("athlete level: beginners get no % 1RM work (no tested max yet), no reactive plyometrics and no more volume than amateurs", () => {
+  for (const activity of ACTIVITIES) {
+    const beginner = plan(activity, "beginner");
+    for (const it of beginner) {
+      assert.notEqual(it.intensity.type, "percent_1rm", `${activity}: beginner ${it.exercise_id} must not be % 1RM`);
+      if (it.intensity.type === "rpe") assert.ok(it.intensity.value <= 7, `${activity}: beginner ${it.exercise_id} RPE <= 7`);
+      assert.doesNotMatch(it.exercise_id, REACTIVE, `${activity}: beginner must not plan reactive plyometrics`);
+    }
+    assert.ok(totalSets(beginner) <= totalSets(plan(activity, "amateur")), `${activity}: beginner volume <= amateur`);
+  }
+});
+
+test("athlete level: pros get at least amateur volume, and endurance pros keep amateur volume (minimum effective dose)", () => {
+  const ENDURANCE = ["athletics", "swimming", "cycling", "rowing", "kayaking", "triathlon"];
+  for (const activity of ACTIVITIES) {
+    const pro = totalSets(plan(activity, "pro"));
+    const amateur = totalSets(plan(activity, "amateur"));
+    if (ENDURANCE.includes(activity)) assert.equal(pro, amateur, `${activity}: pro keeps amateur volume`);
+    else assert.ok(pro >= amateur, `${activity}: pro volume >= amateur`);
+  }
+});
+
+test("athlete level: strength-sport beginners still learn their competition lifts, just lighter", () => {
+  const ids = (a) => plan(a, "beginner").map((x) => x.exercise_id);
+  for (const lift of ["back_squat", "bench_press", "deadlift"]) assert.ok(ids("powerlifting").includes(lift), `powerlifting beginner: ${lift}`);
+  for (const lift of ["snatch", "power_clean", "push_jerk"]) assert.ok(ids("olympic_weightlifting").includes(lift), `weightlifting beginner: ${lift}`);
+  assert.ok(ids("street_lifting").includes("band_assisted_pull_up"), "street lifting beginner: assisted pull-up");
+  assert.ok(!ids("street_lifting").includes("muscle_up"), "street lifting beginner: no muscle-ups");
+});
+
+test("athlete level: the CrossFit AMRAP group survives at every level", () => {
+  for (const level of ["beginner", "amateur", "pro"]) {
+    const amrap = plan("crossfit", level).filter((x) => x.group_type === "amrap");
+    assert.equal(amrap.length, 3, `crossfit/${level}: 3-movement AMRAP`);
+    assert.ok(amrap.every((x) => x.group_time_cap_seconds === 720));
+  }
 });
