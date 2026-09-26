@@ -487,7 +487,12 @@ export function projectSessionStatePayload(
     execution_status,
     session_execution_summary,
     block_execution_summary,
-    event_log: []
+    event_log: [],
+    // Where the session sits in the athlete's periodised plan (self-directed
+    // sessions only), so the session screen can show phase, week and day.
+    ...(planned?.training_cycle && typeof planned.training_cycle === "object"
+      ? { training_cycle: planned.training_cycle }
+      : {})
   };
 }
 

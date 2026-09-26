@@ -390,6 +390,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/training_cycle.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/full_ui_04c_coach_commercial.test.mjs"
     },
     {

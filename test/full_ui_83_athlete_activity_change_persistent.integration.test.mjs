@@ -114,7 +114,9 @@ async function completeAthleteOnboarding(baseUrl, athlete, activityId) {
         jurisdiction_acknowledged: true,
         accessibility_preferences: accessibilityPreferences(),
         experience_level: "amateur",
-        ...(activityId === "powerlifting" ? { competition_event: "full_power" } : {}),
+        training_days_per_week: 3,
+        ...(activityId === "general_strength" ? {} : { no_fixed_date: true }),
+                ...(activityId === "powerlifting" ? { competition_event: "full_power" } : {}),
         instruction_density: "standard"
       }
     },
