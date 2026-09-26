@@ -24060,6 +24060,7 @@
             "trap_bar_deadlift",
             "landmine_press",
             "chin_up",
+            "self_resisted_neck_isometric",
             "nordic_curl",
             "front_rack_carry"
           ],
@@ -24098,6 +24099,15 @@
                 "value": 8
               },
               "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
             },
             {
               "sets": 3,
@@ -24605,6 +24615,7 @@
             "flying_twenty_sprint",
             "trap_bar_deadlift",
             "split_squat",
+            "self_resisted_neck_isometric",
             "nordic_curl",
             "single_leg_calf_raise"
           ],
@@ -24642,6 +24653,15 @@
                 "value": 7
               },
               "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
             },
             {
               "sets": 3,
@@ -25393,6 +25413,7 @@
             "lateral_bound",
             "trap_bar_deadlift",
             "landmine_press",
+            "self_resisted_neck_isometric",
             "chin_up",
             "face_pull"
           ],
@@ -25433,6 +25454,15 @@
             },
             {
               "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 6,
               "intensity": {
                 "type": "rpe",
@@ -25459,6 +25489,7 @@
             "trap_bar_deadlift",
             "pendlay_row",
             "chin_up",
+            "self_resisted_neck_isometric",
             "trap_bar_static_hold",
             "front_rack_carry"
           ],
@@ -25500,6 +25531,15 @@
             },
             {
               "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 1,
               "intensity": {
                 "type": "rpe",
@@ -25526,6 +25566,7 @@
             "trap_bar_deadlift",
             "chin_up",
             "pendlay_row",
+            "self_resisted_neck_isometric",
             "trap_bar_static_hold",
             "split_squat"
           ],
@@ -25567,6 +25608,15 @@
             },
             {
               "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 1,
               "intensity": {
                 "type": "rpe",
@@ -25593,6 +25643,7 @@
             "trap_bar_deadlift",
             "chin_up",
             "single_arm_dumbbell_row",
+            "self_resisted_neck_isometric",
             "trap_bar_static_hold",
             "pallof_press"
           ],
@@ -25634,6 +25685,15 @@
             },
             {
               "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 1,
               "intensity": {
                 "type": "rpe",
@@ -25660,6 +25720,7 @@
             "countermovement_jump",
             "bulgarian_split_squat",
             "trap_bar_deadlift",
+            "self_resisted_neck_isometric",
             "cable_hip_adduction",
             "chin_up"
           ],
@@ -25700,6 +25761,15 @@
             },
             {
               "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 10,
               "intensity": {
                 "type": "rpe",
@@ -25726,6 +25796,7 @@
             "trap_bar_deadlift",
             "landmine_press",
             "chin_up",
+            "self_resisted_neck_isometric",
             "front_rack_carry",
             "rotational_medicine_ball_throw"
           ],
@@ -25764,6 +25835,15 @@
                 "value": 8
               },
               "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
             },
             {
               "sets": 3,
@@ -25925,6 +26005,7 @@
             "trap_bar_deadlift",
             "bulgarian_split_squat",
             "pendlay_row",
+            "self_resisted_neck_isometric",
             "nordic_curl",
             "pallof_press"
           ],
@@ -25963,6 +26044,15 @@
                 "value": 75
               },
               "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
             },
             {
               "sets": 3,

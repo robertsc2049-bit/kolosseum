@@ -146,7 +146,7 @@ test("Phase4: supported activities emit a rich, stable plan contract (rugby_unio
   const r = phase4AssembleProgram(canonicalInput, phase3);
   assert.equal(r.ok, true, "phase4AssembleProgram should succeed");
   assertPhase4PlanContract(r.program, { minItems: 2 });
-  assert.equal(r.program.planned_items.length, 6, "rugby_union planned_items length must be 6");
+  assert.equal(r.program.planned_items.length, 7, "rugby_union planned_items length must be 7 (includes neck work)");
 });
 
 test("Phase4: supported activities emit a rich, stable plan contract (general_strength)", () => {
@@ -199,7 +199,7 @@ test("Phase4: timebox pruning (rugby_union) tb<30 drops all accessories; tb<45 k
   {
     const r = phase4AssembleProgram(mkInput("rugby_union", 60), phase3);
     assert.equal(r.ok, true);
-    assertTimeboxPlan(r.program, 6, 2);
+    assertTimeboxPlan(r.program, 7, 3);
   }
 });
 
@@ -348,6 +348,7 @@ const TEAM_SPORTS = [
   "ice_hockey", "netball", "basketball", "volleyball", "cricket", "tennis"
 ];
 const POWER = /jump|sprint|acceleration|bound|throw|drop_to_stick|deceleration/;
+const NECK_SPORTS = ["rugby_union", "rugby_league", "rugby_sevens", "boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"];
 
 test("Phase4: every team sport gets its own power-first S&C session", () => {
   const plans = new Map();
@@ -355,7 +356,7 @@ test("Phase4: every team sport gets its own power-first S&C session", () => {
     const r = phase4AssembleProgram(mkInput(activity), mkPhase3());
     assert.equal(r.ok, true, `${activity} must assemble`);
     const ids = r.program.planned_exercise_ids;
-    assert.equal(ids.length, 6, `${activity} plans 6 items`);
+    assert.equal(ids.length, NECK_SPORTS.includes(activity) ? 7 : 6, `${activity} plan length`);
     for (const generic of ["bench_press", "incline_bench_press", "push_up", "overhead_press"]) {
       assert.ok(!ids.includes(generic), `${activity} must not plan generic ${generic}`);
     }
@@ -483,6 +484,24 @@ test("Phase4: powerlifting trains squat, paused bench and deadlift as low-rep to
   assert.deepEqual(plan, [["back_squat", 3, 80], ["paused_bench_press", 3, 77], ["deadlift", 3, 82]]);
   for (const generic of ["overhead_press", "incline_bench_press", "push_up"]) {
     assert.ok(!r.program.planned_exercise_ids.includes(generic), `powerlifting must not plan ${generic}`);
+  }
+});
+
+// Collision and combat sports need neck strength. It sits in the first
+// accessory slot, which timebox pruning keeps in 30-44 minute sessions.
+test("Phase4: rugby and combat programmes include neck work that survives a shorter session", () => {
+  for (const activity of NECK_SPORTS) {
+    const full = phase4AssembleProgram(mkInput(activity), mkPhase3()).program.planned_items;
+    const neck = full[4];
+    assert.equal(neck.exercise_id, "self_resisted_neck_isometric", `${activity}: neck work is the first accessory`);
+    assert.equal(neck.role, "accessory");
+    assert.deepEqual([neck.sets, neck.reps, neck.intensity.type, neck.intensity.value], [3, 4, "rpe", 6]);
+    const short = phase4AssembleProgram(mkInput(activity, 40), mkPhase3()).program.planned_exercise_ids;
+    assert.ok(short.includes("self_resisted_neck_isometric"), `${activity}: neck work kept at 40 minutes`);
+  }
+  for (const activity of ["swimming", "cycling", "tennis"]) {
+    const ids = phase4AssembleProgram(mkInput(activity), mkPhase3()).program.planned_exercise_ids;
+    assert.ok(!ids.some((x) => /neck/.test(x)), `${activity}: no neck work programmed`);
   }
 });
 
