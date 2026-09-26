@@ -70,7 +70,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -304,7 +305,10 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "strongman",
+        "street_lifting",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1697,7 +1701,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -2163,7 +2168,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -5605,7 +5611,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -6373,7 +6380,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -6522,7 +6530,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "hyrox"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7042,7 +7051,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8961,7 +8971,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9338,7 +9349,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10915,7 +10927,9 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "hyrox",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10989,7 +11003,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -11943,7 +11958,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "strongman"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -15816,7 +15832,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -17306,7 +17323,9 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "powerlifting",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -18111,7 +18130,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [
         "high_speed_execution"

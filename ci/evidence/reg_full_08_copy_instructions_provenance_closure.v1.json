@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "02568882247a33362d7937dd6c4b34c10a1cf90629db1b572e77a45fbb35141f",
+  "canonical_copy_registry_sha256": "0e28fe7ddc0ec56efef77d0ccb92e687e7b4d55bd14f191a36acea0b24de5f37",
   "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 24087,
+  "exact_copy_control_count": 24151,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,7 +15,7 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 21620,
+  "provenance_record_count": 21684,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
@@ -62,16 +62,16 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "e2987e171eb9f3383b482e418aea23464ff06acefb2c49dfa4d293151fa23068",
-      "source_git_blob_sha": "5d251585ea12074099fd4713e740864c5df4bd5f",
+      "source_file_sha256": "85a02c15141c217ff2aebc856c3d487561d26767f3d2f75d10624dce066ba4d3",
+      "source_git_blob_sha": "a00a9ecaccfba86dfcc8242e6f746f044c9a221c",
       "source_record_count": 263,
       "source_registry_id": "exercise_registry_3a"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_token/exercise_token.registry.json",
-      "source_file_sha256": "e026a6561043179bdbb3935fd6d07ff0de3e1c2812096fdf8dbb30b7303f6cd8",
-      "source_git_blob_sha": "941a85a2692e16099eab9658422c1b2eb33cb1da",
+      "source_file_sha256": "5ead9ece4e9e8ce5b1469917ff4685b825bacc343a7111298cf88b65795bff28",
+      "source_git_blob_sha": "e05c35e84ee188155815d013c84530b1a49f8468",
       "source_record_count": 4,
       "source_registry_id": "exercise_token_registry_3b"
     },
@@ -102,16 +102,16 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "8a3f0fa6b32645b4b75fa8605f0f6e8c944d4f416d402297a9a29ba4f63efbbf",
-      "source_git_blob_sha": "555d72a10d8d348c7b6113a70c933f7a14cac751",
-      "source_record_count": 19434,
+      "source_file_sha256": "70ec502b7ffa7aed3023918703286322d386cf8e8e0a5152f68e7182d93a2210",
+      "source_git_blob_sha": "77c4cb8668a5a41b70f4eff8f746bfe938e2a390",
+      "source_record_count": 19494,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/program/program.registry.json",
-      "source_file_sha256": "6cf13a48851bb82a7576a31451ca616a63526ed7ccf5315374dd40b3e3558e2e",
-      "source_git_blob_sha": "69c7dc79ef489721966c07353aca054a5d89e30c",
+      "source_file_sha256": "630d3357ffa5664804060eeee21221c0bd5e068d49202ba4f678af8beb22283c",
+      "source_git_blob_sha": "3962676cbf30d2672915d0d0743bdb36f3ed89a7",
       "source_record_count": 31,
       "source_registry_id": "sport_program_template_registry_5f"
     },
@@ -126,9 +126,9 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "947fd6fb68b9cea684a9f00bee697862e011641fd23102f732d3fd427c0c1eac",
-      "source_git_blob_sha": "45f2123df8b647f941ee343bea107d367ebc40d6",
-      "source_record_count": 967,
+      "source_file_sha256": "f95d49b4d57ee62e4dc8d003ce43c65b70db06978cefce2e3d184ee0d75240f4",
+      "source_git_blob_sha": "bd7d392a3a51809b4b6e0136d46cc61ba588bc02",
+      "source_record_count": 971,
       "source_registry_id": "substitution_registry"
     },
     {
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 21620,
+  "source_record_count": 21684,
   "status": "authoritative"
 }
