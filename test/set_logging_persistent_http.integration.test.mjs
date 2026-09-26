@@ -165,6 +165,27 @@ async function withClient(databaseUrl, operation) {
   finally { await client.end(); }
 }
 
+// Choose the athlete's own exercise for every open slot of their week (the
+// first eligible one not already in that day), as they would in the app.
+async function chooseAllExercises(baseUrl, cookie, csrf, pick = (options) => options[0]) {
+  const listing = await requestJson(baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+  assertStatus(listing, 200, "load programme exercises");
+  const selections = {};
+  for (const day of listing.json.days) {
+    const used = new Set(day.items.filter((i) => i.kind === "fixed").map((i) => i.exercise_id));
+    for (const item of day.items.filter((i) => i.kind === "slot")) {
+      const options = item.options.map((o) => o.exercise_id).filter((id) => !used.has(id));
+      const choice = pick(options);
+      used.add(choice);
+      selections[item.slot_id] = choice;
+    }
+  }
+  const saved = await requestJson(baseUrl, "PUT", "/account/onboarding/exercises", { cookie, csrf, body: { selections } });
+  assertStatus(saved, 200, "save programme exercises");
+  assert.equal(saved.json.complete, true);
+  return { listing: listing.json, selections };
+}
+
 async function cleanup(databaseUrl, userId) {
   if (!userId) return;
   await withClient(databaseUrl, async (client) => {
@@ -227,6 +248,7 @@ test(
     };
     assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
     assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
     const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
     const bootstrap = detail.json.bootstrap;
     const created = await requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {

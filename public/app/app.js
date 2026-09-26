@@ -1338,6 +1338,18 @@ async function createSession() {
         document.getElementById("athleteOnboardingNav")?.click();
         return;
       }
+      // The athlete chooses their own exercise for every open slot of the
+      // programme (only competition lifts are named); a session never starts
+      // with a default in an empty slot.
+      const phase4Token = error?.payload?.details?.failure_token;
+      if (phase4Token === "exercise_selection_required" || phase4Token === "exercise_selection_invalid") {
+        showNotice(
+          "Choose your exercises for this session in Your programme exercises before starting it.",
+          "error"
+        );
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
       throw error;
     }
 

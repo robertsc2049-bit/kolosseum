@@ -18,6 +18,8 @@ import {
   AthleteOnboardingError,
   confirmAthleteOnboarding,
   getAthleteOnboardingState,
+  getAthleteProgrammeExercises,
+  saveAthleteProgrammeExercises,
   saveAthleteOnboardingDraft,
   updateAthleteOnboardingPreferences
 } from "./athlete_onboarding_service.js";
@@ -107,6 +109,25 @@ athleteOnboardingRouter.post(
       request.body
     );
     return response.status(200).json(state);
+  })
+);
+
+// The athlete's programme: fixed exercises, open slots, what may fill each,
+// and their current choices.
+athleteOnboardingRouter.get(
+  "/exercises",
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthleteProgrammeExercises(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/exercises",
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteProgrammeExercises(session.account_row.user_id, request.body));
   })
 );
 
