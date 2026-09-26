@@ -956,3 +956,97 @@ test("the RPE, Borg and CR10 panels and both Weight (optional) fields each show 
   await waitFor(() => screen.getByLabelText("Reps"));
   assert.ok(screen.getByLabelText("About negative weight values"));
 });
+
+// --- Per-set logging (what the athlete actually lifted) ---
+
+function squatSession(overrides: Record<string, unknown> = {}) {
+  const squat = baseExercise({ sets: 4, rep_range: { minimum: 5, maximum: 5 }, intensity: { type: "percent_1rm", value: 80 }, resolved_load: { value: 144, unit: "kg" } });
+  return baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: squat }, remaining_exercises: [squat], ...overrides });
+}
+
+test("a powerlifter logs a set as prescribed in one tap: 5 reps at the resolved 144 kg", async () => {
+  const events: Record<string, unknown>[] = [];
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession(), onEvent: (path, method, body) => { if (method === "POST" && path.endsWith("/events")) events.push(body as Record<string, unknown>); } });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+  assert.equal((screen.getByLabelText("Set 1 reps") as HTMLInputElement).value, "5");
+  assert.equal((screen.getByLabelText("Set 1 load (kg)") as HTMLInputElement).value, "144");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 1"));
+  });
+  await waitFor(() => assert.equal(events.length, 1));
+  assert.deepEqual(
+    { type: events[0].type, exercise_id: events[0].exercise_id, set_index: events[0].set_index, reps: events[0].reps, load_value: events[0].load_value, load_unit: events[0].load_unit },
+    { type: "SET_LOG_REPORT", exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 144, load_unit: "kg" }
+  );
+});
+
+test("a missed rep is one edit: set 3 logged as 3 reps, and 0 reps records a failed set", async () => {
+  const events: Record<string, unknown>[] = [];
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession(), onEvent: (path, method, body) => { if (method === "POST" && path.endsWith("/events")) events.push(body as Record<string, unknown>); } });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+
+  fireEvent.change(screen.getByLabelText("Set 3 reps"), { target: { value: "3" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 3"));
+  });
+  fireEvent.change(screen.getByLabelText("Set 4 reps"), { target: { value: "0" } });
+  fireEvent.change(screen.getByLabelText("Set 4 load (kg)"), { target: { value: "147.5" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 4"));
+  });
+  await waitFor(() => assert.equal(events.length, 2));
+  assert.deepEqual([events[0].set_index, events[0].reps, events[0].load_value], [3, 3, 144]);
+  assert.deepEqual([events[1].set_index, events[1].reps, events[1].load_value], [4, 0, 147.5]);
+});
+
+test("invalid reps are refused on the spot and nothing is sent", async () => {
+  const events: unknown[] = [];
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession(), onEvent: (path, method) => { if (method === "POST" && path.endsWith("/events")) events.push(path); } });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+  fireEvent.change(screen.getByLabelText("Set 1 reps"), { target: { value: "-1" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 1"));
+  });
+  assert.ok(screen.getByRole("alert"));
+  assert.equal(events.length, 0);
+});
+
+test("logged sets show what was lifted, including a PR, and can be edited", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession({ set_logs: { back_squat: [
+    { set_index: 1, reps: 5, load_value: 144, load_unit: "kg", is_pr: false },
+    { set_index: 2, reps: 5, load_value: 147.5, load_unit: "kg", is_pr: true }
+  ] } }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 2 of 4"));
+  assert.ok(screen.getByText("5 reps × 144 kg"));
+  assert.ok(screen.getByText("5 reps × 147.5 kg · PR"));
+  assert.ok(screen.getByText("Log set 3"), "unlogged sets stay open");
+  await act(async () => {
+    fireEvent.click(screen.getAllByText("Edit")[0]);
+  });
+  assert.equal((screen.getByLabelText("Set 1 reps") as HTMLInputElement).value, "5", "editing starts from what was logged");
+});
+
+test("carries and holds are logged by completing them, not per set; nothing is logged before the session starts", async () => {
+  const yoke = baseExercise({ exercise_id: "yoke_walk", display_name: "Yoke walk", sets: 4, reps: 1, rep_range: undefined, distance_value: 20, distance_unit: "meters" });
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: yoke }, remaining_exercises: [yoke] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => assert.equal(document.querySelector(".exercise-focus h3")?.textContent, "Yoke walk"));
+  assert.equal(screen.queryByText(/Sets logged/), null);
+  cleanup();
+
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession({ started: false }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Start session"));
+  assert.equal(screen.queryByText(/Sets logged/), null);
+});

@@ -282,6 +282,13 @@ export function AthleteHistoryPanel() {
                       {exercise.rpe_reported ? <small>RPE reported: {String(exercise.rpe_reported)}</small> : null}
                       {exercise.borg_reported ? <small>Borg reported: {String(exercise.borg_reported)}</small> : null}
                       {exercise.cr10_reported !== null && exercise.cr10_reported !== undefined ? <small>CR10 reported: {String(exercise.cr10_reported)}</small> : null}
+                      {(Array.isArray(exercise.set_logs) ? (exercise.set_logs as JsonRecord[]) : []).map((log) => (
+                        <small key={`set-${String(log.set_index)}`}>
+                          Set {String(log.set_index)}: {String(log.reps)} reps
+                          {log.load_value !== null && log.load_value !== undefined ? ` @ ${String(log.load_value)}${String(log.load_unit ?? "")}` : ""}
+                          {log.is_pr === true ? <> <span className="badge active">PR</span></> : null}
+                        </small>
+                      ))}
                       {extraSets.map((extraSet, extraSetIndex) => (
                         <small key={extraSetIndex}>
                           Extra set: {String(extraSet.reps)} reps

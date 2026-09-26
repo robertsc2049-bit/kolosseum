@@ -293,8 +293,9 @@ async function computeIsPersonalRecord(
      JOIN sessions s ON s.session_id = re.session_id
      WHERE s.beta_subject_user_id = $1
        AND re.event->>'exercise_id' = $2
-       AND re.event->>'type' IN ('EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT')
-       AND re.event->>'load_value' IS NOT NULL`,
+       AND re.event->>'type' IN ('EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT', 'SET_LOG_REPORT')
+       AND re.event->>'load_value' IS NOT NULL
+       AND COALESCE((re.event->>'reps')::int, 1) >= 1`,
     [athleteUserId, exerciseId]
   );
 
@@ -651,8 +652,71 @@ function ensureCr10ReportShapeValid(event: unknown, planned: PlannedSession, sum
   }
 }
 
-const EXTRA_SET_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
 const EXTRA_SET_LOAD_UNITS = new Set(["kg", "lb"]);
+
+// SET_LOG_REPORT: what the athlete actually did on one prescribed set - the
+// reps achieved (0 records a failed set) and, for loaded work, the load (a
+// negative load is band/machine assistance, as for extra sets). Logging the
+// same set again replaces the earlier entry, so a mistyped set can be fixed.
+const SET_LOG_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "set_index", "reps", "load_value", "load_unit", "client_request_id"]);
+const SET_LOG_MAX_SET_INDEX = 30;
+const SET_LOG_MAX_REPS = 100;
+
+function ensureSetLogReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
+  const t = rawEventType(event);
+  if (t !== "SET_LOG_REPORT") return;
+
+  const obj = event as Record<string, unknown>;
+  const invalid = (field: string, message: string): never => {
+    throw badRequest(`Runtime event rejected (${message})`, {
+      failure_token: "phase6_runtime_set_log_report_invalid_shape",
+      cause: `PHASE6_RUNTIME_SET_LOG_REPORT_INVALID_SHAPE: ${field}`
+    });
+  };
+  for (const key of Object.keys(obj)) {
+    if (!SET_LOG_REPORT_ALLOWED_KEYS.has(key)) invalid(key, "set log must record only the permitted factual input");
+  }
+
+  const exerciseId = typeof obj.exercise_id === "string" ? obj.exercise_id.trim() : "";
+  if (!exerciseId) invalid("exercise_id", "missing set log exercise_id");
+
+  const setIndex = obj.set_index;
+  if (!Number.isInteger(setIndex) || (setIndex as number) < 1 || (setIndex as number) > SET_LOG_MAX_SET_INDEX) {
+    invalid("set_index", `set log set_index must be a whole number from 1 to ${SET_LOG_MAX_SET_INDEX}`);
+  }
+  const reps = obj.reps;
+  if (!Number.isInteger(reps) || (reps as number) < 0 || (reps as number) > SET_LOG_MAX_REPS) {
+    invalid("reps", `set log reps must be a whole number from 0 to ${SET_LOG_MAX_REPS}`);
+  }
+
+  const hasLoadValue = obj.load_value !== undefined;
+  const hasLoadUnit = obj.load_unit !== undefined;
+  if (hasLoadValue !== hasLoadUnit) invalid("load", "set log load_value and load_unit must both be present or both absent");
+  if (hasLoadValue) {
+    const loadValue = obj.load_value;
+    if (typeof loadValue !== "number" || !Number.isFinite(loadValue) || loadValue === 0 || Math.abs(loadValue) > 1000) {
+      invalid("load_value", "set log load_value must be a non-zero number no larger than 1000");
+    }
+    if (typeof obj.load_unit !== "string" || !EXTRA_SET_LOAD_UNITS.has(obj.load_unit)) invalid("load_unit", "set log load_unit must be kg or lb");
+  }
+
+  // Only a prescribed exercise of this session that has not been skipped.
+  const plannedIds = new Set<string>();
+  for (const ex of Array.isArray(planned?.exercises) ? planned.exercises : []) {
+    const id = typeof (ex as any)?.exercise_id === "string" ? (ex as any).exercise_id : "";
+    if (id) plannedIds.add(id);
+  }
+  const trace = readSummaryTrace(summary);
+  const dropped = new Set<string>(uniqStable(trace?.dropped_ids));
+  if (!plannedIds.has(exerciseId) || dropped.has(exerciseId)) {
+    throw badRequest("Runtime event rejected (set log exercise_id is not a prescribed, unskipped exercise in this session)", {
+      failure_token: "phase6_runtime_set_log_report_unknown_exercise",
+      cause: `PHASE6_RUNTIME_SET_LOG_REPORT_UNKNOWN_EXERCISE: ${exerciseId}`
+    });
+  }
+}
+
+const EXTRA_SET_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "reps", "load_value", "load_unit", "client_request_id"]);
 
 function ensureExtraSetReportShapeValid(event: unknown, summary: any): void {
   const t = rawEventType(event);
@@ -1248,6 +1312,7 @@ export async function appendRuntimeEventMutation(
     ensureBorgReportShapeValid(event, planned, workingSummary);
     ensureCr10ReportShapeValid(event, planned, workingSummary);
     ensureExtraSetReportShapeValid(event, workingSummary);
+    ensureSetLogReportShapeValid(event, planned, workingSummary);
     ensureExtraExerciseReportShapeValid(event, planned, workingSummary);
     ensureCompleteGroupShapeValid(event, planned, workingSummary);
     ensureAmrapResultReportShapeValid(event, planned, workingSummary);
@@ -1260,7 +1325,8 @@ export async function appendRuntimeEventMutation(
 
     let isPrResult: boolean | undefined;
     if (
-      (event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT") &&
+      (event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT" ||
+        (event.type === "SET_LOG_REPORT" && event.reps >= 1)) &&
       typeof event.load_value === "number"
     ) {
       isPrResult = await computeIsPersonalRecord(

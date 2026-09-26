@@ -48,7 +48,32 @@ export async function getSessionStateQuery(session_id: string) {
       );
 
     const derivedTrace = deriveTrace(upgraded.summary as any) as any;
-    const payload = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
+    const projected = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
+
+    // What the athlete has logged on each prescribed set so far (latest entry
+    // per exercise and set), so the session screen shows logged sets after a
+    // reload. Present only once something has been logged.
+    const logs = await client.query(
+      `SELECT DISTINCT ON (event->>'exercise_id', (event->>'set_index')::int)
+         event->>'exercise_id' AS exercise_id, (event->>'set_index')::int AS set_index,
+         (event->>'reps')::int AS reps, (event->>'load_value')::numeric AS load_value,
+         event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr
+       FROM runtime_events
+       WHERE session_id = $1 AND event->>'type' = 'SET_LOG_REPORT'
+       ORDER BY event->>'exercise_id', (event->>'set_index')::int, seq DESC`,
+      [session_id]
+    );
+    const setLogs: Record<string, unknown[]> = {};
+    for (const row of logs.rows ?? []) {
+      (setLogs[row.exercise_id] ??= []).push({
+        set_index: row.set_index,
+        reps: row.reps,
+        load_value: row.load_value === null ? null : Number(row.load_value),
+        load_unit: row.load_unit ?? null,
+        is_pr: row.is_pr === true
+      });
+    }
+    const payload = Object.keys(setLogs).length ? { ...projected, set_logs: setLogs } : projected;
 
     writeCachedSessionState(session_id, payload);
     return payload;
