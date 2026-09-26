@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
-import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, rpeReserveLabel, titleCase } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -64,13 +64,6 @@ function ExerciseHowto({ exerciseId, howto, onOpen }: {
   );
 }
 
-const GROUP_TYPE_LABELS: Record<string, string> = {
-  complex: "Complex",
-  amrap: "AMRAP",
-  emom: "EMOM",
-  for_time: "For time"
-};
-
 // DEV NOTE: a complex/AMRAP/EMOM/for-time group executes as one continuous
 // unit, so this replaces the plain single-exercise focus view (never both
 // at once) - see useAthleteSessionExecution.ts's currentStepGroup() and
@@ -87,7 +80,7 @@ function GroupWorkoutFocus({ step }: { step: JsonRecord }) {
 
   return (
     <div className="exercise-focus group-workout-focus">
-      <p className="eyebrow">{GROUP_TYPE_LABELS[groupType] ?? "Group"}</p>
+      <p className="eyebrow">{groupType ? groupTimingLabel(step) : "Group"}</p>
       <h3>{exercises.map((exercise) => exerciseName(exercise)).join(" + ")}</h3>
       {timeCapSeconds > 0 ? <p className="muted">{`Time cap: ${Math.round(timeCapSeconds / 60)} minute${timeCapSeconds === 60 ? "" : "s"}`}</p> : null}
       {roundSeconds > 0 && totalRounds > 0 ? (
@@ -279,7 +272,7 @@ export function AthleteSessionExecutionPanel() {
                   {String(exercise?.segment ?? "working") !== "working" ? (
                     <span className="badge neutral">{titleCase(exercise?.segment)}</span>
                   ) : null}
-                  {exercise?.group_id ? <span className="badge neutral">{titleCase(exercise?.group_type)}</span> : null}
+                  {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
                 {String(exercise?.coaching_notes ?? "").trim() ? (
@@ -513,6 +506,9 @@ export function AthleteSessionExecutionPanel() {
         </div>
         <div className="exercise-list">
           {rows.length ? rows.map(({ exercise: row, status }, index) => {
+            // The group's cap/rounds badge shows once, on its first listed member.
+            const groupId = String(row?.group_id ?? "");
+            const firstInGroup = groupId.length > 0 && !rows.slice(0, index).some(({ exercise: earlier }) => String(earlier?.group_id ?? "") === groupId);
             const statusLabel = status === "complete" ? "Completed" : status === "dropped" ? "Dropped" : status === "current" ? "Current" : "Upcoming";
             const segment = String(row?.segment ?? "working");
             const exerciseId = String(row?.exercise_id ?? row?.item_id ?? "");
@@ -525,7 +521,7 @@ export function AthleteSessionExecutionPanel() {
                 <div>
                   <strong>{exerciseName(row)}</strong>
                   {segment !== "working" ? <span className="badge neutral">{titleCase(segment)}</span> : null}
-                  {row?.group_id ? <span className="badge neutral">{titleCase(row?.group_type)}</span> : null}
+                  {firstInGroup ? <span className="badge neutral group-timing-badge">{groupTimingLabel(row)}</span> : null}
                   <small>{exerciseDetails(row).join(" · ") || "Recorded exercise"}</small>
                   {String(row?.coaching_notes ?? "").trim() ? <small className="exercise-coaching-note">{String(row?.coaching_notes).trim()}</small> : null}
                   {canAddExtraSet && !extraSetPanelOpen ? (

@@ -625,7 +625,7 @@ test("an amrap GROUP_WORKOUT step shows the shared time cap, rounds/extra-reps i
   render(<AthleteSessionExecutionPanel />);
 
   await waitFor(() => screen.getByText("Toes to bar + Pull-up"));
-  assert.ok(screen.getByText("AMRAP"));
+  assert.ok(screen.getByText("AMRAP 12 min"));
   assert.ok(screen.getByText("Time cap: 12 minutes"));
 
   await act(async () => {
@@ -667,7 +667,7 @@ test("an emom GROUP_WORKOUT step shows round-length/total-rounds and posts EMOM_
   render(<AthleteSessionExecutionPanel />);
 
   await waitFor(() => screen.getByText("Kettlebell deadlift + Goblet squat"));
-  assert.ok(screen.getByText("EMOM"));
+  assert.ok(screen.getByText("EMOM 10 × 60s"));
   assert.ok(screen.getByText("10 rounds, one every 60 seconds"));
 
   await act(async () => {
@@ -708,7 +708,7 @@ test("a for_time GROUP_WORKOUT step shows an elapsed-time input by default and p
   render(<AthleteSessionExecutionPanel />);
 
   await waitFor(() => screen.getByText("Toes to bar + Pull-up"));
-  assert.ok(screen.getByText("For time"));
+  assert.ok(screen.getByText("For time, 10 min cap"));
   assert.ok(screen.getByText("Time cap: 10 minutes"));
   assert.ok(screen.getByLabelText("Elapsed time (seconds)"));
 
@@ -766,6 +766,88 @@ test("checking 'hit the time cap' on a for_time step hides the elapsed-time inpu
   assert.equal(forTimeCapBody?.group_id, "fortime1");
   assert.equal(forTimeCapBody?.elapsed_seconds, 600);
   assert.equal(forTimeCapBody?.hit_time_cap, true);
+});
+
+function crossfitAmrapMember(overrides: Record<string, unknown> = {}) {
+  return {
+    exercise_id: "pull_up",
+    display_name: "Pull-up",
+    segment: "working",
+    sets: 1,
+    reps: 5,
+    intensity: { type: "bodyweight" },
+    rest_seconds: 0,
+    group_id: "amrap1",
+    group_type: "amrap",
+    group_time_cap_seconds: 720,
+    ...overrides
+  };
+}
+
+test("the session order shows a timed group's cap once, on its first member, and hides placeholder sets/rest on its members", async () => {
+  seedActiveSession("session_1");
+  const warmUp = baseExercise({ exercise_id: "row_erg", display_name: "Row erg", segment: "warm_up" });
+  const members = [
+    crossfitAmrapMember(),
+    crossfitAmrapMember({ exercise_id: "burpee", display_name: "Burpee" }),
+    crossfitAmrapMember({ exercise_id: "air_squat", display_name: "Air squat", reps: 15 })
+  ];
+  installMocks({
+    sessionState: baseSessionState({
+      current_step: { type: "EXERCISE", exercise: warmUp },
+      remaining_exercises: [warmUp, ...members]
+    })
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Burpee"));
+  assert.equal(screen.getAllByText("AMRAP 12 min").length, 1);
+  assert.equal(screen.queryAllByText("Amrap").length, 0);
+  assert.equal(screen.getAllByText("5 reps · Bodyweight").length, 2);
+  assert.ok(screen.getByText("15 reps · Bodyweight"));
+  // Ungrouped work keeps its sets/rest.
+  assert.ok(screen.getAllByText("4 sets · 5–5 reps · 180s rest").length >= 1);
+});
+
+test("the session order labels EMOM and for-time groups with their rounds/cap", async () => {
+  seedActiveSession("session_1");
+  const emom = [
+    crossfitAmrapMember({ exercise_id: "kettlebell_swing", display_name: "Kettlebell swing", group_id: "emom1", group_type: "emom", group_time_cap_seconds: undefined, group_round_seconds: 60, group_total_rounds: 10 }),
+    crossfitAmrapMember({ exercise_id: "push_up", display_name: "Push-up", group_id: "emom1", group_type: "emom", group_time_cap_seconds: undefined, group_round_seconds: 60, group_total_rounds: 10 })
+  ];
+  const forTime = [
+    crossfitAmrapMember({ exercise_id: "thruster", display_name: "Thruster", group_id: "ft1", group_type: "for_time", group_time_cap_seconds: 900 }),
+    crossfitAmrapMember({ exercise_id: "box_jump", display_name: "Box jump", group_id: "ft1", group_type: "for_time", group_time_cap_seconds: 900 })
+  ];
+  installMocks({
+    sessionState: baseSessionState({
+      current_step: { type: "EXERCISE", exercise: baseExercise() },
+      remaining_exercises: [baseExercise(), ...emom, ...forTime]
+    })
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Box jump"));
+  assert.equal(screen.getAllByText("EMOM 10 × 60s").length, 1);
+  assert.equal(screen.getAllByText("For time, 15 min cap").length, 1);
+});
+
+test("a grouped current exercise's badge carries the group's timing, not just its type", async () => {
+  seedActiveSession("session_1");
+  const member = crossfitAmrapMember({ group_time_cap_seconds: 90 });
+  installMocks({
+    sessionState: baseSessionState({
+      current_step: { type: "EXERCISE", exercise: member },
+      remaining_exercises: [member]
+    })
+  });
+  render(<AthleteSessionExecutionPanel />);
+
+  await waitFor(() => screen.getByText("Current exercise"));
+  // Once in the current-work view, once in the session order.
+  assert.equal(screen.getAllByText("AMRAP 1 min 30s").length, 2);
+  assert.equal(screen.queryByText("1 sets"), null);
+  assert.equal(screen.queryByText("0s rest"), null);
 });
 
 test("expanding how-to loads written instructions for the current exercise", async () => {
