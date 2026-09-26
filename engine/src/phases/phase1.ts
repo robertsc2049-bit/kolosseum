@@ -31,6 +31,10 @@ export type Phase1CanonicalInput = {
   // default (amateur) programme, so pre-level inputs keep their canonical hash.
   experience_level?: "beginner" | "amateur" | "pro";
 
+  // Declared powerlifting competition event (the schema only admits it with
+  // activity_id powerlifting). Absent selects the full-power programme.
+  competition_event?: "full_power" | "bench_only" | "deadlift_only" | "push_pull" | "squat_only";
+
   nd_mode: boolean;
   instruction_density: string;
   exposure_prompt_density: string;
@@ -259,6 +263,16 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   const obj = input as any;
 
+  // A competition event is powerlifting's alone (its programmes are powerlifting
+  // divisions); on any other activity it is refused, never ignored.
+  if (obj?.competition_event !== undefined && obj?.activity_id !== "powerlifting") {
+    return {
+      ok: false,
+      failure_token: "type_mismatch",
+      details: [{ instancePath: "/competition_event", message: "competition_event requires activity_id powerlifting" }]
+    };
+  }
+
   if (obj?.consent_granted !== true) {
     return { ok: false, failure_token: "consent_not_granted" };
   }
@@ -292,6 +306,10 @@ export function phase1Validate(input: unknown): Phase1Result {
 
   if (typeof obj.experience_level === "string") {
     canonical.experience_level = obj.experience_level;
+  }
+
+  if (typeof obj.competition_event === "string") {
+    canonical.competition_event = obj.competition_event;
   }
 
   const envelopePresent = Object.prototype.hasOwnProperty.call(obj ?? {}, "constraints");
