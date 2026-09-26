@@ -356,6 +356,14 @@ export function AthleteSessionHistoryList() {
         const borgReports = Array.isArray(session.borg_reports) ? (session.borg_reports as JsonRecord[]) : [];
         const cr10Reports = Array.isArray(session.cr10_reports) ? (session.cr10_reports as JsonRecord[]) : [];
         const extraSetReports = Array.isArray(session.extra_set_reports) ? (session.extra_set_reports as JsonRecord[]) : [];
+        const setLogs = Array.isArray(session.set_logs) ? (session.set_logs as JsonRecord[]) : [];
+        // Logged sets grouped per exercise: "Back Squat 3×144kg, 3×144kg, 2×144kg".
+        const setLogsByExercise = new Map<string, JsonRecord[]>();
+        for (const log of setLogs) {
+          const list = setLogsByExercise.get(String(log.exercise_id)) ?? [];
+          list.push(log);
+          setLogsByExercise.set(String(log.exercise_id), list);
+        }
         const extraExerciseReports = Array.isArray(session.extra_exercise_reports) ? (session.extra_exercise_reports as JsonRecord[]) : [];
 
         return (
@@ -389,6 +397,14 @@ export function AthleteSessionHistoryList() {
               {cr10Reports.length > 0 ? (
                 <p className="muted small">
                   CR10: {cr10Reports.map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.cr10_value)}`).join(", ")}
+                </p>
+              ) : null}
+              {setLogsByExercise.size > 0 ? (
+                <p className="muted small">
+                  Sets:{" "}
+                  {[...setLogsByExercise].map(([exerciseId, logs]) => `${titleCase(exerciseId)} ${logs
+                    .map((log) => `${Number(log.reps)}${log.load_value !== null && log.load_value !== undefined ? `×${Number(log.load_value)}${String(log.load_unit ?? "")}` : ""}${log.is_pr === true ? " (PR)" : ""}`)
+                    .join(", ")}`).join("; ")}
                 </p>
               ) : null}
               {extraSetReports.length > 0 ? (

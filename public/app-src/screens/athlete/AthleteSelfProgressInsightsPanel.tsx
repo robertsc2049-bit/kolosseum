@@ -1,4 +1,5 @@
 import React from "react";
+import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { type JsonRecord } from "../../api/transport";
@@ -115,6 +116,7 @@ export function AthleteSelfProgressInsightsPanel() {
   const { loading, error, insights, exercises } = useProgressInsights();
 
   const strengthTrends = Array.isArray(insights?.strength_trends) ? (insights!.strength_trends as JsonRecord[]) : [];
+  const trainingE1rmTrends = Array.isArray(insights?.training_e1rm_trends) ? (insights!.training_e1rm_trends as JsonRecord[]) : [];
   const habitConsistency = Array.isArray(insights?.habit_consistency) ? (insights!.habit_consistency as JsonRecord[]) : [];
   const bodyMetricTrends = Array.isArray(insights?.body_metric_trends) ? (insights!.body_metric_trends as JsonRecord[]) : [];
 
@@ -148,6 +150,19 @@ export function AthleteSelfProgressInsightsPanel() {
             }]}
             emptyLabel="No sessions recorded yet to chart adherence over time."
           />
+
+          <div className="progress-insights-section">
+            <h4>Estimated maxes from training</h4>
+            <div className="record-list">
+              {trainingE1rmTrends.length === 0 ? (
+                <div className="empty-state compact-empty"><p>Log your sets with reps and load to see your estimated maxes here.</p></div>
+              ) : (
+                trainingE1rmTrends.map((trend) => (
+                  <TrainingE1rmCard key={String(trend.exercise_id)} trend={trend} exercises={exercises} />
+                ))
+              )}
+            </div>
+          </div>
 
           <div className="progress-insights-section">
             <h4>Strength trends</h4>

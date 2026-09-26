@@ -438,6 +438,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
   const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
+  // Prescribed-set logs per exercise, keyed by set so a re-logged set replaces the earlier entry.
+  const setLogs = new Map<string, Map<number, JsonRecord>>();
   const splitReturnEvents: Array<{ type: string; seq: number; created_at: string | null }> = [];
 
   for (const { event, seq, created_at } of rawEvents) {
@@ -474,6 +476,20 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         created_at
       });
       extraSetReports.set(event.exercise_id, list);
+    }
+
+    if (type === "SET_LOG_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.set_index) && Number.isInteger(event.reps)) {
+      const bySet = setLogs.get(event.exercise_id) ?? new Map<number, JsonRecord>();
+      bySet.set(event.set_index as number, {
+        set_index: event.set_index as number,
+        reps: event.reps as number,
+        load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
+        load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
+        is_pr: event.is_pr === true,
+        seq,
+        created_at
+      });
+      setLogs.set(event.exercise_id, bySet);
     }
 
     if (type === "EXTRA_EXERCISE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.reps)) {
@@ -533,6 +549,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       rpe_reported: rpeReports.get(exerciseId) ?? null,
       borg_reported: borgReports.get(exerciseId) ?? null,
       cr10_reported: cr10Reports.get(exerciseId) ?? null,
+      set_logs: Object.freeze([...(setLogs.get(exerciseId)?.values() ?? [])].sort((a, b) => Number(a.set_index) - Number(b.set_index))),
       extra_sets: Object.freeze(extraSetReports.get(exerciseId) ?? []),
       substitution: substitutions.get(exerciseId) ?? null
     });

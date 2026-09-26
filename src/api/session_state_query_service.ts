@@ -17,6 +17,7 @@ import {
   type PlannedSession,
   buildCoachSessionDecisionSummaryFromRunId,
   ensureReturnDecisionContract,
+  loadSessionSetLogs,
   loadSessionStateRow,
   projectSessionStatePayload,
   readCachedSessionState,
@@ -48,7 +49,13 @@ export async function getSessionStateQuery(session_id: string) {
       );
 
     const derivedTrace = deriveTrace(upgraded.summary as any) as any;
-    const payload = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
+    const projected = projectSessionStatePayload(session_id, planned, upgraded.summary, derivedTrace);
+
+    // What the athlete has logged on each prescribed set so far (latest entry
+    // per exercise and set), so the session screen shows logged sets after a
+    // reload. Present only once something has been logged.
+    const setLogs = await loadSessionSetLogs(client, session_id);
+    const payload = Object.keys(setLogs).length ? { ...projected, set_logs: setLogs } : projected;
 
     writeCachedSessionState(session_id, payload);
     return payload;

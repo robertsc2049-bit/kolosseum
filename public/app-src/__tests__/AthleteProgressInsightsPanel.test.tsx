@@ -223,3 +223,19 @@ test("a habit label containing markup is rendered as inert text, never as HTML",
   assert.equal(document.querySelectorAll("img").length, 0);
   assert.match(document.body.textContent ?? "", /<img src=x onerror="window\.pwned=true">/u);
 });
+
+test("the coach sees estimated maxes from what the athlete actually lifted, with bodyweight lifts flagged", async () => {
+  await openPanel(baseInsights({
+    training_e1rm_trends: [
+      { exercise_id: "back_squat", unit: "kg", method: "epley", includes_bodyweight: false, current_e1rm: 163.3, current_date: "2026-09-25", has_prior_value: true, prior_e1rm: 158.4, prior_date: "2026-08-20", delta: 4.9, delta_percentage: 3.1, series: [{ date: "2026-08-20", e1rm: 158.4 }, { date: "2026-09-25", e1rm: 163.3 }] },
+      { exercise_id: "pull_up", unit: "kg", method: "epley", includes_bodyweight: true, current_e1rm: 120, current_date: "2026-09-25", has_prior_value: false, prior_e1rm: null, prior_date: null, delta: null, delta_percentage: null, series: [{ date: "2026-09-25", e1rm: 120 }] }
+    ]
+  }));
+  const squat = await screen.findByTestId("training-e1rm-back_squat");
+  assert.match(squat.textContent ?? "", /163\.3 kg e1RM/u);
+  assert.match(squat.textContent ?? "", /\+4\.9 kg \(\+3\.1%\)/u);
+  const pull = screen.getByTestId("training-e1rm-pull_up");
+  assert.match(pull.textContent ?? "", /120 kg e1RM/u);
+  assert.match(pull.textContent ?? "", /Includes bodyweight plus added load/u);
+  assert.match(pull.textContent ?? "", /No earlier training to compare yet/u);
+});

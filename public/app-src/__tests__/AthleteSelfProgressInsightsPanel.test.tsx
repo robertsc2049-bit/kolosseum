@@ -335,13 +335,14 @@ test("charts session adherence over time using the series field, keyed off windo
   assert.equal(dCommands.length, 2, "expected exactly 2 plotted points (the null-adherence window excluded)");
 });
 
-test("keeps the three labeled sections (Strength trends, Habit consistency, Body-metric trends) as distinct headings", async () => {
+test("keeps the four labeled sections (Estimated maxes from training, Strength trends, Habit consistency, Body-metric trends) as distinct headings", async () => {
   installMocks({});
   render(<AthleteSelfProgressInsightsPanel />);
   await waitFor(() => screen.getByText("No sessions recorded in the last 30 days."));
 
   const headings = Array.from(document.querySelectorAll(".progress-insights-section h4")).map((node) => node.textContent);
-  assert.deepEqual(headings, ["Strength trends", "Habit consistency", "Body-metric trends"]);
+  assert.deepEqual(headings, ["Estimated maxes from training", "Strength trends", "Habit consistency", "Body-metric trends"]);
+  assert.ok(screen.getByText("Log your sets with reps and load to see your estimated maxes here."));
   const panel = document.querySelector(".progress-insights-panel") as HTMLElement;
   assert.ok(within(panel).getByText("Progress insights"));
 });

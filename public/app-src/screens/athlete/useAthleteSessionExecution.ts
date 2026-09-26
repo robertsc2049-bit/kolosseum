@@ -588,6 +588,24 @@ export function useAthleteSessionExecution() {
     return ok;
   }, [runMutation, state.extraSetTargetExerciseId, state.extraSetReps, state.extraSetLoadValue, state.extraSetLoadUnit]);
 
+  // Log what was actually done on one prescribed set (re-logging a set
+  // replaces it). Resolves to whether the load was a personal record, or
+  // null when the log was not recorded.
+  const logSet = useCallback(async (exerciseId: string, setIndex: number, reps: number, load: { value: number; unit: "kg" | "lb" } | null) => {
+    if (!exerciseId || !Number.isInteger(setIndex) || setIndex < 1 || !Number.isInteger(reps) || reps < 0) return null;
+    const event: JsonRecord = { type: "SET_LOG_REPORT", exercise_id: exerciseId, set_index: setIndex, reps };
+    if (load) {
+      event.load_value = load.value;
+      event.load_unit = load.unit;
+    }
+    let isPr = false;
+    const ok = await runMutation(async (sessionId, csrfToken) => {
+      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      isPr = response?.is_pr === true;
+    }, true);
+    return ok ? isPr : null;
+  }, [runMutation]);
+
   const openAddExercisePanel = useCallback((defaultExerciseId: string) => {
     setState((current) => ({
       ...current,
@@ -815,6 +833,7 @@ export function useAthleteSessionExecution() {
     setExtraSetLoadValue,
     setExtraSetLoadUnit,
     confirmExtraSetReport,
+    logSet,
     openAddExercisePanel,
     closeAddExercisePanel,
     setAddExerciseSelectedId,

@@ -49,6 +49,22 @@ function isRecord(value: unknown): value is JsonRecord {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+// Exported for tests: the latest log per exercise and set wins (a re-logged set replaces the earlier one).
+export function latestSetLogs(raw: unknown): JsonRecord[] {
+  if (!Array.isArray(raw)) return [];
+  const latest = new Map<string, JsonRecord>();
+  for (const entry of raw) {
+    if (!isRecord(entry) || typeof entry.exercise_id !== "string" || !Number.isInteger(entry.set_index) || !Number.isInteger(entry.reps)) continue;
+    const key = `${entry.exercise_id}#${entry.set_index}`;
+    const prior = latest.get(key);
+    if (!prior || Number(entry.seq) > Number(prior.seq)) latest.set(key, entry);
+  }
+  return [...latest.values()]
+    .sort((a, b) => String(a.exercise_id).localeCompare(String(b.exercise_id)) || Number(a.set_index) - Number(b.set_index))
+    .map(({ seq: _seq, ...rest }) => rest);
+}
+
+
 function cleanString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -1414,6 +1430,24 @@ export async function loadCoachAthleteDetail(
         ) AS session_extra_set_reports,
         COALESCE(
           json_agg(
+            jsonb_build_object(
+              'exercise_id', re.event->>'exercise_id',
+              'set_index', (re.event->>'set_index')::int,
+              'reps', (re.event->>'reps')::int,
+              'load_value', (re.event->>'load_value')::numeric,
+              'load_unit', re.event->>'load_unit',
+              'is_pr', (re.event->>'is_pr')::boolean,
+              'seq', re.seq
+            )
+          ) FILTER (
+            WHERE re.event->>'type' = 'SET_LOG_REPORT'
+              AND re.event->>'set_index' IS NOT NULL
+              AND re.event->>'reps' IS NOT NULL
+          ),
+          '[]'::json
+        ) AS session_set_logs,
+        COALESCE(
+          json_agg(
             DISTINCT jsonb_build_object(
               'exercise_id', re.event->>'exercise_id',
               'reps', (re.event->>'reps')::int,
@@ -1715,6 +1749,11 @@ export async function loadCoachAthleteDetail(
                     Number.isInteger(entry.reps)
                 )
               : [],
+          // Latest log per exercise and set (a re-logged set replaces the earlier one).
+          set_logs:
+            latestSetLogs(
+              row.session_set_logs
+            ),
           extra_exercise_reports:
             Array.isArray(
               row.session_extra_exercise_reports
