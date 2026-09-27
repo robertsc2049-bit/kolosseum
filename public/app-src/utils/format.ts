@@ -268,6 +268,10 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
         );
       }
     }
+    else if (exercise?.load_guidance && typeof exercise.load_guidance === "object" && Number.isFinite(Number((exercise.load_guidance as JsonRecord).value))) {
+      // No max recorded for this lift: an effort target instead of a bare percentage.
+      details.push(`No max recorded - choose a weight at about RPE ${Number((exercise.load_guidance as JsonRecord).value)}`);
+    }
     else {
       details.push(`${Number(intensity.value)}% 1RM`);
     }

@@ -14,6 +14,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
+import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -555,6 +556,15 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
     planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
+  // A self-directed athlete's % of 1RM work becomes a weight from their own
+  // maxes (or an RPE target when none is recorded); coach-assigned sessions
+  // already carry the coach's resolved loads.
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await resolveAthleteSessionLoads(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+    };
   }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));

@@ -421,3 +421,111 @@ test(
     assert.equal(trends.find((x) => x.exercise_id === "back_squat").current_e1rm, 160 * 1.1, "Epley on the best set of the day (3 x 160 beats 6 x 130)");
   }
 );
+
+test(
+  "maxes: a self-directed powerlifter's % of 1RM work becomes a real weight - from her entered max, else her logged-set estimate, else an RPE target",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Maxes Powerlifter", email: `maxes-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    // One day a week: every session is the same full-power day.
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    const byId = (session, id) => session.json.planned_session.exercises.find((e) => e.exercise_id === id);
+
+    // The lifts she needs maxes for are her programme's % of 1RM lifts.
+    const listed = await requestJson(server.baseUrl, "GET", "/account/onboarding/maxes", { cookie });
+    assertStatus(listed, 200, "maxes");
+    const lifts = listed.json.lifts.map((l) => l.exercise_id);
+    for (const lift of ["back_squat", "paused_bench_press", "deadlift"]) assert.ok(lifts.includes(lift), `${lift} is listed`);
+    assert.ok(listed.json.lifts.every((l) => l.entered === null && l.in_programme));
+
+    // No max yet: an RPE target, never a bare percentage.
+    const first = await compile();
+    assertStatus(first, 201, "first session");
+    const squat = byId(first, "back_squat");
+    assert.equal(squat.intensity.type, "percent_1rm");
+    assert.ok(!squat.resolved_load, "no weight without a max");
+    assert.equal(squat.load_guidance.type, "rpe");
+    assert.ok(squat.load_guidance.value >= 6 && squat.load_guidance.value <= 9, JSON.stringify(squat.load_guidance));
+
+    // She logs her deadlift: 3 x 180 kg.
+    const sid = first.json.session_id;
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, {
+      cookie, csrf, body: { type: "SET_LOG_REPORT", client_request_id: crypto.randomUUID(), exercise_id: "deadlift", set_index: 1, reps: 3, load_value: 180, load_unit: "kg" }
+    }), 201, "log deadlift");
+
+    for (const [maxes, label] of [
+      [[{ exercise_id: "made_up_lift", value: 100, unit: "kg" }], "an unknown lift"],
+      [[{ exercise_id: "back_squat", value: 0, unit: "kg" }], "a zero max"],
+      [[{ exercise_id: "back_squat", value: 150, unit: "stone" }], "an unknown unit"],
+      [[{ exercise_id: "back_squat", value: 150, unit: "kg", effective_date: "2999-01-01" }], "a future date"]
+    ]) {
+      assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/maxes", { cookie, csrf, body: { preferred_weight_unit: "kg", maxes } }), 422, `refuse ${label}`);
+    }
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/maxes", {
+      cookie, csrf, body: { preferred_weight_unit: "kg", maxes: [{ exercise_id: "back_squat", value: 150, unit: "kg", basis: "tested_1rm" }] }
+    });
+    assertStatus(saved, 200, "save her tested squat max");
+    const squatRow = saved.json.lifts.find((l) => l.exercise_id === "back_squat");
+    assert.equal(squatRow.entered.value, 150);
+    const deadliftRow = saved.json.lifts.find((l) => l.exercise_id === "deadlift");
+    assert.equal(deadliftRow.entered, null);
+    assert.equal(deadliftRow.from_training.value, 198, "Epley 180 x (1 + 3/30)");
+
+    const next = await compile();
+    assertStatus(next, 201, "next session");
+    const nextSquat = byId(next, "back_squat");
+    const expectedSquat = Math.round((150 * nextSquat.intensity.value) / 100 / 2.5) * 2.5;
+    assert.equal(nextSquat.resolved_load.value, expectedSquat, "her tested max, rounded to 2.5 kg");
+    assert.equal(nextSquat.resolved_load.unit, "kg");
+    assert.equal(nextSquat.resolved_load.source.source_type, "tested_1rm");
+    const nextDeadlift = byId(next, "deadlift");
+    assert.equal(nextDeadlift.resolved_load.source.source_type, "estimated_1rm", "her logged-set estimate");
+    assert.equal(nextDeadlift.resolved_load.value, Math.round((198 * nextDeadlift.intensity.value) / 100 / 2.5) * 2.5);
+    const nextBench = byId(next, "paused_bench_press");
+    assert.ok(!nextBench.resolved_load);
+    assert.equal(nextBench.load_guidance.type, "rpe", "still no bench max: an RPE target");
+  }
+);
