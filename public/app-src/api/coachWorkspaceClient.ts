@@ -429,3 +429,8 @@ export function loadAthletePainFlags(athleteUserId: string): Promise<JsonRecord>
 export function clearAthletePainFlag(athleteUserId: string, flagKey: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/pain-flags/coach/${encodeURIComponent(athleteUserId)}/clear`, { flag_key: flagKey }, csrfToken);
 }
+
+// "Start from a Kolosseum programme": a draft template from the engine's programme.
+export function createKolosseumStarterTemplate(input: { activity_id: string; experience_level: string; days_per_week: number }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/templates/kolosseum-starter", input, csrfToken);
+}

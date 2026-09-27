@@ -4000,3 +4000,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag h4 { margin: 0 0 4px; }
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
+
+/* Group assignment: athlete checklist wraps on a phone. */
+.group-assign-athletes { display: flex; flex-wrap: wrap; gap: 8px; }
+.group-assign-athlete { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 12em; }
+.group-assign-results { list-style: none; padding: 0; display: grid; gap: 4px; }
