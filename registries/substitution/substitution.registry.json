@@ -166,6 +166,22 @@
       "deterministic_ordering_key": "arnold_press|02|00|pike_push_up",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "axle_bar_press__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "axle_bar_press__to__dumbbell_overhead_press",
+      "source_exercise_id": "axle_bar_press",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_bar_press|02|01|dumbbell_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "axle_bar_press__to__overhead_press": {
       "substitution_edge_id": "axle_bar_press__to__overhead_press",
       "source_exercise_id": "axle_bar_press",
@@ -180,6 +196,38 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "axle_bar_press|02|01|overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_bar_press__to__paused_overhead_press": {
+      "substitution_edge_id": "axle_bar_press__to__paused_overhead_press",
+      "source_exercise_id": "axle_bar_press",
+      "target_exercise_id": "paused_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_bar_press|02|01|paused_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_bar_press__to__single_arm_overhead_press": {
+      "substitution_edge_id": "axle_bar_press__to__single_arm_overhead_press",
+      "source_exercise_id": "axle_bar_press",
+      "target_exercise_id": "single_arm_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_bar_press|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "back_squat__to__front_squat": {
@@ -240,6 +288,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -263,7 +312,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "back_squat|00|01|high_bar_back_squat",
@@ -282,6 +332,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -324,6 +375,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -451,6 +503,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -474,7 +527,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "back_squat|01|01|box_squat",
@@ -517,7 +571,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "back_squat|01|01|hack_squat",
@@ -1512,7 +1567,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_resisted_dead_bug|02|00|long_lever_plank",
@@ -1554,7 +1610,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_resisted_dead_bug|02|01|dead_bug",
@@ -1596,7 +1653,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "band_resisted_dead_bug|02|01|front_plank",
@@ -1848,7 +1906,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_curl|01|00|cable_curl",
@@ -1973,7 +2032,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_curl|02|00|dumbbell_curl",
@@ -2015,7 +2075,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_curl|02|00|hammer_curl",
@@ -2244,6 +2305,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -2267,7 +2329,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_row|00|00|pendlay_row",
@@ -2328,6 +2391,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -2351,7 +2416,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_row|01|00|chest_supported_row",
@@ -2412,6 +2478,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -2454,6 +2522,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -2477,7 +2546,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_row|01|01|inverted_row",
@@ -2538,6 +2608,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -2581,6 +2653,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -2646,7 +2719,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_skullcrusher|01|00|cable_triceps_pressdown",
@@ -2730,7 +2804,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_skullcrusher|01|00|overhead_cable_triceps_extension",
@@ -2772,7 +2847,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "barbell_skullcrusher|02|00|dumbbell_skullcrusher",
@@ -3022,7 +3098,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|00|01|close_grip_bench_press",
@@ -3064,7 +3141,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|00|01|paused_bench_press",
@@ -3233,7 +3311,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|01|01|dumbbell_bench_press",
@@ -3275,7 +3354,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|01|01|floor_press",
@@ -3402,7 +3482,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "bench_press|02|02|push_up",
@@ -3560,6 +3641,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3602,6 +3684,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3686,6 +3769,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3728,6 +3812,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3770,6 +3855,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3812,6 +3898,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3938,6 +4025,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -3980,6 +4068,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4021,6 +4110,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4063,6 +4153,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4285,6 +4376,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4308,7 +4400,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "box_squat|01|00|front_squat",
@@ -4327,6 +4420,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4350,7 +4444,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "box_squat|01|00|hack_squat",
@@ -4369,6 +4464,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4392,7 +4488,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "box_squat|01|00|high_bar_back_squat",
@@ -4453,6 +4550,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4495,6 +4593,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4518,7 +4617,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "box_squat|01|00|paused_back_squat",
@@ -4650,6 +4750,22 @@
       "deterministic_ordering_key": "box_squat|02|00|split_squat",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "box_squat__to__air_squat": {
+      "substitution_edge_id": "box_squat__to__air_squat",
+      "source_exercise_id": "box_squat",
+      "target_exercise_id": "air_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "box_squat|02|01|air_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "box_squat__to__goblet_squat": {
       "substitution_edge_id": "box_squat__to__goblet_squat",
       "source_exercise_id": "box_squat",
@@ -4663,6 +4779,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -4686,7 +4803,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "box_squat|02|01|goblet_squat",
@@ -4704,6 +4822,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -4745,6 +4864,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -4827,6 +4947,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -4909,6 +5030,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -4950,6 +5072,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5279,6 +5402,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5320,6 +5444,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5403,6 +5528,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5487,6 +5613,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5529,6 +5656,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -5778,7 +5906,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_curl|01|00|barbell_curl",
@@ -5903,7 +6032,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_curl|02|00|dumbbell_curl",
@@ -5945,7 +6075,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_curl|02|00|hammer_curl",
@@ -6575,7 +6706,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_scapular_retraction|00|00|face_pull",
@@ -6617,7 +6749,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_scapular_retraction|02|00|band_pull_apart",
@@ -6701,7 +6834,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_triceps_pressdown|00|00|overhead_cable_triceps_extension",
@@ -6743,7 +6877,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_triceps_pressdown|01|00|barbell_skullcrusher",
@@ -6827,7 +6962,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "cable_triceps_pressdown|02|00|dumbbell_skullcrusher",
@@ -7055,6 +7191,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -7078,7 +7215,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "chest_supported_row|01|01|inverted_row",
@@ -7097,6 +7235,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -7183,6 +7322,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -7268,6 +7408,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -7415,7 +7556,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "close_grip_bench_press|00|00|paused_bench_press",
@@ -7626,7 +7768,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "close_grip_bench_press|01|00|floor_press",
@@ -8063,6 +8206,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8148,6 +8292,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8191,6 +8336,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8214,7 +8360,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|00|01|romanian_deadlift",
@@ -8360,6 +8507,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8402,6 +8550,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8444,6 +8593,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8467,7 +8617,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|01|01|good_morning",
@@ -8486,6 +8637,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8528,6 +8680,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8551,7 +8705,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|01|01|trap_bar_deadlift",
@@ -8571,6 +8726,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8594,7 +8750,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|02|01|kettlebell_deadlift",
@@ -8613,6 +8770,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8656,6 +8814,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -8679,7 +8838,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "deadlift|02|01|single_leg_rdl",
@@ -8951,6 +9111,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -8993,6 +9154,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9077,6 +9239,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9119,6 +9282,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9161,6 +9325,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9203,6 +9368,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9329,6 +9495,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9371,6 +9538,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9412,6 +9580,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9454,6 +9623,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -9895,7 +10065,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_bench_press|01|00|floor_press",
@@ -9979,7 +10150,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_bench_press|01|00|paused_bench_press",
@@ -10274,7 +10446,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "dumbbell_curl|00|00|hammer_curl",
@@ -10418,6 +10591,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -10652,7 +10826,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "face_pull|00|00|cable_scapular_retraction",
@@ -10694,7 +10869,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "face_pull|02|00|band_pull_apart",
@@ -11193,7 +11369,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "floor_press|01|00|close_grip_bench_press",
@@ -11235,7 +11412,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "floor_press|01|00|dumbbell_bench_press",
@@ -11319,7 +11497,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "floor_press|01|00|paused_bench_press",
@@ -11529,7 +11708,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "floor_press|02|01|push_up",
@@ -12000,6 +12180,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -12042,6 +12223,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -12084,6 +12266,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -12253,6 +12436,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12276,7 +12460,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "front_squat|00|00|high_bar_back_squat",
@@ -12295,6 +12480,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12337,6 +12523,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12464,6 +12651,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12487,7 +12675,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "front_squat|01|00|box_squat",
@@ -12530,7 +12719,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "front_squat|01|00|hack_squat",
@@ -12835,6 +13025,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12877,6 +13068,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -12919,6 +13111,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13003,6 +13196,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13045,6 +13239,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13068,7 +13263,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "good_morning|01|00|romanian_deadlift",
@@ -13087,6 +13283,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13213,6 +13410,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13236,7 +13434,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "good_morning|01|00|trap_bar_deadlift",
@@ -13255,6 +13454,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13278,7 +13478,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "good_morning|02|00|kettlebell_deadlift",
@@ -13296,6 +13497,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13338,6 +13540,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13361,7 +13564,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "good_morning|02|00|single_leg_rdl",
@@ -13612,7 +13816,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "hammer_curl|00|00|dumbbell_curl",
@@ -13647,6 +13852,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13670,7 +13876,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|00|00|front_squat",
@@ -13689,6 +13896,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13731,6 +13939,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13754,7 +13963,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|00|00|paused_back_squat",
@@ -13857,6 +14067,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13880,7 +14091,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|01|00|box_squat",
@@ -13899,6 +14111,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -13922,7 +14135,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|01|00|hack_squat",
@@ -14012,6 +14226,22 @@
       "deterministic_ordering_key": "high_bar_back_squat|02|00|split_squat",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "high_bar_back_squat__to__air_squat": {
+      "substitution_edge_id": "high_bar_back_squat__to__air_squat",
+      "source_exercise_id": "high_bar_back_squat",
+      "target_exercise_id": "air_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "street_lifting"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "high_bar_back_squat|02|01|air_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "high_bar_back_squat__to__goblet_squat": {
       "substitution_edge_id": "high_bar_back_squat__to__goblet_squat",
       "source_exercise_id": "high_bar_back_squat",
@@ -14025,6 +14255,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -14048,7 +14279,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|02|01|goblet_squat",
@@ -14780,6 +15012,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "crossfit",
         "football_soccer",
         "netball",
@@ -14824,6 +15057,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -14847,7 +15081,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "kettlebell_deadlift|02|00|single_leg_rdl",
@@ -15077,6 +15312,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "crossfit",
         "football_soccer",
         "netball",
@@ -15120,6 +15356,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -15456,6 +15693,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -15541,6 +15779,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -15626,6 +15865,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17077,6 +17317,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -17100,7 +17341,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "long_lever_plank|00|01|dead_bug",
@@ -17119,6 +17361,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -17142,7 +17385,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "long_lever_plank|00|01|front_plank",
@@ -17161,6 +17405,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17203,6 +17448,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17245,6 +17491,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17371,6 +17618,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17413,6 +17661,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -17539,6 +17788,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -20406,6 +20656,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -20490,6 +20741,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -20574,6 +20826,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -21172,7 +21425,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "overhead_cable_triceps_extension|00|00|cable_triceps_pressdown",
@@ -21214,7 +21468,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "overhead_cable_triceps_extension|01|00|barbell_skullcrusher",
@@ -21298,7 +21553,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "overhead_cable_triceps_extension|02|00|dumbbell_skullcrusher",
@@ -21481,6 +21737,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -21606,6 +21863,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -21732,6 +21990,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22445,6 +22704,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22488,6 +22748,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22511,7 +22772,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_back_squat|00|00|high_bar_back_squat",
@@ -22530,6 +22792,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22656,6 +22919,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22679,7 +22943,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_back_squat|01|00|box_squat",
@@ -22698,6 +22963,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22721,7 +22987,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_back_squat|01|00|hack_squat",
@@ -22840,6 +23107,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -22906,7 +23174,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_bench_press|00|00|close_grip_bench_press",
@@ -23074,7 +23343,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_bench_press|01|00|dumbbell_bench_press",
@@ -23116,7 +23386,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_bench_press|01|00|floor_press",
@@ -23242,7 +23513,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "paused_bench_press|02|01|push_up",
@@ -23303,6 +23575,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23345,6 +23618,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23471,6 +23745,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23513,6 +23788,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23555,6 +23831,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23597,6 +23874,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23639,6 +23917,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23681,6 +23960,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23722,6 +24002,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23764,6 +24045,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23806,6 +24088,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -23931,6 +24214,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24057,6 +24341,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24099,6 +24384,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24122,7 +24408,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pendlay_row|00|00|barbell_row",
@@ -24183,6 +24470,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24206,7 +24494,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pendlay_row|01|00|chest_supported_row",
@@ -24267,6 +24556,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24290,7 +24580,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pendlay_row|01|00|seated_cable_row",
@@ -24331,7 +24622,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pendlay_row|01|01|inverted_row",
@@ -24392,6 +24684,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -24415,7 +24708,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "pendlay_row|02|00|single_arm_dumbbell_row",
@@ -26058,6 +26352,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26144,6 +26439,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26229,6 +26525,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26483,6 +26780,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26525,6 +26823,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26567,6 +26866,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26651,6 +26951,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26693,6 +26994,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26735,6 +27037,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26861,6 +27164,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26903,6 +27207,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26944,6 +27249,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -26986,6 +27292,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27483,6 +27790,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -27652,6 +27960,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27821,6 +28130,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27863,6 +28173,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27905,6 +28216,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27928,7 +28240,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|01|00|good_morning",
@@ -27947,6 +28260,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -27989,6 +28303,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28012,7 +28328,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|01|00|trap_bar_deadlift",
@@ -28032,6 +28349,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28075,6 +28393,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28118,6 +28437,7 @@
         "general_strength",
         "rugby_union",
         "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28141,7 +28461,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "romanian_deadlift|02|00|single_leg_rdl",
@@ -28400,6 +28721,54 @@
       "deterministic_ordering_key": "rowing_ergometer|00|00|ski_erg",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "sandbag_lunge__to__box_step_up": {
+      "substitution_edge_id": "sandbag_lunge__to__box_step_up",
+      "source_exercise_id": "sandbag_lunge",
+      "target_exercise_id": "box_step_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "sandbag_lunge|02|00|box_step_up",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "sandbag_lunge__to__bulgarian_split_squat": {
+      "substitution_edge_id": "sandbag_lunge__to__bulgarian_split_squat",
+      "source_exercise_id": "sandbag_lunge",
+      "target_exercise_id": "bulgarian_split_squat",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "sandbag_lunge|02|00|bulgarian_split_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "sandbag_lunge__to__forward_lunge": {
+      "substitution_edge_id": "sandbag_lunge__to__forward_lunge",
+      "source_exercise_id": "sandbag_lunge",
+      "target_exercise_id": "forward_lunge",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "sandbag_lunge|02|00|forward_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "sandbag_lunge__to__reverse_lunge": {
       "substitution_edge_id": "sandbag_lunge__to__reverse_lunge",
       "source_exercise_id": "sandbag_lunge",
@@ -28414,6 +28783,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "sandbag_lunge|02|00|reverse_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "sandbag_lunge__to__step_up": {
+      "substitution_edge_id": "sandbag_lunge__to__step_up",
+      "source_exercise_id": "sandbag_lunge",
+      "target_exercise_id": "step_up",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "hyrox"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "sandbag_lunge|02|00|step_up",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "sandbag_lunge__to__walking_lunge": {
@@ -28445,6 +28830,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28488,6 +28875,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28511,7 +28900,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "seated_cable_row|01|00|chest_supported_row",
@@ -28572,6 +28962,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -28595,7 +28986,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "seated_cable_row|01|00|pendlay_row",
@@ -28655,6 +29047,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28678,7 +29071,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "seated_cable_row|01|01|inverted_row",
@@ -28739,6 +29133,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -28782,6 +29178,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -29496,6 +29893,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -29873,6 +30271,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -30570,6 +30969,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -30662,6 +31062,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -30680,6 +31081,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -30698,6 +31100,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -30716,6 +31119,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -30734,6 +31138,7 @@
       "activity_applicability": [
         "powerlifting",
         "general_strength",
+        "strongman",
         "olympic_weightlifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
@@ -32272,6 +32677,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -32313,6 +32719,7 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -32396,6 +32803,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -32480,6 +32888,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -32522,6 +32931,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -32606,6 +33016,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -32775,6 +33186,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -32817,6 +33229,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -32859,6 +33272,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -32901,6 +33315,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -32943,6 +33358,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -33100,6 +33516,22 @@
       "deterministic_ordering_key": "stiff_leg_deadlift|02|00|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "strongman_log_press__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "strongman_log_press__to__dumbbell_overhead_press",
+      "source_exercise_id": "strongman_log_press",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_press|02|01|dumbbell_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "strongman_log_press__to__overhead_press": {
       "substitution_edge_id": "strongman_log_press__to__overhead_press",
       "source_exercise_id": "strongman_log_press",
@@ -33114,6 +33546,38 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "strongman_log_press|02|01|overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_press__to__paused_overhead_press": {
+      "substitution_edge_id": "strongman_log_press__to__paused_overhead_press",
+      "source_exercise_id": "strongman_log_press",
+      "target_exercise_id": "paused_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_press|02|01|paused_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_press__to__single_arm_overhead_press": {
+      "substitution_edge_id": "strongman_log_press__to__single_arm_overhead_press",
+      "source_exercise_id": "strongman_log_press",
+      "target_exercise_id": "single_arm_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_press|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "suitcase_carry__to__single_arm_front_rack_carry": {
@@ -33800,6 +34264,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -33823,7 +34288,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "t_bar_row|01|00|chest_supported_row",
@@ -33864,7 +34330,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "t_bar_row|01|01|inverted_row",
@@ -35713,6 +36180,54 @@
       "deterministic_ordering_key": "tire_flip|02|00|snatch_grip_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "tire_flip__to__block_pull": {
+      "substitution_edge_id": "tire_flip__to__block_pull",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__deficit_deadlift": {
+      "substitution_edge_id": "tire_flip__to__deficit_deadlift",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__good_morning": {
+      "substitution_edge_id": "tire_flip__to__good_morning",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "tire_flip__to__kettlebell_deadlift": {
       "substitution_edge_id": "tire_flip__to__kettlebell_deadlift",
       "source_exercise_id": "tire_flip",
@@ -35743,6 +36258,38 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "tire_flip|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__paused_deadlift": {
+      "substitution_edge_id": "tire_flip__to__paused_deadlift",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__rack_pull": {
+      "substitution_edge_id": "tire_flip__to__rack_pull",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|rack_pull",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "tire_flip__to__romanian_deadlift": {
@@ -35791,6 +36338,22 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "tire_flip|02|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "tire_flip__to__trap_bar_deadlift": {
+      "substitution_edge_id": "tire_flip__to__trap_bar_deadlift",
+      "source_exercise_id": "tire_flip",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "tire_flip|02|01|trap_bar_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "toes_to_bar__to__curl_up": {
@@ -35948,6 +36511,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -35990,6 +36554,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -36032,6 +36597,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -36055,7 +36621,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "trap_bar_deadlift|01|00|good_morning",
@@ -36116,6 +36683,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -36158,6 +36726,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -36200,6 +36769,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -36223,7 +36794,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "trap_bar_deadlift|01|00|romanian_deadlift",
@@ -36242,6 +36814,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -36368,6 +36941,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -36391,7 +36966,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "trap_bar_deadlift|02|00|kettlebell_deadlift",
@@ -36409,6 +36985,8 @@
       "activity_applicability": [
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -36451,6 +37029,8 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -36474,7 +37054,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "trap_bar_deadlift|02|00|single_leg_rdl",
@@ -36823,6 +37404,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -37194,6 +37776,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "hyrox",
         "football_soccer",
         "netball",
         "basketball",
@@ -37337,6 +37920,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -37799,6 +38383,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -37927,6 +38512,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -38011,6 +38597,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
@@ -38053,6 +38640,7 @@
         "powerlifting",
         "general_strength",
         "rugby_union",
+        "strongman",
         "football_soccer",
         "netball",
         "basketball",
