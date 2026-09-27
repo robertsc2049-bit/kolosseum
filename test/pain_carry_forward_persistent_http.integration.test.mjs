@@ -219,7 +219,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Sore Elbow Powerlifter", email: `sore-elbow-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");

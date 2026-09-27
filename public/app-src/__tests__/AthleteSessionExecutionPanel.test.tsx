@@ -223,6 +223,19 @@ test("shows distance- and time-prescribed work by its dose, not as a single rep"
   }
 });
 
+test("an exercise held back because of last time says what was planned and why", async () => {
+  seedActiveSession("session_1");
+  const held = baseExercise({
+    intensity: { type: "percent_1rm", value: 72.5 },
+    autoregulation: { reason: "missed_reps", detail: "3 of 5 sets short of 5 reps last time", from_session_id: "s1", planned_intensity: { type: "percent_1rm", value: 77.5 } }
+  });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: held }, remaining_exercises: [held] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Held back from 77.5% 1RM - 3 of 5 sets short of 5 reps last time."));
+  cleanup();
+});
+
 test("back after 5 weeks away, the session says welcome back and flags a re-entry week instead of a deload", async () => {
   const cycle = {
     macro_phase: "accumulation", meso_week: 4, days_per_week: 3, session_slot: 0, cycle_model: "meet", sessions_per_week: 3, day_index: 0, day_focus: "squat_day", deload: true,
@@ -1132,4 +1145,14 @@ test("carries and holds are logged by completing them, not per set; nothing is l
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByText("Start session"));
   assert.equal(screen.queryByText(/Sets logged/), null);
+});
+
+test("the day before a match, the session says it is a primer with no heavy leg work", async () => {
+  seedActiveSession("session_1");
+  const primer = baseExercise({ exercise_id: "countermovement_jump", display_name: "Countermovement jump", sets: 2, match_week: { role: "day_before", match_date: "2026-10-03", label: "Match day" } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: primer }, remaining_exercises: [primer] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Day before your match - a short primer, no heavy leg work."));
+  cleanup();
 });

@@ -1357,6 +1357,10 @@ async function createSession() {
         document.getElementById("athleteOnboardingNav")?.click();
         return;
       }
+      if (phase4Token === "match_day_rest") {
+        showNotice("Your match is today or tomorrow and this session is all heavy leg work - rest it, or train on another day.", "error");
+        return;
+      }
       if (phase4Token === "pain_session_empty") {
         showNotice("Every exercise in this session loads the area that is still sore. Rest it today, or check in pain-free if it has settled.", "error");
         document.getElementById("athleteOnboardingNav")?.click();
