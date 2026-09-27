@@ -14,6 +14,9 @@ import { useEntryAuth } from "./useEntryAuth";
 const ERROR_MESSAGES: Record<string, string> = {
   account_email_invalid: "Enter a valid email address.",
   account_display_name_invalid: "Enter a display name of 80 characters or fewer.",
+  account_date_of_birth_required: "Enter your date of birth.",
+  account_date_of_birth_invalid: "Enter a real date of birth.",
+  account_under_minimum_age: "Kolosseum is for adults (18 and over) during the beta.",
   account_password_too_short: "Passwords must contain at least 12 characters.",
   account_password_too_long: "The password is too long.",
   account_actor_type_invalid: "Choose an athlete or coach account.",
@@ -72,6 +75,7 @@ export function EntryAuthPanel() {
 
   const [role, setRole] = useState("athlete");
   const [displayName, setDisplayName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [activityId, setActivityId] = useState("");
   const [betaConsent, setBetaConsent] = useState(false);
   const [declarationConsent, setDeclarationConsent] = useState(false);
@@ -90,7 +94,7 @@ export function EntryAuthPanel() {
     if (submitting) return;
 
     if (createMode) {
-      submitCreate({ role, displayName, activityId, email, password, betaConsent, declarationConsent });
+      submitCreate({ role, displayName, activityId, email, password, betaConsent, declarationConsent, dateOfBirth });
     }
     else {
       submitSignIn({ email, password });
@@ -203,6 +207,19 @@ export function EntryAuthPanel() {
                   onChange={(event) => setDisplayName(event.target.value)}
                 />
               </label>
+
+              <label className="field">
+                <span>Date of birth</span>
+                <input
+                  type="date"
+                  autoComplete="bday"
+                  required
+                  max={new Date().toISOString().slice(0, 10)}
+                  value={dateOfBirth}
+                  onChange={(event) => setDateOfBirth(event.target.value)}
+                />
+              </label>
+              <p className="muted small">Kolosseum is for adults (18 and over) during the beta. We only keep that you confirmed you are 18 or over, not your date of birth.</p>
 
               {role === "athlete" ? (
                 <>
