@@ -28,6 +28,10 @@ const APPLY_RUNTIME_EVENT_SPEC = "@kolosseum/engine/runtime/apply_runtime_event.
 const PERIODISATION_EXPORTS = { ...(await import(new URL("../dist/engine/src/phases/phase4.js", import.meta.url).href)) };
 delete PERIODISATION_EXPORTS.phase4AssembleProgram;
 delete PERIODISATION_EXPORTS.default;
+// Likewise the runtime session summary: the API reaches other exports of it
+// (e.g. deriveTrace, via progress insights), so the mock keeps them all.
+const SESSION_SUMMARY_EXPORTS = { ...(await import(new URL("../engine/dist/src/runtime/session_summary.js", import.meta.url).href)) };
+delete SESSION_SUMMARY_EXPORTS.default;
 
 function makeReq({ body = undefined, query = {}, headers = {} } = {}) {
   return {
@@ -164,6 +168,7 @@ function installCommonMocks({
 
   mock.module(SESSION_SUMMARY_SPEC, {
     namedExports: {
+      ...SESSION_SUMMARY_EXPORTS,
       validateWireRuntimeEvent(event) {
         return event;
       }

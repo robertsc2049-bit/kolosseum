@@ -434,3 +434,16 @@ export function clearAthletePainFlag(athleteUserId: string, flagKey: string, csr
 export function createKolosseumStarterTemplate(input: { activity_id: string; experience_level: string; days_per_week: number }, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/templates/kolosseum-starter", input, csrfToken);
 }
+
+// Medical stand-down for a coach's athlete.
+export function loadAthleteStandDown(athleteUserId: string): Promise<JsonRecord> {
+  return request("GET", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`);
+}
+
+export function recordAthleteStandDown(athleteUserId: string, input: { reason: string; until_date: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`, input, csrfToken);
+}
+
+export function endAthleteStandDown(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/stand-down/coach/${encodeURIComponent(athleteUserId)}/end`, { cleared_by_medical_professional: true }, csrfToken);
+}

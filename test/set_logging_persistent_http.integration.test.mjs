@@ -232,7 +232,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Set Logging Powerlifter", email: `set-logging-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");
@@ -346,7 +346,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Back-off Powerlifter", email: `backoff-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");
@@ -419,5 +419,423 @@ test(
     const trends = insights.json.insights.training_e1rm_trends;
     assert.equal(trends.some((x) => x.exercise_id === "back_squat__r2"), false, "no separate back-off trend");
     assert.equal(trends.find((x) => x.exercise_id === "back_squat").current_e1rm, 160 * 1.1, "Epley on the best set of the day (3 x 160 beats 6 x 130)");
+  }
+);
+
+test(
+  "maxes: a self-directed powerlifter's % of 1RM work becomes a real weight - from her entered max, else her logged-set estimate, else an RPE target",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Maxes Powerlifter", email: `maxes-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    // One day a week: every session is the same full-power day.
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    const byId = (session, id) => session.json.planned_session.exercises.find((e) => e.exercise_id === id);
+
+    // The lifts she needs maxes for are her programme's % of 1RM lifts.
+    const listed = await requestJson(server.baseUrl, "GET", "/account/onboarding/maxes", { cookie });
+    assertStatus(listed, 200, "maxes");
+    const lifts = listed.json.lifts.map((l) => l.exercise_id);
+    for (const lift of ["back_squat", "paused_bench_press", "deadlift"]) assert.ok(lifts.includes(lift), `${lift} is listed`);
+    assert.ok(listed.json.lifts.every((l) => l.entered === null && l.in_programme));
+
+    // No max yet: an RPE target, never a bare percentage.
+    const first = await compile();
+    assertStatus(first, 201, "first session");
+    const squat = byId(first, "back_squat");
+    assert.equal(squat.intensity.type, "percent_1rm");
+    assert.ok(!squat.resolved_load, "no weight without a max");
+    assert.equal(squat.load_guidance.type, "rpe");
+    assert.ok(squat.load_guidance.value >= 6 && squat.load_guidance.value <= 9, JSON.stringify(squat.load_guidance));
+
+    // She logs her deadlift: 3 x 180 kg.
+    const sid = first.json.session_id;
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, {
+      cookie, csrf, body: { type: "SET_LOG_REPORT", client_request_id: crypto.randomUUID(), exercise_id: "deadlift", set_index: 1, reps: 3, load_value: 180, load_unit: "kg" }
+    }), 201, "log deadlift");
+
+    for (const [maxes, label] of [
+      [[{ exercise_id: "made_up_lift", value: 100, unit: "kg" }], "an unknown lift"],
+      [[{ exercise_id: "back_squat", value: 0, unit: "kg" }], "a zero max"],
+      [[{ exercise_id: "back_squat", value: 150, unit: "stone" }], "an unknown unit"],
+      [[{ exercise_id: "back_squat", value: 150, unit: "kg", effective_date: "2999-01-01" }], "a future date"]
+    ]) {
+      assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/maxes", { cookie, csrf, body: { preferred_weight_unit: "kg", maxes } }), 422, `refuse ${label}`);
+    }
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/maxes", {
+      cookie, csrf, body: { preferred_weight_unit: "kg", maxes: [{ exercise_id: "back_squat", value: 150, unit: "kg", basis: "tested_1rm" }] }
+    });
+    assertStatus(saved, 200, "save her tested squat max");
+    const squatRow = saved.json.lifts.find((l) => l.exercise_id === "back_squat");
+    assert.equal(squatRow.entered.value, 150);
+    const deadliftRow = saved.json.lifts.find((l) => l.exercise_id === "deadlift");
+    assert.equal(deadliftRow.entered, null);
+    assert.equal(deadliftRow.from_training.value, 198, "Epley 180 x (1 + 3/30)");
+
+    const next = await compile();
+    assertStatus(next, 201, "next session");
+    const nextSquat = byId(next, "back_squat");
+    const expectedSquat = Math.round((150 * nextSquat.intensity.value) / 100 / 2.5) * 2.5;
+    assert.equal(nextSquat.resolved_load.value, expectedSquat, "her tested max, rounded to 2.5 kg");
+    assert.equal(nextSquat.resolved_load.unit, "kg");
+    assert.equal(nextSquat.resolved_load.source.source_type, "tested_1rm");
+    const nextDeadlift = byId(next, "deadlift");
+    assert.equal(nextDeadlift.resolved_load.source.source_type, "estimated_1rm", "her logged-set estimate");
+    assert.equal(nextDeadlift.resolved_load.value, Math.round((198 * nextDeadlift.intensity.value) / 100 / 2.5) * 2.5);
+    const nextBench = byId(next, "paused_bench_press");
+    assert.ok(!nextBench.resolved_load);
+    assert.equal(nextBench.load_guidance.type, "rpe", "still no bench max: an RPE target");
+  }
+);
+
+test(
+  "autoregulation: a powerlifter who missed squat reps and rated her deadlift RPE 10 has both held back next session, with the reason shown, and her clean bench unchanged",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Autoregulated Powerlifter", email: `autoreg-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    const byId = (session, id) => session.json.planned_session.exercises.find((e) => e.exercise_id === id);
+
+    const first = await compile();
+    assertStatus(first, 201, "first session");
+    const sid = first.json.session_id;
+    const squat = byId(first, "back_squat");
+    const deadlift = byId(first, "deadlift");
+    const bench = byId(first, "paused_bench_press");
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
+    const event = (body) => requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, { cookie, csrf, body: { client_request_id: crypto.randomUUID(), ...body } });
+    // Squat: 5, 5, 4, 3, then a failed set - 3 of 5 short.
+    for (const [i, reps] of [5, 5, 4, 3, 0].entries()) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "back_squat", set_index: i + 1, reps: Math.min(reps, squat.reps), load_value: 120, load_unit: "kg" }), 201, `squat set ${i + 1}`);
+    }
+    // Bench: every rep made.
+    for (let i = 1; i <= bench.sets; i++) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "paused_bench_press", set_index: i, reps: bench.reps, load_value: 80, load_unit: "kg" }), 201, `bench set ${i}`);
+    }
+    // Deadlift: every rep made, but RPE 10.
+    for (let i = 1; i <= deadlift.sets; i++) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "deadlift", set_index: i, reps: deadlift.reps, load_value: 160, load_unit: "kg" }), 201, `deadlift set ${i}`);
+    }
+    const rpe = await event({ type: "RPE_REPORT", exercise_id: "deadlift", rpe_value: 10 });
+    assertStatus(rpe, 201, "deadlift RPE 10");
+
+    const next = await compile();
+    assertStatus(next, 201, "next session");
+    const nextSquat = byId(next, "back_squat");
+    assert.equal(nextSquat.intensity.value, squat.intensity.value - 5, "squat 5% lighter");
+    assert.equal(nextSquat.autoregulation.reason, "missed_reps");
+    assert.equal(nextSquat.autoregulation.detail, `3 of 5 sets short of ${squat.reps} reps last time`);
+    assert.deepEqual(nextSquat.autoregulation.planned_intensity, squat.intensity);
+    const nextDeadlift = byId(next, "deadlift");
+    assert.equal(nextDeadlift.intensity.value, deadlift.intensity.value - 5, "deadlift 5% lighter");
+    assert.equal(nextDeadlift.autoregulation.reason, "too_hard");
+    const nextBench = byId(next, "paused_bench_press");
+    assert.deepEqual(nextBench.intensity, bench.intensity, "the clean bench is unchanged");
+    assert.equal(nextBench.autoregulation, undefined);
+  }
+);
+
+test(
+  "match week: a lifter competing tomorrow gets a primer with no squats or deadlifts; the fixture is saved and validated",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Match Week Lifter", email: `matchweek-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+
+    const empty = await requestJson(server.baseUrl, "GET", "/account/onboarding/match-week", { cookie });
+    assertStatus(empty, 200, "match week");
+    assert.deepEqual(empty.json, { match_days: [], fixtures: [] });
+    const normal = await compile();
+    assertStatus(normal, 201, "normal session");
+    const normalIds = normal.json.planned_session.exercises.map((e) => e.exercise_id);
+    assert.ok(normalIds.includes("back_squat") && normalIds.includes("deadlift"));
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/match-week", { cookie, csrf, body: { match_days: ["someday"], fixtures: [] } }), 422, "refuse an unknown day");
+    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/match-week", {
+      cookie, csrf, body: { match_days: [], fixtures: [{ date: tomorrow, label: "Club meet" }] }
+    });
+    assertStatus(saved, 200, "save the meet");
+    assert.deepEqual(saved.json.fixtures, [{ date: tomorrow, label: "Club meet" }]);
+
+    const eve = await compile();
+    assertStatus(eve, 201, "session the day before");
+    const eveIds = eve.json.planned_session.exercises.map((e) => e.exercise_id);
+    for (const legs of ["back_squat", "deadlift"]) assert.ok(!eveIds.includes(legs), `no ${legs} the day before`);
+    const bench = eve.json.planned_session.exercises.find((e) => e.exercise_id === "paused_bench_press");
+    const normalBench = normal.json.planned_session.exercises.find((e) => e.exercise_id === "paused_bench_press");
+    assert.equal(bench.sets, normalBench.sets - 1, "bench a set shorter");
+    assert.deepEqual(bench.match_week, { role: "day_before", match_date: tomorrow, label: "Club meet" });
+  }
+);
+
+test(
+  "equipment: a strongman training at home with no yoke or log gets flagged substitutes for them, and keeps the deadlift and farmer's carry",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Home Strongman", email: `home-strongman-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "strongman", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "strongman", experience_level: "amateur",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+
+    const before = await requestJson(server.baseUrl, "GET", "/account/onboarding/equipment", { cookie });
+    assertStatus(before, 200, "equipment");
+    assert.equal(before.json.full_gym, true, "a full gym until she says");
+    assert.ok(before.json.options.some((o) => o.equipment_id === "yoke"));
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/equipment", { cookie, csrf, body: { available_equipment: ["hovercraft"] } }), 422, "refuse unknown equipment");
+    const home = ["barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"];
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/equipment", { cookie, csrf, body: { available_equipment: home } });
+    assertStatus(saved, 200, "save home gym");
+    assert.equal(saved.json.full_gym, false);
+
+    // Her exercise options only offer what she can do at home.
+    const { listing } = await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const offered = listing.days.flatMap((d) => d.items.filter((i) => i.kind === "slot").flatMap((i) => i.options.map((o) => o.exercise_id)));
+    assert.ok(!offered.some((id) => ["yoke_walk", "atlas_stone_carry", "sled_push", "tire_flip"].includes(id)), offered.join(","));
+
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const created = await requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    assertStatus(created, 201, "session");
+    const exercises = created.json.planned_session.exercises;
+    const ids = exercises.map((e) => e.exercise_id);
+    assert.ok(!ids.includes("yoke_walk") && !ids.includes("strongman_log_press"), ids.join(","));
+    const logSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "strongman_log_press");
+    assert.equal(logSwap.exercise_id, "overhead_press");
+    assert.deepEqual(logSwap.equipment_swap.missing, ["Strongman log"]);
+    const yokeSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "yoke_walk");
+    assert.ok(yokeSwap && /carry/u.test(yokeSwap.exercise_id), JSON.stringify(yokeSwap));
+    assert.ok(ids.includes("deadlift") && ids.includes("farmers_carry"), "what she can do stays");
+    assert.ok(!exercises.find((e) => e.exercise_id === "deadlift").equipment_swap);
+  }
+);
+
+test(
+  "readiness: after a bad night a powerlifter's session is a set shorter and a notch lighter, with her check-in shown",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Tired Powerlifter", email: `tired-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+
+    const planned = await compile();
+    assertStatus(planned, 201, "session with no check-in");
+    const plannedSquat = planned.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.equal(plannedSquat.readiness, undefined);
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness", { cookie, csrf, body: { sleep: 6, soreness: 3, stress: 3 } }), 422, "refuse an out-of-range answer");
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness", { cookie, csrf, body: { sleep: 1, soreness: 3, stress: 3 } });
+    assertStatus(saved, 200, "save a bad night");
+    assert.equal(saved.json.low, true);
+
+    const lighter = await compile();
+    assertStatus(lighter, 201, "session after the check-in");
+    const squat = lighter.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.equal(squat.sets, plannedSquat.sets - 1);
+    assert.equal(squat.intensity.value, plannedSquat.intensity.value - 5);
+    assert.deepEqual(squat.readiness, { sleep: 1, soreness: 3, stress: 3, low: true });
   }
 );

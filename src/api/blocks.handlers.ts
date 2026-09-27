@@ -14,6 +14,12 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
+import { applyTodaysReadiness } from "./readiness_service.js";
+import { activeStandDown } from "./medical_stand_down_service.js";
+import { applyAthleteEquipment } from "./athlete_equipment_service.js";
+import { applyAthleteMatchWeek } from "./match_week_service.js";
+import { autoregulateSession } from "./autoregulation_service.js";
+import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -550,6 +556,14 @@ export async function compileBlock(req: Request, res: Response) {
   // or leaves out those exercises for this session (pain_flag_service.ts).
   const pain_subject_user_id = beta_individual_subject_user_id ?? beta_session_binding?.subject_user_id;
   let planned_session_from_engine: Phase6SessionOutput = named_session;
+  // A medical stand-down (e.g. after a head injury) is never overridden: no
+  // session is created until its date, or until the athlete is cleared.
+  if (create_session && pain_subject_user_id) {
+    const standDown = await activeStandDown(pain_subject_user_id);
+    if (standDown) {
+      throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
+    }
+  }
   if (create_session && pain_subject_user_id) {
     const pain = await applyPainCarryForward(
       pain_subject_user_id,
@@ -563,6 +577,56 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
     planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
+  // A low readiness check-in today trims a self-directed session (readiness.ts).
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await applyTodaysReadiness(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+    };
+  }
+  // Exercises a self-directed athlete can't do with their equipment are
+  // swapped for a flagged substitute, or flagged when nothing fits.
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await applyAthleteEquipment(
+        beta_individual_subject_user_id,
+        {
+          activity_id: String((canonical_input as any)?.activity_id ?? ""),
+          experience_level: typeof (canonical_input as any)?.experience_level === "string" ? (canonical_input as any).experience_level : undefined
+        },
+        planned_session_from_engine.exercises as any
+      )) as any
+    };
+  }
+  // Around a self-directed athlete's matches: a primer on match day and the
+  // day before (no heavy lower-body work), recovery the day after
+  // (match_week.ts). Coach-assigned sessions follow the coach's own plan.
+  if (create_session && beta_individual_subject_user_id) {
+    const matchWeek = await applyAthleteMatchWeek(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+    if (!matchWeek.ok) {
+      throw badRequest("Match day rest", { failure_token: matchWeek.failure_token, details: matchWeek.details });
+    }
+    planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
+  }
+  // What a self-directed athlete actually did last time holds an exercise
+  // back (missed reps, RPE 9.5+) - never adds load (autoregulation_service.ts).
+  // Runs before any weight is worked out from a % of 1RM.
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await autoregulateSession(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+    };
+  }
+  // A self-directed athlete's % of 1RM work becomes a weight from their own
+  // maxes (or an RPE target when none is recorded); coach-assigned sessions
+  // already carry the coach's resolved loads.
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await resolveAthleteSessionLoads(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+    };
   }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));

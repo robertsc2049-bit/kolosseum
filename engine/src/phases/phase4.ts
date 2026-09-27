@@ -4,7 +4,7 @@
 // canonical registries, and validated contracts only.
 
 import { loadRegistryBundle } from "../registries/loadRegistryBundle.js";
-import { applySelectionsToDay, listProgrammeSlots, recommendedExercisesForSlot, type ExerciseSelections, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
+import { applySelectionsToDay, canDoWith, listProgrammeSlots, recommendedExercisesForSlot, type ExerciseSelections, type SlotConstraints, type SlotContext, type SlotListing } from "./phase4/exercise_slots.js";
 import path from "node:path";
 import { loadExerciseEntriesFromPath } from "../registries/loadExerciseEntries.js";
 import type { ExerciseSignature } from "../substitution/types.js";
@@ -169,20 +169,35 @@ export function describeProgrammeSlots(input: {
     slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints), input.selections);
 }
 
-// Exercises that could stand in for one an athlete reported pain on: what the
-// engine recommends for the same purpose (movement pattern and kind of work,
-// suited to the sport and level), leaving out any that load a joint the
-// athlete asked to protect and the exercise itself. Empty when nothing fits.
+// Exercises that could stand in for another: what the engine recommends for
+// the same purpose (movement pattern and kind of work, suited to the sport and
+// level) under the athlete's constraints - joints to protect, equipment they
+// have - leaving out the exercise itself. Empty when nothing fits.
+export function alternativesFor(input: {
+  activity_id: string;
+  experience_level?: string;
+  exercise_id: string;
+  constraints: SlotConstraints;
+}): string[] {
+  const registry = loadEntriesFromDisk();
+  if (!registry.entries[input.exercise_id]) return [];
+  const ctx = slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints);
+  return recommendedExercisesForSlot(input.exercise_id, ctx).filter((id) => id !== input.exercise_id);
+}
+
+// Pain carry-forward: the alternatives that don't load a sore joint.
 export function painFreeAlternatives(input: {
   activity_id: string;
   experience_level?: string;
   exercise_id: string;
   avoid_joint_stress_tags: string[];
 }): string[] {
-  const registry = loadEntriesFromDisk();
-  if (!registry.entries[input.exercise_id]) return [];
-  const ctx = slotContext(input.activity_id, input.experience_level, registry.entries, { avoid_joint_stress_tags: input.avoid_joint_stress_tags });
-  return recommendedExercisesForSlot(input.exercise_id, ctx).filter((id) => id !== input.exercise_id);
+  return alternativesFor({ ...input, constraints: { avoid_joint_stress_tags: input.avoid_joint_stress_tags } });
+}
+
+// Whether the athlete can do an exercise with the equipment they have.
+export function canDoWithEquipment(exerciseId: string, available: readonly string[]): boolean {
+  return canDoWith(loadEntriesFromDisk().entries[exerciseId] as SlotContext["exercises"][string] | undefined, available);
 }
 
 export default phase4AssembleProgram;

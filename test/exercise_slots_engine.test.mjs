@@ -252,3 +252,15 @@ test("pain-free alternatives: the same kind of work that avoids the sore joint, 
   // The athlete's own exercise has no registry signature to match.
   assert.deepEqual(alts("custom_zercher_squat", "knee"), []);
 });
+
+test("equipment: what an athlete can do with what they have - requirements, or one covered by an alternative", async () => {
+  const { canDoWithEquipment, alternativesFor } = await import("../dist/engine/src/phases/phase4.js");
+  const home = ["barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"];
+  assert.equal(canDoWithEquipment("back_squat", home), true);
+  assert.equal(canDoWithEquipment("yoke_walk", home), false, "no yoke at home");
+  assert.equal(canDoWithEquipment("farmers_carry", ["kettlebell"]), true, "kettlebells stand in for dumbbells");
+  assert.equal(canDoWithEquipment("back_squat", []), false, "bodyweight only");
+  assert.equal(canDoWithEquipment("push_up", []), true);
+  const yokeSubs = alternativesFor({ activity_id: "strongman", experience_level: "amateur", exercise_id: "yoke_walk", constraints: { available_equipment: home } });
+  assert.ok(yokeSubs.length && yokeSubs.every((id) => canDoWithEquipment(id, home)), yokeSubs.join(","));
+});
