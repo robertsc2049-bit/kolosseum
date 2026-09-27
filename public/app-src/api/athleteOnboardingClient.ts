@@ -65,6 +65,28 @@ export function savePainCheckIn(
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
 
+// Today's optional readiness check-in (sleep, soreness, stress; 1 poor - 5 great).
+export function loadReadiness(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/readiness");
+}
+
+export function saveReadiness(input: { sleep: number; soreness: number; stress: number }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/readiness", input, csrfToken);
+}
+
+// Medical stand-down (e.g. after a head injury).
+export function loadStandDown(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/stand-down");
+}
+
+export function recordStandDown(input: { reason: "head_injury" | "medical"; until_date: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/stand-down", input, csrfToken);
+}
+
+export function endStandDown(csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/stand-down/end", { cleared_by_medical_professional: true }, csrfToken);
+}
+
 // The equipment a self-directed athlete has (a full gym until they say).
 export function loadAthleteEquipment(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/equipment");

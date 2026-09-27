@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
+import { KolosseumStarterForm } from "./KolosseumStarterForm";
 import {
   filteredProgrammeTemplates,
   programmeAssignmentUsage,
@@ -161,6 +162,13 @@ export function CoachProgrammeLibraryPanel() {
 
   return (
     <>
+      <KolosseumStarterForm
+        onCreated={(templateId) => {
+          document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"));
+          void refresh();
+          if (templateId) openProgrammeDetail(templateId);
+        }}
+      />
       <div className="programme-library-controls" aria-label="Programme library filters">
         <label className="field programme-search-field">
           <span>Search programmes</span>

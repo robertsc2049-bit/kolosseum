@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
-import { clearAthletePainFlag, loadAthletePainFlags } from "../../api/coachWorkspaceClient";
+import { clearAthletePainFlag, endAthleteStandDown, loadAthletePainFlags, loadAthleteStandDown, recordAthleteStandDown } from "../../api/coachWorkspaceClient";
+import { StandDownPanel } from "../../components/StandDownPanel";
 import { type JsonRecord } from "../../api/transport";
 
 // Pain carry-forward, coach side: the open pain flags of the athlete whose
@@ -28,6 +29,8 @@ export function AthletePainFlagsPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
+  const [standDown, setStandDown] = useState<JsonRecord | null>(null);
+  const [standDownError, setStandDownError] = useState<string | null>(null);
 
   useEffect(() => {
     function handleOpened(event: Event) {
@@ -49,8 +52,9 @@ export function AthletePainFlagsPanel() {
     setLoading(true);
     setError(null);
     try {
-      const result = await loadAthletePainFlags(id);
+      const [result, stand] = await Promise.all([loadAthletePainFlags(id), loadAthleteStandDown(id).catch(() => ({ stand_down: null }))]);
       setFlags(Array.isArray(result.flags) ? (result.flags as JsonRecord[]) : []);
+      setStandDown(((stand as JsonRecord).stand_down as JsonRecord | null) ?? null);
     }
     catch {
       setError("Pain flags could not be loaded. Check your connection and try again.");
@@ -83,12 +87,38 @@ export function AthletePainFlagsPanel() {
     }
   }
 
+  async function standDownAction(action: (id: string, csrf: string) => Promise<JsonRecord>) {
+    if (!athleteUserId) return;
+    setBusyKey("stand_down");
+    setStandDownError(null);
+    try {
+      const account = await loadAccountDetail();
+      const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
+      const result = await action(athleteUserId, csrf);
+      setStandDown((result.stand_down as JsonRecord | null) ?? null);
+    }
+    catch {
+      setStandDownError("The stand-down could not be saved. Check the date and try again.");
+    }
+    finally {
+      setBusyKey(null);
+    }
+  }
+
   if (!athleteUserId) return null;
   if (loading && !flags.length) return <p className="muted">Loading pain flags…</p>;
 
   return (
     <div data-testid="athlete-pain-flags">
       {error ? <p className="field-error" role="alert">{error}</p> : null}
+      <StandDownPanel
+        standDown={standDown}
+        busy={busyKey === "stand_down"}
+        error={standDownError}
+        whose="their"
+        onRecord={(input) => void standDownAction((id, csrf) => recordAthleteStandDown(id, input, csrf))}
+        onEnd={() => void standDownAction((id, csrf) => endAthleteStandDown(id, csrf))}
+      />
       {!flags.length && !error ? <p className="muted">No open pain flags.</p> : null}
       {flags.map((flag) => {
         const key = String(flag.flag_key);
