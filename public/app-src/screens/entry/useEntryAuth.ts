@@ -98,6 +98,7 @@ export function useEntryAuth() {
     password: string;
     betaConsent: boolean;
     declarationConsent: boolean;
+    dateOfBirth: string;
   }) => {
     if (!termsAvailable) {
       setState((current) => ({ ...current, error: new Error("Current terms and consent versions are unavailable. Account creation is disabled.") }));
@@ -121,7 +122,8 @@ export function useEntryAuth() {
         accepted_terms: true,
         accepted_consent: true,
         accepted_terms_version: state.terms?.current_terms_version,
-        accepted_consent_version: state.terms?.current_consent_version
+        accepted_consent_version: state.terms?.current_consent_version,
+        date_of_birth: input.dateOfBirth
       });
 
       const rejectedMessage = dispatchEntryAuthSucceeded(response, "create");

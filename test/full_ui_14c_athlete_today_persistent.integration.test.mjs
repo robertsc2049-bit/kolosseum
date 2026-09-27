@@ -115,7 +115,7 @@ async function registerAccount(baseUrl, actorType, label, nonce) {
     accepted_terms: true,
     accepted_consent: true,
     accepted_terms_version: "terms_v1",
-    accepted_consent_version: "consent_v1"
+    date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
   });
   assertStatus(registration, 201, `${label} account registration`);
 
@@ -660,7 +660,7 @@ test(
         accepted_terms: true,
         accepted_consent: true,
         accepted_terms_version: "terms_v1",
-        accepted_consent_version: "consent_v1"
+        date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       });
       assertStatus(athleteDRegistration, 201, "athlete D account registration");
       assert.equal(athleteDRegistration.json?.claimed_existing_identity, true);
