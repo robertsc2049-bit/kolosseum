@@ -443,7 +443,10 @@ function ensureSkipReasonValid(event: unknown): void {
   }
 }
 
-const PAIN_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "pain_reported", "client_request_id"]);
+const PAIN_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "pain_reported", "pain_area", "client_request_id"]);
+// Where it hurt, if the athlete said (optional). A joint carries the pain
+// flag forward to every exercise loading it; "other" to this exercise only.
+const PAIN_REPORT_AREAS = new Set(["knee", "hip", "lumbar_low", "shoulder", "elbow", "wrist", "ankle", "neck", "other"]);
 
 function ensurePainReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
   const t = rawEventType(event);
@@ -471,6 +474,13 @@ function ensurePainReportShapeValid(event: unknown, planned: PlannedSession, sum
     throw badRequest("Runtime event rejected (pain report must be a factual true flag)", {
       failure_token: "phase6_runtime_pain_report_invalid_shape",
       cause: "PHASE6_RUNTIME_PAIN_REPORT_INVALID_SHAPE: pain_reported"
+    });
+  }
+
+  if (obj.pain_area !== undefined && !(typeof obj.pain_area === "string" && PAIN_REPORT_AREAS.has(obj.pain_area))) {
+    throw badRequest("Runtime event rejected (unknown pain area)", {
+      failure_token: "phase6_runtime_pain_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_PAIN_REPORT_INVALID_SHAPE: pain_area"
     });
   }
 

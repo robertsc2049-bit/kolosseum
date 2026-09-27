@@ -62,7 +62,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "coach_athlete_message_received",
   "org_owner_message_received",
   "owner_message_received_from_coach",
-  "owner_message_received_from_athlete"
+  "owner_message_received_from_athlete",
+  "athlete_pain_reported"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -603,6 +604,47 @@ async function deriveSessionCompletedNotifications(
       deepLinkParams: { athlete_id: cleanString(row.beta_subject_user_id) },
       notificationPayload: { athlete_user_id: cleanString(row.beta_subject_user_id) },
       occurredAtIso8601: toIso(row.updated_at)
+    });
+  }
+}
+
+// --- Athlete reported pain --------------------------------------------------
+// One notification per pain report in a session this coach assigned; the
+// pain flag itself (and its check-ins) is on the athlete's profile.
+
+async function deriveAthletePainReportedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT re.session_id, re.seq, re.event, re.created_at, s.beta_subject_user_id
+    FROM runtime_events re
+    JOIN sessions s ON s.session_id = re.session_id
+    WHERE s.beta_coach_user_id = $1
+      AND re.event->>'type' = 'PAIN_REPORT'
+      AND re.event->>'pain_reported' = 'true'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteId = cleanString(row.beta_subject_user_id);
+    const event = isRecord(row.event) ? row.event : {};
+    if (!athleteId) continue;
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_pain_reported",
+      sourceRecordType: "runtime_events",
+      sourceRecordId: `${cleanString(row.session_id)}:${String(row.seq)}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteId },
+      notificationPayload: {
+        athlete_user_id: athleteId,
+        exercise_id: cleanString(event.exercise_id),
+        pain_area: cleanString(event.pain_area) || null
+      },
+      occurredAtIso8601: toIso(row.created_at)
     });
   }
 }
@@ -1303,6 +1345,7 @@ async function deriveNotificationsForRecipient(
   await deriveAttendanceEventCancelledNotifications(client, recipientUserId);
   await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
   await deriveSessionCompletedNotifications(client, recipientUserId);
+  await deriveAthletePainReportedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);

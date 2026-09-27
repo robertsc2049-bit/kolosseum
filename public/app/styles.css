@@ -3994,3 +3994,9 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .programme-own-exercise { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin-top: 6px; }
 .programme-own-exercise input { min-height: 44px; }
 .programme-fit-note { margin: 4px 0 0; font-size: 0.9em; }
+
+/* Pain carry-forward: athlete check-in card, coach pain flags, swapped-exercise note. */
+.pain-flag { border-top: 1px solid var(--border, #d0d7de); padding-top: 8px; margin-top: 8px; }
+.pain-flag h4 { margin: 0 0 4px; }
+.pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
+.pain-swap-note { margin: 6px 0; }

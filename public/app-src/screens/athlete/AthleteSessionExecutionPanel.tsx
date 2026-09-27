@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
@@ -147,8 +147,38 @@ function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: Ret
   return null;
 }
 
+// Where it hurt (optional). Values match the pain carry-forward areas.
+const PAIN_AREA_OPTIONS: Array<[string, string]> = [
+  ["knee", "Knee"], ["hip", "Hip"], ["lumbar_low", "Lower back"], ["shoulder", "Shoulder"], ["elbow", "Elbow"],
+  ["wrist", "Wrist"], ["ankle", "Ankle"], ["neck", "Neck"], ["other", "Somewhere else"]
+];
+
+function PainAreaPicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="field">
+      <span>Where does it hurt? (optional)</span>
+      <select aria-label="Where does it hurt?" value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">Not sure / prefer not to say</option>
+        {PAIN_AREA_OPTIONS.map(([area, label]) => <option key={area} value={area}>{label}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function isRecord(value: unknown): value is JsonRecord {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+// An exercise swapped because an open pain flag is still sore.
+function painSwapNote(swap: JsonRecord): string {
+  const area = PAIN_AREA_OPTIONS.find(([key]) => key === swap.area)?.[1]?.toLowerCase();
+  const from = String(swap.from_display_name ?? swap.from_exercise_id ?? "an exercise");
+  return area ? `Swapped from ${from} - your ${area} is still sore.` : `Swapped from ${from} - it is still sore.`;
+}
+
 export function AthleteSessionExecutionPanel() {
   const session = useAthleteSessionExecution();
+  const [painArea, setPainArea] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const captionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -283,6 +313,11 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.pain_swap) ? (
+                  <p className="inline-result pain-swap-note" data-tone="warning">
+                    {painSwapNote(exercise.pain_swap as JsonRecord)}
+                  </p>
+                ) : null}
                 {String(exercise?.coaching_notes ?? "").trim() ? (
                   <p className="muted exercise-coaching-note">{String(exercise?.coaching_notes).trim()}</p>
                 ) : null}
@@ -335,8 +370,10 @@ export function AthleteSessionExecutionPanel() {
                 <div className="pain-report-panel">
                   <h3>Report pain during this exercise?</h3>
                   <p>This records only that pain was reported for this exercise. It does not diagnose, score risk, or provide treatment advice.</p>
+                  <PainAreaPicker value={painArea} onChange={setPainArea} />
+                  <p className="muted">Before your next session with exercises that load the same area, you will be asked how it is.</p>
                   <div className="button-row">
-                    <button id="confirmPainReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => session.confirmPainReport()}>Record pain reported</button>
+                    <button id="confirmPainReportButton" className="button primary" type="button" disabled={session.busy} onClick={() => { void session.confirmPainReport(painArea || undefined); setPainArea(""); }}>Record pain reported</button>
                     <button id="cancelPainReportButton" className="button secondary" type="button" onClick={() => session.closeActionPanel()}>Cancel</button>
                   </div>
                 </div>

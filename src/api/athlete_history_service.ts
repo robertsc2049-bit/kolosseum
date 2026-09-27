@@ -432,6 +432,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
   const skipReasons = new Map<string, string>();
   const painReports = new Set<string>();
+  const painAreas = new Map<string, string>();
   const rpeReports = new Map<string, number>();
   const borgReports = new Map<string, number>();
   const cr10Reports = new Map<string, number>();
@@ -451,6 +452,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
 
     if (type === "PAIN_REPORT" && typeof event.exercise_id === "string" && event.pain_reported === true) {
       painReports.add(event.exercise_id);
+      if (typeof event.pain_area === "string") painAreas.set(event.exercise_id, event.pain_area);
     }
 
     if (type === "RPE_REPORT" && typeof event.exercise_id === "string" && Number.isInteger(event.rpe_value)) {
@@ -546,6 +548,7 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
       recorded_state: recordedState,
       skip_reason: skipReasons.get(exerciseId) ?? null,
       pain_reported: painReports.has(exerciseId),
+      pain_area: painAreas.get(exerciseId) ?? null,
       rpe_reported: rpeReports.get(exerciseId) ?? null,
       borg_reported: borgReports.get(exerciseId) ?? null,
       cr10_reported: cr10Reports.get(exerciseId) ?? null,

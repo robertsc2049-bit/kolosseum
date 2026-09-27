@@ -235,3 +235,20 @@ test("exercise slots: phase 1 accepts well-formed choices and refuses malformed 
     assert.equal(r.failure_token, "type_mismatch");
   }
 });
+
+test("pain-free alternatives: the same kind of work that avoids the sore joint, or nothing when nothing fits", async () => {
+  const { painFreeAlternatives } = await import("../dist/engine/src/phases/phase4.js");
+  const alts = (exercise_id, area) => painFreeAlternatives({ activity_id: "powerlifting", experience_level: "amateur", exercise_id, avoid_joint_stress_tags: [area] });
+  // A sore elbow: a row can become a chest-supported row, which doesn't load it.
+  const rows = alts("barbell_row", "elbow");
+  assert.ok(rows.length > 0, "an elbow-free row exists");
+  for (const id of rows) {
+    assert.equal(REGISTRY[id].movement_pattern_id ?? REGISTRY[id].pattern, REGISTRY.barbell_row.movement_pattern_id ?? REGISTRY.barbell_row.pattern, `${id} is still a row`);
+    assert.ok(!(REGISTRY[id].joint_stress_tags ?? []).includes("elbow"), `${id} avoids the elbow`);
+  }
+  assert.ok(!rows.includes("barbell_row"), "never the exercise itself");
+  // A sore knee: every squat loads the knee, so there is honestly nothing to swap to.
+  assert.deepEqual(alts("back_squat", "knee"), []);
+  // The athlete's own exercise has no registry signature to match.
+  assert.deepEqual(alts("custom_zercher_squat", "knee"), []);
+});

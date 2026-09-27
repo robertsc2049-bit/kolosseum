@@ -51,3 +51,16 @@ export type CustomExercise = { exercise_id: string; display_name: string };
 export function saveProgrammeExercises(selections: Record<string, string>, customExercises: CustomExercise[], csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/exercises", { selections, custom_exercises: customExercises }, csrfToken);
 }
+
+// Pain carry-forward: open pain flags and the "how is it now?" check-in the
+// athlete answers before a session that loads the same area.
+export function loadPainFlags(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/pain-flags");
+}
+
+export function savePainCheckIn(
+  input: { flag_key: string; status: "pain_free" | "still_sore"; plan?: "swap" | "skip" },
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
+}
