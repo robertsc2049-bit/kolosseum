@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { computeTrainingCycle, macroPhaseFor, mesoWeekFor, weekIndex } from "../dist/src/api/training_cycle.js";
+import { computeTrainingCycle, macroPhaseFor, mesoWeekFor, reentryFor, weekIndex } from "../dist/src/api/training_cycle.js";
 import { phase1Validate } from "../dist/engine/src/phases/phase1.js";
 
 const on = (iso) => new Date(`${iso}T09:30:00Z`);
@@ -102,4 +102,40 @@ test("training cycle: every computed cycle is one the engine accepts, for every 
     }
   }
   assert.ok(checked > 900);
+});
+
+test("layoff: a powerlifter who trained week 1 and returns 5 weeks later gets a lighter re-entry week, not the block's heaviest week, then restarts at week 1", () => {
+  const pl = plan("powerlifting", { no_fixed_date: true, plan_started_on: "2026-09-07" });
+  const trained = ["2026-09-07", "2026-09-09", "2026-09-11"];
+  // Without the re-entry rule the calendar would put her in intensification week 3.
+  assert.deepEqual([macroPhaseFor(pl, on("2026-10-19")), mesoWeekFor(pl, "intensification", on("2026-10-19"))], ["intensification", 3]);
+  const back = reentryFor(on("2026-10-19"), trained);
+  assert.deepEqual(back, { returned_on: "2026-10-19", gap_days: 38, long_layoff: true, reentry_week: true });
+  const reentryWeek = computeTrainingCycle(pl, on("2026-10-19"), 0, back);
+  assert.equal(reentryWeek.meso_week, 4, "re-entry at deload level");
+  assert.equal(reentryWeek.macro_phase, "accumulation", "a long layoff restarts the general block");
+  // The next week the block starts again at week 1, from her return.
+  const history = [...trained, "2026-10-19", "2026-10-21"];
+  const next = computeTrainingCycle(pl, on("2026-10-26"), 0, reentryFor(on("2026-10-26"), history));
+  assert.deepEqual([next.macro_phase, next.meso_week], ["accumulation", 1]);
+  const weekAfter = computeTrainingCycle(pl, on("2026-11-02"), 0, reentryFor(on("2026-11-02"), [...history, "2026-10-26"]));
+  assert.equal(weekAfter.meso_week, 2);
+});
+
+test("layoff: one missed week (10+ days between sessions) is a re-entry week; 9 days or regular training is not", () => {
+  const rugby = plan("rugby_union", { season_start_date: "2026-09-05", season_end_date: "2027-05-29", plan_started_on: "2026-08-31" });
+  // Trained Monday 7 Sep, missed a week, back Friday 18 Sep (11 days).
+  const back = reentryFor(on("2026-09-18"), ["2026-09-07"]);
+  assert.equal(back?.gap_days, 11);
+  assert.equal(back?.long_layoff, false);
+  const cycle = computeTrainingCycle(rugby, on("2026-09-18"), 0, back);
+  assert.deepEqual([cycle.macro_phase, cycle.meso_week], ["in_season", 4], "in-season stays in-season, at re-entry level");
+  assert.equal(reentryFor(on("2026-09-16"), ["2026-09-07"]), null, "9 days is not a layoff");
+  assert.equal(reentryFor(on("2026-09-18"), ["2026-09-07", "2026-09-10", "2026-09-14", "2026-09-16"]), null, "regular training");
+  assert.equal(reentryFor(on("2026-09-18"), []), null, "a first session is not a return");
+  // A return long ago still anchors the blocks: weeks count from the week after it.
+  const later = reentryFor(on("2026-10-12"), ["2026-09-07", "2026-09-18", "2026-09-21", "2026-09-28", "2026-10-05"]);
+  assert.equal(later?.returned_on, "2026-09-18");
+  assert.equal(later?.reentry_week, false);
+  assert.equal(computeTrainingCycle(rugby, on("2026-10-12"), 0, later).meso_week, 4, "week of 21 Sep is block week 1, so 12 Oct is week 4");
 });
