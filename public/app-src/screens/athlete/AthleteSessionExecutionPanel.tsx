@@ -169,6 +169,14 @@ function isRecord(value: unknown): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+// How today's match week shaped this exercise.
+function matchWeekNote(context: JsonRecord): string {
+  const what = String(context.label ?? "match");
+  if (context.role === "day_after") return `Day after your ${what === "Match day" ? "match" : what} - a recovery session: fewer sets, easy effort.`;
+  if (context.role === "match_day") return `${what === "Match day" ? "Match" : what} today - a short primer only, no heavy leg work.`;
+  return `Day before your ${what === "Match day" ? "match" : what} - a short primer, no heavy leg work.`;
+}
+
 // An exercise swapped because an open pain flag is still sore.
 function painSwapNote(swap: JsonRecord): string {
   const area = PAIN_AREA_OPTIONS.find(([key]) => key === swap.area)?.[1]?.toLowerCase();
@@ -313,6 +321,11 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.match_week) ? (
+                  <p className="inline-result match-week-note" data-tone="warning">
+                    {matchWeekNote(exercise.match_week as JsonRecord)}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.pain_swap) ? (
                   <p className="inline-result pain-swap-note" data-tone="warning">
                     {painSwapNote(exercise.pain_swap as JsonRecord)}

@@ -4000,3 +4000,9 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag h4 { margin: 0 0 4px; }
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
+
+/* Match week card: weekday toggles and fixtures wrap on a phone. */
+.match-days { display: flex; flex-wrap: wrap; gap: 8px; }
+.match-day { display: flex; align-items: center; gap: 4px; min-height: 44px; }
+.match-fixtures ul { list-style: none; padding: 0; display: grid; gap: 6px; }
+.match-fixtures li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

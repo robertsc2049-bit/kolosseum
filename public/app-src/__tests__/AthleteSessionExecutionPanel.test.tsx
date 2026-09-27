@@ -223,6 +223,16 @@ test("shows distance- and time-prescribed work by its dose, not as a single rep"
   }
 });
 
+test("the day before a match, the session says it is a primer with no heavy leg work", async () => {
+  seedActiveSession("session_1");
+  const primer = baseExercise({ exercise_id: "countermovement_jump", display_name: "Countermovement jump", sets: 2, match_week: { role: "day_before", match_date: "2026-10-03", label: "Match day" } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: primer }, remaining_exercises: [primer] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Day before your match - a short primer, no heavy leg work."));
+  cleanup();
+});
+
 test("a periodised session shows where it sits in the plan, and flags a deload week", async () => {
   const cycle = { macro_phase: "in_season", meso_week: 4, days_per_week: 4, session_slot: 1, cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true };
   seedActiveSession("session_1");
