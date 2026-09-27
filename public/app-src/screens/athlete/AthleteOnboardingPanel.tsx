@@ -23,6 +23,7 @@ import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
 import { MatchWeekCard } from "./MatchWeekCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
+import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
 
@@ -668,6 +669,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
+      <ReadinessCard />
       <StandDownCard />
       <PainCheckInCard />
       <AthleteEquipmentCard />

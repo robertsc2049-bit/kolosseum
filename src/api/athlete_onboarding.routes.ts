@@ -39,6 +39,7 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
+import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
@@ -48,6 +49,7 @@ export const athleteOnboardingRouter = Router();
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting).
+const readinessRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const standDownRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
@@ -233,6 +235,16 @@ athleteOnboardingRouter.post(
   })
 );
 
+// Today's optional readiness check-in (sleep, soreness, stress).
+athleteOnboardingRouter.get(
+  "/readiness",
+  readinessRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await describeReadiness(session.account_row.user_id));
+  })
+);
+
 // Medical stand-down (e.g. after a head injury): no sessions until the date
 // the athlete's medical professional gave, or until they are cleared.
 athleteOnboardingRouter.get(
@@ -295,6 +307,16 @@ athleteOnboardingRouter.get(
 );
 
 athleteOnboardingRouter.put(
+  "/readiness",
+  readinessRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveReadiness(session.account_row.user_id, request.body));
+  })
+);
+
+athleteOnboardingRouter.put(
   "/equipment",
   equipmentRateLimit,
   asyncHandler(async (request, response) => {
@@ -340,6 +362,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof PainFlagError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof ReadinessError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

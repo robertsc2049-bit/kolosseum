@@ -65,6 +65,15 @@ export function savePainCheckIn(
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
 
+// Today's optional readiness check-in (sleep, soreness, stress; 1 poor - 5 great).
+export function loadReadiness(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/readiness");
+}
+
+export function saveReadiness(input: { sleep: number; soreness: number; stress: number }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/readiness", input, csrfToken);
+}
+
 // Medical stand-down (e.g. after a head injury).
 export function loadStandDown(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/stand-down");

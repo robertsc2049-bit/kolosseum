@@ -394,6 +394,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/readiness.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/match_week.test.mjs"
     },
     {
