@@ -811,6 +811,31 @@ async function persistInitialProductRecords(
   }
 }
 
+// The beta is for adults only: every new account gives a date of birth and
+// must be 18 or over on the day it signs up. Only the fact that an adult was
+// confirmed (and when) is kept - the date of birth itself is not stored.
+export const MINIMUM_AGE_YEARS = 18;
+
+export function ageOnDate(dateOfBirth: string, today: Date): number | null {
+  if (!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/u.test(dateOfBirth)) return null;
+  const [year, month, day] = dateOfBirth.split("-").map(Number);
+  const born = new Date(Date.UTC(year, month - 1, day));
+  if (born.getUTCFullYear() !== year || born.getUTCMonth() !== month - 1 || born.getUTCDate() !== day) return null;
+  if (year < 1900 || born.getTime() > today.getTime()) return null;
+  let age = today.getUTCFullYear() - year;
+  const beforeBirthday = today.getUTCMonth() + 1 < month || (today.getUTCMonth() + 1 === month && today.getUTCDate() < day);
+  if (beforeBirthday) age -= 1;
+  return age;
+}
+
+function validateAdultDateOfBirth(value: unknown, today: Date): void {
+  const dateOfBirth = cleanString(value);
+  if (!dateOfBirth) throw new ProductAccountError("account_date_of_birth_required");
+  const age = ageOnDate(dateOfBirth, today);
+  if (age === null) throw new ProductAccountError("account_date_of_birth_invalid");
+  if (age < MINIMUM_AGE_YEARS) throw new ProductAccountError("account_under_minimum_age", 403);
+}
+
 export async function registerProductAccount(
   input: unknown,
   userAgent: string
@@ -838,6 +863,8 @@ export async function registerProductAccount(
   ) {
     throw new ProductAccountError("account_acceptance_required");
   }
+
+  validateAdultDateOfBirth(input.date_of_birth, new Date());
 
   if (
     cleanString(
@@ -942,6 +969,12 @@ export async function registerProductAccount(
       email,
       name,
       activity
+    );
+
+    await recordAccountEvent(
+      userId,
+      "account_adult_confirmed",
+      { minimum_age_years: MINIMUM_AGE_YEARS }
     );
 
     await recordAccountEvent(

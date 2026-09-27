@@ -518,7 +518,7 @@ function accountInput(
     accepted_consent: true,
     accepted_terms_version:
       "terms_v1",
-    accepted_consent_version:
+    date_of_birth: "1990-01-15", accepted_consent_version:
       "consent_v1"
   };
 }
@@ -656,6 +656,45 @@ test(
       staleAcceptance.json?.error,
       "account_acceptance_version_mismatch"
     );
+
+    // The beta is adults only: a date of birth is required and must be 18+.
+    const isoDaysAgo = (years, extraDays = 0) => {
+      const today = new Date();
+      return new Date(Date.UTC(today.getUTCFullYear() - years, today.getUTCMonth(), today.getUTCDate() + extraDays)).toISOString().slice(0, 10);
+    };
+    for (const [dateOfBirth, status, error, label] of [
+      [undefined, 400, "account_date_of_birth_required", "no date of birth"],
+      ["2008-02-30", 400, "account_date_of_birth_invalid", "an impossible date"],
+      [isoDaysAgo(-1), 400, "account_date_of_birth_invalid", "a date in the future"],
+      [isoDaysAgo(17), 403, "account_under_minimum_age", "a 17-year-old"],
+      [isoDaysAgo(18, 1), 403, "account_under_minimum_age", "18 tomorrow"]
+    ]) {
+      const input = accountInput(`identity-age-${label.replaceAll(" ", "-")}-${nonce}@example.test`, "Age Check", originalPassword);
+      if (dateOfBirth === undefined) delete input.date_of_birth;
+      else input.date_of_birth = dateOfBirth;
+      const refused = await requestJson(server.baseUrl, "POST", "/account/register", { body: input });
+      assertStatus(refused, status, `refuse ${label}`);
+      assert.equal(refused.json?.error, error, label);
+    }
+    const turnsEighteenToday = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: { ...accountInput(`identity-age-eighteen-${nonce}@example.test`, "Eighteen Today", originalPassword), date_of_birth: isoDaysAgo(18) }
+    });
+    assertStatus(turnsEighteenToday, 201, "18 today can sign up");
+    const eighteenId = turnsEighteenToday.json?.account?.user_id;
+    await withClient(databaseUrl, async (client) => {
+      const events = await client.query("SELECT event_type, event_payload FROM product_account_events WHERE user_id = $1", [eighteenId]);
+      const adult = events.rows.find((row) => row.event_type === "account_adult_confirmed");
+      assert.deepEqual(adult?.event_payload, { minimum_age_years: 18 }, "only the adult confirmation is kept");
+      assert.ok(!JSON.stringify(events.rows).includes(isoDaysAgo(18)), "the date of birth is not stored");
+      const account = await client.query("SELECT * FROM product_accounts WHERE user_id = $1", [eighteenId]);
+      assert.ok(!JSON.stringify(account.rows[0]).includes(isoDaysAgo(18)), "not on the account either");
+      await client.query("DELETE FROM product_account_events WHERE user_id = $1", [eighteenId]);
+      await client.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [eighteenId]);
+      await client.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [eighteenId]);
+      await client.query("DELETE FROM beta_product_records WHERE subject_user_id = $1 OR actor_user_id = $1", [eighteenId]);
+      await client.query("DELETE FROM beta_accounts WHERE user_id = $1", [eighteenId]);
+      await client.query("DELETE FROM product_accounts WHERE user_id = $1", [eighteenId]);
+    });
 
     const athleteRegistration =
       await requestJson(

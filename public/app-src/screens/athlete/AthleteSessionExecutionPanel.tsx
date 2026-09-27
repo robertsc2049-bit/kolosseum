@@ -177,6 +177,13 @@ function matchWeekNote(context: JsonRecord): string {
   return `Day before your ${what === "Match day" ? "match" : what} - a short primer, no heavy leg work.`;
 }
 
+// An exercise held back because of what the athlete did last time.
+function autoregulationNote(hold: JsonRecord): string {
+  const planned = hold.planned_intensity as JsonRecord | undefined;
+  const plannedText = planned?.type === "percent_1rm" ? `${Number(planned.value)}% 1RM` : planned?.type === "rpe" ? `RPE ${Number(planned.value)}` : "the plan";
+  return `Held back from ${plannedText} - ${String(hold.detail ?? "last time was hard")}.`;
+}
+
 // An exercise swapped because an open pain flag is still sore.
 function painSwapNote(swap: JsonRecord): string {
   const area = PAIN_AREA_OPTIONS.find(([key]) => key === swap.area)?.[1]?.toLowerCase();
@@ -331,6 +338,11 @@ export function AthleteSessionExecutionPanel() {
                 {isRecord(exercise?.match_week) ? (
                   <p className="inline-result match-week-note" data-tone="warning">
                     {matchWeekNote(exercise.match_week as JsonRecord)}
+                  </p>
+                ) : null}
+                {isRecord(exercise?.autoregulation) ? (
+                  <p className="inline-result autoregulation-note" data-tone="warning">
+                    {autoregulationNote(exercise.autoregulation as JsonRecord)}
                   </p>
                 ) : null}
                 {isRecord(exercise?.pain_swap) ? (

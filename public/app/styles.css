@@ -4006,3 +4006,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .match-day { display: flex; align-items: center; gap: 4px; min-height: 44px; }
 .match-fixtures ul { list-style: none; padding: 0; display: grid; gap: 6px; }
 .match-fixtures li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+
+/* Athlete maxes card: one lift per row, wraps on a phone. */
+.athlete-max-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; border-top: 1px solid var(--border, #d0d7de); padding-top: 8px; margin-top: 8px; }
+.athlete-max-row strong { flex-basis: 100%; }
+.athlete-max-row input, .athlete-max-row select { min-height: 44px; max-width: 8em; }

@@ -73,3 +73,12 @@ export function loadMatchWeek(): Promise<JsonRecord> {
 export function saveMatchWeek(input: { match_days: string[]; fixtures: Array<{ date: string; label: string }> }, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/match-week", input, csrfToken);
 }
+
+// A self-directed athlete's own maxes, so "% of 1RM" work becomes a weight.
+export function loadAthleteMaxes(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/maxes");
+}
+
+export function saveAthleteMaxes(input: { preferred_weight_unit: "kg" | "lb"; maxes: JsonRecord[] }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/maxes", input, csrfToken);
+}
