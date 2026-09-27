@@ -169,6 +169,13 @@ function isRecord(value: unknown): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+// An exercise held back because of what the athlete did last time.
+function autoregulationNote(hold: JsonRecord): string {
+  const planned = hold.planned_intensity as JsonRecord | undefined;
+  const plannedText = planned?.type === "percent_1rm" ? `${Number(planned.value)}% 1RM` : planned?.type === "rpe" ? `RPE ${Number(planned.value)}` : "the plan";
+  return `Held back from ${plannedText} - ${String(hold.detail ?? "last time was hard")}.`;
+}
+
 // An exercise swapped because an open pain flag is still sore.
 function painSwapNote(swap: JsonRecord): string {
   const area = PAIN_AREA_OPTIONS.find(([key]) => key === swap.area)?.[1]?.toLowerCase();
@@ -320,6 +327,11 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.autoregulation) ? (
+                  <p className="inline-result autoregulation-note" data-tone="warning">
+                    {autoregulationNote(exercise.autoregulation as JsonRecord)}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.pain_swap) ? (
                   <p className="inline-result pain-swap-note" data-tone="warning">
                     {painSwapNote(exercise.pain_swap as JsonRecord)}
