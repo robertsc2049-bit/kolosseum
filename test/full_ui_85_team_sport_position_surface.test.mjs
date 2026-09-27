@@ -86,7 +86,11 @@ test("rugby_union's front row is split into loosehead/tighthead prop (no bare 'p
   ]) {
     assert.match(source, /loosehead_prop/u, `${label} missing loosehead_prop`);
     assert.match(source, /tighthead_prop/u, `${label} missing tighthead_prop`);
-    assert.doesNotMatch(source, /["'[]prop["',\]]/u, `${label} still references the retired bare "prop" position`);
+    // Rugby league's front row is "prop" (league has no loosehead/tighthead),
+    // so check rugby_union's own list only.
+    const unionAt = source.indexOf("rugby_union");
+    const union = source.slice(unionAt, source.indexOf("]", unionAt) + 1);
+    assert.doesNotMatch(union, /["'[]prop["',\]]/u, `${label} still references the retired bare "prop" position`);
   }
 });
 
@@ -113,14 +117,17 @@ test("updateAthleteOnboardingPreferences treats position the same optional-on-th
   assert.match(body, /key !== "position"/u);
 });
 
-test("amendAthleteDeclaration drops an incompatible position on activity change and skips the beta16 write for a pure position change", () => {
+test("amendAthleteDeclaration drops an incompatible position on activity change and skips the beta16 write for a position change that keeps the same programme", () => {
   const start = onboardingService.indexOf("export async function amendAthleteDeclaration");
   const end = onboardingService.indexOf("export async function getAthleteDeclaredActivityAndPosition");
   const body = onboardingService.slice(start, end);
   assert.match(body, /"position" \| "activity_id" \| "instruction_density" \| "accessibility_preferences"|activity_id" \| "instruction_density" \| "accessibility_preferences" \| "position"/u);
   assert.match(body, /positionCompatible/u);
   assert.match(body, /position: undefined/u);
-  assert.match(body, /if \(changes\.activity_id !== undefined \|\| changes\.instruction_density !== undefined\) \{/u);
+  // A position change reaches the engine only when it changes the position
+  // group's programme (sport_role_id).
+  assert.match(body, /if \(changes\.activity_id !== undefined \|\| changes\.instruction_density !== undefined \|\| roleChanged\) \{/u);
+  assert.match(body, /const roleChanged = sportRoleIdFor\(previous\.activity_id, previous\.position\) !== sportRoleIdFor\(declared\.activity_id, declared\.position\);/u);
 });
 
 test("getAthleteDeclaredActivityAndPosition is exported for coach/org-roster views to read a field never projected into the phase1/engine record", () => {
