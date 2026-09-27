@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "81b904fb8d0b98495e6f901df49b4c292276cee46b1335abcd3dd792bf378c0b",
+  "canonical_copy_registry_sha256": "d77f943e96ed6db8071a8ac509f2831848deb720dbf74c5dc02a3ab7d4719297",
   "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 24151,
+  "exact_copy_control_count": 24355,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,7 +15,7 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 21684,
+  "provenance_record_count": 21888,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
@@ -62,16 +62,16 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "85a02c15141c217ff2aebc856c3d487561d26767f3d2f75d10624dce066ba4d3",
-      "source_git_blob_sha": "a00a9ecaccfba86dfcc8242e6f746f044c9a221c",
+      "source_file_sha256": "90bc9e3422e6c3c9f610aff7a6d7bcc211fa5754124538556f146d82e31dff86",
+      "source_git_blob_sha": "b614006d6fb0c1ee83bae54c9ce1909a793f6b8c",
       "source_record_count": 263,
       "source_registry_id": "exercise_registry_3a"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_token/exercise_token.registry.json",
-      "source_file_sha256": "5ead9ece4e9e8ce5b1469917ff4685b825bacc343a7111298cf88b65795bff28",
-      "source_git_blob_sha": "e05c35e84ee188155815d013c84530b1a49f8468",
+      "source_file_sha256": "0ed39db6a945138f0e545b9e322371a29cd52a74954e5e2aff37bd37becbeb70",
+      "source_git_blob_sha": "d06241a3de08858aaf59fe13ab53f0379b1fb8cb",
       "source_record_count": 4,
       "source_registry_id": "exercise_token_registry_3b"
     },
@@ -102,9 +102,9 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "70ec502b7ffa7aed3023918703286322d386cf8e8e0a5152f68e7182d93a2210",
-      "source_git_blob_sha": "77c4cb8668a5a41b70f4eff8f746bfe938e2a390",
-      "source_record_count": 19494,
+      "source_file_sha256": "abb6d957ee4759e2d53175234dff5a8ca07e2c97909c7ee2165c9b75d5bfe222",
+      "source_git_blob_sha": "ce6839fb6611d555af8028569e70d63bc2868c7c",
+      "source_record_count": 19680,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
@@ -126,9 +126,9 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "f95d49b4d57ee62e4dc8d003ce43c65b70db06978cefce2e3d184ee0d75240f4",
-      "source_git_blob_sha": "bd7d392a3a51809b4b6e0136d46cc61ba588bc02",
-      "source_record_count": 971,
+      "source_file_sha256": "ecd5658500d9bd304898ee51f1471217531fb03576bf1966817ac3ee429b1611",
+      "source_git_blob_sha": "4adf953c96d24543aa5a137b4f1f78ec27552828",
+      "source_record_count": 989,
       "source_registry_id": "substitution_registry"
     },
     {
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 21684,
+  "source_record_count": 21888,
   "status": "authoritative"
 }
