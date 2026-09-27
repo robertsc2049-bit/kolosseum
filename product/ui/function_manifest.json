@@ -9275,6 +9275,12 @@
     },
     {
       "method": "POST",
+      "path": "/templates/kolosseum-starter",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
       "path": "/progress-photos",
       "source": "src/api/progress_photos.routes.ts",
       "tracked_by_area": "progress_photos"
