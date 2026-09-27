@@ -398,6 +398,14 @@
     },
     {
       "kind": "command",
+      "value": "node test/match_week.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/autoregulation.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/training_e1rm.test.mjs"
     },
     {

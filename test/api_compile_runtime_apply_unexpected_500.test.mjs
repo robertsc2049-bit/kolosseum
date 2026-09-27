@@ -80,8 +80,12 @@ mock.module(distPoolUrl, {
    }
  });
 
+ // The API reaches other exports of the session summary (e.g. deriveTrace,
+ // via progress insights), so the mock keeps them all.
+ const SESSION_SUMMARY_EXPORTS = { ...(await import(new URL("../engine/dist/src/runtime/session_summary.js", import.meta.url).href)) };
+ delete SESSION_SUMMARY_EXPORTS.default;
  mock.module("@kolosseum/engine/runtime/session_summary.js", {
-   namedExports: { validateWireRuntimeEvent: (x) => x }
+   namedExports: { ...SESSION_SUMMARY_EXPORTS, validateWireRuntimeEvent: (x) => x }
  });
 
  mock.module("@kolosseum/engine/runtime/apply_runtime_event.js", {

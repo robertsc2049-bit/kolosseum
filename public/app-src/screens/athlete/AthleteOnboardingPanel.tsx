@@ -19,8 +19,12 @@ import {
 import { titleCase } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
+import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
+import { MatchWeekCard } from "./MatchWeekCard";
+import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ReadinessCard } from "./ReadinessCard";
+import { StandDownCard } from "./StandDownCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
@@ -666,8 +670,12 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <ReadinessCard />
+      <StandDownCard />
       <PainCheckInCard />
+      <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
+      <MatchWeekCard />
+      <AthleteMaxesCard key={`maxes-${String(current.declaration_version ?? "")}`} />
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <PositionChangeCard api={api} />
       <article className="onboarding-card">

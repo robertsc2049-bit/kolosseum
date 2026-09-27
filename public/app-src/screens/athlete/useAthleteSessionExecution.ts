@@ -6,6 +6,7 @@ import {
   loadExerciseCatalog,
   loadExerciseContent,
   loadExerciseReferenceMedia,
+  newClientRequestId,
   postAthleteSessionEvent,
   requestSessionSubstitution,
   startAthleteSession,
@@ -13,6 +14,49 @@ import {
   validateSessionVideoFeedbackClientSide
 } from "../../api/athleteSessionClient";
 import { type JsonRecord } from "../../api/transport";
+import {
+  QUEUEABLE_EVENT_TYPES,
+  enqueueSessionEvent,
+  flushSessionEvents,
+  isNetworkError,
+  pendingSessionEvents
+} from "../../api/offlineSessionQueue";
+
+// Offline tolerance (see offlineSessionQueue.ts): what the athlete records
+// about their sets is kept on the phone with no signal and sent in order when
+// it's back. The last CSRF token is remembered so a queued log needs no
+// network round trip.
+const QUEUED = Symbol("queued");
+let lastCsrfToken = "";
+async function csrfTokenOrCached(): Promise<string> {
+  try {
+    const account = await loadAccountDetail();
+    lastCsrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
+    return lastCsrfToken;
+  }
+  catch (error) {
+    if (isNetworkError(error) && lastCsrfToken) return lastCsrfToken;
+    throw error;
+  }
+}
+
+// Post a session event; a fact about what was done (set log, rating, pain
+// report, extra set) that can't reach the server is queued on the phone.
+async function postOrQueue(sessionId: string, event: JsonRecord, csrfToken: string): Promise<JsonRecord | typeof QUEUED> {
+  const clientRequestId = newClientRequestId();
+  try {
+    return await postAthleteSessionEvent(sessionId, event, csrfToken, clientRequestId);
+  }
+  catch (error) {
+    if (isNetworkError(error) && QUEUEABLE_EVENT_TYPES.has(String(event.type))) {
+      enqueueSessionEvent({ session_id: sessionId, event, client_request_id: clientRequestId, queued_at: new Date().toISOString() });
+      return QUEUED;
+    }
+    throw error;
+  }
+}
+
+const OFFLINE_STEP_MESSAGE = "No connection. Your sets and ratings are saved on this phone - finish this step when you're back online.";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
@@ -98,6 +142,8 @@ export type AthleteSessionExecutionState = {
   videoUploading: boolean;
   videoError: string | null;
   mutationError: string | null;
+  // Set logs and ratings saved on the phone, waiting for a connection.
+  offlinePending: number;
   restRemainingSeconds: number | null;
   restDone: boolean;
   howto: HowtoState;
@@ -140,6 +186,7 @@ const initialState: AthleteSessionExecutionState = {
   videoUploading: false,
   videoError: null,
   mutationError: null,
+  offlinePending: 0,
   restRemainingSeconds: null,
   restDone: false,
   howto: null,
@@ -351,15 +398,40 @@ export function useAthleteSessionExecution() {
     if (restTimeoutRef.current !== null) clearTimeout(restTimeoutRef.current);
   }, []);
 
-  const runMutation = useCallback(async (perform: (sessionId: string, csrfToken: string) => Promise<void>, refreshHistory: boolean) => {
+  // Send anything saved on the phone while offline, in order, then refresh.
+  const flushOffline = useCallback(async () => {
+    if (!pendingSessionEvents().length) return;
+    try {
+      const csrfToken = await csrfTokenOrCached();
+      const result = await flushSessionEvents((item) => postAthleteSessionEvent(item.session_id, item.event, csrfToken, item.client_request_id));
+      setState((current) => ({ ...current, offlinePending: result.waiting }));
+      if (result.sent) await refresh();
+    }
+    catch {
+      // Still offline: try again when the connection comes back.
+    }
+  }, [refresh]);
+
+  useEffect(() => {
+    setState((current) => ({ ...current, offlinePending: pendingSessionEvents().length }));
+    const onOnline = () => { void flushOffline(); };
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [flushOffline]);
+
+  const runMutation = useCallback(async (perform: (sessionId: string, csrfToken: string) => Promise<unknown>, refreshHistory: boolean) => {
     const sessionId = readActiveSessionId();
     if (!sessionId) return false;
 
     setState((current) => ({ ...current, busy: true, mutationError: null }));
     try {
-      const account = await loadAccountDetail();
-      const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      await perform(sessionId, csrfToken);
+      await flushOffline();
+      const csrfToken = await csrfTokenOrCached();
+      const outcome = await perform(sessionId, csrfToken);
+      if (outcome === QUEUED) {
+        setState((current) => ({ ...current, busy: false, offlinePending: pendingSessionEvents().length }));
+        return true;
+      }
       notifyMutated(sessionId, refreshHistory);
       await refresh();
       setState((current) => ({ ...current, busy: false }));
@@ -369,11 +441,13 @@ export function useAthleteSessionExecution() {
       setState((current) => ({
         ...current,
         busy: false,
-        mutationError: error instanceof Error ? error.message : "This action could not be completed. Try again."
+        mutationError: isNetworkError(error)
+          ? OFFLINE_STEP_MESSAGE
+          : error instanceof Error ? error.message : "This action could not be completed. Try again."
       }));
       return false;
     }
-  }, [refresh]);
+  }, [refresh, flushOffline]);
 
   const startSession = useCallback(async () => {
     return runMutation(async (sessionId, csrfToken) => {
@@ -418,7 +492,7 @@ export function useAthleteSessionExecution() {
     if (!exerciseId) return false;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, ...(painArea ? { pain_area: painArea } : {}) }, csrfToken);
+      return postOrQueue(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, ...(painArea ? { pain_area: painArea } : {}) }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState]);
 
@@ -432,7 +506,7 @@ export function useAthleteSessionExecution() {
     const rpeValue = state.rpeValue;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: rpeValue }, csrfToken);
+      return postOrQueue(sessionId, { type: "RPE_REPORT", exercise_id: exerciseId, rpe_value: rpeValue }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState, state.rpeValue]);
 
@@ -446,7 +520,7 @@ export function useAthleteSessionExecution() {
     const borgValue = state.borgValue;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "BORG_REPORT", exercise_id: exerciseId, borg_value: borgValue }, csrfToken);
+      return postOrQueue(sessionId, { type: "BORG_REPORT", exercise_id: exerciseId, borg_value: borgValue }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState, state.borgValue]);
 
@@ -460,7 +534,7 @@ export function useAthleteSessionExecution() {
     const cr10Value = state.cr10Value;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
+      return postOrQueue(sessionId, { type: "CR10_REPORT", exercise_id: exerciseId, cr10_value: cr10Value }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState, state.cr10Value]);
 
@@ -579,8 +653,10 @@ export function useAthleteSessionExecution() {
 
     let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
-      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      const response = await postOrQueue(sessionId, event, csrfToken);
+      if (response === QUEUED) return QUEUED;
       isPr = response?.is_pr === true;
+      return undefined;
     }, true);
 
     if (ok) {
@@ -602,8 +678,10 @@ export function useAthleteSessionExecution() {
     }
     let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
-      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      const response = await postOrQueue(sessionId, event, csrfToken);
+      if (response === QUEUED) return QUEUED;
       isPr = response?.is_pr === true;
+      return undefined;
     }, true);
     return ok ? isPr : null;
   }, [runMutation]);
@@ -663,8 +741,10 @@ export function useAthleteSessionExecution() {
 
     let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
-      const response = await postAthleteSessionEvent(sessionId, event, csrfToken);
+      const response = await postOrQueue(sessionId, event, csrfToken);
+      if (response === QUEUED) return QUEUED;
       isPr = response?.is_pr === true;
+      return undefined;
     }, true);
 
     if (ok) {

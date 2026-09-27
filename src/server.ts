@@ -37,6 +37,7 @@ import { programmeTemplateSharingRouter } from "./api/programme_template_sharing
 import { deviceSyncRouter } from "./api/device_sync.routes.js";
 import { progressInsightsRouter } from "./api/progress_insights.routes.js";
 import { painFlagsRouter } from "./api/pain_flags.routes.js";
+import { standDownRouter } from "./api/medical_stand_down.routes.js";
 import { attendanceEventRouter } from "./api/attendance_event.routes.js";
 import { athleteOnboardingRouter } from "./api/athlete_onboarding.routes.js";
 import { coachOnboardingRouter } from "./api/coach_onboarding.routes.js";
@@ -193,6 +194,7 @@ app.use("/programme-marketplace", programmeTemplateSharingRouter);
 app.use("/device-sync", deviceSyncRouter);
 app.use("/progress-insights", progressInsightsRouter);
 app.use("/pain-flags", painFlagsRouter);
+app.use("/stand-down", standDownRouter);
 app.use("/attendance-events", attendanceEventRouter);
 app.use("/templates", templatesRouter);
 app.use("/coach-workspace", coachWorkspaceRouter);

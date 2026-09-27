@@ -40,12 +40,20 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
+import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
+import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
+import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
+import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 
 export const athleteOnboardingRouter = Router();
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting).
 const readinessRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const standDownRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
   request: Request,
@@ -237,6 +245,67 @@ athleteOnboardingRouter.get(
   })
 );
 
+// Medical stand-down (e.g. after a head injury): no sessions until the date
+// the athlete's medical professional gave, or until they are cleared.
+athleteOnboardingRouter.get(
+  "/stand-down",
+  standDownRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await describeStandDown(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/stand-down",
+  standDownRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await recordStandDown(session.account_row.user_id, request.body));
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/stand-down/end",
+  standDownRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await endStandDown(session.account_row.user_id, request.body));
+  })
+);
+
+// The equipment a self-directed athlete has (a full gym until they say).
+athleteOnboardingRouter.get(
+  "/equipment",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await describeAthleteEquipment(session.account_row.user_id));
+  })
+);
+
+// The athlete's match week: usual match/race/key-session days and fixtures.
+athleteOnboardingRouter.get(
+  "/match-week",
+  matchWeekRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getMatchWeek(session.account_row.user_id));
+  })
+);
+
+// A self-directed athlete's own maxes, so % of 1RM work becomes a weight.
+athleteOnboardingRouter.get(
+  "/maxes",
+  athleteMaxesRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthleteMaxes(session.account_row.user_id));
+  })
+);
+
 athleteOnboardingRouter.put(
   "/readiness",
   readinessRateLimit,
@@ -244,6 +313,36 @@ athleteOnboardingRouter.put(
     const { token, session } = await athleteSession(request);
     assertMutation(request, token);
     return response.status(200).json(await saveReadiness(session.account_row.user_id, request.body));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/equipment",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteEquipment(session.account_row.user_id, request.body));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/match-week",
+  matchWeekRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveMatchWeek(session.account_row.user_id, request.body));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/maxes",
+  athleteMaxesRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteMaxes(session.account_row.user_id, request.body));
   })
 );
 
@@ -268,6 +367,26 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof ReadinessError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof StandDownError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof AthleteEquipmentError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof MatchWeekError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof AthleteMaxesError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }
