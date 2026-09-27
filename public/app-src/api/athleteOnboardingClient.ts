@@ -65,6 +65,15 @@ export function savePainCheckIn(
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
 
+// The athlete's match week: usual match/race/key-session days plus one-off fixtures.
+export function loadMatchWeek(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/match-week");
+}
+
+export function saveMatchWeek(input: { match_days: string[]; fixtures: Array<{ date: string; label: string }> }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/match-week", input, csrfToken);
+}
+
 // A self-directed athlete's own maxes, so "% of 1RM" work becomes a weight.
 export function loadAthleteMaxes(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/maxes");

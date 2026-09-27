@@ -618,3 +618,79 @@ test(
     assert.equal(nextBench.autoregulation, undefined);
   }
 );
+
+test(
+  "match week: a lifter competing tomorrow gets a primer with no squats or deadlifts; the fixture is saved and validated",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Match Week Lifter", email: `matchweek-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+
+    const empty = await requestJson(server.baseUrl, "GET", "/account/onboarding/match-week", { cookie });
+    assertStatus(empty, 200, "match week");
+    assert.deepEqual(empty.json, { match_days: [], fixtures: [] });
+    const normal = await compile();
+    assertStatus(normal, 201, "normal session");
+    const normalIds = normal.json.planned_session.exercises.map((e) => e.exercise_id);
+    assert.ok(normalIds.includes("back_squat") && normalIds.includes("deadlift"));
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/match-week", { cookie, csrf, body: { match_days: ["someday"], fixtures: [] } }), 422, "refuse an unknown day");
+    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/match-week", {
+      cookie, csrf, body: { match_days: [], fixtures: [{ date: tomorrow, label: "Club meet" }] }
+    });
+    assertStatus(saved, 200, "save the meet");
+    assert.deepEqual(saved.json.fixtures, [{ date: tomorrow, label: "Club meet" }]);
+
+    const eve = await compile();
+    assertStatus(eve, 201, "session the day before");
+    const eveIds = eve.json.planned_session.exercises.map((e) => e.exercise_id);
+    for (const legs of ["back_squat", "deadlift"]) assert.ok(!eveIds.includes(legs), `no ${legs} the day before`);
+    const bench = eve.json.planned_session.exercises.find((e) => e.exercise_id === "paused_bench_press");
+    const normalBench = normal.json.planned_session.exercises.find((e) => e.exercise_id === "paused_bench_press");
+    assert.equal(bench.sets, normalBench.sets - 1, "bench a set shorter");
+    assert.deepEqual(bench.match_week, { role: "day_before", match_date: tomorrow, label: "Club meet" });
+  }
+);

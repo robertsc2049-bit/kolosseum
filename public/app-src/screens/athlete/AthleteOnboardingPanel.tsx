@@ -19,6 +19,7 @@ import {
 import { titleCase } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
+import { MatchWeekCard } from "./MatchWeekCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
@@ -667,6 +668,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <PainCheckInCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
+      <MatchWeekCard />
       <AthleteMaxesCard key={`maxes-${String(current.declaration_version ?? "")}`} />
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <PositionChangeCard api={api} />

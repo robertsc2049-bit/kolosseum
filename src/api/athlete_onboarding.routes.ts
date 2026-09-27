@@ -39,12 +39,14 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
+import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 
 export const athleteOnboardingRouter = Router();
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting).
+const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
@@ -227,6 +229,16 @@ athleteOnboardingRouter.post(
   })
 );
 
+// The athlete's match week: usual match/race/key-session days and fixtures.
+athleteOnboardingRouter.get(
+  "/match-week",
+  matchWeekRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getMatchWeek(session.account_row.user_id));
+  })
+);
+
 // A self-directed athlete's own maxes, so % of 1RM work becomes a weight.
 athleteOnboardingRouter.get(
   "/maxes",
@@ -234,6 +246,16 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await getAthleteMaxes(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/match-week",
+  matchWeekRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveMatchWeek(session.account_row.user_id, request.body));
   })
 );
 
@@ -263,6 +285,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof PainFlagError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof MatchWeekError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

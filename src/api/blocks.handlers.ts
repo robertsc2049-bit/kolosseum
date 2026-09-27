@@ -14,6 +14,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
+import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
@@ -565,6 +566,16 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
     planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
+  // Around a self-directed athlete's matches: a primer on match day and the
+  // day before (no heavy lower-body work), recovery the day after
+  // (match_week.ts). Coach-assigned sessions follow the coach's own plan.
+  if (create_session && beta_individual_subject_user_id) {
+    const matchWeek = await applyAthleteMatchWeek(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+    if (!matchWeek.ok) {
+      throw badRequest("Match day rest", { failure_token: matchWeek.failure_token, details: matchWeek.details });
+    }
+    planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
   }
   // What a self-directed athlete actually did last time holds an exercise
   // back (missed reps, RPE 9.5+) - never adds load (autoregulation_service.ts).

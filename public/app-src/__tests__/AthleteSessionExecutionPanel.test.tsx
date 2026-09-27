@@ -1129,3 +1129,13 @@ test("carries and holds are logged by completing them, not per set; nothing is l
   await waitFor(() => screen.getByText("Start session"));
   assert.equal(screen.queryByText(/Sets logged/), null);
 });
+
+test("the day before a match, the session says it is a primer with no heavy leg work", async () => {
+  seedActiveSession("session_1");
+  const primer = baseExercise({ exercise_id: "countermovement_jump", display_name: "Countermovement jump", sets: 2, match_week: { role: "day_before", match_date: "2026-10-03", label: "Match day" } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: primer }, remaining_exercises: [primer] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Day before your match - a short primer, no heavy leg work."));
+  cleanup();
+});
