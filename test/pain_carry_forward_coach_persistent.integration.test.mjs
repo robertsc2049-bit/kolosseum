@@ -390,3 +390,123 @@ test(
     assert.ok(after.json.planned_session.exercises.some((e) => e.exercise_id === "back_squat"));
   }
 );
+
+test(
+  "medical stand-down: a rugby player's coach records a head-injury stand-down - no session until the date, only a stranger can't see it, and it ends early only once she is medically cleared",
+  async (testContext) => {
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+    let server = null;
+    const userIds = [];
+    const sessionIds = [];
+    testContext.after(async () => {
+      await closeServer(server);
+      for (const sessionId of sessionIds) {
+        await pool.query("DELETE FROM session_event_requests WHERE session_id = $1", [sessionId]).catch(() => {});
+        await pool.query("DELETE FROM runtime_events WHERE session_id = $1", [sessionId]).catch(() => {});
+        await pool.query("DELETE FROM session_event_seq WHERE session_id = $1", [sessionId]).catch(() => {});
+      }
+      await pool.query("DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+      for (const userId of userIds) {
+        await pool.query("DELETE FROM product_notifications WHERE recipient_user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+    });
+
+    server = await listen();
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const coach = await registerCoach(baseUrl, nonce, "sd");
+    const strangerCoach = await registerCoach(baseUrl, nonce, "sx");
+    const athlete = await registerAthlete(baseUrl, nonce, "sd");
+    userIds.push(coach.userId, strangerCoach.userId, athlete.userId);
+    await seedRelationship(baseUrl, { relationshipId: `sd_rel_${nonce}`, coachUserId: coach.userId, athleteUserId: athlete.userId, state: "accepted" });
+    assertStatus(await request(baseUrl, "POST", "/coach-workspace/athlete-strength-profile", {
+      coach_user_id: coach.userId, athlete_user_id: athlete.userId, preferred_weight_unit: "kg", load_rounding_increment: 2.5, bodyweight: null, bodyweight_unit: "kg",
+      benchmarks: [{ benchmark_id: `sd_bs_${nonce}`, exercise_id: "back_squat", value: 150, unit: "kg", basis: "tested_1rm", effective_date: daysAgoDateOnly(0), source_note: "stand-down proof", replaces_reference_id: null }],
+      expected_current_record_sha256: null
+    }, { cookie: coach.cookie, csrf: coach.csrf }), 201, "strength profile");
+    const template = await createActivatedTemplate(baseUrl, coach.userId, `Stand-down Programme ${nonce}`);
+    assertStatus(await request(baseUrl, "POST", "/coach-workspace/athlete-assignment", {
+      request_id: `sd_request_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coach.userId,
+      athlete_user_id: athlete.userId, template_id: template.template_id, activity_id: "powerlifting", event_id: ""
+    }, { cookie: coach.cookie, csrf: coach.csrf }), 201, "assignment");
+
+    const inTwoWeeks = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
+    const coachPath = `/stand-down/coach/${athlete.userId}`;
+    assertStatus(await request(baseUrl, "POST", coachPath, { reason: "head_injury", until_date: "2020-01-01" }, { cookie: coach.cookie, csrf: coach.csrf }), 422, "a past date is refused");
+    assertStatus(await request(baseUrl, "POST", coachPath, { reason: "head_injury", until_date: inTwoWeeks }, { cookie: strangerCoach.cookie, csrf: strangerCoach.csrf }), 403, "a stranger coach can't record one");
+    const recorded = await request(baseUrl, "POST", coachPath, { reason: "head_injury", until_date: inTwoWeeks }, { cookie: coach.cookie, csrf: coach.csrf });
+    assertStatus(recorded, 200, "coach records a head-injury stand-down");
+    assert.equal(recorded.json.stand_down.until_date, inTwoWeeks);
+    assert.equal(recorded.json.stand_down.recorded_by, "coach");
+    assertStatus(await request(baseUrl, "GET", coachPath, undefined, { cookie: strangerCoach.cookie }), 403, "a stranger coach can't see it");
+
+    // No session - from the coach's programme or anywhere - until the date.
+    const refused = await compileCoachSession(baseUrl, coach, athlete);
+    assertStatus(refused, 400, "no session during a stand-down");
+    assert.equal(refused.json.details.failure_token, "medical_stand_down");
+    assert.equal(refused.json.details.details.until_date, inTwoWeeks);
+
+    // The athlete sees it; ending it early needs medical clearance.
+    const mine = await request(baseUrl, "GET", "/account/onboarding/stand-down", undefined, { cookie: athlete.cookie });
+    assertStatus(mine, 200, "athlete sees the stand-down");
+    assert.equal(mine.json.stand_down.reason, "head_injury");
+    assertStatus(await request(baseUrl, "POST", "/account/onboarding/stand-down/end", {}, { cookie: athlete.cookie, csrf: athlete.csrf }), 422, "not without clearance");
+    const ended = await request(baseUrl, "POST", "/account/onboarding/stand-down/end", { cleared_by_medical_professional: true }, { cookie: athlete.cookie, csrf: athlete.csrf });
+    assertStatus(ended, 200, "ended once cleared");
+    assert.equal(ended.json.stand_down, null);
+    const after = await compileCoachSession(baseUrl, coach, athlete);
+    assertStatus(after, 201, "sessions resume once cleared");
+    sessionIds.push(after.json.session_id);
+  }
+);
+
+test(
+  "starter programme: a powerlifting coach starts from the Kolosseum programme - a 4-week block with a deload that saves, completes and activates like any draft",
+  async (testContext) => {
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+    let server = null;
+    const userIds = [];
+    testContext.after(async () => {
+      await closeServer(server);
+      await pool.query("DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+      for (const userId of userIds) {
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+    });
+    server = await listen();
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const coach = await registerCoach(baseUrl, nonce, "st");
+    userIds.push(coach.userId);
+
+    const start = (body, auth = coach) => request(baseUrl, "POST", "/templates/kolosseum-starter", body, auth ? { cookie: auth.cookie, csrf: auth.csrf } : {});
+    assertStatus(await start({ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 3 }, null), 401, "signed-out");
+    for (const [body, label] of [
+      [{ activity_id: "quidditch", experience_level: "amateur", days_per_week: 3 }, "an unknown sport"],
+      [{ activity_id: "powerlifting", experience_level: "elite", days_per_week: 3 }, "an unknown level"],
+      [{ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 7 }, "7 days"]
+    ]) assertStatus(await start(body), 422, `refuse ${label}`);
+
+    const created = await start({ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 3 });
+    assertStatus(created, 201, "starter template");
+    const template = created.json.template;
+    assert.equal(template.template_status, "draft");
+    assert.equal(template.activity_id, "powerlifting");
+    const block = template.template_structure.blocks[0];
+    assert.equal(block.weeks.length, 4);
+    const sessionsOf = (week) => week.days.flatMap((d) => d.sessions);
+    assert.ok(block.weeks.every((w) => sessionsOf(w).length === 3), "a session per training day");
+    const squatSets = (week) => sessionsOf(week).flatMap((s) => s.work_items).filter((w) => w.exercise_id === "back_squat").reduce((n, w) => n + w.planned_sets, 0);
+    assert.ok(squatSets(block.weeks[0]) > 0, "the named back squat is in it");
+    assert.ok(squatSets(block.weeks[3]) < squatSets(block.weeks[0]), "week 4 is a deload");
+
+    // It is an ordinary draft: it completes and activates.
+    assertStatus(await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/complete`, { coach_user_id: coach.userId }), 200, "complete");
+    assertStatus(await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/activate`, { coach_user_id: coach.userId }), 200, "activate");
+  }
+);

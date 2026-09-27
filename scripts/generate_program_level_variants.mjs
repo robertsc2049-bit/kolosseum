@@ -3,6 +3,7 @@
 // other activities use explicit coaching rules (documented below). Run from repo root.
 import fs from "node:fs";
 import { EVENT_MICROCYCLES, MICROCYCLES } from "./program_microcycles.mjs";
+import { ROLE_MICROCYCLES } from "./program_role_microcycles.mjs";
 
 const R = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
 const prog = R("registries/program/program.registry.json");
@@ -293,6 +294,26 @@ for (const entry of prog.entries) {
     attachWeek(`${entry.activity_id}/${event}`, entry.activity_id, v, v.level_variants, eventDays);
   }
 }
+// Position-group programmes (scripts/program_role_microcycles.mjs): each role
+// has its own full-body session and week, with beginner and pro derived by the
+// same rules as the sport's own programme.
+for (const entry of prog.entries) {
+  const roles = ROLE_MICROCYCLES[entry.activity_id];
+  if (!roles) { delete entry.role_variants; continue; }
+  entry.role_variants = {};
+  for (const [role, { session, week }] of Object.entries(roles)) {
+    const items = session.map(parseItem);
+    const label = `${entry.activity_id}/${role}`;
+    for (const [id] of items) if (!ex[id] || !allowed(id, entry.activity_id)) throw new Error(`${label}: ${id} not training-allowed`);
+    const asRole = asEntry(entry.activity_id, items);
+    const levels = STRENGTH.has(entry.activity_id)
+      ? { beginner: strengthBeginner(items, entry.activity_id), pro: strengthPro(items) }
+      : { beginner: beginnerOf(asRole), pro: proOf(asRole) };
+    const v = { ...variant(items), level_variants: { beginner: variant(levels.beginner), pro: variant(levels.pro) } };
+    attachWeek(label, entry.activity_id, v, v.level_variants, week);
+    entry.role_variants[role] = v;
+  }
+}
 // Fixed exercises: a sport's competition lifts (and HYROX's race stations and
 // strongman's event implements) are named; every other item outside a timed
 // group is an open slot the athlete or coach fills with their own choice.
@@ -314,6 +335,7 @@ const markFixed = (target, activity) => {
 for (const entry of prog.entries) {
   const targets = [entry, ...Object.values(entry.level_variants ?? {})];
   for (const ev of Object.values(entry.event_variants ?? {})) targets.push(ev, ...Object.values(ev.level_variants ?? {}));
+  for (const rv of Object.values(entry.role_variants ?? {})) targets.push(rv, ...Object.values(rv.level_variants ?? {}));
   for (const t of targets) {
     markFixed(t, entry.activity_id);
     for (const day of t.microcycle ?? []) markFixed(day, entry.activity_id);

@@ -14,6 +14,8 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
+import { applyTodaysReadiness } from "./readiness_service.js";
+import { activeStandDown } from "./medical_stand_down_service.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
@@ -554,6 +556,14 @@ export async function compileBlock(req: Request, res: Response) {
   // or leaves out those exercises for this session (pain_flag_service.ts).
   const pain_subject_user_id = beta_individual_subject_user_id ?? beta_session_binding?.subject_user_id;
   let planned_session_from_engine: Phase6SessionOutput = named_session;
+  // A medical stand-down (e.g. after a head injury) is never overridden: no
+  // session is created until its date, or until the athlete is cleared.
+  if (create_session && pain_subject_user_id) {
+    const standDown = await activeStandDown(pain_subject_user_id);
+    if (standDown) {
+      throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
+    }
+  }
   if (create_session && pain_subject_user_id) {
     const pain = await applyPainCarryForward(
       pain_subject_user_id,
@@ -567,6 +577,13 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
     planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
+  // A low readiness check-in today trims a self-directed session (readiness.ts).
+  if (create_session && beta_individual_subject_user_id) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: (await applyTodaysReadiness(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+    };
   }
   // Exercises a self-directed athlete can't do with their equipment are
   // swapped for a flagged substitute, or flagged when nothing fits.

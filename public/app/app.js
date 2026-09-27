@@ -1357,6 +1357,11 @@ async function createSession() {
         document.getElementById("athleteOnboardingNav")?.click();
         return;
       }
+      if (phase4Token === "medical_stand_down") {
+        const until = error?.payload?.details?.details?.until_date ?? "";
+        showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
+        return;
+      }
       if (phase4Token === "match_day_rest") {
         showNotice("Your match is today or tomorrow and this session is all heavy leg work - rest it, or train on another day.", "error");
         return;
