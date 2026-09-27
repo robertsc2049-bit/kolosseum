@@ -429,3 +429,16 @@ export function loadAthletePainFlags(athleteUserId: string): Promise<JsonRecord>
 export function clearAthletePainFlag(athleteUserId: string, flagKey: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/pain-flags/coach/${encodeURIComponent(athleteUserId)}/clear`, { flag_key: flagKey }, csrfToken);
 }
+
+// Medical stand-down for a coach's athlete.
+export function loadAthleteStandDown(athleteUserId: string): Promise<JsonRecord> {
+  return request("GET", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`);
+}
+
+export function recordAthleteStandDown(athleteUserId: string, input: { reason: string; until_date: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`, input, csrfToken);
+}
+
+export function endAthleteStandDown(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/stand-down/coach/${encodeURIComponent(athleteUserId)}/end`, { cleared_by_medical_professional: true }, csrfToken);
+}

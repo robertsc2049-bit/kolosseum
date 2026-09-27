@@ -1357,6 +1357,11 @@ async function createSession() {
         document.getElementById("athleteOnboardingNav")?.click();
         return;
       }
+      if (phase4Token === "medical_stand_down") {
+        const until = error?.payload?.details?.details?.until_date ?? "";
+        showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
+        return;
+      }
       if (phase4Token === "pain_session_empty") {
         showNotice("Every exercise in this session loads the area that is still sore. Rest it today, or check in pain-free if it has settled.", "error");
         document.getElementById("athleteOnboardingNav")?.click();

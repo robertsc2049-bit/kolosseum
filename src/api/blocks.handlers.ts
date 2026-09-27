@@ -14,6 +14,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
+import { activeStandDown } from "./medical_stand_down_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -550,6 +551,14 @@ export async function compileBlock(req: Request, res: Response) {
   // or leaves out those exercises for this session (pain_flag_service.ts).
   const pain_subject_user_id = beta_individual_subject_user_id ?? beta_session_binding?.subject_user_id;
   let planned_session_from_engine: Phase6SessionOutput = named_session;
+  // A medical stand-down (e.g. after a head injury) is never overridden: no
+  // session is created until its date, or until the athlete is cleared.
+  if (create_session && pain_subject_user_id) {
+    const standDown = await activeStandDown(pain_subject_user_id);
+    if (standDown) {
+      throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
+    }
+  }
   if (create_session && pain_subject_user_id) {
     const pain = await applyPainCarryForward(
       pain_subject_user_id,

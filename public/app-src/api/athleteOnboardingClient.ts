@@ -64,3 +64,16 @@ export function savePainCheckIn(
 ): Promise<JsonRecord> {
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
+
+// Medical stand-down (e.g. after a head injury).
+export function loadStandDown(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/stand-down");
+}
+
+export function recordStandDown(input: { reason: "head_injury" | "medical"; until_date: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/stand-down", input, csrfToken);
+}
+
+export function endStandDown(csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/stand-down/end", { cleared_by_medical_professional: true }, csrfToken);
+}
