@@ -4001,6 +4001,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
 
+/* Group assignment: athlete checklist wraps on a phone. */
+.group-assign-athletes { display: flex; flex-wrap: wrap; gap: 8px; }
+.group-assign-athlete { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 12em; }
+.group-assign-results { list-style: none; padding: 0; display: grid; gap: 4px; }
+
 /* Readiness check-in: large 1-5 targets for a phone. */
 .readiness-scale { display: flex; gap: 6px; }
 .readiness-option { display: flex; align-items: center; gap: 2px; min-height: 44px; min-width: 44px; }

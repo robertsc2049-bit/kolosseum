@@ -9,6 +9,7 @@ import {
   programmeFamilyVersions,
   programmeVersionNumber
 } from "./useCoachProgrammeLibrary";
+import { GroupAssignSection } from "./GroupAssignSection";
 import { useCoachProgrammeDetail } from "./useCoachProgrammeDetail";
 
 // DEV NOTE: FULL-UI-05A programme detail (read-only) - ported field-for-
@@ -198,6 +199,15 @@ export function CoachProgrammeDetailPanel() {
           </button>
         ) : null}
       </div>
+
+      {storedStatus === "active" ? (
+        <GroupAssignSection
+          template={template}
+          relationships={relationships}
+          assignments={assignments}
+          onAssigned={() => document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"))}
+        />
+      ) : null}
 
       <div className="programme-detail-grid">
         <article className="programme-detail-section">

@@ -430,6 +430,11 @@ export function clearAthletePainFlag(athleteUserId: string, flagKey: string, csr
   return request("POST", `/pain-flags/coach/${encodeURIComponent(athleteUserId)}/clear`, { flag_key: flagKey }, csrfToken);
 }
 
+// "Start from a Kolosseum programme": a draft template from the engine's programme.
+export function createKolosseumStarterTemplate(input: { activity_id: string; experience_level: string; days_per_week: number }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/templates/kolosseum-starter", input, csrfToken);
+}
+
 // Medical stand-down for a coach's athlete.
 export function loadAthleteStandDown(athleteUserId: string): Promise<JsonRecord> {
   return request("GET", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`);

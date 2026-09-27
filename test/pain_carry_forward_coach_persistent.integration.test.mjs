@@ -462,3 +462,51 @@ test(
     sessionIds.push(after.json.session_id);
   }
 );
+
+test(
+  "starter programme: a powerlifting coach starts from the Kolosseum programme - a 4-week block with a deload that saves, completes and activates like any draft",
+  async (testContext) => {
+    const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+    let server = null;
+    const userIds = [];
+    testContext.after(async () => {
+      await closeServer(server);
+      await pool.query("DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+      for (const userId of userIds) {
+        await pool.query("DELETE FROM product_account_events WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_sessions WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_auth_challenges WHERE user_id = $1", [userId]).catch(() => {});
+        await pool.query("DELETE FROM product_accounts WHERE user_id = $1", [userId]).catch(() => {});
+      }
+    });
+    server = await listen();
+    const baseUrl = `http://127.0.0.1:${server.address().port}`;
+    const coach = await registerCoach(baseUrl, nonce, "st");
+    userIds.push(coach.userId);
+
+    const start = (body, auth = coach) => request(baseUrl, "POST", "/templates/kolosseum-starter", body, auth ? { cookie: auth.cookie, csrf: auth.csrf } : {});
+    assertStatus(await start({ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 3 }, null), 401, "signed-out");
+    for (const [body, label] of [
+      [{ activity_id: "quidditch", experience_level: "amateur", days_per_week: 3 }, "an unknown sport"],
+      [{ activity_id: "powerlifting", experience_level: "elite", days_per_week: 3 }, "an unknown level"],
+      [{ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 7 }, "7 days"]
+    ]) assertStatus(await start(body), 422, `refuse ${label}`);
+
+    const created = await start({ activity_id: "powerlifting", experience_level: "amateur", days_per_week: 3 });
+    assertStatus(created, 201, "starter template");
+    const template = created.json.template;
+    assert.equal(template.template_status, "draft");
+    assert.equal(template.activity_id, "powerlifting");
+    const block = template.template_structure.blocks[0];
+    assert.equal(block.weeks.length, 4);
+    const sessionsOf = (week) => week.days.flatMap((d) => d.sessions);
+    assert.ok(block.weeks.every((w) => sessionsOf(w).length === 3), "a session per training day");
+    const squatSets = (week) => sessionsOf(week).flatMap((s) => s.work_items).filter((w) => w.exercise_id === "back_squat").reduce((n, w) => n + w.planned_sets, 0);
+    assert.ok(squatSets(block.weeks[0]) > 0, "the named back squat is in it");
+    assert.ok(squatSets(block.weeks[3]) < squatSets(block.weeks[0]), "week 4 is a deload");
+
+    // It is an ordinary draft: it completes and activates.
+    assertStatus(await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/complete`, { coach_user_id: coach.userId }), 200, "complete");
+    assertStatus(await request(baseUrl, "POST", `/templates/${encodeURIComponent(template.template_id)}/activate`, { coach_user_id: coach.userId }), 200, "activate");
+  }
+);
