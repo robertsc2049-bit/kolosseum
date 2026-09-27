@@ -257,6 +257,11 @@ export function AthleteSessionExecutionPanel() {
   const cycle = sessionState.training_cycle as JsonRecord | undefined;
   const cycleSummary = trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
+  // Back after a break: a lighter re-entry week, then blocks restart at week 1.
+  const reentry = isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null;
+  const reentryNote = reentry && reentry.reentry_week === true
+    ? `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
+    : null;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [
     ...counts.completed.map((row) => ({ exercise: row, status: "complete" as const })),
@@ -282,8 +287,10 @@ export function AthleteSessionExecutionPanel() {
           <h2>{`${activity} session`}</h2>
           <p className="muted">{total ? `${total} exercises recorded in this session.` : "Session record loaded."}</p>
           {cycleSummary ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
+          {reentryNote ? <p className="inline-result" data-tone="warning" data-testid="session-reentry">{reentryNote}</p> : null}
         </div>
-        {deload ? <span className="badge" title="A lighter week to absorb the last three weeks of training">Deload week</span> : null}
+        {deload && !reentryNote ? <span className="badge" title="A lighter week to absorb the last three weeks of training">Deload week</span> : null}
+        {reentryNote ? <span className="badge" title="A lighter week to ease back in after a break">Re-entry week</span> : null}
         <span className={`badge ${classification.className}`}>{classification.label}</span>
       </div>
 

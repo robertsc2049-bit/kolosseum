@@ -326,13 +326,18 @@ export async function compileBlock(req: Request, res: Response) {
   // above validated the declared input; the cycle is derived, never declared
   // by the client. Coach-managed sessions follow the coach's programme.
   let phase1ForCompile: unknown = body.phase1_input;
+  // Set when a self-directed athlete comes back after a break (training_cycle.ts):
+  // shown with the session, never part of the engine input.
+  let session_reentry: Record<string, unknown> | undefined;
   if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
-    const training_cycle = await trainingCycleForAthlete(beta_individual_subject_user_id);
+    const cycle_with_reentry = await trainingCycleForAthlete(beta_individual_subject_user_id);
     // Training days are required (no silent default): an athlete who
     // onboarded before plans existed declares them before their next session.
-    if (!training_cycle) {
+    if (!cycle_with_reentry) {
       throw badRequest("training_plan_required", { failure_token: "training_plan_required" });
     }
+    const { reentry, ...training_cycle } = cycle_with_reentry;
+    session_reentry = reentry;
     // The athlete's own exercise for each open slot; the engine refuses the
     // session if today's slots are not all chosen (never a default).
     const exercise_selections = await getAthleteExerciseSelections(beta_individual_subject_user_id);
@@ -531,6 +536,9 @@ export async function compileBlock(req: Request, res: Response) {
     : {};
   const named_session: Phase6SessionOutput = {
     ...p6.session,
+    ...(session_reentry && isRecord((p6.session as any).training_cycle)
+      ? { training_cycle: { ...(p6.session as any).training_cycle, reentry: session_reentry } }
+      : {}),
     exercises: p6.session.exercises.map((e: any) => {
       const exId = String(e.exercise_id ?? "");
       return displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
