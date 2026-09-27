@@ -1199,3 +1199,34 @@ test("the day before a match, the session says it is a primer with no heavy leg 
   assert.ok(screen.getByText("Day before your match - a short primer, no heavy leg work."));
   cleanup();
 });
+
+test("a CrossFitter who scaled today's AMRAP records it as scaled, so it is never compared with an Rx score", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: Record<string, unknown> | null = null;
+  installMocks({
+    sessionState: baseSessionState({
+      started: true,
+      current_step: {
+        type: "GROUP_WORKOUT", group_id: "metcon", group_type: "amrap", time_cap_seconds: 720,
+        exercises: [groupExercise({ exercise_id: "pull_up", display_name: "Pull-up" }), groupExercise({ exercise_id: "burpee", display_name: "Burpee" })]
+      }
+    }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body as Record<string, unknown>;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Pull-up + Burpee"));
+  assert.equal((screen.getByLabelText("Rx (as prescribed)") as HTMLInputElement).checked, true, "Rx unless she says otherwise");
+  await act(async () => {
+    fireEvent.change(screen.getByLabelText("Rounds completed"), { target: { value: "7" } });
+    fireEvent.click(screen.getByLabelText("Scaled (lighter load or easier movements)"));
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record AMRAP result"));
+  });
+  await waitFor(() => screen.getByText("Session complete"));
+  assert.equal(lastEventBody?.type, "AMRAP_RESULT_REPORT");
+  assert.equal(lastEventBody?.rounds_completed, 7);
+  assert.equal(lastEventBody?.scaled, true);
+});

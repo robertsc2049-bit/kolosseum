@@ -26,6 +26,7 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { BODYWEIGHT_PLUS_LOAD_EXERCISES, computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
+import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 
@@ -196,6 +197,50 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
     });
   }
   return sets;
+}
+
+// Timed-group results (AMRAP, EMOM, for time) with the group as prescribed,
+// the latest report per group per session.
+const TIMED_RESULT_TYPES: Record<string, WorkoutResult["group_type"]> = {
+  AMRAP_RESULT_REPORT: "amrap", EMOM_RESULT_REPORT: "emom", FOR_TIME_RESULT_REPORT: "for_time"
+};
+async function loadWorkoutResults(athleteUserId: string): Promise<WorkoutResult[]> {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (re.session_id, re.event->>'group_id')
+      re.session_id, re.event, s.planned_session,
+      to_char(re.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
+    FROM runtime_events re
+    JOIN sessions s ON s.session_id = re.session_id
+    WHERE s.beta_subject_user_id = $1
+      AND re.event->>'type' IN ('AMRAP_RESULT_REPORT', 'EMOM_RESULT_REPORT', 'FOR_TIME_RESULT_REPORT')
+    ORDER BY re.session_id, re.event->>'group_id', re.seq DESC
+    `,
+    [athleteUserId]
+  );
+  const out: WorkoutResult[] = [];
+  for (const row of result.rows ?? []) {
+    const event = isRecord(row.event) ? row.event : {};
+    const groupType = TIMED_RESULT_TYPES[String(event.type)];
+    const planned = isRecord(row.planned_session) && Array.isArray(row.planned_session.exercises) ? row.planned_session.exercises.filter(isRecord) : [];
+    const members = planned.filter((e: JsonRecord) => e.group_id === event.group_id);
+    if (!groupType || !members.length) continue;
+    const num = (v: unknown) => (Number.isFinite(Number(v)) && v !== null && v !== undefined ? Number(v) : null);
+    out.push({
+      session_id: String(row.session_id),
+      date: cleanString(row.day),
+      group_type: groupType,
+      exercises: members.map((e: JsonRecord) => ({
+        exercise_id: String(e.exercise_id ?? "").replace(/__r[0-9]+$/u, ""),
+        reps: num(e.reps), distance_m: num(e.distance_m), duration_seconds: num(e.duration_seconds)
+      })),
+      time_cap_seconds: Number(members[0].group_time_cap_seconds ?? 0),
+      round_seconds: Number(members[0].group_round_seconds ?? 0),
+      total_rounds: Number(members[0].group_total_rounds ?? 0),
+      event
+    });
+  }
+  return out;
 }
 
 // Movement pattern per exercise, from the canonical exercise registry (read
@@ -409,11 +454,12 @@ async function assembleProgressInsightsSummary(
   habitsWithStreaks: readonly JsonRecord[],
   bodyMetricEntries: readonly JsonRecord[]
 ): Promise<Readonly<JsonRecord>> {
-  const [sessions, profilePayload, habitConsistency, loggedSets] = await Promise.all([
+  const [sessions, profilePayload, habitConsistency, loggedSets, workoutResults] = await Promise.all([
     loadEnrichedAthleteSessions(athleteUserId),
     loadLatestStrengthProfilePayload(athleteUserId),
     computeHabitConsistency(habitsWithStreaks, athleteUserId),
-    loadLoggedSets(athleteUserId)
+    loadLoggedSets(athleteUserId),
+    loadWorkoutResults(athleteUserId)
   ]);
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) === "lb" ? "lb" : "kg";
 
@@ -425,6 +471,8 @@ async function assembleProgressInsightsSummary(
     strength_trends: computeStrengthTrends(profilePayload),
     // Estimated maxes from what the athlete actually lifted in training.
     training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, latestBodyweightKg(profilePayload, bodyMetricEntries), displayUnit, WINDOW_DAYS, exercisePatternOf),
+    // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
+    workout_scores: workoutHistories(workoutResults),
     habit_consistency: habitConsistency,
     body_metric_trends: computeBodyMetricTrends(bodyMetricEntries),
     factual_records_only: true,

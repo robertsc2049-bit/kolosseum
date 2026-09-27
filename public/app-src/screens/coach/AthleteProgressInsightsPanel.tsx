@@ -1,3 +1,4 @@
+import { WorkoutScoreCard } from "../../components/WorkoutScoreCard";
 import React from "react";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
@@ -120,6 +121,7 @@ export function AthleteProgressInsightsPanel() {
   const strengthTrends = Array.isArray(insights.strength_trends) ? (insights.strength_trends as JsonRecord[]) : [];
   const trainingE1rmTrends = Array.isArray(insights.training_e1rm_trends) ? (insights.training_e1rm_trends as JsonRecord[]) : [];
   const habitConsistency = Array.isArray(insights.habit_consistency) ? (insights.habit_consistency as JsonRecord[]) : [];
+  const workoutScores = Array.isArray(insights.workout_scores) ? (insights.workout_scores as JsonRecord[]) : [];
   const bodyMetricTrends = Array.isArray(insights.body_metric_trends) ? (insights.body_metric_trends as JsonRecord[]) : [];
 
   return (
@@ -139,6 +141,9 @@ export function AthleteProgressInsightsPanel() {
       />
       {trainingE1rmTrends.map((trend) => (
         <TrainingE1rmCard key={`e1rm-${String(trend.exercise_id)}`} trend={trend} exercises={exercises} />
+      ))}
+      {workoutScores.map((workout) => (
+        <WorkoutScoreCard key={String(workout.workout_key)} workout={workout} exercises={exercises} />
       ))}
       {strengthTrends.map((trend) => (
         <StrengthTrendCard key={String(trend.exercise_id)} trend={trend} exercises={exercises} />

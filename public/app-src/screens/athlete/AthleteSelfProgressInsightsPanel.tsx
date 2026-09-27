@@ -1,5 +1,6 @@
 import React from "react";
 import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
+import { WorkoutScoreCard } from "../../components/WorkoutScoreCard";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { type JsonRecord } from "../../api/transport";
@@ -118,6 +119,7 @@ export function AthleteSelfProgressInsightsPanel() {
   const strengthTrends = Array.isArray(insights?.strength_trends) ? (insights!.strength_trends as JsonRecord[]) : [];
   const trainingE1rmTrends = Array.isArray(insights?.training_e1rm_trends) ? (insights!.training_e1rm_trends as JsonRecord[]) : [];
   const habitConsistency = Array.isArray(insights?.habit_consistency) ? (insights!.habit_consistency as JsonRecord[]) : [];
+  const workoutScores = Array.isArray(insights?.workout_scores) ? (insights!.workout_scores as JsonRecord[]) : [];
   const bodyMetricTrends = Array.isArray(insights?.body_metric_trends) ? (insights!.body_metric_trends as JsonRecord[]) : [];
 
   return (
@@ -163,6 +165,17 @@ export function AthleteSelfProgressInsightsPanel() {
               )}
             </div>
           </div>
+
+          {workoutScores.length ? (
+            <div className="progress-insights-section">
+              <h4>Workout scores</h4>
+              <div className="record-list">
+                {workoutScores.map((workout) => (
+                  <WorkoutScoreCard key={String(workout.workout_key)} workout={workout} exercises={exercises} />
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="progress-insights-section">
             <h4>Strength trends</h4>

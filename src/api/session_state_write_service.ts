@@ -957,7 +957,18 @@ function ensureCompleteGroupShapeValid(event: unknown, planned: PlannedSession, 
   ensureGroupResultReportShapeValid(event, planned, summary, "COMPLETE_GROUP", COMPLETE_GROUP_ALLOWED_KEYS, "complex");
 }
 
-const AMRAP_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "extra_reps", "client_request_id"]);
+// CrossFit scoring keeps Rx and scaled results apart: a timed-group result may
+// say it was scaled (absent means as prescribed, Rx).
+function ensureScaledFlagValid(obj: Record<string, unknown>): void {
+  if (obj.scaled !== undefined && typeof obj.scaled !== "boolean") {
+    throw badRequest("Runtime event rejected (result scaled must be a boolean)", {
+      failure_token: "phase6_runtime_group_result_report_invalid_shape",
+      cause: "PHASE6_RUNTIME_GROUP_RESULT_REPORT_INVALID_SHAPE: scaled"
+    });
+  }
+}
+
+const AMRAP_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "extra_reps", "scaled", "client_request_id"]);
 
 function ensureAmrapResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
   ensureGroupResultReportShapeValid(event, planned, summary, "AMRAP_RESULT_REPORT", AMRAP_RESULT_REPORT_ALLOWED_KEYS, "amrap");
@@ -965,6 +976,7 @@ function ensureAmrapResultReportShapeValid(event: unknown, planned: PlannedSessi
   if (t !== "AMRAP_RESULT_REPORT") return;
 
   const obj = event as Record<string, unknown>;
+  ensureScaledFlagValid(obj);
   const roundsCompleted = obj.rounds_completed;
   if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
     throw badRequest("Runtime event rejected (AMRAP result rounds_completed must be a non-negative whole number)", {
@@ -981,7 +993,7 @@ function ensureAmrapResultReportShapeValid(event: unknown, planned: PlannedSessi
   }
 }
 
-const EMOM_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "rounds_missed", "client_request_id"]);
+const EMOM_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "rounds_completed", "rounds_missed", "scaled", "client_request_id"]);
 
 function ensureEmomResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
   ensureGroupResultReportShapeValid(event, planned, summary, "EMOM_RESULT_REPORT", EMOM_RESULT_REPORT_ALLOWED_KEYS, "emom");
@@ -989,6 +1001,7 @@ function ensureEmomResultReportShapeValid(event: unknown, planned: PlannedSessio
   if (t !== "EMOM_RESULT_REPORT") return;
 
   const obj = event as Record<string, unknown>;
+  ensureScaledFlagValid(obj);
   const roundsCompleted = obj.rounds_completed;
   if (!Number.isInteger(roundsCompleted) || (roundsCompleted as number) < 0) {
     throw badRequest("Runtime event rejected (EMOM result rounds_completed must be a non-negative whole number)", {
@@ -1005,7 +1018,7 @@ function ensureEmomResultReportShapeValid(event: unknown, planned: PlannedSessio
   }
 }
 
-const FOR_TIME_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "elapsed_seconds", "hit_time_cap", "client_request_id"]);
+const FOR_TIME_RESULT_REPORT_ALLOWED_KEYS = new Set(["type", "group_id", "elapsed_seconds", "hit_time_cap", "scaled", "client_request_id"]);
 
 function ensureForTimeResultReportShapeValid(event: unknown, planned: PlannedSession, summary: any): void {
   ensureGroupResultReportShapeValid(event, planned, summary, "FOR_TIME_RESULT_REPORT", FOR_TIME_RESULT_REPORT_ALLOWED_KEYS, "for_time");
@@ -1013,6 +1026,7 @@ function ensureForTimeResultReportShapeValid(event: unknown, planned: PlannedSes
   if (t !== "FOR_TIME_RESULT_REPORT") return;
 
   const obj = event as Record<string, unknown>;
+  ensureScaledFlagValid(obj);
   const elapsedSeconds = obj.elapsed_seconds;
   if (!Number.isInteger(elapsedSeconds) || (elapsedSeconds as number) <= 0) {
     throw badRequest("Runtime event rejected (for-time result elapsed_seconds must be a positive whole number)", {
