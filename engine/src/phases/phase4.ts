@@ -109,7 +109,8 @@ export function phase4AssembleProgram(
   const registry = loadRegistry(opts);
   const level = typeof canonicalInput?.experience_level === "string" ? canonicalInput.experience_level : undefined;
   const event = typeof canonicalInput?.competition_event === "string" ? canonicalInput.competition_event : undefined;
-  const selected = selectTemplate(activity, level, event);
+  const role = typeof canonicalInput?.sport_role_id === "string" ? canonicalInput.sport_role_id : undefined;
+  const selected = selectTemplate(activity, level, event, role);
   const cycle = canonicalInput?.training_cycle;
   const fastExecution = (exerciseId: string) => (registry.entries[exerciseId] as { fast_execution?: unknown } | undefined)?.fast_execution === true;
   const cycled = selected && cycle ? templateForCycle(selected, activity, cycle, level, fastExecution) : selected;
@@ -158,11 +159,12 @@ export function describeProgrammeSlots(input: {
   activity_id: string;
   experience_level?: string;
   competition_event?: string;
+  sport_role_id?: string;
   days_per_week?: number;
   constraints?: SlotConstraints;
   selections?: ExerciseSelections;
 }): SlotListing[] | null {
-  const template = selectTemplate(input.activity_id, input.experience_level, input.competition_event);
+  const template = selectTemplate(input.activity_id, input.experience_level, input.competition_event, input.sport_role_id);
   if (!template) return null;
   const registry = loadEntriesFromDisk();
   return listProgrammeSlots(programmeDays(template, input.days_per_week),

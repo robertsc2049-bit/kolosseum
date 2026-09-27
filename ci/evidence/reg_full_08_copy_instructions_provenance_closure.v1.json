@@ -1,5 +1,5 @@
 {
-  "canonical_copy_registry_sha256": "81b904fb8d0b98495e6f901df49b4c292276cee46b1335abcd3dd792bf378c0b",
+  "canonical_copy_registry_sha256": "cf4650d1947b75a2eade00f3726b598c17c1f4fd996efbe5e0c20dac9c8cd881",
   "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
@@ -110,8 +110,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/program/program.registry.json",
-      "source_file_sha256": "832b54c9fa92073326abcc6d3dfb46d40ef2b007c821ab5cbb672568b3b77d24",
-      "source_git_blob_sha": "85ddcd2ec0fc5bb839d9c302a069fcffeae12d8c",
+      "source_file_sha256": "f36e09018807dc9e970c48862d809129893858e44bbd552550d115a297d1c6d6",
+      "source_git_blob_sha": "b35a3b029b11e79f71e5b1ae72faa1d9fe458510",
       "source_record_count": 31,
       "source_registry_id": "sport_program_template_registry_5f"
     },

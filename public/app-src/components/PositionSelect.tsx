@@ -1,10 +1,9 @@
 import React from "react";
 
 // DEV NOTE: hand-synced with ATHLETE_POSITIONS_BY_ACTIVITY
-// (src/api/athlete_onboarding_service.ts) - every one of the 6 locked
-// activities gets a position field, not just rugby_union: rugby_union gets
-// a real position list, the other 5 (individual pursuits) each get a
-// single generic "Athlete" option. A single <select>, unlike
+// (src/api/athlete_onboarding_service.ts) - sports whose positions or event
+// groups train differently get a real list (the athlete's position selects
+// their group's programme); the others get a single generic "Athlete" option. A single <select>, unlike
 // TrainingFocusCheckboxes.tsx's checkboxes - position is exactly one
 // value, not zero-or-more.
 export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string; label: string }[]> = {
@@ -26,16 +25,60 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   strongman: [{ id: "athlete", label: "Athlete" }],
   hyrox: [{ id: "athlete", label: "Athlete" }],
   crossfit: [{ id: "athlete", label: "Athlete" }],
-  football_soccer: [{ id: "athlete", label: "Athlete" }],
+  football_soccer: [
+    { id: "athlete", label: "Not specified" },
+    { id: "goalkeeper", label: "Goalkeeper" },
+    { id: "defender", label: "Defender" },
+    { id: "midfielder", label: "Midfielder" },
+    { id: "forward", label: "Forward" }
+  ],
   netball: [{ id: "athlete", label: "Athlete" }],
   basketball: [{ id: "athlete", label: "Athlete" }],
   rugby_sevens: [{ id: "athlete", label: "Athlete" }],
-  field_hockey: [{ id: "athlete", label: "Athlete" }],
-  ice_hockey: [{ id: "athlete", label: "Athlete" }],
+  field_hockey: [
+    { id: "athlete", label: "Not specified" },
+    { id: "goalkeeper", label: "Goalkeeper" },
+    { id: "defender", label: "Defender" },
+    { id: "midfielder", label: "Midfielder" },
+    { id: "forward", label: "Forward" }
+  ],
+  ice_hockey: [
+    { id: "athlete", label: "Not specified" },
+    { id: "goaltender", label: "Goaltender" },
+    { id: "defence", label: "Defence" },
+    { id: "forward", label: "Forward" }
+  ],
   volleyball: [{ id: "athlete", label: "Athlete" }],
-  cricket: [{ id: "athlete", label: "Athlete" }],
-  american_football: [{ id: "athlete", label: "Athlete" }],
-  athletics: [{ id: "athlete", label: "Athlete" }],
+  cricket: [
+    { id: "athlete", label: "Not specified" },
+    { id: "fast_bowler", label: "Fast bowler" },
+    { id: "spin_bowler", label: "Spin bowler" },
+    { id: "batter", label: "Batter" },
+    { id: "wicketkeeper", label: "Wicketkeeper" },
+    { id: "all_rounder", label: "All-rounder" }
+  ],
+  american_football: [
+    { id: "athlete", label: "Not specified" },
+    { id: "offensive_lineman", label: "Offensive lineman" },
+    { id: "defensive_lineman", label: "Defensive lineman" },
+    { id: "tight_end", label: "Tight end" },
+    { id: "linebacker", label: "Linebacker" },
+    { id: "quarterback", label: "Quarterback" },
+    { id: "running_back", label: "Running back" },
+    { id: "wide_receiver", label: "Wide receiver" },
+    { id: "defensive_back", label: "Defensive back" },
+    { id: "kicker", label: "Kicker / punter" }
+  ],
+  athletics: [
+    { id: "athlete", label: "Not specified" },
+    { id: "sprints", label: "Sprints" },
+    { id: "hurdles", label: "Hurdles" },
+    { id: "jumps", label: "Jumps" },
+    { id: "combined_events", label: "Combined events" },
+    { id: "throws", label: "Throws" },
+    { id: "middle_distance", label: "Middle distance" },
+    { id: "long_distance", label: "Long distance" }
+  ],
   swimming: [{ id: "athlete", label: "Athlete" }],
   olympic_weightlifting: [{ id: "athlete", label: "Athlete" }],
   cycling: [{ id: "athlete", label: "Athlete" }],
@@ -49,7 +92,18 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   mma: [{ id: "athlete", label: "Athlete" }],
   tennis: [{ id: "athlete", label: "Athlete" }],
   triathlon: [{ id: "athlete", label: "Athlete" }],
-  rugby_league: [{ id: "athlete", label: "Athlete" }],
+  rugby_league: [
+    { id: "athlete", label: "Not specified" },
+    { id: "prop", label: "Prop" },
+    { id: "hooker", label: "Hooker" },
+    { id: "second_row", label: "Second row" },
+    { id: "loose_forward", label: "Loose forward" },
+    { id: "halfback", label: "Halfback (scrum-half)" },
+    { id: "stand_off", label: "Stand-off" },
+    { id: "centre", label: "Centre" },
+    { id: "wing", label: "Wing" },
+    { id: "fullback", label: "Fullback" }
+  ],
   street_lifting: [{ id: "athlete", label: "Athlete" }]
 };
 

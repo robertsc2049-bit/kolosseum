@@ -46,11 +46,12 @@ export const ATHLETE_TRAINING_FOCUS_OPTIONS = Object.freeze([
   "strength", "body_composition", "conditioning", "strength_and_conditioning",
   "power", "plyometric"
 ] as const);
-// Slice 3 of the sport-declaration redesign - every one of the 6 locked
-// activities gets a position field, not just rugby_union: rugby_union gets
-// a real position list, the other 5 (individual pursuits) each get a
-// single generic "Athlete" option. Position is driven entirely by the
-// athlete's own declared activity_id, independent of any team/org.
+// Every activity gets a position field. Sports whose positions or event
+// groups train differently get a real list (rugby, American football,
+// football and field hockey, ice hockey, cricket, athletics); the others
+// get a single generic "Athlete" option, which the listed sports keep too
+// ("not specified"). Position is driven entirely by the athlete's own
+// declared activity_id, independent of any team/org.
 export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly string[]>> = Object.freeze({
   rugby_union: Object.freeze([
     "loosehead_prop", "tighthead_prop", "hooker", "lock", "flanker", "number8",
@@ -61,16 +62,28 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   strongman: Object.freeze(["athlete"]),
   hyrox: Object.freeze(["athlete"]),
   crossfit: Object.freeze(["athlete"]),
-  football_soccer: Object.freeze(["athlete"]),
+  football_soccer: Object.freeze([
+    "athlete", "goalkeeper", "defender", "midfielder", "forward"
+  ]),
   netball: Object.freeze(["athlete"]),
   basketball: Object.freeze(["athlete"]),
   rugby_sevens: Object.freeze(["athlete"]),
-  field_hockey: Object.freeze(["athlete"]),
-  ice_hockey: Object.freeze(["athlete"]),
+  field_hockey: Object.freeze([
+    "athlete", "goalkeeper", "defender", "midfielder", "forward"
+  ]),
+  ice_hockey: Object.freeze([
+    "athlete", "goaltender", "defence", "forward"
+  ]),
   volleyball: Object.freeze(["athlete"]),
-  cricket: Object.freeze(["athlete"]),
-  american_football: Object.freeze(["athlete"]),
-  athletics: Object.freeze(["athlete"]),
+  cricket: Object.freeze([
+    "athlete", "fast_bowler", "spin_bowler", "batter", "wicketkeeper", "all_rounder"
+  ]),
+  american_football: Object.freeze([
+    "athlete", "offensive_lineman", "defensive_lineman", "tight_end", "linebacker", "quarterback", "running_back", "wide_receiver", "defensive_back", "kicker"
+  ]),
+  athletics: Object.freeze([
+    "athlete", "sprints", "hurdles", "jumps", "combined_events", "throws", "middle_distance", "long_distance"
+  ]),
   swimming: Object.freeze(["athlete"]),
   olympic_weightlifting: Object.freeze(["athlete"]),
   cycling: Object.freeze(["athlete"]),
@@ -84,9 +97,42 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   mma: Object.freeze(["athlete"]),
   tennis: Object.freeze(["athlete"]),
   triathlon: Object.freeze(["athlete"]),
-  rugby_league: Object.freeze(["athlete"]),
+  rugby_league: Object.freeze([
+    "athlete", "prop", "hooker", "second_row", "loose_forward", "halfback", "stand_off", "centre", "wing", "fullback"
+  ]),
   street_lifting: Object.freeze(["athlete"])
 });
+// The position groups that have their own Kolosseum programme (the engine's
+// program registry role_variants): a position here selects that programme
+// through the phase1 sport_role_id "<activity_id>__<group>". Any position not
+// listed trains the sport's own programme.
+const RUGBY_ROLES = {
+  loosehead_prop: "forwards", tighthead_prop: "forwards", prop: "forwards", hooker: "forwards", lock: "forwards",
+  second_row: "forwards", flanker: "forwards", number8: "forwards", loose_forward: "forwards",
+  scrum_half: "backs", halfback: "backs", fly_half: "backs", stand_off: "backs", centre: "backs", wing: "backs", fullback: "backs"
+};
+export const SPORT_ROLE_GROUP_BY_POSITION: Readonly<Record<string, Readonly<Record<string, string>>>> = Object.freeze({
+  rugby_union: Object.freeze({ ...RUGBY_ROLES }),
+  rugby_league: Object.freeze({ ...RUGBY_ROLES }),
+  american_football: Object.freeze({
+    offensive_lineman: "linemen", defensive_lineman: "linemen",
+    quarterback: "skill", running_back: "skill", wide_receiver: "skill", defensive_back: "skill", tight_end: "skill", linebacker: "skill", kicker: "skill"
+  }),
+  football_soccer: Object.freeze({ goalkeeper: "goalkeeper" }),
+  field_hockey: Object.freeze({ goalkeeper: "goalkeeper" }),
+  ice_hockey: Object.freeze({ goaltender: "goaltender" }),
+  cricket: Object.freeze({ fast_bowler: "fast_bowler" }),
+  athletics: Object.freeze({ throws: "throws", middle_distance: "endurance", long_distance: "endurance" })
+});
+
+// The engine sport_role_id for a declared position, or undefined when the
+// position trains the sport's own programme.
+export function sportRoleIdFor(activityId: string | undefined, position: string | undefined): string | undefined {
+  if (!activityId || !position) return undefined;
+  const group = SPORT_ROLE_GROUP_BY_POSITION[activityId]?.[position];
+  return group ? `${activityId}__${group}` : undefined;
+}
+
 const ATHLETE_POSITION_IDS = Object.freeze(
   [...new Set(Object.values(ATHLETE_POSITIONS_BY_ACTIVITY).flat())]
 );
@@ -576,6 +622,10 @@ async function effectiveBetaDeclaration(client: QueryClient, userId: string, dec
   });
   if (declared.experience_level) phase1.experience_level = declared.experience_level;
   else delete phase1.experience_level;
+  // A position whose group has its own programme selects it (sport_role_id).
+  const sportRoleId = sportRoleIdFor(declared.activity_id, declared.position);
+  if (sportRoleId) phase1.sport_role_id = sportRoleId;
+  else delete phase1.sport_role_id;
   // The engine admits an event only with activity_id powerlifting.
   if (declared.competition_event && declared.activity_id === COMPETITION_EVENT_ACTIVITY) {
     phase1.competition_event = declared.competition_event;
@@ -776,7 +826,8 @@ export async function updateAthleteOnboardingPreferences(userId: string, input: 
     // change to any refreshes the engine-side declaration (level and event select the programme).
     const levelChanged = (previous.experience_level ?? null) !== (experienceLevel ?? null);
     const eventChanged = (previous.competition_event ?? null) !== (competitionEvent ?? null);
-    if (previous.instruction_density !== density || ((levelChanged || eventChanged) && declared.activity_id)) {
+    const roleChanged = sportRoleIdFor(previous.activity_id, previous.position) !== sportRoleIdFor(declared.activity_id, declared.position);
+    if (previous.instruction_density !== density || ((levelChanged || eventChanged || roleChanged) && declared.activity_id)) {
       await effectiveBetaDeclaration(client, userId, declared, at);
     }
     await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
@@ -845,10 +896,11 @@ export async function amendAthleteDeclaration(
     declaration_source: declarationSource, immutable: true,
     user_declared_factual_state: true, engine_visible: false
   };
-  // activity_id and instruction_density are the only fields effectiveBetaDeclaration()
-  // projects into the engine-facing phase1 input - a pure position-only change
-  // has zero engine relevance and must not create a redundant beta16 record pair.
-  if (changes.activity_id !== undefined || changes.instruction_density !== undefined) {
+  // A position change only reaches the engine when it moves the athlete into
+  // or out of a position group with its own programme (sport_role_id); any
+  // other position-only change must not create a redundant beta16 record pair.
+  const roleChanged = sportRoleIdFor(previous.activity_id, previous.position) !== sportRoleIdFor(declared.activity_id, declared.position);
+  if (changes.activity_id !== undefined || changes.instruction_density !== undefined || roleChanged) {
     await effectiveBetaDeclaration(client, userId, declared, at);
   }
   await append(client, userId, DECLARATION_EVENT, { ...core, record_sha256: hash(core) }, at);
@@ -973,6 +1025,7 @@ function programmeSlotsFor(declared: Fields, selections: Record<string, string> 
     activity_id: declared.activity_id,
     experience_level: declared.experience_level,
     competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
+    sport_role_id: sportRoleIdFor(declared.activity_id, declared.position),
     days_per_week: declared.training_days_per_week,
     selections,
     // Recommendations only offer what the athlete can do with their equipment.

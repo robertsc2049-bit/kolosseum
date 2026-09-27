@@ -105,6 +105,16 @@
               }
             }
           },
+          "role_variants": {
+            "type": "object",
+            "minProperties": 1,
+            "propertyNames": {
+              "pattern": "^[a-z][a-z_]*$"
+            },
+            "additionalProperties": {
+              "$ref": "#/$defs/event_variant"
+            }
+          },
           "microcycle": {
             "$ref": "#/$defs/microcycle"
           }

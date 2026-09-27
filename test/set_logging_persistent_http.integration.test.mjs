@@ -839,3 +839,86 @@ test(
     assert.deepEqual(squat.readiness, { sleep: 1, soreness: 3, stress: 3, low: true });
   }
 );
+
+test(
+  "positions: a loosehead prop trains the forwards' programme, and moving to the wing switches him to the backs' programme (sprints first) once he re-chooses",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Loosehead Prop", email: `prop-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "rugby_union", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register prop");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register prop");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "rugby_union", experience_level: "amateur", position: "loosehead_prop",
+      training_days_per_week: 3, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    const bootstrap = async () => (await requestJson(server.baseUrl, "GET", "/account/detail", { cookie })).json.bootstrap;
+    const compile = async () => {
+      const b = await bootstrap();
+      return requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+        cookie, csrf,
+        body: {
+          phase1_input: b.declaration_record.engine_phase1_input,
+          beta_path_context: { auth_record: b.auth_record, acknowledgement_record: b.acknowledgement_record, declaration_record: b.declaration_record }
+        }
+      });
+    };
+    const position = (value) => requestJson(server.baseUrl, "PATCH", "/account/onboarding/preferences", {
+      cookie, csrf, body: { accessibility_preferences: fields.accessibility_preferences, instruction_density: "standard", position: value }
+    });
+    const slotIds = (listing) => listing.days[0].items.map((i) => i.slot_id ?? i.exercise_id);
+
+    assert.equal((await bootstrap()).declaration_record.engine_phase1_input.sport_role_id, "rugby_union__forwards");
+    const { listing: forwards } = await chooseAllExercises(server.baseUrl, cookie, csrf);
+    assert.ok(slotIds(forwards).includes("a.conditioning_sled_1"), "the forwards drive a sled");
+    assert.ok(!slotIds(forwards).includes("a.sprint_acceleration_1"));
+    const first = await compile();
+    assertStatus(first, 201, "forwards session");
+
+    // Another forward position keeps the same programme.
+    assertStatus(await position("tighthead_prop"), 200, "tighthead");
+    assert.equal((await bootstrap()).declaration_record.engine_phase1_input.sport_role_id, "rugby_union__forwards");
+
+    // Moving to the wing: the backs' programme - he chooses for its new slots first.
+    assertStatus(await position("wing"), 200, "wing");
+    assert.equal((await bootstrap()).declaration_record.engine_phase1_input.sport_role_id, "rugby_union__backs");
+    const unchosen = await compile();
+    assertStatus(unchosen, 400, "new slots need choosing");
+    assert.equal(unchosen.json?.details?.failure_token, "exercise_selection_required");
+    const { listing: backs, selections: backsChoices } = await chooseAllExercises(server.baseUrl, cookie, csrf, (options) => options.includes("ten_metre_acceleration") ? "ten_metre_acceleration" : options[0]);
+    assert.equal(slotIds(backs)[0], "a.sprint_acceleration_1", "backs sprint first, fresh");
+    const next = await compile();
+    assertStatus(next, 201, "backs session");
+    assert.equal(backsChoices["a.sprint_acceleration_1"], "ten_metre_acceleration", "his sprint day opens with accelerations");
+
+    // Back to the pack.
+    assertStatus(await position("number8"), 200, "number 8");
+    assert.equal((await bootstrap()).declaration_record.engine_phase1_input.sport_role_id, "rugby_union__forwards");
+  }
+);
