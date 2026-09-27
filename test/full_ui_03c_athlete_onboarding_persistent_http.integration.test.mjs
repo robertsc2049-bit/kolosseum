@@ -243,7 +243,7 @@ test(
         accepted_terms: true,
         accepted_consent: true,
         accepted_terms_version: "terms_v1",
-        accepted_consent_version: "consent_v1"
+        date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register athlete");
@@ -578,7 +578,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Powerlifting Event Athlete", email: `pl-event-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");
@@ -659,7 +659,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Periodised Athlete", email: `periodised-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "rugby_union", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register rugby athlete");
@@ -800,7 +800,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Choosing Powerlifter", email: `choosing-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");
@@ -948,7 +948,7 @@ test(
       body: {
         actor_type: "athlete", display_name: "Returning Powerlifter", email: `returning-${nonce}@example.test`,
         password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
-        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+        accepted_terms_version: "terms_v1", date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
       }
     });
     assertStatus(registration, 201, "register powerlifter");
