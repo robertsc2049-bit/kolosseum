@@ -4000,3 +4000,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag h4 { margin: 0 0 4px; }
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
+
+/* Athlete maxes card: one lift per row, wraps on a phone. */
+.athlete-max-row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; border-top: 1px solid var(--border, #d0d7de); padding-top: 8px; margin-top: 8px; }
+.athlete-max-row strong { flex-basis: 100%; }
+.athlete-max-row input, .athlete-max-row select { min-height: 44px; max-width: 8em; }
