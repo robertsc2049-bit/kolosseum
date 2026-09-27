@@ -925,3 +925,78 @@ test(
     }
   }
 );
+
+test(
+  "FULL-UI-03C layoff: a powerlifter back after 5 weeks away gets a lighter re-entry week and a welcome-back note, not the block's heaviest week",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Returning Powerlifter", email: `returning-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 3, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: detail.json.bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: detail.json.bootstrap.auth_record, acknowledgement_record: detail.json.bootstrap.acknowledgement_record, declaration_record: detail.json.bootstrap.declaration_record }
+      }
+    });
+
+    const first = await compile();
+    assertStatus(first, 201, "first session");
+    assert.equal(first.json.planned_session.training_cycle?.reentry, undefined, "a first session is not a return");
+
+    // Her last session was 5 weeks ago.
+    await withClient(databaseUrl, (client) => client.query(
+      "UPDATE sessions SET created_at = now() - interval '38 days' WHERE beta_subject_user_id = $1", [userId]
+    ));
+    const back = await compile();
+    assertStatus(back, 201, "session after the layoff");
+    const cycle = back.json.planned_session.training_cycle;
+    assert.equal(cycle.meso_week, 4, "re-entry at deload level");
+    assert.equal(cycle.deload, true);
+    assert.equal(cycle.reentry.gap_days, 38);
+    assert.equal(cycle.reentry.long_layoff, true);
+    assert.equal(cycle.reentry.reentry_week, true);
+    const squat = back.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    const firstSquat = first.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.ok(squat.sets < firstSquat.sets, `fewer sets on return (${squat.sets} vs ${firstSquat.sets})`);
+
+    // The session screen gets the same record.
+    const state = await requestJson(server.baseUrl, "GET", `/sessions/${back.json.session_id}/state`, { cookie });
+    assertStatus(state, 200, "session state");
+    assert.equal(state.json.training_cycle?.reentry?.gap_days, 38);
+  }
+);
