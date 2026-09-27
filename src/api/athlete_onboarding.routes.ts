@@ -39,7 +39,13 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
+import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
+
 export const athleteOnboardingRouter = Router();
+
+// Rate-limited like every newly-added authorising route (CodeQL
+// js/missing-rate-limiting).
+const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
   request: Request,
@@ -221,6 +227,26 @@ athleteOnboardingRouter.post(
   })
 );
 
+// A self-directed athlete's own maxes, so % of 1RM work becomes a weight.
+athleteOnboardingRouter.get(
+  "/maxes",
+  athleteMaxesRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthleteMaxes(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/maxes",
+  athleteMaxesRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteMaxes(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.use(
   (
     error: unknown,
@@ -237,6 +263,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof PainFlagError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof AthleteMaxesError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

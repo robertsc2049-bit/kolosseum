@@ -1085,7 +1085,7 @@ test(
               true,
             accepted_terms_version:
               "terms_v1",
-            accepted_consent_version:
+            date_of_birth: "1990-01-15", accepted_consent_version:
               "consent_v1"
           }
         }
