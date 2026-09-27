@@ -60,17 +60,17 @@
     ]
   },
   "sha256": {
-    "schema.sql": "6bbee4993bba58d6c2af07e5a3a2eb8396de0a6af317b89e2972ba47af28ad4c",
+    "schema.sql": "71578f72111eb44fa76db55d8abe30aa66695e72974ca3d711dac0d1702b7f14",
     "src/api/beta_product_record_store.ts": "7b66e4c4431ed993bba82de43ee5a353cbe92a0ed08e6429ba34c27f5956e77e",
     "src/api/beta_product_journey_service.ts": "ea2a7e05c7468212705f5bb0c2972237fd8f030d46c3ce21d381a9b523e0565e",
     "src/api/block_compile_write_service.ts": "45db532638eb42b45da0cd93669422d3985ec35556afae05a592c4196f24f642",
-    "src/api/blocks.handlers.ts": "18b0f8e182f8382379121d840ec030b7d3ed3c12b4d4329ba44ed48998593fb8",
+    "src/api/blocks.handlers.ts": "3b1c896d9ed25e17efcf3b29ad67dda7d986a4855994839bd55c7073dd95ee57",
     "src/api/sessions.handlers.ts": "57b06b8875d2df3cc2ca0e74c2b7707000f8230c96e9f7c4545ff71ac37096de",
     "src/api/sessions.routes.ts": "cd8d7541eeaa8ecefd20e8ba7763f12d65966136c22b4b5fcfc77fead48553d5",
     "src/api/session_state_query_service.ts": "dea4ef52ddee419d3baa5664550bac3d2f9c6988c17d6d8c519de2e161619228",
     "test/beta_e2e_01_product_record_store.integration.test.mjs": "2a7d9e800b6f28a995d93049547c9103495b32e1b6bcea7ae6c047f4e943405a",
     "test/beta_e2e_01_stored_journey_composition.integration.test.mjs": "e4f6f8710164200663e42e3a68065fb1c53e6fda3a0b6728ce73a84f5ba1d89c",
     "test/beta_e2e_01_persistent_http_product_journey_restart.integration.test.mjs": "e6ccb7d4296afc1a5a3b832a4705e7317c5b8ed432b0b3825aa1aaf107ee3693",
-    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4398fdbe2f6feaf20a14628d3d73602959f5e1dcd201a7e42a22208a81ea9777"
+    "ci/contracts/test_ci_integration_vertical_slice_cluster_manifest.json": "4fd9b46c1dca2a12ba056896515ad6be8823a28c74887ccca3a83f4f01910ce7"
   }
 }

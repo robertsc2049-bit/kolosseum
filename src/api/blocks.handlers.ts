@@ -13,6 +13,7 @@ import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_even
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
+import { applyPainCarryForward } from "./pain_flag_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -528,13 +529,33 @@ export async function compileBlock(req: Request, res: Response) {
         p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
         await getAthleteCustomExerciseNames(beta_individual_subject_user_id))
     : {};
-  const planned_session_from_engine: Phase6SessionOutput = {
+  const named_session: Phase6SessionOutput = {
     ...p6.session,
     exercises: p6.session.exercises.map((e: any) => {
       const exId = String(e.exercise_id ?? "");
       return displayNames[exId] ? { ...e, display_name: displayNames[exId] } : e;
     })
   };
+
+  // An open pain flag is never trained through silently: before a session
+  // with an affected exercise the athlete checks in, and "still sore" swaps
+  // or leaves out those exercises for this session (pain_flag_service.ts).
+  const pain_subject_user_id = beta_individual_subject_user_id ?? beta_session_binding?.subject_user_id;
+  let planned_session_from_engine: Phase6SessionOutput = named_session;
+  if (create_session && pain_subject_user_id) {
+    const pain = await applyPainCarryForward(
+      pain_subject_user_id,
+      {
+        activity_id: String((canonical_input as any)?.activity_id ?? ""),
+        experience_level: typeof (canonical_input as any)?.experience_level === "string" ? (canonical_input as any).experience_level : undefined
+      },
+      named_session.exercises as any
+    );
+    if (!pain.ok) {
+      throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
+    }
+    planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));
 

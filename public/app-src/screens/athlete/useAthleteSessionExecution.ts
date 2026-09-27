@@ -411,12 +411,14 @@ export function useAthleteSessionExecution() {
     }, true);
   }, [runMutation, state.sessionState, state.skipReasonCode]);
 
-  const confirmPainReport = useCallback(async () => {
+  // painArea: where it hurt, if the athlete said - a joint carries the pain
+  // flag forward to every exercise loading it; "other"/none to this one only.
+  const confirmPainReport = useCallback(async (painArea?: string) => {
     const exerciseId = currentExerciseId(state.sessionState);
     if (!exerciseId) return false;
     setState((current) => ({ ...current, actionPanel: null }));
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true }, csrfToken);
+      await postAthleteSessionEvent(sessionId, { type: "PAIN_REPORT", exercise_id: exerciseId, pain_reported: true, ...(painArea ? { pain_area: painArea } : {}) }, csrfToken);
     }, true);
   }, [runMutation, state.sessionState]);
 

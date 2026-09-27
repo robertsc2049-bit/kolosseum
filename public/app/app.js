@@ -1350,6 +1350,18 @@ async function createSession() {
         document.getElementById("athleteOnboardingNav")?.click();
         return;
       }
+      // An open pain flag is never trained through silently: the athlete
+      // answers "how is it now?" before a session that loads the same area.
+      if (phase4Token === "pain_check_in_required") {
+        showNotice("You reported pain last time. Check in on how it is now before this session.", "error");
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
+      if (phase4Token === "pain_session_empty") {
+        showNotice("Every exercise in this session loads the area that is still sore. Rest it today, or check in pain-free if it has settled.", "error");
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
       throw error;
     }
 

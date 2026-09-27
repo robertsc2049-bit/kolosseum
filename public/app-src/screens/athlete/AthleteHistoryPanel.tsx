@@ -278,7 +278,7 @@ export function AthleteHistoryPanel() {
                         {titleCase(recordedState)}
                       </span>
                       {exercise.skip_reason ? <small>Skip reason: {titleCase(exercise.skip_reason)}</small> : null}
-                      {exercise.pain_reported ? <small>Pain reported</small> : null}
+                      {exercise.pain_reported ? <small>{exercise.pain_area && exercise.pain_area !== "other" ? `Pain reported (${String(exercise.pain_area) === "lumbar_low" ? "lower back" : String(exercise.pain_area)})` : "Pain reported"}</small> : null}
                       {exercise.rpe_reported ? <small>RPE reported: {String(exercise.rpe_reported)}</small> : null}
                       {exercise.borg_reported ? <small>Borg reported: {String(exercise.borg_reported)}</small> : null}
                       {exercise.cr10_reported !== null && exercise.cr10_reported !== undefined ? <small>CR10 reported: {String(exercise.cr10_reported)}</small> : null}

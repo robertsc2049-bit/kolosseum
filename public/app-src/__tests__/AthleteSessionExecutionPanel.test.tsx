@@ -394,6 +394,50 @@ test("reporting pain posts a pain_reported flag with no free text", async () => 
   assert.equal((lastEventBody as { pain_reported?: boolean } | null)?.pain_reported, true);
 });
 
+test("a pain report can say where it hurts, so it carries forward to every exercise loading that area", async () => {
+  seedActiveSession("session_1");
+  let lastEventBody: unknown = null;
+  installMocks({
+    sessionState: baseSessionState({ started: true }),
+    onEvent: (path, method, body) => {
+      if (path.endsWith("/events") && method === "POST") lastEventBody = body;
+    }
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+
+  fireEvent.click(screen.getByText("Report pain"));
+  await waitFor(() => screen.getByText("Report pain during this exercise?"));
+  assert.ok(screen.getByText("Before your next session with exercises that load the same area, you will be asked how it is."));
+  const area = screen.getByLabelText("Where does it hurt?") as HTMLSelectElement;
+  assert.equal(area.value, "", "no area is assumed");
+  fireEvent.change(area, { target: { value: "knee" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Record pain reported"));
+  });
+
+  await waitFor(() => assert.equal((lastEventBody as { type?: string } | null)?.type, "PAIN_REPORT"));
+  assert.deepEqual(
+    { ...(lastEventBody as Record<string, unknown>), client_request_id: undefined },
+    { type: "PAIN_REPORT", exercise_id: "back_squat", pain_reported: true, pain_area: "knee", client_request_id: undefined }
+  );
+});
+
+test("an exercise swapped because a pain flag is still sore says what it replaced and why", async () => {
+  seedActiveSession("session_1");
+  const swapped = baseExercise({
+    exercise_id: "chest_supported_row",
+    display_name: "Chest-supported row",
+    pain_swap: { flag_key: "area:elbow", area: "elbow", from_exercise_id: "band_row", from_display_name: "Band row" }
+  });
+  installMocks({
+    sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: swapped }, remaining_exercises: [swapped] })
+  });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Swapped from Band row - your elbow is still sore."));
+});
+
 test("adding an extra set to an already-completed exercise posts EXTRA_SET_REPORT with reps and load", async () => {
   seedActiveSession("session_1");
   let lastEventBody: unknown = null;

@@ -35,7 +35,8 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   activity_change_declined: "Athlete declined a proposed change",
   relationship_ended_by_athlete: "Athlete ended the relationship",
   coach_athlete_message_received: "New message",
-  org_owner_message_received: "New message from your organisation"
+  org_owner_message_received: "New message from your organisation",
+  athlete_pain_reported: "Athlete reported pain"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {

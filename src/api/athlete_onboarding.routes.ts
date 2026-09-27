@@ -32,6 +32,13 @@ import {
   respondToActivityChangeProposal
 } from "./athlete_activity_change_service.js";
 
+import { rateLimit } from "express-rate-limit";
+import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_flag_service.js";
+
+// Rate-limited like every newly-added authorising route (CodeQL
+// js/missing-rate-limiting); the profile reads flags on every visit.
+const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+
 export const athleteOnboardingRouter = Router();
 
 type AsyncHandler = (
@@ -193,6 +200,27 @@ athleteOnboardingRouter.post(
   })
 );
 
+// Pain carry-forward: the athlete's open pain flags and their check-in
+// ("how is it now?") before the next session that loads the same area.
+athleteOnboardingRouter.get(
+  "/pain-flags",
+  painFlagsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthletePainFlags(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/pain-flags/check-in",
+  painFlagsRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await recordPainCheckIn(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.use(
   (
     error: unknown,
@@ -205,6 +233,11 @@ athleteOnboardingRouter.use(
         error: error.code,
         field_errors: error.field_errors
       });
+      return;
+    }
+
+    if (error instanceof PainFlagError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }
 

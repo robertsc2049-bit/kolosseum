@@ -420,3 +420,12 @@ export async function loadAthleteOrgMessageThreads(athleteUserId: string): Promi
     })
   );
 }
+
+// Pain carry-forward: an athlete's open pain flags, which their coach can clear.
+export function loadAthletePainFlags(athleteUserId: string): Promise<JsonRecord> {
+  return request("GET", `/pain-flags/coach/${encodeURIComponent(athleteUserId)}`);
+}
+
+export function clearAthletePainFlag(athleteUserId: string, flagKey: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/pain-flags/coach/${encodeURIComponent(athleteUserId)}/clear`, { flag_key: flagKey }, csrfToken);
+}
