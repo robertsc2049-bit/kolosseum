@@ -421,3 +421,80 @@ test(
     assert.equal(trends.find((x) => x.exercise_id === "back_squat").current_e1rm, 160 * 1.1, "Epley on the best set of the day (3 x 160 beats 6 x 130)");
   }
 );
+
+test(
+  "equipment: a strongman training at home with no yoke or log gets flagged substitutes for them, and keeps the deadlift and farmer's carry",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Home Strongman", email: `home-strongman-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "strongman", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "strongman", experience_level: "amateur",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+
+    const before = await requestJson(server.baseUrl, "GET", "/account/onboarding/equipment", { cookie });
+    assertStatus(before, 200, "equipment");
+    assert.equal(before.json.full_gym, true, "a full gym until she says");
+    assert.ok(before.json.options.some((o) => o.equipment_id === "yoke"));
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/equipment", { cookie, csrf, body: { available_equipment: ["hovercraft"] } }), 422, "refuse unknown equipment");
+    const home = ["barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"];
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/equipment", { cookie, csrf, body: { available_equipment: home } });
+    assertStatus(saved, 200, "save home gym");
+    assert.equal(saved.json.full_gym, false);
+
+    // Her exercise options only offer what she can do at home.
+    const { listing } = await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const offered = listing.days.flatMap((d) => d.items.filter((i) => i.kind === "slot").flatMap((i) => i.options.map((o) => o.exercise_id)));
+    assert.ok(!offered.some((id) => ["yoke_walk", "atlas_stone_carry", "sled_push", "tire_flip"].includes(id)), offered.join(","));
+
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const created = await requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    assertStatus(created, 201, "session");
+    const exercises = created.json.planned_session.exercises;
+    const ids = exercises.map((e) => e.exercise_id);
+    assert.ok(!ids.includes("yoke_walk") && !ids.includes("strongman_log_press"), ids.join(","));
+    const logSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "strongman_log_press");
+    assert.equal(logSwap.exercise_id, "overhead_press");
+    assert.deepEqual(logSwap.equipment_swap.missing, ["Strongman log"]);
+    const yokeSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "yoke_walk");
+    assert.ok(yokeSwap && /carry/u.test(yokeSwap.exercise_id), JSON.stringify(yokeSwap));
+    assert.ok(ids.includes("deadlift") && ids.includes("farmers_carry"), "what she can do stays");
+    assert.ok(!exercises.find((e) => e.exercise_id === "deadlift").equipment_swap);
+  }
+);

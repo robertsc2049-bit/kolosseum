@@ -320,6 +320,16 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.equipment_swap) ? (
+                  <p className="inline-result equipment-note" data-tone="warning">
+                    {`Substitute: no ${((exercise.equipment_swap as JsonRecord).missing as string[] ?? []).join(" or ").toLowerCase() || "equipment"} for ${String((exercise.equipment_swap as JsonRecord).from_display_name)} - this is not the same exercise.`}
+                  </p>
+                ) : null}
+                {Array.isArray(exercise?.equipment_missing) && (exercise.equipment_missing as string[]).length ? (
+                  <p className="inline-result equipment-note" data-tone="warning">
+                    {`You told us you don't have: ${(exercise.equipment_missing as string[]).join(", ").toLowerCase()}. Skip this exercise or use what you have.`}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.pain_swap) ? (
                   <p className="inline-result pain-swap-note" data-tone="warning">
                     {painSwapNote(exercise.pain_swap as JsonRecord)}

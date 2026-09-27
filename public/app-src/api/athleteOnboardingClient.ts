@@ -64,3 +64,12 @@ export function savePainCheckIn(
 ): Promise<JsonRecord> {
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
+
+// The equipment a self-directed athlete has (a full gym until they say).
+export function loadAthleteEquipment(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/equipment");
+}
+
+export function saveAthleteEquipment(input: { full_gym: true } | { available_equipment: string[] }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/equipment", input, csrfToken);
+}

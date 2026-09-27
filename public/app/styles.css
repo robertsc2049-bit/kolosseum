@@ -4000,3 +4000,7 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag h4 { margin: 0 0 4px; }
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
+
+/* Equipment card: checklist wraps on a phone. */
+.equipment-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.equipment-option { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 10em; }
