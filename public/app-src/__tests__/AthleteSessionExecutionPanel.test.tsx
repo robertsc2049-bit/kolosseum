@@ -236,6 +236,28 @@ test("an exercise held back because of last time says what was planned and why",
   cleanup();
 });
 
+test("back after 5 weeks away, the session says welcome back and flags a re-entry week instead of a deload", async () => {
+  const cycle = {
+    macro_phase: "accumulation", meso_week: 4, days_per_week: 3, session_slot: 0, cycle_model: "meet", sessions_per_week: 3, day_index: 0, day_focus: "squat_day", deload: true,
+    reentry: { returned_on: "2026-10-19", gap_days: 38, long_layoff: true, reentry_week: true }
+  };
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ training_cycle: cycle }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-reentry"));
+  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - it has been 38 days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.");
+  assert.ok(screen.getByText("Re-entry week"));
+  assert.equal(screen.queryByText("Deload week"), null);
+  cleanup();
+
+  // The weeks after the return carry the anchor but no note.
+  installMocks({ sessionState: baseSessionState({ training_cycle: { ...cycle, meso_week: 1, deload: false, reentry: { ...cycle.reentry, reentry_week: false } } }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-cycle"));
+  assert.equal(screen.queryByTestId("session-reentry"), null);
+  cleanup();
+});
+
 test("a periodised session shows where it sits in the plan, and flags a deload week", async () => {
   const cycle = { macro_phase: "in_season", meso_week: 4, days_per_week: 4, session_slot: 1, cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true };
   seedActiveSession("session_1");

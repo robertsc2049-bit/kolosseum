@@ -93,12 +93,56 @@ export function mesoWeekFor(plan: AthleteTrainingPlan, macroPhase: string, today
   return macroPhase === "peak" || macroPhase === "specific" ? Math.min(week, 3) : week;
 }
 
-export function computeTrainingCycle(plan: AthleteTrainingPlan, today: Date, sessionsThisWeek: number): TrainingCycle {
-  const macro_phase = macroPhaseFor(plan, today);
+// Coming back after a break is never a jump straight back into the calendar:
+// after 10+ days without a session the athlete gets a re-entry week at deload
+// level, then their 4-week blocks start again from week 1 (a plan with no
+// fixed date also restarts its general block). 4+ weeks away is a long layoff.
+export const REENTRY_GAP_DAYS = 10;
+export const LONG_LAYOFF_DAYS = 28;
+
+export type Reentry = Readonly<{
+  returned_on: string;
+  gap_days: number;
+  long_layoff: boolean;
+  // This session is in the week the athlete came back.
+  reentry_week: boolean;
+}>;
+
+const isoDay = (dayMs: number) => new Date(dayMs).toISOString().slice(0, 10);
+
+// The athlete's most recent return from a break, from the days of their
+// earlier sessions: the first session after a gap of 10+ days (today's, if
+// today ends one). Null when they have trained without a break.
+export function reentryFor(today: Date, priorSessionDays: readonly string[]): Reentry | null {
+  const todayMs = utcDayMs(today);
+  const earlier = [...new Set(priorSessionDays.map((d) => utcDayMs(new Date(d))))].filter((d) => d < todayMs).sort((a, b) => a - b);
+  if (!earlier.length) return null;
+  const points = [...earlier, todayMs];
+  for (let i = points.length - 1; i > 0; i--) {
+    const gap = Math.round((points[i] - points[i - 1]) / DAY_MS);
+    if (gap >= REENTRY_GAP_DAYS) {
+      return { returned_on: isoDay(points[i]), gap_days: gap, long_layoff: gap >= LONG_LAYOFF_DAYS, reentry_week: weekIndex(points[i]) === weekIndex(todayMs) };
+    }
+  }
+  return null;
+}
+
+export function computeTrainingCycle(plan: AthleteTrainingPlan, today: Date, sessionsThisWeek: number, reentry: Reentry | null = null): TrainingCycle {
+  // After a return, blocks count from the week after the re-entry week.
+  const effective: AthleteTrainingPlan = reentry
+    ? { ...plan, plan_started_on: isoDay(weekStartMs(dateMs(reentry.returned_on)) + WEEK_MS) }
+    : plan;
+  const macro_phase = reentry?.reentry_week && reentry.long_layoff && !hasFixedDate(plan)
+    ? rollingPhase(effective, MACRO_PHASES_BY_MODEL[cycleModelFor(plan.activity_id) ?? "season"], utcDayMs(today) + WEEK_MS)
+    : macroPhaseFor(effective, today);
   return {
     macro_phase,
-    meso_week: mesoWeekFor(plan, macro_phase, today),
+    meso_week: reentry?.reentry_week ? 4 : mesoWeekFor(effective, macro_phase, today),
     days_per_week: plan.training_days_per_week,
     session_slot: Math.max(0, sessionsThisWeek) % plan.training_days_per_week
   };
+}
+
+function hasFixedDate(plan: AthleteTrainingPlan): boolean {
+  return Boolean(plan.competition_date || (plan.season_start_date && plan.season_end_date));
 }
