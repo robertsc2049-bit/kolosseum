@@ -25,6 +25,7 @@ export type SlotExercise = {
   fast_execution?: boolean;
   joint_stress_tags?: string[];
   equipment_requirements?: string[];
+  equipment_alternatives?: string[];
   equipment_ids?: string[];
 };
 
@@ -108,11 +109,20 @@ export function slotFitIssue(candidateId: string, referenceId: string, ctx: Slot
   const banned = new Set(ctx.constraints?.banned_equipment ?? []);
   if (equipment.some((id) => banned.has(id))) return "equipment_banned";
   const available = ctx.constraints?.available_equipment;
-  if (Array.isArray(available) && available.length > 0) {
-    const have = new Set([...available, "bodyweight", "open_floor_space"]);
-    if (equipment.some((id) => !have.has(id))) return "equipment_unavailable";
-  }
+  if (Array.isArray(available) && available.length > 0 && !canDoWith(candidate, available)) return "equipment_unavailable";
   return null;
+}
+
+// Whether an exercise can be done with the athlete's equipment: every
+// requirement is there, or the one that isn't is covered by a listed
+// alternative (e.g. farmer's carry with kettlebells instead of dumbbells).
+// Bodyweight and floor space are always available.
+export function canDoWith(exercise: SlotExercise | undefined, available: readonly string[]): boolean {
+  if (!exercise) return false;
+  const have = new Set([...available, "bodyweight", "open_floor_space"]);
+  const missing = (exercise.equipment_requirements ?? exercise.equipment_ids ?? []).filter((id) => !have.has(id));
+  if (!missing.length) return true;
+  return missing.length === 1 && (exercise.equipment_alternatives ?? []).some((id) => have.has(id));
 }
 
 export function recommendedExercisesForSlot(referenceId: string, ctx: SlotContext): string[] {

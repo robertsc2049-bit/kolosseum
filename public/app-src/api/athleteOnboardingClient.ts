@@ -77,3 +77,30 @@ export function recordStandDown(input: { reason: "head_injury" | "medical"; unti
 export function endStandDown(csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/onboarding/stand-down/end", { cleared_by_medical_professional: true }, csrfToken);
 }
+
+// The equipment a self-directed athlete has (a full gym until they say).
+export function loadAthleteEquipment(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/equipment");
+}
+
+export function saveAthleteEquipment(input: { full_gym: true } | { available_equipment: string[] }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/equipment", input, csrfToken);
+}
+
+// The athlete's match week: usual match/race/key-session days plus one-off fixtures.
+export function loadMatchWeek(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/match-week");
+}
+
+export function saveMatchWeek(input: { match_days: string[]; fixtures: Array<{ date: string; label: string }> }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/match-week", input, csrfToken);
+}
+
+// A self-directed athlete's own maxes, so "% of 1RM" work becomes a weight.
+export function loadAthleteMaxes(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/maxes");
+}
+
+export function saveAthleteMaxes(input: { preferred_weight_unit: "kg" | "lb"; maxes: JsonRecord[] }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/maxes", input, csrfToken);
+}

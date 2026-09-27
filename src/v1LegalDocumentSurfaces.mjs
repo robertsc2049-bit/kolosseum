@@ -99,6 +99,11 @@ const LEGAL_DOCUMENTS = Object.freeze({
         body: "These terms govern controlled-launch access to Kolosseum product surfaces."
       }),
       Object.freeze({
+        section_id: "terms_eligibility",
+        heading: "Eligibility",
+        body: "Controlled-launch access is for adults aged 18 and over. An account is created only after the account holder confirms a date of birth showing they are 18 or over; Kolosseum records that an adult was confirmed, not the date of birth."
+      }),
+      Object.freeze({
         section_id: "terms_records",
         heading: "Recorded data",
         body: "Kolosseum records account, declaration, assignment, session, billing, proof, and export facts where a scoped feature permits them."
