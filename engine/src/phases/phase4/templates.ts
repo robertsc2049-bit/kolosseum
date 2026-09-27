@@ -36,6 +36,9 @@ export type ProgramTemplateEntry = {
   microcycle?: Phase4MicrocycleDay[];
   level_variants?: Partial<Record<"beginner" | "pro", ProgramLevelVariant>>;
   event_variants?: Partial<Record<Exclude<CompetitionEvent, "full_power">, ProgramEventVariant>>;
+  // Position-group programmes (e.g. rugby forwards and backs), keyed by role
+  // group and selected by sport_role_id "<activity_id>__<role group>".
+  role_variants?: Record<string, ProgramEventVariant>;
 };
 
 type ProgramTemplateRegistry = {
@@ -225,6 +228,30 @@ function validateEventVariants(raw: unknown, i: number): NonNullable<ProgramTemp
   return out;
 }
 
+const ROLE_GROUP = /^[a-z][a-z_]*$/;
+
+function validateRoleVariants(raw: unknown, i: number): NonNullable<ProgramTemplateEntry["role_variants"]> {
+  const at = `program.entries[${i}].role_variants`;
+  if (!isPlainObject(raw) || Object.keys(raw).length === 0) die(`${at} must be a non-empty object`);
+  const out: NonNullable<ProgramTemplateEntry["role_variants"]> = {};
+  for (const [role, variant] of Object.entries(raw)) {
+    if (!ROLE_GROUP.test(role)) die(`${at} role group must be lower_snake_case, got ${role}`);
+    if (!isPlainObject(variant)) die(`${at}.${role} must be an object`);
+    const elig = variant["exercise_eligibility"];
+    if (!Array.isArray(elig) || elig.length === 0 || !elig.every((x) => typeof x === "string" && x.trim() !== "")) {
+      die(`${at}.${role}.exercise_eligibility must be a non-empty string array`);
+    }
+    const parsed: ProgramEventVariant = {
+      exercise_eligibility: elig as string[],
+      item_prescriptions: validateItemPrescriptions(variant["item_prescriptions"], i, elig as string[])
+    };
+    if (variant["microcycle"] !== undefined) parsed.microcycle = validateMicrocycle(variant["microcycle"], i, `${at}.${role}`);
+    if (variant["level_variants"] !== undefined) parsed.level_variants = validateLevelVariants(variant["level_variants"], i);
+    out[role] = parsed;
+  }
+  return out;
+}
+
 // Exported for tests: the load-time validator every registry entry passes through.
 export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
   if (!isPlainObject(doc)) die(`program registry not an object`);
@@ -274,6 +301,9 @@ export function validateProgramRegistry(doc: unknown): ProgramTemplateRegistry {
     if (row["event_variants"] !== undefined) {
       entry.event_variants = validateEventVariants(row["event_variants"], i);
     }
+    if (row["role_variants"] !== undefined) {
+      entry.role_variants = validateRoleVariants(row["role_variants"], i);
+    }
     out.push(entry);
   }
 
@@ -296,7 +326,7 @@ function loadProgramRegistry(): ProgramTemplateRegistry {
   return _cache;
 }
 
-export function selectTemplate(activity: string, level?: string, event?: string): Phase4Template | null {
+export function selectTemplate(activity: string, level?: string, event?: string, sportRoleId?: string): Phase4Template | null {
   const act = String(activity ?? "").trim();
   if (!act) return null;
 
@@ -304,7 +334,27 @@ export function selectTemplate(activity: string, level?: string, event?: string)
   const hit = reg.entries.find((t) => t.activity_id === act);
   if (!hit) return null;
 
-  return templateForLevel(entryForEvent(hit, event), level);
+  return templateForLevel(entryForRole(entryForEvent(hit, event), sportRoleId), level);
+}
+
+// Pure role resolution: a sport_role_id "<activity_id>__<role group>" whose
+// group this activity programmes separately (rugby forwards, a football
+// goalkeeper, an athletics thrower) replaces the base programme; any other
+// role, or none, keeps it.
+export function entryForRole(entry: ProgramTemplateEntry, sportRoleId?: string): ProgramTemplateEntry {
+  const prefix = `${entry.activity_id}__`;
+  const group = sportRoleId && sportRoleId.startsWith(prefix) ? sportRoleId.slice(prefix.length) : undefined;
+  const variant = group && Object.prototype.hasOwnProperty.call(entry.role_variants ?? {}, group) ? entry.role_variants![group] : undefined;
+  if (!variant) return entry;
+  const out: ProgramTemplateEntry = {
+    activity_id: entry.activity_id,
+    template_id: entry.template_id,
+    exercise_eligibility: variant.exercise_eligibility,
+    item_prescriptions: variant.item_prescriptions
+  };
+  if (variant.microcycle) out.microcycle = variant.microcycle;
+  if (variant.level_variants) out.level_variants = variant.level_variants;
+  return out;
 }
 
 // The days an athlete trains in their week, for choosing exercises: the
