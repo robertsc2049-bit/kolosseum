@@ -4001,6 +4001,10 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
 
+/* Medical stand-down: an active one is prominent. */
+.stand-down.active { border-left: 4px solid var(--danger, #cf222e); padding-left: 8px; }
+.stand-down-form { display: grid; gap: 8px; }
+
 /* Equipment card: checklist wraps on a phone. */
 .equipment-options { display: flex; flex-wrap: wrap; gap: 8px; }
 .equipment-option { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 10em; }

@@ -23,6 +23,7 @@ import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
 import { MatchWeekCard } from "./MatchWeekCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
+import { StandDownCard } from "./StandDownCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
@@ -667,6 +668,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
+      <StandDownCard />
       <PainCheckInCard />
       <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
