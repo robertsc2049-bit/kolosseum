@@ -170,6 +170,21 @@ function isRecord(value: unknown): value is JsonRecord {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 
+// How today's match week shaped this exercise.
+function matchWeekNote(context: JsonRecord): string {
+  const what = String(context.label ?? "match");
+  if (context.role === "day_after") return `Day after your ${what === "Match day" ? "match" : what} - a recovery session: fewer sets, easy effort.`;
+  if (context.role === "match_day") return `${what === "Match day" ? "Match" : what} today - a short primer only, no heavy leg work.`;
+  return `Day before your ${what === "Match day" ? "match" : what} - a short primer, no heavy leg work.`;
+}
+
+// An exercise held back because of what the athlete did last time.
+function autoregulationNote(hold: JsonRecord): string {
+  const planned = hold.planned_intensity as JsonRecord | undefined;
+  const plannedText = planned?.type === "percent_1rm" ? `${Number(planned.value)}% 1RM` : planned?.type === "rpe" ? `RPE ${Number(planned.value)}` : "the plan";
+  return `Held back from ${plannedText} - ${String(hold.detail ?? "last time was hard")}.`;
+}
+
 // An exercise swapped because an open pain flag is still sore.
 function painSwapNote(swap: JsonRecord): string {
   const area = PAIN_AREA_OPTIONS.find(([key]) => key === swap.area)?.[1]?.toLowerCase();
@@ -321,6 +336,26 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.equipment_swap) ? (
+                  <p className="inline-result equipment-note" data-tone="warning">
+                    {`Substitute: no ${((exercise.equipment_swap as JsonRecord).missing as string[] ?? []).join(" or ").toLowerCase() || "equipment"} for ${String((exercise.equipment_swap as JsonRecord).from_display_name)} - this is not the same exercise.`}
+                  </p>
+                ) : null}
+                {Array.isArray(exercise?.equipment_missing) && (exercise.equipment_missing as string[]).length ? (
+                  <p className="inline-result equipment-note" data-tone="warning">
+                    {`You told us you don't have: ${(exercise.equipment_missing as string[]).join(", ").toLowerCase()}. Skip this exercise or use what you have.`}
+                  </p>
+                ) : null}
+                {isRecord(exercise?.match_week) ? (
+                  <p className="inline-result match-week-note" data-tone="warning">
+                    {matchWeekNote(exercise.match_week as JsonRecord)}
+                  </p>
+                ) : null}
+                {isRecord(exercise?.autoregulation) ? (
+                  <p className="inline-result autoregulation-note" data-tone="warning">
+                    {autoregulationNote(exercise.autoregulation as JsonRecord)}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.pain_swap) ? (
                   <p className="inline-result pain-swap-note" data-tone="warning">
                     {painSwapNote(exercise.pain_swap as JsonRecord)}

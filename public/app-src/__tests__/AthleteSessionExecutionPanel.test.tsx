@@ -223,6 +223,19 @@ test("shows distance- and time-prescribed work by its dose, not as a single rep"
   }
 });
 
+test("an exercise held back because of last time says what was planned and why", async () => {
+  seedActiveSession("session_1");
+  const held = baseExercise({
+    intensity: { type: "percent_1rm", value: 72.5 },
+    autoregulation: { reason: "missed_reps", detail: "3 of 5 sets short of 5 reps last time", from_session_id: "s1", planned_intensity: { type: "percent_1rm", value: 77.5 } }
+  });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: held }, remaining_exercises: [held] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Held back from 77.5% 1RM - 3 of 5 sets short of 5 reps last time."));
+  cleanup();
+});
+
 test("back after 5 weeks away, the session says welcome back and flags a re-entry week instead of a deload", async () => {
   const cycle = {
     macro_phase: "accumulation", meso_week: 4, days_per_week: 3, session_slot: 0, cycle_model: "meet", sessions_per_week: 3, day_index: 0, day_focus: "squat_day", deload: true,
@@ -242,6 +255,23 @@ test("back after 5 weeks away, the session says welcome back and flags a re-entr
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByTestId("session-cycle"));
   assert.equal(screen.queryByTestId("session-reentry"), null);
+  cleanup();
+});
+
+test("a substitute for missing equipment says so, and an exercise with nothing to swap to is flagged", async () => {
+  seedActiveSession("session_1");
+  const press = baseExercise({ exercise_id: "overhead_press", display_name: "Overhead press", equipment_swap: { from_exercise_id: "strongman_log_press", from_display_name: "Strongman log press", missing: ["Strongman log"] } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: press }, remaining_exercises: [press] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Substitute: no strongman log for Strongman log press - this is not the same exercise."));
+  cleanup();
+
+  const stones = baseExercise({ exercise_id: "atlas_stone_carry", display_name: "Atlas stone carry", equipment_missing: ["Atlas stone"] });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: stones }, remaining_exercises: [stones] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("You told us you don't have: atlas stone. Skip this exercise or use what you have."));
   cleanup();
 });
 
@@ -1158,4 +1188,14 @@ test("no signal in the gym basement: a logged set is saved on the phone and sent
   assert.equal(setLogs[0].client_request_id, queued[0].client_request_id, "with its original request id, so a repeat is recorded once");
   assert.equal(window.localStorage.getItem("kolosseum.offlineSessionEvents.v1"), null);
   __resetOfflineQueueForTests();
+});
+
+test("the day before a match, the session says it is a primer with no heavy leg work", async () => {
+  seedActiveSession("session_1");
+  const primer = baseExercise({ exercise_id: "countermovement_jump", display_name: "Countermovement jump", sets: 2, match_week: { role: "day_before", match_date: "2026-10-03", label: "Match day" } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: primer }, remaining_exercises: [primer] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Day before your match - a short primer, no heavy leg work."));
+  cleanup();
 });

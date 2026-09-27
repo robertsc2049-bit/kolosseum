@@ -2,6 +2,7 @@
 // Records are explicit user declarations. No ability, safety, readiness,
 // suitability, risk or recommendation is inferred here.
 
+import { getAthleteEquipment } from "./athlete_equipment_service.js";
 import { CUSTOM_EXERCISE_PREFIX, cycleModelFor, describeProgrammeSlots, isCustomExerciseId, repeatOf, type SlotListing } from "@kolosseum/engine/phases/phase4.js";
 import fs from "node:fs";
 import path from "node:path";
@@ -966,14 +967,16 @@ async function latestExerciseChoices(client: QueryClient, userId: string): Promi
 
 // The athlete's programme as it stands today (sport, level, event, training
 // days), or null before they have declared a sport.
-function programmeSlotsFor(declared: Fields, selections: Record<string, string> = {}): SlotListing[] | null {
+function programmeSlotsFor(declared: Fields, selections: Record<string, string> = {}, availableEquipment: string[] | null = null): SlotListing[] | null {
   if (!declared.activity_id) return null;
   return describeProgrammeSlots({
     activity_id: declared.activity_id,
     experience_level: declared.experience_level,
     competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
     days_per_week: declared.training_days_per_week,
-    selections
+    selections,
+    // Recommendations only offer what the athlete can do with their equipment.
+    ...(availableEquipment ? { constraints: { available_equipment: availableEquipment } } : {})
   });
 }
 
@@ -1023,7 +1026,7 @@ export async function getAthleteProgrammeExercises(userId: string): Promise<Read
   try {
     const declared = await currentDeclaredFields(client, userId);
     const saved = await latestExerciseChoices(client, userId);
-    const days = declared ? programmeSlotsFor(declared, saved.selections) : null;
+    const days = declared ? programmeSlotsFor(declared, saved.selections, await getAthleteEquipment(userId)) : null;
     if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false, all_exercises: [], custom_exercises: [] });
     return Object.freeze({ status: "ok", ...projectExerciseChoices(days, saved.custom_exercises) });
   }

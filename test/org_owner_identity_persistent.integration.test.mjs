@@ -282,7 +282,7 @@ test(
       accepted_terms: true,
       accepted_consent: true,
       accepted_terms_version: "terms_v1",
-      accepted_consent_version: "consent_v1"
+      date_of_birth: "1990-01-15", accepted_consent_version: "consent_v1"
     });
     assertStatus(athleteRegistration, 201, "athlete registration for isolation proof");
     const athleteUserId = athleteRegistration.json?.account?.user_id ?? "";
