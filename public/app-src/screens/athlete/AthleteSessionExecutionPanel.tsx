@@ -320,6 +320,11 @@ export function AthleteSessionExecutionPanel() {
                   {exercise?.group_id ? <span className="badge neutral">{groupTimingLabel(exercise)}</span> : null}
                   {exerciseDetails(exercise).map((detail, index) => <span className="exercise-detail" key={index}>{detail}</span>)}
                 </div>
+                {isRecord(exercise?.readiness) ? (
+                  <p className="inline-result readiness-note" data-tone="warning">
+                    {`Lighter today - your readiness check-in was low (sleep ${Number((exercise.readiness as JsonRecord).sleep)}/5, soreness ${Number((exercise.readiness as JsonRecord).soreness)}/5, stress ${Number((exercise.readiness as JsonRecord).stress)}/5).`}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.pain_swap) ? (
                   <p className="inline-result pain-swap-note" data-tone="warning">
                     {painSwapNote(exercise.pain_swap as JsonRecord)}

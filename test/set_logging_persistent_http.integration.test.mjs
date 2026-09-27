@@ -421,3 +421,71 @@ test(
     assert.equal(trends.find((x) => x.exercise_id === "back_squat").current_e1rm, 160 * 1.1, "Epley on the best set of the day (3 x 160 beats 6 x 130)");
   }
 );
+
+test(
+  "readiness: after a bad night a powerlifter's session is a set shorter and a notch lighter, with her check-in shown",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Tired Powerlifter", email: `tired-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+
+    const planned = await compile();
+    assertStatus(planned, 201, "session with no check-in");
+    const plannedSquat = planned.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.equal(plannedSquat.readiness, undefined);
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness", { cookie, csrf, body: { sleep: 6, soreness: 3, stress: 3 } }), 422, "refuse an out-of-range answer");
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness", { cookie, csrf, body: { sleep: 1, soreness: 3, stress: 3 } });
+    assertStatus(saved, 200, "save a bad night");
+    assert.equal(saved.json.low, true);
+
+    const lighter = await compile();
+    assertStatus(lighter, 201, "session after the check-in");
+    const squat = lighter.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.equal(squat.sets, plannedSquat.sets - 1);
+    assert.equal(squat.intensity.value, plannedSquat.intensity.value - 5);
+    assert.deepEqual(squat.readiness, { sleep: 1, soreness: 3, stress: 3, low: true });
+  }
+);
