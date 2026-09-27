@@ -421,3 +421,92 @@ test(
     assert.equal(trends.find((x) => x.exercise_id === "back_squat").current_e1rm, 160 * 1.1, "Epley on the best set of the day (3 x 160 beats 6 x 130)");
   }
 );
+
+test(
+  "autoregulation: a powerlifter who missed squat reps and rated her deadlift RPE 10 has both held back next session, with the reason shown, and her clean bench unchanged",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Autoregulated Powerlifter", email: `autoreg-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "powerlifting", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register powerlifter");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register powerlifter");
+    const csrf = registration.json?.csrf_token;
+    const fields = {
+      activity_id: "powerlifting", experience_level: "amateur", competition_event: "full_power",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
+    const bootstrap = detail.json.bootstrap;
+    const compile = () => requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie, csrf,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    const byId = (session, id) => session.json.planned_session.exercises.find((e) => e.exercise_id === id);
+
+    const first = await compile();
+    assertStatus(first, 201, "first session");
+    const sid = first.json.session_id;
+    const squat = byId(first, "back_squat");
+    const deadlift = byId(first, "deadlift");
+    const bench = byId(first, "paused_bench_press");
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
+    const event = (body) => requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, { cookie, csrf, body: { client_request_id: crypto.randomUUID(), ...body } });
+    // Squat: 5, 5, 4, 3, then a failed set - 3 of 5 short.
+    for (const [i, reps] of [5, 5, 4, 3, 0].entries()) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "back_squat", set_index: i + 1, reps: Math.min(reps, squat.reps), load_value: 120, load_unit: "kg" }), 201, `squat set ${i + 1}`);
+    }
+    // Bench: every rep made.
+    for (let i = 1; i <= bench.sets; i++) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "paused_bench_press", set_index: i, reps: bench.reps, load_value: 80, load_unit: "kg" }), 201, `bench set ${i}`);
+    }
+    // Deadlift: every rep made, but RPE 10.
+    for (let i = 1; i <= deadlift.sets; i++) {
+      assertStatus(await event({ type: "SET_LOG_REPORT", exercise_id: "deadlift", set_index: i, reps: deadlift.reps, load_value: 160, load_unit: "kg" }), 201, `deadlift set ${i}`);
+    }
+    const rpe = await event({ type: "RPE_REPORT", exercise_id: "deadlift", rpe_value: 10 });
+    assertStatus(rpe, 201, "deadlift RPE 10");
+
+    const next = await compile();
+    assertStatus(next, 201, "next session");
+    const nextSquat = byId(next, "back_squat");
+    assert.equal(nextSquat.intensity.value, squat.intensity.value - 5, "squat 5% lighter");
+    assert.equal(nextSquat.autoregulation.reason, "missed_reps");
+    assert.equal(nextSquat.autoregulation.detail, `3 of 5 sets short of ${squat.reps} reps last time`);
+    assert.deepEqual(nextSquat.autoregulation.planned_intensity, squat.intensity);
+    const nextDeadlift = byId(next, "deadlift");
+    assert.equal(nextDeadlift.intensity.value, deadlift.intensity.value - 5, "deadlift 5% lighter");
+    assert.equal(nextDeadlift.autoregulation.reason, "too_hard");
+    const nextBench = byId(next, "paused_bench_press");
+    assert.deepEqual(nextBench.intensity, bench.intensity, "the clean bench is unchanged");
+    assert.equal(nextBench.autoregulation, undefined);
+  }
+);
