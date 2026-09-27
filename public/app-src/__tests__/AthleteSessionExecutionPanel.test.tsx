@@ -1094,3 +1094,46 @@ test("carries and holds are logged by completing them, not per set; nothing is l
   await waitFor(() => screen.getByText("Start session"));
   assert.equal(screen.queryByText(/Sets logged/), null);
 });
+
+test("no signal in the gym basement: a logged set is saved on the phone and sent, once, when the connection comes back", async () => {
+  const { __resetOfflineQueueForTests } = await import("../api/offlineSessionQueue");
+  __resetOfflineQueueForTests();
+  const sent: Record<string, unknown>[] = [];
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession(), onEvent: (path, method, body) => { if (method === "POST" && path.endsWith("/events")) sent.push(body as Record<string, unknown>); } });
+  const online = globalThis.fetch;
+  let offline = true;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (offline && String(input).endsWith("/events")) throw new TypeError("Failed to fetch");
+    return online(input, init);
+  }) as typeof fetch;
+
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 1"));
+  });
+  await screen.findByText("5 reps × 144 kg · saved on this phone");
+  assert.equal(screen.getByTestId("offline-pending").textContent, "1 entry saved on this phone - they will send when you are back online.");
+  assert.equal(sent.length, 0, "nothing reached the server");
+  const queued = JSON.parse(window.localStorage.getItem("kolosseum.offlineSessionEvents.v1") ?? "[]");
+  assert.equal(queued.length, 1);
+
+  // A step action can't be queued: it says so, and the set stays saved.
+  await act(async () => {
+    fireEvent.click(screen.getByText("Mark exercise complete"));
+  });
+  await screen.findByText("No connection. Your sets and ratings are saved on this phone - finish this step when you're back online.");
+
+  offline = false;
+  await act(async () => {
+    window.dispatchEvent(new Event("online"));
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  });
+  await waitFor(() => assert.equal(screen.queryByTestId("offline-pending"), null));
+  const setLogs = sent.filter((e) => e.type === "SET_LOG_REPORT");
+  assert.equal(setLogs.length, 1, "sent once");
+  assert.equal(setLogs[0].client_request_id, queued[0].client_request_id, "with its original request id, so a repeat is recorded once");
+  assert.equal(window.localStorage.getItem("kolosseum.offlineSessionEvents.v1"), null);
+  __resetOfflineQueueForTests();
+});

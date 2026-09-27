@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 
+import { withPendingSetLogs } from "../../api/offlineSessionQueue";
 import { type JsonRecord } from "../../api/transport";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { InfoTooltip } from "../../components/InfoTooltip";
@@ -328,7 +329,7 @@ export function AthleteSessionExecutionPanel() {
                 {started && exercise && currentId ? (
                   <SetLogger
                     exercise={exercise}
-                    setLogs={Array.isArray((sessionState.set_logs as JsonRecord | undefined)?.[currentId]) ? ((sessionState.set_logs as JsonRecord)[currentId] as JsonRecord[]) : []}
+                    setLogs={withPendingSetLogs(String(session.sessionId ?? ""), currentId, Array.isArray((sessionState.set_logs as JsonRecord | undefined)?.[currentId]) ? ((sessionState.set_logs as JsonRecord)[currentId] as JsonRecord[]) : [])}
                     busy={session.busy}
                     logSet={session.logSet}
                   />
@@ -519,6 +520,11 @@ export function AthleteSessionExecutionPanel() {
           ) : null}
 
           {session.mutationError ? <p className="muted" role="status" aria-live="polite">{session.mutationError}</p> : null}
+          {session.offlinePending > 0 ? (
+            <p className="inline-result" data-tone="warning" role="status" data-testid="offline-pending">
+              {`${session.offlinePending} ${session.offlinePending === 1 ? "entry" : "entries"} saved on this phone - they will send when you are back online.`}
+            </p>
+          ) : null}
         </article>
 
         <aside className="panel session-summary">
