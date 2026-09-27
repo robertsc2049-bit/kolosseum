@@ -39,7 +39,13 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
+import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
+
 export const athleteOnboardingRouter = Router();
+
+// Rate-limited like every newly-added authorising route (CodeQL
+// js/missing-rate-limiting).
+const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
   request: Request,
@@ -221,6 +227,26 @@ athleteOnboardingRouter.post(
   })
 );
 
+// The equipment a self-directed athlete has (a full gym until they say).
+athleteOnboardingRouter.get(
+  "/equipment",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await describeAthleteEquipment(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/equipment",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteEquipment(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.use(
   (
     error: unknown,
@@ -237,6 +263,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof PainFlagError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof AthleteEquipmentError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }
