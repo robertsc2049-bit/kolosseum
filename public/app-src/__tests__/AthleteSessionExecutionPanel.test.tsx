@@ -258,6 +258,23 @@ test("back after 5 weeks away, the session says welcome back and flags a re-entr
   cleanup();
 });
 
+test("a substitute for missing equipment says so, and an exercise with nothing to swap to is flagged", async () => {
+  seedActiveSession("session_1");
+  const press = baseExercise({ exercise_id: "overhead_press", display_name: "Overhead press", equipment_swap: { from_exercise_id: "strongman_log_press", from_display_name: "Strongman log press", missing: ["Strongman log"] } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: press }, remaining_exercises: [press] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Substitute: no strongman log for Strongman log press - this is not the same exercise."));
+  cleanup();
+
+  const stones = baseExercise({ exercise_id: "atlas_stone_carry", display_name: "Atlas stone carry", equipment_missing: ["Atlas stone"] });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: stones }, remaining_exercises: [stones] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("You told us you don't have: atlas stone. Skip this exercise or use what you have."));
+  cleanup();
+});
+
 test("a periodised session shows where it sits in the plan, and flags a deload week", async () => {
   const cycle = { macro_phase: "in_season", meso_week: 4, days_per_week: 4, session_slot: 1, cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true };
   seedActiveSession("session_1");

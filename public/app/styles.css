@@ -4001,6 +4001,10 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-flag .onboarding-actions button, .pain-check-in .onboarding-actions button { min-height: 44px; }
 .pain-swap-note { margin: 6px 0; }
 
+/* Equipment card: checklist wraps on a phone. */
+.equipment-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.equipment-option { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 10em; }
+
 /* Match week card: weekday toggles and fixtures wrap on a phone. */
 .match-days { display: flex; flex-wrap: wrap; gap: 8px; }
 .match-day { display: flex; align-items: center; gap: 4px; min-height: 44px; }

@@ -65,6 +65,15 @@ export function savePainCheckIn(
   return request("POST", "/account/onboarding/pain-flags/check-in", input, csrfToken);
 }
 
+// The equipment a self-directed athlete has (a full gym until they say).
+export function loadAthleteEquipment(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/equipment");
+}
+
+export function saveAthleteEquipment(input: { full_gym: true } | { available_equipment: string[] }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/equipment", input, csrfToken);
+}
+
 // The athlete's match week: usual match/race/key-session days plus one-off fixtures.
 export function loadMatchWeek(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/match-week");

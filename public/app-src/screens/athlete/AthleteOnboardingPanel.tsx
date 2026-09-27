@@ -19,6 +19,7 @@ import {
 import { titleCase } from "../../utils/format";
 import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPlanFields";
 import { planDatesLabel } from "../../utils/trainingPlan";
+import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
 import { MatchWeekCard } from "./MatchWeekCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
@@ -667,6 +668,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <PainCheckInCard />
+      <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
       <MatchWeekCard />
       <AthleteMaxesCard key={`maxes-${String(current.declaration_version ?? "")}`} />
