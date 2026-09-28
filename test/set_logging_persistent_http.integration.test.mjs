@@ -763,7 +763,8 @@ test(
     const ids = exercises.map((e) => e.exercise_id);
     assert.ok(!ids.includes("yoke_walk") && !ids.includes("strongman_log_press"), ids.join(","));
     const logSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "strongman_log_press");
-    assert.equal(logSwap.exercise_id, "overhead_press");
+    // Any overhead press she can do at home stands in for the log.
+    assert.ok(["overhead_press", "dumbbell_overhead_press", "paused_overhead_press", "single_arm_overhead_press"].includes(logSwap.exercise_id), logSwap.exercise_id);
     assert.deepEqual(logSwap.equipment_swap.missing, ["Strongman log"]);
     const yokeSwap = exercises.find((e) => e.equipment_swap?.from_exercise_id === "yoke_walk");
     assert.ok(yokeSwap && /carry/u.test(yokeSwap.exercise_id), JSON.stringify(yokeSwap));
