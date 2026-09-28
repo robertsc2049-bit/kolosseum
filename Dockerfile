@@ -26,6 +26,12 @@ RUN npm ci --omit=dev
 
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/public ./public
+# Read from disk at runtime, relative to the working directory: the engine's
+# registry bundle and exercise/equipment/substitution registries, the phase1
+# input schema the engine validates against, and the default plan-session input.
+COPY registries ./registries
+COPY ci/schemas ./ci/schemas
+COPY test/fixtures/golden/inputs/vanilla_minimal.json ./test/fixtures/golden/inputs/vanilla_minimal.json
 COPY schema.sql ./schema.sql
 COPY scripts/apply-schema.mjs ./scripts/apply-schema.mjs
 COPY scripts/bootstrap_admin_account.mjs ./scripts/bootstrap_admin_account.mjs
