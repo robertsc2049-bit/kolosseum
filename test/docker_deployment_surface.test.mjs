@@ -57,3 +57,16 @@ test("a Docker deployment doc exists and documents the schema-apply and admin-bo
   assert.match(doc, /docker compose exec app node scripts\/apply-schema\.mjs/u);
   assert.match(doc, /docker compose exec -e ADMIN_BOOTSTRAP_TOKEN=.* app \\\s*\n\s*node scripts\/bootstrap_admin_account\.mjs/u);
 });
+
+test("the runtime image carries every file the server reads from disk, so a container can compile a session", () => {
+  // Found live: without these, sign-up worked but every session compile,
+  // exercise choice, max and coach starter programme returned 500.
+  assert.match(dockerfile, /^COPY registries \.\/registries$/mu, "engine registry bundle and exercise/equipment registries");
+  assert.match(dockerfile, /^COPY ci\/schemas \.\/ci\/schemas$/mu, "phase1 input schema the engine validates against");
+  assert.match(dockerfile, /vanilla_minimal\.json/u, "default plan-session input");
+});
+
+test("uploads live on a named volume, so photos, videos and attachments survive a redeploy", () => {
+  assert.ok(compose.services.app.volumes.includes("kolosseum-uploads:/app/var"));
+  assert.ok(Object.prototype.hasOwnProperty.call(compose.volumes, "kolosseum-uploads"));
+});

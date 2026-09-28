@@ -55,9 +55,17 @@ not need to be set manually.
 ## Stopping / data
 
 ```bash
-docker compose down       # stop, keep the database volume
-docker compose down -v    # stop and delete the database volume
+docker compose down       # stop, keep the database and uploads volumes
+docker compose down -v    # stop and delete the database and uploads volumes
 ```
+
+Uploaded progress photos, video submissions and message attachments are
+stored under `/app/var` on the `kolosseum-uploads` volume, so they survive
+rebuilds and redeploys.
+
+After any change to the image, check a real journey, not just `/health`:
+sign up, onboard and create a session. The server reads the registries and
+the phase1 schema from disk at runtime, and `/health` does not touch them.
 
 ## Not decided here
 

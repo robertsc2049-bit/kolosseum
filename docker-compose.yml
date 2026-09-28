@@ -29,6 +29,10 @@ services:
         condition: service_healthy
     ports:
       - "3000:3000"
+    # Uploaded progress photos, video submissions and message attachments
+    # live under /app/var - keep them across rebuilds and redeploys.
+    volumes:
+      - kolosseum-uploads:/app/var
     environment:
       HOST: 0.0.0.0
       PORT: 3000
@@ -42,3 +46,4 @@ services:
 
 volumes:
   kolosseum-db-data:
+  kolosseum-uploads:
