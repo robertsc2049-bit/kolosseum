@@ -406,6 +406,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/workout_scores.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/training_e1rm.test.mjs"
     },
     {

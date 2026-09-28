@@ -72,7 +72,9 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "hyrox",
+        "street_lifting"
       ],
       "movement_pattern_id": "hinge",
       "token_kind": "exercise_name_token",
@@ -109,7 +111,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "street_lifting"
       ],
       "movement_pattern_id": "horizontal_push",
       "token_kind": "exercise_name_token",

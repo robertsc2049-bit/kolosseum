@@ -4,6 +4,7 @@ import test from "node:test";
 
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
+import { getProgressInsightsForAthlete } from "../dist/src/api/progress_insights_service.js";
 
 async function listen() {
   return await new Promise((resolve, reject) => {
@@ -448,11 +449,23 @@ test(
       //     exactly one new runtime_events row. ---
       const eventsBeforeAmrap = await getEvents(baseUrl, sessionId);
 
+      // Rx or scaled must be a boolean.
+      const badScaled = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
+        type: "AMRAP_RESULT_REPORT",
+        group_id: "amrapA",
+        rounds_completed: 6,
+        extra_reps: 4,
+        scaled: "yes"
+      });
+      assertStatus(badScaled, 400, "a non-boolean scaled flag must be rejected");
+      assert.equal(badScaled.json.details?.failure_token, "phase6_runtime_group_result_report_invalid_shape");
+
       const amrapResult = await request(baseUrl, "POST", `/sessions/${encodeURIComponent(sessionId)}/events`, {
         type: "AMRAP_RESULT_REPORT",
         group_id: "amrapA",
         rounds_completed: 6,
-        extra_reps: 4
+        extra_reps: 4,
+        scaled: true
       });
       assertStatus(amrapResult, 201, "submit the amrap result");
 
@@ -464,6 +477,18 @@ test(
       );
       assert.equal(eventsAfterAmrap.at(-1).event.rounds_completed, 6);
       assert.equal(eventsAfterAmrap.at(-1).event.extra_reps, 4);
+      assert.equal(eventsAfterAmrap.at(-1).event.scaled, true);
+
+      // The score shows in the athlete's workout scores as scaled - never as an Rx best.
+      const insights = await getProgressInsightsForAthlete(athlete.userId);
+      const amrapScores = insights.workout_scores.filter((w) => w.group_type === "amrap");
+      assert.equal(amrapScores.length, 1);
+      assert.deepEqual(amrapScores[0].exercises.map((x) => x.exercise_id), ["toes_to_bar", "pull_up"]);
+      assert.equal(amrapScores[0].time_cap_seconds, 720);
+      assert.equal(amrapScores[0].results[0].label, "6 rounds + 4 reps");
+      assert.equal(amrapScores[0].results[0].scaled, true);
+      assert.equal(amrapScores[0].best_rx, null);
+      assert.equal(amrapScores[0].best_scaled.label, "6 rounds + 4 reps");
 
       const terminalState = await getState(baseUrl, sessionId);
       for (const exerciseId of ["toes_to_bar", "pull_up"]) {

@@ -153,6 +153,8 @@ export type AthleteSessionExecutionState = {
   groupEmomRoundsMissed: number;
   groupForTimeElapsedSeconds: number;
   groupForTimeHitTimeCap: boolean;
+  // Whether a timed-group result was scaled rather than as prescribed (Rx).
+  groupScaled: boolean;
 };
 
 const initialState: AthleteSessionExecutionState = {
@@ -195,7 +197,8 @@ const initialState: AthleteSessionExecutionState = {
   groupEmomRoundsCompleted: 0,
   groupEmomRoundsMissed: 0,
   groupForTimeElapsedSeconds: 0,
-  groupForTimeHitTimeCap: false
+  groupForTimeHitTimeCap: false,
+  groupScaled: false
 };
 
 export function currentStepExercise(sessionState: JsonRecord | null): JsonRecord | null {
@@ -278,7 +281,8 @@ export function useAthleteSessionExecution() {
         groupEmomRoundsCompleted: 0,
         groupEmomRoundsMissed: 0,
         groupForTimeElapsedSeconds: 0,
-        groupForTimeHitTimeCap: false
+        groupForTimeHitTimeCap: false,
+        groupScaled: false
       }));
     }
     catch {
@@ -555,16 +559,21 @@ export function useAthleteSessionExecution() {
     setState((current) => ({ ...current, groupAmrapExtraReps: value }));
   }, []);
 
+  const setGroupScaled = useCallback((value: boolean) => {
+    setState((current) => ({ ...current, groupScaled: value }));
+  }, []);
+
   const confirmAmrapResult = useCallback(async () => {
     const group = currentStepGroup(state.sessionState);
     if (!group?.group_id) return false;
     const groupId = String(group.group_id);
     const roundsCompleted = state.groupAmrapRoundsCompleted;
     const extraReps = state.groupAmrapExtraReps;
+    const scaled = state.groupScaled;
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "AMRAP_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, extra_reps: extraReps }, csrfToken);
+      await postAthleteSessionEvent(sessionId, { type: "AMRAP_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, extra_reps: extraReps, scaled }, csrfToken);
     }, true);
-  }, [runMutation, state.sessionState, state.groupAmrapRoundsCompleted, state.groupAmrapExtraReps]);
+  }, [runMutation, state.sessionState, state.groupAmrapRoundsCompleted, state.groupAmrapExtraReps, state.groupScaled]);
 
   const setGroupEmomRoundsCompleted = useCallback((value: number) => {
     setState((current) => ({ ...current, groupEmomRoundsCompleted: value }));
@@ -580,10 +589,11 @@ export function useAthleteSessionExecution() {
     const groupId = String(group.group_id);
     const roundsCompleted = state.groupEmomRoundsCompleted;
     const roundsMissed = state.groupEmomRoundsMissed;
+    const scaled = state.groupScaled;
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "EMOM_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, rounds_missed: roundsMissed }, csrfToken);
+      await postAthleteSessionEvent(sessionId, { type: "EMOM_RESULT_REPORT", group_id: groupId, rounds_completed: roundsCompleted, rounds_missed: roundsMissed, scaled }, csrfToken);
     }, true);
-  }, [runMutation, state.sessionState, state.groupEmomRoundsCompleted, state.groupEmomRoundsMissed]);
+  }, [runMutation, state.sessionState, state.groupEmomRoundsCompleted, state.groupEmomRoundsMissed, state.groupScaled]);
 
   const setGroupForTimeElapsedSeconds = useCallback((value: number) => {
     setState((current) => ({ ...current, groupForTimeElapsedSeconds: value }));
@@ -600,10 +610,11 @@ export function useAthleteSessionExecution() {
     const timeCapSeconds = Number(group.time_cap_seconds ?? 0);
     const hitTimeCap = state.groupForTimeHitTimeCap;
     const elapsedSeconds = hitTimeCap && timeCapSeconds > 0 ? timeCapSeconds : state.groupForTimeElapsedSeconds;
+    const scaled = state.groupScaled;
     return runMutation(async (sessionId, csrfToken) => {
-      await postAthleteSessionEvent(sessionId, { type: "FOR_TIME_RESULT_REPORT", group_id: groupId, elapsed_seconds: elapsedSeconds, hit_time_cap: hitTimeCap }, csrfToken);
+      await postAthleteSessionEvent(sessionId, { type: "FOR_TIME_RESULT_REPORT", group_id: groupId, elapsed_seconds: elapsedSeconds, hit_time_cap: hitTimeCap, scaled }, csrfToken);
     }, true);
-  }, [runMutation, state.sessionState, state.groupForTimeElapsedSeconds, state.groupForTimeHitTimeCap]);
+  }, [runMutation, state.sessionState, state.groupForTimeElapsedSeconds, state.groupForTimeHitTimeCap, state.groupScaled]);
 
   const openExtraSetPanel = useCallback((exerciseId: string) => {
     if (!exerciseId) return;
@@ -911,6 +922,7 @@ export function useAthleteSessionExecution() {
     setGroupForTimeElapsedSeconds,
     setGroupForTimeHitTimeCap,
     confirmForTimeResult,
+    setGroupScaled,
     openExtraSetPanel,
     closeExtraSetPanel,
     setExtraSetReps,

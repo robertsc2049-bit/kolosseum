@@ -101,6 +101,23 @@ function GroupWorkoutFocus({ step }: { step: JsonRecord }) {
   );
 }
 
+// Rx or scaled: CrossFit scores are only comparable like for like.
+function ScaledToggle({ session }: { session: ReturnType<typeof useAthleteSessionExecution> }) {
+  return (
+    <fieldset className="rx-scaled-toggle">
+      <legend>How did you do it?</legend>
+      <label className="check-line">
+        <input type="radio" name="rxScaled" checked={!session.groupScaled} onChange={() => session.setGroupScaled(false)} />
+        <span>Rx (as prescribed)</span>
+      </label>
+      <label className="check-line">
+        <input type="radio" name="rxScaled" checked={session.groupScaled} onChange={() => session.setGroupScaled(true)} />
+        <span>Scaled (lighter load or easier movements)</span>
+      </label>
+    </fieldset>
+  );
+}
+
 function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: ReturnType<typeof useAthleteSessionExecution> }) {
   const groupType = String(step.group_type ?? "");
 
@@ -115,6 +132,7 @@ function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: Ret
       <div className="group-workout-result-form">
         <label><span>Rounds completed</span><input type="number" min={0} step={1} value={session.groupAmrapRoundsCompleted} onChange={(event) => session.setGroupAmrapRoundsCompleted(Math.max(0, Number(event.target.value) || 0))} /></label>
         <label><span>Extra reps</span><input type="number" min={0} step={1} value={session.groupAmrapExtraReps} onChange={(event) => session.setGroupAmrapExtraReps(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <ScaledToggle session={session} />
         <button id="confirmAmrapResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmAmrapResult()}>Record AMRAP result</button>
       </div>
     );
@@ -125,6 +143,7 @@ function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: Ret
       <div className="group-workout-result-form">
         <label><span>Rounds completed</span><input type="number" min={0} step={1} value={session.groupEmomRoundsCompleted} onChange={(event) => session.setGroupEmomRoundsCompleted(Math.max(0, Number(event.target.value) || 0))} /></label>
         <label><span>Rounds missed</span><input type="number" min={0} step={1} value={session.groupEmomRoundsMissed} onChange={(event) => session.setGroupEmomRoundsMissed(Math.max(0, Number(event.target.value) || 0))} /></label>
+        <ScaledToggle session={session} />
         <button id="confirmEmomResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmEmomResult()}>Record EMOM result</button>
       </div>
     );
@@ -140,6 +159,7 @@ function GroupWorkoutActions({ step, session }: { step: JsonRecord; session: Ret
         {!session.groupForTimeHitTimeCap ? (
           <label><span>Elapsed time (seconds)</span><input type="number" min={1} step={1} value={session.groupForTimeElapsedSeconds} onChange={(event) => session.setGroupForTimeElapsedSeconds(Math.max(0, Number(event.target.value) || 0))} /></label>
         ) : null}
+        <ScaledToggle session={session} />
         <button id="confirmForTimeResultButton" className="button primary wide" type="button" disabled={session.busy} onClick={() => session.confirmForTimeResult()}>Record for-time result</button>
       </div>
     );
