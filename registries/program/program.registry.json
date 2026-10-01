@@ -9489,50 +9489,42 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "lower_body_power",
+              "focus": "speed_and_lower_body_power",
               "exercise_eligibility": [
-                "countermovement_jump",
+                "ten_metre_acceleration",
+                "twenty_metre_acceleration",
                 "trap_bar_deadlift",
-                "bulgarian_split_squat",
                 "band_leg_curl",
-                "single_leg_calf_raise",
-                "pallof_press"
+                "cable_hip_adduction",
+                "single_leg_calf_raise"
               ],
               "item_prescriptions": [
                 {
-                  "sets": 2,
-                  "reps": 5,
+                  "sets": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "bodyweight"
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 120,
+                  "distance_m": 10
                 },
                 {
                   "sets": 3,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 150,
+                  "distance_m": 20
+                },
+                {
+                  "sets": 2,
                   "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
                   "rest_seconds": 180
-                },
-                {
-                  "sets": 2,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 2,
-                  "reps": 12,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
                 },
                 {
                   "sets": 2,
@@ -9551,19 +9543,28 @@
                     "value": 7
                   },
                   "rest_seconds": 60
+                },
+                {
+                  "sets": 2,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
                 }
               ]
             },
             {
               "day_id": "b",
-              "focus": "upper_body_strength",
+              "focus": "upper_body_and_trunk",
               "exercise_eligibility": [
-                "dumbbell_bench_press",
                 "band_assisted_pull_up",
+                "dumbbell_bench_press",
                 "single_arm_dumbbell_row",
-                "half_kneeling_dumbbell_angled_press",
-                "face_pull",
-                "dead_bug"
+                "pallof_press",
+                "dead_bug",
+                "side_plank"
               ],
               "item_prescriptions": [
                 {
@@ -9576,15 +9577,6 @@
                   "rest_seconds": 120
                 },
                 {
-                  "sets": 4,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 120
-                },
-                {
                   "sets": 2,
                   "reps": 8,
                   "intensity": {
@@ -9604,7 +9596,7 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 12,
+                  "reps": 10,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
@@ -9619,21 +9611,39 @@
                     "value": 7
                   },
                   "rest_seconds": 60
+                },
+                {
+                  "sets": 2,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60,
+                  "duration_seconds": 30
                 }
               ]
             },
             {
               "day_id": "c",
-              "focus": "unilateral_resilience",
+              "focus": "kicking_and_change_of_direction",
               "exercise_eligibility": [
+                "countermovement_jump",
                 "ten_metre_deceleration",
-                "split_squat",
+                "bulgarian_split_squat",
                 "single_leg_rdl",
-                "lateral_lunge",
-                "cable_hip_adduction",
-                "side_plank"
+                "cable_hip_flexion",
+                "lateral_lunge"
               ],
               "item_prescriptions": [
+                {
+                  "sets": 2,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 90
+                },
                 {
                   "sets": 3,
                   "reps": 3,
@@ -9662,15 +9672,6 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 2,
                   "reps": 10,
                   "intensity": {
                     "type": "rpe",
@@ -9680,13 +9681,12 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 1,
+                  "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60,
-                  "duration_seconds": 30
+                  "rest_seconds": 90
                 }
               ]
             }
@@ -9758,14 +9758,150 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "lower_body_power",
+              "focus": "speed_and_lower_body_power",
+              "exercise_eligibility": [
+                "ten_metre_acceleration",
+                "flying_twenty_sprint",
+                "trap_bar_deadlift",
+                "nordic_curl",
+                "cable_hip_adduction",
+                "single_leg_calf_raise"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 6,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 120,
+                  "distance_m": 10
+                },
+                {
+                  "sets": 4,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 180,
+                  "distance_m": 20
+                },
+                {
+                  "sets": 4,
+                  "reps": 4,
+                  "intensity": {
+                    "type": "percent_1rm",
+                    "value": 83
+                  },
+                  "rest_seconds": 180
+                },
+                {
+                  "sets": 4,
+                  "reps": 4,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "b",
+              "focus": "upper_body_and_trunk",
+              "exercise_eligibility": [
+                "chin_up",
+                "dumbbell_bench_press",
+                "single_arm_dumbbell_row",
+                "pallof_press",
+                "dead_bug",
+                "side_plank"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 4,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 4,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 4,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 4,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60,
+                  "duration_seconds": 30
+                }
+              ]
+            },
+            {
+              "day_id": "c",
+              "focus": "kicking_and_change_of_direction",
               "exercise_eligibility": [
                 "countermovement_jump",
-                "trap_bar_deadlift",
+                "ten_metre_deceleration",
                 "bulgarian_split_squat",
-                "nordic_curl",
-                "single_leg_calf_raise",
-                "pallof_press"
+                "single_leg_rdl",
+                "cable_hip_flexion",
+                "lateral_lunge"
               ],
               "item_prescriptions": [
                 {
@@ -9776,132 +9912,6 @@
                   },
                   "rest_seconds": 90
                 },
-                {
-                  "sets": 5,
-                  "reps": 4,
-                  "intensity": {
-                    "type": "percent_1rm",
-                    "value": 83
-                  },
-                  "rest_seconds": 180
-                },
-                {
-                  "sets": 4,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 4,
-                  "reps": 4,
-                  "intensity": {
-                    "type": "bodyweight"
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 3,
-                  "reps": 12,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 60
-                },
-                {
-                  "sets": 3,
-                  "reps": 10,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                }
-              ]
-            },
-            {
-              "day_id": "b",
-              "focus": "upper_body_strength",
-              "exercise_eligibility": [
-                "dumbbell_bench_press",
-                "chin_up",
-                "single_arm_dumbbell_row",
-                "half_kneeling_dumbbell_angled_press",
-                "face_pull",
-                "dead_bug"
-              ],
-              "item_prescriptions": [
-                {
-                  "sets": 5,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 5,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 4,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 4,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 3,
-                  "reps": 12,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                },
-                {
-                  "sets": 3,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                }
-              ]
-            },
-            {
-              "day_id": "c",
-              "focus": "unilateral_resilience",
-              "exercise_eligibility": [
-                "ten_metre_deceleration",
-                "split_squat",
-                "single_leg_rdl",
-                "lateral_lunge",
-                "cable_hip_adduction",
-                "side_plank"
-              ],
-              "item_prescriptions": [
                 {
                   "sets": 5,
                   "reps": 3,
@@ -9929,15 +9939,6 @@
                   "rest_seconds": 90
                 },
                 {
-                  "sets": 4,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
                   "sets": 3,
                   "reps": 10,
                   "intensity": {
@@ -9948,13 +9949,12 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 1,
+                  "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60,
-                  "duration_seconds": 30
+                  "rest_seconds": 90
                 }
               ]
             }
@@ -9964,14 +9964,150 @@
       "microcycle": [
         {
           "day_id": "a",
-          "focus": "lower_body_power",
+          "focus": "speed_and_lower_body_power",
+          "exercise_eligibility": [
+            "ten_metre_acceleration",
+            "flying_twenty_sprint",
+            "trap_bar_deadlift",
+            "nordic_curl",
+            "cable_hip_adduction",
+            "single_leg_calf_raise"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 1,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 120,
+              "distance_m": 10
+            },
+            {
+              "sets": 3,
+              "reps": 1,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 180,
+              "distance_m": 20
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "percent_1rm",
+                "value": 78
+              },
+              "rest_seconds": 180
+            },
+            {
+              "sets": 3,
+              "reps": 4,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 12,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_id": "b",
+          "focus": "upper_body_and_trunk",
+          "exercise_eligibility": [
+            "chin_up",
+            "dumbbell_bench_press",
+            "single_arm_dumbbell_row",
+            "pallof_press",
+            "dead_bug",
+            "side_plank"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 3,
+              "reps": 6,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 1,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60,
+              "duration_seconds": 30
+            }
+          ]
+        },
+        {
+          "day_id": "c",
+          "focus": "kicking_and_change_of_direction",
           "exercise_eligibility": [
             "countermovement_jump",
-            "trap_bar_deadlift",
+            "ten_metre_deceleration",
             "bulgarian_split_squat",
-            "nordic_curl",
-            "single_leg_calf_raise",
-            "pallof_press"
+            "single_leg_rdl",
+            "cable_hip_flexion",
+            "lateral_lunge"
           ],
           "item_prescriptions": [
             {
@@ -9982,132 +10118,6 @@
               },
               "rest_seconds": 90
             },
-            {
-              "sets": 4,
-              "reps": 4,
-              "intensity": {
-                "type": "percent_1rm",
-                "value": 78
-              },
-              "rest_seconds": 180
-            },
-            {
-              "sets": 3,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 4,
-              "intensity": {
-                "type": "bodyweight"
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 12,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 60
-            },
-            {
-              "sets": 3,
-              "reps": 10,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 60
-            }
-          ]
-        },
-        {
-          "day_id": "b",
-          "focus": "upper_body_strength",
-          "exercise_eligibility": [
-            "dumbbell_bench_press",
-            "chin_up",
-            "single_arm_dumbbell_row",
-            "half_kneeling_dumbbell_angled_press",
-            "face_pull",
-            "dead_bug"
-          ],
-          "item_prescriptions": [
-            {
-              "sets": 4,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 120
-            },
-            {
-              "sets": 4,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 120
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 12,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 60
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 60
-            }
-          ]
-        },
-        {
-          "day_id": "c",
-          "focus": "unilateral_resilience",
-          "exercise_eligibility": [
-            "ten_metre_deceleration",
-            "split_squat",
-            "single_leg_rdl",
-            "lateral_lunge",
-            "cable_hip_adduction",
-            "side_plank"
-          ],
-          "item_prescriptions": [
             {
               "sets": 4,
               "reps": 3,
@@ -10136,15 +10146,6 @@
             },
             {
               "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
               "reps": 10,
               "intensity": {
                 "type": "rpe",
@@ -10154,13 +10155,12 @@
             },
             {
               "sets": 3,
-              "reps": 1,
+              "reps": 8,
               "intensity": {
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 60,
-              "duration_seconds": 30
+              "rest_seconds": 90
             }
           ]
         }
@@ -13562,14 +13562,14 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "lower_body_power",
+              "focus": "speed_and_lower_body_power",
               "exercise_eligibility": [
                 "ten_metre_acceleration",
                 "trap_bar_deadlift",
-                "bulgarian_split_squat",
+                "forward_lunge",
                 "band_leg_curl",
-                "single_leg_calf_raise",
-                "pallof_press"
+                "cable_hip_adduction",
+                "single_leg_calf_raise"
               ],
               "item_prescriptions": [
                 {
@@ -13592,7 +13592,74 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 6,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 2,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 2,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 2,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "b",
+              "focus": "upper_body_and_stick_handling",
+              "exercise_eligibility": [
+                "medicine_ball_rotational_throw",
+                "single_arm_dumbbell_row",
+                "half_kneeling_dumbbell_angled_press",
+                "dumbbell_wrist_extension",
+                "dumbbell_wrist_curl",
+                "pallof_press"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 3,
+                  "reps": 4,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 2,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 2,
+                  "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
@@ -13629,82 +13696,14 @@
               ]
             },
             {
-              "day_id": "b",
-              "focus": "upper_body_strength",
-              "exercise_eligibility": [
-                "dumbbell_bench_press",
-                "band_assisted_pull_up",
-                "single_arm_dumbbell_row",
-                "half_kneeling_dumbbell_angled_press",
-                "face_pull",
-                "dead_bug"
-              ],
-              "item_prescriptions": [
-                {
-                  "sets": 3,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 4,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 2,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 2,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 2,
-                  "reps": 12,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                },
-                {
-                  "sets": 2,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                }
-              ]
-            },
-            {
               "day_id": "c",
-              "focus": "unilateral_resilience",
+              "focus": "low_posture_endurance",
               "exercise_eligibility": [
                 "lateral_deceleration",
-                "split_squat",
-                "single_leg_rdl",
+                "goblet_squat",
+                "romanian_deadlift",
+                "back_extension",
                 "lateral_lunge",
-                "cable_hip_adduction",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -13718,16 +13717,7 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 2,
-                  "reps": 6,
+                  "reps": 10,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
@@ -13741,16 +13731,25 @@
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 120
                 },
                 {
                   "sets": 2,
-                  "reps": 10,
+                  "reps": 12,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
                   "rest_seconds": 60
+                },
+                {
+                  "sets": 2,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 90
                 },
                 {
                   "sets": 2,
@@ -13833,14 +13832,14 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "lower_body_power",
+              "focus": "speed_and_lower_body_power",
               "exercise_eligibility": [
                 "ten_metre_acceleration",
                 "trap_bar_deadlift",
-                "bulgarian_split_squat",
+                "forward_lunge",
                 "nordic_curl",
-                "single_leg_calf_raise",
-                "pallof_press"
+                "cable_hip_adduction",
+                "single_leg_calf_raise"
               ],
               "item_prescriptions": [
                 {
@@ -13863,7 +13862,7 @@
                 },
                 {
                   "sets": 4,
-                  "reps": 6,
+                  "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 8
@@ -13880,10 +13879,77 @@
                 },
                 {
                   "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
                   "reps": 12,
                   "intensity": {
                     "type": "rpe",
                     "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "b",
+              "focus": "upper_body_and_stick_handling",
+              "exercise_eligibility": [
+                "medicine_ball_rotational_throw",
+                "single_arm_dumbbell_row",
+                "half_kneeling_dumbbell_angled_press",
+                "dumbbell_wrist_extension",
+                "dumbbell_wrist_curl",
+                "pallof_press"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 5,
+                  "reps": 4,
+                  "intensity": {
+                    "type": "bodyweight"
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 4,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 4,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 4,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
                   },
                   "rest_seconds": 60
                 },
@@ -13899,82 +13965,14 @@
               ]
             },
             {
-              "day_id": "b",
-              "focus": "upper_body_strength",
-              "exercise_eligibility": [
-                "dumbbell_bench_press",
-                "chin_up",
-                "single_arm_dumbbell_row",
-                "half_kneeling_dumbbell_angled_press",
-                "face_pull",
-                "dead_bug"
-              ],
-              "item_prescriptions": [
-                {
-                  "sets": 5,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 5,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 120
-                },
-                {
-                  "sets": 4,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 4,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 3,
-                  "reps": 12,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                },
-                {
-                  "sets": 3,
-                  "reps": 8,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 7
-                  },
-                  "rest_seconds": 60
-                }
-              ]
-            },
-            {
               "day_id": "c",
-              "focus": "unilateral_resilience",
+              "focus": "low_posture_endurance",
               "exercise_eligibility": [
                 "lateral_deceleration",
-                "split_squat",
-                "single_leg_rdl",
+                "goblet_squat",
+                "romanian_deadlift",
+                "back_extension",
                 "lateral_lunge",
-                "cable_hip_adduction",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -13988,16 +13986,7 @@
                 },
                 {
                   "sets": 4,
-                  "reps": 6,
-                  "intensity": {
-                    "type": "rpe",
-                    "value": 8
-                  },
-                  "rest_seconds": 90
-                },
-                {
-                  "sets": 4,
-                  "reps": 6,
+                  "reps": 10,
                   "intensity": {
                     "type": "rpe",
                     "value": 8
@@ -14011,16 +14000,25 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 4,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
                 },
                 {
                   "sets": 3,
-                  "reps": 10,
+                  "reps": 8,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 90
                 },
                 {
                   "sets": 3,
@@ -14040,14 +14038,14 @@
       "microcycle": [
         {
           "day_id": "a",
-          "focus": "lower_body_power",
+          "focus": "speed_and_lower_body_power",
           "exercise_eligibility": [
             "ten_metre_acceleration",
             "trap_bar_deadlift",
-            "bulgarian_split_squat",
+            "forward_lunge",
             "nordic_curl",
-            "single_leg_calf_raise",
-            "pallof_press"
+            "cable_hip_adduction",
+            "single_leg_calf_raise"
           ],
           "item_prescriptions": [
             {
@@ -14070,10 +14068,10 @@
             },
             {
               "sets": 3,
-              "reps": 6,
+              "reps": 8,
               "intensity": {
                 "type": "rpe",
-                "value": 8
+                "value": 7
               },
               "rest_seconds": 90
             },
@@ -14087,10 +14085,77 @@
             },
             {
               "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
               "reps": 12,
               "intensity": {
                 "type": "rpe",
                 "value": 8
+              },
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_id": "b",
+          "focus": "upper_body_and_stick_handling",
+          "exercise_eligibility": [
+            "medicine_ball_rotational_throw",
+            "single_arm_dumbbell_row",
+            "half_kneeling_dumbbell_angled_press",
+            "dumbbell_wrist_extension",
+            "dumbbell_wrist_curl",
+            "pallof_press"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 4,
+              "reps": 4,
+              "intensity": {
+                "type": "bodyweight"
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 12,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 12,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
               },
               "rest_seconds": 60
             },
@@ -14106,82 +14171,14 @@
           ]
         },
         {
-          "day_id": "b",
-          "focus": "upper_body_strength",
-          "exercise_eligibility": [
-            "dumbbell_bench_press",
-            "chin_up",
-            "single_arm_dumbbell_row",
-            "half_kneeling_dumbbell_angled_press",
-            "face_pull",
-            "dead_bug"
-          ],
-          "item_prescriptions": [
-            {
-              "sets": 4,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 120
-            },
-            {
-              "sets": 4,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 120
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 12,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 60
-            },
-            {
-              "sets": 3,
-              "reps": 8,
-              "intensity": {
-                "type": "rpe",
-                "value": 7
-              },
-              "rest_seconds": 60
-            }
-          ]
-        },
-        {
           "day_id": "c",
-          "focus": "unilateral_resilience",
+          "focus": "low_posture_endurance",
           "exercise_eligibility": [
             "lateral_deceleration",
-            "split_squat",
-            "single_leg_rdl",
+            "goblet_squat",
+            "romanian_deadlift",
+            "back_extension",
             "lateral_lunge",
-            "cable_hip_adduction",
             "side_plank"
           ],
           "item_prescriptions": [
@@ -14195,16 +14192,7 @@
             },
             {
               "sets": 3,
-              "reps": 6,
-              "intensity": {
-                "type": "rpe",
-                "value": 8
-              },
-              "rest_seconds": 90
-            },
-            {
-              "sets": 3,
-              "reps": 6,
+              "reps": 10,
               "intensity": {
                 "type": "rpe",
                 "value": 7
@@ -14218,16 +14206,25 @@
                 "type": "rpe",
                 "value": 7
               },
-              "rest_seconds": 90
+              "rest_seconds": 120
             },
             {
               "sets": 3,
-              "reps": 10,
+              "reps": 12,
               "intensity": {
                 "type": "rpe",
                 "value": 7
               },
               "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 90
             },
             {
               "sets": 3,
