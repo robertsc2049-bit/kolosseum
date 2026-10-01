@@ -11,9 +11,12 @@
 //   recorded it and the dates. No symptoms, diagnosis or notes are stored.
 
 import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
 
 import { pool } from "../db/pool.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
+import { headInjuryReturnFor, type HeadInjuryReturn } from "./head_injury_return.js";
 
 type Json = Record<string, unknown>;
 
@@ -53,6 +56,38 @@ export async function activeStandDown(athleteUserId: string, onDate = today()): 
     .map((r: Json) => ({ ...(r.event_payload as Json), recorded_at: new Date(String(r.occurred_at)).toISOString() }) as unknown as StandDown)
     .filter((s: StandDown) => !ended.has(s.stand_down_id) && s.from_date <= onDate && onDate <= s.until_date);
   return active.length ? active[active.length - 1] : null;
+}
+
+// The first week back after a head-injury stand-down ended (on clearance or
+// on its date), or null (head_injury_return.ts).
+export async function headInjuryReturn(athleteUserId: string, onDate = today()): Promise<HeadInjuryReturn | null> {
+  const result = await pool.query(
+    `SELECT event_type, event_payload, occurred_at FROM product_account_events
+     WHERE user_id = $1 AND event_type IN ($2, $3) ORDER BY occurred_at, event_id`,
+    [athleteUserId, RECORDED, ENDED]
+  );
+  const endedOn = new Map<string, string>();
+  for (const r of result.rows ?? []) {
+    if (r.event_type === ENDED && isRecord(r.event_payload)) endedOn.set(text(r.event_payload.stand_down_id), new Date(String(r.occurred_at)).toISOString().slice(0, 10));
+  }
+  const standDowns = (result.rows ?? [])
+    .filter((r: Json) => r.event_type === RECORDED && isRecord(r.event_payload))
+    .map((r: Json) => {
+      const p = r.event_payload as Json;
+      return { reason: text(p.reason), from_date: text(p.from_date), until_date: text(p.until_date), ended_on: endedOn.get(text(p.stand_down_id)) ?? null };
+    });
+  return headInjuryReturnFor(standDowns, onDate);
+}
+
+// Movement pattern per exercise, from the exercise registry (read once).
+let patterns: Map<string, string> | null = null;
+export function exercisePatternOf(exerciseId: string): string | undefined {
+  if (!patterns) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+    patterns = new Map(Object.values(isRecord(doc?.entries) ? doc.entries : {})
+      .filter(isRecord).map((e: Json) => [text(e.exercise_id), text(e.movement_pattern_id)] as [string, string]));
+  }
+  return patterns.get(exerciseId);
 }
 
 function validate(input: unknown, recordedBy: "athlete" | "coach"): Omit<StandDown, "stand_down_id" | "recorded_at"> {

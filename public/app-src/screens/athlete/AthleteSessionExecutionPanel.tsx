@@ -295,7 +295,9 @@ export function AthleteSessionExecutionPanel() {
   // Back after a break: a lighter re-entry week, then blocks restart at week 1.
   const reentry = isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null;
   const reentryNote = reentry && reentry.reentry_week === true
-    ? `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
+    ? reentry.after_head_injury === true
+      ? "Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading. Follow your medical professional's return-to-play plan."
+      : `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
     : null;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [

@@ -142,3 +142,18 @@ test("the registry validator refuses a malformed role variant", () => {
   assert.throws(() => validateProgramRegistry(withRoles({ "Forwards!": { exercise_eligibility: ["bench_press"], item_prescriptions: [{ sets: 3, reps: 5, rest_seconds: 90, intensity: { type: "bodyweight" } }] } })), /lower_snake_case/u);
   assert.throws(() => validateProgramRegistry(withRoles({ forwards: { exercise_eligibility: [] } })), /exercise_eligibility/u);
 });
+
+test("the programme's own exercise comes first in every choice list: a winger's hinge slot offers the trap-bar deadlift first, not block pulls", () => {
+  for (const [activity, role] of [["rugby_union", "rugby_union__backs"], ["rugby_union", undefined], ["hyrox", undefined], ["swimming", undefined]]) {
+    for (const level of LEVELS) {
+      const days = describeProgrammeSlots({ activity_id: activity, experience_level: level, days_per_week: 3, ...(role ? { sport_role_id: role } : {}) });
+      for (const day of days) for (const item of day.items.filter((i) => i.kind === "slot")) {
+        if (item.programme_pick_exercise_id) assert.equal(item.recommended_exercise_ids[0], item.programme_pick_exercise_id, `${activity}/${level}/${item.slot_id}`);
+      }
+    }
+  }
+  const backs = describeProgrammeSlots({ activity_id: "rugby_union", experience_level: "amateur", days_per_week: 3, sport_role_id: "rugby_union__backs" });
+  const hinge = backs[0].items.find((i) => i.slot_id === "a.hinge_1");
+  assert.equal(hinge.programme_pick_exercise_id, "trap_bar_deadlift");
+  assert.equal(hinge.recommended_exercise_ids[0], "trap_bar_deadlift");
+});

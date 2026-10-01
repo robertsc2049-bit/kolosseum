@@ -923,3 +923,77 @@ test(
     assert.equal((await bootstrap()).declaration_record.engine_phase1_input.sport_role_id, "rugby_union__forwards");
   }
 );
+
+test(
+  "head-injury return: a winger cleared after a concussion gets a lighter first week back with no sprints, jumps or neck loading",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    let userId = "";
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, userId);
+    });
+
+    const registration = await requestJson(server.baseUrl, "POST", "/account/register", {
+      body: {
+        actor_type: "athlete", display_name: "Concussed Wing", email: `wing-${nonce}@example.test`,
+        password: "Onboarding-proof-2026", activity_id: "rugby_union", accepted_terms: true, accepted_consent: true,
+        accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+      }
+    });
+    assertStatus(registration, 201, "register wing");
+    userId = registration.json?.account?.user_id ?? "";
+    const cookie = sessionCookie(registration, "register wing");
+    const csrf = registration.json?.csrf_token;
+    // One day a week: every session is the backs' full-body session (sprint first).
+    const fields = {
+      activity_id: "rugby_union", experience_level: "amateur", position: "wing",
+      training_days_per_week: 1, no_fixed_date: true, execution_scope: "individual", product_acknowledged: true,
+      jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+      instruction_density: "standard"
+    };
+    assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+    const { listing } = await chooseAllExercises(server.baseUrl, cookie, csrf);
+    // The programme's own exercise is offered first and marked.
+    const firstSlot = listing.days[0].items.find((i) => i.kind === "slot");
+    assert.equal(firstSlot.options[0].programme_pick, true);
+    assert.equal(firstSlot.options.filter((o) => o.programme_pick).length, 1);
+
+    const compile = async () => {
+      const b = (await requestJson(server.baseUrl, "GET", "/account/detail", { cookie })).json.bootstrap;
+      return requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+        cookie, csrf,
+        body: { phase1_input: b.declaration_record.engine_phase1_input, beta_path_context: { auth_record: b.auth_record, acknowledgement_record: b.acknowledgement_record, declaration_record: b.declaration_record } }
+      });
+    };
+    const before = await compile();
+    assertStatus(before, 201, "normal session");
+    const normalIds = before.json.planned_session.exercises.map((e) => e.exercise_id);
+    assert.ok(normalIds.includes("ten_metre_acceleration"), normalIds.join(","));
+
+    const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/stand-down", { cookie, csrf, body: { reason: "head_injury", until_date: tomorrow } }), 200, "stand-down");
+    assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/stand-down/end", { cookie, csrf, body: { cleared_by_medical_professional: true } }), 200, "cleared");
+
+    const back = await compile();
+    assertStatus(back, 201, "first session back");
+    const ids = back.json.planned_session.exercises.map((e) => e.exercise_id);
+    for (const id of ["ten_metre_acceleration", "self_resisted_neck_isometric"]) assert.ok(!ids.includes(id), `${id} held back: ${ids.join(",")}`);
+    assert.ok(ids.includes("trap_bar_deadlift"), "his strength work stays");
+    assert.deepEqual(back.json.planned_session.head_injury_return.held_back_exercise_ids.sort(), normalIds.filter((id) => !ids.includes(id)).sort());
+    const cycle = back.json.planned_session.training_cycle;
+    assert.equal(cycle.reentry.after_head_injury, true);
+    assert.equal(cycle.reentry.reentry_week, true);
+    assert.equal(cycle.meso_week, 4, "a lighter re-entry week");
+  }
+);

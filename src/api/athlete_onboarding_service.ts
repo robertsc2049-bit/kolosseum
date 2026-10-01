@@ -1067,7 +1067,7 @@ function projectExerciseChoices(days: SlotListing[], custom: CustomExercise[]): 
         prescription: item.prescription,
         selected_exercise_id: choice,
         selected_fit_note: issue ? FIT_NOTES[issue] ?? "Not one of the recommended exercises for this slot." : null,
-        options: item.recommended_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id) }))
+        options: item.recommended_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id), programme_pick: id === item.programme_pick_exercise_id }))
       };
     })
   }));

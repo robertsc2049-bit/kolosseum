@@ -1230,3 +1230,16 @@ test("a CrossFitter who scaled today's AMRAP records it as scaled, so it is neve
   assert.equal(lastEventBody?.rounds_completed, 7);
   assert.equal(lastEventBody?.scaled, true);
 });
+
+test("first week back after a concussion, the session says why it is lighter and what is left out", async () => {
+  const cycle = {
+    macro_phase: "accumulation", meso_week: 4, days_per_week: 3, session_slot: 0, cycle_model: "season", sessions_per_week: 3, day_index: 0, day_focus: "lower_body_power", deload: true,
+    reentry: { returned_on: "2026-10-01", gap_days: 21, long_layoff: false, reentry_week: true, after_head_injury: true }
+  };
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ training_cycle: cycle }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-reentry"));
+  assert.equal(screen.getByTestId("session-reentry").textContent, "Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading. Follow your medical professional's return-to-play plan.");
+  cleanup();
+});
