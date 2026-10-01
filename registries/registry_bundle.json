@@ -27937,7 +27937,7 @@
                     "trap_bar_deadlift",
                     "bulgarian_split_squat",
                     "band_leg_curl",
-                    "self_resisted_neck_isometric",
+                    "neck_flexion_isometric",
                     "pallof_press"
                   ],
                   "item_prescriptions": [
@@ -28002,9 +28002,9 @@
                   "exercise_eligibility": [
                     "push_up",
                     "band_assisted_pull_up",
-                    "landmine_press",
+                    "overhead_press",
                     "chest_supported_row",
-                    "self_resisted_neck_isometric",
+                    "neck_extension_isometric",
                     "front_rack_carry"
                   ],
                   "item_prescriptions": [
@@ -28033,7 +28033,7 @@
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 2,
@@ -28073,7 +28073,7 @@
                     "front_squat",
                     "medicine_ball_chest_pass",
                     "romanian_deadlift",
-                    "single_arm_dumbbell_row",
+                    "neck_lateral_flexion_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -28113,12 +28113,12 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 60
                     },
                     {
                       "sets": 2,
@@ -28217,7 +28217,7 @@
                     "trap_bar_deadlift",
                     "bulgarian_split_squat",
                     "nordic_curl",
-                    "self_resisted_neck_isometric",
+                    "neck_flexion_isometric",
                     "pallof_press"
                   ],
                   "item_prescriptions": [
@@ -28281,9 +28281,9 @@
                   "exercise_eligibility": [
                     "bench_press",
                     "chin_up",
-                    "landmine_press",
+                    "overhead_press",
                     "chest_supported_row",
-                    "self_resisted_neck_isometric",
+                    "neck_extension_isometric",
                     "front_rack_carry"
                   ],
                   "item_prescriptions": [
@@ -28312,7 +28312,7 @@
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 4,
@@ -28352,7 +28352,7 @@
                     "front_squat",
                     "medicine_ball_chest_pass",
                     "romanian_deadlift",
-                    "single_arm_dumbbell_row",
+                    "neck_lateral_flexion_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -28392,12 +28392,12 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 8
+                        "value": 6
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 60
                     },
                     {
                       "sets": 3,
@@ -28423,7 +28423,7 @@
                 "trap_bar_deadlift",
                 "bulgarian_split_squat",
                 "nordic_curl",
-                "self_resisted_neck_isometric",
+                "neck_flexion_isometric",
                 "pallof_press"
               ],
               "item_prescriptions": [
@@ -28487,9 +28487,9 @@
               "exercise_eligibility": [
                 "bench_press",
                 "chin_up",
-                "landmine_press",
+                "overhead_press",
                 "chest_supported_row",
-                "self_resisted_neck_isometric",
+                "neck_extension_isometric",
                 "front_rack_carry"
               ],
               "item_prescriptions": [
@@ -28518,7 +28518,7 @@
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 120
                 },
                 {
                   "sets": 3,
@@ -28558,7 +28558,7 @@
                 "front_squat",
                 "medicine_ball_chest_pass",
                 "romanian_deadlift",
-                "single_arm_dumbbell_row",
+                "neck_lateral_flexion_isometric",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -28598,12 +28598,12 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 8,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 8
+                    "value": 6
                   },
-                  "rest_seconds": 90
+                  "rest_seconds": 60
                 },
                 {
                   "sets": 3,
