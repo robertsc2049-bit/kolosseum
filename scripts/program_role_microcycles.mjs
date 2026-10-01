@@ -57,8 +57,23 @@ const GOALKEEPER = (power) => ({
   ]
 });
 
+// Rugby union forwards also scrum (neck in every plane, posture under load)
+// and lift in the lineout (overhead strength) - league has neither.
+const UNION_FORWARDS = {
+  session: ["trap_bar_deadlift 5x3 @85% r180", "bench_press 4x4 @82% r150", "overhead_press 3x5 @rpe8 r120",
+    "front_squat 3x4 @78% r150", "neck_flexion_isometric 3x5 @rpe7 r60", "sled_push 4x15m @rpe8 r120"],
+  week: [
+    ["a", "lower_body_strength_and_scrum", ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 5x3 @85% r180", "front_squat 3x4 @78% r150",
+      "sled_push 4x15m @rpe8 r120", "neck_flexion_isometric 3x5 @rpe7 r60", "neck_extension_isometric 3x5 @rpe7 r60"]],
+    ["b", "upper_body_strength_and_lineout", ["bench_press 5x4 @82% r150", "overhead_press 4x5 @rpe8 r120", "chin_up 4x5 @rpe8 r120",
+      "chest_supported_row 3x6 @rpe8 r90", "neck_lateral_flexion_isometric 3x5 @rpe7 r60", "front_rack_carry 3x30m @rpe8 r90"]],
+    ["c", "full_body_power", ["medicine_ball_chest_pass 4x4 @bw r60", "back_squat 4x4 @80% r180", "romanian_deadlift 3x6 @rpe7 r120",
+      "nordic_curl 3x4 @bw r90", NECK, "farmers_carry 3x30m @rpe8 r90"]]
+  ]
+};
+
 export const ROLE_MICROCYCLES = {
-  rugby_union: RUGBY,
+  rugby_union: { forwards: UNION_FORWARDS, backs: RUGBY.backs },
   rugby_league: RUGBY,
   // Linemen: collision strength and short-range power off the line. Skill
   // positions: acceleration and top speed, hamstrings protected.

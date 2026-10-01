@@ -57,7 +57,7 @@ test("a rugby prop and a wing train differently: the forward lifts heavier and p
   assert.equal(ids(wing)[0], "ten_metre_acceleration", "backs sprint fresh, before lifting");
   assert.ok(!ids(prop).includes("ten_metre_acceleration"));
   assert.ok(item(prop, "trap_bar_deadlift").intensity.value > item(wing, "trap_bar_deadlift").intensity.value, "forwards lift heavier");
-  assert.ok(ids(prop).includes("self_resisted_neck_isometric") && ids(wing).includes("self_resisted_neck_isometric"), "every collision player trains the neck");
+  assert.ok(ids(prop).some((id) => id.includes("neck")) && ids(wing).some((id) => id.includes("neck")), "every collision player trains the neck");
 });
 
 test("every role group trains a different week from its sport's own programme, at every level, with only training-allowed exercises", () => {
@@ -182,4 +182,39 @@ test("a footballer and a hockey player train different weeks: top speed and kick
   assert.ok(football.has("flying_twenty_sprint") && football.has("cable_hip_flexion"), "a footballer trains top speed and kicking hips");
   assert.ok(hockey.has("back_extension") && hockey.has("dumbbell_wrist_extension"), "a hockey player trains the bent posture and the wrists");
   for (const activity of ["football_soccer", "field_hockey"]) assert.ok(ids(activity).has("nordic_curl"), `${activity} protects the hamstrings`);
+});
+
+test("in season, a netball player's third session that week is upper-body work, not a second jump-and-landing day", () => {
+  for (const activity of ["netball", "volleyball", "basketball", "rugby_union", "football_soccer"]) {
+    const days = [0, 1, 2].map((slot) => phase4AssembleProgram({ activity_id: activity, experience_level: "amateur", training_cycle: { macro_phase: "in_season", meso_week: 1, days_per_week: 3, session_slot: slot } }, { constraints: { constraints_version: "1.0.0" } }).program);
+    assert.equal(days[2].training_cycle.extra_session, true, `${activity}: the third session is an extra`);
+    assert.match(days[2].training_cycle.day_focus, /upper/u, `${activity}: extra session is ${days[2].training_cycle.day_focus}`);
+    assert.equal(days[0].training_cycle.extra_session, undefined);
+  }
+  const jumps = (slot) => phase4AssembleProgram({ activity_id: "netball", experience_level: "amateur", training_cycle: { macro_phase: "in_season", meso_week: 1, days_per_week: 3, session_slot: slot } }, { constraints: { constraints_version: "1.0.0" } })
+    .program.planned_items.filter((i) => /jump|drop_to_stick|bound/u.test(i.exercise_id)).length;
+  assert.equal(jumps(2), 0, "no jumps in the extra in-season session");
+});
+
+test("a beginner weightlifter is offered the squat and hinge the programme was built around, first", () => {
+  const days = describeProgrammeSlots({ activity_id: "olympic_weightlifting", experience_level: "beginner", days_per_week: 3 });
+  const slots = days.flatMap((d) => d.items.filter((i) => i.kind === "slot"));
+  assert.ok(slots.length > 0);
+  for (const slot of slots) {
+    assert.ok(slot.programme_pick_exercise_id, `${slot.slot_id} has the programme's pick`);
+    assert.equal(slot.recommended_exercise_ids[0], slot.programme_pick_exercise_id);
+  }
+  assert.ok(slots.some((s) => s.programme_pick_exercise_id === "back_squat"));
+});
+
+test("a rugby union prop scrums and lifts in the lineout; a league prop doesn't", () => {
+  const ids = (activity) => new Set(week(activity, "forwards").flatMap((d) => d.map((i) => i.exercise_id)));
+  const union = ids("rugby_union");
+  const league = ids("rugby_league");
+  for (const id of ["neck_flexion_isometric", "neck_extension_isometric", "neck_lateral_flexion_isometric", "overhead_press"]) {
+    assert.ok(union.has(id), `union forwards: ${id}`);
+    assert.ok(!league.has(id), `league forwards: no ${id}`);
+  }
+  const backs = (activity) => JSON.stringify(week(activity, "backs").map((d) => d.map((i) => i.exercise_id)));
+  assert.equal(backs("rugby_union"), backs("rugby_league"), "backs train alike in both codes");
 });
