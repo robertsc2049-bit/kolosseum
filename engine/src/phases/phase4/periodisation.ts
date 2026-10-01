@@ -205,5 +205,7 @@ export type TrainingCycleOutput = TrainingCycle & {
   sessions_per_week: number;
   day_index: number;
   day_focus: string;
+  // A session beyond the week's planned count (it takes the upper-body day).
+  extra_session?: true;
   deload: boolean;
 };

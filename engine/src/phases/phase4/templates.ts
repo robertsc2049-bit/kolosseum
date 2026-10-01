@@ -418,7 +418,11 @@ export function templateForCycle(
   if (!model) throw new Error(`PHASE4_TEMPLATE_REGISTRY: activity ${activity} has no cycle model`);
   const perWeek = sessionsPerWeek(cycle.macro_phase, cycle.days_per_week);
   const week = perWeek > 1 && template.microcycle ? template.microcycle.slice(0, Math.min(template.microcycle.length, perWeek)) : null;
-  const day_index = week ? cycle.session_slot % week.length : 0;
+  // A session beyond the week's planned count (e.g. a third session in season)
+  // takes the upper-body day rather than repeating the lower-body/jump day.
+  const extra = week !== null && perWeek < cycle.days_per_week && cycle.session_slot >= perWeek;
+  const upperIndex = week ? week.findIndex((d) => /upper/u.test(d.focus)) : -1;
+  const day_index = week ? (extra && upperIndex >= 0 ? upperIndex : cycle.session_slot % week.length) : 0;
   const day = week ? week[day_index] : null;
   const intent = day ? day.exercise_eligibility : template.intent;
   const declared = day ? day.item_prescriptions : template.prescriptions;
@@ -435,6 +439,7 @@ export function templateForCycle(
       sessions_per_week: perWeek,
       day_index,
       day_focus: day ? day.focus : "full_body",
+      ...(extra ? { extra_session: true } : {}),
       deload
     }
   };

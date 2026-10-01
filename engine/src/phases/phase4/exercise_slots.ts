@@ -102,7 +102,7 @@ export function slotFitIssue(candidateId: string, referenceId: string, ctx: Slot
   if (patternOf(candidate) !== patternOf(reference)) return "movement_pattern_mismatch";
   if (isFast(candidate) !== isFast(reference)) return "work_type_mismatch";
   if (ctx.applicability[`${candidateId}__${ctx.activity}__training`]?.applicability_state !== "allowed") return "not_allowed_for_activity";
-  if (ctx.level === "beginner" && (candidate.difficulty_tier === "advanced" || BEGINNER_EXCLUDED.has(candidateId))) return "above_athlete_level";
+  if (ctx.level === "beginner" && ((candidate.difficulty_tier === "advanced" && candidateId !== referenceId) || BEGINNER_EXCLUDED.has(candidateId))) return "above_athlete_level";
   const avoid = new Set(ctx.constraints?.avoid_joint_stress_tags ?? []);
   if ((candidate.joint_stress_tags ?? []).some((tag) => avoid.has(tag))) return "joint_stress_avoided";
   const equipment = candidate.equipment_requirements ?? candidate.equipment_ids ?? [];
