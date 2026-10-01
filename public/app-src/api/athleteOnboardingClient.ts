@@ -97,6 +97,15 @@ export function saveAthleteEquipment(input: { full_gym: true } | { available_equ
 }
 
 // The athlete's match week: usual match/race/key-session days plus one-off fixtures.
+// A fighter's weight class: fight-camp loading in the 4 weeks before a fight.
+export function loadWeightClass(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/weight-class");
+}
+
+export function saveWeightClass(input: { competes_at_weight_class: boolean; weight_class_kg: number | null }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/weight-class", input, csrfToken);
+}
+
 export function loadMatchWeek(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/match-week");
 }

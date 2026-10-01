@@ -373,6 +373,11 @@ export function AthleteSessionExecutionPanel() {
                     {`You told us you don't have: ${(exercise.equipment_missing as string[]).join(", ").toLowerCase()}. Skip this exercise or use what you have.`}
                   </p>
                 ) : null}
+                {isRecord(exercise?.fight_camp) ? (
+                  <p className="inline-result fight-camp-note" data-tone="warning">
+                    {`Fight camp (${Number((exercise.fight_camp as JsonRecord).days_out)} days out): ${Number((exercise.fight_camp as JsonRecord).planned_sets)} × ${Number((exercise.fight_camp as JsonRecord).planned_reps)} cut to keep strength without building muscle mass.`}
+                  </p>
+                ) : null}
                 {isRecord(exercise?.match_week) ? (
                   <p className="inline-result match-week-note" data-tone="warning">
                     {matchWeekNote(exercise.match_week as JsonRecord)}
