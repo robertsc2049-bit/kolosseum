@@ -36107,7 +36107,7 @@
                   "focus": "landing_and_change_of_direction",
                   "exercise_eligibility": [
                     "drop_to_stick",
-                    "lateral_shuffle_cut",
+                    "lateral_deceleration",
                     "single_leg_rdl",
                     "lateral_lunge",
                     "cable_hip_abduction",
@@ -36374,7 +36374,7 @@
                   "focus": "landing_and_change_of_direction",
                   "exercise_eligibility": [
                     "drop_to_stick",
-                    "lateral_shuffle_cut",
+                    "lateral_deceleration",
                     "single_leg_rdl",
                     "lateral_lunge",
                     "cable_hip_abduction",
@@ -36579,7 +36579,7 @@
               "focus": "landing_and_change_of_direction",
               "exercise_eligibility": [
                 "drop_to_stick",
-                "lateral_shuffle_cut",
+                "lateral_deceleration",
                 "single_leg_rdl",
                 "lateral_lunge",
                 "cable_hip_abduction",
