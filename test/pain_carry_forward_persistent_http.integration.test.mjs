@@ -238,7 +238,8 @@ test(
     };
     assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
     assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
-    await chooseAllExercises(server.baseUrl, cookie, csrf);
+    // Her choices: the first of each slot's options by name (band rows for her row).
+    await chooseAllExercises(server.baseUrl, cookie, csrf, (options) => [...options].sort()[0]);
 
     const detail = await requestJson(server.baseUrl, "GET", "/account/detail", { cookie });
     const bootstrap = detail.json.bootstrap;
