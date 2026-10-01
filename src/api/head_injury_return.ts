@@ -44,6 +44,24 @@ export function headInjuryReturnFor(standDowns: readonly HeadInjuryStandDown[], 
   return { returned_on: on, stood_down_days: Math.max(0, Math.round((dayMs(on) - dayMs(s.from_date)) / DAY_MS)) };
 }
 
+// RPE targets come down a point; % of 1RM work keeps the coach's resolved
+// load (changing the percentage would contradict it) and loses a set instead.
+const lighterIntensity = (intensity: unknown): unknown => {
+  if (!intensity || typeof intensity !== "object") return intensity;
+  const i = intensity as { type?: unknown; value?: unknown };
+  if (i.type === "rpe" && typeof i.value === "number") return { ...i, value: Math.max(5, i.value - 1) };
+  return intensity;
+};
+
+// A coach-assigned session in the return week (the athlete's own programme
+// is a whole re-entry week instead): a set fewer on everything, RPE work 1 easier.
+export function lighterAfterHeadInjury<T extends { sets?: unknown; intensity?: unknown }>(exercises: readonly T[]): T[] {
+  return exercises.map((e) => {
+    const sets = Number(e.sets);
+    return { ...e, sets: Number.isInteger(sets) ? Math.max(1, sets - 1) : e.sets, intensity: lighterIntensity(e.intensity) };
+  });
+}
+
 // Today's session without the exercises held back in the return week. An
 // empty result means every exercise is held back - the caller refuses the
 // session rather than serve it.

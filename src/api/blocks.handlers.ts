@@ -16,7 +16,7 @@ import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
 import { applyTodaysReadiness } from "./readiness_service.js";
 import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_stand_down_service.js";
-import { holdBackAfterHeadInjury } from "./head_injury_return.js";
+import { holdBackAfterHeadInjury, lighterAfterHeadInjury } from "./head_injury_return.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
@@ -589,10 +589,13 @@ export async function compileBlock(req: Request, res: Response) {
       if (!held.exercises.length) {
         throw badRequest("Head injury return week", { failure_token: "head_injury_return_session_empty", details: { returned_on: back.returned_on } });
       }
+      // A self-directed athlete's whole week is a re-entry week; a coach's
+      // session is made lighter here.
+      const coached = !beta_individual_subject_user_id;
       planned_session_from_engine = {
         ...planned_session_from_engine,
-        exercises: held.exercises as any,
-        head_injury_return: { returned_on: back.returned_on, held_back_exercise_ids: held.held_back }
+        exercises: (coached ? lighterAfterHeadInjury(held.exercises as any[]) : held.exercises) as any,
+        head_injury_return: { returned_on: back.returned_on, held_back_exercise_ids: held.held_back, ...(coached ? { lighter: true } : {}) }
       } as any;
     }
   }
@@ -629,9 +632,10 @@ export async function compileBlock(req: Request, res: Response) {
     planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
   }
   // A fighter who competes at a weight class keeps strength without building
-  // mass in the 4 weeks before a fight (weight_class.ts).
-  if (create_session && beta_individual_subject_user_id) {
-    const camp = await applyAthleteFightCamp(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+  // mass in the 4 weeks before a fight (weight_class.ts) - on a coach's
+  // programme too, since it follows the fighter's own declaration.
+  if (create_session && pain_subject_user_id) {
+    const camp = await applyAthleteFightCamp(pain_subject_user_id, planned_session_from_engine.exercises as any);
     planned_session_from_engine = { ...planned_session_from_engine, exercises: camp.exercises as any };
   }
   // What a self-directed athlete actually did last time holds an exercise

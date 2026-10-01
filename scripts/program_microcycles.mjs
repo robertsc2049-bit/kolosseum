@@ -68,7 +68,13 @@ export const MICROCYCLES = {
   // --- Collision sports ---
   rugby_union: COLLISION("self_resisted_neck_isometric 3x4 @rpe6 r60", "front_rack_carry 3x30m @rpe8 r90"),
   rugby_league: COLLISION("self_resisted_neck_isometric 3x4 @rpe6 r60", "front_rack_carry 3x30m @rpe8 r90"),
-  american_football: COLLISION("self_resisted_neck_isometric 3x4 @rpe6 r60", "farmers_carry 3x30m @rpe8 r90"),
+  // American football: short bursts off the line, traditional max strength and
+  // power, hamstrings, the neck, change of direction - not rugby's continuous play.
+  american_football: [
+    ["a", "speed_and_lower_body_power", ["ten_metre_acceleration 5x10m @bw r120", "countermovement_jump 3x3 @bw r90", "back_squat 4x4 @80% r180", "romanian_deadlift 3x6 @rpe7 r120", "nordic_curl 3x4 @bw r90", "self_resisted_neck_isometric 3x4 @rpe6 r60"]],
+    ["b", "upper_body_strength_and_power", ["bench_press 5x4 @80% r150", "medicine_ball_chest_pass 3x5 @bw r60", "pull_up 4x5 @rpe8 r120", "dumbbell_overhead_press 3x6 @rpe8 r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "neck_extension_isometric 3x4 @rpe6 r60"]],
+    ["c", "change_of_direction_and_hips", ["lateral_deceleration 4x3 @bw r90", "barbell_hip_thrust 3x6 @rpe8 r90", "bulgarian_split_squat 3x6 @rpe8 r90", "cable_hip_adduction 3x10 @rpe7 r60", "sled_push 3x15m @rpe8 r120", "self_resisted_neck_isometric 3x4 @rpe6 r60"]]
+  ],
   ice_hockey: [
     ["a", "lower_body_power", ["lateral_bound 4x4 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "bulgarian_split_squat 3x6 @rpe8 r90", "cable_hip_adduction 3x10 @rpe7 r60", "self_resisted_neck_isometric 3x4 @rpe6 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "upper_body_strength", ["bench_press 4x5 @78% r150", "chin_up 4x6 @rpe8 r120", "chest_supported_row 3x8 @rpe8 r90", "landmine_press 3x6 @rpe8 r90", "self_resisted_neck_isometric 3x4 @rpe6 r60", "lateral_sled_drag 3x20m @rpe7 r90"]],
@@ -133,9 +139,11 @@ export const MICROCYCLES = {
   kayaking: ENDURANCE(
     ["rotational_medicine_ball_throw 4x4 @bw r90", "chin_up 4x5 @rpe8 r120", "pendlay_row 4x5 @75% r120", "trap_bar_deadlift 3x5 @75% r150", "half_kneeling_pallof_press 3x10 @rpe7 r60"],
     ["pull_up 3x6 @rpe8 r120", "dumbbell_bench_press 3x6 @rpe7 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "cable_woodchop 3x10 @rpe7 r60"]),
+  // Triathlon: the run and the bike carry most of the load - calves and
+  // Achilles, single-leg and hip stability, step-ups - with pulling for the swim.
   triathlon: ENDURANCE(
-    ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 3x4 @78% r180", "bulgarian_split_squat 3x6 @rpe7 r90", "single_leg_calf_raise 3x12 @rpe7 r60", "face_pull 3x12 @rpe7 r60"],
-    ["chin_up 3x5 @rpe8 r120", "split_squat 3x6 @rpe7 r90", "single_leg_rdl 3x6 @rpe7 r90", "cable_external_rotation 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]),
+    ["pogo_jump 2x10 @bw r60", "trap_bar_deadlift 3x4 @78% r180", "bulgarian_split_squat 3x6 @rpe7 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"],
+    ["box_step_up 3x8 @rpe7 r90", "single_leg_rdl 3x6 @rpe7 r90", "seated_calf_raise 3x12 @rpe8 r60", "cable_hip_abduction 3x12 @rpe7 r60", "pull_up 3x5 @rpe8 r120"]),
 
   // --- Combat sports ---
   boxing: [

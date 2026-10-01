@@ -218,3 +218,14 @@ test("a rugby union prop scrums and lifts in the lineout; a league prop doesn't"
   const backs = (activity) => JSON.stringify(week(activity, "backs").map((d) => d.map((i) => i.exercise_id)));
   assert.equal(backs("rugby_union"), backs("rugby_league"), "backs train alike in both codes");
 });
+
+test("an American footballer with no position trains for short bursts and max strength, not rugby's week; a triathlete trains for the run and bike, not the pool", () => {
+  const ids = (activity) => new Set(week(activity, undefined).flatMap((d) => d.map((i) => i.exercise_id)));
+  const overlap = (a, b) => { const A = ids(a), B = ids(b); return [...A].filter((x) => B.has(x)).length / Math.max(A.size, B.size); };
+  assert.ok(overlap("american_football", "rugby_union") <= 0.6, `${Math.round(overlap("american_football", "rugby_union") * 100)}%`);
+  assert.ok(overlap("swimming", "triathlon") <= 0.6, `${Math.round(overlap("swimming", "triathlon") * 100)}%`);
+  assert.ok(ids("american_football").has("ten_metre_acceleration") && ids("american_football").has("back_squat"));
+  for (const id of ["single_leg_calf_raise", "seated_calf_raise", "box_step_up", "cable_hip_abduction"]) assert.ok(ids("triathlon").has(id), `triathlon: ${id}`);
+  const neckDays = week("american_football", undefined).filter((d) => d.some((i) => i.exercise_id.includes("neck"))).length;
+  assert.ok(neckDays >= 2, "a footballer trains the neck at least twice a week");
+});
