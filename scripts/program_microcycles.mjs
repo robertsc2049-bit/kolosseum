@@ -21,20 +21,6 @@ const COLLISION = (neck, carry) => [
     "romanian_deadlift 3x6 @rpe7 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90", "side_plank 3x30s @rpe7 r60"]]
 ];
 
-// Field and court sports: lower-body power, upper-body strength with shoulder care,
-// unilateral resilience (deceleration, single leg, adductors, calves).
-const FIELD = (power, decel, extraUpper) => [
-  ["a", "lower_body_power", [
-    power, "trap_bar_deadlift 4x4 @78% r180", "bulgarian_split_squat 3x6 @rpe8 r90",
-    "nordic_curl 3x4 @bw r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
-  ["b", "upper_body_strength", [
-    "dumbbell_bench_press 4x6 @rpe8 r120", "chin_up 4x6 @rpe8 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90",
-    "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", extraUpper, "dead_bug 3x8 @rpe7 r60"]],
-  ["c", "unilateral_resilience", [
-    decel, "split_squat 3x6 @rpe8 r90", "single_leg_rdl 3x6 @rpe7 r90",
-    "lateral_lunge 3x8 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
-];
-
 // Endurance sports: two minimum-effective-dose strength sessions; a third day
 // repeats the first. Low volume, heavy enough to matter, no hypertrophy chasing.
 const ENDURANCE = (a, b) => [["a", "strength", a], ["b", "strength_endurance_resilience", b]];
@@ -95,8 +81,16 @@ export const MICROCYCLES = {
   ],
 
   // --- Field and court sports ---
-  football_soccer: FIELD("countermovement_jump 3x5 @bw r90", "ten_metre_deceleration 4x3 @bw r90", "face_pull 3x12 @rpe7 r60"),
-  field_hockey: FIELD("ten_metre_acceleration 5x10m @bw r120", "lateral_deceleration 4x3 @bw r90", "face_pull 3x12 @rpe7 r60"),
+  football_soccer: [
+    ["a", "speed_and_lower_body_power", ["ten_metre_acceleration 5x10m @bw r120", "flying_twenty_sprint 3x20m @bw r180", "trap_bar_deadlift 3x4 @78% r180", "nordic_curl 3x4 @bw r90", "cable_hip_adduction 3x10 @rpe7 r60", "single_leg_calf_raise 3x12 @rpe8 r60"]],
+    ["b", "upper_body_and_trunk", ["chin_up 3x6 @rpe8 r120", "dumbbell_bench_press 3x8 @rpe7 r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "pallof_press 3x10 @rpe7 r60", "dead_bug 3x8 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]],
+    ["c", "kicking_and_change_of_direction", ["countermovement_jump 3x5 @bw r90", "ten_metre_deceleration 4x3 @bw r90", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_rdl 3x6 @rpe7 r90", "cable_hip_flexion 3x10 @rpe7 r60", "lateral_lunge 3x8 @rpe7 r90"]]
+  ],
+  field_hockey: [
+    ["a", "speed_and_lower_body_power", ["ten_metre_acceleration 5x10m @bw r120", "trap_bar_deadlift 4x4 @78% r180", "forward_lunge 3x8 @rpe7 r90", "nordic_curl 3x4 @bw r90", "cable_hip_adduction 3x10 @rpe7 r60", "single_leg_calf_raise 3x12 @rpe8 r60"]],
+    ["b", "upper_body_and_stick_handling", ["medicine_ball_rotational_throw 4x4 @bw r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "dumbbell_wrist_extension 3x12 @rpe7 r60", "dumbbell_wrist_curl 3x12 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+    ["c", "low_posture_endurance", ["lateral_deceleration 4x3 @bw r90", "goblet_squat 3x10 @rpe7 r90", "romanian_deadlift 3x8 @rpe7 r120", "back_extension 3x12 @rpe7 r60", "lateral_lunge 3x8 @rpe7 r90", "side_plank 3x30s @rpe7 r60"]]
+  ],
   netball: [
     ["a", "lower_body_landing_and_jump", ["drop_to_stick 4x3 @bw r90", "vertical_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 3x4 @75% r180", "nordic_curl 3x4 @bw r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "upper_body_and_passing", ["medicine_ball_chest_pass 4x5 @bw r60", "dumbbell_bench_press 3x8 @rpe7 r90", "chin_up 3x6 @rpe8 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],

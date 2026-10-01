@@ -172,3 +172,14 @@ test("combat and court/racket sports each train their own week: a judoka is not 
   assert.ok(has("tennis", "dumbbell_wrist_extension"), "a tennis player trains the forearm extensors");
   assert.ok(has("netball", "drop_to_stick") && has("volleyball", "overhead_medicine_ball_slam"));
 });
+
+test("a footballer and a hockey player train different weeks: top speed and kicking hips vs the low crouch and the stick", () => {
+  const ids = (activity) => new Set(week(activity, undefined).flatMap((d) => d.map((i) => i.exercise_id)));
+  const football = ids("football_soccer");
+  const hockey = ids("field_hockey");
+  const shared = [...football].filter((x) => hockey.has(x)).length / Math.max(football.size, hockey.size);
+  assert.ok(shared <= 0.6, `${Math.round(shared * 100)}% the same`);
+  assert.ok(football.has("flying_twenty_sprint") && football.has("cable_hip_flexion"), "a footballer trains top speed and kicking hips");
+  assert.ok(hockey.has("back_extension") && hockey.has("dumbbell_wrist_extension"), "a hockey player trains the bent posture and the wrists");
+  for (const activity of ["football_soccer", "field_hockey"]) assert.ok(ids(activity).has("nordic_curl"), `${activity} protects the hamstrings`);
+});
