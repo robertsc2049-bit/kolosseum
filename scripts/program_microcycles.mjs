@@ -98,28 +98,28 @@ export const MICROCYCLES = {
   football_soccer: FIELD("countermovement_jump 3x5 @bw r90", "ten_metre_deceleration 4x3 @bw r90", "face_pull 3x12 @rpe7 r60"),
   field_hockey: FIELD("ten_metre_acceleration 5x10m @bw r120", "lateral_deceleration 4x3 @bw r90", "face_pull 3x12 @rpe7 r60"),
   netball: [
-    ["a", "landing_and_jump", ["drop_to_stick 4x3 @bw r90", "vertical_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 3x4 @75% r180", "nordic_curl 3x4 @bw r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
+    ["a", "lower_body_landing_and_jump", ["drop_to_stick 4x3 @bw r90", "vertical_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 3x4 @75% r180", "nordic_curl 3x4 @bw r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "upper_body_and_passing", ["medicine_ball_chest_pass 4x5 @bw r60", "dumbbell_bench_press 3x8 @rpe7 r90", "chin_up 3x6 @rpe8 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
     ["c", "deceleration_and_single_leg", ["lateral_deceleration 4x3 @bw r90", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_abduction 3x12 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
   basketball: [
-    ["a", "vertical_power", ["countermovement_jump 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90", "barbell_hip_thrust 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
+    ["a", "lower_body_vertical_power", ["countermovement_jump 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90", "barbell_hip_thrust 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "contact_upper_body_strength", ["dumbbell_bench_press 4x6 @rpe8 r120", "chin_up 4x6 @rpe8 r120", "landmine_press 3x6 @rpe8 r90", "chest_supported_row 3x8 @rpe8 r90", "face_pull 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
     ["c", "landing_and_change_of_direction", ["drop_to_stick 3x3 @bw r90", "lateral_shuffle_cut 4x3 @bw r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_abduction 3x12 @rpe7 r60", "seated_calf_raise 3x12 @rpe8 r60"]]
   ],
   volleyball: [
-    ["a", "jump_power", ["countermovement_jump 4x3 @bw r90", "front_squat 3x4 @72% r150", "romanian_deadlift 3x6 @rpe7 r120", "split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
-    ["b", "spiking_shoulder", ["overhead_medicine_ball_slam 3x5 @bw r60", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "chin_up 3x6 @rpe8 r120", "cable_external_rotation 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
+    ["a", "lower_body_jump_power", ["countermovement_jump 4x3 @bw r90", "front_squat 3x4 @72% r150", "romanian_deadlift 3x6 @rpe7 r120", "split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
+    ["b", "upper_body_and_spiking_shoulder", ["overhead_medicine_ball_slam 3x5 @bw r60", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "chin_up 3x6 @rpe8 r120", "cable_external_rotation 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
     ["c", "landing_and_single_leg", ["drop_to_stick 3x3 @bw r90", "box_step_up 3x8 @rpe7 r90", "single_leg_rdl 3x6 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60", "seated_calf_raise 3x12 @rpe8 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
   cricket: [
     ["a", "acceleration_and_lower_strength", ["ten_metre_acceleration 5x10m @bw r120", "trap_bar_deadlift 4x4 @78% r180", "split_squat 3x6 @rpe8 r90", "nordic_curl 3x4 @bw r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
-    ["b", "rotational_power_and_throwing_shoulder", ["medicine_ball_rotational_throw 4x4 @bw r90", "landmine_press 3x6 @rpe8 r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "barbell_reverse_wrist_curl 3x12 @rpe7 r60", "face_pull 3x12 @rpe7 r60"]],
+    ["b", "upper_body_rotation_and_throwing_shoulder", ["medicine_ball_rotational_throw 4x4 @bw r90", "landmine_press 3x6 @rpe8 r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "barbell_reverse_wrist_curl 3x12 @rpe7 r60", "face_pull 3x12 @rpe7 r60"]],
     ["c", "squat_endurance_and_trunk", ["ten_metre_deceleration 3x3 @bw r90", "goblet_squat 3x10 @rpe7 r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90", "cable_woodchop 3x8 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
   tennis: [
-    ["a", "lateral_power", ["lateral_bound 3x4 @bw r90", "lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 3x4 @75% r180", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60", "single_leg_calf_raise 3x12 @rpe8 r60"]],
-    ["b", "shoulder_and_forearm", ["medicine_ball_rotational_throw 4x4 @bw r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "cable_external_rotation 3x12 @rpe7 r60", "dumbbell_wrist_extension 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60"]],
+    ["a", "lower_body_lateral_power", ["lateral_bound 3x4 @bw r90", "lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 3x4 @75% r180", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60", "single_leg_calf_raise 3x12 @rpe8 r60"]],
+    ["b", "upper_body_shoulder_and_forearm", ["medicine_ball_rotational_throw 4x4 @bw r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "cable_external_rotation 3x12 @rpe7 r60", "dumbbell_wrist_extension 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60"]],
     ["c", "single_leg_and_trunk", ["countermovement_jump 3x3 @bw r90", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_rdl 3x6 @rpe7 r90", "cable_woodchop 3x8 @rpe7 r60", "pallof_press 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
 
@@ -147,17 +147,17 @@ export const MICROCYCLES = {
   boxing: [
     ["a", "lower_body_power_and_footwork", ["lateral_bound 3x4 @bw r90", "trap_bar_deadlift 4x4 @78% r180", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "self_resisted_neck_isometric 3x4 @rpe6 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "punching_power_and_shoulders", ["medicine_ball_chest_pass 4x5 @bw r60", "landmine_press 4x5 @rpe8 r90", "chin_up 3x6 @rpe8 r120", "single_arm_dumbbell_row 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60"]],
-    ["c", "rotational_power", ["rotational_medicine_ball_throw 4x4 @bw r90", "front_squat 3x4 @72% r150", "single_leg_rdl 3x6 @rpe7 r90", "cable_woodchop 3x8 @rpe7 r60", "dead_bug 3x8 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+    ["c", "rotational_power", ["rotational_medicine_ball_throw 4x4 @bw r90", "front_squat 3x4 @72% r150", "single_leg_rdl 3x6 @rpe7 r90", "cable_woodchop 3x8 @rpe7 r60", "self_resisted_neck_isometric 3x4 @rpe6 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
   muay_thai: [
     ["a", "kicking_power", ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 4x4 @78% r180", "single_leg_rdl 3x6 @rpe7 r90", "cable_hip_flexion 3x10 @rpe7 r60", "cable_hip_adduction 3x10 @rpe7 r60", "band_tibialis_raise 3x15 @rpe7 r60"]],
     ["b", "clinch_and_upper_body", ["chin_up 4x5 @rpe8 r120", "pendlay_row 3x6 @75% r120", "landmine_press 3x6 @rpe8 r90", "self_resisted_neck_isometric 4x4 @rpe7 r60", "farmers_carry 3x30m @rpe8 r90", "face_pull 3x12 @rpe7 r60"]],
-    ["c", "rotational_power_and_balance", ["rotational_medicine_ball_throw 4x4 @bw r90", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "medicine_ball_chest_pass 3x5 @bw r60", "pallof_press 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+    ["c", "rotational_power_and_balance", ["rotational_medicine_ball_throw 4x4 @bw r90", "bulgarian_split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "medicine_ball_chest_pass 3x5 @bw r60", "self_resisted_neck_isometric 3x4 @rpe6 r60", "side_plank 3x30s @rpe7 r60"]]
   ],
   mma: [
     ["a", "lower_body_power", ["broad_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90", "nordic_curl 3x4 @bw r90", "self_resisted_neck_isometric 3x4 @rpe6 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "pulling_grip_and_striking", ["medicine_ball_chest_pass 3x5 @bw r60", "chin_up 4x5 @rpe8 r120", "landmine_press 3x6 @rpe8 r90", "pendlay_row 3x6 @75% r120", "trap_bar_static_hold 3x20s @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60"]],
-    ["c", "full_body_power", ["rotational_medicine_ball_throw 3x4 @bw r60", "front_squat 4x4 @72% r150", "barbell_hip_thrust 3x6 @rpe8 r90", "front_rack_carry 3x30m @rpe8 r90", "sled_push 3x15m @rpe8 r120", "side_plank 3x30s @rpe7 r60"]]
+    ["c", "full_body_power", ["rotational_medicine_ball_throw 3x4 @bw r60", "front_squat 4x4 @72% r150", "barbell_hip_thrust 3x6 @rpe8 r90", "front_rack_carry 3x30m @rpe8 r90", "sled_push 3x15m @rpe8 r120", "self_resisted_neck_isometric 3x4 @rpe6 r60"]]
   ],
   wrestling: [
     ["a", "hip_power_and_level_change", ["broad_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90", "barbell_hip_thrust 3x6 @rpe8 r90", "neck_extension_isometric 3x4 @rpe7 r60", "neck_flexion_isometric 3x4 @rpe7 r60"]],
@@ -166,13 +166,13 @@ export const MICROCYCLES = {
   ],
   judo: [
     ["a", "throwing_power", ["rotational_medicine_ball_throw 4x4 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "bulgarian_split_squat 3x6 @rpe8 r90", "cable_woodchop 3x8 @rpe7 r60", "self_resisted_neck_isometric 3x4 @rpe6 r60", "side_plank 3x30s @rpe7 r60"]],
-    ["b", "gripping_and_pulling", ["chin_up 4x5 @rpe8 r120", "single_arm_dumbbell_row 4x8 @rpe8 r90", "pendlay_row 3x6 @75% r120", "dumbbell_static_hold 3x30s @rpe8 r90", "barbell_reverse_wrist_curl 3x12 @rpe7 r60", "face_pull 3x12 @rpe7 r60"]],
+    ["b", "gripping_and_pulling", ["chin_up 4x5 @rpe8 r120", "single_arm_dumbbell_row 4x8 @rpe8 r90", "pendlay_row 3x6 @75% r120", "dumbbell_static_hold 3x30s @rpe8 r90", "barbell_reverse_wrist_curl 3x12 @rpe7 r60", "self_resisted_neck_isometric 3x4 @rpe6 r60"]],
     ["c", "lower_body_and_bracing", ["broad_jump_to_stick 3x3 @bw r90", "front_squat 4x4 @72% r150", "single_leg_rdl 3x6 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60", "farmers_carry 3x30m @rpe8 r90", "pallof_press 3x10 @rpe7 r60"]]
   ],
   brazilian_jiu_jitsu: [
     ["a", "posterior_chain_and_hips", ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 4x4 @78% r180", "barbell_hip_thrust 3x8 @rpe8 r90", "cable_hip_adduction 3x12 @rpe7 r60", "nordic_curl 3x4 @bw r90", "neck_extension_isometric 3x4 @rpe6 r60"]],
     ["b", "grip_and_pulling_endurance", ["pull_up 4x6 @rpe8 r120", "chest_supported_row 3x10 @rpe8 r90", "dumbbell_static_hold 3x40s @rpe8 r90", "dumbbell_crush_grip_hold 3x30s @rpe8 r60", "dumbbell_wrist_curl 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60"]],
-    ["c", "frames_and_bracing", ["medicine_ball_scoop_toss 3x4 @bw r90", "goblet_squat 3x8 @rpe7 r90", "floor_press 3x6 @rpe8 r120", "single_leg_rdl 3x6 @rpe7 r90", "dead_bug 3x8 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+    ["c", "frames_and_bracing", ["medicine_ball_scoop_toss 3x4 @bw r90", "goblet_squat 3x8 @rpe7 r90", "floor_press 3x6 @rpe8 r120", "single_leg_rdl 3x6 @rpe7 r90", "self_resisted_neck_isometric 3x4 @rpe6 r60", "side_plank 3x30s @rpe7 r60"]]
   ]
 };
 
