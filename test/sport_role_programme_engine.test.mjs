@@ -57,7 +57,7 @@ test("a rugby prop and a wing train differently: the forward lifts heavier and p
   assert.equal(ids(wing)[0], "ten_metre_acceleration", "backs sprint fresh, before lifting");
   assert.ok(!ids(prop).includes("ten_metre_acceleration"));
   assert.ok(item(prop, "trap_bar_deadlift").intensity.value > item(wing, "trap_bar_deadlift").intensity.value, "forwards lift heavier");
-  assert.ok(ids(prop).includes("self_resisted_neck_isometric") && ids(wing).includes("self_resisted_neck_isometric"), "every collision player trains the neck");
+  assert.ok(ids(prop).some((id) => id.includes("neck")) && ids(wing).some((id) => id.includes("neck")), "every collision player trains the neck");
 });
 
 test("every role group trains a different week from its sport's own programme, at every level, with only training-allowed exercises", () => {

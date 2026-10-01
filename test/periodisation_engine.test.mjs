@@ -154,7 +154,8 @@ test("microcycle: sessions rotate through the week; one session a week is the fu
   assert.deepEqual([0, 1, 2, 3, 4].map((slot) => focus(cycle("pre_season", 2, 5, slot))),
     ["lower_power", "upper_strength", "full_body_strength", "lower_power", "upper_strength"], "5 days rotate A B C A B");
   assert.equal(focus(cycle("pre_season", 2, 1, 0)), "full_body", "1 day a week trains the full-body base session");
-  assert.deepEqual([0, 1, 2, 3].map((slot) => focus(cycle("in_season", 2, 4, slot))), ["lower_power", "upper_strength", "lower_power", "upper_strength"]);
+  assert.deepEqual([0, 1, 2, 3].map((slot) => focus(cycle("in_season", 2, 4, slot))), ["lower_power", "upper_strength", "upper_strength", "upper_strength"],
+    "in season the planned two are A and B; any extra session takes the upper-body day, never a second lower-body day");
   const oneDay = templateForCycle(TEMPLATE, "rugby_union", cycle("pre_season", 2, 1, 0), "amateur");
   assert.deepEqual(oneDay.intent, TEMPLATE.intent);
   assert.deepEqual(templateForCycle(TEMPLATE, "rugby_union", cycle("pre_season", 2, 3, 1), "amateur").intent, ["bench_press", "pull_up"]);
@@ -202,7 +203,7 @@ test("periodisation: the session output records where it sits in the plan", () =
   const program = run("rugby_union", "pro", cycle("in_season", 4, 5, 3));
   assert.deepEqual(program.training_cycle, {
     macro_phase: "in_season", meso_week: 4, days_per_week: 5, session_slot: 3,
-    cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", deload: true
+    cycle_model: "season", sessions_per_week: 2, day_index: 1, day_focus: "upper_body_strength", extra_session: true, deload: true
   });
 });
 
