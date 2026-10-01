@@ -35167,7 +35167,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "landing_and_jump",
+                  "focus": "lower_body_landing_and_jump",
                   "exercise_eligibility": [
                     "drop_to_stick",
                     "vertical_jump_to_stick",
@@ -35433,7 +35433,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "landing_and_jump",
+                  "focus": "lower_body_landing_and_jump",
                   "exercise_eligibility": [
                     "drop_to_stick",
                     "vertical_jump_to_stick",
@@ -35637,7 +35637,7 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "landing_and_jump",
+              "focus": "lower_body_landing_and_jump",
               "exercise_eligibility": [
                 "drop_to_stick",
                 "vertical_jump_to_stick",
@@ -35969,7 +35969,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "vertical_power",
+                  "focus": "lower_body_vertical_power",
                   "exercise_eligibility": [
                     "countermovement_jump",
                     "trap_bar_deadlift",
@@ -36236,7 +36236,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "vertical_power",
+                  "focus": "lower_body_vertical_power",
                   "exercise_eligibility": [
                     "countermovement_jump",
                     "trap_bar_deadlift",
@@ -36441,7 +36441,7 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "vertical_power",
+              "focus": "lower_body_vertical_power",
               "exercise_eligibility": [
                 "countermovement_jump",
                 "trap_bar_deadlift",
@@ -40912,7 +40912,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "jump_power",
+                  "focus": "lower_body_jump_power",
                   "exercise_eligibility": [
                     "countermovement_jump",
                     "front_squat",
@@ -40979,7 +40979,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "spiking_shoulder",
+                  "focus": "upper_body_and_spiking_shoulder",
                   "exercise_eligibility": [
                     "overhead_medicine_ball_slam",
                     "half_kneeling_dumbbell_angled_press",
@@ -41181,7 +41181,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "jump_power",
+                  "focus": "lower_body_jump_power",
                   "exercise_eligibility": [
                     "countermovement_jump",
                     "front_squat",
@@ -41248,7 +41248,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "spiking_shoulder",
+                  "focus": "upper_body_and_spiking_shoulder",
                   "exercise_eligibility": [
                     "overhead_medicine_ball_slam",
                     "half_kneeling_dumbbell_angled_press",
@@ -41387,7 +41387,7 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "jump_power",
+              "focus": "lower_body_jump_power",
               "exercise_eligibility": [
                 "countermovement_jump",
                 "front_squat",
@@ -41454,7 +41454,7 @@
             },
             {
               "day_id": "b",
-              "focus": "spiking_shoulder",
+              "focus": "upper_body_and_spiking_shoulder",
               "exercise_eligibility": [
                 "overhead_medicine_ball_slam",
                 "half_kneeling_dumbbell_angled_press",
@@ -41791,7 +41791,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "rotational_power_and_throwing_shoulder",
+                  "focus": "upper_body_rotation_and_throwing_shoulder",
                   "exercise_eligibility": [
                     "medicine_ball_rotational_throw",
                     "landmine_press",
@@ -42060,7 +42060,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "rotational_power_and_throwing_shoulder",
+                  "focus": "upper_body_rotation_and_throwing_shoulder",
                   "exercise_eligibility": [
                     "medicine_ball_rotational_throw",
                     "landmine_press",
@@ -42266,7 +42266,7 @@
             },
             {
               "day_id": "b",
-              "focus": "rotational_power_and_throwing_shoulder",
+              "focus": "upper_body_rotation_and_throwing_shoulder",
               "exercise_eligibility": [
                 "medicine_ball_rotational_throw",
                 "landmine_press",
@@ -50531,7 +50531,7 @@
                     "front_squat",
                     "single_leg_rdl",
                     "cable_woodchop",
-                    "dead_bug",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -50572,10 +50572,10 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -50809,7 +50809,7 @@
                     "front_squat",
                     "single_leg_rdl",
                     "cable_woodchop",
-                    "dead_bug",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -50850,10 +50850,10 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -51015,7 +51015,7 @@
                 "front_squat",
                 "single_leg_rdl",
                 "cable_woodchop",
-                "dead_bug",
+                "self_resisted_neck_isometric",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -51056,10 +51056,10 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 8,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 7
+                    "value": 6
                   },
                   "rest_seconds": 60
                 },
@@ -52170,7 +52170,7 @@
                     "pendlay_row",
                     "dumbbell_static_hold",
                     "barbell_reverse_wrist_curl",
-                    "face_pull"
+                    "self_resisted_neck_isometric"
                   ],
                   "item_prescriptions": [
                     {
@@ -52221,10 +52221,10 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 12,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     }
@@ -52453,7 +52453,7 @@
                     "pendlay_row",
                     "dumbbell_static_hold",
                     "barbell_reverse_wrist_curl",
-                    "face_pull"
+                    "self_resisted_neck_isometric"
                   ],
                   "item_prescriptions": [
                     {
@@ -52504,10 +52504,10 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 12,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     }
@@ -52662,7 +52662,7 @@
                 "pendlay_row",
                 "dumbbell_static_hold",
                 "barbell_reverse_wrist_curl",
-                "face_pull"
+                "self_resisted_neck_isometric"
               ],
               "item_prescriptions": [
                 {
@@ -52713,10 +52713,10 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 12,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 7
+                    "value": 6
                   },
                   "rest_seconds": 60
                 }
@@ -53091,7 +53091,7 @@
                     "goblet_squat",
                     "floor_press",
                     "single_leg_rdl",
-                    "dead_bug",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -53132,10 +53132,10 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -53373,7 +53373,7 @@
                     "goblet_squat",
                     "floor_press",
                     "single_leg_rdl",
-                    "dead_bug",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -53414,10 +53414,10 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 8,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -53581,7 +53581,7 @@
                 "goblet_squat",
                 "floor_press",
                 "single_leg_rdl",
-                "dead_bug",
+                "self_resisted_neck_isometric",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -53622,10 +53622,10 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 8,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 7
+                    "value": 6
                   },
                   "rest_seconds": 60
                 },
@@ -53937,7 +53937,7 @@
                     "bulgarian_split_squat",
                     "single_leg_calf_raise",
                     "medicine_ball_chest_pass",
-                    "pallof_press",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -53977,10 +53977,10 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 10,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -54216,7 +54216,7 @@
                     "bulgarian_split_squat",
                     "single_leg_calf_raise",
                     "medicine_ball_chest_pass",
-                    "pallof_press",
+                    "self_resisted_neck_isometric",
                     "side_plank"
                   ],
                   "item_prescriptions": [
@@ -54256,10 +54256,10 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 10,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
                       "rest_seconds": 60
                     },
@@ -54423,7 +54423,7 @@
                 "bulgarian_split_squat",
                 "single_leg_calf_raise",
                 "medicine_ball_chest_pass",
-                "pallof_press",
+                "self_resisted_neck_isometric",
                 "side_plank"
               ],
               "item_prescriptions": [
@@ -54463,10 +54463,10 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 10,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 7
+                    "value": 6
                   },
                   "rest_seconds": 60
                 },
@@ -54780,7 +54780,7 @@
                     "barbell_hip_thrust",
                     "front_rack_carry",
                     "sled_push",
-                    "side_plank"
+                    "self_resisted_neck_isometric"
                   ],
                   "item_prescriptions": [
                     {
@@ -54831,13 +54831,12 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 1,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
-                      "rest_seconds": 60,
-                      "duration_seconds": 30
+                      "rest_seconds": 60
                     }
                   ]
                 }
@@ -55061,7 +55060,7 @@
                     "barbell_hip_thrust",
                     "front_rack_carry",
                     "sled_push",
-                    "side_plank"
+                    "self_resisted_neck_isometric"
                   ],
                   "item_prescriptions": [
                     {
@@ -55112,13 +55111,12 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 1,
+                      "reps": 4,
                       "intensity": {
                         "type": "rpe",
-                        "value": 7
+                        "value": 6
                       },
-                      "rest_seconds": 60,
-                      "duration_seconds": 30
+                      "rest_seconds": 60
                     }
                   ]
                 }
@@ -55269,7 +55267,7 @@
                 "barbell_hip_thrust",
                 "front_rack_carry",
                 "sled_push",
-                "side_plank"
+                "self_resisted_neck_isometric"
               ],
               "item_prescriptions": [
                 {
@@ -55320,13 +55318,12 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 1,
+                  "reps": 4,
                   "intensity": {
                     "type": "rpe",
-                    "value": 7
+                    "value": 6
                   },
-                  "rest_seconds": 60,
-                  "duration_seconds": 30
+                  "rest_seconds": 60
                 }
               ]
             }
@@ -55464,7 +55461,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "lateral_power",
+                  "focus": "lower_body_lateral_power",
                   "exercise_eligibility": [
                     "drop_to_stick",
                     "lateral_deceleration",
@@ -55530,7 +55527,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "shoulder_and_forearm",
+                  "focus": "upper_body_shoulder_and_forearm",
                   "exercise_eligibility": [
                     "medicine_ball_rotational_throw",
                     "single_arm_dumbbell_row",
@@ -55731,7 +55728,7 @@
               "microcycle": [
                 {
                   "day_id": "a",
-                  "focus": "lateral_power",
+                  "focus": "lower_body_lateral_power",
                   "exercise_eligibility": [
                     "lateral_bound",
                     "lateral_deceleration",
@@ -55797,7 +55794,7 @@
                 },
                 {
                   "day_id": "b",
-                  "focus": "shoulder_and_forearm",
+                  "focus": "upper_body_shoulder_and_forearm",
                   "exercise_eligibility": [
                     "medicine_ball_rotational_throw",
                     "single_arm_dumbbell_row",
@@ -55936,7 +55933,7 @@
           "microcycle": [
             {
               "day_id": "a",
-              "focus": "lateral_power",
+              "focus": "lower_body_lateral_power",
               "exercise_eligibility": [
                 "lateral_bound",
                 "lateral_deceleration",
@@ -56002,7 +55999,7 @@
             },
             {
               "day_id": "b",
-              "focus": "shoulder_and_forearm",
+              "focus": "upper_body_shoulder_and_forearm",
               "exercise_eligibility": [
                 "medicine_ball_rotational_throw",
                 "single_arm_dumbbell_row",
