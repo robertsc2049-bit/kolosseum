@@ -43,6 +43,7 @@ import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_se
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
+import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 
 export const athleteOnboardingRouter = Router();
@@ -53,6 +54,7 @@ const readinessRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, sta
 const standDownRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const weightClassRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
@@ -286,6 +288,26 @@ athleteOnboardingRouter.get(
   })
 );
 
+// A fighter's declared weight class (fight-camp loading before a fight).
+athleteOnboardingRouter.get(
+  "/weight-class",
+  weightClassRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getWeightClass(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/weight-class",
+  weightClassRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveWeightClass(session.account_row.user_id, request.body));
+  })
+);
+
 // The athlete's match week: usual match/race/key-session days and fixtures.
 athleteOnboardingRouter.get(
   "/match-week",
@@ -377,6 +399,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof AthleteEquipmentError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof WeightClassError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

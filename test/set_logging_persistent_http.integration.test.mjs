@@ -997,3 +997,82 @@ test(
     assert.equal(cycle.meso_week, 4, "a lighter re-entry week");
   }
 );
+
+test(
+  "weight class: a boxer two weeks out from a fight keeps his heavy lifts, and his higher-rep work is cut to 3 x 6 with the reason shown",
+  { timeout: 180000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test" };
+    delete environment.SMOKE_NO_DB;
+
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    const userIds = [];
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      for (const id of userIds) await cleanup(databaseUrl, id);
+    });
+    const register = async (activity, name) => {
+      const r = await requestJson(server.baseUrl, "POST", "/account/register", {
+        body: {
+          actor_type: "athlete", display_name: name, email: `${activity}-${nonce}@example.test`,
+          password: "Onboarding-proof-2026", activity_id: activity, accepted_terms: true, accepted_consent: true,
+          accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1990-01-15"
+        }
+      });
+      assertStatus(r, 201, `register ${activity}`);
+      userIds.push(r.json.account.user_id);
+      return { cookie: sessionCookie(r, name), csrf: r.json.csrf_token };
+    };
+    const onboard = async ({ cookie, csrf }, extra) => {
+      const fields = {
+        experience_level: "amateur", training_days_per_week: 1, execution_scope: "individual", product_acknowledged: true,
+        jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+        accessibility_preferences: { reduced_motion: false, high_contrast: false, larger_text: false, screen_reader_optimised: false },
+        instruction_density: "standard", ...extra
+      };
+      assertStatus(await requestJson(server.baseUrl, "PATCH", "/account/onboarding/draft", { cookie, csrf, body: { current_stage: "review", fields } }), 200, "draft");
+      assertStatus(await requestJson(server.baseUrl, "POST", "/account/onboarding/confirm", { cookie, csrf, body: { review_confirmed: true } }), 200, "confirm");
+      await chooseAllExercises(server.baseUrl, cookie, csrf);
+    };
+
+    // A powerlifter has no weight class here.
+    const lifter = await register("powerlifting", "Lifter");
+    await onboard(lifter, { activity_id: "powerlifting", competition_event: "full_power", no_fixed_date: true });
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/weight-class", { ...lifter, body: { competes_at_weight_class: true } }), 422, "combat sports only");
+
+    const fightDate = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
+    const boxer = await register("boxing", "Boxer");
+    await onboard(boxer, { activity_id: "boxing", competition_date: fightDate });
+    const compile = async () => {
+      const b = (await requestJson(server.baseUrl, "GET", "/account/detail", { cookie: boxer.cookie })).json.bootstrap;
+      return requestJson(server.baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+        ...boxer,
+        body: { phase1_input: b.declaration_record.engine_phase1_input, beta_path_context: { auth_record: b.auth_record, acknowledgement_record: b.acknowledgement_record, declaration_record: b.declaration_record } }
+      });
+    };
+    const before = await compile();
+    assertStatus(before, 201, "session before declaring a weight class");
+    assert.ok(before.json.planned_session.exercises.every((e) => !e.fight_camp), "no fight camp without a weight class");
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/weight-class", { ...boxer, body: { competes_at_weight_class: true, weight_class_kg: 2 } }), 422, "refuse a silly weight");
+    const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/weight-class", { ...boxer, body: { competes_at_weight_class: true, weight_class_kg: 63.5 } });
+    assertStatus(saved, 200, "declare a weight class");
+    assert.deepEqual(saved.json, { competes_at_weight_class: true, weight_class_kg: 63.5 });
+
+    const camp = await compile();
+    assertStatus(camp, 201, "fight-camp session");
+    const exercises = camp.json.planned_session.exercises;
+    const loadedHighRep = exercises.filter((e) => e.intensity?.type !== "bodyweight" && !e.duration_seconds && !e.distance_m && e.reps > 6 && !e.fight_camp);
+    assert.deepEqual(loadedHighRep.map((e) => e.exercise_id), [], "no loaded work above 6 reps is left unchanged");
+    const changed = exercises.filter((e) => e.fight_camp);
+    assert.ok(changed.length > 0, `fight camp changed something: ${exercises.map((e) => `${e.exercise_id} ${e.sets}x${e.reps}`).join(", ")}`);
+    for (const e of changed) {
+      assert.ok(e.reps <= 6 && e.sets <= 3, JSON.stringify(e));
+      assert.equal(e.fight_camp.fight_date, fightDate);
+    }
+  }
+);

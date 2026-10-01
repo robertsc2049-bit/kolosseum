@@ -1243,3 +1243,13 @@ test("first week back after a concussion, the session says why it is lighter and
   assert.equal(screen.getByTestId("session-reentry").textContent, "Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading. Follow your medical professional's return-to-play plan.");
   cleanup();
 });
+
+test("in fight camp, a cut exercise says what was planned and why", async () => {
+  seedActiveSession("session_1");
+  const cut = baseExercise({ sets: 3, reps: 6, fight_camp: { fight_date: "2026-10-22", days_out: 21, planned_sets: 4, planned_reps: 10 } });
+  installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: cut }, remaining_exercises: [cut] }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  assert.ok(screen.getByText("Fight camp (21 days out): 4 × 10 cut to keep strength without building muscle mass."));
+  cleanup();
+});

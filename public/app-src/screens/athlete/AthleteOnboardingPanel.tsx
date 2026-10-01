@@ -21,6 +21,7 @@ import { TrainingPlanFields, trainingPlanOf } from "../../components/TrainingPla
 import { planDatesLabel } from "../../utils/trainingPlan";
 import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
 import { MatchWeekCard } from "./MatchWeekCard";
+import { WeightClassCard, isCombatActivity } from "./WeightClassCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ReadinessCard } from "./ReadinessCard";
@@ -675,6 +676,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
       <MatchWeekCard />
+      {isCombatActivity(fields.activity_id) ? <WeightClassCard /> : null}
       <AthleteMaxesCard key={`maxes-${String(current.declaration_version ?? "")}`} />
       <ActivityChangeCard api={api} currentActivityId={String(fields.activity_id ?? "")} />
       <PositionChangeCard api={api} />

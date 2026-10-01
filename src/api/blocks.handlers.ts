@@ -19,6 +19,7 @@ import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_
 import { holdBackAfterHeadInjury } from "./head_injury_return.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
+import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
@@ -626,6 +627,12 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Match day rest", { failure_token: matchWeek.failure_token, details: matchWeek.details });
     }
     planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
+  }
+  // A fighter who competes at a weight class keeps strength without building
+  // mass in the 4 weeks before a fight (weight_class.ts).
+  if (create_session && beta_individual_subject_user_id) {
+    const camp = await applyAthleteFightCamp(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+    planned_session_from_engine = { ...planned_session_from_engine, exercises: camp.exercises as any };
   }
   // What a self-directed athlete actually did last time holds an exercise
   // back (missed reps, RPE 9.5+) - never adds load (autoregulation_service.ts).

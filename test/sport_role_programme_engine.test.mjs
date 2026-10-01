@@ -157,3 +157,18 @@ test("the programme's own exercise comes first in every choice list: a winger's 
   assert.equal(hinge.programme_pick_exercise_id, "trap_bar_deadlift");
   assert.equal(hinge.recommended_exercise_ids[0], "trap_bar_deadlift");
 });
+
+test("combat and court/racket sports each train their own week: a judoka is not a boxer, and tennis is not cricket", () => {
+  const ids = (activity) => new Set(week(activity, undefined).flatMap((d) => d.map((i) => i.exercise_id)));
+  const overlap = (a, b) => { const A = ids(a), B = ids(b); return [...A].filter((x) => B.has(x)).length / Math.max(A.size, B.size); };
+  const families = [["boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"], ["netball", "basketball", "volleyball", "tennis", "cricket"]];
+  for (const family of families) for (const a of family) for (const b of family) {
+    if (a < b) assert.ok(overlap(a, b) <= 0.7, `${a} vs ${b}: ${Math.round(overlap(a, b) * 100)}% the same`);
+  }
+  const has = (activity, id) => ids(activity).has(id);
+  assert.ok(has("wrestling", "neck_lateral_flexion_isometric") && has("wrestling", "barbell_static_hold"), "a wrestler trains neck and grip");
+  assert.ok(has("muay_thai", "band_tibialis_raise") && has("muay_thai", "cable_hip_flexion"), "a nak muay trains shins and kicking hips");
+  assert.ok(has("boxing", "medicine_ball_chest_pass") && !has("boxing", "barbell_static_hold"), "a boxer trains punching power, not heavy grip");
+  assert.ok(has("tennis", "dumbbell_wrist_extension"), "a tennis player trains the forearm extensors");
+  assert.ok(has("netball", "drop_to_stick") && has("volleyball", "overhead_medicine_ball_slam"));
+});
