@@ -37,3 +37,14 @@ test("a session that is all sprints and jumps is held back entirely, never serve
   const { exercises } = holdBackAfterHeadInjury([{ exercise_id: "a" }, { exercise_id: "b" }], () => "sprint_max_velocity");
   assert.equal(exercises.length, 0);
 });
+
+test("a coach's session in the return week is lighter: a set fewer, RPE work a point easier, the coach's loads kept", async () => {
+  const { lighterAfterHeadInjury } = await import("../dist/src/api/head_injury_return.js");
+  const out = lighterAfterHeadInjury([
+    { exercise_id: "back_squat", sets: 4, reps: 5, intensity: { type: "percent_1rm", value: 75 }, resolved_load: { value: 112.5, unit: "kg" } },
+    { exercise_id: "chin_up", sets: 3, reps: 8, intensity: { type: "rpe", value: 8 } },
+    { exercise_id: "dead_bug", sets: 1, reps: 8, intensity: { type: "bodyweight" } }
+  ]);
+  assert.deepEqual(out.map((e) => [e.sets, e.intensity]), [[3, { type: "percent_1rm", value: 75 }], [2, { type: "rpe", value: 7 }], [1, { type: "bodyweight" }]]);
+  assert.equal(out[0].resolved_load.value, 112.5);
+});

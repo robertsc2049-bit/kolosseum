@@ -462,6 +462,7 @@ test(
     sessionIds.push(after.json.session_id);
     // Her first week back is a head-injury return week, on the coach's programme too.
     assert.equal(after.json.planned_session.head_injury_return.returned_on, new Date().toISOString().slice(0, 10));
+    assert.equal(after.json.planned_session.head_injury_return.lighter, true, "and lighter than the coach wrote it");
   }
 );
 
