@@ -125,10 +125,14 @@ export function canDoWith(exercise: SlotExercise | undefined, available: readonl
   return missing.length === 1 && (exercise.equipment_alternatives ?? []).some((id) => have.has(id));
 }
 
+// The exercises that fit a slot. The programme's own exercise (the one the
+// session was designed around) comes first when it fits; the rest follow in
+// name order.
 export function recommendedExercisesForSlot(referenceId: string, ctx: SlotContext): string[] {
-  return Object.keys(ctx.exercises)
+  const fits = Object.keys(ctx.exercises)
     .filter((id) => slotFitIssue(id, referenceId, ctx) === null)
     .sort();
+  return fits.includes(referenceId) ? [referenceId, ...fits.filter((id) => id !== referenceId)] : fits;
 }
 
 export type SlotSelectionFailure =
@@ -183,6 +187,8 @@ export type SlotListing = {
     | { kind: "fixed"; exercise_id: string; prescription: Phase4ItemPrescription | null }
     | { kind: "slot"; slot_id: string; movement_pattern_id: string; explosive: boolean; prescription: Phase4ItemPrescription | null;
         recommended_exercise_ids: string[];
+        // The programme's own exercise for this slot, when the athlete can do it.
+        programme_pick_exercise_id: string | null;
         // With choices given: the slot's choice and why it is not recommended (null when it is).
         selected_exercise_id?: string | null; selected_fit_issue?: string | null }
   >;
@@ -207,13 +213,15 @@ export function listProgrammeSlots(
         const slotId = slotIds[i];
         if (slotId === null) return { kind: "fixed" as const, exercise_id: referenceId, prescription };
         const reference = ctx.exercises[referenceId];
+        const recommended = recommendedExercisesForSlot(referenceId, ctx);
         return {
           kind: "slot" as const,
           slot_id: slotId,
           movement_pattern_id: patternOf(reference),
           explosive: isFast(reference),
           prescription,
-          recommended_exercise_ids: recommendedExercisesForSlot(referenceId, ctx),
+          recommended_exercise_ids: recommended,
+          programme_pick_exercise_id: recommended[0] === referenceId ? referenceId : null,
           ...(selections ? selectionFit(selections[slotId], referenceId, ctx) : {})
         };
       })

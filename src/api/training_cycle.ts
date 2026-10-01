@@ -106,6 +106,8 @@ export type Reentry = Readonly<{
   long_layoff: boolean;
   // This session is in the week the athlete came back.
   reentry_week: boolean;
+  // The return is from a head-injury stand-down (its first week is always a re-entry week).
+  after_head_injury?: true;
 }>;
 
 const isoDay = (dayMs: number) => new Date(dayMs).toISOString().slice(0, 10);

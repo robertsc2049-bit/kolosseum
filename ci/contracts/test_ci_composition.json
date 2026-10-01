@@ -410,6 +410,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/head_injury_return.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/training_e1rm.test.mjs"
     },
     {

@@ -23,7 +23,7 @@ const ALL_EXERCISES = [
 function programme(selections: Record<string, string> = {}, notes: Record<string, string> = {}, custom: Array<{ exercise_id: string; display_name: string }> = []) {
   const slots = [
     { slot_id: "squat.squat_1", movement_pattern_id: "squat", explosive: false, prescription: rx(3, 3, { type: "percent_1rm", value: 68 }), options: [{ exercise_id: "back_squat", display_name: "Back squat" }, { exercise_id: "paused_back_squat", display_name: "Paused back squat" }, { exercise_id: "front_squat", display_name: "Front squat" }, { exercise_id: "goblet_squat", display_name: "Goblet squat" }] },
-    { slot_id: "squat.horizontal_pull_1", movement_pattern_id: "horizontal_pull", explosive: false, prescription: rx(3, 8, { type: "rpe", value: 8 }), options: [{ exercise_id: "barbell_row", display_name: "Barbell row" }, { exercise_id: "seated_cable_row", display_name: "Seated cable row" }] }
+    { slot_id: "squat.horizontal_pull_1", movement_pattern_id: "horizontal_pull", explosive: false, prescription: rx(3, 8, { type: "rpe", value: 8 }), options: [{ exercise_id: "barbell_row", display_name: "Barbell row", programme_pick: true }, { exercise_id: "seated_cable_row", display_name: "Seated cable row" }] }
   ];
   const missing = slots.map((s) => s.slot_id).filter((id) => !selections[id]);
   return {
@@ -199,4 +199,15 @@ test("no card when the programme has nothing to choose, or before a sport is dec
   render(<ProgrammeExercisesCard />);
   await waitFor(() => assert.equal(screen.queryByText(/Loading your programme exercises/), null));
   assert.equal(screen.queryByTestId("programme-exercises"), null);
+});
+
+test("the programme's own exercise is marked as Kolosseum's pick, so the athlete can see what the session was built around", async () => {
+  installMocks({});
+  render(<ProgrammeExercisesCard />);
+  await screen.findByText("0 of 2 exercises chosen");
+  await act(async () => {
+    fireEvent.click(screen.getByText("Choose exercises"));
+  });
+  const marked = Array.from(document.querySelectorAll("option")).filter((o) => /Kolosseum's pick/u.test(o.textContent ?? ""));
+  assert.deepEqual(marked.map((o) => o.textContent), ["Barbell row (Kolosseum's pick)"]);
 });

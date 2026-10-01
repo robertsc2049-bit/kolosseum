@@ -15,7 +15,8 @@ import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
 import { trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
 import { applyTodaysReadiness } from "./readiness_service.js";
-import { activeStandDown } from "./medical_stand_down_service.js";
+import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_stand_down_service.js";
+import { holdBackAfterHeadInjury } from "./head_injury_return.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
@@ -577,6 +578,22 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Pain check-in required before this session", { failure_token: pain.failure_token, details: pain.details });
     }
     planned_session_from_engine = { ...named_session, exercises: pain.exercises as any };
+  }
+  if (create_session && pain_subject_user_id) {
+    // The first week back after a head injury holds back jumps, sprints,
+    // cutting and neck loading (head_injury_return.ts) - coached sessions too.
+    const back = await headInjuryReturn(pain_subject_user_id);
+    if (back) {
+      const held = holdBackAfterHeadInjury(planned_session_from_engine.exercises as any[], exercisePatternOf);
+      if (!held.exercises.length) {
+        throw badRequest("Head injury return week", { failure_token: "head_injury_return_session_empty", details: { returned_on: back.returned_on } });
+      }
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: held.exercises as any,
+        head_injury_return: { returned_on: back.returned_on, held_back_exercise_ids: held.held_back }
+      } as any;
+    }
   }
   // A low readiness check-in today trims a self-directed session (readiness.ts).
   if (create_session && beta_individual_subject_user_id) {

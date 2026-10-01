@@ -195,7 +195,7 @@ export function ProgrammeExercisesCard() {
                           <select aria-label={label} value={current} onChange={(event) => choose(slotId, event.target.value)}>
                             <option value="">Choose an exercise</option>
                             <optgroup label="Recommended">
-                              {options.map((o) => renderOption(String(o.exercise_id), String(o.display_name ?? o.exercise_id)))}
+                              {options.map((o) => renderOption(String(o.exercise_id), `${String(o.display_name ?? o.exercise_id)}${o.programme_pick ? " (Kolosseum's pick)" : ""}`))}
                             </optgroup>
                             {ownExercises.length ? (
                               <optgroup label="Your own exercises">{ownExercises.map((c) => renderOption(c.exercise_id, c.display_name))}</optgroup>
