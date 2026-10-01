@@ -105,7 +105,7 @@ export const MICROCYCLES = {
   basketball: [
     ["a", "lower_body_vertical_power", ["countermovement_jump 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90", "barbell_hip_thrust 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
     ["b", "contact_upper_body_strength", ["dumbbell_bench_press 4x6 @rpe8 r120", "chin_up 4x6 @rpe8 r120", "landmine_press 3x6 @rpe8 r90", "chest_supported_row 3x8 @rpe8 r90", "face_pull 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
-    ["c", "landing_and_change_of_direction", ["drop_to_stick 3x3 @bw r90", "lateral_shuffle_cut 4x3 @bw r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_abduction 3x12 @rpe7 r60", "seated_calf_raise 3x12 @rpe8 r60"]]
+    ["c", "landing_and_change_of_direction", ["drop_to_stick 3x3 @bw r90", "lateral_deceleration 4x3 @bw r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90", "cable_hip_abduction 3x12 @rpe7 r60", "seated_calf_raise 3x12 @rpe8 r60"]]
   ],
   volleyball: [
     ["a", "lower_body_jump_power", ["countermovement_jump 4x3 @bw r90", "front_squat 3x4 @72% r150", "romanian_deadlift 3x6 @rpe7 r120", "split_squat 3x6 @rpe8 r90", "single_leg_calf_raise 3x12 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
