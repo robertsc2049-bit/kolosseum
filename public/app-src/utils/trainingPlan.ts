@@ -51,7 +51,9 @@ export function trainingCycleSummary(cycle: Record<string, unknown> | null | und
   if (Number.isInteger(cycle.meso_week)) parts.push(`Week ${cycle.meso_week} of 4`);
   const perWeek = Number(cycle.sessions_per_week);
   const slot = Number(cycle.session_slot);
-  const session = Number.isInteger(perWeek) && Number.isInteger(slot) ? `Session ${(slot % perWeek) + 1} of ${perWeek}` : "";
+  const session = cycle.extra_session === true
+    ? (cycle.power_work_removed === true ? "Extra session (no power work)" : "Extra session")
+    : Number.isInteger(perWeek) && Number.isInteger(slot) ? `Session ${(slot % perWeek) + 1} of ${perWeek}` : "";
   const focus = focusLabel(cycle.day_focus);
   if (session || focus) parts.push([session, focus].filter(Boolean).join(": "));
   return parts.length ? parts.join(" · ") : null;

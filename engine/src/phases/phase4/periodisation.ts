@@ -207,5 +207,7 @@ export type TrainingCycleOutput = TrainingCycle & {
   day_focus: string;
   // A session beyond the week's planned count (it takes the upper-body day).
   extra_session?: true;
+  // The extra session had its power and impact drills taken out.
+  power_work_removed?: true;
   deload: boolean;
 };

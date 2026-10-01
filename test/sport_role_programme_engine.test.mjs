@@ -229,3 +229,17 @@ test("an American footballer with no position trains for short bursts and max st
   const neckDays = week("american_football", undefined).filter((d) => d.some((i) => i.exercise_id.includes("neck"))).length;
   assert.ok(neckDays >= 2, "a footballer trains the neck at least twice a week");
 });
+
+test("fight week: a boxer's third session keeps his strength work but drops the bounds and throws; a triathlete's drops the pogos", () => {
+  const ex = JSON.parse(fs.readFileSync("registries/exercise/exercise.registry.json", "utf8")).entries;
+  for (const [activity, drill] of [["boxing", "lateral_bound"], ["triathlon", "pogo_jump"], ["wrestling", "broad_jump_to_stick"]]) {
+    const at = (slot) => phase4AssembleProgram({ activity_id: activity, experience_level: "amateur", training_cycle: { macro_phase: "taper", meso_week: 1, days_per_week: 3, session_slot: slot } }, { constraints: { constraints_version: "1.0.0" } }).program;
+    const first = at(0);
+    const extra = at(2);
+    assert.ok(ids(first.planned_items).includes(drill), `${activity}: the planned session has ${drill}`);
+    assert.equal(extra.training_cycle.extra_session, true);
+    assert.equal(extra.training_cycle.power_work_removed, true);
+    assert.ok(extra.planned_items.every((i) => ex[i.exercise_id]?.fast_execution !== true), `${activity}: ${ids(extra.planned_items)}`);
+    assert.ok(extra.planned_items.length >= 3, `${activity}: the strength work stays`);
+  }
+});

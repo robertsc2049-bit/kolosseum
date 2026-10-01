@@ -265,7 +265,12 @@ test("content: a 3-day week rotates three different sessions, and every day asse
       for (const phase of MACRO_PHASES_BY_MODEL[cycleModelFor(activity)]) {
         const week = weekOf(activity, level, 6, phase);
         const perWeek = week[0].training_cycle.sessions_per_week;
-        const distinct = new Set(week.map((p) => p.planned_exercise_ids.join(","))).size;
+        // Planned sessions rotate; an extra one is a planned day with its power drills taken out.
+        const planned = week.filter((p) => p.training_cycle.extra_session !== true);
+        const distinct = new Set(planned.map((p) => p.planned_exercise_ids.join(","))).size;
+        for (const extra of week.filter((p) => p.training_cycle.extra_session === true)) {
+          assert.ok(planned.some((p) => extra.planned_exercise_ids.every((id) => p.planned_exercise_ids.includes(id))), `${activity}/${level}/${phase}: an extra session adds nothing new`);
+        }
         const expected = Math.min(perWeek, ENDURANCE.includes(activity) ? 2 : 3);
         assert.equal(distinct, expected, `${activity}/${level}/${phase}: ${expected} distinct sessions in a 6-day week`);
       }
