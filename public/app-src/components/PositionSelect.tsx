@@ -107,6 +107,13 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   street_lifting: [{ id: "athlete", label: "Athlete" }]
 };
 
+// Sports where a position (or event group) selects its own programme
+// (the engine's role variants) - "Not specified" trains the sport's general week.
+export const POSITION_PROGRAMME_SPORTS: ReadonlySet<string> = new Set([
+  "rugby_union", "rugby_league", "american_football", "football_soccer", "field_hockey", "ice_hockey", "cricket", "athletics"
+]);
+export const POSITION_PROMPT = "Positions train differently in this sport - choose yours so your programme fits it.";
+
 export function PositionSelect({ activityId, value, onChange, label = "Position" }: {
   activityId: string;
   value: string;
@@ -124,6 +131,7 @@ export function PositionSelect({ activityId, value, onChange, label = "Position"
           <option key={option.id} value={option.id}>{option.label}</option>
         ))}
       </select>
+      {POSITION_PROGRAMME_SPORTS.has(activityId) && (!value || value === "athlete") ? <small className="field-hint">{POSITION_PROMPT}</small> : null}
     </label>
   );
 }
