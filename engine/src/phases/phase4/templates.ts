@@ -424,9 +424,16 @@ export function templateForCycle(
   const upperIndex = week ? week.findIndex((d) => /upper/u.test(d.focus)) : -1;
   const day_index = week ? (extra && upperIndex >= 0 ? upperIndex : cycle.session_slot % week.length) : 0;
   const day = week ? week[day_index] : null;
-  const intent = day ? day.exercise_eligibility : template.intent;
+  const dayIntent = day ? day.exercise_eligibility : template.intent;
   const declared = day ? day.item_prescriptions : template.prescriptions;
-  const base = declared ?? intent.map((_, i) => defaultPrescription(i));
+  const dayBase = declared ?? dayIntent.map((_, i) => defaultPrescription(i));
+  // With no upper-body day to fall back on (a taper or transition week in a
+  // fight, race or meet calendar), an extra session keeps the day's strength
+  // work and drops its power and impact drills - never a second power day.
+  const keep = extra && upperIndex < 0 ? dayIntent.map((id) => !isFastExecution(id)) : dayIntent.map(() => true);
+  const powerRemoved = keep.some((k) => !k) && keep.some((k) => k);
+  const intent = powerRemoved ? dayIntent.filter((_, i) => keep[i]) : dayIntent;
+  const base = powerRemoved ? dayBase.filter((_, i) => keep[i]) : dayBase;
   const deload = cycle.meso_week === 4 && cycle.macro_phase !== "taper" && cycle.macro_phase !== "transition";
   return {
     program_id: template.program_id,
@@ -440,6 +447,7 @@ export function templateForCycle(
       day_index,
       day_focus: day ? day.focus : "full_body",
       ...(extra ? { extra_session: true } : {}),
+      ...(powerRemoved ? { power_work_removed: true } : {}),
       deload
     }
   };

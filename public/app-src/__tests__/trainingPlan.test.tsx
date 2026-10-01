@@ -24,3 +24,9 @@ test("the session summary names the phase, block week, session and focus", () =>
   assert.equal(trainingCycleSummary({ macro_phase: "taper", meso_week: 1, sessions_per_week: 2, session_slot: 0, day_focus: "full_body" }), "Taper · Week 1 of 4 · Session 1 of 2: Full body");
   assert.equal(trainingCycleSummary(null), null);
 });
+
+test("an extra session beyond the week's plan is labelled as one, not as session 1 again", () => {
+  assert.equal(trainingCycleSummary({ macro_phase: "taper", meso_week: 1, sessions_per_week: 2, session_slot: 2, day_focus: "lower_body_power_and_footwork", extra_session: true, power_work_removed: true }),
+    "Taper · Week 1 of 4 · Extra session (no power work): Lower body power and footwork");
+  assert.match(trainingCycleSummary({ macro_phase: "in_season", meso_week: 2, sessions_per_week: 2, session_slot: 2, day_focus: "upper_body_strength", extra_session: true }) ?? "", /Extra session: Upper body strength/u);
+});
