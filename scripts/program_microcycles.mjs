@@ -66,7 +66,13 @@ export const MICROCYCLES = {
   ],
 
   // --- Collision sports ---
-  rugby_union: COLLISION("self_resisted_neck_isometric 3x4 @rpe6 r60", "front_rack_carry 3x30m @rpe8 r90"),
+  // Union: the breakdown, scrum and lineout - neck in every plane and overhead
+  // strength. League keeps the shared collision week.
+  rugby_union: [
+    ["a", "lower_body_power", ["countermovement_jump 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "bulgarian_split_squat 3x6 @rpe8 r90", "nordic_curl 3x4 @bw r90", "neck_flexion_isometric 3x4 @rpe6 r60", "pallof_press 3x10 @rpe7 r60"]],
+    ["b", "upper_body_strength", ["bench_press 4x5 @78% r150", "chin_up 4x6 @rpe8 r120", "overhead_press 3x6 @rpe8 r120", "chest_supported_row 3x8 @rpe8 r90", "neck_extension_isometric 3x4 @rpe6 r60", "front_rack_carry 3x30m @rpe8 r90"]],
+    ["c", "full_body_power", ["broad_jump_to_stick 4x3 @bw r90", "front_squat 4x4 @75% r150", "medicine_ball_chest_pass 3x5 @bw r60", "romanian_deadlift 3x6 @rpe7 r120", "neck_lateral_flexion_isometric 3x4 @rpe6 r60", "side_plank 3x30s @rpe7 r60"]]
+  ],
   rugby_league: COLLISION("self_resisted_neck_isometric 3x4 @rpe6 r60", "front_rack_carry 3x30m @rpe8 r90"),
   // American football: short bursts off the line, traditional max strength and
   // power, hamstrings, the neck, change of direction - not rugby's continuous play.

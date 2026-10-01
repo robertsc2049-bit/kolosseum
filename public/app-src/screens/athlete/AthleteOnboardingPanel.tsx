@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { POSITION_OPTIONS_BY_ACTIVITY, PositionSelect } from "../../components/PositionSelect";
+import { POSITION_OPTIONS_BY_ACTIVITY, POSITION_PROGRAMME_SPORTS, POSITION_PROMPT, PositionSelect } from "../../components/PositionSelect";
 import { TRAINING_FOCUS_OPTIONS, TrainingFocusCheckboxes } from "../../components/TrainingFocusCheckboxes";
 import {
   accessibilityLabel,
@@ -106,7 +106,7 @@ function ProgressBar({ stage }: { stage: string }) {
   );
 }
 
-function DeclarationFacts({ fields }: { fields: JsonRecord }) {
+function DeclarationFacts({ fields, promptPosition = false }: { fields: JsonRecord; promptPosition?: boolean }) {
   return (
     <div className="declaration-grid">
       <div className="declaration-fact"><span>Activity</span><strong>{label(fields.activity_id)}</strong></div>
@@ -117,6 +117,9 @@ function DeclarationFacts({ fields }: { fields: JsonRecord }) {
       <div className="declaration-fact"><span>Training days per week</span><strong>{fields.training_days_per_week ? String(fields.training_days_per_week) : "Not declared"}</strong></div>
       <div className="declaration-fact"><span>Season or competition</span><strong>{planDatesLabel(fields)}</strong></div>
       <div className="declaration-fact"><span>Position</span><strong>{positionLabel(fields.activity_id, fields.position)}</strong></div>
+      {promptPosition && POSITION_PROGRAMME_SPORTS.has(String(fields.activity_id ?? "")) && (!fields.position || fields.position === "athlete") ? (
+        <p className="inline-result position-prompt" data-tone="warning" data-testid="position-prompt">{POSITION_PROMPT}</p>
+      ) : null}
       <div className="declaration-fact"><span>Execution scope<InfoTooltip label="About execution scope">Whether you work in your own athlete workspace (Individual), or on work assigned through an accepted coach relationship (Coach managed).</InfoTooltip></span><strong>{label(fields.execution_scope)}</strong></div>
       <div className="declaration-fact"><span>Product acknowledgement</span><strong>{fields.product_acknowledged ? "Accepted" : "Not accepted"}</strong></div>
       <div className="declaration-fact"><span>Jurisdiction<InfoTooltip label="About jurisdiction">The legal jurisdiction you selected yourself when you set up your account - it isn't inferred from your location.</InfoTooltip></span><strong>{label(fields.jurisdiction_code)}</strong></div>
@@ -309,7 +312,7 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
 
   return (
     <>
-      <DeclarationFacts fields={draft} />
+      <DeclarationFacts fields={draft} promptPosition />
       <p className="onboarding-boundary">Confirmation does not infer ability, safety, readiness, suitability, risk or medical clearance.</p>
     </>
   );
@@ -661,7 +664,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         <p className="eyebrow">Current declaration</p>
         <h3>Current effective declaration</h3>
         <p>Version {String(current.declaration_version)} · effective {formatDate(current.effective_at_iso8601)}</p>
-        <DeclarationFacts fields={fields} />
+        <DeclarationFacts fields={fields} promptPosition />
         <p className="onboarding-boundary">This declaration does not indicate ability, safety, readiness, suitability, risk or medical clearance.</p>
         <div className="onboarding-actions">
           <button className="button primary" type="button" onClick={openWorkspace}>Open training workspace</button>

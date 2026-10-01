@@ -243,3 +243,12 @@ test("fight week: a boxer's third session keeps his strength work but drops the 
     assert.ok(extra.planned_items.length >= 3, `${activity}: the strength work stays`);
   }
 });
+
+test("a union player with no position set still trains for the breakdown and lineout - neck in every plane, overhead strength - unlike league", () => {
+  const ids = (activity) => new Set(week(activity, undefined).flatMap((d) => d.map((i) => i.exercise_id)));
+  const union = ids("rugby_union");
+  const league = ids("rugby_league");
+  for (const id of ["neck_flexion_isometric", "neck_extension_isometric", "neck_lateral_flexion_isometric", "overhead_press"]) assert.ok(union.has(id), id);
+  assert.ok(!league.has("overhead_press"));
+  assert.notDeepEqual([...union].sort(), [...league].sort());
+});
