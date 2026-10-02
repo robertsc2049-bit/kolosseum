@@ -37,19 +37,21 @@ test("a full gym is assumed until the athlete says otherwise", async () => {
   installMocks();
   render(<AthleteEquipmentCard />);
   await screen.findByText("What can you train with?");
-  assert.equal((screen.getByLabelText("I train in a full gym (everything available)") as HTMLInputElement).checked, true);
-  assert.equal(screen.queryByText("Equipment I have"), null);
+  assert.equal((screen.getByLabelText("Full gym") as HTMLInputElement).checked, true);
+  assert.ok(screen.getByText("Everything is available."));
+  assert.equal(screen.queryByText("Free weights"), null, "no equipment list for a full gym");
 });
 
 test("a strongman training at home picks the home-gym set and saves it", async () => {
   const saves = installMocks();
   render(<AthleteEquipmentCard />);
   await screen.findByText("What can you train with?");
-  fireEvent.click(screen.getByLabelText("I train in a full gym (everything available)"));
-  fireEvent.click(screen.getByText("Home gym"));
+  fireEvent.click(screen.getByLabelText("Home gym"));
+  assert.ok(screen.getByText("Free weights") && screen.getByText("Strongman and sleds"), "grouped the way a gym is laid out");
   assert.equal((screen.getByLabelText("barbell") as HTMLInputElement).checked, true);
   assert.equal((screen.getByLabelText("yoke") as HTMLInputElement).checked, false);
   fireEvent.click(screen.getByLabelText("kettlebell"));
+  assert.equal((screen.getByLabelText("Choose my own") as HTMLInputElement).checked, true, "adding to the home set makes it their own");
   await act(async () => {
     fireEvent.click(screen.getByText("Save equipment"));
   });

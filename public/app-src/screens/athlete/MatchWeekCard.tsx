@@ -74,10 +74,10 @@ export function MatchWeekCard() {
       <p className="muted">Sessions on match day and the day before become a short primer with no heavy leg work; the day after, a recovery session.</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {saved ? <p className="muted" role="status">Your match week is saved.</p> : null}
-      <fieldset className="match-days">
+      <fieldset className="choice-chips match-days">
         <legend>Usual match or key-session days</legend>
         {DAYS.map(([day, label]) => (
-          <label key={day} className="match-day">
+          <label key={day} className="choice-chip match-day">
             <input type="checkbox" checked={days.includes(day)} onChange={() => toggle(day)} />
             <span>{label}</span>
           </label>

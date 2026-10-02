@@ -68,9 +68,9 @@ export function ReadinessCard() {
       {QUESTIONS.map(([key, label, lowText, highText]) => (
         <fieldset className="readiness-question" key={key}>
           <legend>{label}</legend>
-          <div className="readiness-scale">
+          <div className="choice-chips readiness-scale">
             {[1, 2, 3, 4, 5].map((n) => (
-              <label key={n} className="readiness-option">
+              <label key={n} className="choice-chip readiness-option">
                 <input type="radio" name={`readiness-${key}`} aria-label={`${label} ${n}`} checked={answers[key] === n} onChange={() => setAnswers((current) => ({ ...current, [key]: n }))} />
                 <span>{n}</span>
               </label>

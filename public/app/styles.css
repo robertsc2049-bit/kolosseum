@@ -334,6 +334,7 @@ input, select, textarea {
 }
 
 input, select { min-height: 46px; padding: 0 0.85rem; }
+input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; min-height: 0; padding: 0; accent-color: var(--bronze); }
 textarea { min-height: 135px; padding: 0.85rem; resize: vertical; }
 
 input:focus, select:focus, textarea:focus {
@@ -2444,7 +2445,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 
 .onboarding-progress {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 5px;
 }
 
@@ -4002,25 +4004,17 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .pain-swap-note { margin: 6px 0; }
 
 /* Group assignment: athlete checklist wraps on a phone. */
-.group-assign-athletes { display: flex; flex-wrap: wrap; gap: 8px; }
-.group-assign-athlete { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 12em; }
 .group-assign-results { list-style: none; padding: 0; display: grid; gap: 4px; }
 
 /* Readiness check-in: large 1-5 targets for a phone. */
-.readiness-scale { display: flex; gap: 6px; }
-.readiness-option { display: flex; align-items: center; gap: 2px; min-height: 44px; min-width: 44px; }
 
 /* Medical stand-down: an active one is prominent. */
 .stand-down.active { border-left: 4px solid var(--danger, #cf222e); padding-left: 8px; }
 .stand-down-form { display: grid; gap: 8px; }
 
 /* Equipment card: checklist wraps on a phone. */
-.equipment-options { display: flex; flex-wrap: wrap; gap: 8px; }
-.equipment-option { display: flex; align-items: center; gap: 4px; min-height: 44px; min-width: 10em; }
 
 /* Match week card: weekday toggles and fixtures wrap on a phone. */
-.match-days { display: flex; flex-wrap: wrap; gap: 8px; }
-.match-day { display: flex; align-items: center; gap: 4px; min-height: 44px; }
 .match-fixtures ul { list-style: none; padding: 0; display: grid; gap: 6px; }
 .match-fixtures li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
@@ -4034,3 +4028,25 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .workout-score-results li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .rx-scaled-toggle { border: 0; padding: 0; margin: 0 0 8px; display: grid; gap: 4px; }
 .rx-scaled-toggle .check-line { min-height: 44px; }
+
+/* Choice chips: one tappable, thumb-sized control for every pick-one or
+   pick-several choice (sport, readiness 1-5, match days, equipment,
+   athletes). The native input stays for forms and screen readers; the chip
+   shows the state. */
+.choice-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.choice-chips > legend, .choice-group-title { display: block; width: 100%; margin: 0 0 6px; padding: 0; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
+.choice-chip { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--ink-2); color: var(--stone); font-size: 0.9rem; line-height: 1.2; text-align: center; cursor: pointer; user-select: none; }
+.choice-chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.choice-chip:has(input:checked) { border-color: var(--bronze); background: rgba(126, 184, 0, 0.16); color: var(--bronze-light); font-weight: 700; }
+.choice-chip:has(input:focus-visible) { outline: 3px solid var(--bronze-light); outline-offset: 2px; }
+.choice-chip:has(input:disabled) { opacity: 0.5; cursor: not-allowed; }
+.choice-section { display: grid; gap: 14px; margin: 12px 0; }
+.choice-hint { margin: 4px 0 0; color: var(--stone-dim); font-size: 0.8rem; }
+.dob-fields { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 8px; }
+.dob-fields label { display: grid; gap: 4px; color: var(--stone-dim); font-size: 0.75rem; font-weight: 700; }
+.sport-chosen { margin: 8px 0 0; color: var(--stone); font-weight: 700; }
+/* Grouped questions inside a card (readiness, fixtures, date of birth) read
+   as labelled sections, not as browser-default boxed fieldsets. */
+.readiness-question, .match-fixtures, .date-of-birth { margin: 0 0 14px; padding: 0; border: 0; min-width: 0; }
+.readiness-question > legend, .match-fixtures > legend, .date-of-birth > legend { margin: 0 0 6px; padding: 0; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
+.readiness-question small { display: block; margin-top: 6px; }

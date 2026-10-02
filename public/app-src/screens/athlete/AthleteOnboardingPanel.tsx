@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { AccessibilityCheckboxes } from "../../components/AccessibilityCheckboxes";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { SportPicker } from "../../components/SportPicker";
 import { POSITION_OPTIONS_BY_ACTIVITY, POSITION_PROGRAMME_SPORTS, POSITION_PROMPT, PositionSelect } from "../../components/PositionSelect";
 import { TRAINING_FOCUS_OPTIONS, TrainingFocusCheckboxes } from "../../components/TrainingFocusCheckboxes";
 import {
@@ -177,11 +178,12 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
     return (
       <>
         <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
-        <ActivityCategoryFilter
+        <SportPicker
           value={activityId}
           onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined, competition_event: undefined, season_start_date: undefined, season_end_date: undefined, competition_date: undefined, no_fixed_date: undefined })}
-          sportLabel="Activity (optional)"
-          allowEmptySport
+          label="Your sport (optional)"
+          allowNone
+          name="onboarding-sport"
         />
         {activityId ? (
           <PositionSelect

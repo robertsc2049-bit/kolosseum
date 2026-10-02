@@ -77,8 +77,9 @@ export function ActivityCategoryFilter({
   }
 
   // Category changed by the user: narrow the value if it no longer fits.
+  // Nothing chosen yet stays unchosen - the picker never picks a sport itself.
   useEffect(() => {
-    if (!isValid(category, value)) {
+    if (value !== "" && !isValid(category, value)) {
       const options = sportOptionsForCategory(category);
       onChange(allowEmptySport ? "" : (options[0]?.activity_id ?? value));
     }
@@ -106,7 +107,7 @@ export function ActivityCategoryFilter({
       <label className="field">
         <span>{sportLabel}</span>
         <select value={value} onChange={(event) => onChange(event.target.value)}>
-          {allowEmptySport ? <option value="">Choose</option> : null}
+          {allowEmptySport || value === "" ? <option value="">Choose</option> : null}
           {sportOptions.map((activity) => (
             <option key={activity.activity_id} value={activity.activity_id}>{activity.display_label}</option>
           ))}
