@@ -535,13 +535,12 @@ export async function compileBlock(req: Request, res: Response) {
   if (!p6.ok) {
     throw badRequest("Phase 6 failed", { failure_token: p6.failure_token, details: p6.details });
   }
-  // A self-directed athlete's own exercises and numbered repeats are named
-  // for the session ("Zercher squat", "Back squat (2)").
-  const displayNames = beta_individual_subject_user_id
-    ? sessionExerciseDisplayNames(
-        p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
-        await getAthleteCustomExerciseNames(beta_individual_subject_user_id))
-    : {};
+  // Every exercise is named for the session ("Back squat"), as are a
+  // self-directed athlete's own exercises and numbered repeats ("Zercher
+  // squat", "Back squat (2)").
+  const displayNames = sessionExerciseDisplayNames(
+    p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
+    beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
   const named_session: Phase6SessionOutput = {
     ...p6.session,
     ...(session_reentry && isRecord((p6.session as any).training_cycle)

@@ -45,7 +45,10 @@ function formatDate(value: unknown): string {
   return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleString("en-GB");
 }
 
+const JURISDICTION_LABELS: Record<string, string> = { england_wales: "England and Wales", scotland: "Scotland", northern_ireland: "Northern Ireland", other: "Other" };
+
 function label(value: unknown): string {
+  if (typeof value === "string" && JURISDICTION_LABELS[value]) return JURISDICTION_LABELS[value];
   const text = String(value ?? "").replaceAll("_", " ").trim();
   return text ? text.charAt(0).toUpperCase() + text.slice(1) : "not selected";
 }
