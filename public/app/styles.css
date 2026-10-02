@@ -4281,3 +4281,72 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #view-account [data-collapsed="true"] .account-section-toggle { height: 100%; max-height: none; }
   #view-account [data-collapsible] { margin-top: 0; }
 }
+
+/* Phone disclosure (components/PhoneDisclosure.tsx): invisible on wider
+   screens, one button that opens the controls on a phone. */
+.phone-disclosure,
+.phone-disclosure-body { display: contents; }
+.phone-disclosure-toggle { display: none; }
+
+@media (max-width: 620px) {
+  .phone-disclosure-toggle { display: inline-flex; grid-column: 1 / -1; width: 100%; }
+  .phone-disclosure[data-open="false"] > .phone-disclosure-body { display: none; }
+
+  /* Filters: a closed filter box is just its button. */
+  .history-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .history-filters:has(> .phone-disclosure[data-open="false"]) { padding: 0; border: 0; background: none; }
+  .programme-library-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2); margin-top: var(--k-space-3); }
+  .programme-library-controls > .programme-search-field,
+  .programme-library-controls .programme-clear-filters { grid-column: 1 / -1; }
+  input[type="date"] { min-width: 0; max-width: 100%; display: block; }
+
+  /* Events: the list first; the create form is a button until needed. */
+  .events-layout { display: flex; flex-direction: column; align-items: stretch; }
+  .panel-header .inline-controls { flex-direction: row; flex-wrap: wrap; width: 100%; gap: var(--k-space-2); }
+  .panel-header .inline-controls > .button { min-height: 40px; min-width: 0; padding: var(--k-space-2) var(--k-space-3); flex: 1 1 0; font-size: 0.85rem; }
+  .events-layout > #coach-event-create-root { order: 2; }
+  .events-layout > .panel { order: 1; }
+  #coach-event-create-root .form-panel:has(.phone-disclosure[data-open="false"]) { gap: var(--k-space-3); }
+
+  /* Logging a workout, one-handed between sets. */
+  .set-log-list { gap: var(--k-space-2); }
+  .set-log-row { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) auto minmax(0, 1fr) auto auto; gap: 6px; }
+  .set-log-row > span:first-child { color: var(--stone-dim); font-size: 0.85rem; font-weight: 700; }
+  .set-log-field input { width: 100%; padding: 0 0.5rem; text-align: center; font-size: 1.05rem; font-weight: 700; }
+  .set-log-row .button.small-button { min-height: 44px; padding: 0 var(--k-space-3); font-size: 0.82rem; }
+  .set-log-row.logged { grid-template-columns: 2.6rem minmax(0, 1fr) auto; min-height: 44px; padding: 0 0 0 var(--k-space-1); border-radius: var(--k-radius-s); background: rgba(126, 184, 0, 0.08); }
+  .set-log-row.logged strong { color: var(--bronze-light); }
+  .set-log-row .field-error { grid-column: 1 / -1; }
+
+  .session-actions { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--k-space-2); }
+  .session-actions .button { min-height: 44px; padding: var(--k-space-2); font-size: 0.85rem; line-height: 1.2; }
+  .session-actions > .button { grid-column: span 3; }
+  #completeExerciseButton,
+  #startSessionButton { grid-column: 1 / -1; min-height: 52px; font-size: 1rem; }
+  #reportRpeButton,
+  #reportBorgButton,
+  #reportCr10Button { grid-column: span 2; }
+  #splitSessionButton { grid-column: 1 / -1; min-height: 40px; border-color: transparent; background: transparent; color: var(--stone-dim); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* The rest timer stays in reach above the tab bar while it runs. */
+  .rest-timer-panel {
+    position: sticky;
+    z-index: 5;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    display: flex;
+    padding: var(--k-space-2) var(--k-space-2) var(--k-space-2) var(--k-space-4);
+    align-items: center;
+    gap: var(--k-space-3);
+    background: var(--ink-3);
+    box-shadow: var(--shadow);
+  }
+  .rest-timer-panel .eyebrow { margin: 0; }
+  .rest-timer-panel .rest-timer-remaining { flex: 1; margin: 0; font-size: 1.9rem; line-height: 1; }
+  .rest-timer-panel .button-row { flex-wrap: nowrap; }
+
+  /* Session progress: one compact row. */
+  .session-summary .metric-stack { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--k-space-2); }
+  .session-summary .metric-stack > div { display: grid; padding: var(--k-space-2) 0 0; border: 0; }
+  .session-summary .metric-stack span { font-size: 0.72rem; }
+  .session-summary .metric-stack strong { font-size: 1.3rem; }
+}

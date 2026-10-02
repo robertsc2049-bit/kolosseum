@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { KolosseumStarterForm } from "./KolosseumStarterForm";
 import {
   filteredProgrammeTemplates,
@@ -181,6 +182,7 @@ export function CoachProgrammeLibraryPanel() {
           />
         </label>
 
+        <PhoneDisclosure label="Filters" openLabel="Hide filters" count={[statusFilter !== "all", activityFilter !== "all", sortMode !== "updated_desc"].filter(Boolean).length}>
         <label className="field">
           <span>State</span>
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
@@ -216,6 +218,7 @@ export function CoachProgrammeLibraryPanel() {
         <button className="button secondary programme-clear-filters" type="button" onClick={clearFilters}>
           Clear filters
         </button>
+        </PhoneDisclosure>
       </div>
 
       <div className="programme-library-result-line">

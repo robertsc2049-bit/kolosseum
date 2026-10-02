@@ -694,8 +694,17 @@ export function useAthleteSessionExecution() {
       isPr = response?.is_pr === true;
       return undefined;
     }, true);
+    // Rest between sets: a newly logged set that isn't the last starts the
+    // exercise's rest timer (the last set's rest starts on completing the
+    // exercise); correcting an already-logged set doesn't.
+    const exercise = currentStepExercise(state.sessionState);
+    const earlierLogs = (state.sessionState?.set_logs as JsonRecord | undefined)?.[exerciseId];
+    const alreadyLogged = Array.isArray(earlierLogs) && earlierLogs.some((entry) => Number((entry as JsonRecord).set_index) === setIndex);
+    if (ok && !alreadyLogged && String(exercise?.exercise_id ?? exercise?.item_id ?? "") === exerciseId && setIndex < Number(exercise?.sets)) {
+      maybeStartRestTimer(state.sessionState);
+    }
     return ok ? isPr : null;
-  }, [runMutation]);
+  }, [runMutation, maybeStartRestTimer, state.sessionState]);
 
   const openAddExercisePanel = useCallback((defaultExerciseId: string) => {
     setState((current) => ({
