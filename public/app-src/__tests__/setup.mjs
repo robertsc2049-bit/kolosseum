@@ -23,3 +23,7 @@ Object.defineProperty(globalThis, "navigator", {
 for (const key of ["CustomEvent", "Event", "MouseEvent", "KeyboardEvent"]) {
   globalThis[key] = dom.window[key];
 }
+
+// Shared reads (api/transport.ts) are never reused across calls in tests:
+// tests swap their mocked responses between calls.
+globalThis.__KOLOSSEUM_READ_REUSE_MS__ = 0;

@@ -82,11 +82,71 @@ export function __resetRecentRequestFailureForTests(): void {
   lastRequestFailure = null;
 }
 
+// Reads are shared. Each screen fetches what it needs on its own, so one
+// page load used to send the same read dozens of times (GET /account/detail
+// 45-65 times) - a slow first load on a phone. An identical read already in
+// flight is shared, and a just-finished one is reused for a moment. Any other
+// request (a change) clears them, so a read after a change always goes to the
+// server. Each caller gets its own copy of the answer.
+const READ_ONLY_POSTS = new Set(["/sessions/beta-athlete-today", "/sessions/beta-athlete-history"]);
+const DEFAULT_READ_REUSE_MS = 1500;
+type SharedRead = { promise: Promise<JsonRecord>; settledAt: number | null };
+const sharedReads = new Map<string, SharedRead>();
+
+function readKey(method: string, path: string, body?: JsonRecord): string | null {
+  if (method === "GET" || method === "HEAD") return `${method} ${path}`;
+  if (method === "POST" && READ_ONLY_POSTS.has(path)) return `POST ${path} ${JSON.stringify(body ?? null)}`;
+  return null;
+}
+
+// Tests swap their mocked responses between calls, so they set this to 0.
+function readReuseMs(): number {
+  const configured = (globalThis as { __KOLOSSEUM_READ_REUSE_MS__?: number }).__KOLOSSEUM_READ_REUSE_MS__;
+  return typeof configured === "number" ? configured : DEFAULT_READ_REUSE_MS;
+}
+
+// Changes made outside this transport (the legacy app's own requests) say so
+// with this event.
+globalThis.document?.addEventListener?.("kolosseum:data-changed", () => sharedReads.clear());
+
+export function __resetSharedReadsForTests(): void {
+  sharedReads.clear();
+}
+
 export async function request(
   method: string,
   path: string,
   body?: JsonRecord,
   csrfToken = ""
+): Promise<JsonRecord> {
+  const key = readKey(method, path, body);
+  if (key === null) {
+    sharedReads.clear();
+    try {
+      return await send(method, path, body, csrfToken);
+    }
+    finally {
+      sharedReads.clear();
+    }
+  }
+  const existing = sharedReads.get(key);
+  if (existing && (existing.settledAt === null || Date.now() - existing.settledAt < readReuseMs())) {
+    return structuredClone(await existing.promise);
+  }
+  const entry: SharedRead = { promise: send(method, path, body, csrfToken), settledAt: null };
+  sharedReads.set(key, entry);
+  entry.promise.then(
+    () => { entry.settledAt = Date.now(); },
+    () => { if (sharedReads.get(key) === entry) sharedReads.delete(key); }
+  );
+  return structuredClone(await entry.promise);
+}
+
+async function send(
+  method: string,
+  path: string,
+  body: JsonRecord | undefined,
+  csrfToken: string
 ): Promise<JsonRecord> {
   const headers: Record<string, string> = {};
 
