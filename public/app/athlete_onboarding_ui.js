@@ -34,10 +34,15 @@ async function request(method, path, body) {
     const csrf = String(stored().csrfToken ?? "");
     if (csrf) headers["x-kolosseum-csrf"] = csrf;
   }
+  // A change: the React screens' shared reads (app-src/api/transport.ts)
+  // go back to the server, both while it runs and once it has landed.
+  const changesData = method !== "GET" && method !== "HEAD";
+  if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
   const response = await fetch(path, {
     method, credentials: "same-origin", headers,
     body: body === undefined ? undefined : JSON.stringify(body)
   });
+  if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
   const text = await response.text().catch(() => "");
   let payload = null;
   try { payload = text ? JSON.parse(text) : null; }

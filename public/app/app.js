@@ -473,6 +473,20 @@ function showNotice(message, type = "success", options = {}) {
   const existingActions = elements.notice.querySelector(".notice-actions");
   if (existingActions) existingActions.remove();
 
+  // Every notice can be dismissed: a confirmation also goes on a tap, and
+  // nothing (an error with a report button included) is left covering the
+  // screen with no way to close it.
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "notice-dismiss";
+  dismiss.setAttribute("aria-label", "Dismiss");
+  dismiss.addEventListener("click", (event) => {
+    event.stopPropagation();
+    clearTimeout(noticeTimer);
+    elements.notice.hidden = true;
+  });
+  elements.notice.appendChild(dismiss);
+
   if (type === "error" && options.failureContext) {
     const actions = document.createElement("div");
     actions.className = "notice-actions";
@@ -490,9 +504,10 @@ function showNotice(message, type = "success", options = {}) {
     return;
   }
 
+  // A confirmation is brief; an error stays long enough to read.
   noticeTimer = setTimeout(() => {
     elements.notice.hidden = true;
-  }, 4200);
+  }, type === "error" ? 8000 : 2600);
 }
 
 async function readJson(response) {
@@ -684,6 +699,10 @@ async function api(method, path, body) {
       String(state.csrfToken ?? "");
   }
 
+  // A change: the React screens' shared reads (app-src/api/transport.ts)
+  // go back to the server, both while it runs and once it has landed.
+  const changesData = method !== "GET" && method !== "HEAD" && path !== "/sessions/beta-athlete-today" && path !== "/sessions/beta-athlete-history";
+  if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
   const response = await fetch(path, {
     method,
     credentials: "same-origin",
@@ -693,6 +712,7 @@ async function api(method, path, body) {
         ? undefined
         : JSON.stringify(body)
   });
+  if (changesData) globalThis.document?.dispatchEvent(new Event("kolosseum:data-changed"));
 
   const payload = await readJson(response);
 
@@ -986,7 +1006,7 @@ function setView(view) {
   }
 
   if (view === "history" && state.role === "athlete") {
-    refreshHistory().catch(handleError);
+    refreshHistory({ quiet: true }).catch(handleError);
   }
 
   if (view === "session" && state.role === "athlete" && state.activeSessionId) {
