@@ -974,12 +974,12 @@ function setView(view) {
     section.hidden = section.id !== `view-${view}`;
   }
 
-  for (const button of document.querySelectorAll(".nav-item")) {
+  for (const button of document.querySelectorAll(".nav-item, .tab-item[data-view]")) {
     button.classList.toggle("active", button.dataset.view === view);
   }
 
   elements.topbarTitle.textContent = viewTitle(view);
-  elements.sidebar.classList.remove("open");
+  setNavigationDrawerOpen(false);
 
   if (view === "today" && state.role === "athlete") {
     loadAthleteToday().catch(handleError);
@@ -6142,8 +6142,30 @@ document.addEventListener("kolosseum:open-notification-target", (event) => {
   }
 });
 
+// The sidebar is a drawer on phones and tablets: opened from the menu
+// button or the tab bar's More, closed by choosing a screen, tapping
+// outside it or pressing Escape.
+function setNavigationDrawerOpen(open) {
+  elements.sidebar.classList.toggle("open", open);
+  document.body.classList.toggle("nav-drawer-open", open);
+  document.getElementById("tabMoreButton")?.setAttribute("aria-expanded", String(open));
+}
+
 elements.menuButton.addEventListener("click", () => {
-  elements.sidebar.classList.toggle("open");
+  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"));
+});
+document.getElementById("tabMoreButton")?.addEventListener("click", () => {
+  setNavigationDrawerOpen(!elements.sidebar.classList.contains("open"));
+});
+document.addEventListener("click", (event) => {
+  if (!elements.sidebar.classList.contains("open")) return;
+  const target = event.target;
+  if (!(target instanceof Element)) return;
+  if (target.closest("#sidebar, #menuButton, #tabMoreButton")) return;
+  setNavigationDrawerOpen(false);
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && elements.sidebar.classList.contains("open")) setNavigationDrawerOpen(false);
 });
 
 elements.topbarAccount.addEventListener("click", () => setView("account"));

@@ -4050,3 +4050,179 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .readiness-question, .match-fixtures, .date-of-birth { margin: 0 0 14px; padding: 0; border: 0; min-width: 0; }
 .readiness-question > legend, .match-fixtures > legend, .date-of-birth > legend { margin: 0 0 6px; padding: 0; color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
 .readiness-question small { display: block; margin-top: 6px; }
+
+/* ------------------------------------------------------------------
+   Phone and tablet layer. One place for the small-screen system:
+   - the main screens in a bottom tab bar (thumb reach), everything
+     else in the sidebar drawer behind More, with a backdrop;
+   - a slim top bar that clears the notch and the home indicator;
+   - one heading per screen (the top bar already names it);
+   - tighter cards, stat tiles and empty states, so a phone screen
+     shows content instead of padding;
+   - nothing ever wider than the screen (no sideways scroll);
+   - no double-tap zoom or grey tap flash on controls.
+   ------------------------------------------------------------------ */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+button, a, label, select, summary, [role="button"] { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+
+.entry-form-fields { display: grid; gap: var(--k-space-5); }
+.entry-form-fields > .muted.small { margin: calc(var(--k-space-3) * -1) 0 0; }
+
+.tab-bar { display: none; }
+
+@media (max-width: 900px) {
+  .menu-button { display: none; }
+
+  .sidebar {
+    top: 0;
+    bottom: 0;
+    height: 100dvh;
+    padding-top: calc(var(--k-space-5) + env(safe-area-inset-top));
+    padding-bottom: calc(var(--k-space-4) + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .sidebar .main-nav { margin-top: var(--k-space-6); }
+
+  body.nav-drawer-open { overflow: hidden; }
+  body.nav-drawer-open .app-content::after {
+    position: fixed;
+    z-index: 25;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    content: "";
+  }
+
+  .tab-bar {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line-soft);
+    background: rgba(10, 12, 10, 0.94);
+    backdrop-filter: blur(18px);
+  }
+  .tab-item {
+    display: grid;
+    min-width: 0;
+    min-height: 52px;
+    padding: 4px 2px;
+    flex: 1 1 0;
+    gap: 3px;
+    place-items: center;
+    align-content: center;
+    border: 0;
+    border-radius: var(--k-radius-m);
+    background: transparent;
+    color: var(--stone-dim);
+    cursor: pointer;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .tab-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab-icon { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .tab-item.active { color: var(--bronze-light); }
+  .tab-item.active .tab-icon { stroke-width: 2.2; }
+  .tab-item[aria-expanded="true"] { color: var(--stone); background: rgba(232, 238, 230, 0.06); }
+
+  .views { padding-bottom: calc(88px + env(safe-area-inset-bottom)); }
+  .notice { right: 0.75rem; bottom: calc(76px + env(safe-area-inset-bottom)); left: 0.75rem; max-width: none; }
+
+  .topbar {
+    min-height: 0;
+    padding: calc(var(--k-space-3) + env(safe-area-inset-top)) var(--k-space-4) var(--k-space-3);
+  }
+  .topbar .eyebrow { display: none; }
+  .topbar h1 { font-size: 1.35rem; line-height: 1.1; }
+  .topbar-actions { gap: var(--k-space-2); }
+  .topbar .icon-button { width: 40px; height: 40px; }
+
+  .notification-panel {
+    position: fixed;
+    top: calc(64px + env(safe-area-inset-top));
+    right: var(--k-space-3);
+    left: var(--k-space-3);
+    width: auto;
+    max-height: calc(100dvh - 160px);
+  }
+
+  /* Nothing is wider than the screen. */
+  .views { overflow-x: clip; }
+  .two-column > *,
+  .account-settings-grid > *,
+  .hero-grid > *,
+  .metric-cards > * { min-width: 0; }
+  .account-settings-grid { grid-template-columns: 1fr; }
+  .views code,
+  .views strong,
+  .views small,
+  .views p,
+  .views h2,
+  .views h3 { overflow-wrap: anywhere; }
+
+  /* The coach's athlete list comes before the forms that change it. */
+  #view-athletes:not([hidden]) { display: flex; flex-direction: column; }
+  #view-athletes > .page-heading { order: 0; }
+  #view-athletes > #athleteDirectoryStatus { order: 1; }
+  #view-athletes > .athlete-directory-layout { order: 2; margin-bottom: var(--k-space-4); }
+  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout) { order: 3; }
+  .athlete-directory-layout > .athlete-directory-panel { order: -1; }
+}
+
+@media (max-width: 620px) {
+  .views { padding-top: var(--k-space-4); padding-right: var(--k-space-4); padding-left: var(--k-space-4); }
+
+  /* Headings: the top bar names the screen, so the page heading drops
+     its eyebrow and shrinks; its actions sit in one compact row. */
+  h2 { font-size: 1.55rem; }
+  h3 { font-size: 1.08rem; }
+  .page-heading { margin: 0 0 var(--k-space-4); gap: var(--k-space-3); }
+  .page-heading > div > .eyebrow:first-child { display: none; }
+  .page-heading h2 { margin-bottom: 0.3rem; }
+  .page-heading .muted { font-size: 0.92rem; }
+  .page-heading .inline-controls { flex-direction: row; flex-wrap: wrap; gap: var(--k-space-2); }
+  .page-heading .inline-controls > .button,
+  .page-heading > .button { min-height: 40px; min-width: 0; padding: var(--k-space-2) var(--k-space-3); flex: 1 1 0; font-size: 0.85rem; }
+
+  /* Cards: less padding, less shouting. */
+  .panel { padding: var(--k-space-4); border-radius: var(--k-radius-m); }
+  .panel .panel { padding: var(--k-space-3); }
+  .panel-kicker { margin-bottom: var(--k-space-3); }
+  .panel-header { flex-wrap: wrap; margin-bottom: var(--k-space-3); }
+  .hero-grid { gap: var(--k-space-3); margin-bottom: var(--k-space-3); }
+  .session-hero,
+  .compact-panel { min-height: 0; }
+  .large-number { margin: 0 0 0.3rem; font-size: 2.6rem; line-height: 1; }
+
+  /* Stat tiles: three small tiles to a row instead of tall cards. */
+  .metric-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--k-space-2); }
+  .metric-card.panel { padding: var(--k-space-3) var(--k-space-2) var(--k-space-3) var(--k-space-3); }
+  .metric-card span { font-size: 0.7rem; line-height: 1.25; }
+  .metric-card strong { margin-top: 0.3rem; font-size: 1.7rem; line-height: 1; }
+
+  /* Empty states: a short line, not half a screen. */
+  .empty-state { min-height: 0; padding: var(--k-space-4) var(--k-space-2); }
+  .empty-icon { width: 36px; height: 36px; margin-bottom: var(--k-space-2); font-size: 1rem; }
+  .empty-state p { margin-bottom: 0; font-size: 0.92rem; }
+
+  /* Forms: 16px text so iOS never zooms in on focus. */
+  input, select, textarea { font-size: 16px; }
+  textarea { min-height: 104px; }
+
+  /* Account: identity card fits the width. */
+  .account-card { min-height: 0; flex-wrap: wrap; }
+  .account-card .large-avatar { width: 52px; height: 52px; font-size: 1.1rem; }
+
+  /* Sign-in: a compact brand bar above the form. */
+  .entry-view { min-height: 100dvh; }
+  .entry-brand { display: block; padding: calc(var(--k-space-5) + env(safe-area-inset-top)) var(--k-space-5) 0; border-right: 0; background: transparent; }
+  .entry-brand::after,
+  .entry-brand h1,
+  .entry-brand-inner > p,
+  .entry-points { display: none; }
+  .entry-form-wrap { padding: var(--k-space-4) var(--k-space-4) calc(var(--k-space-8) + env(safe-area-inset-bottom)); background: transparent; }
+}

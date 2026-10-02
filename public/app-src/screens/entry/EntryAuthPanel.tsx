@@ -167,7 +167,7 @@ export function EntryAuthPanel() {
           </div>
 
           {createMode ? (
-            <div>
+            <div className="entry-form-fields">
               <fieldset className="role-choice">
                 <legend>Account type</legend>
                 <label>
