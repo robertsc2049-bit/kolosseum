@@ -1166,7 +1166,7 @@ test("no signal in the gym basement: a logged set is saved on the phone and sent
     fireEvent.click(screen.getByText("Log set 1"));
   });
   await screen.findByText("5 reps × 144 kg · saved on this phone");
-  assert.equal(screen.getByTestId("offline-pending").textContent, "1 entry saved on this phone - they will send when you are back online.");
+  assert.equal(screen.getByTestId("offline-pending").textContent, "1 entry saved on this phone - it will send when you are back online.");
   assert.equal(sent.length, 0, "nothing reached the server");
   const queued = JSON.parse(window.localStorage.getItem("kolosseum.offlineSessionEvents.v1") ?? "[]");
   assert.equal(queued.length, 1);

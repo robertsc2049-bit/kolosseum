@@ -596,7 +596,7 @@ export function AthleteSessionExecutionPanel() {
           {session.mutationError ? <p className="muted" role="status" aria-live="polite">{session.mutationError}</p> : null}
           {session.offlinePending > 0 ? (
             <p className="inline-result" data-tone="warning" role="status" data-testid="offline-pending">
-              {`${session.offlinePending} ${session.offlinePending === 1 ? "entry" : "entries"} saved on this phone - they will send when you are back online.`}
+              {`${session.offlinePending} ${session.offlinePending === 1 ? "entry" : "entries"} saved on this phone - ${session.offlinePending === 1 ? "it" : "they"} will send when you are back online.`}
             </p>
           ) : null}
         </article>

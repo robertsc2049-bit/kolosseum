@@ -969,8 +969,9 @@ export function sessionExerciseDisplayNames(ids: string[], custom: Record<string
   for (const id of ids) {
     const repeat = repeatOf(id);
     const base = repeat?.base ?? id;
-    if (!repeat && !isCustomExerciseId(base)) continue;
     const label = isCustomExerciseId(base) ? custom[base] ?? base : exerciseLabel(base);
+    // An id with no registry name gains nothing from being "named" after itself.
+    if (!label || (!repeat && !isCustomExerciseId(base) && label === base)) continue;
     names[id] = repeat ? `${label} (${repeat.n})` : label;
   }
   return names;

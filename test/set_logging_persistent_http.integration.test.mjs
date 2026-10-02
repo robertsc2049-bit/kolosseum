@@ -485,6 +485,7 @@ test(
     assertStatus(first, 201, "first session");
     const squat = byId(first, "back_squat");
     assert.equal(squat.intensity.type, "percent_1rm");
+    assert.equal(squat.display_name, "Back squat", "every exercise is named for the session, not just own exercises");
     assert.ok(!squat.resolved_load, "no weight without a max");
     assert.equal(squat.load_guidance.type, "rpe");
     assert.ok(squat.load_guidance.value >= 6 && squat.load_guidance.value <= 9, JSON.stringify(squat.load_guidance));

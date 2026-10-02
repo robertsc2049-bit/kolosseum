@@ -417,7 +417,7 @@ test("reaching the review stage shows all declared facts, and confirming shows t
   assert.ok(screen.getByText("Powerlifting"));
   assert.ok(screen.getByText("Individual"));
   assert.ok(screen.getByText("Accepted"));
-  assert.ok(screen.getByText("England wales"));
+  assert.ok(screen.getByText("England and Wales"));
   assert.ok(screen.getByText("reduced motion"));
   assert.ok(screen.getByText("Detailed"));
   assert.ok(screen.getByLabelText("About execution scope"));

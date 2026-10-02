@@ -906,7 +906,7 @@ test(
     const backSquatLabel = squatDay.items.find((i) => i.exercise_id === "back_squat").display_name;
     assert.equal(named("back_squat__r2"), `${backSquatLabel} (2)`, "the repeat is its own, numbered entry");
     assert.equal(named("custom_zercher_squat"), "Zercher squat", "her own exercise by its name");
-    assert.equal(named("back_squat"), undefined, "registry exercises are unchanged");
+    assert.equal(named("back_squat"), backSquatLabel, "registry exercises carry their registry name");
 
     // Becoming a beginner keeps every choice - nothing is locked out - and
     // flags any that are no longer recommended for the new level.
