@@ -4226,3 +4226,58 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .entry-points { display: none; }
   .entry-form-wrap { padding: var(--k-space-4) var(--k-space-4) calc(var(--k-space-8) + env(safe-area-inset-bottom)); background: transparent; }
 }
+
+/* Account sections on a phone: a settings list of titles that open on tap
+   (see enhanceAccountSections in app.js). */
+.account-section-toggle { display: none; }
+
+@media (max-width: 620px) {
+  #view-account [data-collapsible] { position: relative; }
+  #view-account [data-collapsible] > :first-child { cursor: pointer; }
+  #view-account .account-section-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: grid;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--stone-dim);
+    cursor: pointer;
+  }
+  #view-account .account-section-toggle::before {
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    content: "";
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform var(--k-motion-base) var(--k-ease-standard);
+  }
+  #view-account [data-collapsed="false"] .account-section-toggle::before { transform: translateY(2px) rotate(-135deg); }
+
+  #view-account [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
+  #view-account [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
+  #view-account [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
+  #view-account [data-collapsed="true"] > :first-child,
+  #view-account [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
+  #view-account [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.account-section-toggle),
+  #view-account [data-collapsed="true"] > :first-child > :not(:has(h2, h3)):not(h2, h3):not(.eyebrow) { display: none; }
+  #view-account [data-collapsed="true"] :is(h2, h3) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
+  #view-account [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
+  #view-account [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
+
+  /* Settings rows sit close together, like one list. */
+  #view-account .account-settings-grid,
+  #view-account .two-column { gap: var(--k-space-2); }
+  #view-account > div > div > .panel,
+  #view-account > div > .panel { margin-bottom: var(--k-space-2); }
+}
+@media (max-width: 620px) {
+  /* A closed row's chevron is centred on the row; an open one sits by the title. */
+  #view-account [data-collapsed="true"] .account-section-toggle { height: 100%; max-height: none; }
+  #view-account [data-collapsible] { margin-top: 0; }
+}
