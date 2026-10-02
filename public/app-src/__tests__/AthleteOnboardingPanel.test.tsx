@@ -178,7 +178,7 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Activity declaration");
 
-  fireEvent.change(screen.getByLabelText("Activity (optional)"), { target: { value: "powerlifting" } });
+  fireEvent.click(screen.getByLabelText("Powerlifting"));
   await act(async () => {
     fireEvent.click(screen.getByText("Save and continue"));
   });
@@ -204,7 +204,7 @@ test("sport is optional - Save and continue proceeds from the activity stage wit
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Activity declaration");
 
-  assert.equal((screen.getByLabelText("Activity (optional)") as HTMLSelectElement).value, "");
+  assert.equal((screen.getByLabelText("Not yet") as HTMLInputElement).checked, true, "no sport is chosen for the athlete");
 
   await act(async () => {
     fireEvent.click(screen.getByText("Save and continue"));

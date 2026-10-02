@@ -104,11 +104,11 @@ export function GroupAssignSection({ template, relationships, assignments, onAss
       </div>
       {!athletes.length ? <p className="muted">No connected athletes in this programme's sport.</p> : (
         <>
-          <div className="group-assign-athletes">
+          <div className="choice-chips group-assign-athletes">
             {athletes.map((relationship) => {
               const id = String(relationship.athlete_user_id);
               return (
-                <label key={id} className="group-assign-athlete">
+                <label key={id} className="choice-chip group-assign-athlete">
                   <input
                     type="checkbox"
                     checked={selected.includes(id)}

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
-import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
+import { DateOfBirthInput } from "../../components/DateOfBirthInput";
+import { SportPicker } from "../../components/SportPicker";
 import { useEntryAuth } from "./useEntryAuth";
 
 // DEV NOTE: see useEntryAuth.ts's own DEV NOTE for the full port mapping and
@@ -208,27 +209,12 @@ export function EntryAuthPanel() {
                 />
               </label>
 
-              <label className="field">
-                <span>Date of birth</span>
-                <input
-                  type="date"
-                  autoComplete="bday"
-                  required
-                  max={new Date().toISOString().slice(0, 10)}
-                  value={dateOfBirth}
-                  onChange={(event) => setDateOfBirth(event.target.value)}
-                />
-              </label>
+              <DateOfBirthInput value={dateOfBirth} onChange={setDateOfBirth} />
               <p className="muted small">Kolosseum is for adults (18 and over) during the beta. We only keep that you confirmed you are 18 or over, not your date of birth.</p>
 
               {role === "athlete" ? (
                 <>
-                  <ActivityCategoryFilter
-                    value={activityId}
-                    onChange={setActivityId}
-                    sportLabel="Primary activity (optional)"
-                    allowEmptySport
-                  />
+                  <SportPicker value={activityId} onChange={setActivityId} label="Your sport (optional)" allowNone name="signup-sport" />
                   <p className="muted small">You can leave this blank and declare it later.</p>
                 </>
               ) : null}

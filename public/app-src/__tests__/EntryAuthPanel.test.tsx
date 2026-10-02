@@ -36,6 +36,14 @@ function installMocks(options: { termsUnavailable?: boolean } = {}) {
   }) as typeof fetch;
 }
 
+// Fills the day, month and year boxes from an ISO date.
+function enterDateOfBirth(iso: string) {
+  const [year, month, day] = iso.split("-");
+  fireEvent.change(screen.getByLabelText("Date of birth day"), { target: { value: day } });
+  fireEvent.change(screen.getByLabelText("Date of birth month"), { target: { value: month } });
+  fireEvent.change(screen.getByLabelText("Date of birth year"), { target: { value: year } });
+}
+
 test.afterEach(() => {
   cleanup();
 });
@@ -46,7 +54,7 @@ test("renders create mode by default with role, activity and consent fields", as
   await screen.findByText("v3");
 
   assert.ok(screen.getByText("Create your account"));
-  assert.ok(screen.getByText("Primary activity (optional)"));
+  assert.ok(screen.getByText("Your sport (optional)"));
   assert.ok(screen.getByLabelText(/controlled-beta terms/));
 });
 
@@ -57,7 +65,7 @@ test("switching to the sign-in tab hides create-only fields and changes the subm
 
   fireEvent.click(screen.getByRole("tab", { name: "Sign in" }));
 
-  assert.equal(screen.queryByText("Primary activity (optional)"), null);
+  assert.equal(screen.queryByText("Your sport (optional)"), null);
   assert.ok(screen.getByRole("button", { name: "Sign in" }));
   assert.ok(screen.getByText("Forgot password?"));
 });
@@ -69,7 +77,7 @@ test("choosing the coach role hides the primary activity field", async () => {
 
   fireEvent.click(screen.getByRole("radio", { name: /Coach/ }));
 
-  assert.equal(screen.queryByText("Primary activity (optional)"), null);
+  assert.equal(screen.queryByText("Your sport (optional)"), null);
 });
 
 test("the create-account submit button is disabled while terms are unavailable", async () => {
@@ -95,7 +103,7 @@ test("a successful registration dispatches the session bridge event with the raw
   await screen.findByText("v3");
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Alex" } });
-  fireEvent.change(screen.getByLabelText("Date of birth"), { target: { value: "1990-01-15" } });
+  enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
@@ -130,10 +138,10 @@ test("registering an athlete with no activity chosen succeeds - the activity pic
   render(<EntryAuthPanel />);
   await screen.findByText("v3");
 
-  assert.equal((screen.getByLabelText("Primary activity (optional)") as HTMLSelectElement).value, "");
+  assert.equal((screen.getByLabelText("Not yet") as HTMLInputElement).checked, true, "no sport is chosen for the athlete");
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Alex" } });
-  fireEvent.change(screen.getByLabelText("Date of birth"), { target: { value: "1990-01-15" } });
+  enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
@@ -157,11 +165,10 @@ test("sign-up asks for a date of birth and says the beta is for adults, and an u
   }) as typeof fetch;
   render(<EntryAuthPanel />);
   await screen.findByText("v3");
-  const dob = screen.getByLabelText("Date of birth") as HTMLInputElement;
-  assert.equal(dob.required, true);
+  for (const part of ["day", "month", "year"]) assert.equal((screen.getByLabelText(`Date of birth ${part}`) as HTMLInputElement).inputMode, "numeric", "typed, with the number keypad");
   assert.ok(screen.getByText((text) => text.startsWith("Kolosseum is for adults (18 and over) during the beta. We only keep")));
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Sam" } });
-  fireEvent.change(dob, { target: { value: "2010-05-01" } });
+  enterDateOfBirth("2010-05-01");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "sam@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
@@ -187,7 +194,7 @@ test("a rejected registration (account already exists) shows the mapped factual 
   await screen.findByText("v3");
 
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Alex" } });
-  fireEvent.change(screen.getByLabelText("Date of birth"), { target: { value: "1990-01-15" } });
+  enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
   fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
