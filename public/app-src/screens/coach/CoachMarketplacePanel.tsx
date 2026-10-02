@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
+
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { useCoachMarketplace } from "./useCoachMarketplace";
@@ -77,6 +79,7 @@ export function CoachMarketplacePanel() {
           />
         </label>
 
+        <PhoneDisclosure label="Filters" openLabel="Hide filters" count={[activityFilter !== "all", sortMode !== "updated_desc"].filter(Boolean).length}>
         <label className="field">
           <span>Activity</span>
           <select value={activityFilter} onChange={(event) => setActivityFilter(event.target.value)}>
@@ -95,6 +98,7 @@ export function CoachMarketplacePanel() {
             <option value="coach_asc">Coach A–Z</option>
           </select>
         </label>
+        </PhoneDisclosure>
       </div>
 
       <div className="record-list">

@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
 import { useTrainingHistory } from "./useTrainingHistory";
 
@@ -112,6 +113,7 @@ export function AthleteHistoryPanel() {
   return (
     <>
       <div className="history-filters">
+        <PhoneDisclosure label="Filters" openLabel="Hide filters" count={Object.values(draft).filter(Boolean).length}>
         <label className="field">
           <span>Status</span>
           <select value={draft.status} onChange={(e) => setDraft({ ...draft, status: e.target.value })}>
@@ -155,6 +157,7 @@ export function AthleteHistoryPanel() {
           <button className="button primary" type="button" onClick={handleApply}>Apply filters</button>
           <button className="button secondary" type="button" onClick={handleClear}>Clear filters</button>
         </div>
+        </PhoneDisclosure>
       </div>
 
       {loading && sessions.length === 0 ? (

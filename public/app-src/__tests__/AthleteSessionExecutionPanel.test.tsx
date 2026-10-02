@@ -1079,6 +1079,29 @@ test("a powerlifter logs a set as prescribed in one tap: 5 reps at the resolved 
   );
 });
 
+test("logging squat set 1 of 4 starts the rest between sets; logging the last set does not", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: squatSession() });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Sets logged: 0 of 4"));
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 4"));
+  });
+  assert.equal(screen.queryByText("Resting"), null, "the last set's rest starts on completing the exercise");
+
+  await act(async () => {
+    fireEvent.click(screen.getByText("Log set 1"));
+  });
+  await waitFor(() => screen.getByText("Resting"));
+  assert.ok(screen.getByText("3:00"));
+
+  // Stop the real interval (see the rest timer test above).
+  await act(async () => {
+    fireEvent.click(screen.getByText("Skip rest"));
+  });
+});
+
 test("a missed rep is one edit: set 3 logged as 3 reps, and 0 reps records a failed set", async () => {
   const events: Record<string, unknown>[] = [];
   seedActiveSession("session_1");

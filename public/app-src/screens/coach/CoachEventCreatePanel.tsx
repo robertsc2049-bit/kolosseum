@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
 
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
+
 import { countdownLabel } from "../../utils/format";
 import { availableWeeksLabel, eventTypesForActivity, useCoachEventCreate } from "./useCoachEventCreate";
 // eslint-disable-next-line import/no-unresolved
@@ -52,6 +54,7 @@ export function CoachEventCreatePanel() {
         <p className="eyebrow">New event</p>
         <h3>Create event</h3>
       </div>
+      <PhoneDisclosure label="New event" openLabel="Cancel">
 
       <label className="field">
         <span>Event name</span>
@@ -111,6 +114,7 @@ export function CoachEventCreatePanel() {
       {resultMessage ? <p role="status" className="muted small">{resultMessage}</p> : null}
 
       <button className="button primary" type="submit" disabled={submitting}>Create event</button>
+      </PhoneDisclosure>
     </form>
   );
 }
