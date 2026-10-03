@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
@@ -68,6 +68,10 @@ const EMPTY_FILTERS: DraftFilters = { status: "", dateFrom: "", dateTo: "", acti
 export function AthleteHistoryPanel() {
   const { loading, error, sessions, unfilteredSessions, selectedSessionId, detail, detailVideoSubmissions, detailSummary, detailLoading, detailError, applyFilters, clearFilters, refresh, openDetail, closeDetail } = useTrainingHistory();
   const [draft, setDraft] = useState<DraftFilters>(EMPTY_FILTERS);
+  const detailRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (selectedSessionId) detailRef.current?.scrollIntoView?.({ block: "start", behavior: "smooth" });
+  }, [selectedSessionId]);
 
   const filterOptions = useMemo(() => {
     const activities = new Set<string>();
@@ -199,7 +203,15 @@ export function AthleteHistoryPanel() {
                 className="record-card interactive"
                 key={String(session.session_id ?? index)}
                 data-history-detail-id={String(session.session_id ?? "")}
+                role="button"
+                tabIndex={0}
                 onClick={() => openDetail(String(session.session_id))}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    openDetail(String(session.session_id));
+                  }
+                }}
               >
                 <div>
                   <h3>{String(programmeName || "Training session")}</h3>
@@ -220,7 +232,7 @@ export function AthleteHistoryPanel() {
       </div>
 
       {selectedSessionId ? (
-        <div className="panel history-detail-panel">
+        <div className="panel history-detail-panel" ref={detailRef}>
           {detailLoading ? (
             <div className="panel-header"><div><p className="eyebrow">Session detail</p><h3>Loading…</h3></div></div>
           ) : detailError ? (

@@ -423,3 +423,28 @@ test("kolosseum:history-detail-route opens the matching session's detail directl
 
   await waitFor(() => screen.getByText("Session detail"));
 });
+
+test("a session card opens its detail from the keyboard (Enter), and the detail is brought into view", async () => {
+  installMocks({
+    sessions: [{ session_id: "s1", execution_status: "completed", created_at: "2026-01-05T10:00:00.000Z" }],
+    detail: { session_id: "s1", execution_status: "completed", created_at: "2026-01-05T10:00:00.000Z", exercises: [], provenance: {} }
+  });
+  const scrolled: string[] = [];
+  const original = window.HTMLElement.prototype.scrollIntoView;
+  window.HTMLElement.prototype.scrollIntoView = function scrollIntoView() { scrolled.push(this.className); };
+  try {
+    render(<AthleteHistoryPanel />);
+    await waitFor(() => screen.getByText("Training session"));
+    const card = document.querySelector('[data-history-detail-id="s1"]') as HTMLElement;
+    assert.equal(card.getAttribute("role"), "button");
+    assert.equal(card.tabIndex, 0);
+    await act(async () => {
+      fireEvent.keyDown(card, { key: "Enter" });
+    });
+    await waitFor(() => screen.getByText("Session detail"));
+    assert.ok(scrolled.some((name) => name.includes("history-detail-panel")));
+  }
+  finally {
+    window.HTMLElement.prototype.scrollIntoView = original;
+  }
+});

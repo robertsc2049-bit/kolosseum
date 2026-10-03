@@ -4144,6 +4144,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .notification-panel {
     position: fixed;
     top: calc(64px + env(safe-area-inset-top));
+    bottom: auto;
     right: var(--k-space-3);
     left: var(--k-space-3);
     width: auto;
@@ -4181,13 +4182,25 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   h2 { font-size: 1.55rem; }
   h3 { font-size: 1.08rem; }
   .page-heading { margin: 0 0 var(--k-space-4); gap: var(--k-space-3); }
-  .page-heading > div > .eyebrow:first-child { display: none; }
   .page-heading h2 { margin-bottom: 0.3rem; }
   .page-heading .muted { font-size: 0.92rem; }
   .page-heading .inline-controls { flex-direction: row; flex-wrap: wrap; gap: var(--k-space-2); }
   .page-heading .inline-controls > .button,
   .page-heading > .button { min-height: 40px; min-width: 0; padding: var(--k-space-2) var(--k-space-3); flex: 1 1 0; font-size: 0.85rem; }
 
+  /* Sign-in: a compact brand bar above the form. */
+  .entry-view { min-height: 100dvh; }
+  .entry-brand { display: block; padding: calc(var(--k-space-5) + env(safe-area-inset-top)) var(--k-space-5) 0; border-right: 0; background: transparent; }
+  .entry-brand::after,
+  .entry-brand h1,
+  .entry-brand-inner > p,
+  .entry-points { display: none; }
+  .entry-form-wrap { padding: var(--k-space-4) var(--k-space-4) calc(var(--k-space-8) + env(safe-area-inset-bottom)); background: transparent; }
+}
+
+/* Phones and tablets alike (wherever the tab bar shows). */
+@media (max-width: 900px) {
+  .page-heading > div > .eyebrow:first-child { display: none; }
   /* Cards: less padding, less shouting. */
   .panel { padding: var(--k-space-4); border-radius: var(--k-radius-m); }
   .panel .panel { padding: var(--k-space-3); }
@@ -4217,21 +4230,13 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .account-card { min-height: 0; flex-wrap: wrap; }
   .account-card .large-avatar { width: 52px; height: 52px; font-size: 1.1rem; }
 
-  /* Sign-in: a compact brand bar above the form. */
-  .entry-view { min-height: 100dvh; }
-  .entry-brand { display: block; padding: calc(var(--k-space-5) + env(safe-area-inset-top)) var(--k-space-5) 0; border-right: 0; background: transparent; }
-  .entry-brand::after,
-  .entry-brand h1,
-  .entry-brand-inner > p,
-  .entry-points { display: none; }
-  .entry-form-wrap { padding: var(--k-space-4) var(--k-space-4) calc(var(--k-space-8) + env(safe-area-inset-bottom)); background: transparent; }
 }
 
-/* Account sections on a phone: a settings list of titles that open on tap
-   (see enhanceAccountSections in app.js). */
+/* Account sections on a phone or tablet: a settings list of titles that open
+   on tap (see COLLAPSIBLE_SCREENS in app.js). */
 .section-toggle { display: none; }
 
-@media (max-width: 620px) {
+@media (max-width: 900px) {
   :is(#view-account, #view-onboarding) [data-collapsible] { position: relative; }
   :is(#view-account, #view-onboarding) [data-collapsible] > :first-child { cursor: pointer; }
   :is(#view-account, #view-onboarding) .section-toggle {
@@ -4276,7 +4281,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #view-account > div > div > .panel,
   #view-account > div > .panel { margin-bottom: var(--k-space-2); }
 }
-@media (max-width: 620px) {
+@media (max-width: 900px) {
   /* A closed row's chevron is centred on the row; an open one sits by the title. */
   :is(#view-account, #view-onboarding) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
   :is(#view-account, #view-onboarding) [data-collapsible] { margin-top: 0; }
@@ -4307,7 +4312,9 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .events-layout > #coach-event-create-root { order: 2; }
   .events-layout > .panel { order: 1; }
   #coach-event-create-root .form-panel:has(.phone-disclosure[data-open="false"]) { gap: var(--k-space-3); }
+}
 
+@media (max-width: 900px) {
   /* Logging a workout, one-handed between sets. */
   .set-log-list { gap: var(--k-space-2); }
   .set-log-row { display: grid; grid-template-columns: 2.6rem minmax(0, 1fr) auto minmax(0, 1fr) auto auto; gap: 6px; }
@@ -4430,7 +4437,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
    Activate stay pinned above the tab bar; the long explainer is dropped. */
 .template-work-item-summary { display: none; }
 
-@media (max-width: 620px) {
+@media (max-width: 900px) {
   .template-builder-heading > div > p.muted,
   .template-builder-save-panel > p.muted.small { display: none; }
   .template-builder-heading .button-row {
@@ -4549,3 +4556,27 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
       "load load";
   }
 }
+
+/* The top bar's blur lives on a layer behind it. A backdrop-filter on the bar
+   itself makes it the containing block for position: fixed children, so the
+   phone's pinned notification list was laid out inside the 64px bar (as a
+   2px sliver, or above the screen) instead of below it. */
+.topbar { background: transparent; backdrop-filter: none; }
+.topbar::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: rgba(10, 12, 10, 0.84);
+  backdrop-filter: blur(18px);
+  content: "";
+}
+
+/* History detail scrolls into view below the sticky top bar; its status
+   badges keep their size. Coach Overview's empty sections line up with their
+   heading instead of floating indented; coach Setup's cards are spaced. */
+.history-detail-panel { scroll-margin-top: calc(80px + env(safe-area-inset-top)); }
+.history-exercise-row .badge { justify-self: start; }
+.dashboard-empty-state { place-content: center start; padding-right: 0; padding-left: 0; }
+#coach-onboarding-root { display: grid; gap: var(--k-space-3); justify-items: stretch; }
+#coach-onboarding-root > .badge { justify-self: start; }
+.set-log-list { max-width: 34rem; }
