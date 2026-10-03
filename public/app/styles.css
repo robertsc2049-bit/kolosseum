@@ -4508,3 +4508,44 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .template-work-item-header > :is(.template-exercise-filter-field, .template-exercise-field, .builder-action-row) { grid-column: 1 / -1; }
   .template-work-item-header label { min-width: 0; }
 }
+
+/* Programme builder dose layout, sized by the exercise's own width (it sits
+   inside block > week > session, so the window width says little): the three
+   small fields on one row - sets, prescribe by, rest - then the reps and
+   loading cards side by side; on a narrow exercise everything stacks. Below
+   1350px the programme details sit above the plan instead of beside it, so
+   the plan gets the full width. */
+.template-builder-layout > * { min-width: 0; }
+.template-settings select,
+.template-settings input { min-width: 0; max-width: 100%; }
+@media (max-width: 1350px) {
+  .template-builder-layout { grid-template-columns: minmax(0, 1fr); }
+  .template-settings { position: static; }
+}
+
+.template-work-item { container-type: inline-size; }
+.template-prescription-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    "sets sets mode mode rest rest"
+    "dose dose dose load load load";
+  align-items: start;
+}
+.template-prescription-grid > .template-sets-field { grid-area: sets; }
+.template-prescription-grid > .template-prescription-mode-field { grid-area: mode; margin-bottom: 0; }
+.template-prescription-grid > .template-rest-field { grid-area: rest; }
+.template-prescription-grid > fieldset:nth-of-type(1) { grid-area: dose; }
+.template-prescription-grid > fieldset:nth-of-type(2) { grid-area: load; }
+.template-prescription-fields > * { min-width: 0; }
+.template-prescription-fields > .template-prilepin-reference { grid-column: 1 / -1; }
+
+@container (max-width: 600px) {
+  .template-prescription-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "sets rest"
+      "mode mode"
+      "dose dose"
+      "load load";
+  }
+}
