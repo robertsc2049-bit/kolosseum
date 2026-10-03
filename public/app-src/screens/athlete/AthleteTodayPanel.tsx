@@ -17,21 +17,21 @@ import { useAthleteToday } from "./useAthleteToday";
 
 const MESSAGE_STATE_COPY: Record<string, { icon: string; heading: string; body: string; badgeLabel: string; badgeClass: string }> = {
   no_current_assignment: {
-    icon: "•",
+    icon: "P",
     heading: "No active programme",
     body: "You don't have a coach-assigned programme right now. Ask your coach to assign one, or start a self-directed session below.",
     badgeLabel: "No programme",
     badgeClass: "neutral"
   },
   relationship_ended: {
-    icon: "•",
+    icon: "C",
     heading: "Coaching relationship ended",
     body: "Your coaching relationship for this programme is no longer active. Contact your coach to reconnect.",
     badgeLabel: "Relationship ended",
     badgeClass: "partial"
   },
   missing_strength_reference: {
-    icon: "•",
+    icon: "!",
     heading: "Waiting on a strength reference",
     body: "This programme needs a working-max reference your coach hasn't recorded yet. Ask your coach to add it to your profile before you can continue.",
     badgeLabel: "Reference needed",
