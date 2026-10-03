@@ -953,6 +953,9 @@ function viewTitle(view) {
     session: "Session",
     history: "History",
     "coach-onboarding": "Coach setup",
+    attendance: "Attendance",
+    "coach-attendance": "Attendance",
+    "coach-progress": "Progress",
     "coach-overview": "Overview",
     athletes: "Athletes",
     events: "Events",
@@ -6524,16 +6527,32 @@ elements.refreshAccountButton.addEventListener(
   }
 );
 
-// Account sections on a phone: every settings panel collapses to its title,
-// like a settings list, and opens on tap. The identity card, account code,
-// pending coach invitations and Sign out always stay open. The panels are
-// rendered by several React islands, so this works on whatever they render:
-// a toggle button goes into each panel's heading (React leaves nodes it did
-// not create alone) and the open/closed state is a data attribute. The
-// collapsing itself is phone-only CSS, so wider screens are unchanged.
-const ACCOUNT_ALWAYS_OPEN_ROOTS = new Set(["account-identity-header-root", "account-code-root", "account-coach-invitations-root"]);
+// Settings-style screens on a phone: each panel collapses to its title, like
+// a settings list, and opens on tap. Account keeps the identity card, account
+// code, pending coach invitations and Sign out open; Declarations keeps the
+// current declaration, today's readiness, the medical stand-down and a pain
+// check-in open (each is something to act on now), and never collapses the
+// onboarding forms. The panels are rendered by several React islands, so this
+// works on whatever they render: a toggle button goes into each panel's
+// heading (React leaves nodes it did not create alone) and the open/closed
+// state is a data attribute. The collapsing itself is phone-only CSS, so wider
+// screens are unchanged.
+const COLLAPSIBLE_SCREENS = [
+  {
+    viewId: "view-account",
+    panels: ".panel",
+    keepOpenRoots: new Set(["account-identity-header-root", "account-code-root", "account-coach-invitations-root"]),
+    keepOpen: ".account-card, .danger-panel:not(.closure-panel)"
+  },
+  {
+    viewId: "view-onboarding",
+    panels: "article.onboarding-card",
+    keepOpenRoots: new Set(),
+    keepOpen: "[data-declaration-status=\"current\"], .readiness, .stand-down-card, .pain-check-in"
+  }
+];
 
-function accountPanelHead(panel) {
+function collapsiblePanelHead(panel) {
   const [first, second] = panel.children;
   if (!first) return null;
   if (first.matches("p.eyebrow") && second?.matches("h3")) return { count: 2, heading: second };
@@ -6541,45 +6560,48 @@ function accountPanelHead(panel) {
   return heading ? { count: 1, heading } : null;
 }
 
-function setAccountPanelOpen(panel, open) {
+function setCollapsiblePanelOpen(panel, open) {
   panel.dataset.collapsed = open ? "false" : "true";
-  panel.querySelector(":scope .account-section-toggle")?.setAttribute("aria-expanded", String(open));
+  panel.querySelector(":scope .section-toggle")?.setAttribute("aria-expanded", String(open));
 }
 
-function enhanceAccountSections() {
-  const view = document.getElementById("view-account");
+function enhanceCollapsibleSections(screen) {
+  const view = document.getElementById(screen.viewId);
   if (!view) return;
-  for (const panel of view.querySelectorAll(".panel")) {
-    if (panel.dataset.collapsible || panel.parentElement?.closest("#view-account .panel")) continue;
+  for (const panel of view.querySelectorAll(screen.panels)) {
+    if (panel.dataset.collapsible || panel.parentElement?.closest(`#${screen.viewId} :is(${screen.panels})`)) continue;
     const root = panel.closest("[id]")?.id ?? "";
-    if (ACCOUNT_ALWAYS_OPEN_ROOTS.has(root) || panel.matches(".account-card, .danger-panel:not(.closure-panel)")) continue;
-    const head = accountPanelHead(panel);
+    if (screen.keepOpenRoots.has(root) || panel.matches(screen.keepOpen)) continue;
+    const head = collapsiblePanelHead(panel);
     if (!head) continue;
     panel.dataset.collapsible = String(head.count);
     const toggle = document.createElement("button");
     toggle.type = "button";
-    toggle.className = "account-section-toggle";
+    toggle.className = "section-toggle";
     toggle.setAttribute("aria-label", `Show or hide ${head.heading.textContent.trim()}`);
     head.heading.append(toggle);
-    setAccountPanelOpen(panel, false);
+    setCollapsiblePanelOpen(panel, false);
   }
 }
 
-document.getElementById("view-account")?.addEventListener("click", (event) => {
-  const target = event.target;
-  if (!(target instanceof Element)) return;
-  const panel = target.closest("[data-collapsible]");
-  if (!panel) return;
-  const toggle = target.closest(".account-section-toggle");
-  // A tap anywhere on a collapsed section's heading opens it; once open,
-  // the toggle (or the heading itself) closes it again.
-  const inHead = [...panel.children].slice(0, Number(panel.dataset.collapsible)).some((child) => child.contains(target));
-  if (!toggle && (!inHead || target.closest("button, a, input, select, textarea, label"))) return;
-  setAccountPanelOpen(panel, panel.dataset.collapsed === "true");
-});
-
-new MutationObserver(enhanceAccountSections).observe(document.getElementById("view-account") ?? document.body, { childList: true, subtree: true });
-enhanceAccountSections();
+for (const screen of COLLAPSIBLE_SCREENS) {
+  const view = document.getElementById(screen.viewId);
+  if (!view) continue;
+  view.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const panel = target.closest("[data-collapsible]");
+    if (!panel) return;
+    const toggle = target.closest(".section-toggle");
+    // A tap anywhere on a collapsed section's heading opens it; once open,
+    // the toggle (or the heading itself) closes it again.
+    const inHead = [...panel.children].slice(0, Number(panel.dataset.collapsible)).some((child) => child.contains(target));
+    if (!toggle && (!inHead || target.closest("button, a, input, select, textarea, label"))) return;
+    setCollapsiblePanelOpen(panel, panel.dataset.collapsed === "true");
+  });
+  new MutationObserver(() => enhanceCollapsibleSections(screen)).observe(view, { childList: true, subtree: true });
+  enhanceCollapsibleSections(screen);
+}
 
 // DEV NOTE: React drives accountProfileForm/requestVerificationButton/
 // completeVerificationButton/accountPasswordForm submits directly now (see
