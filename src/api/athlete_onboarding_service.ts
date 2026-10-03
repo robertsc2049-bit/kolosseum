@@ -451,6 +451,19 @@ const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   ]
 };
 
+// What to do about a missing answer - the athlete is usually looking at the
+// very stage it belongs to (moving on saves the draft as the next stage).
+const MISSING_ANSWER: Readonly<Record<string, string>> = Object.freeze({
+  experience_level: "Choose your training level to continue.",
+  training_days_per_week: "Choose how many days a week you train to continue.",
+  execution_scope: "Choose how you'll train to continue.",
+  product_acknowledged: "Tick the box to acknowledge the beta to continue.",
+  jurisdiction_code: "Choose where you live to continue.",
+  jurisdiction_acknowledged: "Tick the box to acknowledge where you live to continue.",
+  accessibility_preferences: "Choose your display preferences to continue.",
+  instruction_density: "Choose how much instruction you want to continue."
+});
+
 export function validateAthleteOnboardingDraftInput(value: unknown): Readonly<{
   current_stage: AthleteOnboardingStage;
   fields: Fields;
@@ -463,7 +476,7 @@ export function validateAthleteOnboardingDraftInput(value: unknown): Readonly<{
   const validatedFields = fields(value.fields, true);
   for (const key of REQUIRED_BEFORE[currentStage]) {
     if (!Object.prototype.hasOwnProperty.call(validatedFields, key)) {
-      fail(key, "Complete this earlier onboarding stage before continuing.");
+      fail(key, MISSING_ANSWER[key] ?? "Answer this to continue.");
     }
   }
   assertCompetitionEventMatchesActivity(validatedFields.competition_event, validatedFields.activity_id);

@@ -4237,9 +4237,9 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .section-toggle { display: none; }
 
 @media (max-width: 900px) {
-  :is(#view-account, #view-onboarding) [data-collapsible] { position: relative; }
-  :is(#view-account, #view-onboarding) [data-collapsible] > :first-child { cursor: pointer; }
-  :is(#view-account, #view-onboarding) .section-toggle {
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] { position: relative; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] > :first-child { cursor: pointer; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) .section-toggle {
     position: absolute;
     top: 0;
     right: 0;
@@ -4253,7 +4253,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     color: var(--stone-dim);
     cursor: pointer;
   }
-  :is(#view-account, #view-onboarding) .section-toggle::before {
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) .section-toggle::before {
     width: 10px;
     height: 10px;
     border-right: 2px solid currentColor;
@@ -4262,18 +4262,18 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     transform: translateY(-2px) rotate(45deg);
     transition: transform var(--k-motion-base) var(--k-ease-standard);
   }
-  :is(#view-account, #view-onboarding) [data-collapsed="false"] .section-toggle::before { transform: translateY(2px) rotate(-135deg); }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="false"] .section-toggle::before { transform: translateY(2px) rotate(-135deg); }
 
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
-  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
-  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child,
-  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle),
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child > :not(:has(h2, h3)):not(h2, h3):not(.eyebrow) { display: none; }
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] :is(h2, h3) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
-  :is(#view-account, #view-onboarding) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child,
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle),
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > :first-child > :not(:has(h2, h3, h4)):not(h2, h3, h4):not(.eyebrow) { display: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] :is(h2, h3, h4) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
 
   /* Settings rows sit close together, like one list. */
   #view-account .account-settings-grid,
@@ -4283,8 +4283,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 }
 @media (max-width: 900px) {
   /* A closed row's chevron is centred on the row; an open one sits by the title. */
-  :is(#view-account, #view-onboarding) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
-  :is(#view-account, #view-onboarding) [data-collapsible] { margin-top: 0; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsible] { margin-top: 0; }
 }
 
 /* Phone disclosure (components/PhoneDisclosure.tsx): invisible on wider
@@ -4580,3 +4580,24 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 #coach-onboarding-root { display: grid; gap: var(--k-space-3); justify-items: stretch; }
 #coach-onboarding-root > .badge { justify-self: start; }
 .set-log-list { max-width: 34rem; }
+
+/* An opened athlete profile or programme detail lands below the sticky top
+   bar, not under it. */
+#athleteProfilePanel,
+#templateDetailPanel { scroll-margin-top: calc(76px + env(safe-area-inset-top)); }
+
+@media (max-width: 620px) {
+  /* Review: a session's facts two to a row. */
+  .review-fact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2); }
+  .review-fact-grid > div { min-width: 0; padding: var(--k-space-2) var(--k-space-3); }
+
+  /* Onboarding: Back beside Continue, and no dead Back on the first stage. */
+  form.onboarding-card[data-onboarding-stage] .onboarding-actions { display: flex; flex-flow: row nowrap; gap: var(--k-space-2); }
+  form.onboarding-card[data-onboarding-stage] .onboarding-actions > .button { width: auto; min-width: 0; }
+  form.onboarding-card[data-onboarding-stage] .onboarding-actions > .button.primary { flex: 1 1 auto; }
+  form.onboarding-card[data-onboarding-stage] .onboarding-actions > .button.secondary { flex: 0 0 auto; }
+  form.onboarding-card[data-onboarding-stage] .onboarding-actions > .button.secondary:disabled { display: none; }
+}
+@media (max-width: 900px) {
+  :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > p.eyebrow:first-child { margin: 0; padding-right: 40px; font-size: 0.82rem; }
+}
