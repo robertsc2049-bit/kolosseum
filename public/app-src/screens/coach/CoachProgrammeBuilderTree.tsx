@@ -473,6 +473,37 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
   );
 }
 
+// One line a coach can scan on a phone: what, how much, how hard, how long
+// a rest - e.g. "4 × 5 @ 80% 1RM · 180s rest".
+const GROUP_LABELS: Record<string, string> = { superset: "Superset", circuit: "Circuit", complex: "Complex", amrap: "AMRAP", emom: "EMOM", for_time: "For time" };
+
+function formatSeconds(total: number): string {
+  if (!Number.isFinite(total) || total <= 0) return "0s";
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return minutes ? `${minutes}:${String(seconds).padStart(2, "0")}` : `${seconds}s`;
+}
+
+export function workItemSummary(workItem: ProgrammeWorkItemDraft): string {
+  const sets = `${workItem.planned_sets} ×`;
+  const unit = workItem.distance_unit === "feet" ? "ft" : "m";
+  const dose = workItem.prescription_mode === "duration"
+    ? (workItem.duration_mode === "range" ? `${formatSeconds(workItem.duration_min_seconds)}–${formatSeconds(workItem.duration_max_seconds)}` : formatSeconds(workItem.planned_duration_seconds))
+    : workItem.prescription_mode === "distance"
+      ? (workItem.distance_mode === "range" ? `${workItem.distance_min_value}–${workItem.distance_max_value} ${unit}` : `${workItem.planned_distance_value} ${unit}`)
+      : (workItem.rep_mode === "range" ? `${workItem.rep_min}–${workItem.rep_max}` : String(workItem.planned_reps));
+  const load = {
+    percent_1rm: `@ ${workItem.percent_1rm}% 1RM`,
+    fixed_weight: `@ ${workItem.weight_value} ${workItem.weight_unit}`,
+    bodyweight: "bodyweight",
+    rpe: `@ RPE ${workItem.rpe_value}`,
+    borg: `@ Borg ${workItem.borg_value}`,
+    cr10: `@ CR10 ${workItem.cr10_value}`
+  }[workItem.load_mode] ?? "";
+  const group = workItem.group_id && GROUP_LABELS[workItem.group_type] ? ` · ${GROUP_LABELS[workItem.group_type]}` : "";
+  return `${sets} ${dose} ${load} · ${workItem.rest_seconds}s rest${group}`.replace(/\s+/gu, " ").trim();
+}
+
 function BuilderWorkItem({
   workItem,
   blockIndex,
@@ -492,9 +523,21 @@ function BuilderWorkItem({
   // file's own established uncontrolled-input convention.
   const [groupTypeHint, setGroupTypeHint] = React.useState(workItem.group_type);
   const howto = useExerciseHowto(workItem.exercise_id);
+  // On a phone each exercise is a one-line summary until tapped (CSS keeps
+  // every exercise open on wider screens); one with nothing chosen yet -
+  // just added - starts open.
+  const [open, setOpen] = React.useState(!workItem.exercise_id);
+  const exerciseName = String(templateExercises.find((exercise) => exercise.exercise_id === workItem.exercise_id)?.display_name ?? (workItem.exercise_id ? titleCase(workItem.exercise_id) : "Choose an exercise"));
 
   return (
-    <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`}>
+    <div className={`template-work-item${grouped ? " template-work-item-grouped" : ""}`} data-open={String(open)}>
+      <button className="template-work-item-summary" type="button" aria-expanded={open} aria-label={`${open ? "Close" : "Edit"} exercise ${workItemIndex + 1}: ${exerciseName}`} onClick={() => setOpen(!open)}>
+        <span className="exercise-order" aria-hidden="true">{workItemIndex + 1}</span>
+        <span className="template-work-item-summary-text" aria-hidden="true">
+          <strong>{exerciseName}</strong>
+          <span>{workItemSummary(workItem)}</span>
+        </span>
+      </button>
       <div className="template-work-item-header">
         <span className="exercise-order">{workItemIndex + 1}</span>
         <ExerciseField
