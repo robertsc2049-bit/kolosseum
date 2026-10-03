@@ -6549,15 +6549,33 @@ const COLLAPSIBLE_SCREENS = [
     panels: "article.onboarding-card",
     keepOpenRoots: new Set(),
     keepOpen: "[data-declaration-status=\"current\"], .readiness, .stand-down-card, .pain-check-in"
+  },
+  // A coach's athlete profile: the counts and the assignment section stay
+  // open; each record (history, notes, wellbeing...) is a row to open.
+  {
+    viewId: "athleteProfilePanel",
+    panels: "article.panel",
+    keepOpenRoots: new Set(),
+    keepOpen: ".metric-card"
+  },
+  // A programme's detail: the preview stays open; assigning, versions,
+  // usage, checks, marketplace and release are rows to open.
+  {
+    viewId: "templateDetailPanel",
+    panels: ".programme-detail-section",
+    keepOpenRoots: new Set(),
+    keepOpen: ":has(> .programme-preview)"
   }
 ];
 
 function collapsiblePanelHead(panel) {
   const [first, second] = panel.children;
   if (!first) return null;
-  if (first.matches("p.eyebrow") && second?.matches("h3")) return { count: 2, heading: second };
-  const heading = first.matches("h2, h3") ? first : first.querySelector("h3, h2");
-  return heading ? { count: 1, heading } : null;
+  if (first.matches("p.eyebrow") && second?.matches("h3, h4")) return { count: 2, heading: second };
+  const heading = first.matches("h2, h3, h4") ? first : first.querySelector("h3, h2, h4");
+  if (heading) return { count: 1, heading };
+  // A section titled only by its eyebrow (e.g. Marketplace) uses that as its row title.
+  return first.matches("p.eyebrow") ? { count: 1, heading: first } : null;
 }
 
 function setCollapsiblePanelOpen(panel, open) {
