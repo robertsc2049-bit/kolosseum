@@ -1,5 +1,7 @@
 import React from "react";
 
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
+
 import { useAttendanceEventCreate, WEEKDAY_OPTIONS } from "./useAttendanceEventCreate";
 
 export function AttendanceEventCreatePanel() {
@@ -43,11 +45,13 @@ export function AttendanceEventCreatePanel() {
       </div>
 
       <form
+        className="attendance-event-form"
         onSubmit={(event) => {
           event.preventDefault();
           create();
         }}
       >
+        <PhoneDisclosure label="New event" openLabel="Cancel">
         <label className="field">
           <span>Title</span>
           <input value={title} onChange={(event) => setTitle(event.target.value)} maxLength={120} required />
@@ -233,6 +237,7 @@ export function AttendanceEventCreatePanel() {
             {submitting ? "Creating…" : "Create event"}
           </button>
         </div>
+        </PhoneDisclosure>
       </form>
     </div>
   );

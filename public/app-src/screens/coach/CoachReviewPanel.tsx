@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
+import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
 
@@ -345,6 +346,11 @@ export function CoachReviewPanel() {
           <p className="muted">Review completed sessions, track live read-only status, and add private notes.</p>
         </div>
         <div className="review-toolbar">
+          <label className="field compact-field review-search-field">
+            <span>Search</span>
+            <input type="search" placeholder="Athlete, session or programme" autoComplete="off" value={search} onChange={(event) => setSearch(event.target.value)} />
+          </label>
+          <PhoneDisclosure label="Filters" openLabel="Hide filters" count={[selectedAthleteId !== "", statusFilter !== "awaiting"].filter(Boolean).length}>
           <label className="field compact-field">
             <span>Athlete</span>
             <select value={selectedAthleteId} onChange={(event) => setSelectedAthleteId(event.target.value)} disabled={Object.keys(athleteNamesById).length === 0}>
@@ -353,10 +359,6 @@ export function CoachReviewPanel() {
                 <option key={athleteUserId} value={athleteUserId}>{displayName}</option>
               ))}
             </select>
-          </label>
-          <label className="field compact-field">
-            <span>Search</span>
-            <input type="search" placeholder="Athlete, session or programme" autoComplete="off" value={search} onChange={(event) => setSearch(event.target.value)} />
           </label>
           <label className="field compact-field">
             <span>Status</span>
@@ -368,6 +370,7 @@ export function CoachReviewPanel() {
             </select>
           </label>
           <button className="button secondary" type="button" disabled={Object.keys(athleteNamesById).length === 0} onClick={() => refresh()}>Refresh review</button>
+          </PhoneDisclosure>
         </div>
       </div>
 

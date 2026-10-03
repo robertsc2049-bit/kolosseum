@@ -3346,8 +3346,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .review-toolbar {
   display: grid;
   grid-template-columns:
-    minmax(12rem, 1fr)
     minmax(14rem, 1.4fr)
+    minmax(12rem, 1fr)
     minmax(11rem, 0.8fr)
     auto;
   gap: var(--k-space-3);
@@ -4229,12 +4229,12 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 
 /* Account sections on a phone: a settings list of titles that open on tap
    (see enhanceAccountSections in app.js). */
-.account-section-toggle { display: none; }
+.section-toggle { display: none; }
 
 @media (max-width: 620px) {
-  #view-account [data-collapsible] { position: relative; }
-  #view-account [data-collapsible] > :first-child { cursor: pointer; }
-  #view-account .account-section-toggle {
+  :is(#view-account, #view-onboarding) [data-collapsible] { position: relative; }
+  :is(#view-account, #view-onboarding) [data-collapsible] > :first-child { cursor: pointer; }
+  :is(#view-account, #view-onboarding) .section-toggle {
     position: absolute;
     top: 0;
     right: 0;
@@ -4248,7 +4248,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     color: var(--stone-dim);
     cursor: pointer;
   }
-  #view-account .account-section-toggle::before {
+  :is(#view-account, #view-onboarding) .section-toggle::before {
     width: 10px;
     height: 10px;
     border-right: 2px solid currentColor;
@@ -4257,18 +4257,18 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
     transform: translateY(-2px) rotate(45deg);
     transition: transform var(--k-motion-base) var(--k-ease-standard);
   }
-  #view-account [data-collapsed="false"] .account-section-toggle::before { transform: translateY(2px) rotate(-135deg); }
+  :is(#view-account, #view-onboarding) [data-collapsed="false"] .section-toggle::before { transform: translateY(2px) rotate(-135deg); }
 
-  #view-account [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
-  #view-account [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
-  #view-account [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
-  #view-account [data-collapsed="true"] > :first-child,
-  #view-account [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
-  #view-account [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.account-section-toggle),
-  #view-account [data-collapsed="true"] > :first-child > :not(:has(h2, h3)):not(h2, h3):not(.eyebrow) { display: none; }
-  #view-account [data-collapsed="true"] :is(h2, h3) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
-  #view-account [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
-  #view-account [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] { padding-top: var(--k-space-3); padding-bottom: var(--k-space-3); }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="1"] > :not(:first-child),
+  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="2"] > :nth-child(n + 3) { display: none; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child,
+  :is(#view-account, #view-onboarding) [data-collapsed="true"][data-collapsible="2"] > :nth-child(2) { margin-bottom: 0; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child :is(p, button, .button):not(.eyebrow):not(.section-toggle),
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] > :first-child > :not(:has(h2, h3)):not(h2, h3):not(.eyebrow) { display: none; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] :is(h2, h3) { margin: 0; padding-right: 40px; font-size: 1.05rem; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] .eyebrow { margin-bottom: 2px; }
+  :is(#view-account, #view-onboarding) [data-collapsible] > .page-heading { min-height: 0; margin: 0; }
 
   /* Settings rows sit close together, like one list. */
   #view-account .account-settings-grid,
@@ -4278,8 +4278,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 }
 @media (max-width: 620px) {
   /* A closed row's chevron is centred on the row; an open one sits by the title. */
-  #view-account [data-collapsed="true"] .account-section-toggle { height: 100%; max-height: none; }
-  #view-account [data-collapsible] { margin-top: 0; }
+  :is(#view-account, #view-onboarding) [data-collapsed="true"] .section-toggle { height: 100%; max-height: none; }
+  :is(#view-account, #view-onboarding) [data-collapsible] { margin-top: 0; }
 }
 
 /* Phone disclosure (components/PhoneDisclosure.tsx): invisible on wider
@@ -4386,3 +4386,41 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   }
   .notice:not(.error) .notice-dismiss { top: 50%; width: 28px; height: 28px; transform: translateY(-50%); }
 }
+
+/* Attendance event form: laid out like every other form, with its option
+   groups (repeats, ends, who for, invite) as titled boxes. */
+.attendance-event-form { display: grid; gap: var(--k-space-4); }
+.attendance-event-form fieldset { display: grid; gap: var(--k-space-2); margin: 0; padding: var(--k-space-3) var(--k-space-4) var(--k-space-4); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); min-width: 0; }
+.attendance-event-form legend { padding: 0 var(--k-space-2); color: var(--stone-dim); font-size: 0.8rem; font-weight: 700; }
+.attendance-event-form .recurrence-fields { display: grid; gap: var(--k-space-3); }
+.checkbox-field,
+.radio-field { display: flex; align-items: center; gap: var(--k-space-3); min-height: 44px; cursor: pointer; }
+
+
+@media (max-width: 620px) {
+  .attendance-event-form .button-row .button { flex: 1 1 auto; }
+
+  /* Attendance: your events first, the create form behind "New event". */
+  #view-coach-attendance:not([hidden]) { display: flex; flex-direction: column; gap: var(--k-space-4); }
+  #view-coach-attendance > #attendance-event-detail-root { order: 1; }
+  #view-coach-attendance > #attendance-event-create-root { order: 2; }
+
+  /* Review: filters behind one button, the four counts in one row. */
+  .review-toolbar { grid-template-columns: 1fr; gap: var(--k-space-2); width: 100%; }
+  .review-summary-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--k-space-2); margin: var(--k-space-3) 0; }
+  .review-summary-grid .stat-card { padding: var(--k-space-2) var(--k-space-2) var(--k-space-2) var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: var(--ink-2); }
+  .review-summary-grid .stat-card span { font-size: 0.68rem; line-height: 1.2; }
+  .review-summary-grid .stat-card strong { margin-top: 2px; font-size: 1.4rem; line-height: 1; }
+
+  /* Declarations: the facts two to a row; each max on one compact row. */
+  .declaration-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2); }
+  .declaration-fact { padding: var(--k-space-2) var(--k-space-3); }
+  .declaration-grid > .position-prompt { grid-column: 1 / -1; }
+  .athlete-max-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr) minmax(0, 1.5fr); gap: var(--k-space-2); }
+  .athlete-max-row select { padding: 0 0.5rem; }
+  .athlete-max-row > :not(label) { grid-column: 1 / -1; }
+  .athlete-max-row input,
+  .athlete-max-row select { max-width: none; }
+  .athlete-max-row .field > span { font-size: 0.72rem; }
+}
+#view-review > * + * { margin-top: var(--k-space-4); }
