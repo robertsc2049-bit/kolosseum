@@ -13,7 +13,7 @@ import test from "node:test";
 import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { CoachProgrammeBuilderTree } from "../screens/coach/CoachProgrammeBuilderTree";
+import { CoachProgrammeBuilderTree, workItemSummary } from "../screens/coach/CoachProgrammeBuilderTree";
 import {
   newTemplateBlock,
   newTemplateSession,
@@ -620,4 +620,34 @@ test("shows a prompt to select an exercise first, with no fetch, when the work i
 
   assert.ok(screen.getByText("Select an exercise to view instructions."));
   assert.equal(fetchedHowtoRoute, false);
+});
+
+// --- Phone summary rows: each exercise reads as one line until opened ---
+
+test("a coach scanning a session on a phone reads each exercise as one line: 4 × 5 @ 80% 1RM · 180s rest", () => {
+  const base = storedWorkItemToDraft({ exercise_id: "back_squat" }, 0);
+  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "reps", rep_mode: "fixed", planned_reps: 5, load_mode: "percent_1rm", percent_1rm: 80, rest_seconds: 180 }), "4 × 5 @ 80% 1RM · 180s rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "reps", rep_mode: "range", rep_min: 8, rep_max: 12, load_mode: "rpe", rpe_value: 8, rest_seconds: 90 }), "3 × 8–12 @ RPE 8 · 90s rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 45, load_mode: "bodyweight", rest_seconds: 60 }), "3 × 45s bodyweight · 60s rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "distance", distance_mode: "fixed", planned_distance_value: 20, distance_unit: "meters", load_mode: "fixed_weight", weight_value: 120, weight_unit: "kg", rest_seconds: 120 }), "4 × 20 m @ 120 kg · 120s rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 5, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 90, load_mode: "bodyweight", rest_seconds: 0, group_id: "g1", group_type: "emom" }), "5 × 1:30 bodyweight · 0s rest · EMOM");
+});
+
+test("a chosen exercise starts as its summary line and opens on tap; one with nothing chosen yet starts open", async () => {
+  installExerciseRegistryMock([{ exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell", "rack"] }]);
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "back_squat", planned_sets: 4, planned_reps: 5, load_mode: "percent_1rm", percent_1rm: 80, rest_seconds: 180 }));
+  await waitFor(() => assert.ok(screen.getByRole("button", { name: "Edit exercise 1: Back Squat" })));
+
+  const item = container.querySelector(".template-work-item") as HTMLElement;
+  assert.equal(item.dataset.open, "false");
+  fireEvent.click(screen.getByRole("button", { name: "Edit exercise 1: Back Squat" }));
+  assert.equal(item.dataset.open, "true");
+  assert.equal(screen.getByRole("button", { name: "Close exercise 1: Back Squat" }).getAttribute("aria-expanded"), "true");
+
+  cleanup();
+  const fresh = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draft());
+  await waitFor(() => assert.ok(fresh.container.querySelector(".template-work-item")));
+  assert.equal((fresh.container.querySelector(".template-work-item") as HTMLElement).dataset.open, "true", "a just-added exercise opens straight to its fields");
 });

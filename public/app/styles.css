@@ -4424,3 +4424,128 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .athlete-max-row .field > span { font-size: 0.72rem; }
 }
 #view-review > * + * { margin-top: var(--k-space-4); }
+
+/* Programme builder on a phone: every exercise is a one-line summary
+   ("4 × 5 @ 80% 1RM · 180s rest") that opens to edit; Save, Complete and
+   Activate stay pinned above the tab bar; the long explainer is dropped. */
+.template-work-item-summary { display: none; }
+
+@media (max-width: 620px) {
+  .template-builder-heading > div > p.muted,
+  .template-builder-save-panel > p.muted.small { display: none; }
+  .template-builder-heading .button-row {
+    position: fixed;
+    z-index: 19;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom));
+    left: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    padding: var(--k-space-2) var(--k-space-3);
+    gap: var(--k-space-2);
+    border-top: 1px solid var(--line-soft);
+    background: rgba(10, 12, 10, 0.96);
+    backdrop-filter: blur(18px);
+  }
+  .template-builder-heading .button-row .button { min-width: 0; min-height: 44px; padding: var(--k-space-2); flex: 1 1 0; font-size: 0.82rem; line-height: 1.15; }
+  #view-templates:has(#templateBuilderView:not([hidden])) { padding-bottom: 72px; }
+
+  .template-work-item-summary {
+    display: grid;
+    width: 100%;
+    min-height: 56px;
+    padding: var(--k-space-2) 40px var(--k-space-2) 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--k-space-3);
+    position: relative;
+    border: 0;
+    background: transparent;
+    color: var(--stone);
+    text-align: left;
+    cursor: pointer;
+  }
+  .template-work-item-summary::after {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid var(--stone-dim);
+    border-bottom: 2px solid var(--stone-dim);
+    content: "";
+    transform: translateY(-70%) rotate(45deg);
+    transition: transform var(--k-motion-base) var(--k-ease-standard);
+  }
+  .template-work-item[data-open="true"] > .template-work-item-summary::after { transform: translateY(-30%) rotate(-135deg); }
+  .template-work-item-summary-text { display: grid; min-width: 0; gap: 2px; }
+  .template-work-item-summary-text strong { overflow: hidden; font-size: 0.98rem; text-overflow: ellipsis; white-space: nowrap; }
+  .template-work-item-summary-text span { color: var(--stone-dim); font-size: 0.82rem; }
+  .template-work-item[data-open="false"] > :not(.template-work-item-summary) { display: none; }
+  .template-work-item[data-open="true"] > .template-work-item-summary { margin-bottom: var(--k-space-2); border-bottom: 1px solid var(--line-soft); }
+  .template-work-item[data-open="true"] .template-work-item-header > .exercise-order { display: none; }
+  .template-work-item[data-open="false"] { padding-top: var(--k-space-1); padding-bottom: var(--k-space-1); }
+}
+@media (max-width: 620px) {
+  /* Programme facts in one row; headers stack their title above their
+     actions; nested boxes give back their width. */
+  .template-facts { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .template-facts > div { padding: var(--k-space-2); }
+  .template-week-header,
+  .template-session-header { grid-template-columns: minmax(0, 1fr); }
+  .template-block-header { flex-wrap: wrap; }
+  .builder-action-row { flex-wrap: wrap; gap: var(--k-space-2); }
+  .template-block { padding: var(--k-space-3); }
+  .template-week { padding: var(--k-space-3); }
+  .template-session { padding: var(--k-space-2); border-radius: var(--k-radius-s); }
+  .template-work-item { padding: var(--k-space-1) var(--k-space-2); }
+  .template-work-item[data-open="true"] { padding: var(--k-space-2); }
+}
+@media (max-width: 620px) {
+  /* An open exercise: equipment and exercise full width, role and segment
+     side by side, then its actions. */
+  .template-work-item-header { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--k-space-2) var(--k-space-3); }
+  .template-work-item-header > :is(.template-exercise-filter-field, .template-exercise-field, .builder-action-row) { grid-column: 1 / -1; }
+  .template-work-item-header label { min-width: 0; }
+}
+
+/* Programme builder dose layout, sized by the exercise's own width (it sits
+   inside block > week > session, so the window width says little): the three
+   small fields on one row - sets, prescribe by, rest - then the reps and
+   loading cards side by side; on a narrow exercise everything stacks. Below
+   1350px the programme details sit above the plan instead of beside it, so
+   the plan gets the full width. */
+.template-builder-layout > * { min-width: 0; }
+.template-settings select,
+.template-settings input { min-width: 0; max-width: 100%; }
+@media (max-width: 1350px) {
+  .template-builder-layout { grid-template-columns: minmax(0, 1fr); }
+  .template-settings { position: static; }
+}
+
+.template-work-item { container-type: inline-size; }
+.template-prescription-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    "sets sets mode mode rest rest"
+    "dose dose dose load load load";
+  align-items: start;
+}
+.template-prescription-grid > .template-sets-field { grid-area: sets; }
+.template-prescription-grid > .template-prescription-mode-field { grid-area: mode; margin-bottom: 0; }
+.template-prescription-grid > .template-rest-field { grid-area: rest; }
+.template-prescription-grid > fieldset:nth-of-type(1) { grid-area: dose; }
+.template-prescription-grid > fieldset:nth-of-type(2) { grid-area: load; }
+.template-prescription-fields > * { min-width: 0; }
+.template-prescription-fields > .template-prilepin-reference { grid-column: 1 / -1; }
+
+@container (max-width: 600px) {
+  .template-prescription-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "sets rest"
+      "mode mode"
+      "dose dose"
+      "load load";
+  }
+}
