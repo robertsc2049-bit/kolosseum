@@ -1088,14 +1088,22 @@ function projectExerciseChoices(days: SlotListing[], custom: CustomExercise[]): 
   return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0, all_exercises: allExercises(), custom_exercises: custom });
 }
 
-// The athlete's declared training level (beginner, amateur or pro), if any.
-export async function getAthleteExperienceLevel(userId: string): Promise<string | undefined> {
+// The athlete's declared training level (beginner, amateur or pro) and
+// sport, if any.
+export async function getAthleteTrainingProfile(userId: string): Promise<{ experience_level?: string; activity_id?: string }> {
   const client = await pool.connect();
   try {
     const declared = await currentDeclaredFields(client, userId);
-    return typeof declared?.experience_level === "string" ? declared.experience_level : undefined;
+    return {
+      experience_level: typeof declared?.experience_level === "string" ? declared.experience_level : undefined,
+      activity_id: typeof declared?.activity_id === "string" && declared.activity_id ? declared.activity_id : undefined
+    };
   }
   finally { client.release(); }
+}
+
+export async function getAthleteExperienceLevel(userId: string): Promise<string | undefined> {
+  return (await getAthleteTrainingProfile(userId)).experience_level;
 }
 
 export async function getAthleteProgrammeExercises(userId: string): Promise<Readonly<Json>> {

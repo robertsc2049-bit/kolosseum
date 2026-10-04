@@ -122,3 +122,13 @@ export function loadAthleteMaxes(): Promise<JsonRecord> {
 export function saveAthleteMaxes(input: { preferred_weight_unit: "kg" | "lb"; maxes: JsonRecord[]; loading_method?: "progression" | "percent_1rm" | "rpe" }, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/maxes", input, csrfToken);
 }
+
+// Kolosseum programmes that suit the athlete, and the one they're running.
+export function loadAthleteProgrammes(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/programmes");
+}
+
+// Start a programme (its listing id), or stop the current one (null).
+export function setAthleteProgramme(listingId: string | null, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/programme", { listing_id: listingId }, csrfToken);
+}

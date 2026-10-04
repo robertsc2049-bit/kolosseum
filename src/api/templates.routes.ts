@@ -22,6 +22,7 @@ import {
 import { rateLimit } from "express-rate-limit";
 import { authenticatedCoach } from "./coach_session_auth.js";
 import { StarterTemplateError, createKolosseumStarterTemplate } from "./kolosseum_starter_template_service.js";
+import { ProgrammeCatalogueError, getProgrammeListingForTemplate, saveProgrammeListing } from "./programme_catalogue_service.js";
 
 export const templatesRouter =
   Router();
@@ -75,6 +76,32 @@ templatesRouter.post(
   asyncHandler(
     completeCoachTemplate
   )
+);
+
+// Kolosseum programmes: a catalogue author lists one of their active
+// programmes for athletes without a coach (programme_catalogue_service.ts).
+const catalogueRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+templatesRouter.get(
+  "/:template_id/catalogue-listing",
+  catalogueRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    return response.status(200).json(await getProgrammeListingForTemplate(coachUserId, String(request.params.template_id ?? "")));
+  })
+);
+templatesRouter.put(
+  "/:template_id/catalogue-listing",
+  catalogueRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    try {
+      return response.status(200).json({ listing: await saveProgrammeListing(coachUserId, String(request.params.template_id ?? ""), request.body) });
+    }
+    catch (error) {
+      if (error instanceof ProgrammeCatalogueError) return response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      throw error;
+    }
+  })
 );
 
 templatesRouter.post(

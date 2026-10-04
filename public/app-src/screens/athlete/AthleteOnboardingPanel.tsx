@@ -24,6 +24,7 @@ import { AthleteEquipmentCard } from "./AthleteEquipmentCard";
 import { MatchWeekCard } from "./MatchWeekCard";
 import { WeightClassCard, isCombatActivity } from "./WeightClassCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
+import { AthleteProgrammeCard } from "./AthleteProgrammeCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
@@ -681,6 +682,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <ReadinessCard />
       <StandDownCard />
       <PainCheckInCard />
+      <AthleteProgrammeCard />
       <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
       <MatchWeekCard />

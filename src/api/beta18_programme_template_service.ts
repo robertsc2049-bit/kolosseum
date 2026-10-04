@@ -4481,6 +4481,11 @@ export async function materialiseNextCoachTemplateProgram(
     // already-created session actually contain" lookup (Athlete Today's
     // "continue" case) - it never changes which session gets created next.
     session_index_override?: number;
+    // A Kolosseum programme run by an athlete with no coach
+    // (programme_catalogue_service.ts): % of 1RM stays as a percentage for
+    // the athlete's own way of setting weights, not the coach's strength
+    // profile.
+    athlete_sets_loads?: boolean;
   }>
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId =
@@ -4614,6 +4619,7 @@ export async function materialiseNextCoachTemplateProgram(
   }
 
   const percentageProfileRequired =
+    !input.athlete_sets_loads &&
     rawWorkItems.some(
       (workItem) =>
         loadingReferenceFromStored(
@@ -4684,7 +4690,8 @@ export async function materialiseNextCoachTemplateProgram(
 
         const resolvedLoad =
           loadingReference.type ===
-            "percent_1rm"
+            "percent_1rm" &&
+          !input.athlete_sets_loads
             ? resolvePercentageLoad(
                 athleteProfile,
                 exerciseId,
@@ -4695,7 +4702,8 @@ export async function materialiseNextCoachTemplateProgram(
         if (
           loadingReference.type ===
             "percent_1rm" &&
-          !resolvedLoad
+          !resolvedLoad &&
+          !input.athlete_sets_loads
         ) {
           throw new Beta18ProgrammeTemplateError(
             "athlete_one_rep_max_missing"

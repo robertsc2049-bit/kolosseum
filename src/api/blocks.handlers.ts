@@ -22,6 +22,7 @@ import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
+import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -337,6 +338,10 @@ export async function compileBlock(req: Request, res: Response) {
   // Set when a self-directed athlete comes back after a break (training_cycle.ts):
   // shown with the session, never part of the engine input.
   let session_reentry: Record<string, unknown> | undefined;
+  // A Kolosseum programme the athlete is running (programme_catalogue_service.ts):
+  // the session comes from that programme, not the generated one.
+  const programme_run: ProgrammeRun | null =
+    create_session && beta_individual_subject_user_id ? await getCurrentProgrammeRun(beta_individual_subject_user_id) : null;
   if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
     const cycle_with_reentry = await trainingCycleForAthlete(beta_individual_subject_user_id);
     // Training days are required (no silent default): an athlete who
@@ -348,8 +353,9 @@ export async function compileBlock(req: Request, res: Response) {
     session_reentry = reentry;
     // The athlete's own exercise for each open slot; the engine refuses the
     // session if today's slots are not all chosen (never a default).
-    const exercise_selections = await getAthleteExerciseSelections(beta_individual_subject_user_id);
-    phase1ForCompile = { ...body.phase1_input, training_cycle, exercise_selections };
+    // A programme run brings its own exercises.
+    const exercise_selections = programme_run ? undefined : await getAthleteExerciseSelections(beta_individual_subject_user_id);
+    phase1ForCompile = { ...body.phase1_input, training_cycle, ...(exercise_selections ? { exercise_selections } : {}) };
   }
 
   const p1 = phase1Validate(phase1ForCompile);
@@ -526,6 +532,44 @@ export async function compileBlock(req: Request, res: Response) {
     }
   }
 
+  let programme_run_session: { run_id: string; listing_id: string; title: string; session_number: number; sessions_total: number; session_title: string } | undefined;
+  if (programme_run && beta_individual_subject_user_id) {
+    const sessionIndex = await programmeRunSessionCount(beta_individual_subject_user_id, programme_run.run_id);
+    try {
+      programForSession = await materialiseNextCoachTemplateProgram({
+        coach_user_id: programme_run.author_user_id,
+        athlete_user_id: beta_individual_subject_user_id,
+        assignment_id: programme_run.run_id,
+        template_id: programme_run.template_id,
+        base_program: p4.program as unknown as JsonRecord,
+        session_index_override: sessionIndex,
+        athlete_sets_loads: true
+      });
+    }
+    catch (error) {
+      const reason = error instanceof Beta18ProgrammeTemplateError ? error.reason : "template_materialisation_failed";
+      if (reason === "assigned_template_sessions_exhausted") {
+        throw badRequest("programme_complete", { failure_token: "programme_complete", programme_title: programme_run.title });
+      }
+      throw badRequest("BETA18_TEMPLATE_MATERIALISATION_FAILED", { failure_token: "beta18_programme_template_invalid", reason });
+    }
+    const templateExecution = isRecord(programForSession.coach_template_execution) ? programForSession.coach_template_execution : null;
+    canonical_hash = crypto.createHash("sha256").update(JSON.stringify({
+      phase2_canonical_hash: canonical_hash,
+      programme_run_id: programme_run.run_id,
+      template_record_sha256: templateExecution ? asString(templateExecution.template_record_sha256) ?? null : null,
+      template_session_id: templateExecution ? asString(templateExecution.template_session_id) ?? null : null
+    }), "utf8").digest("hex");
+    programme_run_session = {
+      run_id: programme_run.run_id,
+      listing_id: programme_run.listing_id,
+      title: programme_run.title,
+      session_number: sessionIndex + 1,
+      sessions_total: await programmeRunTotalSessions(programme_run),
+      session_title: templateExecution ? asString(templateExecution.template_session_title) ?? "" : ""
+    };
+  }
+
   if (apply_phase5) {
     throw badRequest("Phase 5 compile not implemented", { failure_token: "phase5_compile_not_implemented" });
   }
@@ -541,9 +585,13 @@ export async function compileBlock(req: Request, res: Response) {
   const displayNames = sessionExerciseDisplayNames(
     p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
     beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
+  const p6_session = programme_run_session
+    ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput
+    : p6.session;
   const named_session: Phase6SessionOutput = {
-    ...p6.session,
-    ...(session_reentry && isRecord((p6.session as any).training_cycle)
+    ...p6_session,
+    ...(programme_run_session ? { programme_run: programme_run_session } : {}),
+    ...(!programme_run_session && session_reentry && isRecord((p6.session as any).training_cycle)
       ? { training_cycle: { ...(p6.session as any).training_cycle, reentry: session_reentry } }
       : {}),
     exercises: p6.session.exercises.map((e: any) => {

@@ -1375,6 +1375,12 @@ async function createSession() {
       }
       // An open pain flag is never trained through silently: the athlete
       // answers "how is it now?" before a session that loads the same area.
+      // The athlete has finished their Kolosseum programme: choose the next one.
+      if (error?.payload?.error === "programme_complete") {
+        showNotice(`You've finished ${error.payload.details?.programme_title || "your programme"} - choose your next programme in Your programme.`, "error");
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
       if (phase4Token === "pain_check_in_required") {
         showNotice("You reported pain last time. Check in on how it is now before this session.", "error");
         document.getElementById("athleteOnboardingNav")?.click();
@@ -6548,7 +6554,7 @@ const COLLAPSIBLE_SCREENS = [
     viewId: "view-onboarding",
     panels: "article.onboarding-card",
     keepOpenRoots: new Set(),
-    keepOpen: "[data-declaration-status=\"current\"], .readiness, .stand-down-card, .pain-check-in"
+    keepOpen: "[data-declaration-status=\"current\"], .readiness, .stand-down-card, .pain-check-in, .athlete-programme"
   },
   // A coach's athlete profile: the counts and the assignment section stay
   // open; each record (history, notes, wellbeing...) is a row to open.

@@ -4617,3 +4617,10 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .review-work-added { margin-top: var(--k-space-2); }
 .review-record-details { margin-top: var(--k-space-4); border-top: 1px solid var(--line-soft); padding-top: var(--k-space-3); }
 .review-record-details > summary { min-height: 44px; display: flex; align-items: center; color: var(--stone-dim); font-weight: 700; cursor: pointer; }
+
+/* Kolosseum programmes: the ones that suit the athlete, to start or switch to. */
+.programme-options { display: grid; gap: var(--k-space-3); margin: var(--k-space-3) 0 0; padding: 0; list-style: none; }
+.programme-option { display: grid; gap: var(--k-space-2); padding: var(--k-space-3) var(--k-space-4); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: rgba(0, 0, 0, 0.12); }
+.programme-option-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--k-space-2); }
+.programme-option p { margin: 0; }
+.programme-option > .button { justify-self: start; }

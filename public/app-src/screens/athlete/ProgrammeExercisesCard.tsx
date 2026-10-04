@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { type CustomExercise, loadProgrammeExercises, saveProgrammeExercises } from "../../api/athleteOnboardingClient";
+import { type CustomExercise, loadAthleteProgrammes, loadProgrammeExercises, saveProgrammeExercises } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
@@ -60,6 +60,9 @@ export function ProgrammeExercisesCard() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<JsonRecord>({});
   const [saved, setSaved] = useState(false);
+  // Running a Kolosseum programme: its exercises come from the programme, so
+  // there are none to choose here.
+  const [runningProgramme, setRunningProgramme] = useState(false);
 
   const apply = useCallback((next: JsonRecord) => {
     setData(next);
@@ -70,6 +73,9 @@ export function ProgrammeExercisesCard() {
 
   useEffect(() => {
     let cancelled = false;
+    loadAthleteProgrammes()
+      .then((programmes) => { if (!cancelled) setRunningProgramme(Boolean(programmes.current)); })
+      .catch(() => {});
     loadProgrammeExercises()
       .then((next) => { if (!cancelled) apply(next); })
       .catch(() => { if (!cancelled) setError("Your programme exercises could not be loaded. Try again."); })
@@ -125,6 +131,7 @@ export function ProgrammeExercisesCard() {
     }
   }
 
+  if (runningProgramme) return null;
   if (loading) return <article className="onboarding-card"><p className="muted">Loading your programme exercises…</p></article>;
   if (!data || data.status !== "ok") {
     return error ? <article className="onboarding-card"><p role="alert">{error}</p></article> : null;
