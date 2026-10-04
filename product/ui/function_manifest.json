@@ -9238,6 +9238,18 @@
       "tracked_by_area": "programme_library"
     },
     {
+      "method": "GET",
+      "path": "/templates/:template_id/catalogue-listing",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "PUT",
+      "path": "/templates/:template_id/catalogue-listing",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
       "method": "POST",
       "path": "/templates/:template_id/activate",
       "source": "src/api/templates.routes.ts",
