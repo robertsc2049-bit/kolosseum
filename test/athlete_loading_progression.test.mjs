@@ -1,0 +1,75 @@
+// Beginner loading: a weight built from what the athlete lifted last time on
+// the lift (src/api/athlete_loading_rules.ts) - never an RPE target for
+// someone who can't yet judge reps in reserve.
+import test from "node:test";
+import assert from "node:assert/strict";
+
+const service = await import(new URL("../dist/src/api/athlete_loading_rules.js", import.meta.url).href);
+const { progressionPrescription, progressionIncrement, percentForRpe, rpeForPercentage, defaultLoadingMethod } = service;
+
+const session = (load, reps, unit = "kg") => ({ sets: reps.map((r) => ({ reps: r, load, unit })) });
+
+test("beginners build from what they lift by default; amateurs and pros go by % of max", () => {
+  assert.equal(defaultLoadingMethod("beginner"), "progression");
+  assert.equal(defaultLoadingMethod("amateur"), "percent_1rm");
+  assert.equal(defaultLoadingMethod("pro"), "percent_1rm");
+  assert.equal(defaultLoadingMethod(undefined), "percent_1rm");
+});
+
+test("a beginner's first squat session gives a technique weight to choose, not a number or an RPE", () => {
+  assert.deepEqual(progressionPrescription([], 5, 2.5, "kg"), { basis: "first_time" });
+});
+
+test("a beginner who squatted 3x5 at 60 kg with every rep goes to 62.5 kg", () => {
+  assert.deepEqual(progressionPrescription([session(60, [5, 5, 5])], 5, 2.5, "kg"),
+    { basis: "progress", value: 62.5, unit: "kg", previous: 60, increment: 2.5 });
+});
+
+test("a beginner benching 40 kg who made every rep goes up the smaller upper-body step to 41.25 kg", () => {
+  const next = progressionPrescription([session(40, [5, 5, 5])], 5, progressionIncrement("horizontal_push", "kg"), "kg");
+  assert.equal(next.value, 41.25);
+});
+
+test("a beginner who got 5, 5, 4 at 62.5 kg repeats 62.5 kg", () => {
+  assert.deepEqual(progressionPrescription([session(62.5, [5, 5, 4])], 5, 2.5, "kg"),
+    { basis: "repeat", value: 62.5, unit: "kg", previous: 62.5, increment: 2.5 });
+});
+
+test("short of the reps at 62.5 kg two sessions running drops 10% to 55 kg (rounded to the plate step)", () => {
+  const next = progressionPrescription([session(62.5, [5, 4, 3]), session(62.5, [5, 5, 4])], 5, 2.5, "kg");
+  assert.equal(next.basis, "deload");
+  assert.equal(next.value, 55);
+});
+
+test("a miss after a success at a lighter weight is a repeat, not a deload", () => {
+  const next = progressionPrescription([session(62.5, [5, 4, 4]), session(60, [5, 5, 5])], 5, 2.5, "kg");
+  assert.equal(next.basis, "repeat");
+});
+
+test("only sets at the top weight count: warm-up sets short of the reps don't hold the lift back", () => {
+  const sets = { sets: [{ reps: 3, load: 40, unit: "kg" }, { reps: 5, load: 60, unit: "kg" }, { reps: 5, load: 60, unit: "kg" }] };
+  assert.equal(progressionPrescription([sets], 5, 2.5, "kg").basis, "progress");
+});
+
+test("a lift logged in lb is progressed in the athlete's unit", () => {
+  const next = progressionPrescription([session(135, [5, 5, 5], "lb")], 5, 5, "lb");
+  assert.deepEqual([next.value, next.unit], [140, "lb"]);
+});
+
+test("a lift only ever logged without load (bodyweight) has no weight to build from yet", () => {
+  assert.deepEqual(progressionPrescription([session(0, [10, 10])], 10, 2.5, "kg"), { basis: "first_time" });
+});
+
+test("increments: squat, hinge, single-leg and carries 2.5 kg / 5 lb; presses, pulls and isolation 1.25 kg / 2.5 lb", () => {
+  assert.equal(progressionIncrement("squat", "kg"), 2.5);
+  assert.equal(progressionIncrement("hinge", "kg"), 2.5);
+  assert.equal(progressionIncrement("single_leg_squat", "kg"), 2.5);
+  assert.equal(progressionIncrement("carry_bilateral", "lb"), 5);
+  assert.equal(progressionIncrement("vertical_push", "kg"), 1.25);
+  assert.equal(progressionIncrement("horizontal_pull", "lb"), 2.5);
+});
+
+test("a beginner who chooses % of max: an RPE 6 set of 5 becomes about 74% - and back again", () => {
+  assert.equal(percentForRpe(6, 5), 74.5);
+  assert.equal(rpeForPercentage(74.5, 5), 6);
+});

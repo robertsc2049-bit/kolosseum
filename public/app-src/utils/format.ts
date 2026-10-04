@@ -3,6 +3,20 @@
 // escapeHtml() has no equivalent here - React escapes all text content by
 // default, which is the same guarantee via a safer default.
 
+// A weight built from the athlete's last session on the lift (see
+// src/api/athlete_maxes_service.ts): what to lift and why.
+function progressionText(guidance: JsonRecord, intensity: JsonRecord | null): string {
+  const reps = Number(guidance.reps) || 5;
+  if (guidance.basis === "first_time") {
+    return `First time: pick a weight you can lift for all ${reps} reps with clean technique - start lighter than you think`;
+  }
+  const unit = guidance.unit === "lb" ? "lb" : "kg";
+  const weight = `${Number(intensity?.value)} ${unit}`;
+  if (guidance.basis === "progress") return `${weight} - up ${Number(guidance.increment)} ${unit}: you made every rep last time`;
+  if (guidance.basis === "deload") return `${weight} - 10% lighter after two sessions short of the reps`;
+  return `${weight} - same as last time: make every rep and it goes up`;
+}
+
 export function titleCase(value: unknown): string {
   return String(value ?? "")
     .replaceAll("_", " ")
@@ -253,8 +267,12 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   if (tempo) details.push(`Tempo ${tempo}`);
 
   const intensity = exercise?.intensity && typeof exercise.intensity === "object" ? exercise.intensity as JsonRecord : null;
+  const guidance = exercise?.load_guidance && typeof exercise.load_guidance === "object" ? exercise.load_guidance as JsonRecord : null;
 
-  if (intensity?.type === "percent_1rm" && Number.isFinite(Number(intensity.value))) {
+  if (guidance?.type === "progression") {
+    details.push(progressionText(guidance, intensity));
+  }
+  else if (intensity?.type === "percent_1rm" && Number.isFinite(Number(intensity.value))) {
     const resolved = exercise?.resolved_load && typeof exercise.resolved_load === "object" ? exercise.resolved_load as JsonRecord : null;
 
     if (resolved && Number.isFinite(Number(resolved.value))) {

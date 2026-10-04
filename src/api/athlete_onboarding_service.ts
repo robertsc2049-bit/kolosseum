@@ -1088,6 +1088,16 @@ function projectExerciseChoices(days: SlotListing[], custom: CustomExercise[]): 
   return Object.freeze({ days: outDays, selections, open_slot_count: open, missing_slot_ids: missing, complete: missing.length === 0, all_exercises: allExercises(), custom_exercises: custom });
 }
 
+// The athlete's declared training level (beginner, amateur or pro), if any.
+export async function getAthleteExperienceLevel(userId: string): Promise<string | undefined> {
+  const client = await pool.connect();
+  try {
+    const declared = await currentDeclaredFields(client, userId);
+    return typeof declared?.experience_level === "string" ? declared.experience_level : undefined;
+  }
+  finally { client.release(); }
+}
+
 export async function getAthleteProgrammeExercises(userId: string): Promise<Readonly<Json>> {
   const client = await pool.connect();
   try {

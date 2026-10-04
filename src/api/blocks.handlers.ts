@@ -652,7 +652,11 @@ export async function compileBlock(req: Request, res: Response) {
   if (create_session && beta_individual_subject_user_id) {
     planned_session_from_engine = {
       ...planned_session_from_engine,
-      exercises: (await resolveAthleteSessionLoads(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
+      exercises: (await resolveAthleteSessionLoads(
+        beta_individual_subject_user_id,
+        planned_session_from_engine.exercises as any,
+        typeof (canonical_input as any)?.experience_level === "string" ? (canonical_input as any).experience_level : undefined
+      )) as any
     };
   }
 

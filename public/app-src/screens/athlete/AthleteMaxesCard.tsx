@@ -4,10 +4,20 @@ import { loadAthleteMaxes, saveAthleteMaxes } from "../../api/athleteOnboardingC
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 
-// A self-directed athlete's maxes for the lifts their programme prescribes as
-// a % of 1RM, so the session shows a real weight. Where they haven't entered
-// one, the estimate from what they actually lifted is used (and offered here);
-// with neither, the session gives an RPE target instead.
+// How a self-directed athlete's weights are set, and their maxes:
+// - build from what they lift (the beginner default): each session's weight
+//   comes from the last one - every rep made, a little more;
+// - % of their max: the maxes below (or the estimate from what they actually
+//   lifted, offered here) turn each percentage into a weight;
+// - RPE: an effort target.
+
+type Method = "progression" | "percent_1rm" | "rpe";
+const METHODS: Array<[Method, string, string]> = [
+  ["progression", "Build from what you lift", "Each session's weight comes from your last one: make every rep and it goes up a little; miss reps and you repeat it. Best if you're new to lifting."],
+  ["percent_1rm", "% of your max", "Enter a tested or estimated max for each lift below - each weight is worked out from it. Without one, we use the estimate from what you've logged."],
+  ["rpe", "RPE (effort)", "You choose the weight by how hard it feels - RPE 8 means about 2 reps left in the tank."]
+];
+const methodOf = (value: unknown): Method => (value === "progression" || value === "rpe" ? value : "percent_1rm");
 
 type Row = { exercise_id: string; display_name: string; value: string; unit: "kg" | "lb"; basis: "tested_1rm" | "estimated_1rm"; from_training: JsonRecord | null };
 
@@ -29,6 +39,7 @@ function rowsFrom(result: JsonRecord): Row[] {
 
 export function AthleteMaxesCard() {
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [method, setMethod] = useState<Method>("percent_1rm");
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<JsonRecord>({});
   const [saving, setSaving] = useState(false);
@@ -37,7 +48,7 @@ export function AthleteMaxesCard() {
   useEffect(() => {
     let cancelled = false;
     loadAthleteMaxes()
-      .then((result) => { if (!cancelled) setRows(rowsFrom(result)); })
+      .then((result) => { if (!cancelled) { setRows(rowsFrom(result)); setMethod(methodOf(result.loading_method)); } })
       .catch(() => { if (!cancelled) setError("Your maxes could not be loaded. Try again."); });
     return () => { cancelled = true; };
   }, []);
@@ -59,7 +70,9 @@ export function AthleteMaxesCard() {
         exercise_id: row.exercise_id, value: Number(row.value), unit: row.unit, basis: row.basis
       }));
       const unit = rows.find((row) => row.value.trim())?.unit ?? "kg";
-      setRows(rowsFrom(await saveAthleteMaxes({ preferred_weight_unit: unit, maxes }, csrf)));
+      const result = await saveAthleteMaxes({ preferred_weight_unit: unit, maxes, loading_method: method }, csrf);
+      setRows(rowsFrom(result));
+      setMethod(methodOf(result.loading_method));
       setSaved(true);
     }
     catch (caught) {
@@ -73,16 +86,25 @@ export function AthleteMaxesCard() {
   }
 
   if (!rows && !error) return null;
-  if (rows && rows.length === 0) return null;
+  const hint = METHODS.find(([value]) => value === method)?.[2] ?? "";
 
   return (
     <article className="onboarding-card athlete-maxes" data-testid="athlete-maxes">
-      <p className="eyebrow">Your maxes</p>
-      <h3>Maxes for your % of 1RM lifts</h3>
-      <p className="muted">Your programme prescribes these lifts as a percentage of your max. Enter a tested or estimated max so your sessions show a real weight. Without one, we use your estimate from logged sets, or give you an effort target (RPE).</p>
+      <p className="eyebrow">Your weights</p>
+      <h3>How your weights are set</h3>
+      <fieldset className="choice-chips loading-method">
+        <legend>Set my weights by</legend>
+        {METHODS.map(([value, label]) => (
+          <label key={value} className="choice-chip">
+            <input type="radio" name="loading-method" checked={method === value} onChange={() => { setSaved(false); setMethod(value); }} />
+            <span>{label}</span>
+          </label>
+        ))}
+      </fieldset>
+      <p className="choice-hint">{hint}</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {saved ? <p className="muted" role="status">Your maxes are saved.</p> : null}
-      {(rows ?? []).map((row, index) => (
+      {saved ? <p className="muted" role="status">Saved.</p> : null}
+      {method === "percent_1rm" ? (rows ?? []).map((row, index) => (
         <div className="athlete-max-row" key={row.exercise_id}>
           <strong>{row.display_name}</strong>
           <label className="field">
@@ -124,9 +146,9 @@ export function AthleteMaxesCard() {
           ) : null}
           {fieldErrors[row.exercise_id] ? <p className="field-error" role="alert">{String(fieldErrors[row.exercise_id])}</p> : null}
         </div>
-      ))}
+      )) : null}
       <div className="onboarding-actions">
-        <button className="button primary" type="button" disabled={saving} onClick={() => void save()}>Save maxes</button>
+        <button className="button primary" type="button" disabled={saving} onClick={() => void save()}>{method === "percent_1rm" ? "Save maxes" : "Save"}</button>
       </div>
     </article>
   );

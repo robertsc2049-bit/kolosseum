@@ -459,6 +459,10 @@
     {
       "kind": "command",
       "value": "node test/reg_full_03_exercise_registry_production.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/athlete_loading_progression.test.mjs"
     }
   ]
 }
