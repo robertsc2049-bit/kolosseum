@@ -245,6 +245,14 @@ function templateSessionCount(template: Readonly<Json>): number {
   return n;
 }
 
+// Whether any listed programme suits the athlete. Once one does, they run a
+// Kolosseum programme - the generated programme is only the fallback while
+// the catalogue has nothing for their level and sport.
+export async function athleteHasProgrammeOptions(userId: string): Promise<boolean> {
+  const [profile, listings] = await Promise.all([getAthleteTrainingProfile(userId), allListings()]);
+  return listings.some((listing) => suits(listing, profile.experience_level, profile.activity_id) > 0);
+}
+
 // Start a programme (a listed one that suits the athlete), or stop the
 // current one ({ listing_id: null }).
 export async function setAthleteProgramme(userId: string, input: unknown): Promise<Readonly<Json>> {

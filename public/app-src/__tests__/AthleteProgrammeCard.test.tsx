@@ -67,12 +67,12 @@ test("switching programme mid-way asks first, because progress on the current on
   await waitFor(() => assert.deepEqual(puts, [{ listing_id: "programme_full_body" }]));
 });
 
-test("stopping a programme asks first, then goes back to the generated programme", async () => {
+test("stopping a programme asks first", async () => {
   const puts = installMocks({ current: { run_id: "run_1", listing_id: "programme_full_body", title: "Beginner full-body", sessions_done: 1, sessions_total: 6 }, options: [fullBody] });
   render(<AthleteProgrammeCard />);
   await screen.findByText("Beginner full-body");
   fireEvent.click(screen.getByText("Stop programme"));
-  assert.ok(screen.getByText("Stop this programme? Your sessions go back to your generated programme."));
+  assert.ok(screen.getByText("Stop this programme? You'll choose what to train next before your next session."));
   await act(async () => {
     fireEvent.click(screen.getAllByText("Stop programme")[0]);
   });

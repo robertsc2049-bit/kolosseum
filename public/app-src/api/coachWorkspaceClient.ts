@@ -447,3 +447,17 @@ export function recordAthleteStandDown(athleteUserId: string, input: { reason: s
 export function endAthleteStandDown(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/stand-down/coach/${encodeURIComponent(athleteUserId)}/end`, { cleared_by_medical_professional: true }, csrfToken);
 }
+
+// Kolosseum programmes: the author's listing of a programme for athletes
+// without a coach (src/api/programme_catalogue_service.ts).
+export function loadProgrammeCatalogueListing(templateId: string): Promise<JsonRecord> {
+  return request("GET", `/templates/${encodeURIComponent(templateId)}/catalogue-listing`);
+}
+
+export function saveProgrammeCatalogueListing(
+  templateId: string,
+  input: { title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; listed: boolean },
+  csrfToken: string
+): Promise<JsonRecord> {
+  return request("PUT", `/templates/${encodeURIComponent(templateId)}/catalogue-listing`, input, csrfToken);
+}

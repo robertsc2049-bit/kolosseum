@@ -1375,6 +1375,12 @@ async function createSession() {
       }
       // An open pain flag is never trained through silently: the athlete
       // answers "how is it now?" before a session that loads the same area.
+      // Kolosseum programmes suit this athlete: they choose one before training.
+      if (error?.payload?.error === "programme_required") {
+        showNotice("Choose your programme to start training - it's under Your programme.", "error");
+        document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
       // The athlete has finished their Kolosseum programme: choose the next one.
       if (error?.payload?.error === "programme_complete") {
         showNotice(`You've finished ${error.payload.details?.programme_title || "your programme"} - choose your next programme in Your programme.`, "error");

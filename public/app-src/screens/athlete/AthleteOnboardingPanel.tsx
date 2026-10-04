@@ -678,11 +678,11 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         </div>
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
+      <AthleteProgrammeCard />
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <ReadinessCard />
       <StandDownCard />
       <PainCheckInCard />
-      <AthleteProgrammeCard />
       <AthleteEquipmentCard />
       <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
       <MatchWeekCard />
