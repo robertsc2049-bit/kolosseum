@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+import { loadAthleteHistoryDetail, loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { loadSessionSummary } from "../../api/sessionSummaryClient";
 import { type JsonRecord } from "../../api/transport";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
+import { ReviewSessionWork, type SessionWorkState } from "./ReviewSessionWork";
 import { type ReviewRecord, useCoachReview } from "./useCoachReview";
 
 // DEV NOTE: FULL-UI-17 coach review queue - ported from app.js's
@@ -136,6 +138,8 @@ function ReviewDetail({
   athleteName,
   marking,
   summary,
+  work,
+  exerciseNames,
   onMark,
   onNote
 }: {
@@ -143,6 +147,8 @@ function ReviewDetail({
   athleteName: string;
   marking: boolean;
   summary: JsonRecord | null;
+  work: SessionWorkState;
+  exerciseNames: ReadonlyMap<string, string>;
   onMark: (record: ReviewRecord, status: "reviewed" | "unreviewed") => void;
   onNote: (record: ReviewRecord) => void;
 }) {
@@ -162,14 +168,7 @@ function ReviewDetail({
         <StatusBadge record={record} />
       </div>
 
-      <dl className="review-fact-grid">
-        <div><dt>Status</dt><dd>{titleCase(record.session_status ?? "recorded")}</dd></div>
-        <div><dt>Recorded events</dt><dd>{Number(record.runtime_event_count ?? 0)}</dd></div>
-        <div><dt>Planned work items</dt><dd>{Number(record.planned_work_item_count ?? 0)}</dd></div>
-        <div><dt>Block</dt><dd>{String(record.block_id || "Not recorded")}</dd></div>
-        <div><dt>Updated</dt><dd>{formatDate(reviewRecordDate(record))}</dd></div>
-        {status === "reviewed" ? <div><dt>Reviewed</dt><dd>{formatDate(reviewedAtDate(record))}</dd></div> : null}
-      </dl>
+      <ReviewSessionWork athleteName={athleteName} work={work} exerciseNames={exerciseNames} />
 
       {summary ? (
         <dl className="review-fact-grid">
@@ -182,16 +181,6 @@ function ReviewDetail({
         </dl>
       ) : null}
 
-      <section className="review-provenance">
-        <h4>Provenance</h4>
-        <dl className="review-fact-grid">
-          <div><dt>Assignment</dt><dd>{String(record.assignment_id || "Not recorded")}</dd></div>
-          <div><dt>Programme</dt><dd>{String(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
-          <div><dt>Programme version</dt><dd>{Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
-          <div><dt>Activity</dt><dd>{titleCase(assignment.activity_id ?? "not recorded")}</dd></div>
-          <div><dt>Event</dt><dd>{String(eventLink.event_id ?? "No event link")}</dd></div>
-        </dl>
-      </section>
 
       <p className={`review-boundary-copy${status === "open" ? " live" : ""}`}>
         {status === "open"
@@ -227,6 +216,29 @@ function ReviewDetail({
           </div>
         )}
       </section>
+
+      <details className="review-record-details">
+        <summary>Session record</summary>
+        <dl className="review-fact-grid">
+          <div><dt>Status</dt><dd>{titleCase(record.session_status ?? "recorded")}</dd></div>
+          <div><dt>Recorded events</dt><dd>{Number(record.runtime_event_count ?? 0)}</dd></div>
+          <div><dt>Planned work items</dt><dd>{Number(record.planned_work_item_count ?? 0)}</dd></div>
+          <div><dt>Block</dt><dd>{String(record.block_id || "Not recorded")}</dd></div>
+          <div><dt>Updated</dt><dd>{formatDate(reviewRecordDate(record))}</dd></div>
+          {status === "reviewed" ? <div><dt>Reviewed</dt><dd>{formatDate(reviewedAtDate(record))}</dd></div> : null}
+        </dl>
+  
+          <section className="review-provenance">
+          <h4>Provenance</h4>
+          <dl className="review-fact-grid">
+            <div><dt>Assignment</dt><dd>{String(record.assignment_id || "Not recorded")}</dd></div>
+            <div><dt>Programme</dt><dd>{String(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
+            <div><dt>Programme version</dt><dd>{Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
+            <div><dt>Activity</dt><dd>{titleCase(assignment.activity_id ?? "not recorded")}</dd></div>
+            <div><dt>Event</dt><dd>{String(eventLink.event_id ?? "No event link")}</dd></div>
+          </dl>
+        </section>
+        </details>
     </aside>
   );
 }
@@ -277,6 +289,9 @@ export function CoachReviewPanel() {
   }
 
   const [summary, setSummary] = useState<JsonRecord | null>(null);
+  const [work, setWork] = useState<SessionWorkState>({ status: "loading" });
+  const [exerciseNames, setExerciseNames] = useState<ReadonlyMap<string, string>>(new Map());
+  const selectedAthleteForWork = selected ? String(selected.athlete_user_id ?? "") : "";
   const selectedSessionIdForSummary = selected ? String(selected.session_id) : "";
 
   useEffect(() => {
@@ -299,6 +314,37 @@ export function CoachReviewPanel() {
       cancelled = true;
     };
   }, [selectedSessionIdForSummary]);
+
+  // The session's logged work comes from the athlete's detail record.
+  useEffect(() => {
+    if (!selectedSessionIdForSummary || !selectedAthleteForWork) return;
+    let cancelled = false;
+    setWork({ status: "loading" });
+    loadAthleteHistoryDetail(selectedAthleteForWork)
+      .then((detail) => {
+        const history = Array.isArray(detail.session_history) ? (detail.session_history as JsonRecord[]) : [];
+        if (!cancelled) setWork({ status: "ready", session: history.find((entry) => String(entry.session_id) === selectedSessionIdForSummary) ?? null });
+      })
+      .catch(() => {
+        if (!cancelled) setWork({ status: "error" });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSessionIdForSummary, selectedAthleteForWork]);
+
+  // Exercise names for the logged work, once.
+  useEffect(() => {
+    let cancelled = false;
+    loadTemplateExercises()
+      .then((exercises) => {
+        if (!cancelled) setExerciseNames(new Map(exercises.map((exercise) => [String(exercise.exercise_id), String(exercise.display_name ?? exercise.exercise_id)])));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const counts = {
     all: reviews.length,
@@ -418,6 +464,8 @@ export function CoachReviewPanel() {
             athleteName={reviewAthleteName(selected, athleteNamesById)}
             marking={marking}
             summary={summary}
+            work={work}
+            exerciseNames={exerciseNames}
             onMark={handleMark}
             onNote={handleOpenNote}
           />

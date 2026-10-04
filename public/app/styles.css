@@ -4601,3 +4601,19 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 @media (max-width: 900px) {
   :is(#view-account, #view-onboarding, #athleteProfilePanel, #templateDetailPanel) [data-collapsed="true"] > p.eyebrow:first-child { margin: 0; padding-right: 40px; font-size: 0.82rem; }
 }
+
+/* Review: what the athlete did - each exercise with its logged sets. */
+.review-session-work { display: grid; gap: var(--k-space-2); margin: var(--k-space-4) 0; }
+.review-session-work h4 { margin: 0; }
+.review-work-list { display: grid; gap: var(--k-space-2); margin: 0; padding: 0; list-style: none; }
+.review-work-exercise { padding: var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: rgba(0, 0, 0, 0.12); }
+.review-work-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--k-space-2); }
+.review-work-head strong { margin-right: auto; }
+.review-work-exercise > p { margin: var(--k-space-1) 0 0; }
+.review-work-sets { display: grid; gap: 2px; margin: var(--k-space-2) 0 0; padding: 0; list-style: none; }
+.review-work-sets li { display: flex; align-items: center; gap: var(--k-space-3); min-height: 28px; }
+.review-work-sets li > span:first-child { min-width: 3.4rem; color: var(--stone-dim); font-size: 0.82rem; }
+.review-work-sets li strong { font-variant-numeric: tabular-nums; }
+.review-work-added { margin-top: var(--k-space-2); }
+.review-record-details { margin-top: var(--k-space-4); border-top: 1px solid var(--line-soft); padding-top: var(--k-space-3); }
+.review-record-details > summary { min-height: 44px; display: flex; align-items: center; color: var(--stone-dim); font-weight: 700; cursor: pointer; }

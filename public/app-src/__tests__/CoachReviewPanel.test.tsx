@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 
 import { CoachReviewPanel } from "../screens/coach/CoachReviewPanel";
 import { formatDate } from "../utils/format";
@@ -53,6 +53,8 @@ function installMocks(options: {
   noteFails?: boolean;
   onNoteSubmit?: (body: Record<string, unknown>) => void;
   summariesBySessionId?: Record<string, Record<string, unknown>>;
+  sessionHistory?: Record<string, unknown>[];
+  exercises?: Record<string, unknown>[];
 }) {
   const {
     records = [baseRecord()],
@@ -60,7 +62,9 @@ function installMocks(options: {
     markFails = false,
     noteFails = false,
     onNoteSubmit,
-    summariesBySessionId = {}
+    summariesBySessionId = {},
+    sessionHistory,
+    exercises = []
   } = options;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -85,7 +89,11 @@ function installMocks(options: {
       if (onNoteSubmit && typeof init?.body === "string") onNoteSubmit(JSON.parse(init.body));
       return jsonResponse({ ok: true, coach_note: { note_id: "note_1" } }, true, 201);
     }
-    const summaryMatch = /^\/sessions\/([^/]+)\/summary$/u.exec(path);
+    if (path.startsWith("/coach-workspace/athlete-detail")) {
+      return sessionHistory ? jsonResponse({ detail: { session_history: sessionHistory } }) : jsonResponse({ error: "not_found" }, false, 404);
+    }
+    if (path === "/templates/exercises") return jsonResponse({ exercises });
+    const summaryMatch =/^\/sessions\/([^/]+)\/summary$/u.exec(path);
     if (summaryMatch) {
       const summary = summariesBySessionId[summaryMatch[1]];
       return summary ? jsonResponse(summary) : jsonResponse({ error: "not_found" }, false, 404);
@@ -480,10 +488,47 @@ test("the open review record's detail shows the neutral session summary facts fe
 
   const factGrids = await waitFor(() => {
     const grids = document.querySelectorAll(".review-detail .review-fact-grid");
-    assert.equal(grids.length, 3, "expected the session facts grid, the new neutral session summary grid, then the provenance grid");
+    assert.equal(grids.length, 3, "expected the completion summary grid, then (under Session record) the session facts and provenance grids");
     return grids;
   });
 
-  const summaryFacts = Array.from(factGrids[1].querySelectorAll("dd")).map((el) => el.textContent);
+  const summaryFacts = Array.from(factGrids[0].querySelectorAll("dd")).map((el) => el.textContent);
   assert.deepEqual(summaryFacts, ["4", "1", "0", "3", "7", "1"]);
+});
+
+test("a coach reviewing a squat session sees what was actually lifted: each set with its load, the PR, the RPE, a swap, an unlogged exercise and an added one", async () => {
+  installMocks({
+    exercises: [
+      { exercise_id: "back_squat", display_name: "Back Squat" },
+      { exercise_id: "paused_bench_press", display_name: "Paused Bench Press" },
+      { exercise_id: "barbell_row", display_name: "Barbell Row" },
+      { exercise_id: "dumbbell_row", display_name: "Dumbbell Row" }
+    ],
+    sessionHistory: [{
+      session_id: "session_1",
+      exercise_ids: ["back_squat", "paused_bench_press", "barbell_row"],
+      set_logs: [
+        { exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg", is_pr: false, seq: 3 },
+        { exercise_id: "back_squat", set_index: 2, reps: 5, load_value: 142.5, load_unit: "kg", is_pr: false, seq: 4 },
+        { exercise_id: "back_squat", set_index: 2, reps: 4, load_value: 142.5, load_unit: "kg", is_pr: false, seq: 5 },
+        { exercise_id: "back_squat", set_index: 3, reps: 5, load_value: 145, load_unit: "kg", is_pr: true, seq: 6 }
+      ],
+      rpe_reports: [{ exercise_id: "back_squat", rpe_value: 8.5 }],
+      substitutions: [{ exercise_id: "barbell_row", substituted_exercise_id: "dumbbell_row" }],
+      extra_exercise_reports: [{ exercise_id: "custom_farmer_carry", reps: 2, load_value: 40, load_unit: "kg", is_pr: false }],
+      skip_reasons: [],
+      pain_reported: false
+    }]
+  });
+  render(<CoachReviewPanel />);
+  const work = await waitFor(() => screen.getByRole("region", { name: "What Jordan did" }));
+
+  const exercises = [...work.querySelectorAll(".review-work-exercise")];
+  assert.deepEqual(exercises.map((item) => item.querySelector("strong")?.textContent), ["Back Squat", "Paused Bench Press", "Barbell Row"], "every planned exercise, in programme order");
+  const squatSets = [...exercises[0].querySelectorAll(".review-work-sets li")].map((row) => row.textContent);
+  assert.deepEqual(squatSets, ["Set 15 × 140 kg", "Set 24 × 142.5 kg", "Set 35 × 145 kgPR"], "a corrected set shows once, as its latest log");
+  assert.ok(within(exercises[0] as HTMLElement).getByText("RPE 8.5"));
+  assert.ok(within(exercises[1] as HTMLElement).getByText("No sets logged"));
+  assert.ok(within(exercises[2] as HTMLElement).getByText("Swapped for Dumbbell Row"));
+  assert.ok(within(work).getByText("Farmer Carry"), "an exercise the athlete added, named from its custom id");
 });
