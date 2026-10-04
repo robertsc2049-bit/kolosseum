@@ -518,6 +518,10 @@ export function projectSessionStatePayload(
     // sessions only), so the session screen can show phase, week and day.
     ...(planned?.training_cycle && typeof planned.training_cycle === "object"
       ? { training_cycle: planned.training_cycle }
+      : {}),
+    // A Kolosseum programme session: which programme, and which session of it.
+    ...(planned?.programme_run && typeof planned.programme_run === "object"
+      ? { programme_run: planned.programme_run }
       : {})
   };
 }

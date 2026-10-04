@@ -290,7 +290,10 @@ export function AthleteSessionExecutionPanel() {
   const isEnded = executionStatus === "completed" || executionStatus === "partial";
   // Where this session sits in the athlete's periodised plan (self-directed only).
   const cycle = sessionState.training_cycle as JsonRecord | undefined;
-  const cycleSummary = trainingCycleSummary(cycle);
+  const programmeRun = isRecord(sessionState.programme_run) ? (sessionState.programme_run as JsonRecord) : null;
+  const cycleSummary = programmeRun
+    ? [String(programmeRun.title ?? ""), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
+    : trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
   // Back after a break: a lighter re-entry week, then blocks restart at week 1.
   const reentry = isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null;

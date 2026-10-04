@@ -45,6 +45,7 @@ import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment }
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
+import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } from "./programme_catalogue_service.js";
 
 export const athleteOnboardingRouter = Router();
 
@@ -56,6 +57,7 @@ const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, sta
 const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const weightClassRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const athleteProgrammeRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
   request: Request,
@@ -328,6 +330,27 @@ athleteOnboardingRouter.get(
   })
 );
 
+// Kolosseum programmes that suit the athlete, and the one they're running.
+athleteOnboardingRouter.get(
+  "/programmes",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthleteProgrammes(session.account_row.user_id));
+  })
+);
+
+// Start a Kolosseum programme ({ listing_id }) or stop the current one ({ listing_id: null }).
+athleteOnboardingRouter.put(
+  "/programme",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await setAthleteProgramme(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.put(
   "/readiness",
   readinessRateLimit,
@@ -380,6 +403,11 @@ athleteOnboardingRouter.use(
         error: error.code,
         field_errors: error.field_errors
       });
+      return;
+    }
+
+    if (error instanceof ProgrammeCatalogueError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }
 
