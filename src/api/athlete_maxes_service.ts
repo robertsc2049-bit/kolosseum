@@ -5,6 +5,15 @@
 // (logged sets) is used. With neither, the session gives an effort target
 // (RPE) instead of a percentage of a max nobody has recorded.
 //
+// How weights are set is the athlete's choice (saved with their maxes):
+// - "progression" (the default for beginners): the weight comes from what
+//   they lifted last time on that lift - every rep made, add a little; reps
+//   missed, the same again; missed twice at the same weight, 10% off. The
+//   first time, they pick a light technique weight. No RPE: a beginner can't
+//   judge reps in reserve yet.
+// - "percent_1rm" (the default from amateur up): % of their max.
+// - "rpe": an effort target.
+//
 // Loads are worked out by the same shared arithmetic as coach-assigned
 // sessions (resolveStrengthReferenceLoad). Maxes are stored as the athlete's
 // own account events; a coach's strength profile for their athlete is
@@ -17,7 +26,17 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { resolveStrengthReferenceLoad } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
-import { getAthleteProgrammeExercises } from "./athlete_onboarding_service.js";
+import {
+  defaultLoadingMethod,
+  LOADING_METHODS,
+  type LiftSession,
+  type LoadingMethod,
+  percentForRpe,
+  progressionIncrement,
+  progressionPrescription,
+  rpeForPercentage
+} from "./athlete_loading_rules.js";
+import { getAthleteExperienceLevel, getAthleteProgrammeExercises } from "./athlete_onboarding_service.js";
 import { getProgressInsightsForAthlete } from "./progress_insights_service.js";
 
 type Json = Record<string, unknown>;
@@ -36,16 +55,29 @@ export class AthleteMaxesError extends Error {
 }
 
 export type AthleteMax = { exercise_id: string; value: number; unit: "kg" | "lb"; basis: "tested_1rm" | "estimated_1rm"; effective_date: string };
-type SavedMaxes = { preferred_weight_unit: "kg" | "lb"; maxes: AthleteMax[] };
+type SavedMaxes = { preferred_weight_unit: "kg" | "lb"; maxes: AthleteMax[]; loading_method: LoadingMethod | null };
 
-let labels: Map<string, string> | null = null;
-function exerciseLabel(id: string): string | null {
-  if (!labels) {
+let registry: Map<string, Json> | null = null;
+function registryEntry(id: string): Json | null {
+  if (!registry) {
     const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
-    labels = new Map(Object.values(isRecord(doc?.entries) ? doc.entries : {}).filter(isRecord)
-      .map((entry) => [text(entry.exercise_id), text(entry.display_label) || text(entry.exercise_id)]));
+    registry = new Map(Object.values(isRecord(doc?.entries) ? doc.entries : {}).filter(isRecord).map((entry) => [text(entry.exercise_id), entry]));
   }
-  return labels.get(id) ?? null;
+  return registry.get(id) ?? null;
+}
+function exerciseLabel(id: string): string | null {
+  const entry = registryEntry(id);
+  return entry ? text(entry.display_label) || id : null;
+}
+
+// Lifts that take no external load, and work that isn't loaded by weight at all.
+function isBodyweightLift(id: string): boolean {
+  const required = registryEntry(id)?.equipment_requirements;
+  return Array.isArray(required) && required.includes("bodyweight");
+}
+const NOT_WEIGHT_LOADED = /^(jump_|sprint_|conditioning_|locomotion_|throw_slam|deceleration|change_of_direction|neck_isometric)/u;
+function isWeightLoaded(id: string): boolean {
+  return !NOT_WEIGHT_LOADED.test(text(registryEntry(id)?.movement_pattern_id));
 }
 
 async function latestSaved(client: QueryClient, userId: string): Promise<SavedMaxes> {
@@ -57,7 +89,8 @@ async function latestSaved(client: QueryClient, userId: string): Promise<SavedMa
   const payload = result.rows?.[0]?.event_payload;
   const unit = isRecord(payload) && payload.preferred_weight_unit === "lb" ? "lb" : "kg";
   const maxes = isRecord(payload) && Array.isArray(payload.maxes) ? (payload.maxes.filter(isRecord) as unknown as AthleteMax[]) : [];
-  return { preferred_weight_unit: unit, maxes };
+  const method = isRecord(payload) && LOADING_METHODS.has(text(payload.loading_method)) ? (text(payload.loading_method) as LoadingMethod) : null;
+  return { preferred_weight_unit: unit, maxes, loading_method: method };
 }
 
 // Latest estimated max per lift from what the athlete logged in training.
@@ -78,9 +111,9 @@ async function percentageLifts(userId: string): Promise<string[]> {
   for (const day of days) {
     for (const item of Array.isArray(day.items) ? day.items.filter(isRecord) : []) {
       const intensity = isRecord(item.prescription) && isRecord(item.prescription.intensity) ? item.prescription.intensity : null;
-      if (intensity?.type !== "percent_1rm") continue;
+      if (intensity?.type !== "percent_1rm" && intensity?.type !== "rpe") continue;
       const id = item.kind === "fixed" ? text(item.exercise_id) : text(item.selected_exercise_id);
-      if (id && exerciseLabel(id) && !ids.includes(id)) ids.push(id);
+      if (id && exerciseLabel(id) && !isBodyweightLift(id) && isWeightLoaded(id) && !ids.includes(id)) ids.push(id);
     }
   }
   return ids;
@@ -91,10 +124,13 @@ export async function getAthleteMaxes(userId: string): Promise<Readonly<Json>> {
   let saved: SavedMaxes;
   try { saved = await latestSaved(client, userId); }
   finally { client.release(); }
-  const [lifts, estimates] = await Promise.all([percentageLifts(userId), trainingEstimates(userId)]);
+  const [lifts, estimates, level] = await Promise.all([percentageLifts(userId), trainingEstimates(userId), getAthleteExperienceLevel(userId)]);
   const ids = [...lifts, ...saved.maxes.map((m) => m.exercise_id).filter((id) => !lifts.includes(id))];
   return Object.freeze({
     preferred_weight_unit: saved.preferred_weight_unit,
+    loading_method: saved.loading_method ?? defaultLoadingMethod(level),
+    loading_method_chosen: saved.loading_method !== null,
+    experience_level: level ?? null,
     lifts: ids.map((id) => ({
       exercise_id: id,
       display_name: exerciseLabel(id) ?? id,
@@ -109,7 +145,8 @@ export async function getAthleteMaxes(userId: string): Promise<Readonly<Json>> {
 export async function saveAthleteMaxes(userId: string, input: unknown): Promise<Readonly<Json>> {
   if (!isRecord(input)) throw new AthleteMaxesError("athlete_maxes_invalid", 422);
   const fieldErrors: Json = {};
-  for (const key of Object.keys(input)) if (key !== "preferred_weight_unit" && key !== "maxes") fieldErrors[key] = "Not part of your maxes.";
+  for (const key of Object.keys(input)) if (key !== "preferred_weight_unit" && key !== "maxes" && key !== "loading_method") fieldErrors[key] = "Not part of your maxes.";
+  if (input.loading_method !== undefined && !LOADING_METHODS.has(text(input.loading_method))) fieldErrors.loading_method = "Choose how your weights are set.";
   const unit = input.preferred_weight_unit ?? "kg";
   if (unit !== "kg" && unit !== "lb") fieldErrors.preferred_weight_unit = "Choose kg or lb.";
   if (!Array.isArray(input.maxes)) fieldErrors.maxes = "Your maxes must be a list.";
@@ -133,37 +170,74 @@ export async function saveAthleteMaxes(userId: string, input: unknown): Promise<
   if (Object.keys(fieldErrors).length) throw new AthleteMaxesError("athlete_maxes_invalid", 422, fieldErrors);
   const client = await pool.connect();
   try {
+    // A save without a loading method keeps the one already chosen.
+    const loadingMethod = input.loading_method === undefined ? (await latestSaved(client, userId)).loading_method : (text(input.loading_method) as LoadingMethod);
     await client.query(
       `INSERT INTO product_account_events (event_id, user_id, event_type, event_payload, occurred_at)
        VALUES ($1, $2, $3, $4::jsonb, now())`,
       [`account_event_${crypto.randomUUID().replace(/-/gu, "")}`, userId, MAXES_EVENT,
-        JSON.stringify({ preferred_weight_unit: unit, maxes, schema_version: "athlete_maxes_v1" })]
+        JSON.stringify({ preferred_weight_unit: unit, maxes, ...(loadingMethod ? { loading_method: loadingMethod } : {}), schema_version: "athlete_maxes_v1" })]
     );
   }
   finally { client.release(); }
   return getAthleteMaxes(userId);
 }
 
-// An effort target for a % of 1RM prescription when no max is recorded:
-// reps in reserve from a standard RPE chart (about 3.2% of 1RM per rep),
-// kept between RPE 6 and 9.
-export function rpeForPercentage(percent: number, reps: number): number {
-  const repsInReserve = (100 - percent) / 3.2 + 1 - reps;
-  const rpe = 10 - repsInReserve;
-  return Math.min(9, Math.max(6, Math.round(rpe * 2) / 2));
+// Every prescribed set the athlete logged, per lift, per session, newest
+// session first (the latest log of each set).
+async function liftHistory(userId: string): Promise<Map<string, LiftSession[]>> {
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (re.session_id, re.event->>'exercise_id', re.event->>'set_index')
+      re.session_id, s.created_at AS session_created_at, re.event->>'exercise_id' AS exercise_id,
+      (re.event->>'reps')::int AS reps, (re.event->>'load_value')::numeric AS load_value, re.event->>'load_unit' AS load_unit
+    FROM runtime_events re
+    JOIN sessions s ON s.session_id = re.session_id
+    WHERE s.beta_subject_user_id = $1
+      AND re.event->>'type' = 'SET_LOG_REPORT'
+      AND re.event->>'set_index' IS NOT NULL
+      AND re.event->>'reps' IS NOT NULL
+    ORDER BY re.session_id, re.event->>'exercise_id', re.event->>'set_index', re.seq DESC
+    `,
+    [userId]
+  );
+  const bySession = new Map<string, { at: number; lift: string; sets: LiftSession["sets"] }>();
+  for (const row of result.rows ?? []) {
+    const lift = baseExerciseId(text(row.exercise_id));
+    const key = `${text(row.session_id)}|${lift}`;
+    const entry = bySession.get(key) ?? { at: new Date(row.session_created_at).getTime(), lift, sets: [] };
+    entry.sets.push({ reps: Number(row.reps), load: row.load_value === null || row.load_value === undefined ? 0 : Number(row.load_value), unit: row.load_unit === "lb" ? "lb" : "kg" });
+    bySession.set(key, entry);
+  }
+  const history = new Map<string, LiftSession[]>();
+  for (const entry of [...bySession.values()].sort((a, b) => b.at - a.at)) {
+    history.set(entry.lift, [...(history.get(entry.lift) ?? []), { sets: entry.sets }]);
+  }
+  return history;
 }
 
-// Turn every "% of 1RM" exercise in a self-directed session into a weight
-// from the athlete's maxes (entered first, then estimated from training), or
-// an RPE target when there is no max.
-export async function resolveAthleteSessionLoads(userId: string, exercises: Json[]): Promise<Json[]> {
-  const needs = exercises.some((e) => isRecord(e.intensity) && e.intensity.type === "percent_1rm" && !isRecord(e.resolved_load));
-  if (!needs) return exercises;
+const targetRepsOf = (exercise: Json) => {
+  const range = isRecord(exercise.rep_range) ? exercise.rep_range : null;
+  const reps = Number(range?.maximum ?? exercise.reps);
+  return Number.isFinite(reps) && reps > 0 ? reps : 5;
+};
+
+// Set every weight-loaded lift in a self-directed session the athlete's way
+// (see the top of this file): from their last session, as % of their max, or
+// as an effort target.
+export async function resolveAthleteSessionLoads(userId: string, exercises: Json[], level?: string): Promise<Json[]> {
+  const loadedLift = (e: Json) => isRecord(e.intensity) && (e.intensity.type === "percent_1rm" || e.intensity.type === "rpe") && !isRecord(e.resolved_load);
+  if (!exercises.some(loadedLift)) return exercises;
   const client = await pool.connect();
   let saved: SavedMaxes;
   try { saved = await latestSaved(client, userId); }
   finally { client.release(); }
-  const estimates = await trainingEstimates(userId);
+  const method = saved.loading_method ?? defaultLoadingMethod(level);
+  const unit = saved.preferred_weight_unit;
+  const [estimates, history] = await Promise.all([
+    method === "percent_1rm" ? trainingEstimates(userId) : Promise.resolve(new Map()),
+    method === "rpe" ? Promise.resolve(new Map<string, LiftSession[]>()) : liftHistory(userId)
+  ]);
   const benchmarks = [
     ...saved.maxes.map((m) => ({
       benchmark_id: `athlete_max_${m.exercise_id}`, exercise_id: m.exercise_id, value: m.value, unit: m.unit,
@@ -175,16 +249,45 @@ export async function resolveAthleteSessionLoads(userId: string, exercises: Json
       source_note: "estimated from logged training", replaces_reference_id: null
     }))
   ];
-  const profile = { preferred_weight_unit: saved.preferred_weight_unit, load_rounding_increment: saved.preferred_weight_unit === "lb" ? 5 : 2.5, benchmarks };
+  const profile = { preferred_weight_unit: unit, load_rounding_increment: unit === "lb" ? 5 : 2.5, benchmarks };
+
+  const progression = (exercise: Json, lift: string): Json => {
+    const reps = targetRepsOf(exercise);
+    const increment = progressionIncrement(text(registryEntry(lift)?.movement_pattern_id), unit);
+    const next = progressionPrescription(history.get(lift) ?? [], reps, increment, unit);
+    if (next.basis === "first_time") return { ...exercise, load_guidance: { type: "progression", basis: "first_time", reps } };
+    return {
+      ...exercise,
+      intensity: { type: "load", value: next.value, unit: next.unit },
+      load_guidance: { type: "progression", basis: next.basis, previous: next.previous, increment: next.increment, unit: next.unit, reps }
+    };
+  };
+
   return exercises.map((exercise) => {
-    const intensity = isRecord(exercise.intensity) ? exercise.intensity : null;
-    if (intensity?.type !== "percent_1rm" || isRecord(exercise.resolved_load)) return exercise;
-    const percent = Number(intensity.value);
+    if (!loadedLift(exercise)) return exercise;
+    const intensity = exercise.intensity as Json;
+    const lift = baseExerciseId(String(exercise.exercise_id ?? ""));
+    if (!isWeightLoaded(lift)) return exercise;
+    if (isBodyweightLift(lift)) return method === "rpe" ? exercise : { ...exercise, intensity: { type: "bodyweight" } };
+    const reps = targetRepsOf(exercise);
+
+    if (method === "rpe") {
+      return intensity.type === "rpe" ? exercise : { ...exercise, intensity: { type: "rpe", value: rpeForPercentage(Number(intensity.value), reps) } };
+    }
+    if (method === "progression") return progression(exercise, lift);
+
+    // % of max: a beginner's effort target becomes a conservative percentage.
+    const percent = intensity.type === "percent_1rm"
+      ? Number(intensity.value)
+      : Math.min(level === "beginner" ? 75 : 90, percentForRpe(Number(intensity.value), reps));
+    const asPercent = { ...exercise, intensity: { type: "percent_1rm", value: percent } };
     let resolved: Readonly<Json> | null = null;
-    try { resolved = benchmarks.length ? resolveStrengthReferenceLoad(profile, baseExerciseId(String(exercise.exercise_id ?? "")), percent) : null; }
+    try { resolved = benchmarks.length ? resolveStrengthReferenceLoad(profile, lift, percent) : null; }
     catch { resolved = null; }
-    if (resolved) return { ...exercise, resolved_load: resolved };
-    const reps = Number(exercise.reps ?? (isRecord(exercise.rep_range) ? exercise.rep_range.maximum : 5));
-    return { ...exercise, load_guidance: { type: "rpe", value: rpeForPercentage(percent, Number.isFinite(reps) ? reps : 5), reason: "no_max_recorded" } };
+    if (resolved) return { ...asPercent, resolved_load: resolved };
+    // No max for this lift: a beginner goes by their last session; from
+    // amateur up, an effort target.
+    if (level === "beginner") return progression(exercise, lift);
+    return { ...asPercent, load_guidance: { type: "rpe", value: rpeForPercentage(percent, reps), reason: "no_max_recorded" } };
   });
 }

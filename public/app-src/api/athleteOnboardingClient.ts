@@ -119,6 +119,6 @@ export function loadAthleteMaxes(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/maxes");
 }
 
-export function saveAthleteMaxes(input: { preferred_weight_unit: "kg" | "lb"; maxes: JsonRecord[] }, csrfToken: string): Promise<JsonRecord> {
+export function saveAthleteMaxes(input: { preferred_weight_unit: "kg" | "lb"; maxes: JsonRecord[]; loading_method?: "progression" | "percent_1rm" | "rpe" }, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/maxes", input, csrfToken);
 }
