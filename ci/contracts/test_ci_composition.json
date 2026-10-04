@@ -463,6 +463,10 @@
     {
       "kind": "command",
       "value": "node test/athlete_loading_progression.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/kolosseum_programmes_v1_content.test.mjs"
     }
   ]
 }

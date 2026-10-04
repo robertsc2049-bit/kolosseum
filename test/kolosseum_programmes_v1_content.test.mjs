@@ -1,0 +1,88 @@
+// Kolosseum programmes v1 (product/programmes/kolosseum_programmes_v1.mjs):
+// every programme is one the builder can hold and an athlete can run - real
+// exercises, within the builder's limits, sensible loads - and is listed for
+// the athletes its design notes say it's for.
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+
+import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
+
+const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exercise.registry.json", import.meta.url), "utf8")).entries;
+const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
+const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
+
+test("five programmes: beginner, intermediate, powerlifting, and team-sport off-season and in-season", () => {
+  assert.deepEqual(PROGRAMMES.map((p) => p.key), ["beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season"]);
+  assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
+});
+
+test("every exercise is in the exercise registry the builder offers", () => {
+  const missing = [];
+  for (const p of PROGRAMMES) for (const s of sessionsOf(p)) for (const i of s.items) if (!registry[i.id]) missing.push(`${p.key}: ${i.id}`);
+  assert.deepEqual(missing, []);
+});
+
+test("every programme fits the builder: 1-12 exercises a session, 1-7 sessions a week, at most 52 weeks a block", () => {
+  for (const p of PROGRAMMES) {
+    for (const b of p.blocks) {
+      assert.ok(b.weeks.length >= 1 && b.weeks.length <= 52, `${p.key}/${b.name}: weeks`);
+      assert.ok(["general", "volume", "strength", "peak", "deload", "custom"].includes(b.block_type), `${p.key}/${b.name}: block type`);
+      for (const week of b.weeks) {
+        assert.ok(week.length >= 1 && week.length <= 7, `${p.key}/${b.name}: sessions a week`);
+        for (const s of week) assert.ok(s.items.length >= 1 && s.items.length <= 12, `${p.key}: ${s.title} exercises`);
+      }
+    }
+  }
+});
+
+test("loads are sensible: % of 1RM between 50 and 95, RPE between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
+  for (const p of PROGRAMMES) {
+    for (const s of sessionsOf(p)) {
+      for (const i of s.items) {
+        const where = `${p.key}: ${s.title} ${i.id}`;
+        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= 8, `${where} sets`);
+        if (i.load !== "bw" && "pct" in i.load) {
+          assert.ok(i.load.pct >= 50 && i.load.pct <= 95, `${where} % ${i.load.pct}`);
+          assert.ok(!(registry[i.id].equipment_requirements ?? []).includes("bodyweight"), `${where} is a bodyweight lift with a %`);
+        }
+        if (i.load !== "bw" && "rpe" in i.load) assert.ok(i.load.rpe >= 5 && i.load.rpe <= 9, `${where} RPE`);
+      }
+    }
+  }
+});
+
+test("a beginner never gets more than 85% or a single: the beginner programme stays at 5s and up", () => {
+  const beginner = PROGRAMMES.find((p) => p.key === "beginner_full_body");
+  for (const s of sessionsOf(beginner)) {
+    for (const i of s.items) {
+      if (i.load !== "bw" && "pct" in i.load) assert.ok(i.load.pct <= 85, `${s.title} ${i.id} ${i.load.pct}%`);
+      if (typeof i.reps === "number") assert.ok(i.reps >= 5, `${s.title} ${i.id} ${i.reps} reps`);
+    }
+  }
+});
+
+test("each programme is listed for the athletes its design notes describe", () => {
+  const byKey = Object.fromEntries(PROGRAMMES.map((p) => [p.key, p.listing]));
+  assert.deepEqual([byKey.beginner_full_body.levels, byKey.beginner_full_body.activity_ids], [["beginner"], []], "beginner, any sport");
+  assert.deepEqual(byKey.intermediate_upper_lower.activity_ids, [], "any sport");
+  assert.deepEqual(byKey.powerlifting_meet_prep.activity_ids, ["powerlifting"]);
+  for (const key of ["team_sport_off_season", "team_sport_in_season"]) {
+    assert.ok(byKey[key].activity_ids.includes("rugby_union") && byKey[key].activity_ids.includes("basketball"), key);
+    assert.ok(!byKey[key].levels.includes("beginner"), `${key}: beginners start on the full-body programme`);
+  }
+  for (const p of PROGRAMMES) {
+    for (const id of p.listing.activity_ids) assert.ok(activities.has(id), `${p.key}: ${id} is a real sport`);
+    assert.ok(activities.has(p.activity_id), `${p.key}: template activity`);
+    assert.ok(p.listing.summary.length > 0 && p.listing.summary.length <= 400, `${p.key}: summary`);
+    const firstWeek = p.blocks[0].weeks[0].length;
+    assert.equal(p.listing.days_per_week, firstWeek, `${p.key}: days a week matches the first week`);
+  }
+});
+
+test("the powerlifting peak ends with a taper week of openers, nothing heavier than 90%", () => {
+  const pl = PROGRAMMES.find((p) => p.key === "powerlifting_meet_prep");
+  const taper = pl.blocks.at(-1);
+  assert.equal(taper.block_type, "deload");
+  for (const s of taper.weeks.flat()) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.load.pct <= 90, `${s.title} ${i.id}`);
+});
