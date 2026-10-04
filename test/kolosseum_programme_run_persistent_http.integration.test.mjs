@@ -362,5 +362,14 @@ test(
     const done = await createSession();
     assertStatus(done, 400, "session after the programme ends");
     assert.equal(done.json.error, "programme_complete");
+
+    // Stopping it: with a programme that suits them listed, the athlete
+    // chooses one before training - the generated programme is only the
+    // fallback while none suits them.
+    const csrf = (await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie })).json.csrf_token;
+    assertStatus(await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf, body: { listing_id: null } }), 200, "stop programme");
+    const required = await createSession();
+    assertStatus(required, 400, "session with no programme chosen");
+    assert.equal(required.json.error, "programme_required");
   }
 );
