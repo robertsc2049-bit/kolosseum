@@ -48,13 +48,14 @@ test.afterEach(() => {
   cleanup();
 });
 
-test("renders create mode by default with role, activity and consent fields", async () => {
+test("renders create mode by default with role and consent fields - and no sport to choose (that's onboarding)", async () => {
   installMocks();
   render(<EntryAuthPanel />);
   await screen.findByText("v3");
 
   assert.ok(screen.getByText("Create your account"));
-  assert.ok(screen.getByText("Your sport (optional)"));
+  assert.equal(screen.queryByText("Your sport (optional)"), null);
+  assert.equal(screen.queryByText("Powerlifting"), null);
   assert.ok(screen.getByLabelText(/controlled-beta terms/));
 });
 
@@ -70,15 +71,6 @@ test("switching to the sign-in tab hides create-only fields and changes the subm
   assert.ok(screen.getByText("Forgot password?"));
 });
 
-test("choosing the coach role hides the primary activity field", async () => {
-  installMocks();
-  render(<EntryAuthPanel />);
-  await screen.findByText("v3");
-
-  fireEvent.click(screen.getByRole("radio", { name: /Coach/ }));
-
-  assert.equal(screen.queryByText("Your sport (optional)"), null);
-});
 
 test("the create-account submit button is disabled while terms are unavailable", async () => {
   installMocks({ termsUnavailable: true });
@@ -138,8 +130,6 @@ test("registering an athlete with no activity chosen succeeds - the activity pic
   render(<EntryAuthPanel />);
   await screen.findByText("v3");
 
-  assert.equal((screen.getByLabelText("Not yet") as HTMLInputElement).checked, true, "no sport is chosen for the athlete");
-
   fireEvent.change(screen.getByLabelText("Display name"), { target: { value: "Alex" } });
   enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
@@ -152,7 +142,7 @@ test("registering an athlete with no activity chosen succeeds - the activity pic
     await new Promise((resolve) => setTimeout(resolve, 0));
   });
 
-  assert.equal(requestBody?.activity_id, "");
+  assert.equal(requestBody?.activity_id, null, "no sport at sign-up");
   assert.equal(requestBody?.date_of_birth, "1990-01-15", "the date of birth is sent for the 18+ check");
 });
 

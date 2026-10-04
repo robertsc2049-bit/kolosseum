@@ -93,7 +93,6 @@ export function useEntryAuth() {
   const submitCreate = useCallback(async (input: {
     role: string;
     displayName: string;
-    activityId: string;
     email: string;
     password: string;
     betaConsent: boolean;
@@ -118,7 +117,8 @@ export function useEntryAuth() {
         display_name: input.displayName.trim(),
         email: input.email.trim().toLowerCase(),
         password: input.password,
-        activity_id: input.role === "athlete" ? input.activityId : null,
+        // Sign-up stays short: an athlete chooses their sport in onboarding.
+        activity_id: null,
         accepted_terms: true,
         accepted_consent: true,
         accepted_terms_version: state.terms?.current_terms_version,

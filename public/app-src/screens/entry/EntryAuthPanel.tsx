@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
 import { DateOfBirthInput } from "../../components/DateOfBirthInput";
-import { SportPicker } from "../../components/SportPicker";
 import { useEntryAuth } from "./useEntryAuth";
 
 // DEV NOTE: see useEntryAuth.ts's own DEV NOTE for the full port mapping and
@@ -77,7 +76,6 @@ export function EntryAuthPanel() {
   const [role, setRole] = useState("athlete");
   const [displayName, setDisplayName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [activityId, setActivityId] = useState("");
   const [betaConsent, setBetaConsent] = useState(false);
   const [declarationConsent, setDeclarationConsent] = useState(false);
   const [email, setEmail] = useState("");
@@ -95,7 +93,7 @@ export function EntryAuthPanel() {
     if (submitting) return;
 
     if (createMode) {
-      submitCreate({ role, displayName, activityId, email, password, betaConsent, declarationConsent, dateOfBirth });
+      submitCreate({ role, displayName, email, password, betaConsent, declarationConsent, dateOfBirth });
     }
     else {
       submitSignIn({ email, password });
@@ -161,7 +159,7 @@ export function EntryAuthPanel() {
             <h2>{createMode ? "Create your account" : "Sign in"}</h2>
             <p className="muted">
               {createMode
-                ? "Create persistent product access for this installation."
+                ? "It takes a minute - you'll set up your training next."
                 : "Open an existing athlete or coach workspace."}
             </p>
           </div>
@@ -209,15 +207,39 @@ export function EntryAuthPanel() {
                 />
               </label>
 
+            </div>
+          ) : null}
+
+          <label className="field">
+            <span>Email</span>
+            <input
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+          </label>
+
+          <label className="field">
+            <span>Password</span>
+            <input
+              type="password"
+              autoComplete={createMode ? "new-password" : "current-password"}
+              required
+              minLength={12}
+              maxLength={200}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+            />
+            <small>At least 12 characters.</small>
+          </label>
+
+          {createMode ? (
+            <div className="entry-form-fields">
               <DateOfBirthInput value={dateOfBirth} onChange={setDateOfBirth} />
               <p className="muted small">Kolosseum is for adults (18 and over) during the beta. We only keep that you confirmed you are 18 or over, not your date of birth.</p>
-
-              {role === "athlete" ? (
-                <>
-                  <SportPicker value={activityId} onChange={setActivityId} label="Your sport (optional)" allowNone name="signup-sport" />
-                  <p className="muted small">You can leave this blank and declare it later.</p>
-                </>
-              ) : null}
 
               <div className="consent-box">
                 <label>
@@ -247,32 +269,6 @@ export function EntryAuthPanel() {
               </div>
             </div>
           ) : null}
-
-          <label className="field">
-            <span>Email</span>
-            <input
-              type="email"
-              autoComplete="email"
-              required
-              maxLength={254}
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </label>
-
-          <label className="field">
-            <span>Password</span>
-            <input
-              type="password"
-              autoComplete={createMode ? "new-password" : "current-password"}
-              required
-              minLength={12}
-              maxLength={200}
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-            <small>At least 12 characters.</small>
-          </label>
 
           <button
             className="button primary wide"
