@@ -205,4 +205,222 @@ const teamInSeason = {
   blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => inSeasonWeek(i + 1)) }]
 };
 
-export const PROGRAMMES = [beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason];
+// ---------------------------------------------------------------------------
+// 5. Endurance strength - amateur and pro. Heavy, low-rep lifting twice a week
+// improves economy (less energy at the same pace or power) without adding
+// bulk; plyometrics stiffen the lower leg. Sets stop short of failure and the
+// volume stays low so it fits around the athlete's own training.
+// Runners, cyclists and triathletes lift with a lower-body bias; swimmers,
+// rowers and paddlers get more pulling and shoulder work.
+const RUN_RIDE_SPORTS = ["athletics", "cycling", "triathlon"];
+const SWIM_ROW_PADDLE_SPORTS = ["swimming", "rowing", "kayaking"];
+const ENDURANCE_SPORTS = [...RUN_RIDE_SPORTS, ...SWIM_ROW_PADDLE_SPORTS];
+
+// [sets, reps, %] per week for the main lifts: four weeks of technique and
+// tissue preparation at 8s, then heavier 5s, then 4s; every fourth week lighter.
+const ENDURANCE_MAIN = [[3, 8, 65], [3, 8, 67.5], [3, 8, 70], [2, 8, 60], [4, 5, 77.5], [4, 5, 80], [4, 5, 82.5], [3, 5, 70], [4, 4, 82.5], [4, 4, 85], [4, 4, 87.5], [3, 4, 75]];
+const enduranceWeekShape = (week) => {
+  const [sets, reps, pct] = ENDURANCE_MAIN[week - 1];
+  const lighter = week % 4 === 0;
+  return { sets, reps, pct, s: (n) => (lighter ? Math.max(2, n - 1) : n), plyoSets: week <= 4 ? 2 : 3 };
+};
+const runRideWeek = (week) => {
+  const { sets, reps, pct, s, plyoSets } = enduranceWeekShape(week);
+  return [
+    { title: "Strength A - squat", items: [
+      ex("pogo_jump", plyoSets, 10, "bw", 90), ex("back_squat", sets, reps, { pct }, 180), ex("single_leg_rdl", s(3), 6, { rpe: 7 }, 90),
+      ex("single_leg_calf_raise", s(3), 8, { rpe: 8 }, 75), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Strength B - hinge", items: [
+      ex("box_jump", plyoSets, 3, "bw", 90), ex("trap_bar_deadlift", sets, reps, { pct }, 180), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90),
+      ex("inverted_row", s(3), 8, "bw", 75), ex("wall_tibialis_raise", 2, 15, "bw", 45), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const enduranceRunRide = {
+  key: "endurance_run_ride_strength",
+  template_name: "Run and ride strength",
+  activity_id: "general_strength",
+  description: "Twelve weeks, two short sessions a week, for runners, cyclists and triathletes: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
+  listing: { title: "Run and ride strength (12 weeks)", summary: "For runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2 },
+  blocks: [
+    { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(runRideWeek) },
+    { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(runRideWeek) },
+    { name: "Heavy strength 2", block_type: "strength", weeks: [9, 10, 11, 12].map(runRideWeek) }
+  ]
+};
+
+const swimRowPaddleWeek = (week) => {
+  const { sets, reps, pct, s, plyoSets } = enduranceWeekShape(week);
+  return [
+    { title: "Strength A - legs and pull", items: [
+      ex("squat_jump", plyoSets, 3, "bw", 90), ex("trap_bar_deadlift", sets, reps, { pct }, 180), ex("pull_up", s(4), [4, 6], { rpe: 8 }, 120),
+      ex("landmine_press", s(3), 6, { rpe: 8 }, 90), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45), ex("dead_bug", 2, 8, "bw", 45)
+    ] },
+    { title: "Strength B - squat and row", items: [
+      ex("overhead_medicine_ball_slam", 3, 5, { kg: 4 }, 75), ex("back_squat", sets, reps, { pct }, 180), ex("seated_cable_row", s(3), 8, { rpe: 8 }, 90),
+      ex("cable_woodchop", s(3), 8, { rpe: 7 }, 60), ex("side_lying_external_rotation", 2, 12, { rpe: 7 }, 45), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const enduranceSwimRowPaddle = {
+  key: "endurance_swim_row_paddle_strength",
+  template_name: "Swim, row and paddle strength",
+  activity_id: "general_strength",
+  description: "Twelve weeks, two short sessions a week, for swimmers, rowers and paddlers: heavy leg drive at low reps, strong pulling, and rotator-cuff and trunk work to keep shoulders healthy under high stroke volume.",
+  listing: { title: "Swim, row and paddle strength (12 weeks)", summary: "For swimmers, rowers and paddlers. Two short sessions a week: heavy, low-rep leg drive, strong pulling, and shoulder and trunk work to keep you healthy through thousands of strokes. Built to sit alongside your water time.", levels: ["amateur", "pro"], activity_ids: SWIM_ROW_PADDLE_SPORTS, days_per_week: 2 },
+  blocks: [
+    { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(swimRowPaddleWeek) },
+    { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(swimRowPaddleWeek) },
+    { name: "Heavy strength 2", block_type: "strength", weeks: [9, 10, 11, 12].map(swimRowPaddleWeek) }
+  ]
+};
+
+// One heavy session a week holds strength through a race season.
+const ENDURANCE_IN_PCT = [80, 82.5, 85, 75];
+const enduranceInSeasonWeek = (week) => {
+  const lighter = week % 4 === 0;
+  return [
+    { title: "Maintenance session", items: [
+      ex("box_jump", 3, 3, "bw", 90), ex("back_squat", lighter ? 2 : 3, 4, { pct: at(ENDURANCE_IN_PCT, week) }, 180), ex("single_leg_calf_raise", 2, 8, { rpe: 8 }, 75),
+      ex("pull_up", lighter ? 2 : 3, 5, { rpe: 7 }, 120), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const enduranceInSeason = {
+  key: "endurance_in_season",
+  template_name: "Endurance race-season maintenance",
+  activity_id: "general_strength",
+  description: "One short, heavy session a week through the racing season, enough to keep the strength built in the off-season. Every fourth week is lighter; skip the session in the five days before a key race.",
+  listing: { title: "Race-season maintenance (12 weeks)", summary: "Keep your off-season strength through the racing season with one short, heavy session a week. Skip it in the five days before a key race.", levels: ["amateur", "pro"], activity_ids: ENDURANCE_SPORTS, days_per_week: 1 },
+  blocks: [{ name: "Race season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => enduranceInSeasonWeek(i + 1)) }]
+};
+
+// ---------------------------------------------------------------------------
+// 6. Combat sports - amateur and pro. Strength and power without the
+// high-rep volume that adds size (these athletes compete at a weight). Neck
+// and grip work every week, rotational throws, carries.
+const COMBAT_SPORTS = ["boxing", "muay_thai", "mma", "wrestling", "judo", "brazilian_jiu_jitsu"];
+
+const COMBAT_PCT = [72.5, 75, 77.5, 65, 77.5, 80, 82.5, 70];
+const combatBuildWeek = (week) => {
+  const pct = COMBAT_PCT[week - 1];
+  const deload = week % 4 === 0;
+  const s = (n) => (deload ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Lower strength and neck", items: [
+      ex("box_jump", s(4), 3, "bw", 90), ex("trap_bar_deadlift", s(4), 4, { pct }, 180), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90),
+      ex("nordic_curl", s(3), 4, "bw", 90), ex("neck_flexion_isometric", 3, { seconds: 20 }, { rpe: 6 }, 45), ex("neck_extension_isometric", 3, { seconds: 20 }, { rpe: 6 }, 45)
+    ] },
+    { title: "Upper strength and grip", items: [
+      ex("medicine_ball_chest_pass", s(4), 5, { kg: 4 }, 75), ex("bench_press", s(4), 5, { pct }, 180), ex("pull_up", s(4), [5, 8], { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("dumbbell_static_hold", 3, { seconds: 30 }, { rpe: 8 }, 60), ex("neck_lateral_flexion_isometric", 3, { seconds: 20 }, { rpe: 6 }, 45)
+    ] },
+    { title: "Power and trunk", items: [
+      ex("medicine_ball_rotational_throw", s(4), 4, { kg: 4 }, 75), ex("power_clean", s(4), 3, { pct }, 150), ex("front_squat", s(3), 5, { pct: pct - 5 }, 150),
+      ex("landmine_press", s(3), 6, { rpe: 8 }, 90), ex("farmers_carry", 3, { metres: 30 }, { rpe: 8 }, 75), ex("pallof_press", s(3), 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const combatBuild = {
+  key: "combat_strength_power",
+  template_name: "Combat-sport strength and power",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, between fight camps: heavy, low-rep lifting and explosive throws and jumps that build strength and power without adding size, plus neck, grip and trunk work every week.",
+  listing: { title: "Combat strength and power (8 weeks)", summary: "For fighters between camps. Three days a week: heavy, low-rep lifting, jumps and throws for power without adding size, plus neck, grip and trunk work every week. Fits around your mat or bag work.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 3 },
+  blocks: [{ name: "Between camps", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(combatBuildWeek) }]
+};
+
+// In camp the sparring load is high: two short sessions, heavy but few sets,
+// then a taper - nothing heavier than 70% in the last fortnight, and only a
+// light primer in fight week.
+const CAMP_PCT = [80, 82.5, 85, 77.5, 80, 82.5];
+const campSessions = (pct, sets) => [
+  { title: "Camp session A", items: [
+    ex("countermovement_jump", 3, 3, "bw", 90), ex("trap_bar_deadlift", sets, 3, { pct }, 180), ex("bench_press", sets, 3, { pct }, 180),
+    ex("pull_up", sets, 5, { rpe: 7 }, 120), ex("neck_flexion_isometric", 2, { seconds: 20 }, { rpe: 6 }, 45), ex("neck_extension_isometric", 2, { seconds: 20 }, { rpe: 6 }, 45)
+  ] },
+  { title: "Camp session B", items: [
+    ex("medicine_ball_rotational_throw", 3, 4, { kg: 4 }, 75), ex("bulgarian_split_squat", sets, 5, { rpe: 7 }, 90), ex("landmine_press", sets, 5, { rpe: 7 }, 90),
+    ex("inverted_row", sets, 8, "bw", 75), ex("farmers_carry", 2, { metres: 30 }, { rpe: 7 }, 60), ex("neck_lateral_flexion_isometric", 2, { seconds: 20 }, { rpe: 6 }, 45)
+  ] }
+];
+const fightWeekPrimer = [
+  { title: "Fight-week primer", items: [
+    ex("countermovement_jump", 3, 3, "bw", 90), ex("medicine_ball_chest_pass", 3, 3, { kg: 4 }, 75), ex("inverted_row", 2, 8, "bw", 60), ex("neck_extension_isometric", 2, { seconds: 15 }, { rpe: 5 }, 45)
+  ] }
+];
+const fightCamp = {
+  key: "combat_fight_camp",
+  template_name: "Fight camp strength",
+  activity_id: "general_strength",
+  description: "Eight weeks into a fight: six weeks of two short, heavy sessions alongside sparring, a lighter week, then one light primer in fight week. Nothing heavy in the last fortnight. Making weight is for you and your coach; this programme doesn't cut.",
+  listing: { title: "Fight camp strength (8 weeks)", summary: "For the eight weeks into a fight. Two short, heavy sessions a week alongside sparring, a lighter week, then a light primer in fight week - you arrive fresh, not sore. Start it eight weeks out.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 2 },
+  blocks: [
+    { name: "Camp", block_type: "strength", weeks: CAMP_PCT.map((pct) => campSessions(pct, 3)) },
+    { name: "Taper and fight week", block_type: "deload", weeks: [campSessions(70, 2), fightWeekPrimer] }
+  ]
+};
+
+// ---------------------------------------------------------------------------
+// 7. Tennis - amateur and pro. Rotational power, lateral strength and
+// deceleration, and the shoulder, elbow and groin work that keeps players on
+// court.
+const TENNIS_OFF_PCT = [72.5, 75, 77.5, 65, 75, 77.5, 80, 67.5];
+const tennisOffSeasonWeek = (week) => {
+  const pct = TENNIS_OFF_PCT[week - 1];
+  const deload = week % 4 === 0;
+  const s = (n) => (deload ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Lower and lateral", items: [
+      ex("lateral_bound", s(4), 4, "bw", 90), ex("trap_bar_deadlift", s(4), 5, { pct }, 180), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90),
+      ex("lateral_lunge", s(3), 6, { rpe: 7 }, 75), ex("machine_hip_adduction", 2, 10, { rpe: 7 }, 60), ex("single_leg_calf_raise", 2, 10, { rpe: 8 }, 60)
+    ] },
+    { title: "Upper and shoulder", items: [
+      ex("medicine_ball_rotational_throw", s(4), 4, { kg: 3 }, 75), ex("landmine_press", s(3), 6, { rpe: 8 }, 90), ex("chin_up", s(3), 6, { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("side_lying_external_rotation", 3, 12, { rpe: 7 }, 45), ex("face_pull", 2, 15, { rpe: 7 }, 45),
+      ex("dumbbell_wrist_extension", 2, 15, { rpe: 7 }, 45)
+    ] },
+    { title: "Speed and full body", items: [
+      ex("five_ten_five_shuttle", s(5), { metres: 20 }, "bw", 90), ex("back_squat", s(4), 5, { pct }, 180), ex("single_leg_rdl", s(3), 6, { rpe: 8 }, 90),
+      ex("cable_woodchop", s(3), 8, { rpe: 7 }, 60), ex("pallof_press", s(3), 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const tennisOffSeason = {
+  key: "tennis_off_season",
+  template_name: "Tennis off-season build",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, in the off-season or a long break between tournaments: rotational throws, lateral bounds and change of direction first, heavy lifting, then the shoulder, elbow and groin work tennis players need.",
+  listing: { title: "Tennis off-season build (8 weeks)", summary: "Three days a week in the off-season or a long break between tournaments: rotational power, lateral speed and heavy lifting, plus shoulder, elbow and groin work to keep you on court.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 3 },
+  blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(tennisOffSeasonWeek) }]
+};
+
+const tennisInSeasonWeek = (week) => {
+  const pct = at(IN_PCT, week);
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Early-week session", items: [
+      ex("lateral_bound", 3, 3, "bw", 90), ex("trap_bar_deadlift", s(3), 3, { pct }, 180), ex("landmine_press", s(3), 5, { rpe: 7 }, 90),
+      ex("side_lying_external_rotation", 2, 12, { rpe: 7 }, 45), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] },
+    { title: "Mid-week session", items: [
+      ex("medicine_ball_rotational_throw", 3, 4, { kg: 3 }, 75), ex("bulgarian_split_squat", s(3), 5, { rpe: 7 }, 90), ex("single_arm_dumbbell_row", s(3), 8, { rpe: 7 }, 75),
+      ex("machine_hip_adduction", 2, 10, { rpe: 7 }, 60), ex("dumbbell_wrist_extension", 2, 15, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const tennisInSeason = {
+  key: "tennis_in_season",
+  template_name: "Tennis tournament-season maintenance",
+  activity_id: "general_strength",
+  description: "Two short, heavy sessions a week during the tournament season to hold strength and power while staying fresh to play. Every fourth week is lighter; in a tournament week, do the early session only.",
+  listing: { title: "Tennis tournament-season maintenance (12 weeks)", summary: "Hold your strength and power through the tournament season: two short, heavy sessions a week, low volume so you stay fresh to play. In a tournament week, do the early session only.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 2 },
+  blocks: [{ name: "Tournament season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => tennisInSeasonWeek(i + 1)) }]
+};
+
+export const PROGRAMMES = [
+  beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
+  enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason
+];

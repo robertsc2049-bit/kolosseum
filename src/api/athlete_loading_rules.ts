@@ -31,6 +31,13 @@ export function percentForRpe(rpe: number, reps: number): number {
   return Math.min(90, Math.max(50, Math.round(percent * 2) / 2));
 }
 
+// The effort target for an athlete with no max for a lift: the one the
+// programme wrote, if it wrote one. Converting it to a % and back drifts at
+// high reps (15 reps at RPE 6 would come back as RPE 8.5).
+export function effortWithoutMax(intensity: { type?: unknown; value?: unknown }, percent: number, reps: number): number {
+  return intensity.type === "rpe" ? Number(intensity.value) : rpeForPercentage(percent, reps);
+}
+
 export type LiftSession = { sets: { reps: number; load: number; unit: "kg" | "lb" }[] };
 export type ProgressionPrescription =
   | { basis: "first_time" }

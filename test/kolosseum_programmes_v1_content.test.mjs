@@ -12,8 +12,11 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("five programmes: beginner, intermediate, powerlifting, and team-sport off-season and in-season", () => {
-  assert.deepEqual(PROGRAMMES.map((p) => p.key), ["beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season"]);
+test("twelve programmes: general, powerlifting, team, endurance, combat and tennis", () => {
+  assert.deepEqual(PROGRAMMES.map((p) => p.key), [
+    "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
+    "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season"
+  ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
 
@@ -71,6 +74,14 @@ test("each programme is listed for the athletes its design notes describe", () =
     assert.ok(byKey[key].activity_ids.includes("rugby_union") && byKey[key].activity_ids.includes("basketball"), key);
     assert.ok(!byKey[key].levels.includes("beginner"), `${key}: beginners start on the full-body programme`);
   }
+  assert.deepEqual(byKey.endurance_run_ride_strength.activity_ids, ["athletics", "cycling", "triathlon"]);
+  assert.deepEqual(byKey.endurance_swim_row_paddle_strength.activity_ids, ["swimming", "rowing", "kayaking"]);
+  assert.deepEqual([...byKey.endurance_in_season.activity_ids].sort(), ["athletics", "cycling", "kayaking", "rowing", "swimming", "triathlon"]);
+  for (const key of ["combat_strength_power", "combat_fight_camp"]) assert.deepEqual([...byKey[key].activity_ids].sort(), ["boxing", "brazilian_jiu_jitsu", "judo", "mma", "muay_thai", "wrestling"], key);
+  for (const key of ["tennis_off_season", "tennis_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["tennis"], key);
+  for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
+    assert.deepEqual(p.listing.levels, ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme`);
+  }
   for (const p of PROGRAMMES) {
     for (const id of p.listing.activity_ids) assert.ok(activities.has(id), `${p.key}: ${id} is a real sport`);
     assert.ok(activities.has(p.activity_id), `${p.key}: template activity`);
@@ -85,4 +96,33 @@ test("the powerlifting peak ends with a taper week of openers, nothing heavier t
   const taper = pl.blocks.at(-1);
   assert.equal(taper.block_type, "deload");
   for (const s of taper.weeks.flat()) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.load.pct <= 90, `${s.title} ${i.id}`);
+});
+
+test("endurance athletes lift heavy at low reps: no main lift above 8 reps, and at most two sessions a week", () => {
+  for (const key of ["endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season"]) {
+    const p = PROGRAMMES.find((x) => x.key === key);
+    for (const week of p.blocks.flatMap((b) => b.weeks)) assert.ok(week.length <= 2, `${key}: sessions a week`);
+    for (const s of sessionsOf(p)) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.reps <= 8, `${key}: ${s.title} ${i.id}`);
+  }
+});
+
+test("a fighter tapers into the fight: nothing above 70% in the last fortnight, no barbell work in fight week", () => {
+  const camp = PROGRAMMES.find((p) => p.key === "combat_fight_camp");
+  const taper = camp.blocks.at(-1);
+  assert.equal(taper.block_type, "deload");
+  for (const s of taper.weeks.flat()) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.load.pct <= 70, `${s.title} ${i.id}`);
+  const fightWeek = taper.weeks.at(-1);
+  assert.equal(fightWeek.length, 1, "one primer session in fight week");
+  for (const i of fightWeek[0].items) assert.ok(i.load === "bw" || !("pct" in i.load), `fight week ${i.id}`);
+});
+
+test("fighters train neck every week and tennis players train the rotator cuff every week", () => {
+  for (const key of ["combat_strength_power", "combat_fight_camp"]) {
+    const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
+    for (const week of weeks) assert.ok(week.some((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "neck_isometric")), `${key}: neck work`);
+  }
+  for (const key of ["tennis_off_season", "tennis_in_season"]) {
+    const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
+    for (const week of weeks) assert.ok(week.some((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "shoulder_external_rotation")), `${key}: rotator cuff`);
+  }
 });

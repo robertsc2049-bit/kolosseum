@@ -34,7 +34,8 @@ import {
   percentForRpe,
   progressionIncrement,
   progressionPrescription,
-  rpeForPercentage
+  rpeForPercentage,
+  effortWithoutMax
 } from "./athlete_loading_rules.js";
 import { getAthleteExperienceLevel, getAthleteProgrammeExercises } from "./athlete_onboarding_service.js";
 import { getProgressInsightsForAthlete } from "./progress_insights_service.js";
@@ -297,6 +298,6 @@ export async function resolveAthleteSessionLoads(userId: string, exercises: Json
     // No max for this lift: a beginner goes by their last session; from
     // amateur up, an effort target.
     if (level === "beginner") return progression(exercise, lift);
-    return { ...asPercent, load_guidance: { type: "rpe", value: rpeForPercentage(percent, reps), reason: "no_max_recorded" } };
+    return { ...asPercent, load_guidance: { type: "rpe", value: effortWithoutMax(intensity, percent, reps), reason: "no_max_recorded" } };
   });
 }
