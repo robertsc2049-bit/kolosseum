@@ -23,7 +23,7 @@ The programmes themselves are defined in
 
 Athletes see a programme only once it is published.
 
-Four programme families for athletes training without a coach. Each one is
+Seven programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there
 before it's published. Nothing reaches athletes until it's reviewed,
 activated and listed.
@@ -240,12 +240,253 @@ Every fourth week drops to one set less per lift.
 
 ---
 
+## 5. Endurance strength (amateur, pro · endurance sports)
+
+Three programmes: two off-season builds, split by how each sport moves, and
+one to keep strength through the racing season.
+
+**Why heavy and low-rep:** in trained runners, cyclists, rowers and
+swimmers, adding heavy strength work (about 4–6 reps at 80–90%, short of
+failure) and plyometrics improves economy. Economy means less energy at the
+same pace or power. It also improves late-race power and resistance to
+injury, without the weight gain endurance athletes worry about.
+
+That only works at low volume. Every session is short, with five or six
+exercises, and sits alongside the athlete's own training. The first four
+weeks (3 × 8 at 65–70%) teach the lifts and prepare tendons before the heavy
+blocks. Every fourth week is lighter.
+
+| Main lifts | Weeks 1–4 | Weeks 5–8 | Weeks 9–12 |
+|---|---|---|---|
+| Sets × reps | 3 × 8 | 4 × 5 | 4 × 4 |
+| Load | 65 → 70% (60% week 4) | 77.5 → 82.5% (70% week 8) | 82.5 → 87.5% (75% week 12) |
+
+### 5a. Run and ride strength (athletics, cycling, triathlon · 2 days a week · 12 weeks)
+
+| Strength A (squat) | Sets × reps | Load |
+|---|---|---|
+| Pogo jump | 2–3 × 10 | bodyweight, quick ground contacts |
+| Back squat | as above | as above |
+| Single-leg RDL | 3 × 6 each leg | RPE 7 |
+| Single-leg calf raise | 3 × 8 each leg | RPE 8 (hold a weight when it's easy) |
+| Side plank | 2 × 30 s each side | bodyweight |
+
+| Strength B (hinge) | Sets × reps | Load |
+|---|---|---|
+| Box jump | 2–3 × 3 | bodyweight, step down |
+| Trap bar deadlift | as above | as above |
+| Bulgarian split squat | 3 × 6 each leg | RPE 8 |
+| Inverted row | 3 × 8 | bodyweight |
+| Wall tibialis raise | 2 × 15 | bodyweight |
+| Pallof press | 2 × 10 each side | RPE 7 |
+
+The calf and Achilles and the shin take most running injuries. Heavy
+single-leg calf raises are the most direct way to build their capacity.
+
+**For the coach:** "athletics" also covers sprinters, jumpers and throwers.
+This programme is written for middle- and long-distance runners. Sprinters
+and jumpers would be better served by the team-sport off-season build, which
+isn't listed for athletics yet. That's your call at review.
+
+### 5b. Swim, row and paddle strength (swimming, rowing, kayaking · 2 days a week · 12 weeks)
+
+| Strength A (legs and pull) | Sets × reps | Load |
+|---|---|---|
+| Squat jump | 2–3 × 3 | bodyweight (starts, turns, the drive) |
+| Trap bar deadlift | as above | as above |
+| Pull-up | 4 × 4–6 | RPE 8 |
+| Landmine press | 3 × 6 | RPE 8 |
+| Band external rotation | 2 × 15 | RPE 6 |
+| Dead bug | 2 × 8 each side | bodyweight |
+
+| Strength B (squat and row) | Sets × reps | Load |
+|---|---|---|
+| Overhead medicine ball slam | 3 × 5 | 4 kg, explosive |
+| Back squat | as above | as above |
+| Seated cable row | 3 × 8 | RPE 8 |
+| Cable woodchop | 3 × 8 each side | RPE 7 |
+| Side-lying external rotation | 2 × 12 each arm | RPE 7 |
+| Side plank | 2 × 30 s each side | bodyweight |
+
+- **Swimmers, rowers and paddlers** pull thousands of strokes a week, so
+  rotator-cuff work is in both sessions.
+- **Pressing** is the landmine press, an angled press that's easier on the
+  shoulder than a full overhead press.
+- **Rowing** is leg-driven, so the heavy lifts are the same as 5a.
+- **Kayakers** get rotation from the woodchop.
+
+### 5c. Race-season maintenance (all six endurance sports · 1 day a week · 12 weeks)
+
+| Maintenance session | Sets × reps | Load |
+|---|---|---|
+| Box jump | 3 × 3 | bodyweight |
+| Back squat | 3 × 4 | 80 → 85% (75% every 4th week) |
+| Single-leg calf raise | 2 × 8 each leg | RPE 8 |
+| Pull-up | 3 × 5 | RPE 7 |
+| Pallof press | 2 × 10 each side | RPE 7 |
+
+One heavy session a week holds most of the strength built in the off-season.
+The listing tells the athlete to skip it in the five days before a key race.
+
+## 6. Combat sports (amateur, pro · boxing, Muay Thai, MMA, wrestling, judo, BJJ)
+
+Two programmes: one to build between fight camps, and one for the camp itself.
+
+**Why this structure:** fighters compete at a weight. So strength and power
+are built with low reps (3–6) and moderate volume, avoiding the high-volume
+work that adds size. Every week trains four things:
+- **Neck:** to absorb blows, and for grappling (bridging, posture, the
+  clinch). Neck work is isometric (band-resisted holds), the safest way to
+  load it.
+- **Grip:** for gi and no-gi grappling and the clinch.
+- **Rotational power:** for punching, kicking and throwing.
+- **Trunk stiffness:** trained with carries and anti-rotation work.
+
+Nothing in either programme cuts weight. Making weight is for the athlete and
+their coach.
+
+### 6a. Combat strength and power (between camps · 3 days a week · 8 weeks)
+
+| Day 1 (lower strength and neck) | Sets × reps | Load |
+|---|---|---|
+| Box jump | 4 × 3 | bodyweight |
+| Trap bar deadlift | 4 × 4 | 72.5 → 82.5% |
+| Bulgarian split squat | 3 × 6 each leg | RPE 8 |
+| Nordic curl | 3 × 4 | bodyweight |
+| Neck flexion hold | 3 × 20 s | band, RPE 6 |
+| Neck extension hold | 3 × 20 s | band, RPE 6 |
+
+| Day 2 (upper strength and grip) | Sets × reps | Load |
+|---|---|---|
+| Medicine ball chest pass | 4 × 5 | 4 kg, explosive |
+| Bench press | 4 × 5 | 72.5 → 82.5% |
+| Pull-up | 4 × 5–8 | RPE 8 |
+| Single-arm dumbbell row | 3 × 8 | RPE 8 |
+| Dumbbell static hold (grip) | 3 × 30 s | RPE 8 |
+| Neck side-bend hold | 3 × 20 s each side | band, RPE 6 |
+
+| Day 3 (power and trunk) | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 4 × 4 each side | 4 kg, explosive |
+| Power clean | 4 × 3 | 72.5 → 82.5% |
+| Front squat | 3 × 5 | 67.5 → 77.5% |
+| Landmine press | 3 × 6 each arm | RPE 8 |
+| Farmer's carry | 3 × 30 m | RPE 8 |
+| Pallof press | 3 × 10 each side | RPE 7 |
+
+- **Lighter weeks:** weeks 4 and 8 are 10% lighter, with one set fewer.
+- **Power clean:** assumes the athlete has been taught it. If not, swap in a
+  kettlebell swing or box jump in the builder.
+
+### 6b. Fight camp strength (8 weeks into a fight)
+
+In camp, sparring and conditioning are the main load. The gym keeps strength
+and power with two short, heavy sessions (3 × 3) and very little volume.
+
+| Camp session A | Sets × reps | Load |
+|---|---|---|
+| Countermovement jump | 3 × 3 | bodyweight |
+| Trap bar deadlift | 3 × 3 | 77.5–85% |
+| Bench press | 3 × 3 | 77.5–85% |
+| Pull-up | 3 × 5 | RPE 7 |
+| Neck flexion and extension holds | 2 × 20 s each | band, RPE 6 |
+
+| Camp session B | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 3 × 4 each side | 4 kg |
+| Bulgarian split squat | 3 × 5 each leg | RPE 7 |
+| Landmine press | 3 × 5 each arm | RPE 7 |
+| Inverted row | 3 × 8 | bodyweight |
+| Farmer's carry | 2 × 30 m | RPE 7 |
+| Neck side-bend hold | 2 × 20 s each side | band, RPE 6 |
+
+| Week | What happens |
+|---|---|
+| 1–6 | Sessions A and B at 80, 82.5, 85, 77.5, 80, 82.5% |
+| 7 | The same sessions at 70%, two sets each, about a fortnight out |
+| 8 (fight week) | One primer only: jumps, a light medicine ball chest pass, inverted rows and a light neck hold. No barbell work |
+
+The content test enforces this taper: nothing above 70% in the last
+fortnight, and no barbell work in fight week.
+
+## 7. Tennis (amateur, pro)
+
+**Why this structure:** tennis is repeated short sprints with constant
+lateral movement, deceleration and rotation. Its typical injuries are:
+- **Shoulder:** weak external rotation and imbalance from serving.
+- **Elbow:** lateral elbow pain (tennis elbow).
+- **Groin and hip:** from lateral movement.
+- **Lower back:** from rotation.
+
+So the programmes cover:
+- **Every week:** rotator-cuff work (external rotation).
+- **Elbow and groin:** wrist extension for the elbow, hip adduction for the
+  groin.
+- **Power:** rotational medicine ball throws, lateral bounds and the 5-10-5
+  shuttle, on top of heavy bilateral lifting.
+
+### 7a. Tennis off-season build (3 days a week · 8 weeks)
+
+| Day 1 (lower and lateral) | Sets × reps | Load |
+|---|---|---|
+| Lateral bound | 4 × 4 each side | bodyweight, stick the landing |
+| Trap bar deadlift | 4 × 5 | 72.5 → 80% |
+| Bulgarian split squat | 3 × 6 each leg | RPE 8 |
+| Lateral lunge | 3 × 6 each side | RPE 7 |
+| Hip adduction (machine) | 2 × 10 | RPE 7 |
+| Single-leg calf raise | 2 × 10 each leg | RPE 8 |
+
+| Day 2 (upper and shoulder) | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 4 × 4 each side | 3 kg, explosive |
+| Landmine press | 3 × 6 each arm | RPE 8 |
+| Chin-up | 3 × 6 | RPE 8 |
+| Single-arm dumbbell row | 3 × 8 | RPE 8 |
+| Side-lying external rotation | 3 × 12 each arm | RPE 7 |
+| Face pull | 2 × 15 | RPE 7 |
+| Dumbbell wrist extension | 2 × 15 | RPE 7 |
+
+| Day 3 (speed and full body) | Sets × reps | Load |
+|---|---|---|
+| 5-10-5 shuttle | 5 × 20 m | full recovery |
+| Back squat | 4 × 5 | 72.5 → 80% |
+| Single-leg RDL | 3 × 6 each leg | RPE 8 |
+| Cable woodchop | 3 × 8 each side | RPE 7 |
+| Pallof press | 3 × 10 each side | RPE 7 |
+
+Weeks 4 and 8 are lighter.
+
+### 7b. Tennis tournament-season maintenance (2 days a week · 12 weeks)
+
+| Early-week session | Sets × reps | Load |
+|---|---|---|
+| Lateral bound | 3 × 3 each side | bodyweight |
+| Trap bar deadlift | 3 × 3 | 80–85% |
+| Landmine press | 3 × 5 each arm | RPE 7 |
+| Side-lying external rotation | 2 × 12 each arm | RPE 7 |
+| Pallof press | 2 × 10 each side | RPE 7 |
+
+| Mid-week session | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 3 × 4 each side | 3 kg |
+| Bulgarian split squat | 3 × 5 each leg | RPE 7 |
+| Single-arm dumbbell row | 3 × 8 | RPE 7 |
+| Hip adduction (machine) | 2 × 10 | RPE 7 |
+| Dumbbell wrist extension | 2 × 15 | RPE 7 |
+
+In a tournament week, the athlete does the early session only, as the listing
+says. Every fourth week is lighter.
+
 ## Not in v1, and why
 
-- **Endurance, combat and racket-specific programmes:** these athletes get
-  the Beginner full-body or Intermediate upper/lower programmes until sport
-  programmes are written. Those general programmes suit them well as strength
-  training alongside their sport.
+- **Cricket:** not in the team-sport listings yet. Cricketers get the
+  general programmes until a programme for its rotational and fast-bowling
+  demands is written.
+- **Sprint, jump and throw events in athletics:** see 5a. The endurance
+  programme is written for distance runners.
+- **Sport programmes for beginners:** every sport programme is for amateur
+  and pro athletes. Beginners in any sport start on Beginner full-body, which
+  builds the base the sport programmes assume.
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.
 - **Conditioning prescriptions:** these programmes cover the gym; sport
   conditioning stays with the sport.
@@ -264,3 +505,13 @@ Every fourth week drops to one set less per lift.
   heavy session a week in professional football.
 - Nordic hamstring exercise and hamstring injury risk: Petersen et al. (2011);
   van der Horst et al. (2015).
+- Heavy strength training and plyometrics for endurance performance
+  (better economy; no added mass when volume is low): Rønnestad and Mujika
+  (2014); Beattie et al. (2014); Blagrove et al. (2018). One session a week
+  maintaining strength in cyclists' racing season: Rønnestad et al. (2010).
+- Dry-land strength for swimmers: Crowley et al. (2017).
+- Strength and power for weight-class combat athletes: Turner (2009); James
+  et al. (2016). Neck strength and head acceleration: Hrysomallis (2016).
+- Tapering (keep intensity, cut volume): Mujika and Padilla (2003).
+- Tennis demands, external-rotation work and injury patterns: Kovacs and
+  Ellenbecker (2011); Fernandez-Fernandez et al. (2014).

@@ -73,3 +73,11 @@ test("a beginner who chooses % of max: an RPE 6 set of 5 becomes about 74% - and
   assert.equal(percentForRpe(6, 5), 74.5);
   assert.equal(rpeForPercentage(74.5, 5), 6);
 });
+
+test("an amateur with no max keeps the effort the programme wrote: band external rotations at 15 reps, RPE 6, stay RPE 6", () => {
+  const { effortWithoutMax } = service;
+  const percent = percentForRpe(6, 15);
+  assert.equal(rpeForPercentage(percent, 15), 8.5, "the round trip through a % drifts");
+  assert.equal(effortWithoutMax({ type: "rpe", value: 6 }, percent, 15), 6);
+  assert.equal(effortWithoutMax({ type: "percent_1rm", value: 80 }, 80, 5), rpeForPercentage(80, 5), "a % prescription still becomes an effort target");
+});
