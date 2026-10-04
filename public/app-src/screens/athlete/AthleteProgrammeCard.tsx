@@ -68,7 +68,7 @@ export function AthleteProgrammeCard() {
           </p>
           {confirming === "stop" ? (
             <div className="inline-result" data-tone="warning">
-              <p>Stop this programme? Your sessions go back to your generated programme.</p>
+              <p>Stop this programme? You'll choose what to train next before your next session.</p>
               <div className="button-row">
                 <button className="button secondary" type="button" disabled={busy} onClick={() => void choose(null)}>Stop programme</button>
                 <button className="button secondary" type="button" onClick={() => setConfirming(null)}>Keep it</button>

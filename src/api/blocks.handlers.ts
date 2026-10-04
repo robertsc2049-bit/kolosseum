@@ -22,7 +22,7 @@ import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
-import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
+import { type ProgrammeRun, athleteHasProgrammeOptions, getCurrentProgrammeRun, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -342,6 +342,12 @@ export async function compileBlock(req: Request, res: Response) {
   // the session comes from that programme, not the generated one.
   const programme_run: ProgrammeRun | null =
     create_session && beta_individual_subject_user_id ? await getCurrentProgrammeRun(beta_individual_subject_user_id) : null;
+  // With Kolosseum programmes for their level and sport, an athlete without
+  // a coach chooses one; the generated programme is only the fallback while
+  // none suits them.
+  if (create_session && beta_individual_subject_user_id && !programme_run && await athleteHasProgrammeOptions(beta_individual_subject_user_id)) {
+    throw badRequest("programme_required", { failure_token: "programme_required" });
+  }
   if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
     const cycle_with_reentry = await trainingCycleForAthlete(beta_individual_subject_user_id);
     // Training days are required (no silent default): an athlete who
