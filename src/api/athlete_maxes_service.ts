@@ -268,7 +268,16 @@ export async function resolveAthleteSessionLoads(userId: string, exercises: Json
     const intensity = exercise.intensity as Json;
     const lift = baseExerciseId(String(exercise.exercise_id ?? ""));
     if (!isWeightLoaded(lift)) return exercise;
-    if (isBodyweightLift(lift)) return method === "rpe" ? exercise : { ...exercise, intensity: { type: "bodyweight" } };
+    // A bodyweight lift: an effort target the programme wrote (pull-ups at
+    // RPE 8) stands, except for a beginner building from what they lift (no
+    // RPE); a % of 1RM never applies - it's bodyweight, or that effort for
+    // someone who chose RPE.
+    if (isBodyweightLift(lift)) {
+      if (intensity.type === "rpe") return method === "progression" ? { ...exercise, intensity: { type: "bodyweight" } } : exercise;
+      return method === "rpe"
+        ? { ...exercise, intensity: { type: "rpe", value: rpeForPercentage(Number(intensity.value), targetRepsOf(exercise)) } }
+        : { ...exercise, intensity: { type: "bodyweight" } };
+    }
     const reps = targetRepsOf(exercise);
 
     if (method === "rpe") {
