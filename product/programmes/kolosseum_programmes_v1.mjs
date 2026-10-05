@@ -420,7 +420,67 @@ const tennisInSeason = {
   blocks: [{ name: "Tournament season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => tennisInSeasonWeek(i + 1)) }]
 };
 
+// ---------------------------------------------------------------------------
+// 8. Cricket - amateur and pro. Rotational power for batting, bowling and
+// throwing; a strong, stiff front leg and trunk for fast bowlers (who carry
+// the sport's highest injury risk - lumbar stress, side strain, hamstrings);
+// the throwing shoulder; and short acceleration between the wickets and in
+// the field.
+const CRICKET_OFF_PCT = [72.5, 75, 77.5, 65, 75, 77.5, 80, 67.5];
+const cricketOffSeasonWeek = (week) => {
+  const pct = CRICKET_OFF_PCT[week - 1];
+  const deload = week % 4 === 0;
+  const s = (n) => (deload ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Lower strength and landing", items: [
+      ex("broad_jump_to_stick", s(4), 3, "bw", 90), ex("trap_bar_deadlift", s(4), 5, { pct }, 180), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90),
+      ex("nordic_curl", s(3), 4, "bw", 90), ex("machine_hip_adduction", 2, 10, { rpe: 7 }, 60), ex("single_leg_calf_raise", 2, 10, { rpe: 8 }, 60)
+    ] },
+    { title: "Upper strength and rotation", items: [
+      ex("medicine_ball_rotational_throw", s(4), 4, { kg: 4 }, 75), ex("landmine_press", s(3), 6, { rpe: 8 }, 90), ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("side_lying_external_rotation", 3, 12, { rpe: 7 }, 45), ex("side_plank", s(3), { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Speed and full body", items: [
+      ex("twenty_metre_acceleration", s(5), { metres: 20 }, "bw", 90), ex("back_squat", s(4), 5, { pct }, 180), ex("single_leg_rdl", s(3), 6, { rpe: 8 }, 90),
+      ex("half_kneeling_pallof_press", s(3), 10, { rpe: 7 }, 45), ex("back_extension", 2, 10, "bw", 60), ex("bird_dog", 2, 8, "bw", 45)
+    ] }
+  ];
+};
+const cricketOffSeason = {
+  key: "cricket_off_season",
+  template_name: "Cricket off-season build",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, in the off-season: jumps, rotational throws and accelerations first, heavy lifting, then the hamstring, groin, shoulder and trunk work that keeps bowlers, batters and fielders on the park.",
+  listing: { title: "Cricket off-season build (8 weeks)", summary: "Three days a week in the off-season: rotational power for batting, bowling and throwing, speed between the wickets, heavy lifting, and the trunk, hamstring and shoulder work that keeps fast bowlers on the park.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3 },
+  blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(cricketOffSeasonWeek) }]
+};
+
+const cricketInSeasonWeek = (week) => {
+  const pct = at(IN_PCT, week);
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Early-week session", items: [
+      ex("countermovement_jump", 3, 3, "bw", 90), ex("trap_bar_deadlift", s(3), 3, { pct }, 180), ex("landmine_press", s(3), 5, { rpe: 7 }, 90),
+      ex("nordic_curl", 2, 4, "bw", 90), ex("side_lying_external_rotation", 2, 12, { rpe: 7 }, 45)
+    ] },
+    { title: "Mid-week session", items: [
+      ex("medicine_ball_rotational_throw", 3, 4, { kg: 4 }, 75), ex("bulgarian_split_squat", s(3), 5, { rpe: 7 }, 90), ex("single_arm_dumbbell_row", s(3), 8, { rpe: 7 }, 75),
+      ex("machine_hip_adduction", 2, 10, { rpe: 7 }, 60), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const cricketInSeason = {
+  key: "cricket_in_season",
+  template_name: "Cricket in-season maintenance",
+  activity_id: "general_strength",
+  description: "Two short, heavy sessions a week through the season to hold strength and power while staying fresh to play. Every fourth week is lighter; in a multi-day match week, do the early session only, and keep both away from a big bowling day.",
+  listing: { title: "Cricket in-season maintenance (12 weeks)", summary: "Hold your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh. In a multi-day match week, do the early session only. Bowlers: not the day before or after a long spell.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 2 },
+  blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => cricketInSeasonWeek(i + 1)) }]
+};
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
-  enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason
+  enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
+  cricketOffSeason, cricketInSeason
 ];

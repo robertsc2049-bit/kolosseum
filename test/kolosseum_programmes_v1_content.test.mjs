@@ -12,10 +12,11 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("twelve programmes: general, powerlifting, team, endurance, combat and tennis", () => {
+test("fourteen programmes: general, powerlifting, team, endurance, combat, tennis and cricket", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
-    "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season"
+    "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
+    "cricket_off_season", "cricket_in_season"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -79,6 +80,7 @@ test("each programme is listed for the athletes its design notes describe", () =
   assert.deepEqual([...byKey.endurance_in_season.activity_ids].sort(), ["athletics", "cycling", "kayaking", "rowing", "swimming", "triathlon"]);
   for (const key of ["combat_strength_power", "combat_fight_camp"]) assert.deepEqual([...byKey[key].activity_ids].sort(), ["boxing", "brazilian_jiu_jitsu", "judo", "mma", "muay_thai", "wrestling"], key);
   for (const key of ["tennis_off_season", "tennis_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["tennis"], key);
+  for (const key of ["cricket_off_season", "cricket_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["cricket"], key);
   for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
     assert.deepEqual(p.listing.levels, ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme`);
   }
@@ -124,5 +126,18 @@ test("fighters train neck every week and tennis players train the rotator cuff e
   for (const key of ["tennis_off_season", "tennis_in_season"]) {
     const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
     for (const week of weeks) assert.ok(week.some((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "shoulder_external_rotation")), `${key}: rotator cuff`);
+  }
+});
+
+test("a fast bowler's weekly basics: hamstring, groin, side-trunk and throwing-shoulder work every cricket week", () => {
+  const has = (week, check) => week.some((s) => s.items.some((i) => check(i, registry[i.id])));
+  for (const key of ["cricket_off_season", "cricket_in_season"]) {
+    const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
+    for (const week of weeks) {
+      assert.ok(has(week, (i) => i.id === "nordic_curl"), `${key}: Nordic curls`);
+      assert.ok(has(week, (i) => i.id === "machine_hip_adduction"), `${key}: groin`);
+      assert.ok(has(week, (i) => i.id === "side_plank"), `${key}: side strain`);
+      assert.ok(has(week, (_, r) => r.movement_pattern_id === "shoulder_external_rotation"), `${key}: rotator cuff`);
+    }
   }
 });

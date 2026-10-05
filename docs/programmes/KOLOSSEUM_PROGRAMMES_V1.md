@@ -23,7 +23,7 @@ The programmes themselves are defined in
 
 Athletes see a programme only once it is published.
 
-Seven programme families for athletes training without a coach. Each one is
+Eight programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there
 before it's published. Nothing reaches athletes until it's reviewed,
 activated and listed.
@@ -477,11 +477,93 @@ Weeks 4 and 8 are lighter.
 In a tournament week, the athlete does the early session only, as the listing
 says. Every fourth week is lighter.
 
+## 8. Cricket (amateur, pro)
+
+**Why this structure:** the gym work for cricket serves four demands:
+- **Rotational power:** for batting, bowling and throwing.
+- **Short acceleration:** between the wickets and in the field.
+- **The throwing shoulder.**
+- **Fast bowlers:** the sport's biggest injury risk. They take most of
+  cricket's injuries:
+  - lumbar stress injuries in young quicks;
+  - side strain (internal oblique), on the non-bowling side;
+  - hamstring and groin strains.
+
+  At front-foot contact, the bowler lands on a braced front leg at several
+  times bodyweight. So the programmes build:
+  - landing and single-leg strength;
+  - eccentric hamstring strength (Nordic curls);
+  - groin strength (hip adduction);
+  - lateral trunk strength (side plank, Pallof press);
+  - back-extensor endurance.
+
+  Bowling workload itself is the coach's to manage. These programmes cover
+  the gym.
+
+One programme covers every role. Batters and keepers lose nothing from the
+bowler-specific work, and most club cricketers do more than one job.
+
+### 8a. Cricket off-season build (3 days a week · 8 weeks)
+
+| Day 1 (lower strength and landing) | Sets × reps | Load |
+|---|---|---|
+| Broad jump to stick | 4 × 3 | bodyweight, hold the landing |
+| Trap bar deadlift | 4 × 5 | 72.5 → 80% |
+| Bulgarian split squat | 3 × 6 each leg | RPE 8 |
+| Nordic curl | 3 × 4 | bodyweight |
+| Hip adduction (machine) | 2 × 10 | RPE 7 |
+| Single-leg calf raise | 2 × 10 each leg | RPE 8 |
+
+| Day 2 (upper strength and rotation) | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 4 × 4 each side | 4 kg, explosive |
+| Landmine press | 3 × 6 each arm | RPE 8 |
+| Pull-up | 3 × 5–8 | RPE 8 |
+| Single-arm dumbbell row | 3 × 8 | RPE 8 |
+| Side-lying external rotation | 3 × 12 each arm | RPE 7 |
+| Side plank | 3 × 30 s each side | bodyweight |
+
+| Day 3 (speed and full body) | Sets × reps | Load |
+|---|---|---|
+| 20 m acceleration | 5 × 1 | full recovery |
+| Back squat | 4 × 5 | 72.5 → 80% |
+| Single-leg RDL | 3 × 6 each leg | RPE 8 |
+| Half-kneeling Pallof press | 3 × 10 each side | RPE 7 |
+| Back extension | 2 × 10 | bodyweight, controlled |
+| Bird dog | 2 × 8 each side | bodyweight |
+
+Weeks 4 and 8 are lighter (−10%, one set fewer).
+
+### 8b. Cricket in-season maintenance (2 days a week · 12 weeks)
+
+| Early-week session | Sets × reps | Load |
+|---|---|---|
+| Countermovement jump | 3 × 3 | bodyweight |
+| Trap bar deadlift | 3 × 3 | 80–85% |
+| Landmine press | 3 × 5 each arm | RPE 7 |
+| Nordic curl | 2 × 4 | bodyweight |
+| Side-lying external rotation | 2 × 12 each arm | RPE 7 |
+
+| Mid-week session | Sets × reps | Load |
+|---|---|---|
+| Medicine ball rotational throw | 3 × 4 each side | 4 kg |
+| Bulgarian split squat | 3 × 5 each leg | RPE 7 |
+| Single-arm dumbbell row | 3 × 8 | RPE 7 |
+| Hip adduction (machine) | 2 × 10 | RPE 7 |
+| Side plank | 2 × 30 s each side | bodyweight |
+
+The listing gives two scheduling rules:
+- **Multi-day match week:** do the early session only.
+- **Bowlers:** never lift the day before or after a long spell.
+
+Every fourth week is lighter.
+
+**For the coach:** under-18 fast bowlers are the highest-risk group for
+lumbar stress injury. Under-18s can't sign up in the beta, so these
+programmes are written for adults only.
+
 ## Not in v1, and why
 
-- **Cricket:** not in the team-sport listings yet. Cricketers get the
-  general programmes until a programme for its rotational and fast-bowling
-  demands is written.
 - **Sprint, jump and throw events in athletics:** see 5a. The endurance
   programme is written for distance runners.
 - **Sport programmes for beginners:** every sport programme is for amateur
@@ -515,3 +597,5 @@ says. Every fourth week is lighter.
 - Tapering (keep intensity, cut volume): Mujika and Padilla (2003).
 - Tennis demands, external-rotation work and injury patterns: Kovacs and
   Ellenbecker (2011); Fernandez-Fernandez et al. (2014).
+- Fast-bowling injury (lumbar stress injury, side strain, hamstring) and
+  bowling workload: Orchard et al. (2009, 2015); Hulin et al. (2014).
