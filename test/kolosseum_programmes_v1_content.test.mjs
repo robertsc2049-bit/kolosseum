@@ -153,3 +153,32 @@ test("sprinters, jumpers and throwers: heavy main lifts at 5 reps or fewer, risi
     for (const week of p.blocks.flatMap((b) => b.weeks)) assert.ok(week.some((s) => s.items.some((i) => i.id === "nordic_curl")), `${key}: Nordic curls`);
   }
 });
+
+test("each finished programme leads somewhere sensible: off-season to in-season and back, beginner to intermediate, fight camp back to between camps", () => {
+  const byKey = Object.fromEntries(PROGRAMMES.map((p) => [p.key, p]));
+  const next = Object.fromEntries(PROGRAMMES.filter((p) => p.listing.next).map((p) => [p.key, p.listing.next]));
+  assert.deepEqual(next, {
+    beginner_full_body: "intermediate_upper_lower",
+    powerlifting_meet_prep: "intermediate_upper_lower",
+    team_sport_off_season: "team_sport_in_season",
+    team_sport_in_season: "team_sport_off_season",
+    endurance_run_ride_strength: "endurance_in_season",
+    endurance_swim_row_paddle_strength: "endurance_in_season",
+    combat_strength_power: "combat_fight_camp",
+    combat_fight_camp: "combat_strength_power",
+    tennis_off_season: "tennis_in_season",
+    tennis_in_season: "tennis_off_season",
+    cricket_off_season: "cricket_in_season",
+    cricket_in_season: "cricket_off_season",
+    athletics_power_build: "athletics_competition_season",
+    athletics_competition_season: "athletics_power_build"
+  });
+  for (const [from, to] of Object.entries(next)) {
+    assert.ok(byKey[to], `${from} -> ${to} exists`);
+    assert.notEqual(from, to);
+    // The athlete finishing `from` plays a sport `to` is listed for.
+    const fromSports = byKey[from].listing.activity_ids;
+    const toSports = byKey[to].listing.activity_ids;
+    if (toSports.length) assert.ok(fromSports.length && fromSports.every((s) => toSports.includes(s)), `${from} -> ${to}: sports`);
+  }
+});

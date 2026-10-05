@@ -17,14 +17,14 @@ const activeTemplate = {
   template_structure: { blocks: [{ weeks: [{ sessions: [{}, {}, {}] }] }] }
 };
 
-function installMocks(options: { author?: boolean; listing?: Record<string, unknown> | null } = {}) {
+function installMocks(options: { author?: boolean; listing?: Record<string, unknown> | null; others?: Record<string, unknown>[] } = {}) {
   const puts: Record<string, unknown>[] = [];
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const path = String(input);
     const method = init?.method ?? "GET";
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
     if (path === "/templates/coach_template_1_v1/catalogue-listing" && method === "GET") {
-      return jsonResponse({ catalogue_author: options.author ?? true, listing: options.listing ?? null });
+      return jsonResponse({ catalogue_author: options.author ?? true, listing: options.listing ?? null, other_listings: options.others ?? [] });
     }
     if (path === "/templates/coach_template_1_v1/catalogue-listing" && method === "PUT") {
       const body = typeof init?.body === "string" ? JSON.parse(init.body) : {};
@@ -64,7 +64,7 @@ test("the author publishes a beginner programme for any sport, three days a week
     fireEvent.click(screen.getByText("Publish to athletes", { selector: "button" }));
   });
   await waitFor(() => assert.equal(puts.length, 1));
-  assert.deepEqual(puts[0], { title: "Beginner full-body", summary: "Three full-body days on the main lifts.", levels: ["beginner"], activity_ids: [], days_per_week: 3, listed: true });
+  assert.deepEqual(puts[0], { title: "Beginner full-body", summary: "Three full-body days on the main lifts.", levels: ["beginner"], activity_ids: [], days_per_week: 3, next_listing_id: "", listed: true });
   await screen.findByText("Listed for athletes.");
   assert.ok(screen.getByText("Listed"));
 });
@@ -87,7 +87,7 @@ test("a programme for specific sports lists those sports; it can't be published 
 });
 
 test("a listed programme can be unlisted", async () => {
-  const puts = installMocks({ listing: { listing_id: "programme_coach_template_1", title: "Beginner full-body", summary: "", levels: ["beginner"], activity_ids: [], days_per_week: 3, listed: true } });
+  const puts = installMocks({ listing: { listing_id: "programme_coach_template_1", title: "Beginner full-body", summary: "", levels: ["beginner"], activity_ids: [], days_per_week: 3, next_listing_id: "", listed: true } });
   render(<ProgrammeCatalogueListingSection template={activeTemplate} />);
   await screen.findByText("Update listing");
   await act(async () => {
@@ -96,4 +96,27 @@ test("a listed programme can be unlisted", async () => {
   await waitFor(() => assert.equal(puts.length, 1));
   assert.equal(puts[0].listed, false);
   await screen.findByText("No longer listed - athletes already running it can finish it.");
+});
+
+test("the author names which of their programmes athletes are offered when they finish this one", async () => {
+  const puts = installMocks({
+    listing: { listing_id: "programme_coach_template_1", title: "Off-season strength build", summary: "", levels: ["amateur", "pro"], activity_ids: [], days_per_week: 3, next_listing_id: "", listed: true },
+    others: [{ listing_id: "programme_in_season", title: "In-season maintenance", listed: true }, { listing_id: "programme_old", title: "Old programme", listed: false }]
+  });
+  render(<ProgrammeCatalogueListingSection template={activeTemplate} />);
+  const select = await screen.findByLabelText("When athletes finish it, offer next") as HTMLSelectElement;
+  assert.deepEqual([...select.options].map((o) => o.textContent), ["Nothing - they choose for themselves", "In-season maintenance", "Old programme (not listed)"]);
+  fireEvent.change(select, { target: { value: "programme_in_season" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Update listing"));
+  });
+  await waitFor(() => assert.equal(puts.length, 1));
+  assert.equal(puts[0].next_listing_id, "programme_in_season");
+});
+
+test("with no other programmes published there's nothing to offer next, so no choice is shown", async () => {
+  installMocks();
+  render(<ProgrammeCatalogueListingSection template={activeTemplate} />);
+  await screen.findByLabelText("Title athletes see");
+  assert.equal(screen.queryByLabelText("When athletes finish it, offer next"), null);
 });

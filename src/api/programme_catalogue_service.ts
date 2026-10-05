@@ -14,6 +14,10 @@
 // - A run pins the exact programme version it started with, so editing or
 //   archiving a programme never changes a run in progress.
 //
+// - A listing can name the programme that follows it (off-season build ->
+//   in-season, fight camp -> between camps). When an athlete finishes a
+//   programme they're offered that one, or to run it again.
+//
 // Listings and runs are account events (latest wins), like maxes and
 // equipment.
 
@@ -49,6 +53,8 @@ export type ProgrammeListing = {
   levels: string[];
   activity_ids: string[];
   days_per_week: number;
+  // The programme to offer when an athlete finishes this one ("" for none).
+  next_listing_id: string;
   listed: boolean;
   updated_at: string;
 };
@@ -94,6 +100,7 @@ function listingFrom(payload: unknown, authorUserId: string, at: unknown): Progr
     levels: Array.isArray(payload.levels) ? payload.levels.map(text).filter(Boolean) : [],
     activity_ids: Array.isArray(payload.activity_ids) ? payload.activity_ids.map(text).filter(Boolean) : [],
     days_per_week: Number(payload.days_per_week) || 0,
+    next_listing_id: text(payload.next_listing_id),
     listed: payload.listed !== false,
     updated_at: at instanceof Date ? at.toISOString() : text(at)
   };
@@ -133,10 +140,16 @@ export async function saveProgrammeListing(authorUserId: string, templateIdInput
   if (!Number.isInteger(days) || days < 1 || days > 7) fieldErrors.days_per_week = "Choose 1 to 7 training days a week.";
   const summary = text(input.summary);
   if (summary.length > 400) fieldErrors.summary = "Keep the summary under 400 characters.";
-  if (Object.keys(fieldErrors).length) throw new ProgrammeCatalogueError("programme_catalogue_listing_invalid", 422, fieldErrors);
-
   // One listing per programme family: a new version replaces the old one.
   const listingId = `programme_${text(template.template_family_id) || templateId}`;
+  // The next programme is another of the author's own listings.
+  const nextListingId = text(input.next_listing_id);
+  if (nextListingId) {
+    const own = (await allListings()).some((l) => l.listing_id === nextListingId && l.author_user_id === authorUserId);
+    if (nextListingId === listingId || !own) fieldErrors.next_listing_id = "Choose another of your published programmes, or none.";
+  }
+  if (Object.keys(fieldErrors).length) throw new ProgrammeCatalogueError("programme_catalogue_listing_invalid", 422, fieldErrors);
+
   const payload = {
     listing_id: listingId,
     template_id: templateId,
@@ -145,6 +158,7 @@ export async function saveProgrammeListing(authorUserId: string, templateIdInput
     levels,
     activity_ids: activityIds,
     days_per_week: days,
+    next_listing_id: nextListingId,
     listed: input.listed !== false,
     schema_version: "kolosseum_programme_listing_v1"
   };
@@ -162,7 +176,16 @@ export async function getProgrammeListingForTemplate(authorUserId: string, templ
   const templateId = text(templateIdInput);
   const template = await loadExecutableCoachTemplateById(authorUserId, templateId);
   const listingId = template ? `programme_${text(template.template_family_id) || templateId}` : "";
-  return Object.freeze({ catalogue_author: true, listing: listings.find((l) => l.listing_id === listingId && l.author_user_id === authorUserId) ?? null });
+  // The author's other listings: what can follow this programme.
+  const others = listings
+    .filter((l) => l.author_user_id === authorUserId && l.listing_id !== listingId)
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .map((l) => ({ listing_id: l.listing_id, title: l.title, listed: l.listed }));
+  return Object.freeze({
+    catalogue_author: true,
+    listing: listings.find((l) => l.listing_id === listingId && l.author_user_id === authorUserId) ?? null,
+    other_listings: others
+  });
 }
 
 export async function getCurrentProgrammeRun(userId: string): Promise<ProgrammeRun | null> {
@@ -215,7 +238,9 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
   if (run) {
     const template = await loadExecutableCoachTemplateById(run.author_user_id, run.template_id);
     const total = template ? templateSessionCount(template) : 0;
-    progress = { sessions_done: await programmeRunSessionCount(userId, run.run_id), sessions_total: total };
+    const done = await programmeRunSessionCount(userId, run.run_id);
+    progress = { sessions_done: done, sessions_total: total };
+    if (total > 0 && done >= total) progress = { ...progress, finished: true, ...whatNext(run, listings, profile) };
   }
   return Object.freeze({
     experience_level: profile.experience_level ?? null,
@@ -223,6 +248,28 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
     current: run ? { ...run, ...progress } : null,
     options
   });
+}
+
+// A finished programme: the one its author says follows it, and whether the
+// athlete can run this one again. A next programme for a higher level is
+// still shown, so a beginner who's finished knows what moving up leads to.
+function whatNext(run: ProgrammeRun, listings: ProgrammeListing[], profile: { experience_level?: string; activity_id?: string }): Json {
+  const finished = listings.find((l) => l.listing_id === run.listing_id);
+  const next = finished?.next_listing_id ? listings.find((l) => l.listing_id === finished.next_listing_id && l.listed) : undefined;
+  let suggestion: Json | null = null;
+  if (next) {
+    const fit = suits(next, profile.experience_level, profile.activity_id);
+    const sportOk = next.activity_ids.length === 0 || (!!profile.activity_id && next.activity_ids.includes(profile.activity_id));
+    if (fit > 0 || sportOk) {
+      suggestion = {
+        listing_id: next.listing_id, title: next.title, summary: next.summary, levels: next.levels,
+        activity_ids: next.activity_ids, days_per_week: next.days_per_week,
+        // Not for their level yet: they'd change their level to start it.
+        suits_level: fit > 0
+      };
+    }
+  }
+  return { next: suggestion, can_repeat: !!finished && suits(finished, profile.experience_level, profile.activity_id) > 0 };
 }
 
 // How many sessions the run's programme has.

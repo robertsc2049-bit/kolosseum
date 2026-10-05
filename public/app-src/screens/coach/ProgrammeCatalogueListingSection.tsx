@@ -9,7 +9,8 @@ import { titleCase } from "../../utils/format";
 // "Publish to athletes": a Kolosseum programme author lists one of their
 // active programmes for athletes without a coach (src/api/
 // programme_catalogue_service.ts) - who it suits (levels; sports, or any
-// sport) and how many days a week. Only shown to catalogue authors.
+// sport), how many days a week, and which of their programmes athletes are
+// offered once they finish it. Only shown to catalogue authors.
 
 const LEVELS: Array<[string, string]> = [["beginner", "Beginner"], ["amateur", "Amateur"], ["pro", "Pro"]];
 
@@ -33,6 +34,8 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
   const [general, setGeneral] = useState(true);
   const [sports, setSports] = useState<string[]>([]);
   const [days, setDays] = useState(3);
+  const [nextId, setNextId] = useState("");
+  const [others, setOthers] = useState<JsonRecord[]>([]);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<JsonRecord>({});
@@ -46,6 +49,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
     setGeneral(ids.length === 0);
     setSports(ids);
     setDays(Number(next?.days_per_week) || daysInFirstWeek(template));
+    setNextId(String(next?.next_listing_id ?? ""));
   }
 
   useEffect(() => {
@@ -55,6 +59,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
       .then((result) => {
         if (cancelled) return;
         setAuthor(result.catalogue_author === true);
+        setOthers(Array.isArray(result.other_listings) ? (result.other_listings as JsonRecord[]) : []);
         apply(result.listing && typeof result.listing === "object" ? (result.listing as JsonRecord) : null);
       })
       .catch(() => { if (!cancelled) setAuthor(false); });
@@ -70,7 +75,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
       const account = await loadAccountDetail();
       const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
       const result = await saveProgrammeCatalogueListing(templateId, {
-        title: title.trim(), summary: summary.trim(), levels, activity_ids: general ? [] : sports, days_per_week: days, listed
+        title: title.trim(), summary: summary.trim(), levels, activity_ids: general ? [] : sports, days_per_week: days, next_listing_id: nextId, listed
       }, csrf);
       apply(result.listing as JsonRecord);
       setStatus(listed ? "Listed for athletes." : "No longer listed - athletes already running it can finish it.");
@@ -156,6 +161,20 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
             </select>
             {fieldErrors.days_per_week ? <small className="field-error">{String(fieldErrors.days_per_week)}</small> : null}
           </label>
+          {others.length > 0 ? (
+            <label className="field">
+              <span>When athletes finish it, offer next</span>
+              <select value={nextId} onChange={(event) => setNextId(event.target.value)}>
+                <option value="">Nothing - they choose for themselves</option>
+                {others.map((other) => (
+                  <option key={String(other.listing_id)} value={String(other.listing_id)}>
+                    {`${String(other.title)}${other.listed === false ? " (not listed)" : ""}`}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.next_listing_id ? <small className="field-error">{String(fieldErrors.next_listing_id)}</small> : null}
+            </label>
+          ) : null}
           {status ? <p className="muted small" role="status">{status}</p> : null}
           <div className="button-row">
             <button className="button primary" type="button" disabled={saving || (!general && sports.length === 0)} onClick={() => void save(true)}>

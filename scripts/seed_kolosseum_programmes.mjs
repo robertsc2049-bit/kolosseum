@@ -12,7 +12,8 @@
 //   node scripts/seed_kolosseum_programmes.mjs [--publish]
 //
 // --publish (local testing only): also completes, activates and lists each
-// programme. Programmes the author already has (same name) are skipped.
+// programme, and sets which programme each one offers next. Programmes the
+// author already has (same name) are skipped.
 
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 
@@ -105,10 +106,39 @@ for (const programme of PROGRAMMES) {
     await call("POST", `/templates/${templateId}/complete`, { coach_user_id: coachUserId });
     const active = await call("POST", `/templates/${templateId}/activate`, { coach_user_id: coachUserId });
     templateId = active.template?.template_id ?? templateId;
-    await call("PUT", `/templates/${templateId}/catalogue-listing`, programme.listing);
+    const { next: _next, ...listing } = programme.listing;
+    await call("PUT", `/templates/${templateId}/catalogue-listing`, listing);
     console.log(`listed ${programme.template_name} (${sessions} sessions)`);
   }
   else {
     console.log(`draft ${programme.template_name} (${sessions} sessions) - review it in the builder, then activate and publish`);
   }
+}
+
+// What each programme offers when an athlete finishes it (listing.next).
+const titleOf = Object.fromEntries(PROGRAMMES.map((p) => [p.key, p.listing.title]));
+if (publish) {
+  const templates = ((await call("GET", `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`)).templates ?? []).filter((t) => t.template_status === "active");
+  const listingByKey = {};
+  for (const programme of PROGRAMMES) {
+    const template = templates.find((t) => t.template_name === programme.template_name);
+    if (!template) continue;
+    const result = await call("GET", `/templates/${template.template_id}/catalogue-listing`);
+    if (result.listing) listingByKey[programme.key] = { template_id: template.template_id, listing: result.listing };
+  }
+  for (const programme of PROGRAMMES) {
+    const from = listingByKey[programme.key];
+    const to = listingByKey[programme.listing.next];
+    if (!from || !to || from.listing.next_listing_id === to.listing.listing_id) continue;
+    const { listing } = from;
+    await call("PUT", `/templates/${from.template_id}/catalogue-listing`, {
+      title: listing.title, summary: listing.summary, levels: listing.levels, activity_ids: listing.activity_ids,
+      days_per_week: listing.days_per_week, listed: listing.listed, next_listing_id: to.listing.listing_id
+    });
+    console.log(`next   ${programme.template_name} -> ${titleOf[programme.listing.next]}`);
+  }
+}
+else {
+  console.log("\nWhen you publish, set \"When athletes finish it, offer next\" on each:");
+  for (const programme of PROGRAMMES) if (programme.listing.next) console.log(`  ${programme.listing.title} -> ${titleOf[programme.listing.next]}`);
 }

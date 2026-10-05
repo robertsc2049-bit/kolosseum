@@ -84,3 +84,42 @@ test("with no programmes for their level yet, the athlete is told they're on the
   render(<AthleteProgrammeCard />);
   await screen.findByText(/no Kolosseum programmes for your level yet/u);
 });
+
+test("a rugby player who's finished their programme is offered the one their coach says comes next, and starts it without a warning - nothing is lost", async () => {
+  const puts = installMocks({
+    current: {
+      run_id: "run_1", listing_id: "programme_full_body", title: "Beginner full-body", sessions_done: 12, sessions_total: 12, finished: true,
+      next: { ...rugby, suits_level: true }, can_repeat: true
+    },
+    options: [rugby, fullBody]
+  });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("Finished - all 12 sessions done. Choose what to train next.");
+  assert.equal(screen.queryByText("Stop programme"), null, "nothing to stop");
+  const next = screen.getByTestId("programme-next");
+  assert.ok(next.textContent?.includes("Rugby off-season strength"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Start Rugby off-season strength"));
+  });
+  await waitFor(() => assert.deepEqual(puts, [{ listing_id: "programme_rugby" }]));
+  await screen.findByText("0 of 6 sessions done. Your sessions follow this programme in order.");
+});
+
+test("a finished beginner sees what moving up leads to, and can run their programme again", async () => {
+  const puts = installMocks({
+    current: {
+      run_id: "run_1", listing_id: "programme_full_body", title: "Beginner full-body", sessions_done: 36, sessions_total: 36, finished: true,
+      next: { listing_id: "programme_intermediate", title: "Intermediate upper/lower", summary: "Four days.", levels: ["amateur", "pro"], activity_ids: [], days_per_week: 4, suits_level: false },
+      can_repeat: true
+    },
+    options: [fullBody]
+  });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("Intermediate upper/lower");
+  assert.ok(screen.getByText("It's for Amateur, Pro athletes. When you're ready to move up, change your training level in your setup, then start it here."));
+  assert.equal(screen.queryByText("Start Intermediate upper/lower"), null);
+  await act(async () => {
+    fireEvent.click(screen.getByText("Run it again"));
+  });
+  await waitFor(() => assert.deepEqual(puts, [{ listing_id: "programme_full_body" }]));
+});

@@ -8,7 +8,8 @@ import { titleCase } from "../../utils/format";
 // Kolosseum programmes (src/api/programme_catalogue_service.ts): coach-written
 // programmes an athlete without a coach runs. Shows the one they're running
 // and the ones that suit them - their sport's own first, then general ones -
-// to start, switch to or stop.
+// to start, switch to or stop. Once they finish one, it offers the programme
+// its coach says comes next (or running it again).
 
 type Option = { listing_id: string; title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; sport_specific: boolean };
 
@@ -54,6 +55,8 @@ export function AthleteProgrammeCard() {
   if (!data && !error) return null;
   const current = data?.current && typeof data.current === "object" ? (data.current as JsonRecord) : null;
   const options = asOptions(data?.options).filter((o) => o.listing_id !== current?.listing_id);
+  const finished = current?.finished === true;
+  const next = finished && current?.next && typeof current.next === "object" ? (current.next as JsonRecord) : null;
   const showOptions = !current || browsing;
 
   return (
@@ -61,7 +64,34 @@ export function AthleteProgrammeCard() {
       <p className="eyebrow">Your programme</p>
       <h3>{current ? String(current.title) : "Choose your programme"}</h3>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {current ? (
+      {current && finished ? (
+        <>
+          <p className="muted">{`Finished - all ${Number(current.sessions_total ?? 0)} sessions done. Choose what to train next.`}</p>
+          {next ? (
+            <div className="programme-option programme-next" data-testid="programme-next">
+              <p className="eyebrow">Next</p>
+              <strong>{String(next.title)}</strong>
+              <p className="muted small">{`${Number(next.days_per_week) || 0} days a week`}</p>
+              {next.summary ? <p>{String(next.summary)}</p> : null}
+              {next.suits_level === true ? (
+                <button className="button primary" type="button" disabled={busy} onClick={() => void choose(String(next.listing_id))}>{`Start ${String(next.title)}`}</button>
+              ) : (
+                <p className="muted small">
+                  {`It's for ${(Array.isArray(next.levels) ? next.levels.map((l) => titleCase(String(l))) : []).join(", ")} athletes. When you're ready to move up, change your training level in your setup, then start it here.`}
+                </p>
+              )}
+            </div>
+          ) : null}
+          <div className="onboarding-actions">
+            {current.can_repeat === true ? (
+              <button className="button secondary" type="button" disabled={busy} onClick={() => void choose(String(current.listing_id))}>Run it again</button>
+            ) : null}
+            {options.length > 0 ? (
+              <button className="button secondary" type="button" onClick={() => setBrowsing(!browsing)}>{browsing ? "Hide other programmes" : "Choose a different programme"}</button>
+            ) : null}
+          </div>
+        </>
+      ) : current ? (
         <>
           <p className="muted">
             {`${Number(current.sessions_done ?? 0)} of ${Number(current.sessions_total ?? 0)} sessions done. Your sessions follow this programme in order.`}
@@ -98,7 +128,7 @@ export function AthleteProgrammeCard() {
               </div>
               <p className="muted small">{`${option.days_per_week} days a week · ${option.levels.map((l) => titleCase(l)).join(", ")}`}</p>
               {option.summary ? <p>{option.summary}</p> : null}
-              {current && confirming === option.listing_id ? (
+              {current && !finished && confirming === option.listing_id ? (
                 <div className="inline-result" data-tone="warning">
                   <p>{`Switch to ${option.title}? Your progress on ${String(current.title)} ends.`}</p>
                   <div className="button-row">
@@ -111,7 +141,7 @@ export function AthleteProgrammeCard() {
                   className="button primary"
                   type="button"
                   disabled={busy}
-                  onClick={() => (current ? setConfirming(option.listing_id) : void choose(option.listing_id))}
+                  onClick={() => (current && !finished ? setConfirming(option.listing_id) : void choose(option.listing_id))}
                 >
                   {`Start ${option.title}`}
                 </button>
