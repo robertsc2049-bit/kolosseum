@@ -295,12 +295,16 @@ export function AthleteSessionExecutionPanel() {
     ? [String(programmeRun.title ?? ""), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
     : trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
-  // Back after a break: a lighter re-entry week, then blocks restart at week 1.
-  const reentry = isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null;
+  // Back after a break: a lighter re-entry week, then blocks restart at week 1
+  // - or, on a Kolosseum programme, the programme carries on where it left off.
+  const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord) : null;
+  const reentry = runReentry ?? (isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null);
   const reentryNote = reentry && reentry.reentry_week === true
     ? reentry.after_head_injury === true
-      ? "Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading. Follow your medical professional's return-to-play plan."
-      : `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
+      ? `Your first week back after a head injury: a lighter re-entry week with no jumping, sprinting, cutting or neck loading.${runReentry ? " Your programme carries on from here, a set fewer and lighter this week." : ""} Follow your medical professional's return-to-play plan.`
+      : runReentry
+        ? `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.`
+        : `Welcome back - it has been ${Number(reentry.gap_days)} days since your last session, so this week is a lighter re-entry week. Your training blocks restart from week 1 next week.`
     : null;
 
   const rows: { exercise: JsonRecord; status: "complete" | "current" | "remaining" | "dropped" }[] = [

@@ -236,6 +236,19 @@ test("an exercise held back because of last time says what was planned and why",
   cleanup();
 });
 
+test("back after two weeks away on a Kolosseum programme, the session says it's lighter this week and the programme picks up where it left off", async () => {
+  const run = { run_id: "run_1", listing_id: "programme_fight_camp", title: "Fight camp strength", session_number: 9, sessions_total: 15, session_title: "Camp session A",
+    reentry: { returned_on: "2026-10-05", gap_days: 14, long_layoff: false, reentry_week: true } };
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ programme_run: run }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-reentry"));
+  assert.equal(screen.getByTestId("session-reentry").textContent, "Welcome back - it has been 14 days since your last session, so this week's sessions are lighter: a set fewer and less weight. Your programme picks up where you left off.");
+  assert.ok(screen.getByText("Re-entry week"));
+  assert.equal(screen.getByTestId("session-cycle").textContent, "Fight camp strength · Session 9 of 15: Camp session A");
+  cleanup();
+});
+
 test("back after 5 weeks away, the session says welcome back and flags a re-entry week instead of a deload", async () => {
   const cycle = {
     macro_phase: "accumulation", meso_week: 4, days_per_week: 3, session_slot: 0, cycle_model: "meet", sessions_per_week: 3, day_index: 0, day_focus: "squat_day", deload: true,

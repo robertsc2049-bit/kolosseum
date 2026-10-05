@@ -71,6 +71,17 @@ written by reps or distance, never loaded by %.
 So one programme serves a true beginner (progression) and an experienced
 lifter (%), without separate versions.
 
+**Back after a break:** an athlete returning after 10 or more days away, or
+in the first week after a head injury, gets a lighter re-entry week. That
+week's sessions are the programme's next ones, each with one set fewer and
+lighter loads:
+- **Loads:** 10% lighter, rounded down to a plate (20% after 28 or more days,
+  or a head injury).
+- **% of 1RM:** 10 points lower (20 after a long break).
+- **RPE targets:** 1 easier (2 after a long break), never below RPE 5.
+
+The programme then carries on where it left off. The athlete is told why.
+
 ---
 
 ## 1. Beginner full-body (beginner · any sport · 3 days a week · 12 weeks)

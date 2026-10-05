@@ -22,6 +22,7 @@ import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
+import { lighterForReentry } from "./programme_reentry.js";
 import { type ProgrammeRun, athleteHasProgrammeOptions, getCurrentProgrammeRun, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
@@ -712,6 +713,17 @@ export async function compileBlock(req: Request, res: Response) {
         typeof (canonical_input as any)?.experience_level === "string" ? (canonical_input as any).experience_level : undefined
       )) as any
     };
+  }
+  // Back after a break (or a head injury) on a Kolosseum programme: the
+  // re-entry week's sessions are lighter (programme_reentry.ts), and the run
+  // then carries on from where it left off. A generated programme makes the
+  // whole week a deload instead (training_cycle.ts).
+  if (create_session && programme_run_session && session_reentry?.reentry_week) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: lighterForReentry(planned_session_from_engine.exercises as any, session_reentry as any) as any,
+      programme_run: { ...programme_run_session, reentry: session_reentry }
+    } as any;
   }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));
