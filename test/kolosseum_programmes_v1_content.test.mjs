@@ -12,11 +12,11 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("fourteen programmes: general, powerlifting, team, endurance, combat, tennis and cricket", () => {
+test("sixteen programmes: general, powerlifting, team, endurance, combat, tennis, cricket and athletics power", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
     "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
-    "cricket_off_season", "cricket_in_season"
+    "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_competition_season"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -81,6 +81,7 @@ test("each programme is listed for the athletes its design notes describe", () =
   for (const key of ["combat_strength_power", "combat_fight_camp"]) assert.deepEqual([...byKey[key].activity_ids].sort(), ["boxing", "brazilian_jiu_jitsu", "judo", "mma", "muay_thai", "wrestling"], key);
   for (const key of ["tennis_off_season", "tennis_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["tennis"], key);
   for (const key of ["cricket_off_season", "cricket_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["cricket"], key);
+  for (const key of ["athletics_power_build", "athletics_competition_season"]) assert.deepEqual(byKey[key].activity_ids, ["athletics"], key);
   for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
     assert.deepEqual(p.listing.levels, ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme`);
   }
@@ -139,5 +140,16 @@ test("a fast bowler's weekly basics: hamstring, groin, side-trunk and throwing-s
       assert.ok(has(week, (i) => i.id === "side_plank"), `${key}: side strain`);
       assert.ok(has(week, (_, r) => r.movement_pattern_id === "shoulder_external_rotation"), `${key}: rotator cuff`);
     }
+  }
+});
+
+test("sprinters, jumpers and throwers: heavy main lifts at 5 reps or fewer, rising block to block, and Nordic curls every week", () => {
+  const build = PROGRAMMES.find((p) => p.key === "athletics_power_build");
+  const topSquat = build.blocks.map((b) => Math.max(...b.weeks.flat().flatMap((s) => s.items.filter((i) => i.id === "back_squat").map((i) => i.load.pct))));
+  assert.ok(topSquat[0] < topSquat[1] && topSquat[1] < topSquat[2], `squat peaks rise: ${topSquat}`);
+  for (const key of ["athletics_power_build", "athletics_competition_season"]) {
+    const p = PROGRAMMES.find((x) => x.key === key);
+    for (const s of sessionsOf(p)) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.reps <= 5, `${key}: ${s.title} ${i.id}`);
+    for (const week of p.blocks.flatMap((b) => b.weeks)) assert.ok(week.some((s) => s.items.some((i) => i.id === "nordic_curl")), `${key}: Nordic curls`);
   }
 });
