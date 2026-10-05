@@ -411,6 +411,22 @@ test(
     const repeatSession = await createSession();
     assertStatus(repeatSession, 201, "first session of the repeat");
     assert.equal(repeatSession.json.planned_session.programme_run.session_title, "Day A");
+    assert.equal(repeatSession.json.planned_session.programme_run.reentry, undefined, "no break, no re-entry");
+
+    // Two weeks away: the next session is the programme's next one (Day B),
+    // made lighter for the re-entry week - a set fewer - with the reason.
+    await withClient(databaseUrl, (client) => client.query(
+      "UPDATE sessions SET created_at = created_at - interval '14 days' WHERE beta_subject_user_id = $1", [athlete.userId]
+    ));
+    const back = await createSession();
+    assertStatus(back, 201, "session after two weeks away");
+    const backSession = back.json.planned_session;
+    assert.equal(backSession.programme_run.session_title, "Day B", "the programme picks up where it left off");
+    assert.equal(backSession.programme_run.reentry.reentry_week, true);
+    assert.ok(backSession.programme_run.reentry.gap_days >= 14);
+    const pushUps = backSession.exercises.find((e) => e.exercise_id === "push_up");
+    assert.deepEqual([pushUps.sets, pushUps.reentry_lighter], [2, true], "3 sets of push-ups become 2");
+    assert.equal(backSession.exercises.find((e) => e.exercise_id === "deadlift").sets, 1, "a single set stays one set");
 
     // Stopping it: with a programme that suits them listed, the athlete
     // chooses one before training - the generated programme is only the
