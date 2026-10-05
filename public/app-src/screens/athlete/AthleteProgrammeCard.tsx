@@ -19,6 +19,13 @@ const asOptions = (value: unknown): Option[] => (Array.isArray(value) ? (value a
   days_per_week: Number(o.days_per_week) || 0, sport_specific: o.sport_specific === true
 }));
 
+const finishedLine = (total: number) => (total === 1 ? "Finished. Choose what to train next." : `Finished - all ${total} sessions done. Choose what to train next.`);
+// "amateur and pro", "beginner, amateur and pro".
+const levelList = (levels: string[]) => {
+  const words = levels.map((l) => l.toLowerCase());
+  return words.length <= 1 ? words.join("") : `${words.slice(0, -1).join(", ")} and ${words[words.length - 1]}`;
+};
+
 export function AthleteProgrammeCard() {
   const [data, setData] = useState<JsonRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +73,7 @@ export function AthleteProgrammeCard() {
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {current && finished ? (
         <>
-          <p className="muted">{`Finished - all ${Number(current.sessions_total ?? 0)} sessions done. Choose what to train next.`}</p>
+          <p className="muted">{finishedLine(Number(current.sessions_total ?? 0))}</p>
           {next ? (
             <div className="programme-option programme-next" data-testid="programme-next">
               <p className="eyebrow">Next</p>
@@ -77,7 +84,7 @@ export function AthleteProgrammeCard() {
                 <button className="button primary" type="button" disabled={busy} onClick={() => void choose(String(next.listing_id))}>{`Start ${String(next.title)}`}</button>
               ) : (
                 <p className="muted small">
-                  {`It's for ${(Array.isArray(next.levels) ? next.levels.map((l) => titleCase(String(l))) : []).join(", ")} athletes. When you're ready to move up, change your training level in your setup, then start it here.`}
+                  {`It's for ${levelList(Array.isArray(next.levels) ? next.levels.map(String) : [])} athletes. When you're ready to move up, change your training level in your setup, then start it here.`}
                 </p>
               )}
             </div>

@@ -386,7 +386,7 @@ test("continuing past the accessibility stage without touching any checkbox save
 test("a validation failure shows field errors and does not advance the stage", async () => {
   installMocks({
     initialState: draftState(),
-    onDraftSave: () => ({ fail: true, fieldErrors: { activity_id: "activity_id is required" } })
+    onDraftSave: () => ({ fail: true, fieldErrors: { activity_id: "Choose your sport to continue." } })
   });
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Activity declaration");
@@ -395,7 +395,9 @@ test("a validation failure shows field errors and does not advance the stage", a
     fireEvent.click(screen.getByText("Save and continue"));
   });
 
-  await screen.findByText(/activity_id is required/u);
+  await screen.findByText(/Choose your sport to continue./u);
+  assert.ok(screen.getByText("Sport:"), "the field is named as the athlete knows it, not by its key");
+  assert.equal(screen.queryByText("Activity Id:"), null);
   assert.equal(screen.getAllByText("Check your answers").length, 2);
   assert.ok(screen.getByText("Activity declaration"));
 });

@@ -116,7 +116,7 @@ test("a finished beginner sees what moving up leads to, and can run their progra
   });
   render(<AthleteProgrammeCard />);
   await screen.findByText("Intermediate upper/lower");
-  assert.ok(screen.getByText("It's for Amateur, Pro athletes. When you're ready to move up, change your training level in your setup, then start it here."));
+  assert.ok(screen.getByText("It's for amateur and pro athletes. When you're ready to move up, change your training level in your setup, then start it here."));
   assert.equal(screen.queryByText("Start Intermediate upper/lower"), null);
   await act(async () => {
     fireEvent.click(screen.getByText("Run it again"));
