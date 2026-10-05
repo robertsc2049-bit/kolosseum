@@ -25,7 +25,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
-import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
+import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, orderedTemplateSessions } from "./beta18_programme_template_service.js";
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 
 type Json = Record<string, unknown>;
@@ -241,6 +241,8 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
     const done = await programmeRunSessionCount(userId, run.run_id);
     progress = { sessions_done: done, sessions_total: total };
     if (total > 0 && done >= total) progress = { ...progress, finished: true, ...whatNext(run, listings, profile) };
+    // Where their next session sits.
+    else if (template) progress = { ...progress, next_position: programmePosition(template, done) };
   }
   return Object.freeze({
     experience_level: profile.experience_level ?? null,
@@ -270,6 +272,24 @@ function whatNext(run: ProgrammeRun, listings: ProgrammeListing[], profile: { ex
     }
   }
   return { next: suggestion, can_repeat: !!finished && suits(finished, profile.experience_level, profile.activity_id) > 0 };
+}
+
+// Where a session (by its index in the run) sits in its programme: the week,
+// of how many, and the block - "Week 7 of 12 - Heavy strength".
+export type ProgrammePosition = { week_number: number; weeks_total: number; block_name: string; block_type: string };
+export function programmePosition(template: Readonly<Json>, sessionIndex: number): ProgrammePosition | null {
+  const sessions = orderedTemplateSessions(template);
+  const session = sessions[sessionIndex];
+  if (!session) return null;
+  const weeksTotal = Math.max(0, ...sessions.map((s) => Number(s.template_week_index_global) || 0));
+  const week = Number(session.template_week_index_global) || 0;
+  if (!week || !weeksTotal) return null;
+  return { week_number: week, weeks_total: weeksTotal, block_name: text(session.template_block_name), block_type: text(session.template_block_type) };
+}
+
+export async function programmeRunPosition(run: ProgrammeRun, sessionIndex: number): Promise<ProgrammePosition | null> {
+  const template = await loadExecutableCoachTemplateById(run.author_user_id, run.template_id);
+  return template ? programmePosition(template, sessionIndex) : null;
 }
 
 // How many sessions the run's programme has.

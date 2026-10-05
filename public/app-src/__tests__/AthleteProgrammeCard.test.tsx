@@ -123,3 +123,23 @@ test("a finished beginner sees what moving up leads to, and can run their progra
   });
   await waitFor(() => assert.deepEqual(puts, [{ listing_id: "programme_full_body" }]));
 });
+
+test("mid-programme, the card says which week and block the next session is in, and flags a lighter block", async () => {
+  installMocks({
+    current: { run_id: "run_1", listing_id: "programme_rugby", title: "Run and ride strength", sessions_done: 13, sessions_total: 24,
+      next_position: { week_number: 7, weeks_total: 12, block_name: "Heavy strength", block_type: "strength" } },
+    options: [rugby]
+  });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("Week 7 of 12 · Heavy strength");
+  assert.ok(screen.getByText("13 of 24 sessions done. Your sessions follow this programme in order."));
+  cleanup();
+
+  installMocks({
+    current: { run_id: "run_1", listing_id: "programme_fight", title: "Fight camp strength", sessions_done: 12, sessions_total: 15,
+      next_position: { week_number: 7, weeks_total: 8, block_name: "Taper and fight week", block_type: "deload" } },
+    options: []
+  });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("Week 7 of 8 · Taper and fight week (lighter)");
+});

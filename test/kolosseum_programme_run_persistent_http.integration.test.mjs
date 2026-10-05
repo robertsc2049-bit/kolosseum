@@ -305,6 +305,7 @@ test(
     const started = await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf: athlete.csrf, body: { listing_id: option.listing_id } });
     assertStatus(started, 200, "start programme");
     assert.deepEqual([started.json.current.sessions_done, started.json.current.sessions_total], [0, 3]);
+    assert.deepEqual(started.json.current.next_position, { week_number: 1, weeks_total: 1, block_name: "Foundation", block_type: "general" });
 
     async function createSession() {
       const detail = await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie });
@@ -342,6 +343,7 @@ test(
     assert.equal(first.programme_run.session_number, 1);
     assert.equal(first.programme_run.sessions_total, 3);
     assert.equal(first.programme_run.session_title, "Day A");
+    assert.deepEqual([first.programme_run.week_number, first.programme_run.weeks_total, first.programme_run.block_name], [1, 1, "Foundation"]);
     assert.equal(first.training_cycle, undefined, "a programme run isn't labelled with the generated plan's phase and week");
     assert.deepEqual(first.exercises[0].load_guidance, { type: "progression", basis: "first_time", reps: 5 });
 

@@ -7,6 +7,7 @@ import { InfoTooltip } from "../../components/InfoTooltip";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
 import { trainingCycleSummary } from "../../utils/trainingPlan";
+import { programmePositionLine } from "./AthleteProgrammeCard";
 import { SetLogger } from "./SetLogger";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
 
@@ -292,7 +293,7 @@ export function AthleteSessionExecutionPanel() {
   const cycle = sessionState.training_cycle as JsonRecord | undefined;
   const programmeRun = isRecord(sessionState.programme_run) ? (sessionState.programme_run as JsonRecord) : null;
   const cycleSummary = programmeRun
-    ? [String(programmeRun.title ?? ""), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
+    ? [String(programmeRun.title ?? ""), programmePositionLine(programmeRun), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
     : trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
   // Back after a break: a lighter re-entry week, then blocks restart at week 1

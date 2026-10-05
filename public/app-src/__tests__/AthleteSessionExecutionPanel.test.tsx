@@ -236,6 +236,18 @@ test("an exercise held back because of last time says what was planned and why",
   cleanup();
 });
 
+test("a Kolosseum programme session says which week and block it's in", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ programme_run: {
+    run_id: "run_1", listing_id: "programme_run_ride", title: "Run and ride strength", session_number: 13, sessions_total: 24, session_title: "Strength A - squat",
+    week_number: 7, weeks_total: 12, block_name: "Heavy strength", block_type: "strength"
+  } }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByTestId("session-cycle"));
+  assert.equal(screen.getByTestId("session-cycle").textContent, "Run and ride strength · Week 7 of 12 · Heavy strength · Session 13 of 24: Strength A - squat");
+  cleanup();
+});
+
 test("back after two weeks away on a Kolosseum programme, the session says it's lighter this week and the programme picks up where it left off", async () => {
   const run = { run_id: "run_1", listing_id: "programme_fight_camp", title: "Fight camp strength", session_number: 9, sessions_total: 15, session_title: "Camp session A",
     reentry: { returned_on: "2026-10-05", gap_days: 14, long_layoff: false, reentry_week: true } };
