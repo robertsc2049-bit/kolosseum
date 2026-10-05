@@ -386,10 +386,11 @@ function fields(value: unknown, partial: boolean): Fields {
     if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
     else if (!partial) fail(key, missing);
   };
-  // Sport is optional - validated if present, but never required, even for
-  // a complete (partial=false) declaration. An athlete can finish onboarding
-  // without one and declare it later via the self-service activity-change
-  // flow (src/api/athlete_activity_change_service.ts).
+  // Sport is validated if present but not required of a stored declaration:
+  // athletes who finished onboarding before sport was required may have
+  // none, and declare it later via the self-service activity-change flow
+  // (src/api/athlete_activity_change_service.ts). New onboarding requires it
+  // - see REQUIRED_BEFORE and confirmAthleteOnboarding.
   const addOptional = (key: string, validator: (entry: unknown) => unknown) => {
     if (Object.prototype.hasOwnProperty.call(value, key)) out[key] = validator(value[key]);
   };
@@ -428,25 +429,26 @@ function fields(value: unknown, partial: boolean): Fields {
   addOptional("no_fixed_date", (entry) => trueValue(entry, "no_fixed_date", "Choose \"no fixed date\" or enter your dates."));
   return Object.freeze(out) as Fields;
 }
-// activity_id is deliberately never listed here - it's optional and must
-// never gate progression to a later stage (see addOptional above).
+// Sport comes first: it decides the athlete's programmes (their sport's
+// Kolosseum programmes, positions, training plan), so it's chosen before
+// any later stage.
 const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
   activity: [],
-  experience_level: [],
-  training_plan: ["experience_level"],
-  execution_scope: ["experience_level", "training_days_per_week"],
-  product_acknowledgement: ["experience_level", "training_days_per_week", "execution_scope"],
-  jurisdiction: ["experience_level", "training_days_per_week", "execution_scope", "product_acknowledged"],
+  experience_level: ["activity_id"],
+  training_plan: ["activity_id", "experience_level"],
+  execution_scope: ["activity_id", "experience_level", "training_days_per_week"],
+  product_acknowledgement: ["activity_id", "experience_level", "training_days_per_week", "execution_scope"],
+  jurisdiction: ["activity_id", "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged"],
   accessibility: [
-    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged",
+    "activity_id", "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged",
     "jurisdiction_code", "jurisdiction_acknowledged"
   ],
   instruction_density: [
-    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "activity_id", "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences"
   ],
   review: [
-    "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
+    "activity_id", "experience_level", "training_days_per_week", "execution_scope", "product_acknowledged", "jurisdiction_code",
     "jurisdiction_acknowledged", "accessibility_preferences", "instruction_density"
   ]
 };
@@ -454,6 +456,7 @@ const REQUIRED_BEFORE: Record<AthleteOnboardingStage, readonly string[]> = {
 // What to do about a missing answer - the athlete is usually looking at the
 // very stage it belongs to (moving on saves the draft as the next stage).
 const MISSING_ANSWER: Readonly<Record<string, string>> = Object.freeze({
+  activity_id: "Choose your sport to continue.",
   experience_level: "Choose your training level to continue.",
   training_days_per_week: "Choose how many days a week you train to continue.",
   execution_scope: "Choose how you'll train to continue.",
@@ -720,6 +723,8 @@ export async function confirmAthleteOnboarding(userId: string, input: unknown): 
       throw new AthleteOnboardingError("athlete_onboarding_draft_required", 409);
     }
     const declared = validateCompleteAthleteDeclaration(draft.fields);
+    // A draft saved before sport was required can reach review without one.
+    if (!declared.activity_id) fail("activity_id", MISSING_ANSWER.activity_id);
     assertPositionMatchesActivity(declared.position, declared.activity_id);
     assertCompetitionEventMatchesActivity(declared.competition_event, declared.activity_id);
     assertTrainingPlanMatchesActivity(declared, true);
