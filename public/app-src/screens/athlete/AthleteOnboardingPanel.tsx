@@ -178,12 +178,11 @@ function StageFields({ stage, draft, onChange }: { stage: string; draft: JsonRec
     const activityId = String(draft.activity_id ?? "");
     return (
       <>
-        <p>Declare the activity used by this account. This is not an assessment. This is optional - you can leave it blank and declare it later.</p>
+        <p>Choose the sport you train for. It decides which programmes you're offered. This is not an assessment, and you can change it later.</p>
         <SportPicker
           value={activityId}
           onChange={(nextActivityId) => onChange({ ...draft, activity_id: nextActivityId, position: undefined, competition_event: undefined, season_start_date: undefined, season_end_date: undefined, competition_date: undefined, no_fixed_date: undefined })}
-          label="Your sport (optional)"
-          allowNone
+          label="Your sport"
           name="onboarding-sport"
         />
         {activityId ? (
