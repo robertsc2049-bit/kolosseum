@@ -9286,6 +9286,18 @@
       "tracked_by_area": "programme_library"
     },
     {
+      "method": "GET",
+      "path": "/templates/kolosseum-programmes",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/kolosseum-programmes/:listing_id/copy",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
       "method": "POST",
       "path": "/templates/kolosseum-starter",
       "source": "src/api/templates.routes.ts",

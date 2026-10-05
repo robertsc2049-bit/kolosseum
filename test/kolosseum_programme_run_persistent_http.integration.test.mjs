@@ -399,6 +399,26 @@ test(
     assert.equal(authorView.json.listing.next_listing_id, nextListed.json.listing.listing_id);
     assert.deepEqual(authorView.json.other_listings.map((l) => l.title), ["Intermediate upper/lower"]);
 
+    // Any coach can browse the listed programmes and copy one into their own
+    // library: a draft they own, with the same sessions, the author's
+    // programme untouched.
+    const browse = await requestJson(base, "GET", "/templates/kolosseum-programmes", { cookie: other.cookie });
+    assertStatus(browse, 200, "coach browses Kolosseum programmes");
+    assert.ok(browse.json.programmes.some((p) => p.title === "Beginner full-body"));
+    const copied = await requestJson(base, "POST", `/templates/kolosseum-programmes/${encodeURIComponent(listed.json.listing.listing_id)}/copy`, { cookie: other.cookie, csrf: other.csrf, body: {} });
+    assertStatus(copied, 201, "coach copies a Kolosseum programme");
+    const copy = copied.json.template;
+    assert.equal(copy.coach_user_id, other.userId);
+    assert.equal(copy.template_status, "draft");
+    assert.equal(copy.template_name, "Beginner full-body");
+    assert.notEqual(copy.template_id, templateId);
+    const sessionTitles = (t) => t.template_structure.blocks.flatMap((b) => b.weeks.flatMap((w) => [...(w.sessions ?? []), ...(w.days ?? []).flatMap((d) => d.sessions ?? [])])).map((s) => s.title);
+    assert.deepEqual(sessionTitles(copy), ["Day A", "Day B", "Day A again"]);
+    const library = await requestJson(base, "GET", `/templates?coach_user_id=${encodeURIComponent(other.userId)}`, { cookie: other.cookie });
+    assert.ok(library.json.templates.some((t) => t.template_id === copy.template_id), "it's in their library");
+    assertStatus(await requestJson(base, "POST", "/templates/kolosseum-programmes/programme_not_listed/copy", { cookie: other.cookie, csrf: other.csrf, body: {} }), 404, "only listed programmes");
+    assertStatus(await requestJson(base, "GET", "/templates/kolosseum-programmes", { cookie: athlete.cookie }), 403, "athletes don't browse the coach catalogue");
+
     // The finished beginner is shown it - for amateurs, so they'd move their
     // level up to start it - and can run the beginner programme again.
     const finished = (await requestJson(base, "GET", "/account/onboarding/programmes", { cookie: athlete.cookie })).json.current;
