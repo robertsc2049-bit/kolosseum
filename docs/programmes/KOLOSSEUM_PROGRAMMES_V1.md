@@ -23,7 +23,7 @@ The programmes themselves are defined in
 
 Athletes see a programme only once it is published.
 
-Eight programme families for athletes training without a coach. Each one is
+Nine programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there
 before it's published. Nothing reaches athletes until it's reviewed,
 activated and listed.
@@ -283,10 +283,8 @@ blocks. Every fourth week is lighter.
 The calf and Achilles and the shin take most running injuries. Heavy
 single-leg calf raises are the most direct way to build their capacity.
 
-**For the coach:** "athletics" also covers sprinters, jumpers and throwers.
-This programme is written for middle- and long-distance runners. Sprinters
-and jumpers would be better served by the team-sport off-season build, which
-isn't listed for athletics yet. That's your call at review.
+Sprinters, jumpers and throwers have their own programmes (section 9).
+Both are listed for athletics, so athletes pick the one for their event.
 
 ### 5b. Swim, row and paddle strength (swimming, rowing, kayaking · 2 days a week · 12 weeks)
 
@@ -562,10 +560,87 @@ Every fourth week is lighter.
 lumbar stress injury. Under-18s can't sign up in the beta, so these
 programmes are written for adults only.
 
+## 9. Athletics sprints, jumps and throws (amateur, pro)
+
+**Why this structure:** sprinting, jumping and throwing are decided by how
+much force an athlete can produce, and how fast. So the gym builds three
+things:
+- **Maximal strength:** heavy squats and bench press.
+- **Rate of force development:** power cleans, jumps and medicine ball
+  throws.
+- **Robustness for sprinters:** sprinters' most common injury is the
+  hamstring strain. Nordic curls cut it, calf strength supports ground
+  contacts, and hip flexor work drives the knee.
+
+The sprints, run-ups and throws themselves happen on the track with the
+coach. The gym doesn't duplicate them.
+
+The off-season programme moves from general strength (5s) to max strength
+(3s) to power (2s). That's the classic order: strength first, then turning
+it into speed. Each four-week block ends with a lighter week.
+
+Throwers get rotational and backward overhead throws and a bench press every
+week. If you coach throwers, add more upper-body pressing in the builder.
+
+### 9a. Sprint, jump and throw power (off-season · 3 days a week · 12 weeks)
+
+| Main lifts (squat, bench) | Weeks 1–4 | Weeks 5–8 | Weeks 9–12 |
+|---|---|---|---|
+| Sets × reps | 4 × 5 | 4–5 × 3 | 3–4 × 2 |
+| Load | 72.5 → 77.5% (65% week 4) | 80 → 85% (72.5% week 8) | 85 → 90% (75% week 12) |
+| Power clean | 4 × 3, 70 → 75% | 4 × 3, 77.5 → 82.5% | 4 × 2, 82.5 → 87.5% |
+
+| Lower strength | Sets × reps | Load |
+|---|---|---|
+| Box jump | 4 × 3 | bodyweight, step down |
+| Back squat | as above | as above |
+| Romanian deadlift | 3 × 6 | RPE 8 |
+| Nordic curl | 3 × 4 | bodyweight |
+| Single-leg calf raise | 3 × 8 each leg | RPE 8 |
+
+| Upper strength and throws | Sets × reps | Load |
+|---|---|---|
+| Backward overhead medicine ball throw | 4 × 4 | 4 kg, explosive |
+| Bench press | as above | as above |
+| Pull-up | 3 × 5–8 | RPE 8 |
+| Single-arm dumbbell row | 3 × 8 | RPE 8 |
+| Medicine ball rotational throw | 3 × 4 each side | 4 kg |
+| Side plank | 2 × 30 s each side | bodyweight |
+
+| Power | Sets × reps | Load |
+|---|---|---|
+| Repeated broad jump | 4 × 3 | bodyweight |
+| Power clean | as above | as above |
+| Bulgarian split squat | 3 × 5 each leg | RPE 8 |
+| Cable hip flexion | 2 × 8 each leg | RPE 7 |
+| Pallof press | 2 × 10 each side | RPE 7 |
+
+The power clean assumes the athlete has been taught it.
+
+### 9b. Sprint, jump and throw competition season (2 days a week · 12 weeks)
+
+| Early-week session | Sets × reps | Load |
+|---|---|---|
+| Box jump | 3 × 3 | bodyweight |
+| Back squat | 3 × 3 | 80–85% |
+| Power clean | 3 × 2 | 75–80% |
+| Nordic curl | 2 × 4 | bodyweight |
+| Single-leg calf raise | 2 × 8 each leg | RPE 8 |
+
+| Mid-week session | Sets × reps | Load |
+|---|---|---|
+| Backward overhead medicine ball throw | 3 × 3 | 4 kg |
+| Bench press | 3 × 3 | 80–85% |
+| Pull-up | 3 × 5 | RPE 7 |
+| Cable hip flexion | 2 × 8 each leg | RPE 7 |
+| Side plank | 2 × 30 s each side | bodyweight |
+
+- **Competition week:** do the early session only, and never in the 48 hours
+  before a competition.
+- **Lighter weeks:** every fourth week.
+
 ## Not in v1, and why
 
-- **Sprint, jump and throw events in athletics:** see 5a. The endurance
-  programme is written for distance runners.
 - **Sport programmes for beginners:** every sport programme is for amateur
   and pro athletes. Beginners in any sport start on Beginner full-body, which
   builds the base the sport programmes assume.
@@ -599,3 +674,5 @@ programmes are written for adults only.
   Ellenbecker (2011); Fernandez-Fernandez et al. (2014).
 - Fast-bowling injury (lumbar stress injury, side strain, hamstring) and
   bowling workload: Orchard et al. (2009, 2015); Hulin et al. (2014).
+- Strength, power and sprint performance; strength before power: Suchomel
+  et al. (2016, 2018); Haff and Nimphius (2012).

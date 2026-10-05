@@ -241,8 +241,8 @@ const enduranceRunRide = {
   key: "endurance_run_ride_strength",
   template_name: "Run and ride strength",
   activity_id: "general_strength",
-  description: "Twelve weeks, two short sessions a week, for runners, cyclists and triathletes: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
-  listing: { title: "Run and ride strength (12 weeks)", summary: "For runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2 },
+  description: "Twelve weeks, two short sessions a week, for distance runners, cyclists and triathletes: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
+  listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2 },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(runRideWeek) },
     { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(runRideWeek) },
@@ -292,7 +292,7 @@ const enduranceInSeason = {
   template_name: "Endurance race-season maintenance",
   activity_id: "general_strength",
   description: "One short, heavy session a week through the racing season, enough to keep the strength built in the off-season. Every fourth week is lighter; skip the session in the five days before a key race.",
-  listing: { title: "Race-season maintenance (12 weeks)", summary: "Keep your off-season strength through the racing season with one short, heavy session a week. Skip it in the five days before a key race.", levels: ["amateur", "pro"], activity_ids: ENDURANCE_SPORTS, days_per_week: 1 },
+  listing: { title: "Endurance race-season maintenance (12 weeks)", summary: "For distance athletes. Keep your off-season strength through the racing season with one short, heavy session a week. Skip it in the five days before a key race.", levels: ["amateur", "pro"], activity_ids: ENDURANCE_SPORTS, days_per_week: 1 },
   blocks: [{ name: "Race season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => enduranceInSeasonWeek(i + 1)) }]
 };
 
@@ -479,8 +479,74 @@ const cricketInSeason = {
   blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => cricketInSeasonWeek(i + 1)) }]
 };
 
+// ---------------------------------------------------------------------------
+// 9. Athletics sprints, jumps and throws - amateur and pro. Force and rate of
+// force development: heavy squats and Olympic-lift power, jumps and
+// medicine ball throws, plus the hamstring, calf and hip flexor work
+// sprinters need. Sprinting itself stays on the track with the coach.
+// [sets, reps, %] per week: general strength (5s), max strength (3s), then
+// power (2s), each block ending lighter.
+const ATHLETICS_MAIN = [[4, 5, 72.5], [4, 5, 75], [4, 5, 77.5], [3, 5, 65], [4, 3, 80], [4, 3, 82.5], [5, 3, 85], [3, 3, 72.5], [4, 2, 85], [4, 2, 87.5], [3, 2, 90], [3, 2, 75]];
+const ATHLETICS_CLEAN = [70, 72.5, 75, 65, 77.5, 80, 82.5, 70, 82.5, 85, 87.5, 72.5];
+const athleticsPowerWeek = (week) => {
+  const [sets, reps, pct] = ATHLETICS_MAIN[week - 1];
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  const cleanReps = week <= 8 ? 3 : 2;
+  return [
+    { title: "Lower strength", items: [
+      ex("box_jump", s(4), 3, "bw", 90), ex("back_squat", sets, reps, { pct }, 210), ex("romanian_deadlift", s(3), 6, { rpe: 8 }, 120),
+      ex("nordic_curl", s(3), 4, "bw", 90), ex("single_leg_calf_raise", s(3), 8, { rpe: 8 }, 60)
+    ] },
+    { title: "Upper strength and throws", items: [
+      ex("backward_overhead_medicine_ball_throw", s(4), 4, { kg: 4 }, 75), ex("bench_press", sets, reps, { pct }, 180), ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("medicine_ball_rotational_throw", 3, 4, { kg: 4 }, 75), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Power", items: [
+      ex("repeated_broad_jump", s(4), 3, "bw", 120), ex("power_clean", s(4), cleanReps, { pct: ATHLETICS_CLEAN[week - 1] }, 180), ex("bulgarian_split_squat", s(3), 5, { rpe: 8 }, 90),
+      ex("cable_hip_flexion", 2, 8, { rpe: 7 }, 60), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const athleticsPowerBuild = {
+  key: "athletics_power_build",
+  template_name: "Sprint, jump and throw power",
+  activity_id: "general_strength",
+  description: "Twelve weeks, three days a week, in the general preparation phase for sprinters, jumpers and throwers: general strength (5s), max strength (3s), then power (2s), with jumps, throws and power cleans every week and hamstring, calf and hip flexor work for sprinters. Track sessions stay with your coach.",
+  listing: { title: "Sprint, jump and throw power (12 weeks)", summary: "For sprinters, jumpers and throwers in the off-season. Three days a week: heavy squats and power cleans moving from 5s to 3s to 2s, jumps and medicine ball throws every session, plus hamstring, calf and hip flexor work. Sits alongside your track sessions.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 3 },
+  blocks: [
+    { name: "General strength", block_type: "volume", weeks: [1, 2, 3, 4].map(athleticsPowerWeek) },
+    { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(athleticsPowerWeek) },
+    { name: "Power", block_type: "peak", weeks: [9, 10, 11, 12].map(athleticsPowerWeek) }
+  ]
+};
+
+const athleticsSeasonWeek = (week) => {
+  const pct = at(IN_PCT, week);
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Early-week session", items: [
+      ex("box_jump", 3, 3, "bw", 90), ex("back_squat", s(3), 3, { pct }, 210), ex("power_clean", s(3), 2, { pct: pct - 5 }, 180),
+      ex("nordic_curl", 2, 4, "bw", 90), ex("single_leg_calf_raise", 2, 8, { rpe: 8 }, 60)
+    ] },
+    { title: "Mid-week session", items: [
+      ex("backward_overhead_medicine_ball_throw", 3, 3, { kg: 4 }, 75), ex("bench_press", s(3), 3, { pct }, 180), ex("pull_up", s(3), 5, { rpe: 7 }, 120),
+      ex("cable_hip_flexion", 2, 8, { rpe: 7 }, 60), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const athleticsSeason = {
+  key: "athletics_competition_season",
+  template_name: "Sprint, jump and throw competition season",
+  activity_id: "general_strength",
+  description: "Two short, heavy sessions a week through the competition season to hold strength and power while staying fast. Every fourth week is lighter; in a competition week, do the early session only, and never in the 48 hours before you compete.",
+  listing: { title: "Sprint, jump and throw competition season (12 weeks)", summary: "Hold your strength and power through the competition season: two short, heavy sessions a week, low volume so you stay fast. In a competition week, do the early session only, and never in the 48 hours before you compete.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 2 },
+  blocks: [{ name: "Competition season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => athleticsSeasonWeek(i + 1)) }]
+};
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
   enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
-  cricketOffSeason, cricketInSeason
+  cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsSeason
 ];
