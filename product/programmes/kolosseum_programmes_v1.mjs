@@ -9,6 +9,9 @@
 //   load: { pct: 70 } (% of 1RM) | { rpe: 8 } | "bw" (bodyweight) | { kg: 4 } (fixed weight)
 // Main lifts use % of 1RM: the athlete's own setting turns it into weights
 // built from what they lift (the beginner default), % of their max, or RPE.
+//
+// listing.next: the programme (by key) an athlete is offered when they
+// finish this one - off-season build -> in-season, and back.
 
 export const ex = (id, sets, reps, load, rest) => ({ id, sets, reps, load, rest });
 
@@ -43,7 +46,7 @@ const beginnerFullBody = {
   template_name: "Beginner full-body",
   activity_id: "general_strength",
   description: "Three full-body days a week on the main lifts. Two sessions alternate (A and B); the weight goes up a little whenever you make every rep.",
-  listing: { title: "Beginner full-body", summary: "New to lifting? Three full-body sessions a week on the main lifts, adding a little weight every time you make all your reps. Works alongside any sport.", levels: ["beginner"], activity_ids: [], days_per_week: 3 },
+  listing: { title: "Beginner full-body", summary: "New to lifting? Three full-body sessions a week on the main lifts, adding a little weight every time you make all your reps. Works alongside any sport.", levels: ["beginner"], activity_ids: [], days_per_week: 3, next: "intermediate_upper_lower" },
   blocks: [{ name: "Foundation", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => {
     const week = i + 1;
     const order = week % 2 === 1 ? ["A", "B", "A"] : ["B", "A", "B"];
@@ -136,7 +139,7 @@ const powerliftingMeetPrep = {
   template_name: "Powerlifting meet prep",
   activity_id: "powerlifting",
   description: "Twelve weeks to a full-power meet: volume, then heavier triples, then doubles and singles, then a taper week with openers.",
-  listing: { title: "Powerlifting meet prep (12 weeks)", summary: "Twelve weeks to a meet: build volume, then heavier triples, then doubles and singles, then a taper week with your openers. Squat, bench and deadlift each get a main day.", levels: ["amateur", "pro"], activity_ids: ["powerlifting"], days_per_week: 4 },
+  listing: { title: "Powerlifting meet prep (12 weeks)", summary: "Twelve weeks to a meet: build volume, then heavier triples, then doubles and singles, then a taper week with your openers. Squat, bench and deadlift each get a main day.", levels: ["amateur", "pro"], activity_ids: ["powerlifting"], days_per_week: 4, next: "intermediate_upper_lower" },
   blocks: [
     { name: "Accumulation", block_type: "volume", weeks: [1, 2, 3, 4].map(plWeek) },
     { name: "Intensification", block_type: "strength", weeks: [5, 6, 7, 8].map(plWeek) },
@@ -176,7 +179,7 @@ const teamOffSeason = {
   template_name: "Team-sport off-season build",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week: jumps, throws and sprints first while fresh, then heavy squats, presses and pulls, plus Nordic curls and single-leg work to keep hamstrings and knees robust.",
-  listing: { title: "Off-season strength build (8 weeks)", summary: "The off-season is when strength and power are built. Three days a week: jumps, throws and short sprints, then heavy lifting, plus hamstring and single-leg work for robustness.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 3 },
+  listing: { title: "Off-season strength build (8 weeks)", summary: "The off-season is when strength and power are built. Three days a week: jumps, throws and short sprints, then heavy lifting, plus hamstring and single-leg work for robustness.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 3, next: "team_sport_in_season" },
   blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(offSeasonWeek) }]
 };
 
@@ -201,7 +204,7 @@ const teamInSeason = {
   template_name: "Team-sport in-season maintenance",
   activity_id: "general_strength",
   description: "Two short, heavy sessions a week to keep the strength and power built in the off-season while staying fresh for matches. Every fourth week is lighter.",
-  listing: { title: "In-season maintenance (12 weeks)", summary: "Keep your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh for matches. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 2 },
+  listing: { title: "In-season maintenance (12 weeks)", summary: "Keep your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh for matches. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 2, next: "team_sport_off_season" },
   blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => inSeasonWeek(i + 1)) }]
 };
 
@@ -242,7 +245,7 @@ const enduranceRunRide = {
   template_name: "Run and ride strength",
   activity_id: "general_strength",
   description: "Twelve weeks, two short sessions a week, for distance runners, cyclists and triathletes: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
-  listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2 },
+  listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2, next: "endurance_in_season" },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(runRideWeek) },
     { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(runRideWeek) },
@@ -268,7 +271,7 @@ const enduranceSwimRowPaddle = {
   template_name: "Swim, row and paddle strength",
   activity_id: "general_strength",
   description: "Twelve weeks, two short sessions a week, for swimmers, rowers and paddlers: heavy leg drive at low reps, strong pulling, and rotator-cuff and trunk work to keep shoulders healthy under high stroke volume.",
-  listing: { title: "Swim, row and paddle strength (12 weeks)", summary: "For swimmers, rowers and paddlers. Two short sessions a week: heavy, low-rep leg drive, strong pulling, and shoulder and trunk work to keep you healthy through thousands of strokes. Built to sit alongside your water time.", levels: ["amateur", "pro"], activity_ids: SWIM_ROW_PADDLE_SPORTS, days_per_week: 2 },
+  listing: { title: "Swim, row and paddle strength (12 weeks)", summary: "For swimmers, rowers and paddlers. Two short sessions a week: heavy, low-rep leg drive, strong pulling, and shoulder and trunk work to keep you healthy through thousands of strokes. Built to sit alongside your water time.", levels: ["amateur", "pro"], activity_ids: SWIM_ROW_PADDLE_SPORTS, days_per_week: 2, next: "endurance_in_season" },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(swimRowPaddleWeek) },
     { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(swimRowPaddleWeek) },
@@ -327,7 +330,7 @@ const combatBuild = {
   template_name: "Combat-sport strength and power",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week, between fight camps: heavy, low-rep lifting and explosive throws and jumps that build strength and power without adding size, plus neck, grip and trunk work every week.",
-  listing: { title: "Combat strength and power (8 weeks)", summary: "For fighters between camps. Three days a week: heavy, low-rep lifting, jumps and throws for power without adding size, plus neck, grip and trunk work every week. Fits around your mat or bag work.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 3 },
+  listing: { title: "Combat strength and power (8 weeks)", summary: "For fighters between camps. Three days a week: heavy, low-rep lifting, jumps and throws for power without adding size, plus neck, grip and trunk work every week. Fits around your mat or bag work.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 3, next: "combat_fight_camp" },
   blocks: [{ name: "Between camps", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(combatBuildWeek) }]
 };
 
@@ -355,7 +358,7 @@ const fightCamp = {
   template_name: "Fight camp strength",
   activity_id: "general_strength",
   description: "Eight weeks into a fight: six weeks of two short, heavy sessions alongside sparring, a lighter week, then one light primer in fight week. Nothing heavy in the last fortnight. Making weight is for you and your coach; this programme doesn't cut.",
-  listing: { title: "Fight camp strength (8 weeks)", summary: "For the eight weeks into a fight. Two short, heavy sessions a week alongside sparring, a lighter week, then a light primer in fight week - you arrive fresh, not sore. Start it eight weeks out.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 2 },
+  listing: { title: "Fight camp strength (8 weeks)", summary: "For the eight weeks into a fight. Two short, heavy sessions a week alongside sparring, a lighter week, then a light primer in fight week - you arrive fresh, not sore. Start it eight weeks out.", levels: ["amateur", "pro"], activity_ids: COMBAT_SPORTS, days_per_week: 2, next: "combat_strength_power" },
   blocks: [
     { name: "Camp", block_type: "strength", weeks: CAMP_PCT.map((pct) => campSessions(pct, 3)) },
     { name: "Taper and fight week", block_type: "deload", weeks: [campSessions(70, 2), fightWeekPrimer] }
@@ -392,7 +395,7 @@ const tennisOffSeason = {
   template_name: "Tennis off-season build",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week, in the off-season or a long break between tournaments: rotational throws, lateral bounds and change of direction first, heavy lifting, then the shoulder, elbow and groin work tennis players need.",
-  listing: { title: "Tennis off-season build (8 weeks)", summary: "Three days a week in the off-season or a long break between tournaments: rotational power, lateral speed and heavy lifting, plus shoulder, elbow and groin work to keep you on court.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 3 },
+  listing: { title: "Tennis off-season build (8 weeks)", summary: "Three days a week in the off-season or a long break between tournaments: rotational power, lateral speed and heavy lifting, plus shoulder, elbow and groin work to keep you on court.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 3, next: "tennis_in_season" },
   blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(tennisOffSeasonWeek) }]
 };
 
@@ -416,7 +419,7 @@ const tennisInSeason = {
   template_name: "Tennis tournament-season maintenance",
   activity_id: "general_strength",
   description: "Two short, heavy sessions a week during the tournament season to hold strength and power while staying fresh to play. Every fourth week is lighter; in a tournament week, do the early session only.",
-  listing: { title: "Tennis tournament-season maintenance (12 weeks)", summary: "Hold your strength and power through the tournament season: two short, heavy sessions a week, low volume so you stay fresh to play. In a tournament week, do the early session only.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 2 },
+  listing: { title: "Tennis tournament-season maintenance (12 weeks)", summary: "Hold your strength and power through the tournament season: two short, heavy sessions a week, low volume so you stay fresh to play. In a tournament week, do the early session only.", levels: ["amateur", "pro"], activity_ids: ["tennis"], days_per_week: 2, next: "tennis_off_season" },
   blocks: [{ name: "Tournament season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => tennisInSeasonWeek(i + 1)) }]
 };
 
@@ -451,7 +454,7 @@ const cricketOffSeason = {
   template_name: "Cricket off-season build",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week, in the off-season: jumps, rotational throws and accelerations first, heavy lifting, then the hamstring, groin, shoulder and trunk work that keeps bowlers, batters and fielders on the park.",
-  listing: { title: "Cricket off-season build (8 weeks)", summary: "Three days a week in the off-season: rotational power for batting, bowling and throwing, speed between the wickets, heavy lifting, and the trunk, hamstring and shoulder work that keeps fast bowlers on the park.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3 },
+  listing: { title: "Cricket off-season build (8 weeks)", summary: "Three days a week in the off-season: rotational power for batting, bowling and throwing, speed between the wickets, heavy lifting, and the trunk, hamstring and shoulder work that keeps fast bowlers on the park.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
   blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(cricketOffSeasonWeek) }]
 };
 
@@ -475,7 +478,7 @@ const cricketInSeason = {
   template_name: "Cricket in-season maintenance",
   activity_id: "general_strength",
   description: "Two short, heavy sessions a week through the season to hold strength and power while staying fresh to play. Every fourth week is lighter; in a multi-day match week, do the early session only, and keep both away from a big bowling day.",
-  listing: { title: "Cricket in-season maintenance (12 weeks)", summary: "Hold your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh. In a multi-day match week, do the early session only. Bowlers: not the day before or after a long spell.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 2 },
+  listing: { title: "Cricket in-season maintenance (12 weeks)", summary: "Hold your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh. In a multi-day match week, do the early session only. Bowlers: not the day before or after a long spell.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 2, next: "cricket_off_season" },
   blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => cricketInSeasonWeek(i + 1)) }]
 };
 
@@ -513,7 +516,7 @@ const athleticsPowerBuild = {
   template_name: "Sprint, jump and throw power",
   activity_id: "general_strength",
   description: "Twelve weeks, three days a week, in the general preparation phase for sprinters, jumpers and throwers: general strength (5s), max strength (3s), then power (2s), with jumps, throws and power cleans every week and hamstring, calf and hip flexor work for sprinters. Track sessions stay with your coach.",
-  listing: { title: "Sprint, jump and throw power (12 weeks)", summary: "For sprinters, jumpers and throwers in the off-season. Three days a week: heavy squats and power cleans moving from 5s to 3s to 2s, jumps and medicine ball throws every session, plus hamstring, calf and hip flexor work. Sits alongside your track sessions.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 3 },
+  listing: { title: "Sprint, jump and throw power (12 weeks)", summary: "For sprinters, jumpers and throwers in the off-season. Three days a week: heavy squats and power cleans moving from 5s to 3s to 2s, jumps and medicine ball throws every session, plus hamstring, calf and hip flexor work. Sits alongside your track sessions.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 3, next: "athletics_competition_season" },
   blocks: [
     { name: "General strength", block_type: "volume", weeks: [1, 2, 3, 4].map(athleticsPowerWeek) },
     { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(athleticsPowerWeek) },
@@ -541,7 +544,7 @@ const athleticsSeason = {
   template_name: "Sprint, jump and throw competition season",
   activity_id: "general_strength",
   description: "Two short, heavy sessions a week through the competition season to hold strength and power while staying fast. Every fourth week is lighter; in a competition week, do the early session only, and never in the 48 hours before you compete.",
-  listing: { title: "Sprint, jump and throw competition season (12 weeks)", summary: "Hold your strength and power through the competition season: two short, heavy sessions a week, low volume so you stay fast. In a competition week, do the early session only, and never in the 48 hours before you compete.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 2 },
+  listing: { title: "Sprint, jump and throw competition season (12 weeks)", summary: "Hold your strength and power through the competition season: two short, heavy sessions a week, low volume so you stay fast. In a competition week, do the early session only, and never in the 48 hours before you compete.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 2, next: "athletics_power_build" },
   blocks: [{ name: "Competition season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => athleticsSeasonWeek(i + 1)) }]
 };
 

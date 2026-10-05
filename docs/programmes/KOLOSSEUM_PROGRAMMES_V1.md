@@ -20,8 +20,28 @@ The programmes themselves are defined in
 4. On the programme page, **Publish to athletes**: confirm the title, summary,
    levels, sports and days a week (suggested values for each are in the file
    above), then publish.
+5. Once both halves of a pair are published, set **When athletes finish it,
+   offer next** on each (the seed script prints the pairs, below).
 
 Athletes see a programme only once it is published.
+
+### What comes next
+
+When an athlete finishes a programme, they're offered the one it leads to,
+or they can run it again or choose another:
+
+| Finished | Offered next |
+|---|---|
+| Beginner full-body | Intermediate upper/lower. It's for amateurs, so the athlete is told to move their level up first |
+| Powerlifting meet prep | Intermediate upper/lower, to rebuild after the meet |
+| Off-season build (team, tennis, cricket, athletics power) | That sport's in-season programme |
+| In-season programme (team, tennis, cricket, athletics) | That sport's off-season build |
+| Run and ride, or swim, row and paddle strength | Endurance race-season maintenance |
+| Combat strength and power | Fight camp strength |
+| Fight camp strength | Combat strength and power, between camps |
+
+Intermediate upper/lower and endurance race-season maintenance offer nothing
+next. The athlete runs them again or chooses.
 
 Nine programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there

@@ -456,7 +456,7 @@ export function loadProgrammeCatalogueListing(templateId: string): Promise<JsonR
 
 export function saveProgrammeCatalogueListing(
   templateId: string,
-  input: { title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; listed: boolean },
+  input: { title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; next_listing_id?: string; listed: boolean },
   csrfToken: string
 ): Promise<JsonRecord> {
   return request("PUT", `/templates/${encodeURIComponent(templateId)}/catalogue-listing`, input, csrfToken);

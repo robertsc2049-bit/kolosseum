@@ -363,6 +363,55 @@ test(
     assertStatus(done, 400, "session after the programme ends");
     assert.equal(done.json.error, "programme_complete");
 
+    // What comes next: the author lists an intermediate programme and names
+    // it as the one that follows the beginner programme.
+    const nextSaved = await requestJson(base, "POST", "/templates", {
+      cookie: author.cookie, csrf: author.csrf,
+      body: {
+        coach_user_id: author.userId, template_version: 1, template_name: "Intermediate upper/lower", description: "Proof follow-on.", activity_id: "general_strength",
+        blocks: [{ block_id: "", order_index: 1, name: "Wave", description: "", block_type: "strength", week_count: 1, weeks: [{ week_id: "", order_index: 1, sessions: [
+          session(1, "Upper", [workItem(1, "bench_press", 4, 5, "percent_1rm")])
+        ] }] }],
+        updated_at_iso8601: new Date().toISOString()
+      }
+    });
+    assertStatus(nextSaved, 201, "save follow-on programme");
+    const nextDraftId = nextSaved.json.template.template_id;
+    assertStatus(await requestJson(base, "POST", `/templates/${nextDraftId}/complete`, { cookie: author.cookie, csrf: author.csrf, body: { coach_user_id: author.userId } }), 200, "complete follow-on");
+    const nextActive = await requestJson(base, "POST", `/templates/${nextDraftId}/activate`, { cookie: author.cookie, csrf: author.csrf, body: { coach_user_id: author.userId } });
+    const nextTemplateId = nextActive.json?.template?.template_id ?? nextDraftId;
+    const nextListed = await requestJson(base, "PUT", `/templates/${nextTemplateId}/catalogue-listing`, {
+      cookie: author.cookie, csrf: author.csrf,
+      body: { title: "Intermediate upper/lower", summary: "Four days.", levels: ["amateur", "pro"], activity_ids: [], days_per_week: 4 }
+    });
+    assertStatus(nextListed, 200, "list follow-on");
+    const beginnerListing = { title: "Beginner full-body", summary: "Three full-body sessions.", levels: ["beginner"], activity_ids: [], days_per_week: 3 };
+    const toSelf = await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, { cookie: author.cookie, csrf: author.csrf, body: { ...beginnerListing, next_listing_id: listed.json.listing.listing_id } });
+    assertStatus(toSelf, 422, "a programme can't follow itself");
+    const toUnknown = await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, { cookie: author.cookie, csrf: author.csrf, body: { ...beginnerListing, next_listing_id: "programme_not_theirs" } });
+    assertStatus(toUnknown, 422, "only the author's own programmes can follow");
+    assertStatus(await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, {
+      cookie: author.cookie, csrf: author.csrf, body: { ...beginnerListing, next_listing_id: nextListed.json.listing.listing_id }
+    }), 200, "name the follow-on");
+    const authorView = await requestJson(base, "GET", `/templates/${templateId}/catalogue-listing`, { cookie: author.cookie });
+    assert.equal(authorView.json.listing.next_listing_id, nextListed.json.listing.listing_id);
+    assert.deepEqual(authorView.json.other_listings.map((l) => l.title), ["Intermediate upper/lower"]);
+
+    // The finished beginner is shown it - for amateurs, so they'd move their
+    // level up to start it - and can run the beginner programme again.
+    const finished = (await requestJson(base, "GET", "/account/onboarding/programmes", { cookie: athlete.cookie })).json.current;
+    assert.equal(finished.finished, true);
+    assert.equal(finished.next.title, "Intermediate upper/lower");
+    assert.equal(finished.next.suits_level, false);
+    assert.equal(finished.can_repeat, true);
+    const csrfAgain = (await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie })).json.csrf_token;
+    const again = await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf: csrfAgain, body: { listing_id: listed.json.listing.listing_id } });
+    assertStatus(again, 200, "run it again");
+    assert.deepEqual([again.json.current.sessions_done, again.json.current.finished], [0, undefined]);
+    const repeatSession = await createSession();
+    assertStatus(repeatSession, 201, "first session of the repeat");
+    assert.equal(repeatSession.json.planned_session.programme_run.session_title, "Day A");
+
     // Stopping it: with a programme that suits them listed, the athlete
     // chooses one before training - the generated programme is only the
     // fallback while none suits them.
