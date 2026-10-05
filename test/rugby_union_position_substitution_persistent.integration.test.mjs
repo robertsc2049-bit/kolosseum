@@ -1,6 +1,7 @@
 // DEV NOTE: end-to-end proof that a rugby_union athlete's declared position
-// (set via the real onboarding flow, never projected into phase1/the
-// engine record - see athlete_onboarding_service.ts) is looked up live and
+// (set via the real onboarding flow; its group reaches the engine only as
+// the declaration's sport_role_id - see athlete_onboarding_service.ts) is
+// looked up live from the declaration, never from the client, and
 // narrows the real substitution-request endpoint's offered exercise, using
 // the same helper conventions as full_ui_85_team_sport_position_persistent
 // (registration/onboarding) and full_ui_15c_session_execution_persistent
@@ -193,22 +194,18 @@ function blockWithFrontRackCarry() {
   };
 }
 
-function phase1Input() {
-  return {
-    consent_granted: true,
-    engine_version: "EB2-1.0.0",
-    enum_bundle_version: "EB2-1.0.0",
-    phase1_schema_version: "1.0.0",
-    actor_type: "athlete",
-    execution_scope: "individual",
-    activity_id: "rugby_union",
-    nd_mode: false,
-    instruction_density: "standard",
-    exposure_prompt_density: "standard",
-    bias_mode: "none",
-    experience_level: "amateur"
-  };
+// The engine input the athlete's own declaration recorded - what the app
+// sends (public/app/app.js createSession). It carries their position's sport
+// role, training plan and execution scope, so a hand-written input drifts
+// out of step with onboarding and the beta path rightly refuses it.
+async function declaredPhase1Input(baseUrl, athlete) {
+  const detail = await request(baseUrl, "GET", "/account/detail", undefined, { cookie: athlete.cookie });
+  assertStatus(detail, 200, "athlete account detail");
+  const input = detail.json?.bootstrap?.declaration_record?.engine_phase1_input;
+  assert.ok(input, "the athlete's declaration records an engine input");
+  return input;
 }
+
 
 async function createActivatedTemplate(baseUrl, coachUserId, name) {
   const saved = await request(baseUrl, "POST", "/templates", {
@@ -241,7 +238,8 @@ async function createActivatedTemplate(baseUrl, coachUserId, name) {
   return template;
 }
 
-async function createSessionForAthlete(baseUrl, coach, athleteUserId, nonce) {
+async function createSessionForAthlete(baseUrl, coach, athlete, nonce) {
+  const athleteUserId = athlete.userId;
   const template = await createActivatedTemplate(baseUrl, coach.userId, `RugbySub Programme ${nonce}`);
 
   const assignment = await request(
@@ -261,7 +259,7 @@ async function createSessionForAthlete(baseUrl, coach, athleteUserId, nonce) {
 
   const compiled = await request(
     baseUrl, "POST", "/blocks/compile?create_session=true&beta_path=true",
-    { phase1_input: phase1Input(), beta_user_id: athleteUserId, beta_coach_user_id: coach.userId }
+    { phase1_input: await declaredPhase1Input(baseUrl, athlete), beta_user_id: athleteUserId, beta_coach_user_id: coach.userId }
   );
   assertStatus(compiled, 201, "compile session");
 
@@ -285,7 +283,7 @@ test(
       await completeAthleteOnboarding(baseUrl, athlete, "wing");
       await connectRelationship(baseUrl, coach.userId, athlete.userId, `rugbysub_rel_${nonce}`);
 
-      const sessionId = await createSessionForAthlete(baseUrl, coach, athlete.userId, nonce);
+      const sessionId = await createSessionForAthlete(baseUrl, coach, athlete, nonce);
 
       // front_rack_carry requires barbell + open_floor_space - marking
       // barbell unavailable forces the engine's equipment-blocked path

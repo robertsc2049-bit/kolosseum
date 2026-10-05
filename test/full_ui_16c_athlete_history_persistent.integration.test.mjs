@@ -381,8 +381,16 @@ test(
       }
 
       // --- Session 2: skip with reason + pain report -> partial. ---
+      // Sessions 3 and 4 are created up front: once session 2 reports bench
+      // press pain, a new session loading the bench waits for the athlete's
+      // pain check-in (pain carry-forward), which this synthetic athlete -
+      // no product account - can't give.
       const partialSessionId = await compileSession(baseUrl, coach, athlete.userId);
       sessionIds.push(partialSessionId);
+      const returnedSessionId = await compileSession(baseUrl, coach, athlete.userId);
+      sessionIds.push(returnedSessionId);
+      const returnContinueSessionId = await compileSession(baseUrl, coach, athlete.userId);
+      sessionIds.push(returnContinueSessionId);
       await request(baseUrl, "POST", `/sessions/${encodeURIComponent(partialSessionId)}/start`, {});
       assertStatus(
         await request(baseUrl, "POST", `/sessions/${encodeURIComponent(partialSessionId)}/events`, {
@@ -416,8 +424,6 @@ test(
       }
 
       // --- Session 3: split then return-skip -> a genuinely "returned" session. ---
-      const returnedSessionId = await compileSession(baseUrl, coach, athlete.userId);
-      sessionIds.push(returnedSessionId);
       await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnedSessionId)}/start`, {});
       assertStatus(
         await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnedSessionId)}/events`, {
@@ -452,8 +458,6 @@ test(
       //     RETURN_CONTINUE session incorrectly report
       //     split_return_decision: "skip" whenever it also happened to
       //     have an unrelated dropped exercise anywhere in it. ---
-      const returnContinueSessionId = await compileSession(baseUrl, coach, athlete.userId);
-      sessionIds.push(returnContinueSessionId);
       await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/start`, {});
       assertStatus(
         await request(baseUrl, "POST", `/sessions/${encodeURIComponent(returnContinueSessionId)}/events`, {
