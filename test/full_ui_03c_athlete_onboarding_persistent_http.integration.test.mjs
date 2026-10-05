@@ -98,7 +98,10 @@ async function startServer(root, environment) {
   const baseUrl = `http://127.0.0.1:${port}`;
   const processRecord = spawnNode([mainModule], {
     cwd: root,
-    env: { ...environment, PORT: String(port) }
+    // These athletes train on the generated programme: with no catalogue
+    // authors, Kolosseum programmes published in this database (a dev
+    // database often has some) don't ask them to choose one first.
+    env: { ...environment, KOLOSSEUM_PROGRAMME_AUTHORS: "", PORT: String(port) }
   });
   await waitForHealth(processRecord, baseUrl);
   return { ...processRecord, baseUrl, port };
