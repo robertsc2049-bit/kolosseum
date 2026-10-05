@@ -135,6 +135,26 @@ function DeclarationFacts({ fields, promptPosition = false }: { fields: JsonReco
   );
 }
 
+// What each answer is called on screen (the server names fields by key).
+const FIELD_LABELS: Record<string, string> = {
+  activity_id: "Sport",
+  position: "Position",
+  experience_level: "Training level",
+  competition_event: "Competition event",
+  training_days_per_week: "Training days a week",
+  season_start_date: "Season start",
+  season_end_date: "Season end",
+  competition_date: "Competition date",
+  no_fixed_date: "No fixed date",
+  execution_scope: "How you'll train",
+  product_acknowledged: "Beta acknowledgement",
+  jurisdiction_code: "Where you live",
+  jurisdiction_acknowledged: "Where you live acknowledgement",
+  accessibility_preferences: "Display preferences",
+  instruction_density: "Instruction",
+  training_focus: "Training focus"
+};
+
 function ValidationErrors({ error }: { error: { message: string; payload: unknown } }) {
   const fieldErrors = (error.payload as JsonRecord | undefined)?.field_errors as JsonRecord | undefined;
   const entries = Object.entries(fieldErrors ?? {});
@@ -143,7 +163,7 @@ function ValidationErrors({ error }: { error: { message: string; payload: unknow
       <strong>Check your answers</strong>
       {entries.length ? (
         <ul>
-          {entries.map(([key, value]) => <li key={key}><strong>{titleCase(key)}:</strong> {String(value)}</li>)}
+          {entries.map(([key, value]) => <li key={key}><strong>{FIELD_LABELS[key] ?? titleCase(key)}:</strong> {String(value)}</li>)}
         </ul>
       ) : (
         <p>{error.message}</p>
