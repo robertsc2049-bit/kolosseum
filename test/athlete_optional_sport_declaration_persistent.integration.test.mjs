@@ -89,6 +89,22 @@ async function getOnboardingState(baseUrl, athlete) {
   return result.json;
 }
 
+// A declaration as stored before sport was required: complete, but no sport.
+function legacyDeclaration() {
+  const core = {
+    declaration_id: `athlete_declaration_legacy_${crypto.randomUUID().replaceAll("-", "")}`, declaration_version: 1,
+    supersedes_declaration_id: null, effective_at_iso8601: new Date().toISOString(),
+    fields: {
+      execution_scope: "individual", product_acknowledged: true, jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: accessibilityPreferences(), experience_level: "amateur", training_days_per_week: 3, instruction_density: "standard"
+    },
+    product_acknowledgement_version: "september_beta_2026", jurisdiction_acknowledgement_version: "jurisdiction_v1",
+    declaration_schema_version: "full_ui_03c_v1", declaration_source: "athlete_confirmed_onboarding", immutable: true,
+    user_declared_factual_state: true, engine_visible: false
+  };
+  return { ...core, record_sha256: crypto.createHash("sha256").update(JSON.stringify(core)).digest("hex") };
+}
+
 async function betaRecordTypes(userId) {
   const result = await pool.query(
     "SELECT DISTINCT record_type FROM beta_product_records WHERE subject_user_id = $1",
@@ -98,7 +114,7 @@ async function betaRecordTypes(userId) {
 }
 
 test(
-  "sport declaration is optional: registration and onboarding both succeed without one, beta16 compile-admission records are deferred, and the existing self-service activity-change flow declares it for the first time",
+  "sport at sign-up is optional but onboarding requires it: registration succeeds without one with beta16 compile-admission records deferred, onboarding can't move past its first step or confirm without a sport, and the self-service activity-change flow still declares one for an athlete who has none",
   async () => {
     const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
     let server = null;
@@ -151,7 +167,7 @@ test(
       assertStatus(badRegistration, 400, "registration with an invalid activity");
       assert.equal(badRegistration.json?.error, "account_activity_invalid");
 
-      // --- 2. Completing onboarding without declaring an activity succeeds. ---
+      // --- 2. Onboarding refuses to move on, or confirm, without a sport. ---
       const draft = await request(
         baseUrl, "PATCH", "/account/onboarding/draft",
         {
@@ -169,33 +185,32 @@ test(
         },
         { cookie: athlete.cookie, csrf: athlete.csrf }
       );
-      assertStatus(draft, 200, "onboarding draft without activity_id");
+      assertStatus(draft, 422, "onboarding draft without activity_id");
+      assert.equal(draft.json?.field_errors?.activity_id, "Choose your sport to continue.");
 
-      const confirm = await request(
+      const confirmWithoutDraft = await request(
         baseUrl, "POST", "/account/onboarding/confirm",
         { review_confirmed: true },
         { cookie: athlete.cookie, csrf: athlete.csrf }
       );
-      assertStatus(confirm, 200, "onboarding confirm without activity_id");
-      assert.equal(confirm.json.onboarding_status, "completed");
-      assert.equal(
-        Object.prototype.hasOwnProperty.call(confirm.json.current_effective_declaration.fields, "activity_id"),
-        false,
-        "activity_id must be absent, not defaulted to anything"
-      );
-
-      // Onboarding completion still doesn't create the phase1 declaration -
-      // it stays deferred until a real activity is declared.
+      assert.notEqual(confirmWithoutDraft.status, 200, "no confirmation without a sport");
+      assert.notEqual((await getOnboardingState(baseUrl, athlete)).onboarding_status, "completed");
+      // Nothing activity-dependent was written.
       assert.deepEqual(await betaRecordTypes(athlete.userId), ["beta16_acknowledgement", "beta16_auth"]);
 
+      // --- 3. An athlete with no sport (one who finished onboarding before
+      // it was required) declares one through the self-service flow. ---
+      // Seed that athlete's stored declaration directly: the API no longer
+      // creates one.
+      await pool.query(
+        `INSERT INTO product_account_events (event_id, user_id, event_type, event_payload)
+         VALUES ($1, $2, 'athlete_declaration_confirmed', $3::jsonb)`,
+        [`account_event_legacy_${nonce}`, athlete.userId, JSON.stringify(legacyDeclaration())]
+      );
       const state = await getOnboardingState(baseUrl, athlete);
       assert.equal(state.onboarding_status, "completed");
-      assert.equal(
-        Object.prototype.hasOwnProperty.call(state.current_effective_declaration.fields, "activity_id"),
-        false
-      );
+      assert.equal(Object.prototype.hasOwnProperty.call(state.current_effective_declaration.fields, "activity_id"), false);
 
-      // --- 3. The existing self-service activity-change flow declares a real activity for the first time. ---
       const declare = await request(
         baseUrl, "PATCH", "/account/onboarding/activity",
         { new_activity_id: "crossfit", apply_at: "immediately" },

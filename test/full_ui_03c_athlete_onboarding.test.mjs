@@ -187,15 +187,21 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   );
   assert.deepEqual(service.validateCompleteAthleteDeclaration(complete), complete);
 
-  // activity_id is optional - it never gates progression to a later stage,
-  // and a declaration can complete without it (declared later via the
-  // self-service activity-change flow).
+  // Sport comes first: the first stage can be saved without one, but no
+  // later stage can be reached until it's chosen.
+  assert.deepEqual(service.validateAthleteOnboardingDraftInput({ current_stage: "activity", fields: {} }).fields, {});
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: {} }),
+    (error) => error.field_errors?.activity_id === "Choose your sport to continue."
+  );
+  const { activity_id: _sport, ...completeWithoutSport } = complete;
+  assert.throws(
+    () => service.validateAthleteOnboardingDraftInput({ current_stage: "review", fields: completeWithoutSport }),
+    (error) => Boolean(error.field_errors?.activity_id)
+  );
   assert.deepEqual(
-    service.validateAthleteOnboardingDraftInput({
-      current_stage: "experience_level",
-      fields: {}
-    }).fields,
-    {}
+    service.validateAthleteOnboardingDraftInput({ current_stage: "experience_level", fields: { activity_id: "tennis" } }).fields,
+    { activity_id: "tennis" }
   );
   // Training level is required (no silent default): no stage after it can be
   // reached without declaring one.
@@ -246,6 +252,7 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   const accepted = (current_stage, fields) => service.validateAthleteOnboardingDraftInput({ current_stage, fields });
   const { training_days_per_week: _days, ...noDays } = complete;
   refused("execution_scope", { activity_id: "general_strength", experience_level: "amateur" });
+  refused("training_plan", { experience_level: "pro" });
   refused("review", noDays);
   for (const bad of [0, 7, 2.5, "3"]) refused("review", { ...complete, training_days_per_week: bad });
   accepted("training_plan", { activity_id: "rugby_union", experience_level: "pro" });
@@ -265,6 +272,8 @@ test("FULL-UI-03C validates progression review and inference boundaries", () => 
   assert.equal(accepted("review", { ...boxer, competition_date: "2026-12-12" }).fields.competition_date, "2026-12-12");
   refused("review", { ...complete, no_fixed_date: true });
   refused("review", { ...complete, competition_date: "2026-12-12" });
+  // A declaration stored before sport was required has none, and still
+  // reads back as it was (the athlete declares a sport later).
   const completeWithoutActivity = { ...complete };
   delete completeWithoutActivity.activity_id;
   assert.deepEqual(

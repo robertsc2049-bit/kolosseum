@@ -188,7 +188,7 @@ test("advancing a stage saves the draft and moves forward, showing a saved-draft
   assert.ok(screen.getByText("Stage 2 of 9"));
 });
 
-test("sport is optional - Save and continue proceeds from the activity stage with nothing chosen", async () => {
+test("sport is required - there's no 'Not yet' choice, and the chosen sport is saved with the draft", async () => {
   let savedFields: Record<string, unknown> | null = null;
   installMocks({
     onDraftSave: (body) => {
@@ -204,7 +204,9 @@ test("sport is optional - Save and continue proceeds from the activity stage wit
   render(<AthleteOnboardingPanel />);
   await screen.findByText("Activity declaration");
 
-  assert.equal((screen.getByLabelText("Not yet") as HTMLInputElement).checked, true, "no sport is chosen for the athlete");
+  assert.equal(screen.queryByLabelText("Not yet"), null, "no way to skip the sport");
+  assert.equal(screen.queryByText("Your sport (optional)"), null);
+  fireEvent.click(screen.getByLabelText("Tennis"));
 
   await act(async () => {
     fireEvent.click(screen.getByText("Save and continue"));
@@ -212,7 +214,7 @@ test("sport is optional - Save and continue proceeds from the activity stage wit
 
   await screen.findByText("Draft saved");
   assert.ok(screen.getByText("Training level"));
-  assert.equal(Object.prototype.hasOwnProperty.call(savedFields ?? {}, "activity_id"), false);
+  assert.equal((savedFields ?? {}).activity_id, "tennis");
 });
 
 test("the Back button is enabled past the first stage and moves backward", async () => {
