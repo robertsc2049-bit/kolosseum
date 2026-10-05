@@ -14,6 +14,8 @@
 // - A run pins the exact programme version it started with, so editing or
 //   archiving a programme never changes a run in progress.
 //
+// - Coaches see every listed programme and can copy one into their own
+//   library as a draft - theirs to change and assign like any other.
 // - A listing can name the programme that follows it (off-season build ->
 //   in-season, fight camp -> between camps). When an athlete finishes a
 //   programme they're offered that one, or to run it again.
@@ -25,7 +27,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
-import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, orderedTemplateSessions } from "./beta18_programme_template_service.js";
+import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, orderedTemplateSessions, saveCoachProgrammeTemplate, templateRecordInput } from "./beta18_programme_template_service.js";
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 
 type Json = Record<string, unknown>;
@@ -346,4 +348,46 @@ export async function setAthleteProgramme(userId: string, input: unknown): Promi
   }
   finally { client.release(); }
   return getAthleteProgrammes(userId);
+}
+
+// Every listed programme, for a coach to browse.
+export async function listProgrammesForCoaches(): Promise<Readonly<Json>> {
+  const programmes = (await allListings())
+    .filter((l) => l.listed)
+    .sort((a, b) => a.title.localeCompare(b.title))
+    .map((l) => ({ listing_id: l.listing_id, title: l.title, summary: l.summary, levels: l.levels, activity_ids: l.activity_ids, days_per_week: l.days_per_week }));
+  return Object.freeze({ programmes });
+}
+
+// A coach copies a listed programme into their own library: a new draft
+// they own (version 1, fresh ids), built from the exact version that's
+// listed. Nothing is assigned; the catalogue copy is untouched.
+export async function copyProgrammeForCoach(coachUserId: string, listingIdInput: unknown): Promise<Readonly<Json>> {
+  const listingId = text(listingIdInput);
+  const listing = (await allListings()).find((l) => l.listing_id === listingId && l.listed);
+  if (!listing) throw new ProgrammeCatalogueError("programme_catalogue_not_found", 404);
+  const template = await loadExecutableCoachTemplateById(listing.author_user_id, listing.template_id);
+  if (!template) throw new ProgrammeCatalogueError("programme_catalogue_not_found", 404);
+  const input = templateRecordInput(template as Json) as Json;
+  delete input.template_id;
+  delete input.template_family_id;
+  const copy = {
+    ...input,
+    blocks: freshIds(input.blocks),
+    coach_user_id: coachUserId,
+    template_version: 1,
+    template_name: listing.title,
+    description: [listing.summary, "Copied from Kolosseum programmes - yours to change before you assign it."].filter(Boolean).join(" "),
+    event_plan: null,
+    updated_at_iso8601: new Date().toISOString()
+  };
+  return saveCoachProgrammeTemplate(copy) as Promise<Readonly<Json>>;
+}
+
+// A copy gets its own block, week, day, session and exercise ids.
+const ID_KEYS = new Set(["block_id", "week_id", "day_id", "session_id", "work_item_id"]);
+function freshIds(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(freshIds);
+  if (!isRecord(value)) return value;
+  return Object.fromEntries(Object.entries(value).map(([key, v]) => [key, ID_KEYS.has(key) ? "" : freshIds(v)]));
 }

@@ -22,7 +22,7 @@ import {
 import { rateLimit } from "express-rate-limit";
 import { authenticatedCoach } from "./coach_session_auth.js";
 import { StarterTemplateError, createKolosseumStarterTemplate } from "./kolosseum_starter_template_service.js";
-import { ProgrammeCatalogueError, getProgrammeListingForTemplate, saveProgrammeListing } from "./programme_catalogue_service.js";
+import { ProgrammeCatalogueError, copyProgrammeForCoach, getProgrammeListingForTemplate, listProgrammesForCoaches, saveProgrammeListing } from "./programme_catalogue_service.js";
 
 export const templatesRouter =
   Router();
@@ -45,6 +45,32 @@ templatesRouter.post(
       if (error instanceof StarterTemplateError) {
         return response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       }
+      throw error;
+    }
+  })
+);
+
+// Kolosseum programmes for coaches: browse the listed ones, and copy one into
+// your own library as a draft (programme_catalogue_service.ts).
+const coachCatalogueRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+templatesRouter.get(
+  "/kolosseum-programmes",
+  coachCatalogueRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedCoach(request, false);
+    return response.status(200).json(await listProgrammesForCoaches());
+  })
+);
+templatesRouter.post(
+  "/kolosseum-programmes/:listing_id/copy",
+  coachCatalogueRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    try {
+      return response.status(201).json({ ok: true, template: await copyProgrammeForCoach(coachUserId, request.params.listing_id) });
+    }
+    catch (error) {
+      if (error instanceof ProgrammeCatalogueError) return response.status(error.status).json({ error: error.code });
       throw error;
     }
   })

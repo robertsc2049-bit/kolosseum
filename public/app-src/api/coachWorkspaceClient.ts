@@ -435,6 +435,15 @@ export function createKolosseumStarterTemplate(input: { activity_id: string; exp
   return request("POST", "/templates/kolosseum-starter", input, csrfToken);
 }
 
+// Kolosseum programmes (coach-written, published): browse them, and copy one
+// into the coach's own library as a draft.
+export function loadKolosseumProgrammesForCoach(): Promise<JsonRecord> {
+  return request("GET", "/templates/kolosseum-programmes");
+}
+export function copyKolosseumProgramme(listingId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/templates/kolosseum-programmes/${encodeURIComponent(listingId)}/copy`, {}, csrfToken);
+}
+
 // Medical stand-down for a coach's athlete.
 export function loadAthleteStandDown(athleteUserId: string): Promise<JsonRecord> {
   return request("GET", `/stand-down/coach/${encodeURIComponent(athleteUserId)}`);
