@@ -4281,7 +4281,7 @@ export async function loadExecutableCoachTemplateById(
     : null;
 }
 
-function orderedTemplateSessions(
+export function orderedTemplateSessions(
   templateRecord: Readonly<JsonRecord>
 ): readonly Readonly<JsonRecord>[] {
   const structure =

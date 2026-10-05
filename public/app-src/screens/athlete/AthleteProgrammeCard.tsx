@@ -19,6 +19,18 @@ const asOptions = (value: unknown): Option[] => (Array.isArray(value) ? (value a
   days_per_week: Number(o.days_per_week) || 0, sport_specific: o.sport_specific === true
 }));
 
+// "Week 7 of 12 · Heavy strength" - where the athlete's next session sits.
+export function programmePositionLine(position: unknown): string | null {
+  if (!position || typeof position !== "object") return null;
+  const p = position as JsonRecord;
+  const week = Number(p.week_number);
+  const weeks = Number(p.weeks_total);
+  if (!week || !weeks) return null;
+  const block = String(p.block_name ?? "").trim();
+  const lighter = p.block_type === "deload" ? " (lighter)" : "";
+  return [`Week ${week} of ${weeks}`, block ? `${block}${lighter}` : lighter.trim()].filter(Boolean).join(" · ");
+}
+
 const finishedLine = (total: number) => (total === 1 ? "Finished. Choose what to train next." : `Finished - all ${total} sessions done. Choose what to train next.`);
 // "amateur and pro", "beginner, amateur and pro".
 const levelList = (levels: string[]) => {
@@ -100,6 +112,9 @@ export function AthleteProgrammeCard() {
         </>
       ) : current ? (
         <>
+          {programmePositionLine(current.next_position) ? (
+            <p className="programme-position" data-testid="programme-position">{programmePositionLine(current.next_position)}</p>
+          ) : null}
           <p className="muted">
             {`${Number(current.sessions_done ?? 0)} of ${Number(current.sessions_total ?? 0)} sessions done. Your sessions follow this programme in order.`}
           </p>

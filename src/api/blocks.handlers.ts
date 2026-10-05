@@ -23,7 +23,7 @@ import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
-import { type ProgrammeRun, athleteHasProgrammeOptions, getCurrentProgrammeRun, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
+import { type ProgrammeRun, athleteHasProgrammeOptions, getCurrentProgrammeRun, programmeRunPosition, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -539,7 +539,7 @@ export async function compileBlock(req: Request, res: Response) {
     }
   }
 
-  let programme_run_session: { run_id: string; listing_id: string; title: string; session_number: number; sessions_total: number; session_title: string } | undefined;
+  let programme_run_session: { run_id: string; listing_id: string; title: string; session_number: number; sessions_total: number; session_title: string; week_number?: number; weeks_total?: number; block_name?: string; block_type?: string } | undefined;
   if (programme_run && beta_individual_subject_user_id) {
     const sessionIndex = await programmeRunSessionCount(beta_individual_subject_user_id, programme_run.run_id);
     try {
@@ -573,7 +573,8 @@ export async function compileBlock(req: Request, res: Response) {
       title: programme_run.title,
       session_number: sessionIndex + 1,
       sessions_total: await programmeRunTotalSessions(programme_run),
-      session_title: templateExecution ? asString(templateExecution.template_session_title) ?? "" : ""
+      session_title: templateExecution ? asString(templateExecution.template_session_title) ?? "" : "",
+      ...((await programmeRunPosition(programme_run, sessionIndex)) ?? {})
     };
   }
 
