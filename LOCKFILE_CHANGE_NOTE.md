@@ -273,3 +273,25 @@ version changes were intended by this bump.
 This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or
 any existing user-facing behaviour.
+
+## Production dependency audit refresh (2026-10-06)
+
+Commit subject: chore(deps): production dependency audit refresh - proxy-addr critical advisory
+
+Production dependency audit totals before remediation:
+
+- critical: 1 (proxy-addr, GHSA-jqcg-44mw-7w3h: IP spoofing via an IPv4-mapped IPv6 trust subnet);
+- moderate: 3 (fast-uri, ip-address, multer).
+
+package-lock.json changed through the non-breaking production dependency remediation command:
+
+`npm audit fix --package-lock-only --omit=dev --audit-level=high`
+
+Resolved versions: proxy-addr 2.0.8, fast-uri 3.1.8, ip-address 10.7.3, multer 2.4.0 (which no longer depends on concat-stream, so concat-stream, buffer-from, readable-stream, safe-buffer, string_decoder, typedarray and util-deprecate leave the tree).
+
+No direct dependency declaration was intentionally added to or removed from package.json.
+
+Verified production dependency audit:
+
+- high: 0;
+- critical: 0.
