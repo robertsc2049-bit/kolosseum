@@ -11,6 +11,7 @@
 // group(type, options, items): exercises done together as one timed piece -
 //   "for_time" or "amrap" with { cap: seconds }, "emom" with { round: seconds,
 //   rounds }. Members are listed in order; every member gets the group.
+//   (A "superset" group - the pro versions' contrast pairs - needs no timing.)
 // Main lifts use % of 1RM: the athlete's own setting turns it into weights
 // built from what they lift (the beginner default), % of their max, or RPE.
 //
@@ -843,9 +844,55 @@ const olympicWeightlifting = {
   ]
 };
 
+// ---------------------------------------------------------------------------
+// 15. Pro versions of the sport builds - pro only. A full-time athlete has
+// the recovery for more work and the training age for advanced methods:
+// - contrast pairs: each heavy lift is followed straight away by the jump,
+//   throw or sprint that led its session (a superset), using the
+//   potentiation the heavy set leaves - full rest after the pair;
+// - one more working set on the main lifts (at most 6);
+// everything else - loads, lighter weeks, the robustness work - as the
+// amateur build. Built from the amateur build, so the two never drift apart.
+const isExplosive = (item) => item.load === "bw" || (item.load && "kg" in item.load);
+const isMainLift = (item) => item.load && item.load !== "bw" && "pct" in item.load;
+let contrastCount = 0;
+const proSession = (session) => {
+  const [first, second, ...rest] = session.items;
+  const items = session.items.map((item) => (isMainLift(item) ? { ...item, sets: Math.min(6, item.sets + 1) } : item));
+  if (!(first && second && isExplosive(first) && isMainLift(second))) return { ...session, items };
+  contrastCount += 1;
+  const id = `contrast_${contrastCount}`;
+  const heavy = { ...items[1], group: { id, type: "superset", cap: 0, round: 0, rounds: 0 } };
+  const fast = { ...first, sets: heavy.sets, group: heavy.group, note: "Contrast: straight after each heavy set, while you're primed - full rest after the pair." };
+  return { ...session, items: [heavy, fast, ...items.slice(2)] };
+};
+const proVersion = (amateur, title) => ({
+  ...amateur,
+  key: `${amateur.key}_pro`,
+  template_name: `${amateur.template_name} (pro)`,
+  description: `${amateur.description} Pro version: each heavy lift is paired with a jump, throw or sprint straight after it (contrast), and the main lifts carry an extra set.`,
+  listing: {
+    ...amateur.listing,
+    title,
+    summary: "For full-time athletes. The same build with contrast pairs - each heavy lift straight into a jump, throw or sprint - and an extra set on the main lifts.",
+    levels: ["pro"]
+  },
+  blocks: amateur.blocks.map((block) => ({ ...block, weeks: block.weeks.map((week) => week.map(proSession)) }))
+});
+const PRO_VERSIONS = [
+  proVersion(teamOffSeason, "Off-season strength build - pro (8 weeks)"),
+  proVersion(tennisOffSeason, "Tennis off-season build - pro (8 weeks)"),
+  proVersion(cricketOffSeason, "Cricket off-season build - pro (8 weeks)"),
+  proVersion(combatBuild, "Combat strength and power - pro (8 weeks)"),
+  proVersion(athleticsPowerBuild, "Sprint, jump and throw power - pro (12 weeks)"),
+  proVersion(enduranceRunRide, "Run and ride strength - pro (12 weeks)"),
+  proVersion(enduranceSwimRowPaddle, "Swim, row and paddle strength - pro (12 weeks)")
+];
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
   enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
   cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsSeason,
-  strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting
+  strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
+  ...PRO_VERSIONS
 ];

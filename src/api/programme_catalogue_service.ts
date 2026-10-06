@@ -233,7 +233,9 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
   const suitable = listings
     .map((listing) => ({ listing, fit: suits(listing, profile.experience_level, profile.activity_id) }))
     .filter((entry) => entry.fit > 0)
-    .sort((a, b) => b.fit - a.fit || a.listing.days_per_week - b.listing.days_per_week || a.listing.title.localeCompare(b.listing.title));
+    // Their sport's own first; then the one written for their level alone (a
+    // pro version before the amateur build a pro can also run).
+    .sort((a, b) => b.fit - a.fit || a.listing.levels.length - b.listing.levels.length || a.listing.days_per_week - b.listing.days_per_week || a.listing.title.localeCompare(b.listing.title));
   // How each fits the athlete: their training days, and - for a programme
   // that ends in a taper - when to start it for their competition.
   const options = await Promise.all(suitable.map(async ({ listing, fit }) => {
