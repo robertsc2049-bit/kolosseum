@@ -823,6 +823,39 @@ day), and a light primer of power snatch, hang power clean and split jerk.
 - **Weight class:** the programme adds no hypertrophy block. Making weight
   is for the athlete and their coach.
 
+## 15. Pro versions of the sport builds (pro only)
+
+A full-time athlete has the recovery for more work and the training age for
+advanced methods. So the seven sport builds each have a pro version: team
+off-season, tennis, cricket, combat, sprint/jump/throw, run and ride, and
+swim, row and paddle.
+
+- **Contrast pairs:** a session that led with a jump, throw or sprint before
+  a heavy lift flips the order into a pair: the heavy set first, then
+  straight into the explosive work while the athlete is primed, then full
+  rest. This is the classic complex/contrast method for turning strength
+  into power.
+- **One more working set** on the main lifts, never more than 6.
+- **Everything else is unchanged:** loads, lighter weeks, and the robustness
+  and sport-specific work.
+
+The pro version is listed for pros only and shown to them first. The
+amateur build stays available to pros too, for a lighter phase or after
+time away. In-season, race-season and fight-camp programmes stay shared
+between amateur and pro, because the minimum effective dose doesn't change
+with level.
+
+**For the coach:**
+- **Built from the amateur builds:** the pro versions are generated from
+  them in the content file, so changes there carry over. In the builder
+  they're separate programmes, so edit either freely once you've reviewed
+  them.
+- **Not included yet:** position splits (prop vs winger, fast bowler vs
+  batter).
+- **Strength-sport meet preps** (powerlifting, weightlifting, strongman,
+  street lifting) stay shared. They're already individualised by the
+  athlete's own maxes.
+
 ## Not in v1, and why
 
 - **Sport programmes for beginners:** every sport programme is for amateur

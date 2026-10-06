@@ -12,13 +12,14 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("twenty-one programmes: every sport has its own", () => {
+test("twenty-eight programmes: every sport has its own, and pro versions of the sport builds", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
     "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
     "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_competition_season",
     "strongman_strength_events", "street_lifting_meet_prep", "hyrox_race_build", "crossfit_strength_conditioning",
-    "olympic_weightlifting_meet_prep"
+    "olympic_weightlifting_meet_prep",
+    "team_sport_off_season_pro", "tennis_off_season_pro", "cricket_off_season_pro", "combat_strength_power_pro", "athletics_power_build_pro", "endurance_run_ride_strength_pro", "endurance_swim_row_paddle_strength_pro"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -89,7 +90,7 @@ test("each programme is listed for the athletes its design notes describe", () =
   for (const key of ["athletics_power_build", "athletics_competition_season"]) assert.deepEqual(byKey[key].activity_ids, ["athletics"], key);
   for (const [key, sport] of [["strongman_strength_events", "strongman"], ["street_lifting_meet_prep", "street_lifting"], ["hyrox_race_build", "hyrox"], ["crossfit_strength_conditioning", "crossfit"], ["olympic_weightlifting_meet_prep", "olympic_weightlifting"]]) assert.deepEqual(byKey[key].activity_ids, [sport], key);
   for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
-    assert.deepEqual(p.listing.levels, ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme`);
+    assert.deepEqual(p.listing.levels, p.key.endsWith("_pro") ? ["pro"] : ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme; pro versions are for pros`);
   }
   for (const p of PROGRAMMES) {
     for (const id of p.listing.activity_ids) assert.ok(activities.has(id), `${p.key}: ${id} is a real sport`);
@@ -181,7 +182,14 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     strongman_strength_events: "intermediate_upper_lower",
     street_lifting_meet_prep: "intermediate_upper_lower",
     hyrox_race_build: "intermediate_upper_lower",
-    olympic_weightlifting_meet_prep: "intermediate_upper_lower"
+    olympic_weightlifting_meet_prep: "intermediate_upper_lower",
+    team_sport_off_season_pro: "team_sport_in_season",
+    tennis_off_season_pro: "tennis_in_season",
+    cricket_off_season_pro: "cricket_in_season",
+    combat_strength_power_pro: "combat_fight_camp",
+    athletics_power_build_pro: "athletics_competition_season",
+    endurance_run_ride_strength_pro: "endurance_in_season",
+    endurance_swim_row_paddle_strength_pro: "endurance_in_season"
   });
   for (const [from, to] of Object.entries(next)) {
     assert.ok(byKey[to], `${from} -> ${to} exists`);
@@ -203,9 +211,9 @@ test("timed pieces are ones the builder accepts: at least two exercises in a row
         assert.ok(members.length >= 2, `${where}: at least two exercises`);
         assert.ok(members.every((m, i) => i === 0 || m.index === members[i - 1].index + 1), `${where}: in a row`);
         const { type, cap, round, rounds } = members[0].item.group;
-        assert.ok(["for_time", "amrap", "emom"].includes(type), where);
+        assert.ok(["for_time", "amrap", "emom", "superset"].includes(type), where);
         if (type === "emom") assert.ok(round > 0 && rounds > 0, `${where}: EMOM round and rounds`);
-        else assert.ok(cap > 0, `${where}: time cap`);
+        else if (type !== "superset") assert.ok(cap > 0, `${where}: time cap`);
       }
     }
   }
@@ -238,4 +246,33 @@ test("a weightlifter does the snatch and clean & jerk first, in low reps, and ta
   const taper = owl.blocks.at(-1);
   assert.equal(taper.block_type, "deload");
   for (const s of taper.weeks.flat()) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok(i.load.pct <= 90, `${s.title} ${i.id}`);
+});
+
+test("a pro's version of each sport build: the same programme with contrast pairs - heavy lift straight into a jump, throw or sprint - and an extra set on the main lifts", () => {
+  for (const key of ["team_sport_off_season_pro","tennis_off_season_pro","cricket_off_season_pro","combat_strength_power_pro","athletics_power_build_pro","endurance_run_ride_strength_pro","endurance_swim_row_paddle_strength_pro"]) {
+    const pro = PROGRAMMES.find((p) => p.key === key);
+    const amateur = PROGRAMMES.find((p) => p.key === key.replace(/_pro$/u, ""));
+    assert.ok(amateur, key);
+    assert.deepEqual(pro.listing.activity_ids, amateur.listing.activity_ids, `${key}: same sports`);
+    const proSessions = sessionsOf(pro);
+    const amSessions = sessionsOf(amateur);
+    assert.equal(proSessions.length, amSessions.length, `${key}: same sessions`);
+    let pairs = 0;
+    proSessions.forEach((s, i) => {
+      const am = amSessions[i];
+      assert.deepEqual(new Set(s.items.map((x) => x.id)), new Set(am.items.map((x) => x.id)), `${key} ${s.title}: same exercises`);
+      for (const item of s.items.filter((x) => x.load !== "bw" && "pct" in x.load)) {
+        const before = am.items.find((x) => x.id === item.id);
+        assert.equal(item.sets, Math.min(6, before.sets + 1), `${key} ${s.title} ${item.id}: one more set`);
+        assert.equal(item.load.pct, before.load.pct, `${key} ${s.title} ${item.id}: same load`);
+      }
+      const contrast = s.items.filter((x) => x.group?.type === "superset");
+      if (contrast.length) {
+        pairs += 1;
+        assert.equal(contrast.length, 2);
+        assert.ok("pct" in contrast[0].load && (contrast[1].load === "bw" || "kg" in contrast[1].load), `${key} ${s.title}: heavy first, then the explosive`);
+      }
+    });
+    assert.ok(pairs >= amSessions.length / 2, `${key}: most sessions have a contrast pair`);
+  }
 });
