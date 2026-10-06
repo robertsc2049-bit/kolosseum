@@ -4623,5 +4623,6 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .programme-option { display: grid; gap: var(--k-space-2); padding: var(--k-space-3) var(--k-space-4); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: rgba(0, 0, 0, 0.12); }
 .programme-option-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--k-space-2); }
 .programme-option p { margin: 0; }
+.programme-option .programme-fit { color: var(--warning); }
 .programme-option > .button { justify-self: start; }
 .athlete-programme .programme-position { margin: 0 0 var(--k-space-1); font-weight: 600; color: var(--text, inherit); }

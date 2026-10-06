@@ -28,7 +28,8 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, orderedTemplateSessions, saveCoachProgrammeTemplate, templateRecordInput } from "./beta18_programme_template_service.js";
-import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
+import { getAthleteTrainingPlan, getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
+import { programmeFit, programmeShape } from "./programme_fit.js";
 
 type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -227,15 +228,23 @@ function suits(listing: ProgrammeListing, level: string | undefined, activity: s
 // The athlete's view: programmes that suit them (their sport's first) and
 // the one they're running.
 export async function getAthleteProgrammes(userId: string): Promise<Readonly<Json>> {
-  const [profile, listings, run] = await Promise.all([getAthleteTrainingProfile(userId), allListings(), getCurrentProgrammeRun(userId)]);
-  const options = listings
+  const [profile, listings, run, plan] = await Promise.all([getAthleteTrainingProfile(userId), allListings(), getCurrentProgrammeRun(userId), getAthleteTrainingPlan(userId)]);
+  const today = new Date().toISOString().slice(0, 10);
+  const suitable = listings
     .map((listing) => ({ listing, fit: suits(listing, profile.experience_level, profile.activity_id) }))
     .filter((entry) => entry.fit > 0)
-    .sort((a, b) => b.fit - a.fit || a.listing.days_per_week - b.listing.days_per_week || a.listing.title.localeCompare(b.listing.title))
-    .map(({ listing, fit }) => ({
+    .sort((a, b) => b.fit - a.fit || a.listing.days_per_week - b.listing.days_per_week || a.listing.title.localeCompare(b.listing.title));
+  // How each fits the athlete: their training days, and - for a programme
+  // that ends in a taper - when to start it for their competition.
+  const options = await Promise.all(suitable.map(async ({ listing, fit }) => {
+    const template = await loadExecutableCoachTemplateById(listing.author_user_id, listing.template_id);
+    const shape = template ? programmeShape(orderedTemplateSessions(template)) : { weeks_total: 0, ends_with_taper: false };
+    return {
       listing_id: listing.listing_id, title: listing.title, summary: listing.summary, levels: listing.levels,
-      activity_ids: listing.activity_ids, days_per_week: listing.days_per_week, sport_specific: fit === 2
-    }));
+      activity_ids: listing.activity_ids, days_per_week: listing.days_per_week, sport_specific: fit === 2,
+      fit: programmeFit(shape, listing.days_per_week, plan, today)
+    };
+  }));
   let progress: Json | null = null;
   if (run) {
     const template = await loadExecutableCoachTemplateById(run.author_user_id, run.template_id);
@@ -249,6 +258,8 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
   return Object.freeze({
     experience_level: profile.experience_level ?? null,
     activity_id: profile.activity_id ?? null,
+    training_days_per_week: plan?.training_days_per_week ?? null,
+    competition_date: plan?.competition_date ?? null,
     current: run ? { ...run, ...progress } : null,
     options
   });
