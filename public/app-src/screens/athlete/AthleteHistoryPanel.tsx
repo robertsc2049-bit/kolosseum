@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
+import { sportLabel } from "../../utils/sportLabel";
 import { useTrainingHistory } from "./useTrainingHistory";
 
 // DEV NOTE: FULL-UI-16C athlete training history - ported from app.js's
@@ -140,7 +141,7 @@ export function AthleteHistoryPanel() {
           <span>Activity</span>
           <select value={draft.activityId} onChange={(e) => setDraft({ ...draft, activityId: e.target.value })}>
             <option value="">All activities</option>
-            {filterOptions.activities.map((id) => <option value={id} key={id}>{titleCase(id)}</option>)}
+            {filterOptions.activities.map((id) => <option value={id} key={id}>{sportLabel(id)}</option>)}
           </select>
         </label>
         <label className="field">
