@@ -35,7 +35,8 @@ import {
   progressionIncrement,
   progressionPrescription,
   rpeForPercentage,
-  effortWithoutMax
+  effortWithoutMax,
+  startingLoadForEffort
 } from "./athlete_loading_rules.js";
 import { getAthleteExperienceLevel, getAthleteProgrammeExercises } from "./athlete_onboarding_service.js";
 import { getProgressInsightsForAthlete } from "./progress_insights_service.js";
@@ -286,7 +287,21 @@ export async function resolveAthleteSessionLoads(userId: string, exercises: Json
     }
     if (method === "progression") return progression(exercise, lift);
 
-    // % of max: a beginner's effort target becomes a conservative percentage.
+    // % of max, on an exercise the programme set by effort: from amateur up the
+    // effort stays the target, with a weight to start at - last time's, or
+    // their max's - so it moves with them instead of holding at one % of an
+    // old max for the whole programme. A beginner's effort target becomes a
+    // conservative percentage (below).
+    if (intensity.type === "rpe" && level !== "beginner") {
+      let fromMax: { value: number; unit: "kg" | "lb" } | null = null;
+      try {
+        const atEffort = benchmarks.length ? resolveStrengthReferenceLoad(profile, lift, Math.min(90, percentForRpe(Number(intensity.value), reps))) : null;
+        if (atEffort) fromMax = { value: Number(atEffort.value), unit: atEffort.unit === "lb" ? "lb" : "kg" };
+      }
+      catch { fromMax = null; }
+      const start = startingLoadForEffort(history.get(lift) ?? [], fromMax, unit);
+      return start ? { ...exercise, starting_load: start } : exercise;
+    }
     const percent = intensity.type === "percent_1rm"
       ? Number(intensity.value)
       : Math.min(level === "beginner" ? 75 : 90, percentForRpe(Number(intensity.value), reps));

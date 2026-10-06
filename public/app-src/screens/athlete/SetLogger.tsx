@@ -26,6 +26,10 @@ function prescribedLoad(exercise: JsonRecord): { value: string; unit: "kg" | "lb
   if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
     return { value: String(Number(intensity.value)), unit: intensity.unit === "lb" ? "lb" : "kg" };
   }
+  const start = exercise.starting_load as JsonRecord | null | undefined;
+  if (start && Number.isFinite(Number(start.value))) {
+    return { value: String(Number(start.value)), unit: start.unit === "lb" ? "lb" : "kg" };
+  }
   return { value: "", unit: "kg" };
 }
 

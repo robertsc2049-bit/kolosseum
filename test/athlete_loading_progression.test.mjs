@@ -81,3 +81,13 @@ test("an amateur with no max keeps the effort the programme wrote: band external
   assert.equal(effortWithoutMax({ type: "rpe", value: 6 }, percent, 15), 6);
   assert.equal(effortWithoutMax({ type: "percent_1rm", value: 80 }, 80, 5), rpeForPercentage(80, 5), "a % prescription still becomes an effort target");
 });
+
+test("a powerlifter on % of max rowing at RPE 8: the start weight follows what she rowed last time, not a fixed % of an old max", () => {
+  const { startingLoadForEffort } = service;
+  const fromMax = { value: 60, unit: "kg" };
+  assert.deepEqual(startingLoadForEffort([], fromMax, "kg"), { value: 60, unit: "kg", basis: "max" }, "before she's logged it: from her max");
+  const rowedHeavier = [session(67.5, [8, 8, 8]), session(60, [8, 8, 8])];
+  assert.deepEqual(startingLoadForEffort(rowedHeavier, fromMax, "kg"), { value: 67.5, unit: "kg", basis: "last_session" }, "her last session, newest first");
+  assert.deepEqual(startingLoadForEffort([session(150, [8, 8], "lb")], fromMax, "kg"), { value: 67.5, unit: "kg", basis: "last_session" }, "150 lb logged, shown in kg to a 2.5 kg plate");
+  assert.deepEqual(startingLoadForEffort([session(0, [8, 8])], null, "kg"), null, "bodyweight sets and no max: just the effort target");
+});
