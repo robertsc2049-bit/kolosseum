@@ -19274,6 +19274,476 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "clean_and_jerk": {
+      "exercise_id": "clean_and_jerk",
+      "display_label": "Clean and jerk",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Clean and jerk: Pull the barbell from the floor to the shoulders in one motion, stand up, then drive it overhead and lock it out.",
+      "instruction_detail_text": [
+        "Set up the barbell on the floor with a shoulder-width grip and establish the prescribed starting position.",
+        "Pull the barbell from the floor and receive it on the shoulders in a front squat, then stand up.",
+        "Dip and drive the barbell overhead, receive it with locked arms, then recover your feet under the bar."
+      ],
+      "coaching_cues": [
+        "Keep the bar close through the pull",
+        "Stand fully before the jerk",
+        "Lock the bar out directly overhead"
+      ],
+      "common_faults": [
+        "Pulling early with the arms",
+        "Jerking before standing fully",
+        "Pressing out a soft lockout"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "clean": {
+      "exercise_id": "clean",
+      "display_label": "Clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Clean: Pull the barbell from the floor and receive it on the shoulders in a full front squat, then stand up.",
+      "instruction_detail_text": [
+        "Set up the barbell on the floor with a shoulder-width grip and establish the prescribed starting position.",
+        "Pull the barbell from the floor to full extension, then pull yourself under it into a full front squat.",
+        "Receive the bar on the shoulders with high elbows and stand up."
+      ],
+      "coaching_cues": [
+        "Keep the bar close through the pull",
+        "Extend fully before pulling under",
+        "Meet the bar with high elbows"
+      ],
+      "common_faults": [
+        "Pulling early with the arms",
+        "Receiving the bar on the hands",
+        "Elbows dropping in the catch"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "split_jerk": {
+      "exercise_id": "split_jerk",
+      "display_label": "Split jerk",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "lumbar_low"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Split jerk: From the shoulders, dip and drive the barbell overhead and receive it in a split stance with locked arms.",
+      "instruction_detail_text": [
+        "Take the barbell from the rack on the shoulders with the prescribed grip.",
+        "Dip and drive straight up, then split the feet front and back and receive the bar overhead with locked arms.",
+        "Recover the front foot, then the back foot, and stand with the bar overhead."
+      ],
+      "coaching_cues": [
+        "Dip straight down",
+        "Drive the bar straight up",
+        "Lock out as the feet land"
+      ],
+      "common_faults": [
+        "Dipping forward",
+        "Pressing out a soft lockout",
+        "Too short a split"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "power_snatch": {
+      "exercise_id": "power_snatch",
+      "display_label": "Power snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Power snatch: Pull the barbell from the floor to overhead in one motion and receive it with locked arms above a parallel squat.",
+      "instruction_detail_text": [
+        "Set up the barbell on the floor with a wide grip and establish the prescribed starting position.",
+        "Pull the barbell from the floor to full extension in one continuous motion.",
+        "Receive it overhead with locked arms, hips above parallel, then stand up."
+      ],
+      "coaching_cues": [
+        "Keep the bar close",
+        "Finish the extension",
+        "Punch the bar up into lockout"
+      ],
+      "common_faults": [
+        "Pulling early with the arms",
+        "Bar swinging away from the body",
+        "Pressing out"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hang_snatch": {
+      "exercise_id": "hang_snatch",
+      "display_label": "Hang snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Hang snatch: From standing, lower the barbell to just above the knees, then snatch it overhead in one motion.",
+      "instruction_detail_text": [
+        "Stand with the barbell in a wide grip and lower it to the prescribed hang position above the knees.",
+        "Extend the hips and knees explosively and pull yourself under the bar.",
+        "Receive it overhead with locked arms in a squat and stand up."
+      ],
+      "coaching_cues": [
+        "Weight over the middle of the foot at the hang",
+        "Extend fully",
+        "Lock the bar out directly overhead"
+      ],
+      "common_faults": [
+        "Swinging the bar from the hips",
+        "Cutting the extension short",
+        "Receiving the bar out in front"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hang_power_clean": {
+      "exercise_id": "hang_power_clean",
+      "display_label": "Hang power clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Hang power clean: From standing, lower the barbell to just above the knees, then clean it to the shoulders above a parallel squat.",
+      "instruction_detail_text": [
+        "Stand with the barbell in a shoulder-width grip and lower it to the prescribed hang position above the knees.",
+        "Extend the hips and knees explosively and pull under the bar.",
+        "Receive it on the shoulders with high elbows, hips above parallel, then stand."
+      ],
+      "coaching_cues": [
+        "Weight over the middle of the foot at the hang",
+        "Extend fully",
+        "Fast elbows"
+      ],
+      "common_faults": [
+        "Swinging the bar from the hips",
+        "Receiving on the hands",
+        "Reverse-curling the bar"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "snatch_pull": {
+      "exercise_id": "snatch_pull",
+      "display_label": "Snatch pull",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Snatch pull: With a snatch grip, pull the barbell from the floor to full extension without receiving it overhead.",
+      "instruction_detail_text": [
+        "Set up as for the snatch with a wide grip.",
+        "Pull the barbell from the floor along the snatch path to full hip and knee extension.",
+        "Lower the bar under control and reset between repetitions."
+      ],
+      "coaching_cues": [
+        "Same positions as your snatch",
+        "Finish tall",
+        "Keep the bar close"
+      ],
+      "common_faults": [
+        "Bending the arms early",
+        "Hips rising before the bar",
+        "Cutting the extension short"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "clean_pull": {
+      "exercise_id": "clean_pull",
+      "display_label": "Clean pull",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Clean pull: With a clean grip, pull the barbell from the floor to full extension without receiving it on the shoulders.",
+      "instruction_detail_text": [
+        "Set up as for the clean with a shoulder-width grip.",
+        "Pull the barbell from the floor along the clean path to full hip and knee extension.",
+        "Lower the bar under control and reset between repetitions."
+      ],
+      "coaching_cues": [
+        "Same positions as your clean",
+        "Finish tall",
+        "Keep the bar close"
+      ],
+      "common_faults": [
+        "Bending the arms early",
+        "Hips rising before the bar",
+        "Cutting the extension short"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "overhead_squat": {
+      "exercise_id": "overhead_squat",
+      "display_label": "Overhead squat",
+      "movement_pattern_id": "squat",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "thoracic_medium"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Overhead squat: With the barbell locked out overhead in a wide grip, squat to full depth and stand back up.",
+      "instruction_detail_text": [
+        "Take the barbell overhead with a wide grip and locked arms.",
+        "Squat to the prescribed depth, keeping the bar over the middle of the foot.",
+        "Stand back up with the arms locked."
+      ],
+      "coaching_cues": [
+        "Push up into the bar",
+        "Bar over the middle of the foot",
+        "Knees out"
+      ],
+      "common_faults": [
+        "Bar drifting forward",
+        "Elbows bending",
+        "Losing depth"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }

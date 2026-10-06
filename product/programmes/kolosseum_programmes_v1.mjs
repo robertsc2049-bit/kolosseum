@@ -773,9 +773,79 @@ const crossfitBuild = {
   ]
 };
 
+// ---------------------------------------------------------------------------
+// 14. Olympic weightlifting - amateur and pro, 4 days a week, 12 weeks. The
+// classic lifts first in every session while fresh, in low reps (never high
+// reps under fatigue): triples, then doubles, then singles, then a taper with
+// openers. Percentages are of the athlete's own snatch and clean & jerk.
+// Pulls and power/hang variants are set by effort, with the usual % of the
+// lift in the note (the app takes a % only from an exercise's own max).
+// Squats build strength under the lifts.
+const OWL = [
+  // [snatch/C&J sets, reps, %, squat sets, squat reps, squat %]
+  [5, 3, 70, 5, 5, 70], [5, 3, 72.5, 5, 5, 72.5], [5, 3, 75, 5, 5, 75], [4, 2, 65, 3, 5, 65],
+  [5, 2, 77.5, 5, 3, 80], [5, 2, 80, 5, 3, 82.5], [5, 2, 82.5, 5, 3, 85], [4, 2, 70, 3, 3, 72.5],
+  [5, 1, 85, 4, 2, 87.5], [5, 1, 87.5, 4, 2, 90], [4, 1, 90, 3, 2, 85]
+];
+const owlWeek = (week) => {
+  const [ls, lr, lp, ss, sr, sp] = OWL[week - 1];
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  const pullNote = (lift) => `About 95-105% of your best ${lift}: fast, same positions as the lift.`;
+  return [
+    { title: "Snatch and back squat", items: [
+      ex("snatch", ls, lr, { pct: lp }, 150, "Every rep the same - stop if the technique breaks."),
+      ex("overhead_squat", s(3), 3, { rpe: 7 }, 120),
+      ex("back_squat", ss, sr, { pct: sp }, 180),
+      ex("snatch_pull", s(4), 3, { rpe: 8 }, 120, pullNote("snatch"))
+    ] },
+    { title: "Clean and jerk and front squat", items: [
+      ex("clean_and_jerk", ls, lr, { pct: lp }, 180, "One clean and one jerk per rep; log which part missed if one does."),
+      ex("split_jerk", s(3), 2, { rpe: 7 }, 120, "From the rack: a fast, straight dip and drive."),
+      ex("front_squat", ss, sr, { pct: sp - 5 }, 180),
+      ex("clean_pull", s(4), 3, { rpe: 8 }, 120, pullNote("clean"))
+    ] },
+    { title: "Power and hang variants", items: [
+      ex("power_snatch", s(4), 2, { rpe: 7 }, 120, "About 70-80% of your snatch."),
+      ex("hang_power_clean", s(4), 2, { rpe: 7 }, 120, "About 70-80% of your clean."),
+      ex("romanian_deadlift", s(3), 6, { rpe: 7 }, 120), ex("pull_up", s(3), 6, { rpe: 8 }, 90),
+      ex("front_plank", 3, { seconds: 40 }, "bw", 60)
+    ] },
+    { title: "Heavy snatch and clean and jerk", items: [
+      ex("hang_snatch", s(3), 2, { rpe: 7 }, 120, "A light primer: the positions above the knee."),
+      ex("snatch", s(ls - 1), lr, { pct: lp + 2.5 }, 150), ex("clean_and_jerk", s(ls - 1), lr, { pct: lp + 2.5 }, 180),
+      ex("back_squat", s(3), sr, { pct: sp - 10 }, 150)
+    ] }
+  ];
+};
+// Competition week: openers practised, volume down, nothing heavier than 90%.
+const owlTaper = [
+  { title: "Openers", items: [
+    ex("snatch", 3, 1, { pct: 85 }, 150, "Your opener: a weight you'd make on a bad day."),
+    ex("clean_and_jerk", 3, 1, { pct: 85 }, 180, "Your opener: a weight you'd make on a bad day."),
+    ex("front_squat", 2, 2, { pct: 75 }, 150)
+  ] },
+  { title: "Primer", items: [
+    ex("power_snatch", 3, 1, { rpe: 6 }, 120), ex("hang_power_clean", 3, 1, { rpe: 6 }, 120), ex("split_jerk", 2, 1, { rpe: 6 }, 120)
+  ] }
+];
+const olympicWeightlifting = {
+  key: "olympic_weightlifting_meet_prep",
+  template_name: "Olympic weightlifting meet prep",
+  activity_id: "olympic_weightlifting",
+  description: "Twelve weeks, four days a week, to a weightlifting meet: the snatch and clean & jerk first in every session, in triples, then doubles, then singles, at percentages of your own best lifts; pulls, power and hang variants; back and front squats building strength underneath; then a taper week with openers. Every fourth week is lighter.",
+  listing: { title: "Olympic weightlifting meet prep (12 weeks)", summary: "The snatch and clean & jerk first every session, from triples to doubles to singles at percentages of your own best lifts, with pulls, power and hang variants and squats underneath - then a taper week practising your openers. Four days a week; lighter every fourth week.", levels: ["amateur", "pro"], activity_ids: ["olympic_weightlifting"], days_per_week: 4, next: "intermediate_upper_lower" },
+  blocks: [
+    { name: "Accumulation", block_type: "volume", weeks: [1, 2, 3, 4].map(owlWeek) },
+    { name: "Intensification", block_type: "strength", weeks: [5, 6, 7, 8].map(owlWeek) },
+    { name: "Realisation", block_type: "peak", weeks: [9, 10, 11].map(owlWeek) },
+    { name: "Taper and meet", block_type: "deload", weeks: [owlTaper] }
+  ]
+};
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
   enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
   cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsSeason,
-  strongmanBuild, streetLifting, hyroxBuild, crossfitBuild
+  strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting
 ];

@@ -43,7 +43,7 @@ or they can run it again or choose another:
 Intermediate upper/lower and endurance race-season maintenance offer nothing
 next. The athlete runs them again or chooses.
 
-Thirteen programme families for athletes training without a coach. Each one is
+Fourteen programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there
 before it's published. Nothing reaches athletes until it's reviewed,
 activated and listed.
@@ -783,12 +783,45 @@ conditioning piece a day, in a deliberately different time domain:
 - **Scoring:** Rx or scaled is logged.
 - **Lighter weeks:** weeks 4 and 8, with shorter caps.
 
-## Olympic weightlifting: next
+## 14. Olympic weightlifting (amateur, pro · 4 days a week · 12 weeks)
 
-Olympic weightlifting needs exercises the registry doesn't have yet: clean &
-jerk, squat clean, split jerk, power snatch, hang variants, snatch and clean
-pulls, overhead squat. They're being added first, then its programme. Until
-then, weightlifters are offered the general programmes.
+**Why this structure:** technique limits the classic lifts, so the snatch
+and clean & jerk come **first in every session**, in low reps, and never
+for high reps under fatigue.
+
+| Snatch and clean & jerk | Weeks 1–4 | Weeks 5–8 | Weeks 9–11 | Week 12 |
+|---|---|---|---|---|
+| Sets × reps | 5 × 3 | 5 × 2 | 5 × 1 → 4 × 1 | 3 × 1 openers |
+| % of your best | 70 → 75% (65% week 4) | 77.5 → 82.5% (70% week 8) | 85 → 90% | 85% |
+
+The fourth day repeats both lifts 2.5% heavier.
+
+**Squats** (back and front) build strength underneath: 5s, then 3s, then
+doubles.
+
+**Pulls and variants** (snatch and clean pulls, power snatch, hang power
+clean, hang snatch) are set by effort. Each one's note gives the usual
+percentage of the lift: pulls about 95–105%, power variants 70–80%. A
+weightlifting coach writes pulls as a % of the snatch or clean, but the app
+takes a % only from an exercise's own max, so effort plus the note is the
+honest version.
+
+| Snatch and back squat | Clean & jerk and front squat | Power and hang | Heavy day |
+|---|---|---|---|
+| Snatch (main) | Clean & jerk (main) | Power snatch 4 × 2 | Hang snatch primer |
+| Overhead squat 3 × 3 | Split jerk 3 × 2 from the rack | Hang power clean 4 × 2 | Snatch +2.5% |
+| Back squat (main) | Front squat | RDL, pull-ups | Clean & jerk +2.5% |
+| Snatch pull 4 × 3 | Clean pull 4 × 3 | Plank | Back squat, lighter |
+
+**Taper (week 12):** openers practised at 85% (a weight you'd make on a bad
+day), and a light primer of power snatch, hang power clean and split jerk.
+
+**For the coach:**
+- **Clean & jerk logging:** the note asks the athlete to log which part
+  missed. The app records a clean & jerk as one exercise, so a coach reads
+  the note rather than a separate clean and jerk result.
+- **Weight class:** the programme adds no hypertrophy block. Making weight
+  is for the athlete and their coach.
 
 ## Not in v1, and why
 

@@ -905,6 +905,27 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "clean__barbell": {
+      "compatibility_id": "clean__barbell",
+      "exercise_id": "clean",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "clean_and_jerk__barbell": {
+      "compatibility_id": "clean_and_jerk__barbell",
+      "exercise_id": "clean_and_jerk",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "clean_pull__barbell": {
+      "compatibility_id": "clean_pull__barbell",
+      "exercise_id": "clean_pull",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "close_grip_bench_press__barbell": {
       "compatibility_id": "close_grip_bench_press__barbell",
       "exercise_id": "close_grip_bench_press",
@@ -1668,6 +1689,20 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "hang_power_clean__barbell": {
+      "compatibility_id": "hang_power_clean__barbell",
+      "exercise_id": "hang_power_clean",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "hang_snatch__barbell": {
+      "compatibility_id": "hang_snatch__barbell",
+      "exercise_id": "hang_snatch",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "high_bar_back_squat__barbell": {
       "compatibility_id": "high_bar_back_squat__barbell",
       "exercise_id": "high_bar_back_squat",
@@ -2361,6 +2396,20 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "overhead_squat__barbell": {
+      "compatibility_id": "overhead_squat__barbell",
+      "exercise_id": "overhead_squat",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "overhead_squat__rack": {
+      "compatibility_id": "overhead_squat__rack",
+      "exercise_id": "overhead_squat",
+      "equipment_id": "rack",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "pallof_press__cable_machine": {
       "compatibility_id": "pallof_press__cable_machine",
       "exercise_id": "pallof_press",
@@ -2574,6 +2623,13 @@
     "power_clean__barbell": {
       "compatibility_id": "power_clean__barbell",
       "exercise_id": "power_clean",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "power_snatch__barbell": {
+      "compatibility_id": "power_snatch__barbell",
+      "exercise_id": "power_snatch",
       "equipment_id": "barbell",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
@@ -3107,6 +3163,27 @@
       "compatibility_id": "snatch_grip_deadlift__barbell",
       "exercise_id": "snatch_grip_deadlift",
       "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "snatch_pull__barbell": {
+      "compatibility_id": "snatch_pull__barbell",
+      "exercise_id": "snatch_pull",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "split_jerk__barbell": {
+      "compatibility_id": "split_jerk__barbell",
+      "exercise_id": "split_jerk",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "split_jerk__rack": {
+      "compatibility_id": "split_jerk__rack",
+      "exercise_id": "split_jerk",
+      "equipment_id": "rack",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
