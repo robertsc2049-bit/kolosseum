@@ -65,7 +65,7 @@ test("a rugby coach copies the coach-written off-season build into their library
   render(<KolosseumStarterForm onCreated={(id) => opened.push(id)} />);
   fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
   await screen.findByText("Off-season strength build (8 weeks)");
-  assert.ok(screen.getByText("Rugby Union, Basketball"));
+  assert.ok(screen.getByText("Rugby union, Basketball"));
   assert.ok(screen.getByText("Any sport"));
   assert.ok(screen.getByText("3 days a week · Amateur, Pro"));
   assert.equal(screen.queryByLabelText("Sport"), null, "no generated programme once coach-written ones are published");

@@ -77,8 +77,8 @@ test("a programme for specific sports lists those sports; it can't be published 
   fireEvent.click(screen.getByLabelText("Specific sports"));
   const publish = screen.getByText("Publish to athletes", { selector: "button" }) as HTMLButtonElement;
   assert.equal(publish.disabled, true, "no sports chosen yet");
-  fireEvent.click(screen.getByLabelText("Rugby Union"));
-  fireEvent.click(screen.getByLabelText("Rugby League"));
+  fireEvent.click(screen.getByLabelText("Rugby union"));
+  fireEvent.click(screen.getByLabelText("Rugby league"));
   await act(async () => {
     fireEvent.click(publish);
   });

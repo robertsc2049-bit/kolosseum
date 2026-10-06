@@ -4,6 +4,7 @@ import { loadAthleteProgrammes, setAthleteProgramme } from "../../api/athleteOnb
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
+import { sportLabel } from "../../utils/sportLabel";
 
 // Kolosseum programmes (src/api/programme_catalogue_service.ts): coach-written
 // programmes an athlete without a coach runs. Shows the one they're running
@@ -175,7 +176,7 @@ export function AthleteProgrammeCard() {
             <li className="programme-option" key={option.listing_id}>
               <div className="programme-option-head">
                 <strong>{option.title}</strong>
-                <span className="badge neutral">{option.sport_specific ? option.activity_ids.map((id) => titleCase(id)).join(", ") : "Any sport"}</span>
+                <span className="badge neutral">{option.sport_specific ? option.activity_ids.map((id) => sportLabel(id)).join(", ") : "Any sport"}</span>
               </div>
               <p className="muted small">{`${option.days_per_week} days a week · ${option.levels.map((l) => titleCase(l)).join(", ")}`}</p>
               {fitNotes(option.fit).map((note) => (

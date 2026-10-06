@@ -5,6 +5,7 @@ import { copyKolosseumProgramme, createKolosseumStarterTemplate, loadKolosseumPr
 import { type JsonRecord } from "../../api/transport";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { titleCase } from "../../utils/format";
+import { sportLabel } from "../../utils/sportLabel";
 
 // "Start from a Kolosseum programme": the coach-written Kolosseum programmes
 // (programme_catalogue_service.ts) - copy one into your library as a draft to
@@ -99,7 +100,7 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
               <li className="programme-option" key={id}>
                 <div className="programme-option-head">
                   <strong>{String(programme.title)}</strong>
-                  <span className="badge neutral">{sports.length ? sports.map((s) => titleCase(s)).join(", ") : "Any sport"}</span>
+                  <span className="badge neutral">{sports.length ? sports.map((s) => sportLabel(s)).join(", ") : "Any sport"}</span>
                 </div>
                 <p className="muted small">{`${Number(programme.days_per_week) || 0} days a week · ${levels.join(", ")}`}</p>
                 {programme.summary ? <p>{String(programme.summary)}</p> : null}

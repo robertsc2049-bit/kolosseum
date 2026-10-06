@@ -43,7 +43,7 @@ test("a beginner rugby player sees their sport's programme first, then a general
   await screen.findByText("Choose your programme");
   const titles = [...document.querySelectorAll(".programme-option strong")].map((el) => el.textContent);
   assert.deepEqual(titles, ["Rugby off-season strength", "Beginner full-body"]);
-  assert.ok(screen.getByText("Rugby Union"));
+  assert.ok(screen.getByText("Rugby union"));
   assert.ok(screen.getByText("Any sport"));
   assert.ok(screen.getAllByText("3 days a week · Beginner, Amateur")[0]);
   await act(async () => {
@@ -155,4 +155,12 @@ test("each programme says how it fits: a 4-day plan for someone who trains 3, an
   assert.ok(screen.getByText("4 days a week - you said you train 3, so it will take longer than 12 weeks."));
   assert.ok(screen.getByText("Your competition is in 20 weeks: start this the week of 1 Dec so it peaks on 23 Feb."));
   assert.ok(screen.getByText("Your competition is in 5 weeks; this is an 8-week programme, so it won't peak on the day."));
+});
+
+test("sports are named as the activity registry writes them: MMA, CrossFit, Brazilian jiu-jitsu - never 'Mma'", async () => {
+  const combat = { ...rugby, listing_id: "programme_combat", title: "Combat strength and power (8 weeks)", activity_ids: ["mma", "brazilian_jiu_jitsu", "crossfit"] };
+  installMocks({ current: null, options: [combat] });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("MMA, Brazilian jiu-jitsu, CrossFit");
+  assert.equal(screen.queryByText((content) => content.includes("Mma")), null);
 });
