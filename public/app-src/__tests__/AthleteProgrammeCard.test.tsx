@@ -143,3 +143,16 @@ test("mid-programme, the card says which week and block the next session is in, 
   render(<AthleteProgrammeCard />);
   await screen.findByText("Week 7 of 8 · Taper and fight week (lighter)");
 });
+
+test("each programme says how it fits: a 4-day plan for someone who trains 3, and when to start a meet prep for their meet", async () => {
+  const meetPrep = { ...rugby, listing_id: "programme_meet", title: "Powerlifting meet prep (12 weeks)", days_per_week: 4,
+    fit: { weeks_total: 12, days: { programme: 4, athlete: 3 }, competition: { date: "2027-02-23", weeks_away: 20, start_on: "2026-12-01", timing: "too_early" } } };
+  const tooLate = { ...rugby, listing_id: "programme_late", title: "Fight camp strength (8 weeks)", days_per_week: 2,
+    fit: { weeks_total: 8, days: null, competition: { date: "2026-11-10", weeks_away: 5, start_on: "2026-09-15", timing: "too_late" } } };
+  installMocks({ current: null, options: [meetPrep, tooLate] });
+  render(<AthleteProgrammeCard />);
+  await screen.findByText("Powerlifting meet prep (12 weeks)");
+  assert.ok(screen.getByText("4 days a week - you said you train 3, so it will take longer than 12 weeks."));
+  assert.ok(screen.getByText("Your competition is in 20 weeks: start this the week of 1 Dec so it peaks on 23 Feb."));
+  assert.ok(screen.getByText("Your competition is in 5 weeks; this is an 8-week programme, so it won't peak on the day."));
+});

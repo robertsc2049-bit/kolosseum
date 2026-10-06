@@ -11,12 +11,41 @@ import { titleCase } from "../../utils/format";
 // to start, switch to or stop. Once they finish one, it offers the programme
 // its coach says comes next (or running it again).
 
-type Option = { listing_id: string; title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; sport_specific: boolean };
+type Fit = {
+  weeks_total: number;
+  days: { programme: number; athlete: number } | null;
+  competition: { date: string; weeks_away: number; start_on: string; timing: "too_late" | "on_time" | "too_early" } | null;
+};
+type Option = { listing_id: string; title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; sport_specific: boolean; fit: Fit | null };
+
+const dayLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+
+// How a programme fits the athlete: their training days, and when to start a
+// programme that ends in a taper for their competition.
+export function fitNotes(fit: Fit | null): { text: string; caution: boolean }[] {
+  if (!fit) return [];
+  const notes: { text: string; caution: boolean }[] = [];
+  if (fit.days) {
+    notes.push({ caution: true, text: `${fit.days.programme} days a week - you said you train ${fit.days.athlete}, so it will take longer than ${fit.weeks_total} weeks.` });
+  }
+  const c = fit.competition;
+  if (c && c.timing === "too_late") {
+    notes.push({ caution: true, text: `Your competition is in ${c.weeks_away} weeks; this is ${/^(8|11|18)(D|$)/u.test(String(fit.weeks_total)) ? "an" : "a"} ${fit.weeks_total}-week programme, so it won't peak on the day.` });
+  }
+  else if (c && c.timing === "too_early") {
+    notes.push({ caution: true, text: `Your competition is in ${c.weeks_away} weeks: start this the week of ${dayLabel(c.start_on)} so it peaks on ${dayLabel(c.date)}.` });
+  }
+  else if (c) {
+    notes.push({ caution: false, text: `Start now and it peaks for your competition on ${dayLabel(c.date)}.` });
+  }
+  return notes;
+}
 
 const asOptions = (value: unknown): Option[] => (Array.isArray(value) ? (value as JsonRecord[]) : []).map((o) => ({
   listing_id: String(o.listing_id), title: String(o.title ?? ""), summary: String(o.summary ?? ""),
   levels: Array.isArray(o.levels) ? o.levels.map(String) : [], activity_ids: Array.isArray(o.activity_ids) ? o.activity_ids.map(String) : [],
-  days_per_week: Number(o.days_per_week) || 0, sport_specific: o.sport_specific === true
+  days_per_week: Number(o.days_per_week) || 0, sport_specific: o.sport_specific === true,
+  fit: o.fit && typeof o.fit === "object" ? (o.fit as unknown as Fit) : null
 }));
 
 // "Week 7 of 12 · Heavy strength" - where the athlete's next session sits.
@@ -149,6 +178,9 @@ export function AthleteProgrammeCard() {
                 <span className="badge neutral">{option.sport_specific ? option.activity_ids.map((id) => titleCase(id)).join(", ") : "Any sport"}</span>
               </div>
               <p className="muted small">{`${option.days_per_week} days a week · ${option.levels.map((l) => titleCase(l)).join(", ")}`}</p>
+              {fitNotes(option.fit).map((note) => (
+                <p key={note.text} className={note.caution ? "programme-fit small" : "muted small"} data-tone={note.caution ? "warning" : undefined}>{note.text}</p>
+              ))}
               {option.summary ? <p>{option.summary}</p> : null}
               {current && !finished && confirming === option.listing_id ? (
                 <div className="inline-result" data-tone="warning">
