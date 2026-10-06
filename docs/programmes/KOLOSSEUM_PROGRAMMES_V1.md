@@ -352,9 +352,12 @@ Both are listed for athletics, so athletes pick the one for their event.
 | Back squat | 3 × 4 | 80 → 85% (75% every 4th week) |
 | Single-leg calf raise | 2 × 8 each leg | RPE 8 |
 | Pull-up | 3 × 5 | RPE 7 |
+| Band external rotation | 2 × 15 | RPE 6 |
 | Pallof press | 2 × 10 each side | RPE 7 |
 
 One heavy session a week holds most of the strength built in the off-season.
+The rotator-cuff set stays in because race season is when swimmers, rowers and
+paddlers carry their highest stroke volume.
 The listing tells the athlete to skip it in the five days before a key race.
 
 ## 6. Combat sports (amateur, pro · boxing, Muay Thai, MMA, wrestling, judo, BJJ)

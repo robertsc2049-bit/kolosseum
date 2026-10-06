@@ -119,12 +119,12 @@ test("a fighter tapers into the fight: nothing above 70% in the last fortnight, 
   for (const i of fightWeek[0].items) assert.ok(i.load === "bw" || !("pct" in i.load), `fight week ${i.id}`);
 });
 
-test("fighters train neck every week and tennis players train the rotator cuff every week", () => {
+test("fighters train neck every week; tennis players, and swimmers, rowers and paddlers in and out of race season, train the rotator cuff every week", () => {
   for (const key of ["combat_strength_power", "combat_fight_camp"]) {
     const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
     for (const week of weeks) assert.ok(week.some((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "neck_isometric")), `${key}: neck work`);
   }
-  for (const key of ["tennis_off_season", "tennis_in_season"]) {
+  for (const key of ["tennis_off_season", "tennis_in_season", "endurance_swim_row_paddle_strength", "endurance_in_season"]) {
     const weeks = PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
     for (const week of weeks) assert.ok(week.some((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "shoulder_external_rotation")), `${key}: rotator cuff`);
   }

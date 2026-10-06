@@ -286,7 +286,7 @@ const enduranceInSeasonWeek = (week) => {
   return [
     { title: "Maintenance session", items: [
       ex("box_jump", 3, 3, "bw", 90), ex("back_squat", lighter ? 2 : 3, 4, { pct: at(ENDURANCE_IN_PCT, week) }, 180), ex("single_leg_calf_raise", 2, 8, { rpe: 8 }, 75),
-      ex("pull_up", lighter ? 2 : 3, 5, { rpe: 7 }, 120), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+      ex("pull_up", lighter ? 2 : 3, 5, { rpe: 7 }, 120), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
     ] }
   ];
 };
