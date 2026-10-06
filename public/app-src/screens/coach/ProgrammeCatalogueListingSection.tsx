@@ -4,7 +4,7 @@ import { loadAccountDetail } from "../../api/client";
 import { loadProgrammeCatalogueListing, saveProgrammeCatalogueListing } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
 import { SPORT_FAMILIES } from "../../components/SportPicker";
-import { titleCase } from "../../utils/format";
+import { sportLabel } from "../../utils/sportLabel";
 
 // "Publish to athletes": a Kolosseum programme author lists one of their
 // active programmes for athletes without a coach (src/api/
@@ -147,7 +147,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
                   {ids.map((id) => (
                     <label key={id} className="choice-chip">
                       <input type="checkbox" checked={sports.includes(id)} onChange={() => setSports(toggle(sports, id))} />
-                      <span>{titleCase(id)}</span>
+                      <span>{sportLabel(id)}</span>
                     </label>
                   ))}
                 </fieldset>
