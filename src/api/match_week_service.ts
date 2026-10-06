@@ -9,6 +9,7 @@ import path from "node:path";
 
 import { pool } from "../db/pool.js";
 import { applyMatchWeek, matchContextFor, validateMatchWeek, type MatchWeek } from "./match_week.js";
+import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -62,7 +63,14 @@ export type MatchWeekResult =
 // with nothing left once heavy lower-body work is taken out is refused with a
 // reason (rest, or train another day).
 export async function applyAthleteMatchWeek(userId: string, exercises: Json[], today: Date = new Date()): Promise<MatchWeekResult> {
-  const week = await getMatchWeek(userId);
+  const [declared, plan] = await Promise.all([getMatchWeek(userId), getAthleteTrainingPlan(userId)]);
+  // The meet, race or fight the athlete declared in their training plan is a
+  // match day too: a primer the day before and on the day, recovery after -
+  // whether or not they also added it as a fixture.
+  const competition = plan?.competition_date;
+  const week: MatchWeek = competition && !declared.fixtures.some((f) => f.date === competition)
+    ? { ...declared, fixtures: [...declared.fixtures, { date: competition, label: "Competition" }] }
+    : declared;
   const context = matchContextFor(week, today);
   if (!context) return { ok: true, exercises, context: null };
   const adjusted = applyMatchWeek(exercises, context, patternOf);
