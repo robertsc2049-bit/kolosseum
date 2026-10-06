@@ -12,11 +12,12 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("sixteen programmes: general, powerlifting, team, endurance, combat, tennis, cricket and athletics power", () => {
+test("twenty programmes: general, powerlifting, team, endurance, combat, tennis, cricket, athletics power, strongman, street lifting, HYROX and CrossFit", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
     "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
-    "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_competition_season"
+    "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_competition_season",
+    "strongman_strength_events", "street_lifting_meet_prep", "hyrox_race_build", "crossfit_strength_conditioning"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -27,20 +28,23 @@ test("every exercise is in the exercise registry the builder offers", () => {
   assert.deepEqual(missing, []);
 });
 
-test("every programme fits the builder: 1-12 exercises a session, 1-7 sessions a week, at most 52 weeks a block", () => {
+test("every programme fits the builder: 1-12 exercises a session, none twice, 1-7 sessions a week, at most 52 weeks a block", () => {
   for (const p of PROGRAMMES) {
     for (const b of p.blocks) {
       assert.ok(b.weeks.length >= 1 && b.weeks.length <= 52, `${p.key}/${b.name}: weeks`);
       assert.ok(["general", "volume", "strength", "peak", "deload", "custom"].includes(b.block_type), `${p.key}/${b.name}: block type`);
       for (const week of b.weeks) {
         assert.ok(week.length >= 1 && week.length <= 7, `${p.key}/${b.name}: sessions a week`);
-        for (const s of week) assert.ok(s.items.length >= 1 && s.items.length <= 12, `${p.key}: ${s.title} exercises`);
+        for (const s of week) {
+          assert.ok(s.items.length >= 1 && s.items.length <= 12, `${p.key}: ${s.title} exercises`);
+          assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${p.key}: ${s.title} has an exercise twice (the builder refuses it)`);
+        }
       }
     }
   }
 });
 
-test("loads are sensible: % of 1RM between 50 and 95, RPE between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
+test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
   for (const p of PROGRAMMES) {
     for (const s of sessionsOf(p)) {
       for (const i of s.items) {
@@ -50,7 +54,7 @@ test("loads are sensible: % of 1RM between 50 and 95, RPE between 5 and 9, 1-8 s
           assert.ok(i.load.pct >= 50 && i.load.pct <= 95, `${where} % ${i.load.pct}`);
           assert.ok(!(registry[i.id].equipment_requirements ?? []).includes("bodyweight"), `${where} is a bodyweight lift with a %`);
         }
-        if (i.load !== "bw" && "rpe" in i.load) assert.ok(i.load.rpe >= 5 && i.load.rpe <= 9, `${where} RPE`);
+        if (i.load !== "bw" && "rpe" in i.load) assert.ok(Number.isInteger(i.load.rpe) && i.load.rpe >= 5 && i.load.rpe <= 9, `${where} RPE ${i.load.rpe} (the builder takes whole RPEs)`);
       }
     }
   }
@@ -82,6 +86,7 @@ test("each programme is listed for the athletes its design notes describe", () =
   for (const key of ["tennis_off_season", "tennis_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["tennis"], key);
   for (const key of ["cricket_off_season", "cricket_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["cricket"], key);
   for (const key of ["athletics_power_build", "athletics_competition_season"]) assert.deepEqual(byKey[key].activity_ids, ["athletics"], key);
+  for (const [key, sport] of [["strongman_strength_events", "strongman"], ["street_lifting_meet_prep", "street_lifting"], ["hyrox_race_build", "hyrox"], ["crossfit_strength_conditioning", "crossfit"]]) assert.deepEqual(byKey[key].activity_ids, [sport], key);
   for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
     assert.deepEqual(p.listing.levels, ["amateur", "pro"], `${p.key}: beginners in any sport start on the full-body programme`);
   }
@@ -171,7 +176,10 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     cricket_off_season: "cricket_in_season",
     cricket_in_season: "cricket_off_season",
     athletics_power_build: "athletics_competition_season",
-    athletics_competition_season: "athletics_power_build"
+    athletics_competition_season: "athletics_power_build",
+    strongman_strength_events: "intermediate_upper_lower",
+    street_lifting_meet_prep: "intermediate_upper_lower",
+    hyrox_race_build: "intermediate_upper_lower"
   });
   for (const [from, to] of Object.entries(next)) {
     assert.ok(byKey[to], `${from} -> ${to} exists`);
@@ -181,4 +189,37 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     const toSports = byKey[to].listing.activity_ids;
     if (toSports.length) assert.ok(fromSports.length && fromSports.every((s) => toSports.includes(s)), `${from} -> ${to}: sports`);
   }
+});
+
+test("timed pieces are ones the builder accepts: at least two exercises in a row, a time cap on For Time and AMRAP, round length and rounds on an EMOM", () => {
+  for (const p of PROGRAMMES) {
+    for (const s of sessionsOf(p)) {
+      const groups = new Map();
+      s.items.forEach((item, index) => { if (item.group) groups.set(item.group.id, [...(groups.get(item.group.id) ?? []), { item, index }]); });
+      for (const [id, members] of groups) {
+        const where = `${p.key}: ${s.title} ${id}`;
+        assert.ok(members.length >= 2, `${where}: at least two exercises`);
+        assert.ok(members.every((m, i) => i === 0 || m.index === members[i - 1].index + 1), `${where}: in a row`);
+        const { type, cap, round, rounds } = members[0].item.group;
+        assert.ok(["for_time", "amrap", "emom"].includes(type), where);
+        if (type === "emom") assert.ok(round > 0 && rounds > 0, `${where}: EMOM round and rounds`);
+        else assert.ok(cap > 0, `${where}: time cap`);
+      }
+    }
+  }
+});
+
+test("strongman event day is never a max every week; street lifting sets its competition lifts by effort with added weight; HYROX trains all eight stations and rehearses the race", () => {
+  const strongman = PROGRAMMES.find((p) => p.key === "strongman_strength_events");
+  for (const s of sessionsOf(strongman).filter((x) => x.title === "Event day")) for (const i of s.items) assert.ok(i.load.rpe <= 9, `${i.id} RPE ${i.load.rpe}`);
+  const street = PROGRAMMES.find((p) => p.key === "street_lifting_meet_prep");
+  for (const s of sessionsOf(street)) for (const i of s.items.filter((x) => ["pull_up", "dip"].includes(x.id) && x.load !== "bw")) assert.ok("rpe" in i.load, `${s.title} ${i.id} by effort`);
+  assert.equal(street.blocks.at(-1).block_type, "deload", "a taper before the meet");
+  const hyrox = PROGRAMMES.find((p) => p.key === "hyrox_race_build");
+  const stationIds = new Set(sessionsOf(hyrox).flatMap((s) => s.items.map((i) => i.id)));
+  for (const id of ["ski_erg", "sled_push", "backward_sled_drag", "burpee_broad_jump", "rowing_ergometer", "farmers_carry", "sandbag_lunge", "wall_ball", "treadmill_run"]) assert.ok(stationIds.has(id), id);
+  const sim = sessionsOf(hyrox).find((s) => s.title.startsWith("Race simulation"));
+  assert.deepEqual(sim.items.map((i) => i.id), ["treadmill_run", "ski_erg", "sled_push", "backward_sled_drag", "burpee_broad_jump", "rowing_ergometer", "farmers_carry", "sandbag_lunge", "wall_ball"], "all eight stations in race order");
+  assert.ok(sim.items.every((i) => i.group?.type === "for_time"));
+  for (const s of sessionsOf(hyrox)) assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${s.title}: no exercise twice in a session (the builder refuses it)`);
 });
