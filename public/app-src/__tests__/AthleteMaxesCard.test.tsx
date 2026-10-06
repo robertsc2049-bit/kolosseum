@@ -121,3 +121,11 @@ test("a beginner's session reads as a weight to lift and why - never an RPE", ()
   const down = exerciseDetails({ sets: 3, reps: 5, intensity: { type: "load", value: 55, unit: "kg" }, load_guidance: { type: "progression", basis: "deload", unit: "kg", reps: 5 } });
   assert.ok(down.includes("55 kg - 10% lighter after two sessions short of the reps"), down.join(" | "));
 });
+
+test("a row the programme set at RPE 8 keeps the effort target, with a weight to start at and where it came from", () => {
+  assert.ok(exerciseDetails({ sets: 4, reps: 8, intensity: { type: "rpe", value: 8 }, starting_load: { value: 67.5, unit: "kg", basis: "last_session" } })
+    .includes("RPE 8 · start around 67.5 kg (last time)"));
+  assert.ok(exerciseDetails({ sets: 4, reps: 8, intensity: { type: "rpe", value: 8 }, starting_load: { value: 60, unit: "kg", basis: "max" } })
+    .includes("RPE 8 · start around 60 kg (from your max)"));
+  assert.ok(exerciseDetails({ sets: 4, reps: 8, intensity: { type: "rpe", value: 8 } }).includes("RPE 8"));
+});

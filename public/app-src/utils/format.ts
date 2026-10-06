@@ -302,7 +302,11 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
     details.push("Bodyweight");
   }
   else if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) {
-    details.push(`RPE ${Number(intensity.value)}`);
+    // An effort target with a weight to start at (last time's, or from the max).
+    const start = exercise?.starting_load && typeof exercise.starting_load === "object" ? exercise.starting_load as JsonRecord : null;
+    details.push(start && Number.isFinite(Number(start.value))
+      ? `RPE ${Number(intensity.value)} · start around ${Number(start.value)} ${start.unit === "lb" ? "lb" : "kg"} (${start.basis === "last_session" ? "last time" : "from your max"})`
+      : `RPE ${Number(intensity.value)}`);
   }
   else if (intensity?.type === "borg" && Number.isFinite(Number(intensity.value))) {
     details.push(`Borg ${Number(intensity.value)}`);

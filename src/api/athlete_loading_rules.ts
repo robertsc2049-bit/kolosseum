@@ -54,6 +54,18 @@ function sessionOutcome(session: LiftSession, target: number, unit: "kg" | "lb")
   return { top, madeEveryRep: atTop.every((set) => set.reps >= target) };
 }
 
+// Where to start on an exercise the programme set by effort (a row at RPE 8)
+// for an athlete on % of their max: the heaviest weight they used on it last
+// time, or - before they've logged it - the weight their max gives at that
+// effort. The effort target stays the prescription, so the weight moves with
+// them; a fixed % of an old max would hold it still for the whole programme.
+export type StartingLoad = { value: number; unit: "kg" | "lb"; basis: "last_session" | "max" };
+export function startingLoadForEffort(history: LiftSession[], fromMax: { value: number; unit: "kg" | "lb" } | null, unit: "kg" | "lb"): StartingLoad | null {
+  const last = history.length ? sessionOutcome(history[0], 0, unit) : null;
+  if (last) return { value: roundTo(last.top, unit === "lb" ? 5 : 2.5), unit, basis: "last_session" };
+  return fromMax ? { value: fromMax.value, unit: fromMax.unit, basis: "max" } : null;
+}
+
 // The next weight for a lift from its last two sessions (newest first):
 // every rep made at the top weight - add the increment; short of the reps -
 // the same weight; short at the same weight twice running - 10% off,
