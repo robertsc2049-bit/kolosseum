@@ -62,8 +62,9 @@ function workItem(item, index) {
     percent_1rm: load !== "bw" && "pct" in load ? load.pct : 75,
     weight_value: load !== "bw" && "kg" in load ? load.kg : 20, weight_unit: "kg",
     rpe_value: load !== "bw" && "rpe" in load ? load.rpe : 8, borg_value: 13, cr10_value: 5,
-    rest_seconds: item.rest ?? 120, role: index === 0 ? "primary" : "accessory", coaching_notes: "", segment: "working",
-    group_id: "", group_type: "straight", group_time_cap_seconds: 0, group_round_seconds: 0, group_total_rounds: 0
+    rest_seconds: item.rest ?? 120, role: index === 0 ? "primary" : "accessory", coaching_notes: item.note ?? "", segment: "working",
+    group_id: item.group?.id ?? "", group_type: item.group?.type ?? "straight",
+    group_time_cap_seconds: item.group?.cap ?? 0, group_round_seconds: item.group?.round ?? 0, group_total_rounds: item.group?.rounds ?? 0
   };
 }
 

@@ -43,7 +43,7 @@ or they can run it again or choose another:
 Intermediate upper/lower and endurance race-season maintenance offer nothing
 next. The athlete runs them again or chooses.
 
-Nine programme families for athletes training without a coach. Each one is
+Thirteen programme families for athletes training without a coach. Each one is
 written as an ordinary programme in the builder, so it can be edited there
 before it's published. Nothing reaches athletes until it's reviewed,
 activated and listed.
@@ -673,6 +673,123 @@ The power clean assumes the athlete has been taught it.
   before a competition.
 - **Lighter weeks:** every fourth week.
 
+## 10. Strongman (amateur, pro · 4 days a week · 12 weeks)
+
+**Why this structure:** three gym days build the base lifts. A separate
+event day trains the implements. Event days are hard (RPE 7–9) but never a
+max attempt every week. Grip-heavy implements (stones, farmer's, axle) share
+one day, so grip and biceps get recovery.
+
+| Main lifts (log, deadlift, squat) | Weeks 1–4 | Weeks 5–8 | Weeks 9–11 | Week 12 |
+|---|---|---|---|---|
+| Sets × reps | 4 × 5 | 5 × 3 | 4 × 2 → 3 × 1 | 2 × 2 |
+| Load | 70 → 75% (65% week 4) | 80 → 85% (72.5% week 8) | 87.5 → 92.5% | 75% |
+
+The squat runs 2.5% under the log and deadlift.
+
+| Overhead day | Deadlift day | Event day (RPE 7 → 9) | Squat day |
+|---|---|---|---|
+| Log press (main) | Deadlift (main) | Yoke 4 × 20 m | Back squat (main) |
+| Axle press 3 × 5 RPE 8 | RDL 3 × 8 RPE 7 | Farmer's 4 × 30 m | Sandbag lunge 3 × 10 RPE 7 |
+| One-arm row 3 × 10 | Barbell row 4 × 8 | Sandbag carry 3 × 30 m | Pull-up 4 × 5–8 |
+| Face pull, triceps | Plank | Stone carry 3 × 15 m, tyre flip 3 × 4 | Side plank |
+
+**For the coach:**
+- **Load to platform:** the registry has stone and sandbag *carries* but no
+  load-to-platform or frame. Add them in the builder if your athletes
+  compete with them.
+- **Event weights:** these are by effort. Contest weights belong to the
+  athlete.
+
+## 11. Street lifting (amateur, pro · 3 days a week · 12 weeks)
+
+**Why this structure:** the competition lifts are bodyweight plus added
+load, so they're prescribed by effort. The athlete adds weight (belt or
+vest) to reach the RPE and logs the added weight. The waves run 5s → 3s →
+doubles and singles with a lighter week every fourth, then a taper, like a
+powerlifting peak.
+
+Dips and heavy pulling are hard on elbows and shoulders, so every week has
+rotator-cuff work (band and side-lying external rotation), face pulls and
+high-rep triceps. Volume rises only through the planned waves.
+
+| Week | Heavy day: pull-up and dip | Second heavy day |
+|---|---|---|
+| 1–3 | 5 × 5 at RPE 7 → 5 × 4 at RPE 8 | +1 rep, 1 RPE easier |
+| 4 | 3 × 5 at RPE 6 (lighter) | |
+| 5–7 | 5 × 3 at RPE 8 → 4 × 3 at RPE 9 | |
+| 8 | 3 × 3 at RPE 6 (lighter) | |
+| 9–11 | 4 × 2 at RPE 8 → 3 × 1 at RPE 9 | |
+| 12 | 2 × 1 at RPE 7 (taper) | |
+
+The squat is in for federations that include it; otherwise it's leg
+strength. Muscle-ups are practised strict and fresh.
+
+**For the coach:**
+- **Depth and lockout standards:** these vary by federation, so the notes
+  defer to the athlete's federation.
+- **Estimated maxes:** the app's estimated max for these lifts is on the
+  added weight. A true street-lifting e1RM includes bodyweight. That's a
+  product gap, noted in the review.
+
+## 12. HYROX (amateur, pro · 3 days a week · 12 weeks)
+
+**Why this structure:** HYROX is 8 × 1 km runs, each followed by a station,
+in a fixed order:
+
+1. SkiErg 1,000 m
+2. Sled push
+3. Sled pull
+4. Burpee broad jumps 80 m
+5. Row 1,000 m
+6. Farmer's carry
+7. Sandbag lunges
+8. Wall balls
+
+The deciding quality is **compromised running**: running well straight
+after station work. So the programme has three days:
+- **Strength:** squat, RDL, a heavy sled push and pull-ups.
+- **Compromised running:** rounds of a 1 km run straight into a pair of
+  stations, as one For Time piece. The pair rotates through all eight
+  stations in race order week by week, and rounds build from 2 to 4.
+- **Race simulation in week 10:** all eight stations in order, with a 1 km
+  run before each pair (4 km of running). The builder can't hold the same
+  exercise twice in one session, so it's 4 × 1 km rather than 8. Then a
+  taper.
+- **Station strength-endurance:** an AMRAP of wall balls, sandbag lunges,
+  farmer's carry and rowing, plus hard SkiErg repeats.
+
+**Division weights** (Open/Pro, men's/women's) are never set here. Every
+station note says to use your division's race weight. The backward sled drag
+stands in for the sled pull (the registry has no rope sled pull). The
+athlete's own easy and threshold running stays theirs, and the programme
+doesn't replace it.
+
+## 13. CrossFit (amateur, pro · 4 days a week · 8 weeks)
+
+**Why this structure:** strength or skill comes first while fresh, then one
+conditioning piece a day, in a deliberately different time domain:
+
+| Day | First | Then |
+|---|---|---|
+| 1 | Back squat 5 × 5 | **For Time** (8 min cap): thrusters and pull-ups |
+| 2 | Power clean + push jerk 5 × 2 | **AMRAP** 12 min: swings, box jumps, burpees |
+| 3 | Strict pull-ups, strict handstand push-ups | **EMOM** 12 min: double-unders / toes-to-bar |
+| 4 | Snatch 5 × 2 | **Chipper For Time** (20 min cap): row, wall balls, toes-to-bar, swings, bike |
+
+- **Gymnastics:** strict comes before kipping. The notes say kip only with
+  10 strict pull-ups.
+- **Olympic lifts:** always in doubles, never high reps under fatigue.
+- **Scoring:** Rx or scaled is logged.
+- **Lighter weeks:** weeks 4 and 8, with shorter caps.
+
+## Olympic weightlifting: next
+
+Olympic weightlifting needs exercises the registry doesn't have yet: clean &
+jerk, squat clean, split jerk, power snatch, hang variants, snatch and clean
+pulls, overhead squat. They're being added first, then its programme. Until
+then, weightlifters are offered the general programmes.
+
 ## Not in v1, and why
 
 - **Sport programmes for beginners:** every sport programme is for amateur
@@ -710,3 +827,7 @@ The power clean assumes the athlete has been taught it.
   bowling workload: Orchard et al. (2009, 2015); Hulin et al. (2014).
 - Strength, power and sprint performance; strength before power: Suchomel
   et al. (2016, 2018); Haff and Nimphius (2012).
+- HYROX race format (8 × 1 km runs, 8 stations in order): HYROX official
+  rulebook; station weights are per division and set by the athlete.
+- Weighted pull-up and dip standards vary by federation (e.g. WSWCF, ISLF);
+  the programme defers to the athlete's federation.
