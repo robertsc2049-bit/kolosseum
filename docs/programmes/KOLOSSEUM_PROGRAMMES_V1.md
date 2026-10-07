@@ -17,18 +17,22 @@ The programmes themselves are defined in
    Running it again skips programmes the account already has.
 3. In the builder, open each programme, review and edit it, then **Save
    complete template** and **Activate programme**.
-4. On the programme page, **Publish to athletes**: confirm the title, summary,
+4. On the programme page, **Publish to coaches**: confirm the title, summary,
    levels, sports and days a week (suggested values for each are in the file
    above), then publish.
 5. Once both halves of a pair are published, set **When athletes finish it,
    offer next** on each (the seed script prints the pairs, below).
 
-Athletes see a programme only once it is published.
+Coaches see a programme only once it is published. They copy it into their
+own library, adapt it and assign it to their athletes. **Athletes without a
+coach don't see these programmes**: they build their own week in "My
+training" (athlete_training_week_service.ts).
 
 ### What comes next
 
-When an athlete finishes a programme, they're offered the one it leads to,
-or they can run it again or choose another:
+This applies only to an athlete still running a programme they started
+before Kolosseum programmes became coach-only. When they finish, they're
+offered the programme it leads to, or they can run it again:
 
 | Finished | Offered next |
 |---|---|
@@ -43,10 +47,10 @@ or they can run it again or choose another:
 Intermediate upper/lower and endurance race-season maintenance offer nothing
 next. The athlete runs them again or chooses.
 
-Fourteen programme families for athletes training without a coach. Each one is
-written as an ordinary programme in the builder, so it can be edited there
-before it's published. Nothing reaches athletes until it's reviewed,
-activated and listed.
+Fourteen programme families, written as starting points for coaches. Each is
+an ordinary programme in the builder, so it can be edited there before it's
+published. Nothing reaches coaches until it's reviewed, activated and
+listed.
 
 ## How weights work in every programme
 

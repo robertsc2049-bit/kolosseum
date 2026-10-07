@@ -103,6 +103,10 @@ export function AthleteProgrammeCard() {
 
   if (!data && !error) return null;
   const current = data?.current && typeof data.current === "object" ? (data.current as JsonRecord) : null;
+  // Kolosseum programmes are for coaches now: this card is only for an
+  // athlete still running one they started (they build their own week in
+  // "My training").
+  if (!current && !error) return null;
   const options = asOptions(data?.options).filter((o) => o.listing_id !== current?.listing_id);
   const finished = current?.finished === true;
   const next = finished && current?.next && typeof current.next === "object" ? (current.next as JsonRecord) : null;

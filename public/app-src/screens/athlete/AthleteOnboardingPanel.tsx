@@ -25,6 +25,7 @@ import { MatchWeekCard } from "./MatchWeekCard";
 import { WeightClassCard, isCombatActivity } from "./WeightClassCard";
 import { AthleteMaxesCard } from "./AthleteMaxesCard";
 import { AthleteProgrammeCard } from "./AthleteProgrammeCard";
+import { MyTrainingCard } from "./MyTrainingCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
@@ -697,6 +698,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
         </div>
       </article>
       {editing ? <PreferenceEditor api={api} fields={fields} /> : null}
+      {fields.execution_scope === "individual" ? <MyTrainingCard /> : null}
       <AthleteProgrammeCard />
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <ReadinessCard />

@@ -230,7 +230,11 @@ function suits(listing: ProgrammeListing, level: string | undefined, activity: s
 export async function getAthleteProgrammes(userId: string): Promise<Readonly<Json>> {
   const [profile, listings, run, plan] = await Promise.all([getAthleteTrainingProfile(userId), allListings(), getCurrentProgrammeRun(userId), getAthleteTrainingPlan(userId)]);
   const today = new Date().toISOString().slice(0, 10);
-  const suitable = listings
+  // Kolosseum programmes are for coaches now (they copy one into their
+  // library); a self-coached athlete builds their own week instead
+  // (athlete_training_week_service.ts). One already started still shows here
+  // and finishes.
+  const suitable = ([] as ProgrammeListing[])
     .map((listing) => ({ listing, fit: suits(listing, profile.experience_level, profile.activity_id) }))
     .filter((entry) => entry.fit > 0)
     // Their sport's own first; then the one written for their level alone (a
@@ -347,6 +351,8 @@ export async function setAthleteProgramme(userId: string, input: unknown): Promi
       return getAthleteProgrammes(userId);
     }
     const listingId = text(input.listing_id);
+    // Only running one again after finishing it: new programmes are for coaches.
+    if (!current || current.listing_id !== listingId) throw new ProgrammeCatalogueError("athlete_programmes_for_coaches", 409);
     const listing = (await allListings()).find((l) => l.listing_id === listingId && l.listed);
     if (!listing) throw new ProgrammeCatalogueError("athlete_programme_not_found", 404);
     const profile = await getAthleteTrainingProfile(userId);

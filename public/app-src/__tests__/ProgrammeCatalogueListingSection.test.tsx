@@ -1,4 +1,4 @@
-// "Publish to athletes": a Kolosseum programme author lists an active
+// "Publish to coaches": a Kolosseum programme author lists an active
 // programme for athletes without a coach, with who it suits.
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -49,23 +49,23 @@ test("a draft can't be published until it's activated", async () => {
   installMocks();
   render(<ProgrammeCatalogueListingSection template={{ ...activeTemplate, template_status: "complete" }} />);
   await screen.findByText("Activate this programme to publish it. Athletes run the exact version you publish.");
-  assert.equal(screen.queryByText("Publish to athletes", { selector: "button" }), null);
+  assert.equal(screen.queryByText("Publish to coaches", { selector: "button" }), null);
 });
 
 test("the author publishes a beginner programme for any sport, three days a week", async () => {
   const puts = installMocks();
   render(<ProgrammeCatalogueListingSection template={activeTemplate} />);
-  await screen.findByText("Athletes without a coach can start this programme. They see it if it suits their level and sport.");
-  assert.equal((screen.getByLabelText("Title athletes see") as HTMLInputElement).value, "Beginner full-body");
+  await screen.findByText("Coaches can copy this programme into their own library to adapt and assign. Its levels and sports help them find it.");
+  assert.equal((screen.getByLabelText("Title coaches see") as HTMLInputElement).value, "Beginner full-body");
   assert.equal((screen.getByLabelText("Training days a week") as HTMLSelectElement).value, "3", "from the programme's first week");
   fireEvent.click(screen.getByLabelText("Beginner"));
   fireEvent.change(screen.getByLabelText("Summary"), { target: { value: "Three full-body days on the main lifts." } });
   await act(async () => {
-    fireEvent.click(screen.getByText("Publish to athletes", { selector: "button" }));
+    fireEvent.click(screen.getByText("Publish to coaches", { selector: "button" }));
   });
   await waitFor(() => assert.equal(puts.length, 1));
   assert.deepEqual(puts[0], { title: "Beginner full-body", summary: "Three full-body days on the main lifts.", levels: ["beginner"], activity_ids: [], days_per_week: 3, next_listing_id: "", listed: true });
-  await screen.findByText("Listed for athletes.");
+  await screen.findByText("Listed for coaches.");
   assert.ok(screen.getByText("Listed"));
 });
 
@@ -75,7 +75,7 @@ test("a programme for specific sports lists those sports; it can't be published 
   await screen.findByLabelText("Specific sports");
   fireEvent.click(screen.getByLabelText("Amateur"));
   fireEvent.click(screen.getByLabelText("Specific sports"));
-  const publish = screen.getByText("Publish to athletes", { selector: "button" }) as HTMLButtonElement;
+  const publish = screen.getByText("Publish to coaches", { selector: "button" }) as HTMLButtonElement;
   assert.equal(publish.disabled, true, "no sports chosen yet");
   fireEvent.click(screen.getByLabelText("Rugby union"));
   fireEvent.click(screen.getByLabelText("Rugby league"));
@@ -95,7 +95,7 @@ test("a listed programme can be unlisted", async () => {
   });
   await waitFor(() => assert.equal(puts.length, 1));
   assert.equal(puts[0].listed, false);
-  await screen.findByText("No longer listed - athletes already running it can finish it.");
+  await screen.findByText("No longer listed - copies coaches already made are theirs to keep.");
 });
 
 test("the author names which of their programmes athletes are offered when they finish this one", async () => {
@@ -117,6 +117,6 @@ test("the author names which of their programmes athletes are offered when they 
 test("with no other programmes published there's nothing to offer next, so no choice is shown", async () => {
   installMocks();
   render(<ProgrammeCatalogueListingSection template={activeTemplate} />);
-  await screen.findByLabelText("Title athletes see");
+  await screen.findByLabelText("Title coaches see");
   assert.equal(screen.queryByLabelText("When athletes finish it, offer next"), null);
 });

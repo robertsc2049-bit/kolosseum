@@ -6,7 +6,8 @@ import test from "node:test";
 import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { AthleteProgrammeCard } from "../screens/athlete/AthleteProgrammeCard";
+import { AthleteProgrammeCard, fitNotes } from "../screens/athlete/AthleteProgrammeCard";
+import { sportLabel } from "../utils/sportLabel";
 
 function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
   return { ok, status, json: async () => body, text: async () => JSON.stringify(body) } as Response;
@@ -37,20 +38,11 @@ function installMocks(initial: Record<string, unknown>) {
 
 test.afterEach(() => cleanup());
 
-test("a beginner rugby player sees their sport's programme first, then a general one, and starts one", async () => {
-  const puts = installMocks({ current: null, options: [rugby, fullBody] });
-  render(<AthleteProgrammeCard />);
-  await screen.findByText("Choose your programme");
-  const titles = [...document.querySelectorAll(".programme-option strong")].map((el) => el.textContent);
-  assert.deepEqual(titles, ["Rugby off-season strength", "Beginner full-body"]);
-  assert.ok(screen.getByText("Rugby union"));
-  assert.ok(screen.getByText("Any sport"));
-  assert.ok(screen.getAllByText("3 days a week · Beginner, Amateur")[0]);
-  await act(async () => {
-    fireEvent.click(screen.getByText("Start Rugby off-season strength"));
-  });
-  await waitFor(() => assert.deepEqual(puts, [{ listing_id: "programme_rugby" }]));
-  await screen.findByText("0 of 6 sessions done. Your sessions follow this programme in order.");
+test("an athlete with no programme in progress sees no programme card - Kolosseum programmes are for coaches; they build their own week", async () => {
+  installMocks({ current: null, options: [] });
+  const { container } = render(<AthleteProgrammeCard />);
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 0)); });
+  assert.equal(container.innerHTML, "");
 });
 
 test("switching programme mid-way asks first, because progress on the current one ends", async () => {
@@ -77,12 +69,6 @@ test("stopping a programme asks first", async () => {
     fireEvent.click(screen.getAllByText("Stop programme")[0]);
   });
   await waitFor(() => assert.deepEqual(puts, [{ listing_id: null }]));
-});
-
-test("with no programmes for their level yet, the athlete is told they're on their generated programme", async () => {
-  installMocks({ current: null, options: [] });
-  render(<AthleteProgrammeCard />);
-  await screen.findByText(/no Kolosseum programmes for your level yet/u);
 });
 
 test("a rugby player who's finished their programme is offered the one their coach says comes next, and starts it without a warning - nothing is lost", async () => {
@@ -144,23 +130,15 @@ test("mid-programme, the card says which week and block the next session is in, 
   await screen.findByText("Week 7 of 8 · Taper and fight week (lighter)");
 });
 
-test("each programme says how it fits: a 4-day plan for someone who trains 3, and when to start a meet prep for their meet", async () => {
-  const meetPrep = { ...rugby, listing_id: "programme_meet", title: "Powerlifting meet prep (12 weeks)", days_per_week: 4,
-    fit: { weeks_total: 12, days: { programme: 4, athlete: 3 }, competition: { date: "2027-02-23", weeks_away: 20, start_on: "2026-12-01", timing: "too_early" } } };
-  const tooLate = { ...rugby, listing_id: "programme_late", title: "Fight camp strength (8 weeks)", days_per_week: 2,
-    fit: { weeks_total: 8, days: null, competition: { date: "2026-11-10", weeks_away: 5, start_on: "2026-09-15", timing: "too_late" } } };
-  installMocks({ current: null, options: [meetPrep, tooLate] });
-  render(<AthleteProgrammeCard />);
-  await screen.findByText("Powerlifting meet prep (12 weeks)");
-  assert.ok(screen.getByText("4 days a week - you said you train 3, so it will take longer than 12 weeks."));
-  assert.ok(screen.getByText("Your competition is in 20 weeks: start this the week of 1 Dec so it peaks on 23 Feb."));
-  assert.ok(screen.getByText("Your competition is in 5 weeks; this is an 8-week programme, so it won't peak on the day."));
+test("how a programme fits reads naturally: a 4-day plan for someone who trains 3, and when to start a meet prep for their meet", () => {
+  assert.deepEqual(fitNotes({ weeks_total: 12, days: { programme: 4, athlete: 3 }, competition: { date: "2027-02-23", weeks_away: 20, start_on: "2026-12-01", timing: "too_early" } }).map((n) => n.text), [
+    "4 days a week - you said you train 3, so it will take longer than 12 weeks.",
+    "Your competition is in 20 weeks: start this the week of 1 Dec so it peaks on 23 Feb."
+  ]);
+  assert.deepEqual(fitNotes({ weeks_total: 8, days: null, competition: { date: "2026-11-10", weeks_away: 5, start_on: "2026-09-15", timing: "too_late" } }).map((n) => n.text),
+    ["Your competition is in 5 weeks; this is an 8-week programme, so it won't peak on the day."]);
 });
 
-test("sports are named as the activity registry writes them: MMA, CrossFit, Brazilian jiu-jitsu - never 'Mma'", async () => {
-  const combat = { ...rugby, listing_id: "programme_combat", title: "Combat strength and power (8 weeks)", activity_ids: ["mma", "brazilian_jiu_jitsu", "crossfit"] };
-  installMocks({ current: null, options: [combat] });
-  render(<AthleteProgrammeCard />);
-  await screen.findByText("MMA, Brazilian jiu-jitsu, CrossFit");
-  assert.equal(screen.queryByText((content) => content.includes("Mma")), null);
+test("sports are named as the activity registry writes them: MMA, CrossFit, Brazilian jiu-jitsu - never 'Mma'", () => {
+  assert.deepEqual(["mma", "brazilian_jiu_jitsu", "crossfit", "rugby_union"].map(sportLabel), ["MMA", "Brazilian jiu-jitsu", "CrossFit", "Rugby union"]);
 });

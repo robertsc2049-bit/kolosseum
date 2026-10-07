@@ -23,7 +23,8 @@ import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
-import { type ProgrammeRun, athleteHasProgrammeOptions, getCurrentProgrammeRun, programmeRunPosition, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
+import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunPosition, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
+import { type OwnTrainingStamp, getCurrentTrainingWeek, ownTrainingProgram, ownTrainingStamp, trainingWeekSessionCount } from "./athlete_training_week_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -343,12 +344,12 @@ export async function compileBlock(req: Request, res: Response) {
   // the session comes from that programme, not the generated one.
   const programme_run: ProgrammeRun | null =
     create_session && beta_individual_subject_user_id ? await getCurrentProgrammeRun(beta_individual_subject_user_id) : null;
-  // With Kolosseum programmes for their level and sport, an athlete without
-  // a coach chooses one; the generated programme is only the fallback while
-  // none suits them.
-  if (create_session && beta_individual_subject_user_id && !programme_run && await athleteHasProgrammeOptions(beta_individual_subject_user_id)) {
-    throw badRequest("programme_required", { failure_token: "programme_required" });
-  }
+  // An athlete without a coach trains from the week they built
+  // (athlete_training_week_service.ts); until they build one, the generated
+  // programme. (Kolosseum programmes are for coaches; a run already started
+  // finishes.)
+  const training_week =
+    create_session && beta_individual_subject_user_id && !programme_run ? await getCurrentTrainingWeek(beta_individual_subject_user_id) : null;
   if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
     const cycle_with_reentry = await trainingCycleForAthlete(beta_individual_subject_user_id);
     // Training days are required (no silent default): an athlete who
@@ -360,8 +361,8 @@ export async function compileBlock(req: Request, res: Response) {
     session_reentry = reentry;
     // The athlete's own exercise for each open slot; the engine refuses the
     // session if today's slots are not all chosen (never a default).
-    // A programme run brings its own exercises.
-    const exercise_selections = programme_run ? undefined : await getAthleteExerciseSelections(beta_individual_subject_user_id);
+    // A programme run, or the athlete's own week, brings its own exercises.
+    const exercise_selections = programme_run || training_week ? undefined : await getAthleteExerciseSelections(beta_individual_subject_user_id);
     phase1ForCompile = { ...body.phase1_input, training_cycle, ...(exercise_selections ? { exercise_selections } : {}) };
   }
 
@@ -578,6 +579,19 @@ export async function compileBlock(req: Request, res: Response) {
     };
   }
 
+  // The athlete's own week: today's day of it, in order.
+  let own_training_session: OwnTrainingStamp | undefined;
+  if (training_week && beta_individual_subject_user_id) {
+    own_training_session = ownTrainingStamp(training_week, await trainingWeekSessionCount(beta_individual_subject_user_id, training_week.week_id));
+    programForSession = ownTrainingProgram(p4.program as unknown as Record<string, unknown>, training_week, own_training_session);
+    canonical_hash = crypto.createHash("sha256").update(JSON.stringify({
+      phase2_canonical_hash: canonical_hash,
+      own_training_week_id: training_week.week_id,
+      day_number: own_training_session.day_number,
+      week_number: own_training_session.week_number
+    }), "utf8").digest("hex");
+  }
+
   if (apply_phase5) {
     throw badRequest("Phase 5 compile not implemented", { failure_token: "phase5_compile_not_implemented" });
   }
@@ -593,13 +607,14 @@ export async function compileBlock(req: Request, res: Response) {
   const displayNames = sessionExerciseDisplayNames(
     p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
     beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
-  const p6_session = programme_run_session
+  const p6_session = programme_run_session || own_training_session
     ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput
     : p6.session;
   const named_session: Phase6SessionOutput = {
     ...p6_session,
     ...(programme_run_session ? { programme_run: programme_run_session } : {}),
-    ...(!programme_run_session && session_reentry && isRecord((p6.session as any).training_cycle)
+    ...(own_training_session ? { own_training: own_training_session } : {}),
+    ...(!programme_run_session && !own_training_session && session_reentry && isRecord((p6.session as any).training_cycle)
       ? { training_cycle: { ...(p6.session as any).training_cycle, reentry: session_reentry } }
       : {}),
     exercises: p6.session.exercises.map((e: any) => {
@@ -719,11 +734,12 @@ export async function compileBlock(req: Request, res: Response) {
   // re-entry week's sessions are lighter (programme_reentry.ts), and the run
   // then carries on from where it left off. A generated programme makes the
   // whole week a deload instead (training_cycle.ts).
-  if (create_session && programme_run_session && session_reentry?.reentry_week) {
+  if (create_session && (programme_run_session || own_training_session) && session_reentry?.reentry_week) {
     planned_session_from_engine = {
       ...planned_session_from_engine,
       exercises: lighterForReentry(planned_session_from_engine.exercises as any, session_reentry as any) as any,
-      programme_run: { ...programme_run_session, reentry: session_reentry }
+      ...(programme_run_session ? { programme_run: { ...programme_run_session, reentry: session_reentry } } : {}),
+      ...(own_training_session ? { own_training: { ...own_training_session, reentry: session_reentry } } : {})
     } as any;
   }
 
