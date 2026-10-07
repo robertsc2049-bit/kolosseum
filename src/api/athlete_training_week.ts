@@ -22,7 +22,7 @@ export class TrainingWeekError extends Error {
 
 export type WeekItem = { exercise_id: string; sets: number; reps: number };
 export type TrainingWeek = { week_id: string; days: { items: WeekItem[] }[]; lighter_every_fourth: boolean; saved_at: string };
-export type OwnTrainingStamp = { week_id: string; day_number: number; days_total: number; week_number: number; lighter: boolean };
+export type OwnTrainingStamp = { week_id: string; day_number: number; days_total: number; week_number: number; lighter: boolean; today?: true };
 
 // Exercises an athlete can choose: those the registry allows in training for
 // their sport (any sport's general strength list when none is declared).
@@ -115,4 +115,13 @@ export function ownTrainingProgram(baseProgram: Json, week: TrainingWeek, stamp:
     exercise_pool: Object.fromEntries(ids.map((id) => [id, ex.get(id)])),
     target_exercise_id: ids[0]
   };
+}
+
+// An athlete with no week of their own logs what they train today: the
+// exercises they chose for this session only, as a one-day week that isn't
+// kept (TrainingWeekError, as for a week, if it isn't valid).
+export function todaysSession(items: unknown, activityId: string | undefined, sessionKey: string): { week: TrainingWeek; stamp: OwnTrainingStamp } {
+  const valid = validateTrainingWeek({ days: [{ items }] }, activityId);
+  const week: TrainingWeek = { week_id: `today_${sessionKey}`, days: valid.days, lighter_every_fourth: false, saved_at: "" };
+  return { week, stamp: { ...ownTrainingStamp(week, 0), today: true } };
 }

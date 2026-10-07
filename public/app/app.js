@@ -1271,7 +1271,7 @@ async function refreshAthleteDeclaration() {
   saveState();
 }
 
-async function createSession() {
+async function createSession(options = {}) {
   showBusy("Checking your declaration…");
 
   try {
@@ -1339,7 +1339,9 @@ async function createSession() {
             auth_record: state.authRecord,
             acknowledgement_record: state.acknowledgementRecord,
             declaration_record: state.declarationRecord
-          }
+          },
+          // A self-coached athlete with no week: what they chose to train today.
+          ...(Array.isArray(options.todays_exercises) ? { todays_exercises: options.todays_exercises } : {})
         };
 
     let response;
@@ -1385,6 +1387,10 @@ async function createSession() {
       if (error?.payload?.error === "programme_complete") {
         showNotice(`You've finished ${error.payload.details?.programme_title || "your programme"} - choose your next programme in Your programme.`, "error");
         document.getElementById("athleteOnboardingNav")?.click();
+        return;
+      }
+      if (error?.payload?.details?.failure_token === "todays_exercises_invalid") {
+        showNotice("Choose an exercise for every row, with 1-8 sets and 1-30 reps, and each exercise once.", "error");
         return;
       }
       if (phase4Token === "pain_check_in_required") {
@@ -6204,7 +6210,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 elements.topbarAccount.addEventListener("click", () => setView("account"));
-document.addEventListener("kolosseum:create-session", () => createSession().catch(handleError));
+document.addEventListener("kolosseum:create-session", (event) => createSession(event?.detail ?? {}).catch(handleError));
 elements.refreshHistoryButton.addEventListener("click", () => refreshHistory().catch(handleError));
 elements.exportHistoryButton.addEventListener("click", () => exportHistory().catch(handleError));
 

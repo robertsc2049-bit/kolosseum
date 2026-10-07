@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 
+import { loadTrainingWeek } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem } from "../../components/TrainingDayEditor";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 
@@ -124,10 +126,65 @@ function continueToSession() {
 
 export function AthleteTodayCreateSessionButton() {
   const { today } = useAthleteToday();
+  const [picking, setPicking] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [options, setOptions] = useState<ExerciseOption[]>([]);
+
+  // A self-coached athlete with no week of their own (and no programme still
+  // running) logs what they train today: they choose today's exercises first.
+  async function start() {
+    if (today?.coach_user_id) { requestCreateSession(); return; }
+    setChecking(true);
+    try {
+      const week = await loadTrainingWeek();
+      if (week.week || week.programme_in_progress === true) { requestCreateSession(); return; }
+      setOptions(Array.isArray(week.exercise_options) ? (week.exercise_options as JsonRecord[]).map((o) => ({ exercise_id: String(o.exercise_id), label: String(o.label) })) : []);
+      setPicking(true);
+    }
+    catch {
+      requestCreateSession();
+    }
+    finally {
+      setChecking(false);
+    }
+  }
+
+  if (picking) {
+    return (
+      <TodaysSessionPicker
+        options={options}
+        onStart={(items) => { setPicking(false); document.dispatchEvent(new CustomEvent("kolosseum:create-session", { detail: { todays_exercises: items } })); }}
+        onCancel={() => setPicking(false)}
+      />
+    );
+  }
   return (
-    <button className="button primary" type="button" onClick={requestCreateSession}>
+    <button className="button primary" type="button" disabled={checking} onClick={() => void start()}>
       {createSessionButtonLabel(today)}
     </button>
+  );
+}
+
+// "What are you training today?": the exercises, sets and reps for this
+// session only - logged set by set like any session, more can be added as
+// they go. Building a week in My training makes this unnecessary.
+export function TodaysSessionPicker({ options, onStart, onCancel }: {
+  options: ExerciseOption[];
+  onStart: (items: DayItem[]) => void;
+  onCancel: () => void;
+}) {
+  const [items, setItems] = useState<DayItem[]>([newDayItem()]);
+  const ready = items.length > 0 && items.every((item) => item.exercise_id);
+  return (
+    <div className="panel my-training todays-session" data-testid="todays-session">
+      <h3>What are you training today?</h3>
+      <p className="muted small">Choose today's exercises - you log what you actually lift, set by set, and can add more as you go. Build your week in My training to have your sessions planned for you.</p>
+      <TrainingDayEditor label="Today" items={items} options={options} onChange={setItems} />
+      <div className="button-row">
+        <button className="button primary" type="button" disabled={!ready} onClick={() => onStart(items)}>Start session</button>
+        <button className="button secondary" type="button" onClick={onCancel}>Cancel</button>
+      </div>
+    </div>
   );
 }
 

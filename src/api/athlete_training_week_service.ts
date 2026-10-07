@@ -17,9 +17,10 @@ import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
+import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
 import { type TrainingWeek, TrainingWeekError, exerciseOptionsFor, ownTrainingStamp, validateTrainingWeek } from "./athlete_training_week.js";
 
-export { type OwnTrainingStamp, type TrainingWeek, TrainingWeekError, ownTrainingProgram, ownTrainingStamp } from "./athlete_training_week.js";
+export { type OwnTrainingStamp, type TrainingWeek, TrainingWeekError, ownTrainingProgram, ownTrainingStamp, todaysSession } from "./athlete_training_week.js";
 
 type Json = Record<string, unknown>;
 const isRecord = (v: unknown): v is Json => !!v && typeof v === "object" && !Array.isArray(v);
@@ -53,9 +54,11 @@ export async function trainingWeekSessionCount(userId: string, weekId: string): 
 }
 
 export async function getAthleteTrainingWeek(userId: string): Promise<Readonly<Json>> {
-  const [profile, week] = await Promise.all([getAthleteTrainingProfile(userId), getCurrentTrainingWeek(userId)]);
+  const [profile, week, run] = await Promise.all([getAthleteTrainingProfile(userId), getCurrentTrainingWeek(userId), getCurrentProgrammeRun(userId)]);
   const next = week ? ownTrainingStamp(week, await trainingWeekSessionCount(userId, week.week_id)) : null;
-  return Object.freeze({ week, next, exercise_options: exerciseOptionsFor(profile.activity_id) });
+  // Without a week (or a programme still running), Today asks what they're
+  // training today instead.
+  return Object.freeze({ week, next, programme_in_progress: !!run, exercise_options: exerciseOptionsFor(profile.activity_id) });
 }
 
 export async function saveAthleteTrainingWeek(userId: string, input: unknown): Promise<Readonly<Json>> {

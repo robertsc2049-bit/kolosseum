@@ -318,14 +318,15 @@ test(
     assert.deepEqual([started.json.current.sessions_done, started.json.current.sessions_total], [0, 3]);
     assert.deepEqual(started.json.current.next_position, { week_number: 1, weeks_total: 1, block_name: "Foundation", block_type: "general" });
 
-    async function createSession() {
+    async function createSession(extra = {}) {
       const detail = await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie });
       const bootstrap = detail.json.bootstrap;
       return await requestJson(base, "POST", "/blocks/compile?create_session=true&beta_path=true", {
         cookie: athlete.cookie, csrf: detail.json.csrf_token,
         body: {
           phase1_input: bootstrap.declaration_record.engine_phase1_input,
-          beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+          beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record },
+          ...extra
         }
       });
     }
@@ -464,6 +465,25 @@ test(
     // Stopping it, the athlete builds their own week and trains from it.
     const csrf = (await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie })).json.csrf_token;
     assertStatus(await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf, body: { listing_id: null } }), 200, "stop programme");
+
+    // With no week yet, they log what they train today: the exercises they
+    // chose, for this session only (invalid choices are refused).
+    const noWeek = await requestJson(base, "GET", "/account/onboarding/training-week", { cookie: athlete.cookie });
+    assertStatus(noWeek, 200, "my training with no week");
+    assert.deepEqual([noWeek.json.week, noWeek.json.programme_in_progress], [null, false]);
+    const badToday = await createSession({ todays_exercises: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "back_squat", sets: 2, reps: 5 }] });
+    assertStatus(badToday, 400, "the same exercise twice");
+    assert.equal(badToday.json.details.failure_token, "todays_exercises_invalid");
+    const today = await createSession({ todays_exercises: [{ exercise_id: "deadlift", sets: 2, reps: 3 }, { exercise_id: "push_up", sets: 3, reps: 12 }] });
+    assertStatus(today, 201, "today's session");
+    assert.equal(today.json.planned_session.own_training.today, true);
+    const todayState = await requestJson(base, "GET", `/sessions/${today.json.session_id}/state`, { cookie: athlete.cookie });
+    assertStatus(todayState, 200, "today's session state");
+    assert.equal(todayState.json.own_training.today, true, "the session screen knows it's today's own session");
+    assert.deepEqual(today.json.planned_session.exercises.map((e) => e.exercise_id), ["deadlift", "push_up"]);
+    // Still the week back after two weeks away: a set fewer than they chose.
+    assert.equal(today.json.planned_session.own_training.reentry.reentry_week, true);
+    assert.deepEqual(today.json.planned_session.exercises.map((e) => e.sets), [1, 2]);
     const ownWeek = await requestJson(base, "PUT", "/account/onboarding/training-week", { cookie: athlete.cookie, csrf, body: {
       days: [{ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "push_up", sets: 3, reps: 10 }] }, { items: [{ exercise_id: "deadlift", sets: 1, reps: 5 }] }],
       lighter_every_fourth: true

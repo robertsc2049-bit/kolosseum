@@ -522,6 +522,10 @@ export function projectSessionStatePayload(
     // A Kolosseum programme session: which programme, and which session of it.
     ...(planned?.programme_run && typeof planned.programme_run === "object"
       ? { programme_run: planned.programme_run }
+      : {}),
+    // A session from the athlete's own week (or today's own exercises).
+    ...(planned?.own_training && typeof planned.own_training === "object"
+      ? { own_training: planned.own_training }
       : {})
   };
 }
