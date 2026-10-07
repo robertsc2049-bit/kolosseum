@@ -174,7 +174,7 @@ test("Today's new markup does not get hidden on narrow (mobile) viewports", () =
 // athlete straight to Declarations instead of attempting a doomed compile.
 test("starting a session checks for a declared activity before attempting to create one, and routes to Declarations if missing", () => {
   const createSessionBody = js.slice(
-    js.indexOf("async function createSession()"),
+    js.indexOf("async function createSession("),
     js.indexOf("async function loadSessionState()")
   );
 
