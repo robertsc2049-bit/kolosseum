@@ -69,15 +69,29 @@ test("increments: squat, hinge, single-leg and carries 2.5 kg / 5 lb; presses, p
   assert.equal(progressionIncrement("horizontal_pull", "lb"), 2.5);
 });
 
-test("a beginner who chooses % of max: an RPE 6 set of 5 becomes about 74% - and back again", () => {
-  assert.equal(percentForRpe(6, 5), 74.5);
-  assert.equal(rpeForPercentage(74.5, 5), 6);
+test("a beginner who chooses % of max: an RPE 6 set of 5 becomes about 76% - and back again", () => {
+  assert.equal(percentForRpe(6, 5), 76);
+  assert.equal(rpeForPercentage(76, 5), 6);
+});
+
+test("the RPE chart: a 92.5% single is about RPE 8, a double at RPE 9 and five at RPE 8 sit where the chart puts them", () => {
+  assert.equal(rpeForPercentage(92.5, 1), 8, "not RPE 7.5 - singles were underestimated");
+  assert.equal(rpeForPercentage(92.2, 2), 9);
+  assert.equal(rpeForPercentage(81.1, 5), 8);
+  assert.equal(percentForRpe(8, 5), 81);
+  assert.equal(percentForRpe(9, 2), 90, "92.2% on the chart, held to 90% when it comes from an effort target");
+  assert.equal(rpeForPercentage(100, 1), 9, "never prescribed harder than RPE 9");
+});
+
+test("an athlete on RPE sees the wave: 70%, 75% and 80% for 5 are RPE 5, 5.5 and 7.5 - not 6, 6 and 7.5", () => {
+  assert.deepEqual([70, 75, 80].map((percent) => rpeForPercentage(percent, 5)), [5, 5.5, 7.5]);
+  assert.equal(rpeForPercentage(60, 5), 5, "a deload stays light, at about 5 reps in the tank");
 });
 
 test("an amateur with no max keeps the effort the programme wrote: band external rotations at 15 reps, RPE 6, stay RPE 6", () => {
   const { effortWithoutMax } = service;
   const percent = percentForRpe(6, 15);
-  assert.equal(rpeForPercentage(percent, 15), 8.5, "the round trip through a % drifts");
+  assert.equal(rpeForPercentage(percent, 15), 6.5, "the round trip through a % drifts (held at 50%)");
   assert.equal(effortWithoutMax({ type: "rpe", value: 6 }, percent, 15), 6);
   assert.equal(effortWithoutMax({ type: "percent_1rm", value: 80 }, 80, 5), rpeForPercentage(80, 5), "a % prescription still becomes an effort target");
 });

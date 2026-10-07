@@ -491,7 +491,7 @@ test(
     assert.equal(squat.display_name, "Back squat", "every exercise is named for the session, not just own exercises");
     assert.ok(!squat.resolved_load, "no weight without a max");
     assert.equal(squat.load_guidance.type, "rpe");
-    assert.ok(squat.load_guidance.value >= 6 && squat.load_guidance.value <= 9, JSON.stringify(squat.load_guidance));
+    assert.ok(squat.load_guidance.value >= 5 && squat.load_guidance.value <= 9, JSON.stringify(squat.load_guidance)); // RPE 5 for light work
 
     // She logs her deadlift: 3 x 180 kg.
     const sid = first.json.session_id;
