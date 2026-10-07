@@ -76,8 +76,8 @@ test("loadCurrentAthleteDeclaration reports a missing declaration as null rather
 
 test("createSession re-reads the current declaration before building the compile body", () => {
   const body = appJs.slice(
-    appJs.indexOf("async function createSession()"),
-    appJs.indexOf("\n}\n", appJs.indexOf("async function createSession()"))
+    appJs.indexOf("async function createSession("),
+    appJs.indexOf("\n}\n", appJs.indexOf("async function createSession("))
   );
 
   const refreshAt = body.indexOf("await refreshAthleteDeclaration()");
@@ -90,7 +90,7 @@ test("createSession re-reads the current declaration before building the compile
 
   const helper = appJs.slice(
     appJs.indexOf("async function refreshAthleteDeclaration()"),
-    appJs.indexOf("async function createSession()")
+    appJs.indexOf("async function createSession(")
   );
   assert.match(helper, /await loadCurrentAthleteDeclaration\(\)/u);
   assert.match(helper, /state\.declarationRecord =/u);

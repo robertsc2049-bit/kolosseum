@@ -294,7 +294,9 @@ export function AthleteSessionExecutionPanel() {
   const programmeRun = isRecord(sessionState.programme_run) ? (sessionState.programme_run as JsonRecord) : null;
   // The athlete's own week (MyTrainingCard): which day of it, which week.
   const ownTraining = isRecord(sessionState.own_training) ? (sessionState.own_training as JsonRecord) : null;
-  const cycleSummary = ownTraining
+  const cycleSummary = ownTraining?.today === true
+    ? "Today's session - your own exercises"
+    : ownTraining
     ? `My training · Day ${Number(ownTraining.day_number)} of ${Number(ownTraining.days_total)} · week ${Number(ownTraining.week_number)}${ownTraining.lighter === true ? " (lighter)" : ""}`
     : programmeRun
     ? [String(programmeRun.title ?? ""), programmePositionLine(programmeRun), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")

@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import {
   AthleteTodayCreateSessionButton,
@@ -24,9 +24,10 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
   } as Response;
 }
 
-function installMocks(today: Record<string, unknown>, sessionState?: Record<string, unknown>) {
+function installMocks(today: Record<string, unknown>, sessionState?: Record<string, unknown>, trainingWeek?: Record<string, unknown>) {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const path = String(input);
+    if (trainingWeek && path === "/account/onboarding/training-week") return jsonResponse(trainingWeek);
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: ATHLETE_USER_ID } });
     if (path.startsWith("/sessions/beta-athlete-today")) return jsonResponse({ ok: true, ...today });
     if (/\/sessions\/.+\/state$/u.test(path)) return jsonResponse(sessionState ?? {});
@@ -285,4 +286,49 @@ test("refetches once a same-tab sign-in completes", async () => {
   });
 
   await waitFor(() => screen.getByText("No session is open"));
+});
+
+test("a self-coached athlete with no week chooses today's exercises before the session starts, and they go with the request", async () => {
+  installMocks({ state: "no_session", coach_user_id: null, assignment: null, session: null, event: null, notes: [] }, {},
+    { week: null, programme_in_progress: false, exercise_options: [{ exercise_id: "back_squat", label: "Back squat" }, { exercise_id: "pull_up", label: "Pull-up" }] });
+  let detail: unknown = null;
+  const listener = (event: Event) => { detail = (event as CustomEvent).detail; };
+  document.addEventListener("kolosseum:create-session", listener);
+  render(<AthleteTodayCreateSessionButton />);
+  const startButton = await screen.findByText("Start session");
+  await act(async () => {
+    startButton.click();
+  });
+  await screen.findByText("What are you training today?");
+  assert.equal(detail, null, "nothing starts until they've chosen");
+  fireEvent.change(screen.getByLabelText("Today exercise 1"), { target: { value: "back_squat" } });
+  fireEvent.change(screen.getByLabelText("Today exercise 1 reps"), { target: { value: "5" } });
+  fireEvent.click(screen.getByText("Add exercise"));
+  fireEvent.change(screen.getByLabelText("Today exercise 2"), { target: { value: "pull_up" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Start session"));
+  });
+  assert.deepEqual(detail, { todays_exercises: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "pull_up", sets: 3, reps: 8 }] });
+  document.removeEventListener("kolosseum:create-session", listener);
+});
+
+test("an athlete with a coach, or with a week of their own, starts straight away", async () => {
+  for (const [today, week] of [
+    [{ state: "no_session", coach_user_id: "coach_1", assignment: null, session: null, event: null, notes: [] }, { week: null, programme_in_progress: false, exercise_options: [] }],
+    [{ state: "no_session", coach_user_id: null, assignment: null, session: null, event: null, notes: [] }, { week: { week_id: "w", days: [] }, programme_in_progress: false, exercise_options: [] }]
+  ] as const) {
+    installMocks(today, {}, week);
+    let dispatched = false;
+    const listener = () => { dispatched = true; };
+    document.addEventListener("kolosseum:create-session", listener);
+    const { unmount } = render(<AthleteTodayCreateSessionButton />);
+    const startButton = await screen.findByText("Start session");
+    await act(async () => {
+      startButton.click();
+    });
+    await waitFor(() => assert.equal(dispatched, true));
+    assert.equal(screen.queryByText("What are you training today?"), null);
+    document.removeEventListener("kolosseum:create-session", listener);
+    unmount();
+  }
 });

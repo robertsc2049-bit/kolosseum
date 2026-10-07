@@ -705,7 +705,9 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <StandDownCard />
       <PainCheckInCard />
       <AthleteEquipmentCard />
-      <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} />
+      {/* Self-coached athletes choose their exercises in My training, or on
+          Today for the session in hand - there are no programme slots to fill. */}
+      {fields.execution_scope !== "individual" ? <ProgrammeExercisesCard key={`programme-${String(current.declaration_version ?? "")}`} /> : null}
       <MatchWeekCard />
       {isCombatActivity(fields.activity_id) ? <WeightClassCard /> : null}
       <AthleteMaxesCard key={`maxes-${String(current.declaration_version ?? "")}`} />

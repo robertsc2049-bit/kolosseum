@@ -46,3 +46,14 @@ test("today's session is the day's exercises as written, each an effort target t
   const lighter = ownTrainingProgram({}, threeDays, ownTrainingStamp(threeDays, 9));
   assert.deepEqual(lighter.planned_items.map((i) => i.sets), [2, 2]);
 });
+
+test("with no week of their own, an athlete logs what they train today: today's exercises as a one-off session, checked like a week", async () => {
+  const { todaysSession } = await import(new URL("../dist/src/api/athlete_training_week.js", import.meta.url).href);
+  const { week, stamp } = todaysSession([{ exercise_id: "back_squat", sets: 5, reps: 5 }, { exercise_id: "pull_up", sets: 3, reps: 8 }], "rugby_union", "abc");
+  assert.equal(week.week_id, "today_abc");
+  assert.deepEqual(stamp, { week_id: "today_abc", day_number: 1, days_total: 1, week_number: 1, lighter: false, today: true });
+  const program = ownTrainingProgram({}, week, stamp);
+  assert.deepEqual(program.planned_items.map((i) => [i.exercise_id, i.sets, i.reps]), [["back_squat", 5, 5], ["pull_up", 3, 8]]);
+  assert.throws(() => todaysSession([], "rugby_union", "x"), (e) => Boolean(e.fieldErrors.day_1));
+  assert.throws(() => todaysSession([{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "back_squat", sets: 3, reps: 5 }], "rugby_union", "x"), (e) => Boolean(e.fieldErrors.day_1_2));
+});

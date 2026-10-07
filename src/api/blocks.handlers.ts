@@ -24,7 +24,8 @@ import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
 import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunPosition, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
-import { type OwnTrainingStamp, getCurrentTrainingWeek, ownTrainingProgram, ownTrainingStamp, trainingWeekSessionCount } from "./athlete_training_week_service.js";
+import { type OwnTrainingStamp, type TrainingWeek, TrainingWeekError, getCurrentTrainingWeek, ownTrainingProgram, ownTrainingStamp, todaysSession, trainingWeekSessionCount } from "./athlete_training_week_service.js";
+import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -64,6 +65,8 @@ type CompileBlockBody = {
   beta_path_context?: unknown;
   beta_user_id?: unknown;
   beta_coach_user_id?: unknown;
+  // A self-coached athlete with no week of their own: what they train today.
+  todays_exercises?: unknown;
 };
 
 type JsonRecord = Record<string, unknown>;
@@ -350,6 +353,19 @@ export async function compileBlock(req: Request, res: Response) {
   // finishes.)
   const training_week =
     create_session && beta_individual_subject_user_id && !programme_run ? await getCurrentTrainingWeek(beta_individual_subject_user_id) : null;
+  // With no week of their own, the athlete can log what they're training
+  // today: the exercises they chose for this session only.
+  let todays: { week: TrainingWeek; stamp: OwnTrainingStamp } | null = null;
+  if (create_session && beta_individual_subject_user_id && !programme_run && !training_week && Array.isArray(body.todays_exercises)) {
+    try {
+      const profile = await getAthleteTrainingProfile(beta_individual_subject_user_id);
+      todays = todaysSession(body.todays_exercises, profile.activity_id, crypto.randomUUID().replace(/-/gu, ""));
+    }
+    catch (error) {
+      if (error instanceof TrainingWeekError) throw badRequest("Today's exercises are not valid", { failure_token: "todays_exercises_invalid", field_errors: error.fieldErrors });
+      throw error;
+    }
+  }
   if (beta_individual_subject_user_id && isRecord(body.phase1_input)) {
     const cycle_with_reentry = await trainingCycleForAthlete(beta_individual_subject_user_id);
     // Training days are required (no silent default): an athlete who
@@ -362,7 +378,7 @@ export async function compileBlock(req: Request, res: Response) {
     // The athlete's own exercise for each open slot; the engine refuses the
     // session if today's slots are not all chosen (never a default).
     // A programme run, or the athlete's own week, brings its own exercises.
-    const exercise_selections = programme_run || training_week ? undefined : await getAthleteExerciseSelections(beta_individual_subject_user_id);
+    const exercise_selections = programme_run || training_week || todays ? undefined : await getAthleteExerciseSelections(beta_individual_subject_user_id);
     phase1ForCompile = { ...body.phase1_input, training_cycle, ...(exercise_selections ? { exercise_selections } : {}) };
   }
 
@@ -581,12 +597,13 @@ export async function compileBlock(req: Request, res: Response) {
 
   // The athlete's own week: today's day of it, in order.
   let own_training_session: OwnTrainingStamp | undefined;
-  if (training_week && beta_individual_subject_user_id) {
-    own_training_session = ownTrainingStamp(training_week, await trainingWeekSessionCount(beta_individual_subject_user_id, training_week.week_id));
-    programForSession = ownTrainingProgram(p4.program as unknown as Record<string, unknown>, training_week, own_training_session);
+  const own_week = training_week ?? todays?.week ?? null;
+  if (own_week && beta_individual_subject_user_id) {
+    own_training_session = todays ? todays.stamp : ownTrainingStamp(own_week, await trainingWeekSessionCount(beta_individual_subject_user_id, own_week.week_id));
+    programForSession = ownTrainingProgram(p4.program as unknown as Record<string, unknown>, own_week, own_training_session);
     canonical_hash = crypto.createHash("sha256").update(JSON.stringify({
       phase2_canonical_hash: canonical_hash,
-      own_training_week_id: training_week.week_id,
+      own_training_week_id: own_week.week_id,
       day_number: own_training_session.day_number,
       week_number: own_training_session.week_number
     }), "utf8").digest("hex");

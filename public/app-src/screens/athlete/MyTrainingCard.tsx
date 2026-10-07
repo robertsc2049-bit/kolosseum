@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { loadTrainingWeek, saveTrainingWeek } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem } from "../../components/TrainingDayEditor";
 
 // "My training" (src/api/athlete_training_week_service.ts): an athlete without
 // a coach builds one week - how many days, and on each day the exercises
@@ -10,12 +11,9 @@ import { type JsonRecord } from "../../api/transport";
 // week. Weights come from their own way of setting them (build from what
 // they lift, % of max, or RPE); an optional lighter week every 4th.
 
-type Item = { exercise_id: string; sets: number; reps: number };
-type Day = { items: Item[] };
-type Option = { exercise_id: string; label: string };
+type Day = { items: DayItem[] };
 
 const MAX_DAYS = 6;
-const newItem = (): Item => ({ exercise_id: "", sets: 3, reps: 8 });
 const asDays = (value: unknown): Day[] => (Array.isArray(value) ? value : []).map((d) => ({
   items: (Array.isArray((d as JsonRecord)?.items) ? ((d as JsonRecord).items as JsonRecord[]) : []).map((i) => ({ exercise_id: String(i.exercise_id ?? ""), sets: Number(i.sets) || 3, reps: Number(i.reps) || 8 }))
 }));
@@ -23,7 +21,7 @@ const asDays = (value: unknown): Day[] => (Array.isArray(value) ? value : []).ma
 export function MyTrainingCard() {
   const [data, setData] = useState<JsonRecord | null>(null);
   const [editing, setEditing] = useState(false);
-  const [days, setDays] = useState<Day[]>([{ items: [newItem()] }, { items: [newItem()] }, { items: [newItem()] }]);
+  const [days, setDays] = useState<Day[]>([{ items: [newDayItem()] }, { items: [newDayItem()] }, { items: [newDayItem()] }]);
   const [lighter, setLighter] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,22 +43,13 @@ export function MyTrainingCard() {
     return () => { cancelled = true; };
   }, []);
 
-  const options: Option[] = Array.isArray(data?.exercise_options) ? (data!.exercise_options as JsonRecord[]).map((o) => ({ exercise_id: String(o.exercise_id), label: String(o.label) })) : [];
+  const options: ExerciseOption[] = Array.isArray(data?.exercise_options) ? (data!.exercise_options as JsonRecord[]).map((o) => ({ exercise_id: String(o.exercise_id), label: String(o.label) })) : [];
   const labelOf = (id: string) => options.find((o) => o.exercise_id === id)?.label ?? id;
   const week = data?.week && typeof data.week === "object" ? (data.week as JsonRecord) : null;
   const next = data?.next && typeof data.next === "object" ? (data.next as JsonRecord) : null;
 
   function setDayCount(count: number) {
-    setDays((current) => Array.from({ length: count }, (_, i) => current[i] ?? { items: [newItem()] }));
-  }
-  function updateItem(day: number, index: number, change: Partial<Item>) {
-    setDays((current) => current.map((d, i) => (i !== day ? d : { items: d.items.map((item, j) => (j === index ? { ...item, ...change } : item)) })));
-  }
-  function addItem(day: number) {
-    setDays((current) => current.map((d, i) => (i === day ? { items: [...d.items, newItem()] } : d)));
-  }
-  function removeItem(day: number, index: number) {
-    setDays((current) => current.map((d, i) => (i === day ? { items: d.items.filter((_, j) => j !== index) } : d)));
+    setDays((current) => Array.from({ length: count }, (_, i) => current[i] ?? { items: [newDayItem()] }));
   }
 
   async function save() {
@@ -120,30 +109,7 @@ export function MyTrainingCard() {
             </select>
           </label>
           {days.map((day, d) => (
-            <fieldset key={d} className="my-training-day">
-              <legend>{`Day ${d + 1}`}</legend>
-              {day.items.map((item, i) => (
-                <div key={i} className="my-training-item">
-                  <label className="field">
-                    <span>Exercise</span>
-                    <select aria-label={`Day ${d + 1} exercise ${i + 1}`} value={item.exercise_id} onChange={(event) => updateItem(d, i, { exercise_id: event.target.value })}>
-                      <option value="">Choose an exercise</option>
-                      {options.map((o) => <option key={o.exercise_id} value={o.exercise_id}>{o.label}</option>)}
-                    </select>
-                  </label>
-                  <label className="field">
-                    <span>Sets</span>
-                    <input aria-label={`Day ${d + 1} exercise ${i + 1} sets`} type="number" inputMode="numeric" min={1} max={8} value={item.sets} onChange={(event) => updateItem(d, i, { sets: Number(event.target.value) })} />
-                  </label>
-                  <label className="field">
-                    <span>Reps</span>
-                    <input aria-label={`Day ${d + 1} exercise ${i + 1} reps`} type="number" inputMode="numeric" min={1} max={30} value={item.reps} onChange={(event) => updateItem(d, i, { reps: Number(event.target.value) })} />
-                  </label>
-                  {day.items.length > 1 ? <button className="button secondary" type="button" onClick={() => removeItem(d, i)}>Remove</button> : null}
-                </div>
-              ))}
-              <button className="button secondary" type="button" onClick={() => addItem(d)}>Add exercise</button>
-            </fieldset>
+            <TrainingDayEditor key={d} label={`Day ${d + 1}`} items={day.items} options={options} onChange={(items) => setDays((current) => current.map((x, i) => (i === d ? { items } : x)))} />
           ))}
           <label className="checkbox-field">
             <input type="checkbox" checked={lighter} onChange={(event) => setLighter(event.target.checked)} />
