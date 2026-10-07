@@ -132,3 +132,11 @@ export function loadAthleteProgrammes(): Promise<JsonRecord> {
 export function setAthleteProgramme(listingId: string | null, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/programme", { listing_id: listingId }, csrfToken);
 }
+
+// A self-coached athlete's own training week (days, exercises, sets and reps).
+export function loadTrainingWeek(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/training-week");
+}
+export function saveTrainingWeek(input: { days: { items: { exercise_id: string; sets: number; reps: number }[] }[]; lighter_every_fourth: boolean }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/training-week", input, csrfToken);
+}

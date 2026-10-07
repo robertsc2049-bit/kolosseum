@@ -475,6 +475,10 @@
     {
       "kind": "command",
       "value": "node test/programme_fit.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/athlete_training_week.test.mjs"
     }
   ]
 }

@@ -292,13 +292,17 @@ export function AthleteSessionExecutionPanel() {
   // Where this session sits in the athlete's periodised plan (self-directed only).
   const cycle = sessionState.training_cycle as JsonRecord | undefined;
   const programmeRun = isRecord(sessionState.programme_run) ? (sessionState.programme_run as JsonRecord) : null;
-  const cycleSummary = programmeRun
+  // The athlete's own week (MyTrainingCard): which day of it, which week.
+  const ownTraining = isRecord(sessionState.own_training) ? (sessionState.own_training as JsonRecord) : null;
+  const cycleSummary = ownTraining
+    ? `My training · Day ${Number(ownTraining.day_number)} of ${Number(ownTraining.days_total)} · week ${Number(ownTraining.week_number)}${ownTraining.lighter === true ? " (lighter)" : ""}`
+    : programmeRun
     ? [String(programmeRun.title ?? ""), programmePositionLine(programmeRun), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
     : trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
   // Back after a break: a lighter re-entry week, then blocks restart at week 1
   // - or, on a Kolosseum programme, the programme carries on where it left off.
-  const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord) : null;
+  const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord) : isRecord(ownTraining?.reentry) ? (ownTraining?.reentry as JsonRecord) : null;
   const reentry = runReentry ?? (isRecord(cycle?.reentry) ? (cycle?.reentry as JsonRecord) : null);
   const reentryNote = reentry && reentry.reentry_week === true
     ? reentry.after_head_injury === true

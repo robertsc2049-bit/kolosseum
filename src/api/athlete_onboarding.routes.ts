@@ -46,6 +46,7 @@ import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_servic
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } from "./programme_catalogue_service.js";
+import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek } from "./athlete_training_week_service.js";
 
 export const athleteOnboardingRouter = Router();
 
@@ -351,6 +352,27 @@ athleteOnboardingRouter.put(
   })
 );
 
+// A self-coached athlete's own training week: the days, exercises, sets and
+// reps they repeat (athlete_training_week_service.ts).
+athleteOnboardingRouter.get(
+  "/training-week",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getAthleteTrainingWeek(session.account_row.user_id));
+  })
+);
+
+athleteOnboardingRouter.put(
+  "/training-week",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteTrainingWeek(session.account_row.user_id, request.body));
+  })
+);
+
 athleteOnboardingRouter.put(
   "/readiness",
   readinessRateLimit,
@@ -407,6 +429,11 @@ athleteOnboardingRouter.use(
     }
 
     if (error instanceof ProgrammeCatalogueError) {
+      response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      return;
+    }
+
+    if (error instanceof TrainingWeekError) {
       response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       return;
     }

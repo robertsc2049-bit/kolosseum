@@ -6,7 +6,7 @@ import { type JsonRecord } from "../../api/transport";
 import { SPORT_FAMILIES } from "../../components/SportPicker";
 import { sportLabel } from "../../utils/sportLabel";
 
-// "Publish to athletes": a Kolosseum programme author lists one of their
+// "Publish to coaches": a Kolosseum programme author lists one of their
 // active programmes for athletes without a coach (src/api/
 // programme_catalogue_service.ts) - who it suits (levels; sports, or any
 // sport), how many days a week, and which of their programmes athletes are
@@ -78,7 +78,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
         title: title.trim(), summary: summary.trim(), levels, activity_ids: general ? [] : sports, days_per_week: days, next_listing_id: nextId, listed
       }, csrf);
       apply(result.listing as JsonRecord);
-      setStatus(listed ? "Listed for athletes." : "No longer listed - athletes already running it can finish it.");
+      setStatus(listed ? "Listed for coaches." : "No longer listed - copies coaches already made are theirs to keep.");
     }
     catch (caught) {
       const payload = (caught as { payload?: JsonRecord })?.payload;
@@ -100,7 +100,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
       <div className="panel-header">
         <div>
           <p className="eyebrow">Kolosseum programmes</p>
-          <h4>Publish to athletes</h4>
+          <h4>Publish to coaches</h4>
         </div>
         {listing ? <span className={`badge ${listed ? "complete" : "neutral"}`}>{listed ? "Listed" : "Not listed"}</span> : null}
       </div>
@@ -108,9 +108,9 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
         <p className="muted">Activate this programme to publish it. Athletes run the exact version you publish.</p>
       ) : (
         <>
-          <p className="muted">Athletes without a coach can start this programme. They see it if it suits their level and sport.</p>
+          <p className="muted">Coaches can copy this programme into their own library to adapt and assign. Its levels and sports help them find it.</p>
           <label className="field">
-            <span>Title athletes see</span>
+            <span>Title coaches see</span>
             <input value={title} maxLength={120} onChange={(event) => setTitle(event.target.value)} />
           </label>
           <label className="field">
@@ -178,7 +178,7 @@ export function ProgrammeCatalogueListingSection({ template }: { template: JsonR
           {status ? <p className="muted small" role="status">{status}</p> : null}
           <div className="button-row">
             <button className="button primary" type="button" disabled={saving || (!general && sports.length === 0)} onClick={() => void save(true)}>
-              {listed ? "Update listing" : "Publish to athletes"}
+              {listed ? "Update listing" : "Publish to coaches"}
             </button>
             {listed ? <button className="button secondary" type="button" disabled={saving} onClick={() => void save(false)}>Unlist</button> : null}
           </div>

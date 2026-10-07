@@ -299,11 +299,22 @@ test(
 
     const programmes = await requestJson(base, "GET", "/account/onboarding/programmes", { cookie: athlete.cookie });
     assertStatus(programmes, 200, "programmes");
-    const option = programmes.json.options.find((o) => o.listing_id === listed.json.listing.listing_id);
-    assert.ok(option, "the general beginner programme is offered");
-    assert.equal(option.sport_specific, false);
-    const started = await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf: athlete.csrf, body: { listing_id: option.listing_id } });
-    assertStatus(started, 200, "start programme");
+    // Kolosseum programmes are for coaches: athletes aren't offered them and
+    // can't start one (they build their own week in My training).
+    assert.deepEqual(programmes.json.options, [], "no programmes offered to athletes");
+    const refusedStart = await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf: athlete.csrf, body: { listing_id: listed.json.listing.listing_id } });
+    assertStatus(refusedStart, 409, "athletes can't start a Kolosseum programme");
+    assert.equal(refusedStart.json.error, "athlete_programmes_for_coaches");
+    // An athlete who started one before then runs it to the end.
+    await withClient(databaseUrl, (client) => client.query(
+      "INSERT INTO product_account_events (event_id, user_id, event_type, event_payload, occurred_at) VALUES ($1, $2, 'athlete_programme_run_started', $3::jsonb, now())",
+      [`account_event_run_${nonce}`, athlete.userId, JSON.stringify({
+        run_id: `programme_run_${nonce}`, listing_id: listed.json.listing.listing_id, author_user_id: author.userId, template_id: templateId,
+        title: "Beginner full-body", started_at: new Date().toISOString(), schema_version: "athlete_programme_run_v1"
+      })]
+    ));
+    const started = await requestJson(base, "GET", "/account/onboarding/programmes", { cookie: athlete.cookie });
+    assertStatus(started, 200, "the run in progress");
     assert.deepEqual([started.json.current.sessions_done, started.json.current.sessions_total], [0, 3]);
     assert.deepEqual(started.json.current.next_position, { week_number: 1, weeks_total: 1, block_name: "Foundation", block_type: "general" });
 
@@ -450,13 +461,18 @@ test(
     assert.deepEqual([pushUps.sets, pushUps.reentry_lighter], [2, true], "3 sets of push-ups become 2");
     assert.equal(backSession.exercises.find((e) => e.exercise_id === "deadlift").sets, 1, "a single set stays one set");
 
-    // Stopping it: with a programme that suits them listed, the athlete
-    // chooses one before training - the generated programme is only the
-    // fallback while none suits them.
+    // Stopping it, the athlete builds their own week and trains from it.
     const csrf = (await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie })).json.csrf_token;
     assertStatus(await requestJson(base, "PUT", "/account/onboarding/programme", { cookie: athlete.cookie, csrf, body: { listing_id: null } }), 200, "stop programme");
-    const required = await createSession();
-    assertStatus(required, 400, "session with no programme chosen");
-    assert.equal(required.json.error, "programme_required");
+    const ownWeek = await requestJson(base, "PUT", "/account/onboarding/training-week", { cookie: athlete.cookie, csrf, body: {
+      days: [{ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "push_up", sets: 3, reps: 10 }] }, { items: [{ exercise_id: "deadlift", sets: 1, reps: 5 }] }],
+      lighter_every_fourth: true
+    } });
+    assertStatus(ownWeek, 200, "build my training");
+    const ownSession = await createSession();
+    assertStatus(ownSession, 201, "a session from my own week");
+    assert.equal(ownSession.json.planned_session.own_training.day_number, 1);
+    assert.deepEqual(ownSession.json.planned_session.exercises.map((e) => e.exercise_id), ["back_squat", "push_up"]);
+    assert.equal(ownSession.json.planned_session.programme_run, undefined);
   }
 );
