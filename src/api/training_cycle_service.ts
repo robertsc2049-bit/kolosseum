@@ -9,6 +9,16 @@ import { computeTrainingCycle, reentryFor, weekStartMs, type Reentry } from "./t
 import { headInjuryReturn } from "./medical_stand_down_service.js";
 import { LONG_LAYOFF_DAYS } from "./training_cycle.js";
 
+// A return from 10+ days away from training (the gap between sessions), for
+// any athlete - self-directed or coached: their first week back is lighter.
+export async function gapReentryForAthlete(userId: string, now: Date = new Date()): Promise<Reentry | null> {
+  const history = await pool.query(
+    `SELECT created_at FROM sessions WHERE beta_subject_user_id = $1 ORDER BY created_at`,
+    [userId]
+  );
+  return reentryFor(now, (history.rows ?? []).map((row: { created_at: Date | string }) => new Date(row.created_at).toISOString()));
+}
+
 // The cycle for a self-directed athlete's next session, or null when they have
 // not declared a training plan (the engine then serves the single session).
 // A return from a break of 10+ days is carried as reentry (for the athlete's
@@ -21,11 +31,7 @@ export async function trainingCycleForAthlete(userId: string, now: Date = new Da
     [userId, new Date(weekStartMs(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))).toISOString()]
   );
   const sessionsThisWeek = Number(result.rows?.[0]?.n ?? 0);
-  const history = await pool.query(
-    `SELECT created_at FROM sessions WHERE beta_subject_user_id = $1 ORDER BY created_at`,
-    [userId]
-  );
-  const gapReentry = reentryFor(now, (history.rows ?? []).map((row: { created_at: Date | string }) => new Date(row.created_at).toISOString()));
+  const gapReentry = await gapReentryForAthlete(userId, now);
   // The first week back after a head injury is a re-entry week whatever the gap.
   const headInjury = await headInjuryReturn(userId, now.toISOString().slice(0, 10));
   const reentry: Reentry | null = headInjury
