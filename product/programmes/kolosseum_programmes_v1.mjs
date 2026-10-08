@@ -1175,11 +1175,279 @@ const PRO_VERSIONS = [
   proVersion(enduranceSwimRowPaddle, "Swim, row and paddle strength - pro (12 weeks)")
 ];
 
+// ---------------------------------------------------------------------------
+// 16. Sport-specific beginner programmes - beginner only. Where the sport's
+// own skills are lifts (weightlifting, street lifting), stations (HYROX) or
+// movements to learn (CrossFit), or where contact makes neck and hamstring
+// work non-negotiable from day one (collision and combat sports), a beginner
+// starts on their sport's own foundation rather than a generic one. Loads
+// build from what they lift (the beginner default); efforts stay at RPE 6-7.
+const BEGINNER_LIGHTER = (week) => week % 4 === 0;
+const beginnerS = (week) => (n) => (BEGINNER_LIGHTER(week) ? Math.max(2, n - 1) : n);
+
+const contactBeginnerDay = (day, week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  return day === "A"
+    ? { title: "Day A", items: [
+        ex("back_squat", 3, 5, { pct }, 180), ex("bench_press", 3, 5, { pct }, 180), ex("barbell_row", 3, 8, { pct: pct - 5 }, 120),
+        ex("nordic_curl", s(2), 3, "bw", 90, "Lower as slowly as you can; catch yourself with your hands."),
+        ex("neck_flexion_isometric", 2, { seconds: 15 }, { rpe: 5 }, 45, "Gentle: push into your hand and hold - build the effort over the weeks."),
+        ex("neck_extension_isometric", 2, { seconds: 15 }, { rpe: 5 }, 45)
+      ] }
+    : { title: "Day B", items: [
+        ex("back_squat", 3, 5, { pct }, 180), ex("overhead_press", 3, 5, { pct }, 180), ex("deadlift", 1, 5, { pct }, 180),
+        ex("lat_pulldown", 3, 10, { rpe: 7 }, 90), ex("neck_lateral_flexion_isometric", 2, { seconds: 15 }, { rpe: 5 }, 45),
+        ex("farmers_carry", 2, { metres: 30 }, { rpe: 7 }, 60, "Grip and trunk: tall, slow and steady.")
+      ] };
+};
+const contactBeginner = {
+  key: "beginner_contact_foundation",
+  template_name: "Contact-sport foundation (beginner)",
+  activity_id: "general_strength",
+  description: "Twelve weeks, three full-body days a week, for beginners in rugby, American football and combat sports: the main lifts, adding a little weight whenever every rep is made, plus the neck strength and Nordic curls every contact athlete needs from the first week - gentle holds that build over the weeks.",
+  listing: { title: "Contact-sport foundation (beginner, 12 weeks)", summary: "New to lifting in a contact sport? Three full-body days a week on the main lifts, adding weight as you make your reps, with neck strength and Nordic curls from week one - for rugby, American football and fighters.", levels: ["beginner"], activity_ids: [...COLLISION_SPORTS, ...COMBAT_SPORTS], days_per_week: 3, next: "intermediate_upper_lower" },
+  blocks: [{ name: "Foundation", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => {
+    const week = i + 1;
+    return (week % 2 === 1 ? ["A", "B", "A"] : ["B", "A", "B"]).map((day) => contactBeginnerDay(day, week));
+  }) }]
+};
+
+// Weightlifting beginners learn the lifts: light, technically perfect
+// triples and doubles at RPE 6-7 every session, pulls and squats for
+// strength. Nothing heavy until the positions are automatic.
+const owlBeginnerWeek = (week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  const rpe = week <= 4 ? 6 : 7;
+  const tech = "Light and perfect: stop the set if a rep changes shape. Video your sets for your coach.";
+  return [
+    { title: "Snatch and back squat", items: [
+      ex("snatch", s(5), 3, { rpe }, 120, tech), ex("overhead_squat", s(3), 3, { rpe: 6 }, 90, "With an empty bar or light: depth and a locked bar overhead."),
+      ex("back_squat", 3, 5, { pct }, 180), ex("snatch_pull", s(3), 3, { rpe: 7 }, 120)
+    ] },
+    { title: "Clean and jerk and front squat", items: [
+      ex("clean_and_jerk", s(5), 2, { rpe }, 150, tech), ex("split_jerk", s(3), 3, { rpe: 6 }, 90, "From the rack: find your split."),
+      ex("front_squat", 3, 5, { pct: pct - 5 }, 180), ex("clean_pull", s(3), 3, { rpe: 7 }, 120)
+    ] },
+    { title: "Power and hang", items: [
+      ex("power_snatch", s(4), 3, { rpe }, 120), ex("hang_power_clean", s(4), 3, { rpe }, 120), ex("romanian_deadlift", 3, 6, { rpe: 7 }, 120),
+      ex("pull_up", 3, [5, 8], { rpe: 7 }, 90), ex("front_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const owlBeginner = {
+  key: "beginner_weightlifting_foundation",
+  template_name: "Weightlifting foundation (beginner)",
+  activity_id: "olympic_weightlifting",
+  description: "Twelve weeks, three days a week, for new weightlifters: the snatch and clean & jerk every week, light and technically perfect (triples and doubles at RPE 6-7), power and hang variants, pulls, and back and front squats building strength underneath. Video your sets: technique is the whole point of this block.",
+  listing: { title: "Weightlifting foundation (beginner, 12 weeks)", summary: "New to weightlifting? Three days a week learning the snatch and clean & jerk - light, perfect triples and doubles - with pulls and squats building strength underneath. Nothing heavy until the positions are automatic.", levels: ["beginner"], activity_ids: ["olympic_weightlifting"], days_per_week: 3, next: "olympic_weightlifting_meet_prep" },
+  blocks: [
+    { name: "Positions", block_type: "general", weeks: [1, 2, 3, 4].map(owlBeginnerWeek) },
+    { name: "Speed", block_type: "general", weeks: [5, 6, 7, 8].map(owlBeginnerWeek) },
+    { name: "Confidence", block_type: "general", weeks: [9, 10, 11, 12].map(owlBeginnerWeek) }
+  ]
+};
+
+// Street lifting beginners build bodyweight pull-up and dip volume first,
+// then start adding weight in the last block.
+const streetBeginnerWeek = (week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  const loaded = week >= 9;
+  return [
+    { title: "Pull and dip", items: [
+      ex("pull_up", s(4), loaded ? 5 : [3, 8], { rpe: 7 }, 150, loaded ? "Add a little weight (2.5-5 kg) once 4 x 8 at bodyweight is easy; log it." : "Bodyweight, full range: dead hang to chin over the bar. Use a band if you can't do 3."),
+      ex("dip", s(4), loaded ? 5 : [3, 10], { rpe: 7 }, 150, loaded ? "Add a little weight once 4 x 10 is easy; log it." : "Bodyweight, shoulders below elbows at the bottom."),
+      ex("back_squat", 3, 5, { pct }, 180), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45)
+    ] },
+    { title: "Volume", items: [
+      ex("chin_up", s(3), [5, 10], { rpe: 7 }, 90), ex("push_up", s(3), [8, 15], { rpe: 7 }, 75), ex("inverted_row", s(3), 10, "bw", 75),
+      ex("cable_triceps_pressdown", 2, 12, { rpe: 7 }, 60), ex("dead_bug", 2, 8, "bw", 45)
+    ] },
+    { title: "Pull, dip and legs", items: [
+      ex("pull_up", s(3), [3, 8], { rpe: 7 }, 120), ex("dip", s(3), [3, 10], { rpe: 7 }, 120), ex("romanian_deadlift", 3, 8, { rpe: 7 }, 120),
+      ex("face_pull", 3, 15, { rpe: 7 }, 45), ex("side_lying_external_rotation", 2, 12, { rpe: 6 }, 45)
+    ] }
+  ];
+};
+const streetBeginner = {
+  key: "beginner_street_lifting_foundation",
+  template_name: "Street lifting foundation (beginner)",
+  activity_id: "street_lifting",
+  description: "Twelve weeks, three days a week, for new street lifters: strict bodyweight pull-ups and dips built up in volume for eight weeks, then the first weighted sets; chin-ups, push-ups and rows for volume; squat; and rotator cuff and elbow care every week, because tendons adapt slower than muscle.",
+  listing: { title: "Street lifting foundation (beginner, 12 weeks)", summary: "New to street lifting? Three days a week: strict bodyweight pull-ups and dips built up for eight weeks, then your first weighted sets - with squats and the shoulder and elbow care your tendons need.", levels: ["beginner"], activity_ids: ["street_lifting"], days_per_week: 3, next: "street_lifting_meet_prep" },
+  blocks: [
+    { name: "Bodyweight volume", block_type: "volume", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(streetBeginnerWeek) },
+    { name: "First weighted sets", block_type: "strength", weeks: [9, 10, 11, 12].map(streetBeginnerWeek) }
+  ]
+};
+
+// CrossFit on-ramp: the fundamental movements before intensity. Short,
+// scaled conditioning pieces; strict gymnastics; barbell basics.
+const cfBeginnerWeek = (week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  const cap = (BEGINNER_LIGHTER(week) ? 6 : 8) * 60;
+  return [
+    { title: "Squat and a short AMRAP", items: [
+      ex("back_squat", 3, 5, { pct }, 180),
+      ...group("amrap", { cap }, [ex("air_squat", 1, 10, "bw", 0), ex("push_up", 1, 8, "bw", 0, "From the knees or a box if needed."), ex("rowing_ergometer", 1, { metres: 200 }, { rpe: 7 }, 0)])
+    ] },
+    { title: "Deadlift, press and an EMOM", items: [
+      ex("deadlift", 1, 5, { pct }, 180), ex("overhead_press", 3, 5, { pct }, 150),
+      ...group("emom", { round: 60, rounds: BEGINNER_LIGHTER(week) ? 6 : 8 }, [ex("kettlebell_swing", 1, 10, { rpe: 6 }, 0, "Hips drive the bell: chest height, not overhead."), ex("box_jump", 1, 5, "bw", 0, "Low box, step down.")])
+    ] },
+    { title: "Gymnastics basics and a short For Time", items: [
+      ex("band_assisted_pull_up", s(4), 5, "bw", 90, "Strict. Lighter band as you get stronger."), ex("pike_push_up", s(3), 6, "bw", 90),
+      ...group("for_time", { cap }, [ex("wall_ball", 2, 10, { rpe: 6 }, 0, "Light ball: full squat, hit the target."), ex("burpee", 2, 6, "bw", 0)])
+    ] }
+  ];
+};
+const cfBeginner = {
+  key: "beginner_crossfit_on_ramp",
+  template_name: "CrossFit on-ramp (beginner)",
+  activity_id: "crossfit",
+  description: "Twelve weeks, three days a week, for new CrossFitters: the barbell basics (squat, deadlift, press) adding weight as every rep is made, strict gymnastics with a band, and one short, scaled conditioning piece a day - mechanics, then consistency, then intensity.",
+  listing: { title: "CrossFit on-ramp (beginner, 12 weeks)", summary: "New to CrossFit? Three days a week: squat, deadlift and press, strict pull-ups and push-ups, and one short, scaled workout a day. Mechanics first, then consistency, then intensity.", levels: ["beginner"], activity_ids: ["crossfit"], days_per_week: 3, next: "crossfit_strength_conditioning" },
+  blocks: [{ name: "On-ramp", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => cfBeginnerWeek(i + 1)) }]
+};
+
+// HYROX first race: running base, full-body strength, and every station at
+// light weights learned before it's raced.
+const HYROX_BEGINNER_EASY = [3, 3, 4, 3, 4, 5, 5, 4, 5, 6, 6, 4];
+// A station at a learning dose: half the race distance (50 wall balls),
+// light, with rest.
+const lightStation = (name, sets) => {
+  const item = station[name](sets);
+  const reps = typeof item.reps === "object" && "metres" in item.reps ? { metres: Math.max(25, item.reps.metres / 2) } : Math.min(Number(item.reps), 50);
+  return { ...item, reps, load: item.load === "bw" ? "bw" : { rpe: 6 }, rest: 120, note: "Learn the movement at a light weight; race weight comes later." };
+};
+const hyroxBeginnerWeek = (week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  const pair = PAIRS[(week - 1) % 4];
+  return [
+    { title: "Full-body strength", items: [
+      ex("back_squat", 3, 5, { pct }, 180), ex("romanian_deadlift", 3, 8, { rpe: 7 }, 120), ex("push_up", 3, [8, 12], "bw", 75),
+      ex("seated_cable_row", 3, 10, { rpe: 7 }, 75), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Learn the stations", items: [
+      lightStation(pair[0], s(3)), lightStation(pair[1], s(3)),
+      ...(pair.includes("wallball") ? [] : [ex("wall_ball", s(3), 15, { rpe: 6 }, 90, "Light ball, steady rhythm.")])
+    ] },
+    { title: "Easy run", items: [
+      ex("easy_run", 1, { metres: HYROX_BEGINNER_EASY[week - 1] * 1000 }, { rpe: 5 }, 0, "Conversational pace. Walk breaks are fine.")
+    ] }
+  ];
+};
+const hyroxBeginner = {
+  key: "beginner_hyrox_first_race",
+  template_name: "HYROX first race (beginner)",
+  activity_id: "hyrox",
+  description: "Twelve weeks, three days a week, to a first HYROX: a full-body strength day, a day learning two of the eight stations at light weights (all eight in race order every four weeks), and an easy run building from 3 to 6 km. Finish the race strong, then move on to the race build.",
+  listing: { title: "HYROX first race (beginner, 12 weeks)", summary: "Your first HYROX? Three days a week: full-body strength, learning the eight stations at light weights, and an easy run building to 6 km. Get to the start line ready to finish strong.", levels: ["beginner"], activity_ids: ["hyrox"], days_per_week: 3, next: "hyrox_race_build" },
+  blocks: [{ name: "First race", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => hyroxBeginnerWeek(i + 1)) }]
+};
+
+// ---------------------------------------------------------------------------
+// 17. Pro versions of the strength and hybrid preps - pro only. Full-time
+// lifters and racers differ from amateurs in frequency and in how close to
+// their max they train, not in one more set: each pro prep adds a day built
+// around that - heavy singles for lifters, a second event day for strongmen,
+// race-pace intervals for HYROX, gymnastics and engine volume for CrossFit -
+// and the lifting preps peak at 95%. Taper weeks are unchanged.
+const proPrep = (amateur, title, summary, extraDay, peakTo95 = false) => {
+  let week = 0;
+  return {
+    ...amateur,
+    key: `${amateur.key}_pro`,
+    template_name: `${amateur.template_name} (pro)`,
+    description: `${amateur.description} Pro version: ${summary}`,
+    listing: { ...amateur.listing, title, summary: `For full-time athletes. ${summary}`, levels: ["pro"], days_per_week: amateur.listing.days_per_week + 1 },
+    blocks: amateur.blocks.map((block) => ({
+      ...block,
+      weeks: block.weeks.map((sessions) => {
+        week += 1;
+        if (block.block_type === "deload") return sessions;
+        const peak = (session) => (peakTo95 && block.block_type === "peak" && week === amateur.blocks.filter((b) => b.block_type !== "deload").reduce((n, b) => n + b.weeks.length, 0)
+          ? { ...session, items: session.items.map((i) => (i.load !== "bw" && i.load && "pct" in i.load && i.load.pct === 92.5 ? { ...i, load: { pct: 95 } } : i)) }
+          : session);
+        return [...sessions.map(peak), extraDay(week, block.block_type)];
+      })
+    }))
+  };
+};
+
+// Heavy-single day: work up to a top single at the week's effort, then
+// back-off sets on a variation (the builder holds each exercise once a
+// session). Rotates squat, bench, deadlift.
+const PL_SINGLE = [["back_squat", "paused_back_squat"], ["bench_press", "paused_bench_press"], ["deadlift", "paused_deadlift"]];
+const plSingleDay = (week, blockType) => {
+  const [lift, backOff] = PL_SINGLE[(week - 1) % 3];
+  const rpe = blockType === "volume" ? 7 : blockType === "strength" ? 8 : 9;
+  return { title: "Heavy single", items: [
+    ex(lift, 1, 1, { rpe }, 300, `Work up to one single at RPE ${rpe} - your read on where your max is today; log it.`),
+    ex(backOff, 3, 3, { rpe: rpe - 1 }, 180, "Back-off sets: same groove, slower and stricter."),
+    ex("chest_supported_row", 3, 10, { rpe: 8 }, 90), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+  ] };
+};
+// Peak weeks 9-11: 90, 92.5, then 95%.
+const OWL_PEAK_SINGLE = [90, 92.5, 95];
+const owlSingleDay = (week, blockType) => {
+  const pct = blockType === "peak" ? OWL_PEAK_SINGLE[Math.min(2, Math.max(0, week - 9))] : null;
+  const load = pct ? { pct } : { rpe: blockType === "volume" ? 7 : 8 };
+  const note = pct ? "Your heavy single for the week: make it, then stop." : "Work up to a crisp single at this effort; log it - it tells your coach where your max is.";
+  return { title: "Heavy singles", items: [
+    ex("snatch", 1, 1, load, 180, note), ex("clean_and_jerk", 1, 1, load, 210, note),
+    ex("front_squat", 3, 2, { rpe: 8 }, 180), ex("snatch_pull", 3, 2, { rpe: 8 }, 120)
+  ] };
+};
+const strongmanEventTwo = (week) => {
+  const stone = week % 2 === 1 ? "atlas_stone_over_bar" : "atlas_stone_load";
+  return { title: "Event day 2 - medley", items: [
+    ex(stone, 4, 3, { rpe: 8 }, 150, "The other stone event from day 3: swap in your contest's series once announced."),
+    ex("axle_bar_press", 4, 5, { rpe: 8 }, 150, "Clean the axle every rep: the contest version."),
+    ex("sled_drag", 4, { metres: 20 }, { rpe: 8 }, 120, "Stands in for a truck or vehicle pull."),
+    ex("tire_flip", 3, 5, { rpe: 8 }, 120), ex("dumbbell_static_hold", 3, { seconds: 30 }, { rpe: 8 }, 60, "Grip endurance for the medley.")
+  ] };
+};
+const streetSingleDay = (week, blockType) => {
+  const rpe = blockType === "volume" ? 7 : blockType === "strength" ? 8 : 9;
+  const added = "Add weight (belt or vest) to reach this effort, to your federation's standard; log the added weight.";
+  return { title: "Heavy singles", items: [
+    ex("pull_up", 3, 1, { rpe }, 240, added), ex("dip", 3, 1, { rpe }, 240, added),
+    ex("muscle_up", 3, 3, "bw", 120, "Strict and fresh."), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45)
+  ] };
+};
+const hyroxIntervals = (week, blockType) => ({ title: "Race-pace intervals", items: [
+  ex("treadmill_run", blockType === "general" ? 4 : 5, { metres: 1000 }, { rpe: 8 }, 90, "Your target race pace for each 1 km, 90 s rest."),
+  ex("sled_push", 4, { metres: 25 }, { rpe: 8 }, 120, "Heavier than race weight."), ex("sled_rope_pull", 4, { metres: 25 }, { rpe: 8 }, 120, "Heavier than race weight, hand over hand."),
+  ex("ski_erg", 3, { metres: 500 }, { rpe: 8 }, 90)
+] });
+const crossfitEngine = (week) => ({ title: "Gymnastics volume and long engine", items: [
+  ex("muscle_up", 4, 3, "bw", 120, "Bar or rings; strict before kipping."), ex("rope_climb", 3, 1, "bw", 90),
+  ...group("amrap", { cap: (week % 4 === 0 ? 15 : 20) * 60 }, [
+    ex("rowing_ergometer", 1, { metres: 500 }, { rpe: 7 }, 0), ex("toes_to_bar", 1, 15, "bw", 0), ex("double_under", 1, 50, "bw", 0), ex("thruster", 1, 10, { rpe: 6 }, 0, "Light: sustainable for 20 minutes.")
+  ])
+] });
+
+const STRENGTH_PRO_VERSIONS = [
+  proPrep(powerliftingMeetPrep, "Powerlifting meet prep - pro (12 weeks)", "a fifth day for a heavy single (RPE 7 to 9) with back-off sets, rotating squat, bench and deadlift, and the last peak week at 95%.", plSingleDay, true),
+  proPrep(olympicWeightlifting, "Olympic weightlifting meet prep - pro (12 weeks)", "a fifth day of heavy singles in the snatch and clean & jerk - by effort in the build, then 90, 92.5 and 95% in the peak.", owlSingleDay),
+  proPrep(strongmanBuild, "Strongman strength and events - pro (12 weeks)", "a second event day - the other stone event, axle clean and press, a vehicle-pull stand-in and tyre - for the event volume a full-time strongman handles.", strongmanEventTwo),
+  proPrep(streetLifting, "Street lifting meet prep - pro (12 weeks)", "a fourth day of heavy singles on the weighted pull-up and dip (RPE 7 to 9) with muscle-up practice.", streetSingleDay),
+  proPrep(hyroxBuild, "HYROX race build - pro (12 weeks)", "a sixth day of race-pace 1 km intervals and heavy sled push and pull.", hyroxIntervals),
+  proPrep(crossfitBuild, "CrossFit strength and conditioning - pro (8 weeks)", "a fifth day of gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece.", crossfitEngine)
+];
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
   collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
   enduranceRunRide, triathlonStrength, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
   cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
-  ...PRO_VERSIONS
+  ...PRO_VERSIONS,
+  contactBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
+  ...STRENGTH_PRO_VERSIONS
 ];

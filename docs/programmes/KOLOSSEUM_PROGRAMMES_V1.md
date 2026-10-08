@@ -963,15 +963,42 @@ with level.
   them.
 - **Position splits:** collision sports split forwards and linemen from
   backs and skill players. Not yet split: fast bowler vs batter.
-- **Strength-sport meet preps** (powerlifting, weightlifting, strongman,
-  street lifting) stay shared. They're already individualised by the
-  athlete's own maxes.
+- **Strength-sport and hybrid preps** have their own pro versions (section 17).
+
+## 16. Sport foundations for beginners (beginner only)
+
+Most beginners start on Beginner full-body. Where the sport's own skills are
+lifts, stations or movements to learn, or where contact makes neck and
+hamstring work non-negotiable from day one, a beginner gets their sport's
+own foundation instead (listed first for them):
+
+| Programme | Sports | What's different from Beginner full-body |
+|---|---|---|
+| Contact-sport foundation | rugby (all three), American football, all six combat sports | The same main lifts, plus Nordic curls and gentle neck holds (RPE 5) from week one |
+| Weightlifting foundation | Olympic weightlifting | The snatch and clean & jerk every week, light and perfect (triples and doubles at RPE 6–7), power and hang variants, pulls, squats |
+| Street lifting foundation | street lifting | Eight weeks of strict bodyweight pull-up and dip volume, then the first weighted sets; tendon care every week |
+| CrossFit on-ramp | CrossFit | Barbell basics, banded strict gymnastics, one short scaled workout a day |
+| HYROX first race | HYROX | Full-body strength, all eight stations learned light (half race dose) every four weeks, an easy run building to 6 km |
+
+Each leads on to the sport's amateur programme when it's finished.
+
+## 17. Pro versions of the strength and hybrid preps (pro only)
+
+Full-time lifters and racers differ from amateurs in how often they train and
+how close to their max they work. Each pro prep adds a day built around
+that, and the lifting preps peak at 95%. Taper weeks are unchanged.
+
+| Pro prep | Added day |
+|---|---|
+| Powerlifting meet prep | A heavy single (RPE 7 → 9 by block) with back-off sets on a paused variation, rotating squat, bench and deadlift; the last peak week at 95% |
+| Olympic weightlifting meet prep | Heavy singles in the snatch and clean & jerk: by effort in the build, then 90, 92.5 and 95% in the peak |
+| Strongman | A second event day: the other stone event, axle clean and press, a vehicle-pull stand-in, tyre, grip |
+| Street lifting | Heavy weighted pull-up and dip singles (RPE 7 → 9) with muscle-up practice |
+| HYROX | Race-pace 1 km intervals with heavy sled push and pull |
+| CrossFit | Gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece |
 
 ## Not in v1, and why
 
-- **Sport programmes for beginners:** every sport programme is for amateur
-  and pro athletes. Beginners in any sport start on Beginner full-body, which
-  builds the base the sport programmes assume.
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.
 - **Conditioning prescriptions:** these programmes cover the gym; sport
   conditioning stays with the sport.
