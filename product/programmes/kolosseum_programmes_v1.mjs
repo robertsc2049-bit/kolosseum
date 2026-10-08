@@ -670,10 +670,10 @@ const cricketOffSeasonWeek = (week) => {
 };
 const cricketOffSeason = {
   key: "cricket_off_season",
-  template_name: "Cricket off-season build",
+  template_name: "Cricket off-season build: batters and spinners",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week, in the off-season: jumps, rotational throws and accelerations first, heavy lifting, then the hamstring, groin, shoulder and trunk work that keeps bowlers, batters and fielders on the park.",
-  listing: { title: "Cricket off-season build (8 weeks)", summary: "Three days a week in the off-season: rotational power for batting, bowling and throwing, speed between the wickets, heavy lifting, and the trunk, hamstring and shoulder work that keeps fast bowlers on the park.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
+  listing: { title: "Cricket off-season: batters and spinners (8 weeks)", summary: "Batters, spinners and keepers. Three days a week in the off-season: rotational power for batting, bowling and throwing, speed between the wickets, heavy lifting, and the trunk, hamstring and shoulder work that keeps fast bowlers on the park.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
   blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(cricketOffSeasonWeek) }]
 };
 
@@ -1350,6 +1350,73 @@ const hyroxBeginner = {
   blocks: [{ name: "First race", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => hyroxBeginnerWeek(i + 1)) }]
 };
 
+// Field, court and racket beginners: the main lifts plus the injury
+// prevention their sports need from the first week - Nordic curls, Copenhagen
+// planks (short lever) and landing practice.
+const fieldBeginnerDay = (day, week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  return day === "A"
+    ? { title: "Day A", items: [
+        ex("back_squat", 3, 5, { pct }, 180), ex("bench_press", 3, 5, { pct }, 180), ex("barbell_row", 3, 8, { pct: pct - 5 }, 120),
+        ex("nordic_curl", s(2), 3, "bw", 90, "Lower as slowly as you can; catch yourself with your hands."),
+        ex("copenhagen_plank", 2, { seconds: 15 }, "bw", 45, "Short lever: top leg on the bench at the knee.")
+      ] }
+    : { title: "Day B", items: [
+        ex("drop_to_stick", 3, 4, "bw", 60, "Land soft and quiet, knees over toes, hold for two seconds."), ex("back_squat", 3, 5, { pct }, 180),
+        ex("overhead_press", 3, 5, { pct }, 180), ex("deadlift", 1, 5, { pct }, 180), ex("lat_pulldown", 3, 10, { rpe: 7 }, 90),
+        ex("single_leg_calf_raise", 2, 10, { rpe: 7 }, 60)
+      ] };
+};
+const fieldBeginner = {
+  key: "beginner_field_court_foundation",
+  template_name: "Field, court and racket foundation (beginner)",
+  activity_id: "general_strength",
+  description: "Twelve weeks, three full-body days a week, for beginners in football, field hockey, ice hockey, netball, basketball, volleyball, cricket and tennis: the main lifts, adding a little weight whenever every rep is made, plus Nordic curls, Copenhagen planks and landing practice from the first week - the hamstring, groin and knee work these sports need.",
+  listing: { title: "Field, court and racket foundation (beginner, 12 weeks)", summary: "New to lifting in a field, court or racket sport? Three full-body days a week on the main lifts, adding weight as you make your reps, with Nordic curls, Copenhagen planks and landing practice from week one.", levels: ["beginner"], activity_ids: [...FIELD_ICE_SPORTS, ...COURT_SPORTS, "cricket", "tennis"], days_per_week: 3, next: "intermediate_upper_lower" },
+  blocks: [{ name: "Foundation", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => {
+    const week = i + 1;
+    return (week % 2 === 1 ? ["A", "B", "A"] : ["B", "A", "B"]).map((day) => fieldBeginnerDay(day, week));
+  }) }]
+};
+
+// Cricket fast bowlers: the sport's highest injury load - lumbar stress
+// injury, side strain, hamstring, the front-foot landing at several times
+// bodyweight. Heavy single-leg and posterior-chain strength, landing and
+// eccentric work, side-trunk and anti-rotation strength, the bowling
+// shoulder; no loaded spinal flexion with rotation. Batters and spinners keep
+// the cricket off-season build.
+const fastBowlerWeek = (week) => {
+  const pct = CRICKET_OFF_PCT[week - 1];
+  const deload = week % 4 === 0;
+  const s = (n) => (deload ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Lower strength and front-foot landing", items: [
+      ex("broad_jump_to_stick", s(4), 3, "bw", 90), ex("trap_bar_deadlift", s(4), 5, { pct }, 180),
+      ex("drop_to_stick", s(3), 4, "bw", 75, "Front-foot contact: land on one leg, brace, hold - the delivery stride."),
+      ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90), ex("nordic_curl", s(3), 4, "bw", 90), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45)
+    ] },
+    { title: "Trunk and bowling shoulder", items: [
+      ex("medicine_ball_rotational_throw", s(4), 4, { kg: 4 }, 75, "Hips lead; stop if your back complains."), ex("landmine_press", s(3), 6, { rpe: 8 }, 90),
+      ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120), ex("side_plank", s(3), { seconds: 40 }, "bw", 45, "Side strain prevention: both sides, front-arm side last."),
+      ex("half_kneeling_pallof_press", s(3), 10, { rpe: 7 }, 45), ex("side_lying_external_rotation", 3, 12, { rpe: 7 }, 45)
+    ] },
+    { title: "Speed and posterior chain", items: [
+      ex("twenty_metre_acceleration", s(5), { metres: 20 }, "bw", 90), ex("back_squat", s(4), 5, { pct }, 180),
+      ex("single_leg_rdl", s(3), 6, { rpe: 8 }, 90), ex("weighted_back_extension", 2, 10, { rpe: 7 }, 60, "Neutral spine through the whole range - no hyperextension."),
+      ex("single_leg_calf_raise", s(3), 10, { rpe: 8 }, 60), ex("bird_dog", 2, 8, "bw", 45)
+    ] }
+  ];
+};
+const cricketFastBowler = {
+  key: "cricket_fast_bowler_off_season",
+  template_name: "Cricket off-season: fast bowlers",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, for fast bowlers in the off-season: heavy single-leg and posterior-chain strength, front-foot landing and Nordic curls for the delivery stride and the hamstrings, side planks and anti-rotation for side strain, rotator-cuff work for the bowling shoulder - and no loaded spinal flexion with rotation, the lumbar stress pattern. Bowling workload stays with your coach.",
+  listing: { title: "Cricket off-season: fast bowlers (8 weeks)", summary: "Fast bowlers. Three days a week: heavy single-leg and posterior-chain strength, front-foot landing, Nordic curls, side-strain and anti-rotation trunk work, and the bowling shoulder - built around the injuries fast bowlers lose most time to.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
+  blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(fastBowlerWeek) }]
+};
+
 // ---------------------------------------------------------------------------
 // 17. Pro versions of the strength and hybrid preps - pro only. Full-time
 // lifters and racers differ from amateurs in frequency and in how close to
@@ -1445,9 +1512,9 @@ export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
   collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
   enduranceRunRide, triathlonStrength, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
-  cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
+  cricketOffSeason, cricketFastBowler, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
   ...PRO_VERSIONS,
-  contactBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
+  contactBeginner, fieldBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
   ...STRENGTH_PRO_VERSIONS
 ];

@@ -12,16 +12,16 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("fifty programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
+test("fifty-two programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep",
     "collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "field_ice_off_season", "field_ice_in_season", "court_off_season", "court_in_season",
     "endurance_run_ride_strength", "triathlon_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
-    "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_throws_build", "athletics_competition_season",
+    "cricket_off_season", "cricket_fast_bowler_off_season", "cricket_in_season", "athletics_power_build", "athletics_throws_build", "athletics_competition_season",
     "strongman_strength_events", "street_lifting_meet_prep", "hyrox_race_build", "crossfit_strength_conditioning",
     "olympic_weightlifting_meet_prep",
     "collision_forwards_off_season_pro", "collision_backs_off_season_pro", "field_ice_off_season_pro", "court_off_season_pro", "tennis_off_season_pro", "cricket_off_season_pro", "combat_strength_power_pro", "athletics_power_build_pro", "endurance_run_ride_strength_pro", "triathlon_strength_pro", "endurance_swim_row_paddle_strength_pro",
-    "beginner_contact_foundation", "beginner_weightlifting_foundation", "beginner_street_lifting_foundation", "beginner_crossfit_on_ramp", "beginner_hyrox_first_race",
+    "beginner_contact_foundation", "beginner_field_court_foundation", "beginner_weightlifting_foundation", "beginner_street_lifting_foundation", "beginner_crossfit_on_ramp", "beginner_hyrox_first_race",
     "powerlifting_meet_prep_pro", "olympic_weightlifting_meet_prep_pro", "strongman_strength_events_pro", "street_lifting_meet_prep_pro", "hyrox_race_build_pro", "crossfit_strength_conditioning_pro"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
@@ -93,7 +93,7 @@ test("each programme is listed for the athletes its design notes describe", () =
   assert.deepEqual([...byKey.endurance_in_season.activity_ids].sort(), ["athletics", "cycling", "kayaking", "rowing", "swimming", "triathlon"]);
   for (const key of ["combat_strength_power", "combat_fight_camp"]) assert.deepEqual([...byKey[key].activity_ids].sort(), ["boxing", "brazilian_jiu_jitsu", "judo", "mma", "muay_thai", "wrestling"], key);
   for (const key of ["tennis_off_season", "tennis_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["tennis"], key);
-  for (const key of ["cricket_off_season", "cricket_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["cricket"], key);
+  for (const key of ["cricket_off_season", "cricket_fast_bowler_off_season", "cricket_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["cricket"], key);
   for (const key of ["athletics_power_build", "athletics_throws_build", "athletics_competition_season"]) assert.deepEqual(byKey[key].activity_ids, ["athletics"], key);
   for (const [key, sport] of [["strongman_strength_events", "strongman"], ["street_lifting_meet_prep", "street_lifting"], ["hyrox_race_build", "hyrox"], ["crossfit_strength_conditioning", "crossfit"], ["olympic_weightlifting_meet_prep", "olympic_weightlifting"]]) assert.deepEqual(byKey[key].activity_ids, [sport], key);
   for (const p of PROGRAMMES.filter((x) => x.listing.activity_ids.length && x.key !== "powerlifting_meet_prep")) {
@@ -174,6 +174,8 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
   assert.deepEqual(next, {
     beginner_full_body: "intermediate_upper_lower",
     beginner_contact_foundation: "intermediate_upper_lower",
+    beginner_field_court_foundation: "intermediate_upper_lower",
+    cricket_fast_bowler_off_season: "cricket_in_season",
     beginner_weightlifting_foundation: "olympic_weightlifting_meet_prep",
     beginner_street_lifting_foundation: "street_lifting_meet_prep",
     beginner_crossfit_on_ramp: "crossfit_strength_conditioning",
@@ -429,4 +431,15 @@ test("a pro powerlifter adds a heavy-single day and peaks at 95%; a pro weightli
   assert.ok(sessionsOf(pl).some((s) => s.items.some((i) => i.load !== "bw" && i.load.pct === 95)), "95% in the peak");
   const owl = PROGRAMMES.find((p) => p.key === "olympic_weightlifting_meet_prep_pro");
   assert.ok(sessionsOf(owl).some((s) => s.title === "Heavy singles" && s.items.some((i) => i.id === "snatch" && i.load.pct === 95)));
+});
+
+test("a fast bowler's off-season is built around his injuries: Nordic curls, front-foot landing, side planks and the bowling shoulder every week, and no loaded flexion with rotation", () => {
+  for (const week of weeksOf("cricket_fast_bowler_off_season")) {
+    for (const [what, has] of [["Nordic curls", (i) => i.id === "nordic_curl"], ["landing", (i) => i.id === "drop_to_stick"], ["side strain", (i) => i.id === "side_plank"], ["groin", (i) => i.id === "copenhagen_plank"], ["rotator cuff", (_, r) => r.movement_pattern_id === "shoulder_external_rotation"]]) assert.ok(weekHas(week, has), what);
+    assert.ok(!weekHas(week, (_, r) => r.movement_pattern_id === "trunk_flexion"), "no loaded trunk flexion");
+  }
+});
+
+test("a beginner footballer, netballer or tennis player does Nordic curls, Copenhagen planks and landing practice from week one", () => {
+  for (const week of weeksOf("beginner_field_court_foundation")) for (const id of ["nordic_curl", "copenhagen_plank", "drop_to_stick"]) assert.ok(weekHas(week, (i) => i.id === id), id);
 });
