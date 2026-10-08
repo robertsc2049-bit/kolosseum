@@ -1035,6 +1035,31 @@ that, and the lifting preps peak at 95%. Taper weeks are unchanged.
 | HYROX | Race-pace 1 km intervals with heavy sled push and pull |
 | CrossFit | Gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece |
 
+## 18. Grip sport (beginner, amateur, pro)
+
+Grip contests score attempts on grippers, pinch implements, thick and rolling
+handles and levers, so the training is attempt-style: low reps, full rest,
+every rep a clean attempt to the contest's standard.
+
+**Grip sport meet prep (amateur, pro · 3 days a week · 12 weeks):**
+
+| Day | Session |
+|---|---|
+| Crush and thick bar | Gripper close (attempts); axle deadlift; thick handle deadlift with a 5 s hold; hammer curl; dead bug |
+| Pinch and support | Pinch block; blob; inch dumbbell / vertical bar (alternating weeks); towel hang 30 s; face pull |
+| Wrist and lever | Rolling handle; levering (slow); hub; wrist roller; pull-up; side plank |
+
+Attempts wave from 5s (RPE 7–8) to 3s to doubles and singles (RPE 9 at
+most), every fourth week is lighter, and week 12 is a taper with openers.
+Tendons adapt slower than muscle, so training never reaches a max.
+
+**Pro:** a fourth day of heavy single attempts on the gripper, pinch block,
+rolling handle and block weight (RPE 7 → 9 by block).
+
+**Beginner foundation (3 days · 12 weeks):** strap-free trap bar deadlifts,
+presses and pull-ups adding weight as reps are made, plus light crush, pinch,
+support and wrist work at RPE 6 to build the tendons before heavy attempts.
+
 ## Not in v1, and why
 
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.

@@ -1532,6 +1532,99 @@ const STRENGTH_PRO_VERSIONS = [
   proPrep(crossfitBuild, "CrossFit strength and conditioning - pro (8 weeks)", "a fifth day of gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece.", crossfitEngine)
 ];
 
+
+// ---------------------------------------------------------------------------
+// 18. Grip sport - beginner, amateur and pro. Grip contests score attempts on
+// grippers, pinch implements, thick and rolling handles and levers, so the
+// work is attempt-style - low reps, full rest - on three days (crush and thick
+// bar; pinch and support; wrist and lever), waving up to singles, then a
+// taper. Tendons adapt slower than muscle: volume stays moderate, efforts are
+// capped below a max every week, and every day has a lighter week.
+const GRIP_RPE = [7, 7, 8, 6, 8, 8, 9, 6, 8, 9, 9, 6];
+const GRIP_REPS = [5, 5, 5, 5, 3, 3, 3, 3, 2, 2, 1, 2];
+const attempt = "Attempt-style: full rest, every rep a clean attempt to your contest's standard - stop when one isn't.";
+const gripWeek = (week) => {
+  const rpe = GRIP_RPE[week - 1];
+  const reps = GRIP_REPS[week - 1];
+  const lighter = week % 4 === 0 || week === 12;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  const pinchSupport = week % 2 === 1 ? "inch_dumbbell_deadlift" : "vertical_bar_lift";
+  return [
+    { title: "Crush and thick bar", items: [
+      ex("gripper_close", s(5), reps, { rpe }, 120, `${attempt} Set the gripper the same way every time.`),
+      ex("axle_deadlift", s(4), Math.max(2, reps), { rpe: Math.min(rpe, 8) }, 180, "Double overhand, no straps."),
+      ex("thick_handle_deadlift", s(3), 1, { rpe: Math.min(rpe, 8) }, 150, "Lift and hold 5 s: the holding half of a thick-bar event."),
+      ex("hammer_curl", 3, 10, { rpe: 7 }, 60), ex("dead_bug", 2, 8, "bw", 45)
+    ] },
+    { title: "Pinch and support", items: [
+      ex("pinch_block_hold", s(5), reps, { rpe }, 150, attempt), ex("blob_lift", s(4), reps, { rpe }, 150, attempt),
+      ex(pinchSupport, s(3), Math.max(2, reps), { rpe: Math.min(rpe, 8) }, 150, attempt),
+      ex("towel_hang", 3, { seconds: 30 }, { rpe: 7 }, 90), ex("face_pull", 3, 15, { rpe: 7 }, 45)
+    ] },
+    { title: "Wrist and lever", items: [
+      ex("rolling_handle_lift", s(5), reps, { rpe }, 150, attempt), ex("levering", s(4), Math.max(3, reps), { rpe: Math.min(rpe, 8) }, 120, "Slow up, slower down: wrists and elbows take this load."),
+      ex("hub_lift", s(3), reps, { rpe: Math.min(rpe, 8) }, 120, attempt), ex("wrist_roller_roll", 2, 3, { rpe: 7 }, 90),
+      ex("pull_up", 3, [5, 8], { rpe: 7 }, 120), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const gripTaper = [
+  { title: "Openers - crush and pinch", items: [
+    ex("gripper_close", 3, 1, { rpe: 7 }, 180, "Your opener: a close you'd make on a bad day."), ex("pinch_block_hold", 3, 1, { rpe: 7 }, 180, "Your opener."),
+    ex("hammer_curl", 2, 10, { rpe: 6 }, 60)
+  ] },
+  { title: "Openers - wrist and thick bar", items: [
+    ex("rolling_handle_lift", 3, 1, { rpe: 7 }, 180, "Your opener."), ex("axle_deadlift", 2, 1, { rpe: 7 }, 180), ex("dead_bug", 2, 8, "bw", 45)
+  ] }
+];
+const gripMeetPrep = {
+  key: "grip_sport_meet_prep",
+  template_name: "Grip sport meet prep",
+  activity_id: "grip_sport",
+  description: "Twelve weeks, three days a week, to a grip contest: crush and thick bar, pinch and support, and wrist and lever days, every lift attempt-style at full rest, waving from 5s to 3s to doubles and singles, then a taper week with openers. Efforts never hit a max in training, and every fourth week is lighter - grip tendons adapt slower than muscle.",
+  listing: { title: "Grip sport meet prep (12 weeks)", summary: "Three days a week to a grip contest: crush and thick bar, pinch and support, wrist and lever - attempt-style, from 5s to singles, then a taper with openers. Lighter every fourth week to look after your tendons.", levels: ["amateur", "pro"], activity_ids: ["grip_sport"], days_per_week: 3, next: "intermediate_upper_lower" },
+  blocks: [
+    { name: "Base", block_type: "volume", weeks: [1, 2, 3, 4].map(gripWeek) },
+    { name: "Build", block_type: "strength", weeks: [5, 6, 7, 8].map(gripWeek) },
+    { name: "Peak", block_type: "peak", weeks: [9, 10, 11].map(gripWeek) },
+    { name: "Taper and contest", block_type: "deload", weeks: [gripTaper] }
+  ]
+};
+const gripHeavyAttempts = (week, blockType) => {
+  const rpe = blockType === "volume" ? 7 : blockType === "strength" ? 8 : 9;
+  return { title: "Heavy attempts", items: [
+    ex("gripper_close", 3, 1, { rpe }, 240, `Work up to a heavy close at RPE ${rpe}; log it.`), ex("pinch_block_hold", 3, 1, { rpe }, 240, "Heavy single attempts; log the weight."),
+    ex("rolling_handle_lift", 3, 1, { rpe }, 240, "Heavy single attempts; log the weight."), ex("block_weight_pinch", 3, 1, { rpe: Math.min(rpe, 8) }, 180, attempt)
+  ] };
+};
+const gripBeginnerWeek = (week) => {
+  const pct = BEGINNER_PCT[week - 1];
+  const s = beginnerS(week);
+  return [
+    { title: "Pull and crush", items: [
+      ex("trap_bar_deadlift", 3, 5, { pct }, 180, "No straps: let your grip work."), ex("dumbbell_crush_grip_hold", s(3), { seconds: 20 }, { rpe: 6 }, 60),
+      ex("gripper_close", s(3), 8, { rpe: 6 }, 90, "A light gripper you can close for 8: learn the set."), ex("hammer_curl", 2, 10, { rpe: 7 }, 60)
+    ] },
+    { title: "Press and pinch", items: [
+      ex("overhead_press", 3, 5, { pct }, 150), ex("plate_pinch", s(3), 3, { rpe: 6 }, 90, "Two light plates, smooth sides out: lift and hold 5 s."),
+      ex("dumbbell_static_hold", s(3), { seconds: 20 }, { rpe: 6 }, 60), ex("face_pull", 2, 15, { rpe: 7 }, 45)
+    ] },
+    { title: "Pull-up and wrist", items: [
+      ex("band_assisted_pull_up", s(3), 6, "bw", 90), ex("dumbbell_wrist_curl", 2, 15, { rpe: 6 }, 45), ex("dumbbell_wrist_extension", 2, 15, { rpe: 6 }, 45),
+      ex("wrist_roller_roll", 2, 2, { rpe: 6 }, 90), ex("dead_bug", 2, 8, "bw", 45)
+    ] }
+  ];
+};
+const gripBeginner = {
+  key: "beginner_grip_sport_foundation",
+  template_name: "Grip sport foundation (beginner)",
+  activity_id: "grip_sport",
+  description: "Twelve weeks, three days a week, for new grip athletes: deadlifts without straps, presses and pull-ups, adding weight whenever every rep is made, and light crush, pinch, support and wrist work at RPE 6 - building the tendons before any heavy attempts.",
+  listing: { title: "Grip sport foundation (beginner, 12 weeks)", summary: "New to grip sport? Three days a week: strap-free deadlifts, presses and pull-ups, plus light gripper, pinch, hold and wrist work to build your tendons before heavy attempts.", levels: ["beginner"], activity_ids: ["grip_sport"], days_per_week: 3, next: "grip_sport_meet_prep" },
+  blocks: [{ name: "Foundation", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => gripBeginnerWeek(i + 1)) }]
+};
+const GRIP_PROGRAMMES = [gripBeginner, gripMeetPrep, proPrep(gripMeetPrep, "Grip sport meet prep - pro (12 weeks)", "a fourth day of heavy single attempts on the gripper, pinch block, rolling handle and block weight (RPE 7 to 9).", gripHeavyAttempts)];
+
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
   collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
@@ -1540,5 +1633,6 @@ export const PROGRAMMES = [
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
   ...PRO_VERSIONS,
   contactBeginner, fieldBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
-  ...STRENGTH_PRO_VERSIONS
+  ...STRENGTH_PRO_VERSIONS,
+  ...GRIP_PROGRAMMES
 ];
