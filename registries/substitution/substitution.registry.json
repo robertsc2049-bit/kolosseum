@@ -3804,6 +3804,150 @@
       "deterministic_ordering_key": "bike_ergometer|02|00|double_under",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "blob_lift__to__block_weight_pinch": {
+      "substitution_edge_id": "blob_lift__to__block_weight_pinch",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__hub_lift": {
+      "substitution_edge_id": "blob_lift__to__hub_lift",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__pinch_block_hold": {
+      "substitution_edge_id": "blob_lift__to__pinch_block_hold",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__plate_pinch": {
+      "substitution_edge_id": "blob_lift__to__plate_pinch",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__barbell_static_hold": {
+      "substitution_edge_id": "blob_lift__to__barbell_static_hold",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "blob_lift__to__dumbbell_static_hold",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "blob_lift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "blob_lift__to__trap_bar_static_hold",
+      "source_exercise_id": "blob_lift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "blob_lift|02|01|trap_bar_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "block_pull__to__deficit_deadlift": {
       "substitution_edge_id": "block_pull__to__deficit_deadlift",
       "source_exercise_id": "block_pull",
@@ -4357,6 +4501,150 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "block_pull|02|00|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__blob_lift": {
+      "substitution_edge_id": "block_weight_pinch__to__blob_lift",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__hub_lift": {
+      "substitution_edge_id": "block_weight_pinch__to__hub_lift",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__pinch_block_hold": {
+      "substitution_edge_id": "block_weight_pinch__to__pinch_block_hold",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__plate_pinch": {
+      "substitution_edge_id": "block_weight_pinch__to__plate_pinch",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__barbell_static_hold": {
+      "substitution_edge_id": "block_weight_pinch__to__barbell_static_hold",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__dumbbell_static_hold": {
+      "substitution_edge_id": "block_weight_pinch__to__dumbbell_static_hold",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "block_weight_pinch__to__trap_bar_static_hold": {
+      "substitution_edge_id": "block_weight_pinch__to__trap_bar_static_hold",
+      "source_exercise_id": "block_weight_pinch",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "block_weight_pinch|02|01|trap_bar_static_hold",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "box_jump__to__burpee": {
@@ -7694,6 +7982,70 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "chin_up|01|01|pullover",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "circus_dumbbell_press__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "circus_dumbbell_press__to__dumbbell_overhead_press",
+      "source_exercise_id": "circus_dumbbell_press",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "circus_dumbbell_press|02|01|dumbbell_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "circus_dumbbell_press__to__overhead_press": {
+      "substitution_edge_id": "circus_dumbbell_press__to__overhead_press",
+      "source_exercise_id": "circus_dumbbell_press",
+      "target_exercise_id": "overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "circus_dumbbell_press|02|01|overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "circus_dumbbell_press__to__paused_overhead_press": {
+      "substitution_edge_id": "circus_dumbbell_press__to__paused_overhead_press",
+      "source_exercise_id": "circus_dumbbell_press",
+      "target_exercise_id": "paused_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "circus_dumbbell_press|02|01|paused_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "circus_dumbbell_press__to__single_arm_overhead_press": {
+      "substitution_edge_id": "circus_dumbbell_press__to__single_arm_overhead_press",
+      "source_exercise_id": "circus_dumbbell_press",
+      "target_exercise_id": "single_arm_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "circus_dumbbell_press|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "clean_and_jerk__to__snatch_grip_deadlift": {
@@ -12069,6 +12421,198 @@
       "deterministic_ordering_key": "feet_elevated_push_up|01|00|dip",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "fingal_fingers_flip__to__snatch_grip_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__snatch_grip_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "snatch_grip_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|00|snatch_grip_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__block_pull": {
+      "substitution_edge_id": "fingal_fingers_flip__to__block_pull",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__deficit_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__deficit_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__good_morning": {
+      "substitution_edge_id": "fingal_fingers_flip__to__good_morning",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__kettlebell_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__kettlebell_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__kettlebell_swing": {
+      "substitution_edge_id": "fingal_fingers_flip__to__kettlebell_swing",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__paused_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__paused_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__rack_pull": {
+      "substitution_edge_id": "fingal_fingers_flip__to__rack_pull",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__romanian_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__romanian_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__single_leg_rdl": {
+      "substitution_edge_id": "fingal_fingers_flip__to__single_leg_rdl",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__stiff_leg_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "fingal_fingers_flip__to__trap_bar_deadlift": {
+      "substitution_edge_id": "fingal_fingers_flip__to__trap_bar_deadlift",
+      "source_exercise_id": "fingal_fingers_flip",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "fingal_fingers_flip|02|01|trap_bar_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "five_ten_five_shuttle__to__forty_five_degree_cut": {
       "substitution_edge_id": "five_ten_five_shuttle__to__forty_five_degree_cut",
       "source_exercise_id": "five_ten_five_shuttle",
@@ -13151,6 +13695,182 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "forward_lunge|00|00|walking_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__block_pull": {
+      "substitution_edge_id": "frame_deadlift__to__block_pull",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__deficit_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__deficit_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__good_morning": {
+      "substitution_edge_id": "frame_deadlift__to__good_morning",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__kettlebell_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__kettlebell_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__kettlebell_swing": {
+      "substitution_edge_id": "frame_deadlift__to__kettlebell_swing",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__paused_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__paused_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__rack_pull": {
+      "substitution_edge_id": "frame_deadlift__to__rack_pull",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__romanian_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__romanian_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__single_leg_rdl": {
+      "substitution_edge_id": "frame_deadlift__to__single_leg_rdl",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__stiff_leg_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "frame_deadlift__to__trap_bar_deadlift": {
+      "substitution_edge_id": "frame_deadlift__to__trap_bar_deadlift",
+      "source_exercise_id": "frame_deadlift",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "frame_deadlift|02|01|trap_bar_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "front_plank__to__dead_bug": {
@@ -14471,6 +15191,46 @@
       "deterministic_ordering_key": "good_morning|02|00|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "gripper_close__to__dumbbell_crush_grip_hold": {
+      "substitution_edge_id": "gripper_close__to__dumbbell_crush_grip_hold",
+      "source_exercise_id": "gripper_close",
+      "target_exercise_id": "dumbbell_crush_grip_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "gripper_close|02|01|dumbbell_crush_grip_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "gripper_close__to__plate_crush_hold": {
+      "substitution_edge_id": "gripper_close__to__plate_crush_hold",
+      "source_exercise_id": "gripper_close",
+      "target_exercise_id": "plate_crush_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "gripper_close|02|01|plate_crush_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "half_kneeling_dumbbell_angled_press__to__band_angled_press": {
       "substitution_edge_id": "half_kneeling_dumbbell_angled_press__to__band_angled_press",
       "source_exercise_id": "half_kneeling_dumbbell_angled_press",
@@ -15221,6 +15981,166 @@
       "deterministic_ordering_key": "hang_snatch|02|01|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "hercules_hold__to__blob_lift": {
+      "substitution_edge_id": "hercules_hold__to__blob_lift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__block_weight_pinch": {
+      "substitution_edge_id": "hercules_hold__to__block_weight_pinch",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__hub_lift": {
+      "substitution_edge_id": "hercules_hold__to__hub_lift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__inch_dumbbell_deadlift": {
+      "substitution_edge_id": "hercules_hold__to__inch_dumbbell_deadlift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "inch_dumbbell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|inch_dumbbell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__pinch_block_hold": {
+      "substitution_edge_id": "hercules_hold__to__pinch_block_hold",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__rolling_handle_lift": {
+      "substitution_edge_id": "hercules_hold__to__rolling_handle_lift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "rolling_handle_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|rolling_handle_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__thick_handle_deadlift": {
+      "substitution_edge_id": "hercules_hold__to__thick_handle_deadlift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "thick_handle_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|thick_handle_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__towel_hang": {
+      "substitution_edge_id": "hercules_hold__to__towel_hang",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "towel_hang",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|towel_hang",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__vertical_bar_lift": {
+      "substitution_edge_id": "hercules_hold__to__vertical_bar_lift",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "vertical_bar_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|01|01|vertical_bar_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hercules_hold__to__plate_pinch": {
+      "substitution_edge_id": "hercules_hold__to__plate_pinch",
+      "source_exercise_id": "hercules_hold",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hercules_hold|02|01|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "high_bar_back_squat__to__front_squat": {
       "substitution_edge_id": "high_bar_back_squat__to__front_squat",
       "source_exercise_id": "high_bar_back_squat",
@@ -15666,6 +16586,399 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "high_bar_back_squat|02|01|goblet_squat",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__blob_lift": {
+      "substitution_edge_id": "hub_lift__to__blob_lift",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__block_weight_pinch": {
+      "substitution_edge_id": "hub_lift__to__block_weight_pinch",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__pinch_block_hold": {
+      "substitution_edge_id": "hub_lift__to__pinch_block_hold",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__plate_pinch": {
+      "substitution_edge_id": "hub_lift__to__plate_pinch",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__barbell_static_hold": {
+      "substitution_edge_id": "hub_lift__to__barbell_static_hold",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "hub_lift__to__dumbbell_static_hold",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "hub_lift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "hub_lift__to__trap_bar_static_hold",
+      "source_exercise_id": "hub_lift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "hub_lift|02|01|trap_bar_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__blob_lift": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__blob_lift",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__block_weight_pinch": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__block_weight_pinch",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__hub_lift": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__hub_lift",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__pinch_block_hold": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__pinch_block_hold",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__rolling_handle_lift": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__rolling_handle_lift",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "rolling_handle_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|rolling_handle_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__thick_handle_deadlift": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__thick_handle_deadlift",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "thick_handle_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|thick_handle_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__towel_hang": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__towel_hang",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "towel_hang",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|towel_hang",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__vertical_bar_lift": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__vertical_bar_lift",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "vertical_bar_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|01|00|vertical_bar_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__plate_pinch": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__plate_pinch",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__barbell_static_hold": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__barbell_static_hold",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__dumbbell_static_hold",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "inch_dumbbell_deadlift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "inch_dumbbell_deadlift__to__trap_bar_static_hold",
+      "source_exercise_id": "inch_dumbbell_deadlift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "inch_dumbbell_deadlift|02|01|trap_bar_static_hold",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "incline_bench_press__to__incline_dumbbell_press": {
@@ -18684,6 +19997,46 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "leopard_crawl|00|00|lateral_bear_crawl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "levering__to__barbell_reverse_wrist_curl": {
+      "substitution_edge_id": "levering__to__barbell_reverse_wrist_curl",
+      "source_exercise_id": "levering",
+      "target_exercise_id": "barbell_reverse_wrist_curl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "levering|02|01|barbell_reverse_wrist_curl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "levering__to__dumbbell_wrist_extension": {
+      "substitution_edge_id": "levering__to__dumbbell_wrist_extension",
+      "source_exercise_id": "levering",
+      "target_exercise_id": "dumbbell_wrist_extension",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "levering|02|01|dumbbell_wrist_extension",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "long_lever_plank__to__dead_bug": {
@@ -27131,6 +28484,150 @@
       "deterministic_ordering_key": "pin_squat|02|01|goblet_squat",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "pinch_block_hold__to__blob_lift": {
+      "substitution_edge_id": "pinch_block_hold__to__blob_lift",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__block_weight_pinch": {
+      "substitution_edge_id": "pinch_block_hold__to__block_weight_pinch",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__hub_lift": {
+      "substitution_edge_id": "pinch_block_hold__to__hub_lift",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__plate_pinch": {
+      "substitution_edge_id": "pinch_block_hold__to__plate_pinch",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__barbell_static_hold": {
+      "substitution_edge_id": "pinch_block_hold__to__barbell_static_hold",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__dumbbell_static_hold": {
+      "substitution_edge_id": "pinch_block_hold__to__dumbbell_static_hold",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "pinch_block_hold__to__trap_bar_static_hold": {
+      "substitution_edge_id": "pinch_block_hold__to__trap_bar_static_hold",
+      "source_exercise_id": "pinch_block_hold",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "pinch_block_hold|02|01|trap_bar_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "plate_crush_hold__to__dumbbell_crush_grip_hold": {
       "substitution_edge_id": "plate_crush_hold__to__dumbbell_crush_grip_hold",
       "source_exercise_id": "plate_crush_hold",
@@ -27213,6 +28710,26 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "plate_offset_hold|02|00|side_plank",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "plate_pinch__to__dumbbell_static_hold": {
+      "substitution_edge_id": "plate_pinch__to__dumbbell_static_hold",
+      "source_exercise_id": "plate_pinch",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "plate_pinch|01|01|dumbbell_static_hold",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "plate_suitcase_carry__to__single_arm_front_rack_carry": {
@@ -27946,6 +29463,182 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "power_snatch|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__block_pull": {
+      "substitution_edge_id": "power_stairs_carry__to__block_pull",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__deficit_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__deficit_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__good_morning": {
+      "substitution_edge_id": "power_stairs_carry__to__good_morning",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__kettlebell_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__kettlebell_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__kettlebell_swing": {
+      "substitution_edge_id": "power_stairs_carry__to__kettlebell_swing",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__paused_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__paused_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__rack_pull": {
+      "substitution_edge_id": "power_stairs_carry__to__rack_pull",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__romanian_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__romanian_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__single_leg_rdl": {
+      "substitution_edge_id": "power_stairs_carry__to__single_leg_rdl",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__stiff_leg_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "power_stairs_carry__to__trap_bar_deadlift": {
+      "substitution_edge_id": "power_stairs_carry__to__trap_bar_deadlift",
+      "source_exercise_id": "power_stairs_carry",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "power_stairs_carry|02|01|trap_bar_deadlift",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "preacher_curl__to__barbell_curl": {
@@ -29721,6 +31414,255 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "reverse_lunge|00|00|walking_lunge",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__blob_lift": {
+      "substitution_edge_id": "rolling_handle_lift__to__blob_lift",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__block_weight_pinch": {
+      "substitution_edge_id": "rolling_handle_lift__to__block_weight_pinch",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__hub_lift": {
+      "substitution_edge_id": "rolling_handle_lift__to__hub_lift",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__inch_dumbbell_deadlift": {
+      "substitution_edge_id": "rolling_handle_lift__to__inch_dumbbell_deadlift",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "inch_dumbbell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|inch_dumbbell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__pinch_block_hold": {
+      "substitution_edge_id": "rolling_handle_lift__to__pinch_block_hold",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__thick_handle_deadlift": {
+      "substitution_edge_id": "rolling_handle_lift__to__thick_handle_deadlift",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "thick_handle_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|thick_handle_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__towel_hang": {
+      "substitution_edge_id": "rolling_handle_lift__to__towel_hang",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "towel_hang",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|towel_hang",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__vertical_bar_lift": {
+      "substitution_edge_id": "rolling_handle_lift__to__vertical_bar_lift",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "vertical_bar_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|01|00|vertical_bar_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__plate_pinch": {
+      "substitution_edge_id": "rolling_handle_lift__to__plate_pinch",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__barbell_static_hold": {
+      "substitution_edge_id": "rolling_handle_lift__to__barbell_static_hold",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "rolling_handle_lift__to__dumbbell_static_hold",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "rolling_handle_lift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "rolling_handle_lift__to__trap_bar_static_hold",
+      "source_exercise_id": "rolling_handle_lift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "rolling_handle_lift|02|01|trap_bar_static_hold",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "romanian_deadlift__to__partial_deadlift": {
@@ -35574,6 +37516,198 @@
       "deterministic_ordering_key": "stiff_leg_deadlift|02|00|single_leg_rdl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "strongman_log_clean__to__snatch_grip_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__snatch_grip_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "snatch_grip_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|00|snatch_grip_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__block_pull": {
+      "substitution_edge_id": "strongman_log_clean__to__block_pull",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__deficit_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__deficit_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__good_morning": {
+      "substitution_edge_id": "strongman_log_clean__to__good_morning",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__kettlebell_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__kettlebell_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__kettlebell_swing": {
+      "substitution_edge_id": "strongman_log_clean__to__kettlebell_swing",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__paused_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__paused_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__rack_pull": {
+      "substitution_edge_id": "strongman_log_clean__to__rack_pull",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__romanian_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__romanian_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__single_leg_rdl": {
+      "substitution_edge_id": "strongman_log_clean__to__single_leg_rdl",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__stiff_leg_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "strongman_log_clean__to__trap_bar_deadlift": {
+      "substitution_edge_id": "strongman_log_clean__to__trap_bar_deadlift",
+      "source_exercise_id": "strongman_log_clean",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "strongman_log_clean|02|01|trap_bar_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "strongman_log_press__to__dumbbell_overhead_press": {
       "substitution_edge_id": "strongman_log_press__to__dumbbell_overhead_press",
       "source_exercise_id": "strongman_log_press",
@@ -38067,6 +40201,255 @@
       "deterministic_ordering_key": "ten_metre_deceleration|00|00|sprint_to_stick",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "thick_handle_deadlift__to__blob_lift": {
+      "substitution_edge_id": "thick_handle_deadlift__to__blob_lift",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__block_weight_pinch": {
+      "substitution_edge_id": "thick_handle_deadlift__to__block_weight_pinch",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__hub_lift": {
+      "substitution_edge_id": "thick_handle_deadlift__to__hub_lift",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__inch_dumbbell_deadlift": {
+      "substitution_edge_id": "thick_handle_deadlift__to__inch_dumbbell_deadlift",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "inch_dumbbell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|inch_dumbbell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__pinch_block_hold": {
+      "substitution_edge_id": "thick_handle_deadlift__to__pinch_block_hold",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__rolling_handle_lift": {
+      "substitution_edge_id": "thick_handle_deadlift__to__rolling_handle_lift",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "rolling_handle_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|rolling_handle_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__towel_hang": {
+      "substitution_edge_id": "thick_handle_deadlift__to__towel_hang",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "towel_hang",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|towel_hang",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__vertical_bar_lift": {
+      "substitution_edge_id": "thick_handle_deadlift__to__vertical_bar_lift",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "vertical_bar_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|01|00|vertical_bar_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__plate_pinch": {
+      "substitution_edge_id": "thick_handle_deadlift__to__plate_pinch",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__barbell_static_hold": {
+      "substitution_edge_id": "thick_handle_deadlift__to__barbell_static_hold",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "thick_handle_deadlift__to__dumbbell_static_hold",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "thick_handle_deadlift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "thick_handle_deadlift__to__trap_bar_static_hold",
+      "source_exercise_id": "thick_handle_deadlift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "thick_handle_deadlift|02|01|trap_bar_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "three_point_start_sprint__to__falling_start_sprint": {
       "substitution_edge_id": "three_point_start_sprint__to__falling_start_sprint",
       "source_exercise_id": "three_point_start_sprint",
@@ -38428,6 +40811,255 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "toes_to_bar|02|01|curl_up",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__blob_lift": {
+      "substitution_edge_id": "towel_hang__to__blob_lift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__block_weight_pinch": {
+      "substitution_edge_id": "towel_hang__to__block_weight_pinch",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__hub_lift": {
+      "substitution_edge_id": "towel_hang__to__hub_lift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__inch_dumbbell_deadlift": {
+      "substitution_edge_id": "towel_hang__to__inch_dumbbell_deadlift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "inch_dumbbell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|inch_dumbbell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__pinch_block_hold": {
+      "substitution_edge_id": "towel_hang__to__pinch_block_hold",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__rolling_handle_lift": {
+      "substitution_edge_id": "towel_hang__to__rolling_handle_lift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "rolling_handle_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|rolling_handle_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__thick_handle_deadlift": {
+      "substitution_edge_id": "towel_hang__to__thick_handle_deadlift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "thick_handle_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|thick_handle_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__vertical_bar_lift": {
+      "substitution_edge_id": "towel_hang__to__vertical_bar_lift",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "vertical_bar_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|01|00|vertical_bar_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__plate_pinch": {
+      "substitution_edge_id": "towel_hang__to__plate_pinch",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__barbell_static_hold": {
+      "substitution_edge_id": "towel_hang__to__barbell_static_hold",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__dumbbell_static_hold": {
+      "substitution_edge_id": "towel_hang__to__dumbbell_static_hold",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "towel_hang__to__trap_bar_static_hold": {
+      "substitution_edge_id": "towel_hang__to__trap_bar_static_hold",
+      "source_exercise_id": "towel_hang",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "towel_hang|02|01|trap_bar_static_hold",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "trap_bar_carry__to__front_rack_carry": {
@@ -39698,6 +42330,255 @@
       "deterministic_ordering_key": "upright_row|01|01|pullover",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "vertical_bar_lift__to__blob_lift": {
+      "substitution_edge_id": "vertical_bar_lift__to__blob_lift",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "blob_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|blob_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__block_weight_pinch": {
+      "substitution_edge_id": "vertical_bar_lift__to__block_weight_pinch",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "block_weight_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|block_weight_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__hub_lift": {
+      "substitution_edge_id": "vertical_bar_lift__to__hub_lift",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "hub_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|hub_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__inch_dumbbell_deadlift": {
+      "substitution_edge_id": "vertical_bar_lift__to__inch_dumbbell_deadlift",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "inch_dumbbell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|inch_dumbbell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__pinch_block_hold": {
+      "substitution_edge_id": "vertical_bar_lift__to__pinch_block_hold",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "pinch_block_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|pinch_block_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__rolling_handle_lift": {
+      "substitution_edge_id": "vertical_bar_lift__to__rolling_handle_lift",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "rolling_handle_lift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|rolling_handle_lift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__thick_handle_deadlift": {
+      "substitution_edge_id": "vertical_bar_lift__to__thick_handle_deadlift",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "thick_handle_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|thick_handle_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__towel_hang": {
+      "substitution_edge_id": "vertical_bar_lift__to__towel_hang",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "towel_hang",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "lateral",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|01|00|towel_hang",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__plate_pinch": {
+      "substitution_edge_id": "vertical_bar_lift__to__plate_pinch",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "plate_pinch",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|02|00|plate_pinch",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__barbell_static_hold": {
+      "substitution_edge_id": "vertical_bar_lift__to__barbell_static_hold",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "barbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|02|01|barbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__dumbbell_static_hold": {
+      "substitution_edge_id": "vertical_bar_lift__to__dumbbell_static_hold",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "dumbbell_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|02|01|dumbbell_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "vertical_bar_lift__to__trap_bar_static_hold": {
+      "substitution_edge_id": "vertical_bar_lift__to__trap_bar_static_hold",
+      "source_exercise_id": "vertical_bar_lift",
+      "target_exercise_id": "trap_bar_static_hold",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "vertical_bar_lift|02|01|trap_bar_static_hold",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "vertical_jump_to_stick__to__countermovement_jump": {
       "substitution_edge_id": "vertical_jump_to_stick__to__countermovement_jump",
       "source_exercise_id": "vertical_jump_to_stick",
@@ -39819,6 +42700,70 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "vertical_jump_to_stick|00|00|squat_jump",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "viking_press__to__dumbbell_overhead_press": {
+      "substitution_edge_id": "viking_press__to__dumbbell_overhead_press",
+      "source_exercise_id": "viking_press",
+      "target_exercise_id": "dumbbell_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "viking_press|02|01|dumbbell_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "viking_press__to__overhead_press": {
+      "substitution_edge_id": "viking_press__to__overhead_press",
+      "source_exercise_id": "viking_press",
+      "target_exercise_id": "overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "viking_press|02|01|overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "viking_press__to__paused_overhead_press": {
+      "substitution_edge_id": "viking_press__to__paused_overhead_press",
+      "source_exercise_id": "viking_press",
+      "target_exercise_id": "paused_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "viking_press|02|01|paused_overhead_press",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "viking_press__to__single_arm_overhead_press": {
+      "substitution_edge_id": "viking_press__to__single_arm_overhead_press",
+      "source_exercise_id": "viking_press",
+      "target_exercise_id": "single_arm_overhead_press",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "viking_press|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "walking_lunge__to__forward_lunge": {
@@ -40426,6 +43371,46 @@
       ],
       "difficulty_tier_compatibility": "same_or_lower",
       "deterministic_ordering_key": "wide_grip_barbell_row|02|00|two_arm_dumbbell_row",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "wrist_roller_roll__to__barbell_wrist_curl": {
+      "substitution_edge_id": "wrist_roller_roll__to__barbell_wrist_curl",
+      "source_exercise_id": "wrist_roller_roll",
+      "target_exercise_id": "barbell_wrist_curl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "wrist_roller_roll|02|01|barbell_wrist_curl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "wrist_roller_roll__to__dumbbell_wrist_curl": {
+      "substitution_edge_id": "wrist_roller_roll__to__dumbbell_wrist_curl",
+      "source_exercise_id": "wrist_roller_roll",
+      "target_exercise_id": "dumbbell_wrist_curl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "general_strength",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "wrist_roller_roll|02|01|dumbbell_wrist_curl",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
     "zercher_squat__to__box_squat": {
