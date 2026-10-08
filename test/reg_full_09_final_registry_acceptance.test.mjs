@@ -99,9 +99,10 @@ test("REG-FULL-09 reports production totals from the centralized accepted-count 
     tennis: 3,
     triathlon: 3,
     rugby_league: 4,
-    street_lifting: 3
+    street_lifting: 3,
+    grip_sport: 3
   });
-  assert.equal(c.low_equipment_template_count, 29);
+  assert.equal(c.low_equipment_template_count, 30);
   assert.equal(c.programme_template_coverage_gap_count, 0);
   assert.equal(c.substitution_edge_count, expectedCounts.substitution_edge_count);
   assert.equal(c.substitution_source_count, expectedCounts.substitution_source_count);
