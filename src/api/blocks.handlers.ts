@@ -12,7 +12,7 @@ import type { Phase6SessionOutput } from "@kolosseum/engine/phases/phase6.js";
 import { applyRuntimeEvents } from "@kolosseum/engine/runtime/apply_runtime_event.js";
 
 import { phase1Validate } from "@kolosseum/engine/phases/phase1.js";
-import { trainingCycleForAthlete } from "./training_cycle_service.js";
+import { gapReentryForAthlete, trainingCycleForAthlete } from "./training_cycle_service.js";
 import { applyPainCarryForward } from "./pain_flag_service.js";
 import { applyTodaysReadiness } from "./readiness_service.js";
 import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_stand_down_service.js";
@@ -781,6 +781,20 @@ export async function compileBlock(req: Request, res: Response) {
       ...(programme_run_session ? { programme_run: { ...programme_run_session, reentry: session_reentry } } : {}),
       ...(own_training_session ? { own_training: { ...own_training_session, reentry: session_reentry } } : {})
     } as any;
+  }
+  // A coached athlete back from 10+ days away gets the same lighter first
+  // week on their coach's programme - never the next session unchanged, and
+  // never a competition-timed skip into heavier weeks at full load. (A return
+  // from a head injury is already made lighter for coached athletes above.)
+  if (create_session && template_position && !programme_run_session && beta_session_binding?.subject_user_id) {
+    const back = await gapReentryForAthlete(beta_session_binding.subject_user_id);
+    if (back?.reentry_week && !(planned_session_from_engine as any).head_injury_return) {
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: lighterForReentry(planned_session_from_engine.exercises as any, back as any) as any,
+        template_position: { ...template_position, reentry: back }
+      } as any;
+    }
   }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));

@@ -117,9 +117,11 @@ const intermediateUpperLower = {
 // realisation (doubles and singles) -> taper and openers.
 const PL = {
   // [sets, reps, %] per week for the competition lifts.
-  squat: [[5, 6, 65], [5, 6, 67.5], [5, 6, 70], [3, 6, 60], [5, 4, 75], [5, 4, 77.5], [5, 3, 80], [3, 3, 70], [4, 2, 85], [3, 2, 87.5], [2, 1, 92.5]],
-  bench: [[5, 8, 65], [5, 8, 67.5], [5, 8, 70], [3, 8, 60], [5, 4, 75], [5, 4, 77.5], [5, 3, 80], [3, 3, 70], [4, 2, 85], [3, 2, 87.5], [2, 1, 92.5]],
-  deadlift: [[4, 6, 65], [4, 6, 67.5], [4, 6, 70], [3, 5, 60], [4, 3, 77.5], [4, 3, 80], [4, 3, 82.5], [2, 3, 70], [3, 2, 85], [2, 2, 87.5], [1, 1, 92.5]]
+  // Accumulation at RPE 5.5-7, intensification triples at RPE 7-8.5,
+  // realisation doubles and a single at RPE 8-8.5 (on the RPE chart).
+  squat: [[5, 5, 72.5], [5, 5, 75], [5, 5, 77.5], [3, 5, 65], [5, 3, 82.5], [5, 3, 85], [5, 3, 87.5], [3, 3, 72.5], [4, 2, 87.5], [3, 2, 90], [2, 1, 92.5]],
+  bench: [[5, 6, 72.5], [5, 6, 75], [5, 6, 77.5], [3, 6, 65], [5, 3, 82.5], [5, 3, 85], [5, 3, 87.5], [3, 3, 72.5], [4, 2, 87.5], [3, 2, 90], [2, 1, 92.5]],
+  deadlift: [[4, 5, 72.5], [4, 5, 75], [4, 5, 77.5], [3, 5, 65], [4, 3, 82.5], [4, 3, 85], [4, 3, 87.5], [2, 3, 72.5], [3, 2, 87.5], [2, 2, 90], [1, 1, 92.5]]
 };
 const accessorySets = (week) => (week <= 4 ? 4 : week <= 8 ? 3 : 2);
 const plWeek = (week) => {
@@ -137,7 +139,7 @@ const plWeek = (week) => {
       ex("pull_up", a, [6, 8], { rpe: 8 }, 120), ex("face_pull", a, 15, { rpe: 7 }, 60)
     ] },
     { title: "Deadlift day", items: [
-      ex("deadlift", ds, dr, { pct: dp }, 240), ex("paused_back_squat", Math.max(2, sq - 2), Math.max(2, sr - 2), { pct: sp - 10 }, 180),
+      ex("deadlift", ds, dr, { pct: dp }, 240), ex("paused_back_squat", sq <= 3 ? 2 : 4, Math.min(sr, 4), { pct: sp - 12.5 }, 180),
       ex("romanian_deadlift", a, 8, { rpe: 7 }, 120), ex("front_plank", 3, { seconds: 40 }, "bw", 60)
     ] },
     { title: "Bench variation day", items: [

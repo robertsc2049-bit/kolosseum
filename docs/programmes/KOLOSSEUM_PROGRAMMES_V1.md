@@ -221,17 +221,23 @@ clears before the meet). Squat, bench and deadlift each get a primary day and
 a variation day. Bench runs 2–3 times a week because it tolerates and needs
 more frequency.
 
+The intensity is set by the RPE chart, not by feel: accumulation sets of 5
+at 72.5–77.5% sit at RPE 5.5–7.5, and intensification triples at RPE 7–8.5
+- the range Calgary Barbell- and Sheiko-style programmes train in. Squat runs
+twice a week (the main day and a paused squat on deadlift day), bench three
+times, deadlift once plus Romanian deadlifts.
+
 | Block | Weeks | Squat / Bench / Deadlift main sets |
 |---|---|---|
-| Accumulation | 1–4 | 4–5 × 6–8 at 65 → 72.5% (week 4: −10%) |
-| Intensification | 5–8 | 5 × 3–4 at 75 → 85% (week 8: −10%) |
-| Realisation | 9–11 | 3 × 2 at 87.5 → 90%, then singles at 92.5–95% (week 11) |
+| Accumulation | 1–4 | 4–5 × 5–6 at 72.5 → 77.5%, RPE 5.5 → 7.5 (week 4: 65%) |
+| Intensification | 5–8 | 4–5 × 3 at 82.5 → 87.5%, RPE 6.5 → 8.5 (week 8: 72.5%) |
+| Realisation | 9–11 | 4 × 2 at 87.5%, 3 × 2 at 90%, then a single at 92.5% (week 11), RPE 8–8.5 |
 | Taper and meet | 12 | Openers ×1 at about 90% early in the week; then rest |
 
 **Sessions each week:**
 - Day 1: back squat (main), paused bench press, barbell row, leg curl
 - Day 2: bench press (main), close-grip bench press, pull-up, face pull
-- Day 3: deadlift (main), paused back squat (variation, lighter), Romanian deadlift, front plank
+- Day 3: deadlift (main), paused back squat (4 sets, 12.5% under the main squat), Romanian deadlift, front plank
 - Day 4: bench press (variation: Spoto press or paused bench), overhead press, chest-supported row, triceps
 
 **Accessories:** RPE 7–8, dropping in volume through the blocks.

@@ -119,7 +119,7 @@ function prepBlocks() {
 
 const STAGES = ["activity", "experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction", "accessibility", "instruction_density", "review"];
 
-test("a powerlifter whose meet is 16 days away starts her coach's six-week prep at week 4, then week 5 - the missed build weeks go - and never tapers early", { timeout: 180000 }, async (testContext) => {
+test("a powerlifter whose meet is 16 days away starts her coach's six-week prep at week 4, then week 5 - the missed build weeks go - never tapers early, and comes back lighter after 15 days ill", { timeout: 180000 }, async (testContext) => {
   const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 16);
   const userIds = [];
   const server = await listen();
@@ -213,4 +213,14 @@ test("a powerlifter whose meet is 16 days away starts her coach's six-week prep 
   assertStatus(third, 201, "third session");
   assert.equal(third.json.planned_session.template_position.template_session_index, 4, "week 5 again");
   assert.equal(third.json.planned_session.template_position.peak_timing.adjustment, "held");
+
+  // Then ill for 15 days: her first session back on her coach's programme is
+  // a lighter re-entry session - a set fewer - never the next one unchanged.
+  await pool.query("UPDATE sessions SET created_at = created_at - interval '15 days' WHERE beta_subject_user_id = $1", [athleteUserId]);
+  const back = await compile();
+  assertStatus(back, 201, "back after 15 days");
+  assert.equal(back.json.planned_session.template_position.reentry.reentry_week, true);
+  assert.ok(back.json.planned_session.template_position.reentry.gap_days >= 15);
+  const squat = back.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+  assert.deepEqual([squat.sets, squat.reentry_lighter], [3, true], "4 sets of squats become 3");
 });
