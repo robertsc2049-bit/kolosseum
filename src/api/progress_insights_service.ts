@@ -26,6 +26,7 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { BODYWEIGHT_PLUS_LOAD_EXERCISES, computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
+import { latestBodyweightKg } from "./bodyweight_load.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
@@ -258,16 +259,6 @@ function exercisePatternOf(exerciseId: string): string | undefined {
 
 // Bodyweight for bodyweight-lift e1RMs: the strength profile's, else the
 // latest body-weight entry.
-function latestBodyweightKg(profilePayload: JsonRecord | null, bodyMetricEntries: readonly JsonRecord[]): number | null {
-  const profileBw = Number(profilePayload?.bodyweight);
-  if (Number.isFinite(profileBw) && profileBw > 0) {
-    return cleanString(profilePayload?.bodyweight_unit) === "lb" ? profileBw / 2.2046226218 : profileBw;
-  }
-  const latest = bodyMetricEntries
-    .filter((entry) => cleanString(entry.metric_type) === "body_weight_kg" && Number(entry.value) > 0)
-    .sort((a, b) => cleanString(b.effective_date).localeCompare(cleanString(a.effective_date)))[0];
-  return latest ? Number(latest.value) : null;
-}
 
 function computeStrengthTrends(profilePayload: JsonRecord | null): Readonly<JsonRecord>[] {
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) || "kg";
