@@ -121,3 +121,6 @@ The locked activity set now additionally includes `rugby_league`, per the amendm
 ## Amendment - Street lifting activated (thirty-first locked activity)
 
 The locked activity set now additionally includes `street_lifting`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Unlike rugby_union/rugby_league's full-pool reuse, it uses a small curated exercise set (25 exercises, including one new exercise, `air_squat`) rather than the full registry.
+
+## Amendment - Grip sport activated (thirty-second locked activity)
+The locked activity set now additionally includes `grip_sport`, per the amendment recorded in docs/roadmap/V1_SUPPORTED_ACTIVITIES_DECISION.md. Like strongman and street lifting, it uses a curated exercise set (56 exercises: every grip and forearm lift plus the pulls, carries, pulling, pressing and trunk work a grip athlete trains) rather than the full registry.

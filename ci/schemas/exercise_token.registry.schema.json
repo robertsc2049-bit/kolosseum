@@ -77,7 +77,8 @@
                 "tennis",
                 "triathlon",
                 "rugby_league",
-                "street_lifting"
+                "street_lifting",
+                "grip_sport"
               ]
             },
             "minItems": 1,

@@ -92,7 +92,8 @@
               "tennis",
               "triathlon",
               "rugby_league",
-              "street_lifting"
+              "street_lifting",
+              "grip_sport"
             ]
           },
           "assignment_scope": {
@@ -319,7 +320,8 @@
                   "tennis",
                   "triathlon",
                   "rugby_league",
-                  "street_lifting"
+                  "street_lifting",
+                  "grip_sport"
                 ]
               },
               "exercise_ids": {

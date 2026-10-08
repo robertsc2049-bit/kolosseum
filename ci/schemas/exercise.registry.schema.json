@@ -191,7 +191,8 @@
               "tennis",
               "triathlon",
               "rugby_league",
-              "street_lifting"
+              "street_lifting",
+              "grip_sport"
             ]
           },
           "secondary_activity_applicability": {
@@ -230,7 +231,8 @@
                 "tennis",
                 "triathlon",
                 "rugby_league",
-                "street_lifting"
+                "street_lifting",
+                "grip_sport"
               ]
             },
             "uniqueItems": true
