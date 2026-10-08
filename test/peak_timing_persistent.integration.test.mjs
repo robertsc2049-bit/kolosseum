@@ -223,4 +223,13 @@ test("a powerlifter whose meet is 16 days away starts her coach's six-week prep 
   assert.ok(back.json.planned_session.template_position.reentry.gap_days >= 15);
   const squat = back.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
   assert.deepEqual([squat.sets, squat.reentry_lighter], [3, true], "4 sets of squats become 3");
+
+  // Her coach sees why on the review screen: the skipped weeks, the held
+  // week and the lighter week back.
+  const reviews = await request(baseUrl, "GET", `/coach-workspace/reviews?coach_user_id=${encodeURIComponent(coachUserId)}`, undefined, coachAuth);
+  assertStatus(reviews, 200, "coach reviews");
+  const lines = reviews.json.records.flatMap((r) => r.programme_adjustments ?? []);
+  assert.ok(lines.some((l) => /^Skipped 3 build weeks so the taper lands in competition week/u.test(l)), JSON.stringify(lines));
+  assert.ok(lines.some((l) => /^Repeating the last build week/u.test(l)), JSON.stringify(lines));
+  assert.ok(lines.some((l) => /^Back after 1\d days away: a lighter first week/u.test(l)), JSON.stringify(lines));
 });
