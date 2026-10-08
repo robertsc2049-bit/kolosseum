@@ -824,22 +824,44 @@ const strongmanWeek = (week) => {
   const s = (n) => (lighter ? Math.max(2, n - 1) : n);
   const rpe = STRONGMAN_EVENT_RPE[week - 1];
   const hold = "Choose a weight you can take the full distance at this effort; log it. Swap in your contest's implement and distance once it's announced.";
-  const stone = week % 2 === 1 ? "atlas_stone_load" : "atlas_stone_over_bar";
+  const er = (cap) => ({ rpe: Math.min(rpe, cap) });
+  // The overhead and deadlift variations, and the event day, rotate through
+  // the implements contests use, a different set each week of a four-week
+  // block - the fourth a timed medley, as contests run them.
+  const overhead = [
+    ex("axle_bar_press", s(3), 5, { rpe: 8 }, 150, "Clean the axle every rep: the contest version."),
+    ex("circus_dumbbell_press", s(3), 4, { rpe: 8 }, 150, "Each arm. Clean it to the shoulder; the other hand may help if your contest allows."),
+    ex("viking_press", s(3), 6, { rpe: 8 }, 120, "Viking press: press for reps, the way contests score it."),
+    ex("axle_bar_press", s(3), 5, { rpe: 8 }, 150, "Clean the axle every rep: the contest version.")
+  ][(week - 1) % 4];
+  const pullVariation = week % 2 === 1
+    ? ex("axle_deadlift", s(3), 3, { rpe: 7 }, 180, "Double overhand: the axle is a grip test as much as a pull.")
+    : ex("frame_deadlift", s(3), 3, { rpe: 7 }, 180, "The frame (car) deadlift: hands at your sides, a shorter, heavier pull.");
+  const EVENT_DAYS = [
+    [ex("yoke_walk", s(4), { metres: 20 }, { rpe }, 150, hold), ex("strongman_farmers_walk", s(4), { metres: 30 }, { rpe }, 120, hold),
+      ex("atlas_stone_load", s(4), 3, er(8), 150, "Lap, re-grip, extend. Work up to the effort; your contest's stone series replaces this once announced."), ex("tire_flip", s(3), 4, er(8), 120)],
+    [ex("frame_carry", s(4), { metres: 20 }, { rpe }, 150, hold), ex("keg_carry", s(3), { metres: 30 }, er(8), 120, hold),
+      ex("atlas_stone_over_bar", s(4), 3, er(8), 150, "Lap, re-grip, extend over the bar. Your contest's stone series replaces this once announced."), ex("sandbag_to_shoulder", s(3), 4, er(8), 120, "Alternate shoulders. Swap in your contest's bag once announced.")],
+    [ex("husafell_stone_carry", s(3), { metres: 20 }, er(8), 150, hold), ex("duck_walk", s(3), { metres: 20 }, er(8), 120, hold),
+      ex("keg_load", s(3), 4, er(8), 150, "A loading run's keg: lap it, drive the hips. Swap in your contest's event once announced."), ex("vehicle_pull", s(3), { metres: 20 }, er(8), 180, "Harness or rope. Swap in your contest's vehicle and distance once announced.")],
+    group("for_time", { cap: (lighter ? 4 : 6) * 60 }, [
+      ex("yoke_walk", 1, { metres: 20 }, er(7), 0, "Medley: one run of each, in order, against the clock - drop, then on to the next implement. Swap in your contest's medley once announced."),
+      ex("sandbag_carry", 1, { metres: 20 }, er(7), 0, "Medley: straight from the yoke, as in a contest medley."),
+      ex("strongman_farmers_walk", 1, { metres: 20 }, er(7), 0, "Medley: straight from the sandbag, as in a contest medley."),
+      ex("atlas_stone_load", 1, 2, er(7), 0, "Medley: finish on the stones, as in a contest medley.")
+    ])
+  ];
   return [
     { title: "Overhead day", items: [
       ex("strongman_log_press", sets, reps, { pct }, 210, "Clean the log each rep unless your contest allows a single clean."),
-      ex("axle_bar_press", s(3), 5, { rpe: 8 }, 150), ex("single_arm_dumbbell_row", s(3), 10, { rpe: 8 }, 75),
+      overhead, ex("single_arm_dumbbell_row", s(3), 10, { rpe: 8 }, 75),
       ex("face_pull", 3, 15, { rpe: 7 }, 45), ex("cable_triceps_pressdown", s(3), 12, { rpe: 8 }, 60)
     ] },
     { title: "Deadlift day", items: [
-      ex("deadlift", sets, reps, { pct }, 240), ex("axle_deadlift", s(3), 3, { rpe: 7 }, 180, "Double overhand: the axle is a grip test as much as a pull."), ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120),
+      ex("deadlift", sets, reps, { pct }, 240), pullVariation, ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120),
       ex("barbell_row", s(4), 8, { rpe: 8 }, 90), ex("front_plank", 3, { seconds: 45 }, "bw", 60)
     ] },
-    { title: "Event day", items: [
-      ex("yoke_walk", s(4), { metres: 20 }, { rpe }, 150, hold), ex("farmers_carry", s(4), { metres: 30 }, { rpe }, 120, hold),
-      ex("sandbag_carry", s(3), { metres: 30 }, { rpe: Math.min(rpe, 8) }, 120, hold), ex(stone, s(4), 3, { rpe: Math.min(rpe, 8) }, 150, "Lap, re-grip, extend. Work up to the effort; your contest's stone series replaces this once announced."),
-      ex("tire_flip", s(3), 4, { rpe: Math.min(rpe, 8) }, 120)
-    ] },
+    { title: "Event day", items: EVENT_DAYS[(week - 1) % 4] },
     { title: "Squat day", items: [
       ex("back_squat", sets, reps, { pct: pct - 2.5 }, 210), ex("sandbag_lunge", s(3), 10, { rpe: 7 }, 90),
       ex("pull_up", s(4), [5, 8], { rpe: 8 }, 120), ex("side_plank", 3, { seconds: 30 }, "bw", 45)
@@ -1476,9 +1498,9 @@ const strongmanEventTwo = (week) => {
   const stone = week % 2 === 1 ? "atlas_stone_over_bar" : "atlas_stone_load";
   return { title: "Event day 2 - medley", items: [
     ex(stone, 4, 3, { rpe: 8 }, 150, "The other stone event from day 3: swap in your contest's series once announced."),
-    ex("axle_bar_press", 4, 5, { rpe: 8 }, 150, "Clean the axle every rep: the contest version."),
-    ex("sled_drag", 4, { metres: 20 }, { rpe: 8 }, 120, "Stands in for a truck or vehicle pull."),
-    ex("tire_flip", 3, 5, { rpe: 8 }, 120), ex("dumbbell_static_hold", 3, { seconds: 30 }, { rpe: 8 }, 60, "Grip endurance for the medley.")
+    ex(week % 2 === 1 ? "circus_dumbbell_press" : "axle_bar_press", 4, week % 2 === 1 ? 3 : 5, { rpe: 8 }, 150, "The other overhead event from day 1."),
+    ex(week % 2 === 1 ? "vehicle_pull" : "conans_wheel_carry", 4, { metres: 20 }, { rpe: 8 }, 150, "Swap in your contest's event once announced."),
+    ex("tire_flip", 3, 5, { rpe: 8 }, 120), ex("hercules_hold", 3, { seconds: 30 }, { rpe: 8 }, 90, "Hold for time; work up to a contest-length hold.")
   ] };
 };
 const streetSingleDay = (week, blockType) => {
