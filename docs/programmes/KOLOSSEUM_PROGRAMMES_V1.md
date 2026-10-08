@@ -608,10 +608,11 @@ says. Every fourth week is lighter.
   Bowling workload itself is the coach's to manage. These programmes cover
   the gym.
 
-One programme covers every role. Batters and keepers lose nothing from the
-bowler-specific work, and most club cricketers do more than one job.
+Fast bowlers get their own off-season (8a-ii); batters, spinners and keepers
+keep the off-season build, which still carries the bowler basics because most
+club cricketers do more than one job. Both share the in-season programme.
 
-### 8a. Cricket off-season build (3 days a week · 8 weeks)
+### 8a. Cricket off-season: batters and spinners (3 days a week · 8 weeks)
 
 | Day 1 (lower strength and landing) | Sets × reps | Load |
 |---|---|---|
@@ -641,6 +642,22 @@ bowler-specific work, and most club cricketers do more than one job.
 | Bird dog | 2 × 8 each side | bodyweight |
 
 Weeks 4 and 8 are lighter (−10%, one set fewer).
+
+### 8a-ii. Cricket off-season: fast bowlers (3 days a week · 8 weeks)
+
+**Why a separate programme:** fast bowlers carry cricket's highest injury
+load - lumbar stress injury, side strain, hamstrings, and a front-foot
+landing at several times bodyweight every delivery. Their off-season is built
+around those:
+
+| Day | Session |
+|---|---|
+| Lower strength and front-foot landing | Broad jump to stick; **trap bar deadlift**; single-leg drop to stick (the delivery stride); Bulgarian split squat; Nordic curl; Copenhagen plank |
+| Trunk and bowling shoulder | Rotational medicine ball throw; landmine press; pull-up; side plank 40 s (front-arm side last); half-kneeling Pallof press; side-lying external rotation |
+| Speed and posterior chain | 20 m accelerations; **back squat**; single-leg RDL; back extension (neutral spine); single-leg calf raise; bird dog |
+
+No loaded spinal flexion with rotation anywhere - the lumbar stress pattern.
+Main lifts as 8a. Bowling workload stays with the coach.
 
 ### 8b. Cricket in-season maintenance (2 days a week · 12 weeks)
 
@@ -962,16 +979,45 @@ with level.
   they're separate programmes, so edit either freely once you've reviewed
   them.
 - **Position splits:** collision sports split forwards and linemen from
-  backs and skill players. Not yet split: fast bowler vs batter.
-- **Strength-sport meet preps** (powerlifting, weightlifting, strongman,
-  street lifting) stay shared. They're already individualised by the
-  athlete's own maxes.
+  backs and skill players; cricket splits fast bowlers from batters and
+  spinners; athletics splits sprinters and jumpers from throwers.
+- **Strength-sport and hybrid preps** have their own pro versions (section 17).
+
+## 16. Sport foundations for beginners (beginner only)
+
+Most beginners start on Beginner full-body. Where the sport's own skills are
+lifts, stations or movements to learn, or where contact makes neck and
+hamstring work non-negotiable from day one, a beginner gets their sport's
+own foundation instead (listed first for them):
+
+| Programme | Sports | What's different from Beginner full-body |
+|---|---|---|
+| Contact-sport foundation | rugby (all three), American football, all six combat sports | The same main lifts, plus Nordic curls and gentle neck holds (RPE 5) from week one |
+| Field, court and racket foundation | football, field hockey, ice hockey, netball, basketball, volleyball, cricket, tennis | The same main lifts, plus Nordic curls, Copenhagen planks (short lever) and landing practice from week one |
+| Weightlifting foundation | Olympic weightlifting | The snatch and clean & jerk every week, light and perfect (triples and doubles at RPE 6–7), power and hang variants, pulls, squats |
+| Street lifting foundation | street lifting | Eight weeks of strict bodyweight pull-up and dip volume, then the first weighted sets; tendon care every week |
+| CrossFit on-ramp | CrossFit | Barbell basics, banded strict gymnastics, one short scaled workout a day |
+| HYROX first race | HYROX | Full-body strength, all eight stations learned light (half race dose) every four weeks, an easy run building to 6 km |
+
+Each leads on to the sport's amateur programme when it's finished.
+
+## 17. Pro versions of the strength and hybrid preps (pro only)
+
+Full-time lifters and racers differ from amateurs in how often they train and
+how close to their max they work. Each pro prep adds a day built around
+that, and the lifting preps peak at 95%. Taper weeks are unchanged.
+
+| Pro prep | Added day |
+|---|---|
+| Powerlifting meet prep | A heavy single (RPE 7 → 9 by block) with back-off sets on a paused variation, rotating squat, bench and deadlift; the last peak week at 95% |
+| Olympic weightlifting meet prep | Heavy singles in the snatch and clean & jerk: by effort in the build, then 90, 92.5 and 95% in the peak |
+| Strongman | A second event day: the other stone event, axle clean and press, a vehicle-pull stand-in, tyre, grip |
+| Street lifting | Heavy weighted pull-up and dip singles (RPE 7 → 9) with muscle-up practice |
+| HYROX | Race-pace 1 km intervals with heavy sled push and pull |
+| CrossFit | Gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece |
 
 ## Not in v1, and why
 
-- **Sport programmes for beginners:** every sport programme is for amateur
-  and pro athletes. Beginners in any sport start on Beginner full-body, which
-  builds the base the sport programmes assume.
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.
 - **Conditioning prescriptions:** these programmes cover the gym; sport
   conditioning stays with the sport.
