@@ -146,6 +146,37 @@ async function setUpCoach(baseUrl, label, nonce) {
   return { ...coach, profile: profileResult.json.coach_profile };
 }
 
+// A self-directed athlete as the product creates one: registered and
+// onboarded with a training plan (sessions need one - training_plan_required).
+async function setUpOnboardedAthlete(baseUrl, label, nonce) {
+  const email = `full_ui_14c_${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}@example.com`;
+  const registered = await request(baseUrl, "POST", "/account/register", {
+    actor_type: "athlete", display_name: label, email, password: "Full14cOnboarded!2026", activity_id: "powerlifting",
+    accepted_terms: true, accepted_consent: true, accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", date_of_birth: "1994-01-15"
+  });
+  assertStatus(registered, 201, `${label} registration`);
+  const auth = { cookie: sessionCookie(registered, label), csrf: registered.json.csrf_token };
+  const fields = {
+    activity_id: "powerlifting", experience_level: "amateur", execution_scope: "individual", product_acknowledged: true,
+    jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+    accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false },
+    instruction_density: "standard", training_days_per_week: 3, competition_event: "full_power", no_fixed_date: true
+  };
+  for (const stage of ["experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction", "accessibility", "instruction_density", "review"]) {
+    assertStatus(await request(baseUrl, "PATCH", "/account/onboarding/draft", { current_stage: stage, fields }, auth), 200, `${label} onboarding ${stage}`);
+  }
+  assertStatus(await request(baseUrl, "POST", "/account/onboarding/confirm", { review_confirmed: true }, auth), 200, `${label} onboarding confirm`);
+  const detail = await request(baseUrl, "GET", "/account/detail", undefined, auth);
+  const bootstrap = detail.json.bootstrap;
+  return {
+    userId: registered.json.account.user_id,
+    phase1Input: bootstrap.declaration_record.engine_phase1_input,
+    authRecord: bootstrap.auth_record,
+    acknowledgementRecord: bootstrap.acknowledgement_record,
+    declarationRecord: bootstrap.declaration_record
+  };
+}
+
 async function setUpAthlete(baseUrl, label, nonce) {
   const userId = `full_ui_14c_${label.toLowerCase().replaceAll(/[^a-z0-9]/gu, "_")}_${nonce}`;
   const timestamp = new Date().toISOString();
@@ -701,7 +732,7 @@ test(
       //     beta_subject_user_id, with no beta_coach_user_id) so a page
       //     reload or the create-session flow's own immediate re-fetch
       //     doesn't silently forget it. ---
-      const athleteE = await setUpAthlete(baseUrl, "Full14c Athlete E", nonce);
+      const athleteE = await setUpOnboardedAthlete(baseUrl, "Full14c Athlete E", nonce);
       userIds.push(athleteE.userId);
 
       const beforeSelfDirected = await todayFor(baseUrl, athleteE.userId);
@@ -709,19 +740,7 @@ test(
       assert.equal(beforeSelfDirected.assignment, null);
       assert.equal(beforeSelfDirected.session, null);
 
-      const selfDirectedPhase1Input = {
-        consent_granted: true,
-        engine_version: "EB2-1.0.0",
-        enum_bundle_version: "EB2-1.0.0",
-        phase1_schema_version: "1.0.0",
-        actor_type: "athlete",
-        execution_scope: "individual",
-        activity_id: "powerlifting",
-        nd_mode: false,
-        instruction_density: "standard",
-        exposure_prompt_density: "standard",
-        bias_mode: "none"
-      };
+      const selfDirectedPhase1Input = athleteE.phase1Input;
 
       const selfDirectedCompiled = await request(
         baseUrl,
@@ -733,7 +752,10 @@ test(
             auth_record: athleteE.authRecord,
             acknowledgement_record: athleteE.acknowledgementRecord,
             declaration_record: athleteE.declarationRecord
-          }
+          },
+          // With no week of their own, the athlete chooses today's exercises
+          // (the Today picker), as the app sends them.
+          todays_exercises: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "bench_press", sets: 3, reps: 5 }]
         }
       );
       assertStatus(selfDirectedCompiled, 201, "compile self-directed session");

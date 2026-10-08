@@ -532,3 +532,17 @@ test("a coach reviewing a squat session sees what was actually lifted: each set 
   assert.ok(within(exercises[2] as HTMLElement).getByText("Swapped for Dumbbell Row"));
   assert.ok(within(work).getByText("Farmer Carry"), "an exercise the athlete added, named from its custom id");
 });
+
+test("a coach sees what the app changed on its own - weeks skipped for the meet, a lighter week back - on the review card", async () => {
+  installMocks({
+    records: [
+      baseRecord({ programme_adjustments: ["Skipped 2 build weeks so the taper lands in competition week (24 Oct)", "Back after 15 days away: a lighter first week (a set fewer, lighter loads)"] }),
+      baseRecord({ session_id: "s2", programme_adjustments: [] })
+    ]
+  });
+  render(<CoachReviewPanel />);
+  await waitFor(() => assert.ok(screen.getAllByText("Skipped 2 build weeks so the taper lands in competition week (24 Oct)").length > 0));
+  assert.ok(screen.getAllByText("Back after 15 days away: a lighter first week (a set fewer, lighter loads)").length > 0);
+  const cards = [...document.querySelectorAll(".review-record-card")];
+  assert.deepEqual(cards.map((card) => Boolean(card.querySelector("[data-testid=programme-adjustments]"))), [true, false], "only the adjusted session's card shows the list");
+});

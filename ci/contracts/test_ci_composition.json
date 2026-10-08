@@ -22,6 +22,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/ci_test_ci_integration_composition.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/ci_test_ci_composition_file.test.mjs"
     },
     {
@@ -31,6 +35,14 @@
     {
       "kind": "manifest",
       "path": "ci/contracts/plan_registry_contract_ci_cluster.json"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_plan_registry_contract_cluster_manifest_file.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/ci_plan_registry_contract_cluster_manifest.test.mjs"
     },
     {
       "kind": "command",
