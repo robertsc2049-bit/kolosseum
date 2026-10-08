@@ -844,12 +844,17 @@ const strongmanWeek = (week) => {
       ex("atlas_stone_over_bar", s(4), 3, er(8), 150, "Lap, re-grip, extend over the bar. Your contest's stone series replaces this once announced."), ex("sandbag_to_shoulder", s(3), 4, er(8), 120, "Alternate shoulders. Swap in your contest's bag once announced.")],
     [ex("husafell_stone_carry", s(3), { metres: 20 }, er(8), 150, hold), ex("duck_walk", s(3), { metres: 20 }, er(8), 120, hold),
       ex("keg_load", s(3), 4, er(8), 150, "A loading run's keg: lap it, drive the hips. Swap in your contest's event once announced."), ex("vehicle_pull", s(3), { metres: 20 }, er(8), 180, "Harness or rope. Swap in your contest's vehicle and distance once announced.")],
-    group("for_time", { cap: (lighter ? 4 : 6) * 60 }, [
-      ex("yoke_walk", 1, { metres: 20 }, er(7), 0, "Medley: one run of each, in order, against the clock - drop, then on to the next implement. Swap in your contest's medley once announced."),
-      ex("sandbag_carry", 1, { metres: 20 }, er(7), 0, "Medley: straight from the yoke, as in a contest medley."),
-      ex("strongman_farmers_walk", 1, { metres: 20 }, er(7), 0, "Medley: straight from the sandbag, as in a contest medley."),
-      ex("atlas_stone_load", 1, 2, er(7), 0, "Medley: finish on the stones, as in a contest medley.")
+    group("for_time", { cap: (lighter ? 2 : 3) * 6 * 60 }, [
+      ex("yoke_walk", lighter ? 2 : 3, { metres: 20 }, er(8), 0, "Medley: one run of each implement, in order, against the clock - then full rest (3-4 min) and go again. Swap in your contest's medley once announced."),
+      ex("sandbag_carry", lighter ? 2 : 3, { metres: 20 }, er(8), 0, "Medley: straight from the yoke, as in a contest medley."),
+      ex("strongman_farmers_walk", lighter ? 2 : 3, { metres: 20 }, er(8), 0, "Medley: straight from the sandbag, as in a contest medley."),
+      ex("atlas_stone_load", lighter ? 2 : 3, 2, er(8), 0, "Medley: finish on the stones, as in a contest medley.")
     ])
+  ];
+  const CONTEST_WEEK_EVENTS = [
+    ex("yoke_walk", 2, { metres: 15 }, { rpe: 6 }, 150, "Contest week: a light run to rehearse your pick and first steps. Your contest's yoke weight comes on the day."),
+    ex("strongman_farmers_walk", 2, { metres: 15 }, { rpe: 6 }, 120, "Light: grip and set-up only - nothing hard this close to your contest."),
+    ex("atlas_stone_load", 2, 1, { rpe: 6 }, 150, "A light stone or two: rehearse the lap and the finish for your contest, then stop.")
   ];
   return [
     { title: "Overhead day", items: [
@@ -861,7 +866,10 @@ const strongmanWeek = (week) => {
       ex("deadlift", sets, reps, { pct }, 240), pullVariation, ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120),
       ex("barbell_row", s(4), 8, { rpe: 8 }, 90), ex("front_plank", 3, { seconds: 45 }, "bw", 60)
     ] },
-    { title: "Event day", items: EVENT_DAYS[(week - 1) % 4] },
+    // The medley is the most contest-like event, so it falls in a loading week
+    // (week 3 of each block), not the lighter week; contest week rehearses
+    // light openers instead.
+    { title: "Event day", items: week === 12 ? CONTEST_WEEK_EVENTS : EVENT_DAYS[[0, 1, 3, 2][(week - 1) % 4]] },
     { title: "Squat day", items: [
       ex("back_squat", sets, reps, { pct: pct - 2.5 }, 210), ex("sandbag_lunge", s(3), 10, { rpe: 7 }, 90),
       ex("pull_up", s(4), [5, 8], { rpe: 8 }, 120), ex("side_plank", 3, { seconds: 30 }, "bw", 45)
@@ -1623,7 +1631,18 @@ const gripBeginner = {
   listing: { title: "Grip sport foundation (beginner, 12 weeks)", summary: "New to grip sport? Three days a week: strap-free deadlifts, presses and pull-ups, plus light gripper, pinch, hold and wrist work to build your tendons before heavy attempts.", levels: ["beginner"], activity_ids: ["grip_sport"], days_per_week: 3, next: "grip_sport_meet_prep" },
   blocks: [{ name: "Foundation", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => gripBeginnerWeek(i + 1)) }]
 };
-const GRIP_PROGRAMMES = [gripBeginner, gripMeetPrep, proPrep(gripMeetPrep, "Grip sport meet prep - pro (12 weeks)", "a fourth day of heavy single attempts on the gripper, pinch block, rolling handle and block weight (RPE 7 to 9).", gripHeavyAttempts)];
+// The pro heavy-attempts day replaces volume rather than adding to it: every
+// attempt item on the three main days loses a set, so the week's hand and
+// forearm load stays where finger and elbow tendons can take it.
+const gripProBase = proPrep(gripMeetPrep, "Grip sport meet prep - pro (12 weeks)", "a fourth day of heavy single attempts on the gripper, pinch block, rolling handle and block weight (RPE 7 to 9), with a set less on the attempt work of the other three days so the weekly load on the hands doesn't simply stack.", gripHeavyAttempts);
+const gripPro = { ...gripProBase, blocks: gripProBase.blocks.map((block) => block.block_type === "deload" ? block : ({
+  ...block,
+  weeks: block.weeks.map((week) => week.map((session) => session.title === "Heavy attempts" ? session : ({
+    ...session,
+    items: session.items.map((item) => (/Attempt-style|Set the gripper/u.test(item.note ?? "") ? { ...item, sets: Math.max(2, item.sets - 1) } : item))
+  })))
+})) };
+const GRIP_PROGRAMMES = [gripBeginner, gripMeetPrep, gripPro];
 
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
