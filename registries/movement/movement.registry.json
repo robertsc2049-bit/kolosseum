@@ -89,7 +89,8 @@
         "tire",
         "open_floor_space",
         "strongman_log",
-        "axle_bar"
+        "axle_bar",
+        "atlas_stone"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

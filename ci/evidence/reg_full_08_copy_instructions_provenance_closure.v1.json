@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "5698ea2c90fff013cedaf06b9fe650bc6ff4b4064da3177945df80b048b8a3a8",
+  "canonical_copy_registry_sha256": "356bb045334825f7b51c50192580d42a050f6b1568cdf1047c51fa53fe67761b",
   "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 24627,
+  "exact_copy_control_count": 24798,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,7 +15,7 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 22070,
+  "provenance_record_count": 22191,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
@@ -54,17 +54,17 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/movement/movement.registry.json",
-      "source_file_sha256": "34b039fc1dd7558b327e2e1ba325c5564ffa78da7398a5623d24329ba1c36a4f",
-      "source_git_blob_sha": "b9d8a9102c2a827fe0a0e9f2dba95005c520b78f",
+      "source_file_sha256": "c7808a7f772f521731f0310447f1e7767b8703767475cecbca470b21ccfc075f",
+      "source_git_blob_sha": "e03956140d561a09950303a97a6b824221426392",
       "source_record_count": 55,
       "source_registry_id": "movement_registry_3"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "a1692bfb81d35a5f75458f8c66cbe3e6ec95e715b202b6e78973f21fa4e2761b",
-      "source_git_blob_sha": "a2fedc7ee20d085aae2e0512d4c323c632221b80",
-      "source_record_count": 272,
+      "source_file_sha256": "606da3d18716086f5343657846013aeb851603f43de5ebf09f674f62b5a3a6b2",
+      "source_git_blob_sha": "4db3529fb89c2d07080ae822df5bd7e93967a48a",
+      "source_record_count": 277,
       "source_registry_id": "exercise_registry_3a"
     },
     {
@@ -94,17 +94,17 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/exercise_equipment_compatibility/exercise_equipment_compatibility.registry.json",
-      "source_file_sha256": "37db274cdc5e66effb1c6b07b01c66af72e68c7c23420b00fbf3370264908a71",
-      "source_git_blob_sha": "5e6eb71d78ac3fa5f2e09000933208bdda72b1d3",
-      "source_record_count": 543,
+      "source_file_sha256": "b7100987d2e27c5e0a3b7d0a784133026ea11a1b70aa349921254eefd9ee7c8b",
+      "source_git_blob_sha": "758ad458335060523d58e815fd01ee856fe2c581",
+      "source_record_count": 549,
       "source_registry_id": "exercise_equipment_compatibility_registry"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "5cba82f17166dade86a6318cc17df2dbb8aea69f386f1e0bdc44a97b29e3be60",
-      "source_git_blob_sha": "d9dc40004b5929d22898f55a20f9b4f731e4dd90",
-      "source_record_count": 19725,
+      "source_file_sha256": "562d57057afb82b459a69d392a6a1d429699864c458c0967038535b491af7e92",
+      "source_git_blob_sha": "d1b1347525b6df3be8e572f4163e3f2b57d05cb8",
+      "source_record_count": 19824,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
@@ -126,9 +126,9 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "64ebf99378219956dcf4b07c9af4fd29ccf402f12d00f1d969b277327957eb3d",
-      "source_git_blob_sha": "7a6c4318fd7ae777145d40af35c4cbc39c95d6df",
-      "source_record_count": 1106,
+      "source_file_sha256": "afcba7a7015d41db2d9ded66d35724b3aa9076b4290decfd1b68eaf371d46d5f",
+      "source_git_blob_sha": "b70c1eb7a881365adac2aae0881717c2c59bf808",
+      "source_record_count": 1117,
       "source_registry_id": "substitution_registry"
     },
     {
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 22070,
+  "source_record_count": 22191,
   "status": "authoritative"
 }

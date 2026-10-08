@@ -230,6 +230,182 @@
       "deterministic_ordering_key": "axle_bar_press|02|01|single_arm_overhead_press",
       "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
     },
+    "axle_deadlift__to__block_pull": {
+      "substitution_edge_id": "axle_deadlift__to__block_pull",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "block_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|block_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__deficit_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__deficit_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "deficit_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|deficit_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__good_morning": {
+      "substitution_edge_id": "axle_deadlift__to__good_morning",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "good_morning",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|good_morning",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__kettlebell_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__kettlebell_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "kettlebell_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|kettlebell_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__kettlebell_swing": {
+      "substitution_edge_id": "axle_deadlift__to__kettlebell_swing",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "kettlebell_swing",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|kettlebell_swing",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__paused_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__paused_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "paused_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|paused_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__rack_pull": {
+      "substitution_edge_id": "axle_deadlift__to__rack_pull",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "rack_pull",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|rack_pull",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__romanian_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__romanian_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "romanian_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|romanian_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__single_leg_rdl": {
+      "substitution_edge_id": "axle_deadlift__to__single_leg_rdl",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "single_leg_rdl",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|single_leg_rdl",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__stiff_leg_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__stiff_leg_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "stiff_leg_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|stiff_leg_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
+    "axle_deadlift__to__trap_bar_deadlift": {
+      "substitution_edge_id": "axle_deadlift__to__trap_bar_deadlift",
+      "source_exercise_id": "axle_deadlift",
+      "target_exercise_id": "trap_bar_deadlift",
+      "movement_pattern_preservation": "exact",
+      "stimulus_intent_preservation": "exact",
+      "equipment_change_type": "downgrade",
+      "excluded_equipment_handling": "explicit_target_required_equipment_filter",
+      "joint_stress_handling": "target_subset_or_equal",
+      "activity_applicability": [
+        "strongman"
+      ],
+      "difficulty_tier_compatibility": "same_or_lower",
+      "deterministic_ordering_key": "axle_deadlift|02|00|trap_bar_deadlift",
+      "copy_legal_boundary_notes": "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee"
+    },
     "back_squat__to__front_squat": {
       "substitution_edge_id": "back_squat__to__front_squat",
       "source_exercise_id": "back_squat",
