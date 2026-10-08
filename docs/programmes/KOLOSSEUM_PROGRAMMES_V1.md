@@ -88,6 +88,29 @@ The programme then carries on where it left off. The athlete is told why.
 
 ---
 
+## Timed to the competition
+
+A programme that ends in a taper week (powerlifting, weightlifting,
+strongman and street lifting meet preps, the HYROX race build, fight camp)
+is timed to the competition, not to how many sessions the athlete has done.
+The date is the event the coach linked the programme to, else the
+competition date the athlete declared in their training plan.
+
+- **Behind** (sessions missed, or assigned with fewer weeks left than the
+  programme has): the next session skips ahead so the taper lands in
+  competition week. The missed build weeks are dropped; the peak and taper
+  never are.
+- **Early** (reached the taper with the competition still more than the
+  taper's length away): the last build week repeats until the taper fits.
+- Off-season, in-season and maintenance programmes are never re-timed.
+
+## Re-setting maxes
+
+Percentages come from the athlete's entered max, raised automatically when
+sets they've logged since show they're stronger (a rep-out set, a heavy
+triple). A max is never lowered by one bad session: missed reps and high
+RPEs are handled by autoregulation instead.
+
 ## 1. Beginner full-body (beginner · any sport · 3 days a week · 12 weeks)
 
 **Who it's for:** anyone new to structured lifting, including athletes from

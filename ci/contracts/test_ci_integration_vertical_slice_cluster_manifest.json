@@ -19,6 +19,7 @@
     "node test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
     "node test/set_logging_persistent_http.integration.test.mjs",
     "node test/pain_carry_forward_persistent_http.integration.test.mjs",
-    "node test/pain_carry_forward_coach_persistent.integration.test.mjs"
+    "node test/pain_carry_forward_coach_persistent.integration.test.mjs",
+    "node test/peak_timing_persistent.integration.test.mjs"
   ]
 }
