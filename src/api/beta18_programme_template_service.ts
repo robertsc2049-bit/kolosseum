@@ -26,6 +26,7 @@ import {
   eventWeekCalendar
 } from "./event_programme_compiler_service.js";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
+import { peakTimedIndex } from "./peak_timing.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -4465,6 +4466,41 @@ export function orderedTemplateSessions(
   return sessions;
 }
 
+// The template session index of the athlete's latest session on an
+// assignment or programme run (its planned_session.template_position stamp),
+// or null when it has none (sessions created before the stamp existed).
+export async function lastTemplateSessionIndex(assignmentId: string): Promise<number | null> {
+  const result = await pool.query(
+    `
+    SELECT planned_session->'template_position'->>'template_session_index' AS template_session_index
+    FROM sessions
+    WHERE beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+    ORDER BY created_at DESC, session_id DESC
+    LIMIT 1
+    `,
+    [assignmentId]
+  );
+  const value = result.rows?.[0]?.template_session_index;
+  return value === null || value === undefined || !/^\d+$/u.test(String(value)) ? null : Number(value);
+}
+
+// The next template session to create: after the latest one's stamped index
+// (which may have skipped or held weeks for a competition), else the number
+// of sessions so far.
+export async function nextTemplateSessionIndex(assignmentId: string): Promise<number> {
+  const last = await lastTemplateSessionIndex(assignmentId);
+  if (last !== null) return last + 1;
+  const result = await pool.query(
+    `
+    SELECT count(*)::integer AS session_count
+    FROM sessions
+    WHERE beta_assignment_id = $1 OR planned_session->'programme_run'->>'run_id' = $1
+    `,
+    [assignmentId]
+  );
+  return Number(result.rows?.[0]?.session_count ?? 0);
+}
+
 export async function materialiseNextCoachTemplateProgram(
   input: Readonly<{
     coach_user_id: string;
@@ -4486,6 +4522,11 @@ export async function materialiseNextCoachTemplateProgram(
     // the athlete's own way of setting weights, not the coach's strength
     // profile.
     athlete_sets_loads?: boolean;
+    // The meet, race or fight a taper-ending programme is timed to
+    // (peak_timing.ts): the session created skips missed build weeks, or
+    // holds the last build week, so the taper lands in competition week.
+    peak_competition_date?: string | null;
+    today?: string;
   }>
 ): Promise<Readonly<JsonRecord>> {
   const coachUserId =
@@ -4539,27 +4580,20 @@ export async function materialiseNextCoachTemplateProgram(
       template
     );
 
-  const nextIndex =
+  const baseIndex =
     Number.isInteger(
       input.session_index_override
     )
       ? Number(input.session_index_override)
-      : Number(
-          (
-            await pool.query(
-              `
-              SELECT count(*)::integer
-                AS session_count
-              FROM sessions
-              WHERE beta_assignment_id = $1
-              `,
-              [
-                assignmentId
-              ]
-            )
-          ).rows?.[0]?.session_count ??
-          0
-        );
+      : await nextTemplateSessionIndex(assignmentId);
+
+  const peakTiming =
+    input.peak_competition_date
+      ? peakTimedIndex(sessions, baseIndex, input.peak_competition_date, input.today ?? new Date().toISOString().slice(0, 10))
+      : null;
+
+  const nextIndex =
+    peakTiming ? peakTiming.index : baseIndex;
 
   const selectedSession =
     sessions[nextIndex];
@@ -4934,6 +4968,9 @@ export async function materialiseNextCoachTemplateProgram(
             .session_id,
         template_session_index:
           nextIndex,
+        ...(peakTiming
+          ? { peak_timing: deepFreeze({ adjustment: peakTiming.adjustment, weeks: peakTiming.weeks, competition_date: peakTiming.competition_date }) }
+          : {}),
         template_session_title:
           selectedSession.title,
         template_session_coaching_notes:

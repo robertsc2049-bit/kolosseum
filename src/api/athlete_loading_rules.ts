@@ -65,6 +65,17 @@ export function effortWithoutMax(intensity: { type?: unknown; value?: unknown },
   return intensity.type === "rpe" ? Number(intensity.value) : rpeForPercentage(percent, reps);
 }
 
+// The max a % is taken from: the athlete's entered max, raised when what they
+// have logged since shows they're stronger (a rep-out set at the end of a wave
+// does exactly this). Never lowered by one bad session - a missed day is for
+// autoregulation, not a smaller max.
+export type MaxReading = { value: number; unit: "kg" | "lb"; date: string };
+export function effectiveMax(entered: MaxReading, estimate: MaxReading | null | undefined): MaxReading & { raised: boolean } {
+  if (!estimate || !(estimate.value > 0) || !estimate.date || estimate.date < entered.date) return { ...entered, raised: false };
+  const inUnit = estimate.unit === entered.unit ? estimate.value : entered.unit === "kg" ? estimate.value / 2.20462 : estimate.value * 2.20462;
+  return inUnit > entered.value ? { value: Math.round(inUnit * 10) / 10, unit: entered.unit, date: estimate.date, raised: true } : { ...entered, raised: false };
+}
+
 export type LiftSession = { sets: { reps: number; load: number; unit: "kg" | "lb" }[] };
 export type ProgressionPrescription =
   | { basis: "first_time" }
