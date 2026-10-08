@@ -90,7 +90,13 @@
         "open_floor_space",
         "strongman_log",
         "axle_bar",
-        "atlas_stone"
+        "atlas_stone",
+        "keg",
+        "loading_platform",
+        "deadlift_frame",
+        "fingal_fingers",
+        "sandbag",
+        "power_stairs"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -837,7 +843,9 @@
         "hex_dumbbell",
         "adjustable_dumbbell",
         "strongman_log",
-        "axle_bar"
+        "axle_bar",
+        "circus_dumbbell",
+        "viking_press_frame"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1566,7 +1574,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "wrist_roller"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1615,7 +1624,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "levering_bar"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1663,7 +1673,8 @@
         "dumbbell",
         "kettlebell",
         "trap_bar",
-        "plate"
+        "plate",
+        "hand_gripper"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1712,7 +1723,19 @@
         "dumbbell",
         "kettlebell",
         "trap_bar",
-        "plate"
+        "plate",
+        "hercules_hold_pillars",
+        "pinch_block",
+        "blob",
+        "thick_handle",
+        "rolling_handle",
+        "inch_dumbbell",
+        "hub",
+        "loading_pin",
+        "vertical_bar",
+        "grip_towel",
+        "pull_up_bar",
+        "block_weight"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1767,7 +1790,13 @@
         "adjustable_dumbbell",
         "yoke",
         "atlas_stone",
-        "sandbag"
+        "sandbag",
+        "keg",
+        "farmers_handles",
+        "carry_frame",
+        "conans_wheel",
+        "husafell_stone",
+        "duck_walk_implement"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2730,7 +2759,8 @@
       "movement_pattern_id": "conditioning_sled",
       "equipment_vocab": [
         "sled",
-        "open_floor_space"
+        "open_floor_space",
+        "pulling_harness"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

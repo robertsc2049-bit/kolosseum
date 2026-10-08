@@ -20016,6 +20016,1481 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "keg_carry": {
+      "exercise_id": "keg_carry",
+      "display_label": "Keg carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Keg carry: Hug a strongman keg to your chest and carry it for the prescribed distance.",
+      "instruction_detail_text": [
+        "Tip the keg onto its side, lap it or roll it up the thighs, and hug it high on the chest.",
+        "Stand tall, brace, and walk with short, quick steps.",
+        "Set the keg down under control at the finish line."
+      ],
+      "coaching_cues": [
+        "Hug it high",
+        "Short, quick steps",
+        "Brace before you move"
+      ],
+      "common_faults": [
+        "Letting the keg slide down",
+        "Leaning back too far",
+        "Overstriding"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "keg"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "keg_load": {
+      "exercise_id": "keg_load",
+      "display_label": "Keg load to platform",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_medium",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Keg load: Lift a keg from the floor and load it onto a platform at the prescribed height.",
+      "instruction_detail_text": [
+        "Stand over the keg, grip the handles or rims, and pull it to your lap or chest.",
+        "Extend the hips explosively to drive the keg up.",
+        "Roll or push the keg onto the platform and reset."
+      ],
+      "coaching_cues": [
+        "Close to the body",
+        "Drive with the hips",
+        "Finish tall"
+      ],
+      "common_faults": [
+        "Pulling with the arms",
+        "Keg drifting forward",
+        "Rounded back off the floor"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "keg",
+        "loading_platform"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "strongman_farmers_walk": {
+      "exercise_id": "strongman_farmers_walk",
+      "display_label": "Strongman farmer's walk",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "wrist",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Strongman farmer's walk: Deadlift a pair of loaded farmer's handles and walk them for the prescribed distance.",
+      "instruction_detail_text": [
+        "Stand between the handles, grip them in the centre and deadlift them to standing.",
+        "Walk fast with short steps, shoulders packed and trunk braced.",
+        "Set the handles down under control at the finish."
+      ],
+      "coaching_cues": [
+        "Grip the centre",
+        "Fast, short steps",
+        "Shoulders down"
+      ],
+      "common_faults": [
+        "Handles swinging",
+        "Overstriding",
+        "Dropping the hips"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "farmers_handles"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "frame_carry": {
+      "exercise_id": "frame_carry",
+      "display_label": "Frame carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "wrist",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Frame carry: Deadlift a loaded carry frame and walk it for the prescribed distance.",
+      "instruction_detail_text": [
+        "Step inside the frame, grip the handles and deadlift it to standing.",
+        "Walk with short, quick steps keeping the frame level.",
+        "Set it down under control at the finish."
+      ],
+      "coaching_cues": [
+        "Lift it level",
+        "Quick steps",
+        "Stay tall"
+      ],
+      "common_faults": [
+        "Frame tipping",
+        "Overstriding",
+        "Losing grip tension"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "carry_frame"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "conans_wheel_carry": {
+      "exercise_id": "conans_wheel_carry",
+      "display_label": "Conan's wheel carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Conan's wheel: Lift the arm of the wheel in a front hold and walk it around the circle for the prescribed distance.",
+      "instruction_detail_text": [
+        "Squat under the lever arm and take it in the crook of the elbows against the chest.",
+        "Stand up and walk around the circle with short steps.",
+        "Set the arm down under control."
+      ],
+      "coaching_cues": [
+        "Elbows tight",
+        "Upright trunk",
+        "Steady pace"
+      ],
+      "common_faults": [
+        "Leaning back",
+        "Arms drifting from the body",
+        "Stopping and restarting"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "conans_wheel"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "husafell_stone_carry": {
+      "exercise_id": "husafell_stone_carry",
+      "display_label": "Husafell stone carry",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Husafell stone carry: Lift the stone to your chest and carry it for the prescribed distance.",
+      "instruction_detail_text": [
+        "Tip the stone up, lap it and hug it high against the chest.",
+        "Stand tall and walk with short, quick steps.",
+        "Set it down under control."
+      ],
+      "coaching_cues": [
+        "Hug it high",
+        "Brace hard",
+        "Quick steps"
+      ],
+      "common_faults": [
+        "Stone slipping down",
+        "Leaning back",
+        "Losing the brace"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "husafell_stone"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "duck_walk": {
+      "exercise_id": "duck_walk",
+      "display_label": "Duck walk",
+      "movement_pattern_id": "carry_bilateral",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Duck walk: Carry the loaded implement between your legs for the prescribed distance.",
+      "instruction_detail_text": [
+        "Straddle the implement and deadlift it by the handle.",
+        "Walk forward with short steps, the implement swinging between the legs.",
+        "Set it down under control."
+      ],
+      "coaching_cues": [
+        "Short steps",
+        "Chest up",
+        "Keep it centred"
+      ],
+      "common_faults": [
+        "Implement hitting the legs",
+        "Overstriding",
+        "Rounding forward"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "duck_walk_implement"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "circus_dumbbell_press": {
+      "exercise_id": "circus_dumbbell_press",
+      "display_label": "Circus dumbbell press",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "wrist",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Circus dumbbell: Clean a thick-handled circus dumbbell to the shoulder and drive it overhead with one arm.",
+      "instruction_detail_text": [
+        "Clean the dumbbell to the shoulder with one hand, using the other to assist if allowed.",
+        "Dip and drive the dumbbell overhead to a locked arm.",
+        "Lower it to the shoulder and repeat or set it down."
+      ],
+      "coaching_cues": [
+        "Elbow under the handle",
+        "Drive with the legs",
+        "Lock out over the shoulder"
+      ],
+      "common_faults": [
+        "Pressing with the arm only",
+        "Leaning away",
+        "Soft lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "circus_dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "viking_press": {
+      "exercise_id": "viking_press",
+      "display_label": "Viking press",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Viking press: Press the handles of a lever-arm frame from the shoulders to locked arms overhead.",
+      "instruction_detail_text": [
+        "Stand in the frame with the handles at shoulder height.",
+        "Brace and press the handles to locked arms.",
+        "Lower to the shoulders under control and repeat."
+      ],
+      "coaching_cues": [
+        "Brace first",
+        "Press straight up",
+        "Lock out fully"
+      ],
+      "common_faults": [
+        "Leaning back",
+        "Bouncing the reps",
+        "Soft lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "viking_press_frame"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "frame_deadlift": {
+      "exercise_id": "frame_deadlift",
+      "display_label": "Frame deadlift",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Frame deadlift: Deadlift the handles of a loaded frame (car deadlift) to full lockout.",
+      "instruction_detail_text": [
+        "Stand in the frame with the handles at your sides.",
+        "Brace and push the floor away to stand up.",
+        "Lock out the hips and knees, then lower under control."
+      ],
+      "coaching_cues": [
+        "Brace before you pull",
+        "Push the floor away",
+        "Hips through at the top"
+      ],
+      "common_faults": [
+        "Hips rising first",
+        "Jerking the handles",
+        "Hitching"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "deadlift_frame"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hercules_hold": {
+      "exercise_id": "hercules_hold",
+      "display_label": "Hercules hold",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hercules hold: Hold two loaded pillars from falling outward for as long as possible.",
+      "instruction_detail_text": [
+        "Stand between the pillars and grip each handle with arms at your sides.",
+        "Brace and hold the pillars upright as they are released.",
+        "Hold for time; set them back under control."
+      ],
+      "coaching_cues": [
+        "Shoulders packed",
+        "Squeeze the handles",
+        "Stay tall"
+      ],
+      "common_faults": [
+        "Arms drifting outward",
+        "Shrugging",
+        "Leaning to one side"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "hercules_hold_pillars"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "fingal_fingers_flip": {
+      "exercise_id": "fingal_fingers_flip",
+      "display_label": "Fingal's fingers",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "shoulder",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Fingal's fingers: Lift each hinged pole from the ground and push it over to the other side.",
+      "instruction_detail_text": [
+        "Deadlift the end of the pole and walk your hands up it.",
+        "Push it past vertical so it falls to the other side.",
+        "Move to the next pole."
+      ],
+      "coaching_cues": [
+        "Lift with the legs",
+        "Walk the hands fast",
+        "Push through the top"
+      ],
+      "common_faults": [
+        "Lifting with the back",
+        "Losing control past vertical",
+        "Slow hand walk"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "fingal_fingers"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "vehicle_pull": {
+      "exercise_id": "vehicle_pull",
+      "display_label": "Vehicle pull",
+      "movement_pattern_id": "conditioning_sled",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Vehicle pull: Wearing a harness, or with a rope, pull a vehicle or heavy sled for the prescribed distance.",
+      "instruction_detail_text": [
+        "Attach the harness or take the rope and lean forward into it.",
+        "Drive with short, powerful steps to get it moving, then keep it rolling.",
+        "Stop at the finish line."
+      ],
+      "coaching_cues": [
+        "Low body angle",
+        "Short, driving steps",
+        "Keep it moving"
+      ],
+      "common_faults": [
+        "Standing too upright",
+        "Long steps",
+        "Stopping mid-pull"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pulling_harness",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sandbag_to_shoulder": {
+      "exercise_id": "sandbag_to_shoulder",
+      "display_label": "Sandbag to shoulder",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_medium",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Sandbag to shoulder: Lift a sandbag from the floor to one shoulder.",
+      "instruction_detail_text": [
+        "Straddle the bag, grip it and pull it to your lap.",
+        "Extend the hips explosively and turn the bag onto one shoulder.",
+        "Drop it behind or in front and repeat, alternating shoulders."
+      ],
+      "coaching_cues": [
+        "Lap it first",
+        "Hips drive it up",
+        "Alternate shoulders"
+      ],
+      "common_faults": [
+        "Lifting with a rounded back off the floor",
+        "Pulling with the arms",
+        "Always the same shoulder"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "sandbag"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "strongman_log_clean": {
+      "exercise_id": "strongman_log_clean",
+      "display_label": "Log clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Log clean: Pull the log from the floor to the rack position on the chest.",
+      "instruction_detail_text": [
+        "Set up with the log over the middle of the feet and grip the handles.",
+        "Pull it to the lap or belt, then extend the hips to roll it up to the chest.",
+        "Finish standing with elbows up, ready to press."
+      ],
+      "coaching_cues": [
+        "Pull to the belt",
+        "Roll it up the chest",
+        "Elbows up"
+      ],
+      "common_faults": [
+        "Curling the log",
+        "Hips rising first",
+        "Elbows down at the finish"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "strongman_log"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "power_stairs_carry": {
+      "exercise_id": "power_stairs_carry",
+      "display_label": "Power stairs",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Power stairs: Lift a loaded implement up a flight of steps, one step at a time.",
+      "instruction_detail_text": [
+        "Stand on the step above the implement and grip the handle.",
+        "Hinge and drive the hips to lift it onto the next step.",
+        "Step up and repeat to the top."
+      ],
+      "coaching_cues": [
+        "Hips drive it",
+        "Stay over the implement",
+        "Fast step-ups"
+      ],
+      "common_faults": [
+        "Pulling with the arms",
+        "Swinging it",
+        "Slow transitions"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "power_stairs"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "gripper_close": {
+      "exercise_id": "gripper_close",
+      "display_label": "Gripper close",
+      "movement_pattern_id": "grip_crush",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Gripper close: Close a hand gripper fully, handles touching, for the prescribed reps or a hold.",
+      "instruction_detail_text": [
+        "Set the gripper deep in the hand, the lower handle across the base of the fingers.",
+        "Squeeze until the handles touch.",
+        "Hold or release under control and repeat."
+      ],
+      "coaching_cues": [
+        "Deep set",
+        "Squeeze all the way",
+        "Control the opening"
+      ],
+      "common_faults": [
+        "Shallow set",
+        "Partial closes",
+        "Letting it spring open"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "hand_gripper"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "pinch_block_hold": {
+      "exercise_id": "pinch_block_hold",
+      "display_label": "Pinch block lift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Pinch block: Lift a loaded pinch block with the thumb on one side and fingers on the other, and hold.",
+      "instruction_detail_text": [
+        "Pinch the block with straight fingers and the thumb opposite.",
+        "Stand up with it, arm straight.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Thumb pressure",
+        "Straight fingers",
+        "Arm long"
+      ],
+      "common_faults": [
+        "Curling the wrist",
+        "Lifting with a bent arm",
+        "Fingers bending"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pinch_block"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "blob_lift": {
+      "exercise_id": "blob_lift",
+      "display_label": "Blob lift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Blob lift: Pinch-lift the head of a dumbbell (the blob) and hold.",
+      "instruction_detail_text": [
+        "Grip the blob with the thumb on one face and fingers on the other.",
+        "Stand up with it, arm straight.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Full-hand contact",
+        "Thumb drives",
+        "Arm long"
+      ],
+      "common_faults": [
+        "Tips of the fingers only",
+        "Swinging",
+        "Bent arm"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "blob"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "thick_handle_deadlift": {
+      "exercise_id": "thick_handle_deadlift",
+      "display_label": "Thick handle deadlift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Thick handle deadlift: Deadlift a bar wrapped in thick handles with a double-overhand grip and hold.",
+      "instruction_detail_text": [
+        "Fit thick handles to the bar where your hands go.",
+        "Grip double overhand and deadlift to standing.",
+        "Hold for time or lower for reps."
+      ],
+      "coaching_cues": [
+        "Squeeze before it moves",
+        "Double overhand",
+        "Shoulders packed"
+      ],
+      "common_faults": [
+        "Mixed grip",
+        "Hitching",
+        "Losing grip mid-hold"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "thick_handle",
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "rolling_handle_lift": {
+      "exercise_id": "rolling_handle_lift",
+      "display_label": "Rolling handle lift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Rolling handle: Lift a loaded rotating handle with one hand and hold it without it spinning out.",
+      "instruction_detail_text": [
+        "Grip the handle in the centre with one hand.",
+        "Stand up with it, arm straight, and keep it still.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Crush the handle",
+        "Wrist neutral",
+        "Stand tall"
+      ],
+      "common_faults": [
+        "Wrist rolling open",
+        "Off-centre grip",
+        "Jerking the lift"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "rolling_handle"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "inch_dumbbell_deadlift": {
+      "exercise_id": "inch_dumbbell_deadlift",
+      "display_label": "Inch dumbbell deadlift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Inch dumbbell: Deadlift a thick-handled inch dumbbell with one hand and hold.",
+      "instruction_detail_text": [
+        "Grip the handle with the whole hand.",
+        "Stand up with it beside you, arm straight.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Whole-hand grip",
+        "Arm long",
+        "Stand tall"
+      ],
+      "common_faults": [
+        "Wrist bending",
+        "Leaning to one side",
+        "Jerking it off the floor"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "inch_dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wrist_roller_roll": {
+      "exercise_id": "wrist_roller_roll",
+      "display_label": "Wrist roller",
+      "movement_pattern_id": "forearm_flexion_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Wrist roller: Roll a weight up on a cord by turning the handle, then lower it under control.",
+      "instruction_detail_text": [
+        "Hold the roller at arm's length at shoulder height.",
+        "Turn the handle hand over hand until the weight reaches the top.",
+        "Reverse to lower it under control."
+      ],
+      "coaching_cues": [
+        "Arms straight",
+        "Full turns",
+        "Control the lowering"
+      ],
+      "common_faults": [
+        "Arms dropping",
+        "Using momentum",
+        "Letting it unroll fast"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "wrist_roller"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hub_lift": {
+      "exercise_id": "hub_lift",
+      "display_label": "Hub lift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hub lift: Pinch-lift a hub loaded on a pin with the fingertips and thumb.",
+      "instruction_detail_text": [
+        "Grip the hub with the thumb on top and fingers underneath.",
+        "Lift it straight up off the floor.",
+        "Hold or set it down under control."
+      ],
+      "coaching_cues": [
+        "Thumb drives",
+        "Lift straight up",
+        "Wrist neutral"
+      ],
+      "common_faults": [
+        "Tilting the hub",
+        "Bent elbow",
+        "Fingers slipping"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "hub",
+        "loading_pin"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "levering": {
+      "exercise_id": "levering",
+      "display_label": "Levering",
+      "movement_pattern_id": "forearm_extension_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Levering: Hold a sledgehammer or levering bar at the end and raise it to vertical by bending the wrist.",
+      "instruction_detail_text": [
+        "Hold the bar at the end with the head pointing forward.",
+        "Raise the head towards you by bending only the wrist.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Elbow still",
+        "Wrist only",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Using the elbow",
+        "Swinging the bar",
+        "Dropping it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "levering_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "vertical_bar_lift": {
+      "exercise_id": "vertical_bar_lift",
+      "display_label": "Vertical bar lift",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Vertical bar: Lift a loaded vertical bar by its top, the hand around the thick end, and hold.",
+      "instruction_detail_text": [
+        "Grip the top of the vertical bar with the whole hand.",
+        "Stand up with it, arm straight.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Whole-hand grip",
+        "Arm long",
+        "Keep it vertical"
+      ],
+      "common_faults": [
+        "Bar tilting",
+        "Fingertip grip",
+        "Bent arm"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "vertical_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "towel_hang": {
+      "exercise_id": "towel_hang",
+      "display_label": "Towel hang",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Towel hang: Hang from towels draped over a bar for the prescribed time.",
+      "instruction_detail_text": [
+        "Drape two towels over the bar and grip one in each hand.",
+        "Hang with arms straight and shoulders packed.",
+        "Hold for time and step down."
+      ],
+      "coaching_cues": [
+        "Squeeze the towels",
+        "Shoulders packed",
+        "Still body"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Shrugging",
+        "Letting go early"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "grip_towel",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "block_weight_pinch": {
+      "exercise_id": "block_weight_pinch",
+      "display_label": "Block weight pinch",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Block weight: Pinch-lift a block weight by its sides and hold.",
+      "instruction_detail_text": [
+        "Grip the block with the thumb on one side and fingers on the other.",
+        "Lift it straight up, arm straight.",
+        "Hold for time and set it down."
+      ],
+      "coaching_cues": [
+        "Thumb drives",
+        "Straight fingers",
+        "Arm long"
+      ],
+      "common_faults": [
+        "Curling the wrist",
+        "Fingertips only",
+        "Swinging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "block_weight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "plate_pinch": {
+      "exercise_id": "plate_pinch",
+      "display_label": "Plate pinch",
+      "movement_pattern_id": "grip_support",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Plate pinch: Pinch two or more plates smooth sides out and hold.",
+      "instruction_detail_text": [
+        "Put the plates together smooth sides out and pinch them with the thumb on one side.",
+        "Stand up with them, arm straight.",
+        "Hold for time and set them down."
+      ],
+      "coaching_cues": [
+        "Thumb drives",
+        "Straight fingers",
+        "Arm long"
+      ],
+      "common_faults": [
+        "Plates splaying",
+        "Bent arm",
+        "Fingertips only"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "plate"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "strongman",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "mma"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }
