@@ -62416,13 +62416,14 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 3,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
                   "rest_seconds": 150,
-                  "fixed": true
+                  "fixed": true,
+                  "duration_seconds": 20
                 },
                 {
                   "sets": 3,
@@ -62526,13 +62527,14 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 3,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
                       "rest_seconds": 120,
-                      "fixed": true
+                      "fixed": true,
+                      "duration_seconds": 20
                     },
                     {
                       "sets": 3,
