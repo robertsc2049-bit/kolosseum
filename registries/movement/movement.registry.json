@@ -69,7 +69,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "hinge": {
@@ -147,7 +148,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "single_leg_squat": {
@@ -201,7 +203,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "single_leg_hinge": {
@@ -256,7 +259,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "knee_extension_isolation": {
@@ -304,7 +308,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "knee_flexion_isolation": {
@@ -353,7 +358,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "hip_abduction_isolation": {
@@ -401,7 +407,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "hip_adduction_isolation": {
@@ -449,7 +456,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "hip_extension_isolation": {
@@ -502,7 +510,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "hip_flexion_isolation": {
@@ -550,7 +559,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "calf_raise": {
@@ -599,7 +609,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "tibialis_raise": {
@@ -648,7 +659,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "horizontal_push": {
@@ -715,7 +727,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "incline_push": {
@@ -769,7 +782,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "decline_push": {
@@ -825,7 +839,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "vertical_push": {
@@ -896,7 +911,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "angled_push": {
@@ -952,7 +968,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "horizontal_pull": {
@@ -1010,7 +1027,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "vertical_pull": {
@@ -1067,7 +1085,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "scapular_retraction": {
@@ -1116,7 +1135,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "scapular_protraction": {
@@ -1164,7 +1184,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "scapular_upward_rotation": {
@@ -1214,7 +1235,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "scapular_depression": {
@@ -1262,7 +1284,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "shoulder_external_rotation": {
@@ -1311,7 +1334,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "shoulder_internal_rotation": {
@@ -1360,7 +1384,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "shoulder_abduction_isolation": {
@@ -1410,7 +1435,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "shoulder_horizontal_abduction_isolation": {
@@ -1460,7 +1486,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "elbow_flexion_isolation": {
@@ -1511,7 +1538,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "elbow_extension_isolation": {
@@ -1563,7 +1591,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "forearm_flexion_isolation": {
@@ -1613,7 +1642,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "forearm_extension_isolation": {
@@ -1663,7 +1693,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "grip_crush": {
@@ -1713,7 +1744,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "grip_support": {
@@ -1774,7 +1806,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "carry_bilateral": {
@@ -1839,7 +1872,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "carry_unilateral": {
@@ -1892,7 +1926,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "core_anti_extension": {
@@ -1940,7 +1975,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "core_anti_rotation": {
@@ -1989,7 +2025,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "core_anti_lateral_flexion": {
@@ -2037,7 +2074,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "trunk_flexion": {
@@ -2086,7 +2124,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "trunk_extension": {
@@ -2134,7 +2173,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "rotation": {
@@ -2183,7 +2223,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "locomotion_walk": {
@@ -2231,7 +2272,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "locomotion_run": {
@@ -2279,7 +2321,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "locomotion_crawl": {
@@ -2327,7 +2370,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "jump_vertical": {
@@ -2375,7 +2419,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "jump_horizontal": {
@@ -2423,7 +2468,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "sprint_acceleration": {
@@ -2470,7 +2516,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "sprint_max_velocity": {
@@ -2517,7 +2564,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "deceleration": {
@@ -2563,7 +2611,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "change_of_direction": {
@@ -2609,7 +2658,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "throw_slam": {
@@ -2657,7 +2707,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "conditioning_cyclical": {
@@ -2705,7 +2756,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "conditioning_row": {
@@ -2752,7 +2804,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "conditioning_sled": {
@@ -2802,7 +2855,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     },
     "neck_isometric": {
@@ -2846,7 +2900,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ]
     }
   }

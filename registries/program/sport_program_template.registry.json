@@ -56662,6 +56662,1894 @@
         "no_royalty_scope",
         "registry_bound"
       ]
+    },
+    {
+      "template_id": "grip_sport_novice",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "grip_sport",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_grip_sport_novice",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "grip_sport_novice_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "grip_sport_novice_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "grip_sport_novice_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w01_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w01_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w01_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_novice_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "grip_sport_novice_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w02_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w02_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w02_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_novice_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "grip_sport_novice_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w03_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w03_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w03_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_novice_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "grip_sport_novice_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_novice_w04_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_novice_w04_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "trap_bar_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "trap_bar"
+                            ],
+                            "substitution_policy_id": "trap_bar_deadlift__to__romanian_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_novice_w04_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "grip_sport",
+        "exercise_ids": [
+          "gripper_close",
+          "hammer_curl",
+          "plate_pinch",
+          "pull_up",
+          "trap_bar_deadlift",
+          "wrist_roller_roll"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "dumbbell",
+          "hand_gripper",
+          "plate",
+          "pull_up_bar",
+          "trap_bar",
+          "wrist_roller"
+        ],
+        "substitution_edge_ids": [
+          "gripper_close__to__dumbbell_crush_grip_hold",
+          "hammer_curl__to__dumbbell_curl",
+          "plate_pinch__to__dumbbell_static_hold",
+          "pull_up__to__chin_up",
+          "trap_bar_deadlift__to__romanian_deadlift",
+          "wrist_roller_roll__to__dumbbell_wrist_curl"
+        ],
+        "applicability_ids": [
+          "gripper_close__grip_sport__training",
+          "hammer_curl__grip_sport__training",
+          "plate_pinch__grip_sport__training",
+          "pull_up__grip_sport__training",
+          "trap_bar_deadlift__grip_sport__training",
+          "wrist_roller_roll__grip_sport__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "grip_sport_intermediate",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "grip_sport",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_grip_sport_intermediate",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "grip_sport_intermediate_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "grip_sport_intermediate_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "grip_sport_intermediate_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pinch_block_hold",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "pinch_block"
+                            ],
+                            "substitution_policy_id": "pinch_block_hold__to__block_weight_pinch"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "inch_dumbbell_deadlift",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "inch_dumbbell"
+                            ],
+                            "substitution_policy_id": "inch_dumbbell_deadlift__to__blob_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w01_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w01_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "rolling_handle_lift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "rolling_handle"
+                            ],
+                            "substitution_policy_id": "rolling_handle_lift__to__hub_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w01_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_intermediate_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "grip_sport_intermediate_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pinch_block_hold",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "pinch_block"
+                            ],
+                            "substitution_policy_id": "pinch_block_hold__to__block_weight_pinch"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "inch_dumbbell_deadlift",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "inch_dumbbell"
+                            ],
+                            "substitution_policy_id": "inch_dumbbell_deadlift__to__blob_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w02_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w02_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "rolling_handle_lift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "rolling_handle"
+                            ],
+                            "substitution_policy_id": "rolling_handle_lift__to__hub_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w02_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_intermediate_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "grip_sport_intermediate_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pinch_block_hold",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "pinch_block"
+                            ],
+                            "substitution_policy_id": "pinch_block_hold__to__block_weight_pinch"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "inch_dumbbell_deadlift",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "inch_dumbbell"
+                            ],
+                            "substitution_policy_id": "inch_dumbbell_deadlift__to__blob_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w03_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w03_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "rolling_handle_lift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "rolling_handle"
+                            ],
+                            "substitution_policy_id": "rolling_handle_lift__to__hub_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w03_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_intermediate_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "grip_sport_intermediate_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "gripper_close",
+                            "planned_sets": 5,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "hand_gripper"
+                            ],
+                            "substitution_policy_id": "gripper_close__to__dumbbell_crush_grip_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 8,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "pinch_block_hold",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "pinch_block"
+                            ],
+                            "substitution_policy_id": "pinch_block_hold__to__block_weight_pinch"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "inch_dumbbell_deadlift",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "inch_dumbbell"
+                            ],
+                            "substitution_policy_id": "inch_dumbbell_deadlift__to__blob_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_intermediate_w04_d03",
+                    "order_index": 3,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_intermediate_w04_d03_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d03_i01",
+                            "order_index": 1,
+                            "exercise_id": "rolling_handle_lift",
+                            "planned_sets": 5,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "rolling_handle"
+                            ],
+                            "substitution_policy_id": "rolling_handle_lift__to__hub_lift"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d03_i02",
+                            "order_index": 2,
+                            "exercise_id": "wrist_roller_roll",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "wrist_roller"
+                            ],
+                            "substitution_policy_id": "wrist_roller_roll__to__dumbbell_wrist_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_intermediate_w04_d03_i03",
+                            "order_index": 3,
+                            "exercise_id": "axle_deadlift",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "axle_bar"
+                            ],
+                            "substitution_policy_id": "axle_deadlift__to__trap_bar_deadlift"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "grip_sport",
+        "exercise_ids": [
+          "axle_deadlift",
+          "gripper_close",
+          "hammer_curl",
+          "inch_dumbbell_deadlift",
+          "pinch_block_hold",
+          "pull_up",
+          "rolling_handle_lift",
+          "wrist_roller_roll"
+        ],
+        "equipment_ids": [
+          "axle_bar",
+          "bodyweight",
+          "dumbbell",
+          "hand_gripper",
+          "inch_dumbbell",
+          "pinch_block",
+          "pull_up_bar",
+          "rolling_handle",
+          "wrist_roller"
+        ],
+        "substitution_edge_ids": [
+          "axle_deadlift__to__trap_bar_deadlift",
+          "gripper_close__to__dumbbell_crush_grip_hold",
+          "hammer_curl__to__dumbbell_curl",
+          "inch_dumbbell_deadlift__to__blob_lift",
+          "pinch_block_hold__to__block_weight_pinch",
+          "pull_up__to__chin_up",
+          "rolling_handle_lift__to__hub_lift",
+          "wrist_roller_roll__to__dumbbell_wrist_curl"
+        ],
+        "applicability_ids": [
+          "axle_deadlift__grip_sport__training",
+          "gripper_close__grip_sport__training",
+          "hammer_curl__grip_sport__training",
+          "inch_dumbbell_deadlift__grip_sport__training",
+          "pinch_block_hold__grip_sport__training",
+          "pull_up__grip_sport__training",
+          "rolling_handle_lift__grip_sport__training",
+          "wrist_roller_roll__grip_sport__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
+    },
+    {
+      "template_id": "grip_sport_low_equipment",
+      "template_version": "1.0.0",
+      "contract_version": "S-V1-26",
+      "template_status": "active",
+      "activity_id": "grip_sport",
+      "assignment_scope": "coach_athlete_assigned_execution",
+      "source_record_id": "reg_full_07_grip_sport_low_equipment",
+      "source_control_status": "approved",
+      "template_structure": {
+        "blocks": [
+          {
+            "block_id": "grip_sport_low_equipment_main",
+            "order_index": 1,
+            "weeks": [
+              {
+                "week_id": "grip_sport_low_equipment_w01",
+                "order_index": 1,
+                "days": [
+                  {
+                    "day_id": "grip_sport_low_equipment_w01_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w01_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_low_equipment_w01_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w01_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w01_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_low_equipment_w02",
+                "order_index": 2,
+                "days": [
+                  {
+                    "day_id": "grip_sport_low_equipment_w02_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w02_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_low_equipment_w02_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w02_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w02_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_low_equipment_w03",
+                "order_index": 3,
+                "days": [
+                  {
+                    "day_id": "grip_sport_low_equipment_w03_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w03_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_low_equipment_w03_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w03_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w03_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "week_id": "grip_sport_low_equipment_w04",
+                "order_index": 4,
+                "days": [
+                  {
+                    "day_id": "grip_sport_low_equipment_w04_d01",
+                    "order_index": 1,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w04_d01_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d01_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 4,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d01_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 10,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d01_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 3,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "day_id": "grip_sport_low_equipment_w04_d02",
+                    "order_index": 2,
+                    "sessions": [
+                      {
+                        "session_id": "grip_sport_low_equipment_w04_d02_s01",
+                        "order_index": 1,
+                        "work_items": [
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d02_i01",
+                            "order_index": 1,
+                            "exercise_id": "plate_pinch",
+                            "planned_sets": 3,
+                            "planned_reps": 3,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "plate"
+                            ],
+                            "substitution_policy_id": "plate_pinch__to__dumbbell_static_hold"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d02_i02",
+                            "order_index": 2,
+                            "exercise_id": "hammer_curl",
+                            "planned_sets": 3,
+                            "planned_reps": 12,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "dumbbell"
+                            ],
+                            "substitution_policy_id": "hammer_curl__to__dumbbell_curl"
+                          },
+                          {
+                            "work_item_id": "grip_sport_low_equipment_w04_d02_i03",
+                            "order_index": 3,
+                            "exercise_id": "pull_up",
+                            "planned_sets": 4,
+                            "planned_reps": 5,
+                            "loading_reference": "coach_declared_load",
+                            "equipment_requirement_ids": [
+                              "bodyweight",
+                              "pull_up_bar"
+                            ],
+                            "substitution_policy_id": "pull_up__to__chin_up"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "registry_bindings": {
+        "activity_id": "grip_sport",
+        "exercise_ids": [
+          "hammer_curl",
+          "plate_pinch",
+          "pull_up"
+        ],
+        "equipment_ids": [
+          "bodyweight",
+          "dumbbell",
+          "plate",
+          "pull_up_bar"
+        ],
+        "substitution_edge_ids": [
+          "hammer_curl__to__dumbbell_curl",
+          "plate_pinch__to__dumbbell_static_hold",
+          "pull_up__to__chin_up"
+        ],
+        "applicability_ids": [
+          "hammer_curl__grip_sport__training",
+          "plate_pinch__grip_sport__training",
+          "pull_up__grip_sport__training"
+        ]
+      },
+      "visibility_boundary": {
+        "formula_payload_status": "not_present",
+        "progression_internals_status": "not_present",
+        "protected_logic_reference_status": "opaque_reference_only"
+      },
+      "deterministic_boundary": {
+        "template_hash_inputs": [
+          "template_id",
+          "template_version",
+          "activity_id",
+          "assignment_scope",
+          "registry_bindings",
+          "template_structure"
+        ],
+        "order_policy": "explicit_order_index_only",
+        "unknown_field_policy": "fail_closed",
+        "registry_reference_policy": "declared_registry_ids_only"
+      },
+      "execution_surface": {
+        "coach_can_assign": true,
+        "athlete_can_execute_assigned": true,
+        "coach_can_edit_after_assignment": false,
+        "assignment_mutates_template": false,
+        "template_mutates_relationship": false,
+        "template_mutates_engine": false
+      },
+      "copy_boundary_flags": [
+        "formula_payload_not_visible",
+        "no_marketplace_scope",
+        "no_royalty_scope",
+        "registry_bound"
+      ]
     }
   ]
 }

@@ -16,15 +16,15 @@
     "compatibility_edge_count": 583,
     "required_equipment_edge_count": 434,
     "alternative_equipment_edge_count": 149,
-    "activity_relation_pair_count": 6702,
-    "applicability_row_count": 20106
+    "activity_relation_pair_count": 6758,
+    "applicability_row_count": 20274
   },
   "sha256": {
-    "exercise_registry": "5f87f0c796fe4cc85842042eef068d288cc7179f8f1ba5a3d8cc025162ecc13b",
-    "movement_registry": "5b1308b610a3874d3669989b18a69abfe4d6961a6518bd238f3898891430a582",
-    "equipment_registry": "eb4936b862ded101d14c0a728bae26fc434bc7d4197dff2fd647d976ccee21f5",
-    "activity_registry": "ead97cc76527c83ae6a0381ae8d4faeef7d4d394619c21f7b058868cfd1f1ccf",
-    "exercise_activity_applicability_registry": "434fda1ca10244e0dc1f8a5a9f4c5830545543d091914e9cb1a82eafbf959175",
+    "exercise_registry": "73cb604b84cbacd78d23ba8c74ef79e48099a0390f65573b1598a49727b618f8",
+    "movement_registry": "97b4ba8dd32c33b4d7bd833843129092c26b1ca772c465570dfe739650b4330c",
+    "equipment_registry": "3175c317e3c54f41951a038be1be2ff79853bd3f76d17e754bc7df805a3c7515",
+    "activity_registry": "f4c41d530525fed34ab899c35a636510afc3c2f7b1d303322d21b34e4a24f5fd",
+    "exercise_activity_applicability_registry": "b9911d99b228a262cd2c1661c45603db69b08566318858ae8e7cbce030820790",
     "exercise_equipment_compatibility_registry": "911dca4b735659bce72d6060fa456e833c33a35be011c533a9c7a31742a142a6"
   }
 }

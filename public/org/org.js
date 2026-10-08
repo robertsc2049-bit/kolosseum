@@ -133,7 +133,8 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["wing", "Wing"],
     ["fullback", "Fullback"]
   ],
-  street_lifting: [["athlete", "Athlete"]]
+  street_lifting: [["athlete", "Athlete"]],
+  grip_sport: [["athlete", "Athlete"]]
 };
 
 function positionSelectHtml(activityId, currentPosition, athleteUserId) {

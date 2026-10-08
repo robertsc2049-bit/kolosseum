@@ -8,7 +8,7 @@ import { V1_ACTIVITIES } from "../../../shared/v1-boundary/v1ActivityRegistry.mj
 // a wheel picker land on its first sport (Powerlifting) by a slight scroll,
 // and nothing showed it had happened.
 export const SPORT_FAMILIES: Array<[string, string[]]> = [
-  ["Strength sports", ["powerlifting", "olympic_weightlifting", "strongman", "street_lifting", "general_strength"]],
+  ["Strength sports", ["powerlifting", "olympic_weightlifting", "strongman", "street_lifting", "grip_sport", "general_strength"]],
   ["Hybrid fitness", ["hyrox", "crossfit"]],
   ["Team sports", ["rugby_union", "rugby_league", "rugby_sevens", "american_football", "football_soccer", "field_hockey", "ice_hockey", "netball", "basketball", "volleyball", "cricket"]],
   ["Racket sports", ["tennis"]],

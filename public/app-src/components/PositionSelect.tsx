@@ -104,7 +104,8 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
     { id: "wing", label: "Wing" },
     { id: "fullback", label: "Fullback" }
   ],
-  street_lifting: [{ id: "athlete", label: "Athlete" }]
+  street_lifting: [{ id: "athlete", label: "Athlete" }],
+  grip_sport: [{ id: "athlete", label: "Athlete" }]
 };
 
 // Sports where a position (or event group) selects its own programme

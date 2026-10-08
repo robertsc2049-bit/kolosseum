@@ -3240,7 +3240,8 @@ function programmeActivationIssues(template) {
     "tennis",
     "triathlon",
     "rugby_league",
-    "street_lifting"
+    "street_lifting",
+    "grip_sport"
   ]);
   const supportedBlockTypes = new Set([
     "general",
@@ -4077,6 +4078,12 @@ const EVENT_TYPES_BY_ACTIVITY = Object.freeze({
   ],
   street_lifting: [
     ["street_lifting_competition", "Street lifting competition"],
+    ["strength_event", "Strength event"],
+    ["test_day", "Test day"],
+    ["other", "Other event"]
+  ],
+  grip_sport: [
+    ["grip_sport_competition", "Grip sport competition"],
     ["strength_event", "Strength event"],
     ["test_day", "Test day"],
     ["other", "Other event"]

@@ -1958,6 +1958,69 @@
             "conditioning_sled",
             "neck_isometric"
           ]
+        },
+        "grip_sport": {
+          "activity_id": "grip_sport",
+          "stimulus_intents": [
+            "strength"
+          ],
+          "allowed_movement_patterns": [
+            "squat",
+            "hinge",
+            "single_leg_squat",
+            "single_leg_hinge",
+            "knee_extension_isolation",
+            "knee_flexion_isolation",
+            "hip_abduction_isolation",
+            "hip_adduction_isolation",
+            "hip_extension_isolation",
+            "hip_flexion_isolation",
+            "calf_raise",
+            "tibialis_raise",
+            "horizontal_push",
+            "incline_push",
+            "decline_push",
+            "vertical_push",
+            "angled_push",
+            "horizontal_pull",
+            "vertical_pull",
+            "scapular_retraction",
+            "scapular_protraction",
+            "scapular_upward_rotation",
+            "scapular_depression",
+            "shoulder_external_rotation",
+            "shoulder_internal_rotation",
+            "shoulder_abduction_isolation",
+            "shoulder_horizontal_abduction_isolation",
+            "elbow_flexion_isolation",
+            "elbow_extension_isolation",
+            "forearm_flexion_isolation",
+            "forearm_extension_isolation",
+            "grip_crush",
+            "grip_support",
+            "carry_bilateral",
+            "carry_unilateral",
+            "core_anti_extension",
+            "core_anti_rotation",
+            "core_anti_lateral_flexion",
+            "trunk_flexion",
+            "trunk_extension",
+            "rotation",
+            "locomotion_walk",
+            "locomotion_run",
+            "locomotion_crawl",
+            "jump_vertical",
+            "jump_horizontal",
+            "sprint_acceleration",
+            "sprint_max_velocity",
+            "deceleration",
+            "change_of_direction",
+            "throw_slam",
+            "conditioning_cyclical",
+            "conditioning_row",
+            "conditioning_sled",
+            "neck_isometric"
+          ]
         }
       }
     },
@@ -2032,7 +2095,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "hinge": {
@@ -2110,7 +2174,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "single_leg_squat": {
@@ -2164,7 +2229,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "single_leg_hinge": {
@@ -2219,7 +2285,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "knee_extension_isolation": {
@@ -2267,7 +2334,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "knee_flexion_isolation": {
@@ -2316,7 +2384,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "hip_abduction_isolation": {
@@ -2364,7 +2433,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "hip_adduction_isolation": {
@@ -2412,7 +2482,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "hip_extension_isolation": {
@@ -2465,7 +2536,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "hip_flexion_isolation": {
@@ -2513,7 +2585,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "calf_raise": {
@@ -2562,7 +2635,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "tibialis_raise": {
@@ -2611,7 +2685,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "horizontal_push": {
@@ -2678,7 +2753,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "incline_push": {
@@ -2732,7 +2808,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "decline_push": {
@@ -2788,7 +2865,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "vertical_push": {
@@ -2859,7 +2937,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "angled_push": {
@@ -2915,7 +2994,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "horizontal_pull": {
@@ -2973,7 +3053,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "vertical_pull": {
@@ -3030,7 +3111,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "scapular_retraction": {
@@ -3079,7 +3161,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "scapular_protraction": {
@@ -3127,7 +3210,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "scapular_upward_rotation": {
@@ -3177,7 +3261,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "scapular_depression": {
@@ -3225,7 +3310,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "shoulder_external_rotation": {
@@ -3274,7 +3360,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "shoulder_internal_rotation": {
@@ -3323,7 +3410,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "shoulder_abduction_isolation": {
@@ -3373,7 +3461,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "shoulder_horizontal_abduction_isolation": {
@@ -3423,7 +3512,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "elbow_flexion_isolation": {
@@ -3474,7 +3564,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "elbow_extension_isolation": {
@@ -3526,7 +3617,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "forearm_flexion_isolation": {
@@ -3576,7 +3668,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "forearm_extension_isolation": {
@@ -3626,7 +3719,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "grip_crush": {
@@ -3676,7 +3770,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "grip_support": {
@@ -3737,7 +3832,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "carry_bilateral": {
@@ -3802,7 +3898,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "carry_unilateral": {
@@ -3855,7 +3952,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "core_anti_extension": {
@@ -3903,7 +4001,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "core_anti_rotation": {
@@ -3952,7 +4051,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "core_anti_lateral_flexion": {
@@ -4000,7 +4100,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "trunk_flexion": {
@@ -4049,7 +4150,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "trunk_extension": {
@@ -4097,7 +4199,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "rotation": {
@@ -4146,7 +4249,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "locomotion_walk": {
@@ -4194,7 +4298,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "locomotion_run": {
@@ -4242,7 +4347,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "locomotion_crawl": {
@@ -4290,7 +4396,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "jump_vertical": {
@@ -4338,7 +4445,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "jump_horizontal": {
@@ -4386,7 +4494,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "sprint_acceleration": {
@@ -4433,7 +4542,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "sprint_max_velocity": {
@@ -4480,7 +4590,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "deceleration": {
@@ -4526,7 +4637,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "change_of_direction": {
@@ -4572,7 +4684,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "throw_slam": {
@@ -4620,7 +4733,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "conditioning_cyclical": {
@@ -4668,7 +4782,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "conditioning_row": {
@@ -4715,7 +4830,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "conditioning_sled": {
@@ -4765,7 +4881,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         },
         "neck_isometric": {
@@ -4809,7 +4926,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ]
         }
       }
@@ -4887,7 +5005,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -5127,7 +5246,8 @@
             "rugby_league",
             "strongman",
             "street_lifting",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -5530,7 +5650,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -5758,7 +5879,8 @@
             "triathlon",
             "rugby_league",
             "hyrox",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -6221,7 +6343,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -6379,7 +6502,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "hyrox"
+            "hyrox",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -6535,7 +6659,8 @@
             "rugby_league",
             "hyrox",
             "strongman",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -9015,7 +9140,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
@@ -9562,7 +9688,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -9711,7 +9838,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -10454,7 +10582,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [
             "overhead_loading"
@@ -11227,7 +11356,8 @@
             "rugby_league",
             "street_lifting",
             "strongman",
-            "hyrox"
+            "hyrox",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11380,7 +11510,8 @@
             "rugby_league",
             "street_lifting",
             "hyrox",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11533,7 +11664,8 @@
             "rugby_league",
             "street_lifting",
             "hyrox",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11829,7 +11961,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11905,7 +12038,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -11983,7 +12117,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "strongman"
+            "strongman",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -12136,7 +12271,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -12285,7 +12421,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -12942,7 +13079,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -13756,7 +13894,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -13830,7 +13969,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -13904,7 +14044,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14507,7 +14648,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14580,7 +14722,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14655,7 +14798,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14728,7 +14872,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14801,7 +14946,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14874,7 +15020,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -14947,7 +15094,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15020,7 +15168,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15093,7 +15242,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15175,7 +15325,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15331,7 +15482,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15485,7 +15637,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15792,7 +15945,8 @@
             "rugby_league",
             "street_lifting",
             "hyrox",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -15868,7 +16022,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "hyrox"
+            "hyrox",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -16384,7 +16539,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -22715,7 +22871,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "rugby_league"
+            "rugby_league",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -23685,7 +23842,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "crossfit",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "grip_sport"
+          ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "restricted",
           "template_eligibility": "eligible",
@@ -24821,7 +24980,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "strongman",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "grip_sport"
+          ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
           ],
@@ -24970,7 +25131,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "strongman",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "grip_sport"
+          ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
           ],
@@ -25365,7 +25528,9 @@
           ],
           "equipment_alternatives": [],
           "primary_activity_applicability": "strongman",
-          "secondary_activity_applicability": [],
+          "secondary_activity_applicability": [
+            "grip_sport"
+          ],
           "contraindication_or_exclusion_tags": [
             "high_external_load"
           ],
@@ -25665,7 +25830,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25717,7 +25883,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25769,7 +25936,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25823,7 +25991,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25876,7 +26045,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25929,7 +26099,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -25981,7 +26152,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26034,7 +26206,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26086,7 +26259,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26139,7 +26313,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26193,7 +26368,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26245,7 +26421,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -26297,7 +26474,8 @@
             "wrestling",
             "judo",
             "brazilian_jiu_jitsu",
-            "mma"
+            "mma",
+            "grip_sport"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -62123,6 +62301,748 @@
               ]
             }
           ]
+        },
+        {
+          "activity_id": "grip_sport",
+          "template_id": "PROGRAM_GRIP_SPORT_V1",
+          "exercise_eligibility": [
+            "axle_deadlift",
+            "gripper_close",
+            "pinch_block_hold",
+            "rolling_handle_lift",
+            "hammer_curl",
+            "dead_bug"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 180,
+              "fixed": true
+            },
+            {
+              "sets": 5,
+              "reps": 5,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 120,
+              "fixed": true
+            },
+            {
+              "sets": 4,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 4,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            }
+          ],
+          "level_variants": {
+            "beginner": {
+              "exercise_eligibility": [
+                "trap_bar_deadlift",
+                "dumbbell_crush_grip_hold",
+                "plate_pinch",
+                "dumbbell_static_hold",
+                "hammer_curl",
+                "dead_bug"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 4,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 180,
+                  "fixed": true
+                },
+                {
+                  "sets": 4,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                }
+              ],
+              "microcycle": [
+                {
+                  "day_id": "crush",
+                  "focus": "crush_and_pull",
+                  "exercise_eligibility": [
+                    "dumbbell_crush_grip_hold",
+                    "trap_bar_deadlift",
+                    "band_assisted_pull_up",
+                    "hammer_curl",
+                    "dead_bug"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 3,
+                      "reps": 5,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 7
+                      },
+                      "rest_seconds": 120,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 5,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 180,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 6,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 120
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 10,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 60
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                },
+                {
+                  "day_id": "pinch",
+                  "focus": "pinch_and_support",
+                  "exercise_eligibility": [
+                    "plate_pinch",
+                    "dumbbell_static_hold",
+                    "barbell_row",
+                    "face_pull"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 3,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 7
+                      },
+                      "rest_seconds": 120,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 2,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 7
+                      },
+                      "rest_seconds": 120,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 90
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 15,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                },
+                {
+                  "day_id": "wrist",
+                  "focus": "wrist_and_lever",
+                  "exercise_eligibility": [
+                    "dumbbell_wrist_curl",
+                    "dumbbell_wrist_extension",
+                    "overhead_press",
+                    "side_plank"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 3,
+                      "reps": 12,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 7
+                      },
+                      "rest_seconds": 60,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 12,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 7
+                      },
+                      "rest_seconds": 60,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 6,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 120
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 6
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                }
+              ]
+            },
+            "pro": {
+              "exercise_eligibility": [
+                "axle_deadlift",
+                "gripper_close",
+                "pinch_block_hold",
+                "rolling_handle_lift",
+                "hammer_curl",
+                "dead_bug"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 6,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 180,
+                  "fixed": true
+                },
+                {
+                  "sets": 6,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ],
+              "microcycle": [
+                {
+                  "day_id": "crush",
+                  "focus": "crush_and_pull",
+                  "exercise_eligibility": [
+                    "gripper_close",
+                    "axle_deadlift",
+                    "pull_up",
+                    "hammer_curl",
+                    "dead_bug"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 6,
+                      "reps": 5,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 120,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 6,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 180,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 6,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 120
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 10,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 60
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                },
+                {
+                  "day_id": "pinch",
+                  "focus": "pinch_and_support",
+                  "exercise_eligibility": [
+                    "pinch_block_hold",
+                    "inch_dumbbell_deadlift",
+                    "blob_lift",
+                    "barbell_row",
+                    "face_pull"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 6,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 150,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 5,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 150,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 4,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 150,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 90
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 15,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                },
+                {
+                  "day_id": "wrist",
+                  "focus": "wrist_and_lever",
+                  "exercise_eligibility": [
+                    "rolling_handle_lift",
+                    "levering",
+                    "wrist_roller_roll",
+                    "overhead_press",
+                    "side_plank"
+                  ],
+                  "item_prescriptions": [
+                    {
+                      "sets": 6,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 150,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 5,
+                      "reps": 5,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 9
+                      },
+                      "rest_seconds": 90,
+                      "fixed": true
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 3,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 90
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 6,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 120
+                    },
+                    {
+                      "sets": 3,
+                      "reps": 8,
+                      "intensity": {
+                        "type": "rpe",
+                        "value": 8
+                      },
+                      "rest_seconds": 60
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "microcycle": [
+            {
+              "day_id": "crush",
+              "focus": "crush_and_pull",
+              "exercise_eligibility": [
+                "gripper_close",
+                "axle_deadlift",
+                "pull_up",
+                "hammer_curl",
+                "dead_bug"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 5,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 180,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "pinch",
+              "focus": "pinch_and_support",
+              "exercise_eligibility": [
+                "pinch_block_hold",
+                "inch_dumbbell_deadlift",
+                "blob_lift",
+                "barbell_row",
+                "face_pull"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 4,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 15,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "wrist",
+              "focus": "wrist_and_lever",
+              "exercise_eligibility": [
+                "rolling_handle_lift",
+                "levering",
+                "wrist_roller_roll",
+                "overhead_press",
+                "side_plank"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 4,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -62162,7 +63082,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62207,7 +63128,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62251,7 +63173,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -62294,7 +63217,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62341,7 +63265,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62389,7 +63314,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62434,7 +63360,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -62478,7 +63405,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -62523,7 +63451,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_push",
@@ -62570,7 +63499,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "vertical_pull",
@@ -62612,7 +63542,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "hinge",
@@ -62781,7 +63712,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -62867,7 +63799,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "sprint_acceleration",
@@ -62913,7 +63846,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -62955,7 +63889,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat"
@@ -62996,7 +63931,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "hinge"
@@ -63038,7 +63974,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -63086,7 +64023,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "squat",
@@ -63133,7 +64071,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -63176,7 +64115,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -63219,7 +64159,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "horizontal_pull",
@@ -63304,7 +64245,8 @@
             "mma",
             "tennis",
             "triathlon",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "vertical_pull"
@@ -63469,7 +64411,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "vertical_push",
@@ -63712,7 +64655,8 @@
           "display_label": "Climbing rope",
           "equipment_class": "fixed_support",
           "activity_applicability": [
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "vertical_pull"
@@ -63812,7 +64756,8 @@
             "muay_thai",
             "mma",
             "tennis",
-            "triathlon"
+            "triathlon",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "carry"
@@ -64081,7 +65026,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64309,7 +65255,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64332,7 +65279,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64355,7 +65303,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64378,7 +65327,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64401,7 +65351,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64424,7 +65375,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64447,7 +65399,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64470,7 +65423,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64493,7 +65447,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64516,7 +65471,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64539,7 +65495,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64562,7 +65519,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64585,7 +65543,8 @@
             "mma",
             "rugby_union",
             "rugby_league",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_applicability": [
             "grip"
@@ -64999,7 +65958,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_id": "squat",
           "token_kind": "exercise_name_token",
@@ -65038,7 +65998,8 @@
             "triathlon",
             "rugby_league",
             "hyrox",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_id": "hinge",
           "token_kind": "exercise_name_token",
@@ -65076,7 +66037,8 @@
             "tennis",
             "triathlon",
             "rugby_league",
-            "street_lifting"
+            "street_lifting",
+            "grip_sport"
           ],
           "movement_pattern_id": "horizontal_push",
           "token_kind": "exercise_name_token",
@@ -65115,7 +66077,8 @@
             "rugby_league",
             "street_lifting",
             "hyrox",
-            "crossfit"
+            "crossfit",
+            "grip_sport"
           ],
           "movement_pattern_id": "core_anti_extension",
           "token_kind": "exercise_name_token",
@@ -306391,6 +307354,2022 @@
           "applicability_id": "plate_pinch__mma__competition",
           "exercise_id": "plate_pinch",
           "activity_id": "mma",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__grip_sport__training": {
+          "applicability_id": "back_squat__grip_sport__training",
+          "exercise_id": "back_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__grip_sport__testing": {
+          "applicability_id": "back_squat__grip_sport__testing",
+          "exercise_id": "back_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "back_squat__grip_sport__competition": {
+          "applicability_id": "back_squat__grip_sport__competition",
+          "exercise_id": "back_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_squat__grip_sport__training": {
+          "applicability_id": "front_squat__grip_sport__training",
+          "exercise_id": "front_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_squat__grip_sport__testing": {
+          "applicability_id": "front_squat__grip_sport__testing",
+          "exercise_id": "front_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_squat__grip_sport__competition": {
+          "applicability_id": "front_squat__grip_sport__competition",
+          "exercise_id": "front_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__grip_sport__training": {
+          "applicability_id": "goblet_squat__grip_sport__training",
+          "exercise_id": "goblet_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__grip_sport__testing": {
+          "applicability_id": "goblet_squat__grip_sport__testing",
+          "exercise_id": "goblet_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "goblet_squat__grip_sport__competition": {
+          "applicability_id": "goblet_squat__grip_sport__competition",
+          "exercise_id": "goblet_squat",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "deadlift__grip_sport__training": {
+          "applicability_id": "deadlift__grip_sport__training",
+          "exercise_id": "deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "deadlift__grip_sport__testing": {
+          "applicability_id": "deadlift__grip_sport__testing",
+          "exercise_id": "deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "deadlift__grip_sport__competition": {
+          "applicability_id": "deadlift__grip_sport__competition",
+          "exercise_id": "deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rack_pull__grip_sport__training": {
+          "applicability_id": "rack_pull__grip_sport__training",
+          "exercise_id": "rack_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rack_pull__grip_sport__testing": {
+          "applicability_id": "rack_pull__grip_sport__testing",
+          "exercise_id": "rack_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rack_pull__grip_sport__competition": {
+          "applicability_id": "rack_pull__grip_sport__competition",
+          "exercise_id": "rack_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__grip_sport__training": {
+          "applicability_id": "romanian_deadlift__grip_sport__training",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__grip_sport__testing": {
+          "applicability_id": "romanian_deadlift__grip_sport__testing",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "romanian_deadlift__grip_sport__competition": {
+          "applicability_id": "romanian_deadlift__grip_sport__competition",
+          "exercise_id": "romanian_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_deadlift__grip_sport__training": {
+          "applicability_id": "trap_bar_deadlift__grip_sport__training",
+          "exercise_id": "trap_bar_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_deadlift__grip_sport__testing": {
+          "applicability_id": "trap_bar_deadlift__grip_sport__testing",
+          "exercise_id": "trap_bar_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_deadlift__grip_sport__competition": {
+          "applicability_id": "trap_bar_deadlift__grip_sport__competition",
+          "exercise_id": "trap_bar_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bench_press__grip_sport__training": {
+          "applicability_id": "bench_press__grip_sport__training",
+          "exercise_id": "bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bench_press__grip_sport__testing": {
+          "applicability_id": "bench_press__grip_sport__testing",
+          "exercise_id": "bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "bench_press__grip_sport__competition": {
+          "applicability_id": "bench_press__grip_sport__competition",
+          "exercise_id": "bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__grip_sport__training": {
+          "applicability_id": "dumbbell_bench_press__grip_sport__training",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__grip_sport__testing": {
+          "applicability_id": "dumbbell_bench_press__grip_sport__testing",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_bench_press__grip_sport__competition": {
+          "applicability_id": "dumbbell_bench_press__grip_sport__competition",
+          "exercise_id": "dumbbell_bench_press",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__grip_sport__training": {
+          "applicability_id": "push_up__grip_sport__training",
+          "exercise_id": "push_up",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__grip_sport__testing": {
+          "applicability_id": "push_up__grip_sport__testing",
+          "exercise_id": "push_up",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "push_up__grip_sport__competition": {
+          "applicability_id": "push_up__grip_sport__competition",
+          "exercise_id": "push_up",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "overhead_press__grip_sport__training": {
+          "applicability_id": "overhead_press__grip_sport__training",
+          "exercise_id": "overhead_press",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "overhead_press__grip_sport__testing": {
+          "applicability_id": "overhead_press__grip_sport__testing",
+          "exercise_id": "overhead_press",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "overhead_press__grip_sport__competition": {
+          "applicability_id": "overhead_press__grip_sport__competition",
+          "exercise_id": "overhead_press",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__grip_sport__training": {
+          "applicability_id": "barbell_row__grip_sport__training",
+          "exercise_id": "barbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__grip_sport__testing": {
+          "applicability_id": "barbell_row__grip_sport__testing",
+          "exercise_id": "barbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_row__grip_sport__competition": {
+          "applicability_id": "barbell_row__grip_sport__competition",
+          "exercise_id": "barbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__grip_sport__training": {
+          "applicability_id": "single_arm_dumbbell_row__grip_sport__training",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__grip_sport__testing": {
+          "applicability_id": "single_arm_dumbbell_row__grip_sport__testing",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "single_arm_dumbbell_row__grip_sport__competition": {
+          "applicability_id": "single_arm_dumbbell_row__grip_sport__competition",
+          "exercise_id": "single_arm_dumbbell_row",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__grip_sport__training": {
+          "applicability_id": "seated_cable_row__grip_sport__training",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__grip_sport__testing": {
+          "applicability_id": "seated_cable_row__grip_sport__testing",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "seated_cable_row__grip_sport__competition": {
+          "applicability_id": "seated_cable_row__grip_sport__competition",
+          "exercise_id": "seated_cable_row",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__grip_sport__training": {
+          "applicability_id": "pull_up__grip_sport__training",
+          "exercise_id": "pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__grip_sport__testing": {
+          "applicability_id": "pull_up__grip_sport__testing",
+          "exercise_id": "pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pull_up__grip_sport__competition": {
+          "applicability_id": "pull_up__grip_sport__competition",
+          "exercise_id": "pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__grip_sport__training": {
+          "applicability_id": "chin_up__grip_sport__training",
+          "exercise_id": "chin_up",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__grip_sport__testing": {
+          "applicability_id": "chin_up__grip_sport__testing",
+          "exercise_id": "chin_up",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "chin_up__grip_sport__competition": {
+          "applicability_id": "chin_up__grip_sport__competition",
+          "exercise_id": "chin_up",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__grip_sport__training": {
+          "applicability_id": "lat_pulldown__grip_sport__training",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__grip_sport__testing": {
+          "applicability_id": "lat_pulldown__grip_sport__testing",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "lat_pulldown__grip_sport__competition": {
+          "applicability_id": "lat_pulldown__grip_sport__competition",
+          "exercise_id": "lat_pulldown",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__grip_sport__training": {
+          "applicability_id": "band_assisted_pull_up__grip_sport__training",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__grip_sport__testing": {
+          "applicability_id": "band_assisted_pull_up__grip_sport__testing",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__grip_sport__competition": {
+          "applicability_id": "band_assisted_pull_up__grip_sport__competition",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__grip_sport__training": {
+          "applicability_id": "face_pull__grip_sport__training",
+          "exercise_id": "face_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__grip_sport__testing": {
+          "applicability_id": "face_pull__grip_sport__testing",
+          "exercise_id": "face_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "face_pull__grip_sport__competition": {
+          "applicability_id": "face_pull__grip_sport__competition",
+          "exercise_id": "face_pull",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_external_rotation__grip_sport__training": {
+          "applicability_id": "band_external_rotation__grip_sport__training",
+          "exercise_id": "band_external_rotation",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_external_rotation__grip_sport__testing": {
+          "applicability_id": "band_external_rotation__grip_sport__testing",
+          "exercise_id": "band_external_rotation",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_external_rotation__grip_sport__competition": {
+          "applicability_id": "band_external_rotation__grip_sport__competition",
+          "exercise_id": "band_external_rotation",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_curl__grip_sport__training": {
+          "applicability_id": "barbell_curl__grip_sport__training",
+          "exercise_id": "barbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_curl__grip_sport__testing": {
+          "applicability_id": "barbell_curl__grip_sport__testing",
+          "exercise_id": "barbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_curl__grip_sport__competition": {
+          "applicability_id": "barbell_curl__grip_sport__competition",
+          "exercise_id": "barbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_curl__grip_sport__training": {
+          "applicability_id": "dumbbell_curl__grip_sport__training",
+          "exercise_id": "dumbbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_curl__grip_sport__testing": {
+          "applicability_id": "dumbbell_curl__grip_sport__testing",
+          "exercise_id": "dumbbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_curl__grip_sport__competition": {
+          "applicability_id": "dumbbell_curl__grip_sport__competition",
+          "exercise_id": "dumbbell_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hammer_curl__grip_sport__training": {
+          "applicability_id": "hammer_curl__grip_sport__training",
+          "exercise_id": "hammer_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hammer_curl__grip_sport__testing": {
+          "applicability_id": "hammer_curl__grip_sport__testing",
+          "exercise_id": "hammer_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hammer_curl__grip_sport__competition": {
+          "applicability_id": "hammer_curl__grip_sport__competition",
+          "exercise_id": "hammer_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_wrist_curl__grip_sport__training": {
+          "applicability_id": "barbell_wrist_curl__grip_sport__training",
+          "exercise_id": "barbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_wrist_curl__grip_sport__testing": {
+          "applicability_id": "barbell_wrist_curl__grip_sport__testing",
+          "exercise_id": "barbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_wrist_curl__grip_sport__competition": {
+          "applicability_id": "barbell_wrist_curl__grip_sport__competition",
+          "exercise_id": "barbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_curl__grip_sport__training": {
+          "applicability_id": "dumbbell_wrist_curl__grip_sport__training",
+          "exercise_id": "dumbbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_curl__grip_sport__testing": {
+          "applicability_id": "dumbbell_wrist_curl__grip_sport__testing",
+          "exercise_id": "dumbbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_curl__grip_sport__competition": {
+          "applicability_id": "dumbbell_wrist_curl__grip_sport__competition",
+          "exercise_id": "dumbbell_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_reverse_wrist_curl__grip_sport__training": {
+          "applicability_id": "barbell_reverse_wrist_curl__grip_sport__training",
+          "exercise_id": "barbell_reverse_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_reverse_wrist_curl__grip_sport__testing": {
+          "applicability_id": "barbell_reverse_wrist_curl__grip_sport__testing",
+          "exercise_id": "barbell_reverse_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_reverse_wrist_curl__grip_sport__competition": {
+          "applicability_id": "barbell_reverse_wrist_curl__grip_sport__competition",
+          "exercise_id": "barbell_reverse_wrist_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_extension__grip_sport__training": {
+          "applicability_id": "dumbbell_wrist_extension__grip_sport__training",
+          "exercise_id": "dumbbell_wrist_extension",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_extension__grip_sport__testing": {
+          "applicability_id": "dumbbell_wrist_extension__grip_sport__testing",
+          "exercise_id": "dumbbell_wrist_extension",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_wrist_extension__grip_sport__competition": {
+          "applicability_id": "dumbbell_wrist_extension__grip_sport__competition",
+          "exercise_id": "dumbbell_wrist_extension",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_crush_grip_hold__grip_sport__training": {
+          "applicability_id": "dumbbell_crush_grip_hold__grip_sport__training",
+          "exercise_id": "dumbbell_crush_grip_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_crush_grip_hold__grip_sport__testing": {
+          "applicability_id": "dumbbell_crush_grip_hold__grip_sport__testing",
+          "exercise_id": "dumbbell_crush_grip_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_crush_grip_hold__grip_sport__competition": {
+          "applicability_id": "dumbbell_crush_grip_hold__grip_sport__competition",
+          "exercise_id": "dumbbell_crush_grip_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_crush_hold__grip_sport__training": {
+          "applicability_id": "plate_crush_hold__grip_sport__training",
+          "exercise_id": "plate_crush_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_crush_hold__grip_sport__testing": {
+          "applicability_id": "plate_crush_hold__grip_sport__testing",
+          "exercise_id": "plate_crush_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_crush_hold__grip_sport__competition": {
+          "applicability_id": "plate_crush_hold__grip_sport__competition",
+          "exercise_id": "plate_crush_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_static_hold__grip_sport__training": {
+          "applicability_id": "barbell_static_hold__grip_sport__training",
+          "exercise_id": "barbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_static_hold__grip_sport__testing": {
+          "applicability_id": "barbell_static_hold__grip_sport__testing",
+          "exercise_id": "barbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "barbell_static_hold__grip_sport__competition": {
+          "applicability_id": "barbell_static_hold__grip_sport__competition",
+          "exercise_id": "barbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_static_hold__grip_sport__training": {
+          "applicability_id": "trap_bar_static_hold__grip_sport__training",
+          "exercise_id": "trap_bar_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_static_hold__grip_sport__testing": {
+          "applicability_id": "trap_bar_static_hold__grip_sport__testing",
+          "exercise_id": "trap_bar_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "trap_bar_static_hold__grip_sport__competition": {
+          "applicability_id": "trap_bar_static_hold__grip_sport__competition",
+          "exercise_id": "trap_bar_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_static_hold__grip_sport__training": {
+          "applicability_id": "dumbbell_static_hold__grip_sport__training",
+          "exercise_id": "dumbbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_static_hold__grip_sport__testing": {
+          "applicability_id": "dumbbell_static_hold__grip_sport__testing",
+          "exercise_id": "dumbbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dumbbell_static_hold__grip_sport__competition": {
+          "applicability_id": "dumbbell_static_hold__grip_sport__competition",
+          "exercise_id": "dumbbell_static_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__grip_sport__training": {
+          "applicability_id": "farmers_carry__grip_sport__training",
+          "exercise_id": "farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__grip_sport__testing": {
+          "applicability_id": "farmers_carry__grip_sport__testing",
+          "exercise_id": "farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "farmers_carry__grip_sport__competition": {
+          "applicability_id": "farmers_carry__grip_sport__competition",
+          "exercise_id": "farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__grip_sport__training": {
+          "applicability_id": "kettlebell_farmers_carry__grip_sport__training",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__grip_sport__testing": {
+          "applicability_id": "kettlebell_farmers_carry__grip_sport__testing",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "kettlebell_farmers_carry__grip_sport__competition": {
+          "applicability_id": "kettlebell_farmers_carry__grip_sport__competition",
+          "exercise_id": "kettlebell_farmers_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "suitcase_carry__grip_sport__training": {
+          "applicability_id": "suitcase_carry__grip_sport__training",
+          "exercise_id": "suitcase_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "suitcase_carry__grip_sport__testing": {
+          "applicability_id": "suitcase_carry__grip_sport__testing",
+          "exercise_id": "suitcase_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "suitcase_carry__grip_sport__competition": {
+          "applicability_id": "suitcase_carry__grip_sport__competition",
+          "exercise_id": "suitcase_carry",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__grip_sport__training": {
+          "applicability_id": "front_plank__grip_sport__training",
+          "exercise_id": "front_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__grip_sport__testing": {
+          "applicability_id": "front_plank__grip_sport__testing",
+          "exercise_id": "front_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "front_plank__grip_sport__competition": {
+          "applicability_id": "front_plank__grip_sport__competition",
+          "exercise_id": "front_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dead_bug__grip_sport__training": {
+          "applicability_id": "dead_bug__grip_sport__training",
+          "exercise_id": "dead_bug",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dead_bug__grip_sport__testing": {
+          "applicability_id": "dead_bug__grip_sport__testing",
+          "exercise_id": "dead_bug",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "dead_bug__grip_sport__competition": {
+          "applicability_id": "dead_bug__grip_sport__competition",
+          "exercise_id": "dead_bug",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "side_plank__grip_sport__training": {
+          "applicability_id": "side_plank__grip_sport__training",
+          "exercise_id": "side_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "side_plank__grip_sport__testing": {
+          "applicability_id": "side_plank__grip_sport__testing",
+          "exercise_id": "side_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "side_plank__grip_sport__competition": {
+          "applicability_id": "side_plank__grip_sport__competition",
+          "exercise_id": "side_plank",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__grip_sport__training": {
+          "applicability_id": "zottman_curl__grip_sport__training",
+          "exercise_id": "zottman_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__grip_sport__testing": {
+          "applicability_id": "zottman_curl__grip_sport__testing",
+          "exercise_id": "zottman_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "zottman_curl__grip_sport__competition": {
+          "applicability_id": "zottman_curl__grip_sport__competition",
+          "exercise_id": "zottman_curl",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rope_climb__grip_sport__training": {
+          "applicability_id": "rope_climb__grip_sport__training",
+          "exercise_id": "rope_climb",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rope_climb__grip_sport__testing": {
+          "applicability_id": "rope_climb__grip_sport__testing",
+          "exercise_id": "rope_climb",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rope_climb__grip_sport__competition": {
+          "applicability_id": "rope_climb__grip_sport__competition",
+          "exercise_id": "rope_climb",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_deadlift__grip_sport__training": {
+          "applicability_id": "axle_deadlift__grip_sport__training",
+          "exercise_id": "axle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_deadlift__grip_sport__testing": {
+          "applicability_id": "axle_deadlift__grip_sport__testing",
+          "exercise_id": "axle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "axle_deadlift__grip_sport__competition": {
+          "applicability_id": "axle_deadlift__grip_sport__competition",
+          "exercise_id": "axle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_farmers_walk__grip_sport__training": {
+          "applicability_id": "strongman_farmers_walk__grip_sport__training",
+          "exercise_id": "strongman_farmers_walk",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_farmers_walk__grip_sport__testing": {
+          "applicability_id": "strongman_farmers_walk__grip_sport__testing",
+          "exercise_id": "strongman_farmers_walk",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "strongman_farmers_walk__grip_sport__competition": {
+          "applicability_id": "strongman_farmers_walk__grip_sport__competition",
+          "exercise_id": "strongman_farmers_walk",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hercules_hold__grip_sport__training": {
+          "applicability_id": "hercules_hold__grip_sport__training",
+          "exercise_id": "hercules_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hercules_hold__grip_sport__testing": {
+          "applicability_id": "hercules_hold__grip_sport__testing",
+          "exercise_id": "hercules_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hercules_hold__grip_sport__competition": {
+          "applicability_id": "hercules_hold__grip_sport__competition",
+          "exercise_id": "hercules_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "gripper_close__grip_sport__training": {
+          "applicability_id": "gripper_close__grip_sport__training",
+          "exercise_id": "gripper_close",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "gripper_close__grip_sport__testing": {
+          "applicability_id": "gripper_close__grip_sport__testing",
+          "exercise_id": "gripper_close",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "gripper_close__grip_sport__competition": {
+          "applicability_id": "gripper_close__grip_sport__competition",
+          "exercise_id": "gripper_close",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pinch_block_hold__grip_sport__training": {
+          "applicability_id": "pinch_block_hold__grip_sport__training",
+          "exercise_id": "pinch_block_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pinch_block_hold__grip_sport__testing": {
+          "applicability_id": "pinch_block_hold__grip_sport__testing",
+          "exercise_id": "pinch_block_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "pinch_block_hold__grip_sport__competition": {
+          "applicability_id": "pinch_block_hold__grip_sport__competition",
+          "exercise_id": "pinch_block_hold",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "blob_lift__grip_sport__training": {
+          "applicability_id": "blob_lift__grip_sport__training",
+          "exercise_id": "blob_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "blob_lift__grip_sport__testing": {
+          "applicability_id": "blob_lift__grip_sport__testing",
+          "exercise_id": "blob_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "blob_lift__grip_sport__competition": {
+          "applicability_id": "blob_lift__grip_sport__competition",
+          "exercise_id": "blob_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "thick_handle_deadlift__grip_sport__training": {
+          "applicability_id": "thick_handle_deadlift__grip_sport__training",
+          "exercise_id": "thick_handle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "thick_handle_deadlift__grip_sport__testing": {
+          "applicability_id": "thick_handle_deadlift__grip_sport__testing",
+          "exercise_id": "thick_handle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "thick_handle_deadlift__grip_sport__competition": {
+          "applicability_id": "thick_handle_deadlift__grip_sport__competition",
+          "exercise_id": "thick_handle_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rolling_handle_lift__grip_sport__training": {
+          "applicability_id": "rolling_handle_lift__grip_sport__training",
+          "exercise_id": "rolling_handle_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rolling_handle_lift__grip_sport__testing": {
+          "applicability_id": "rolling_handle_lift__grip_sport__testing",
+          "exercise_id": "rolling_handle_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "rolling_handle_lift__grip_sport__competition": {
+          "applicability_id": "rolling_handle_lift__grip_sport__competition",
+          "exercise_id": "rolling_handle_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inch_dumbbell_deadlift__grip_sport__training": {
+          "applicability_id": "inch_dumbbell_deadlift__grip_sport__training",
+          "exercise_id": "inch_dumbbell_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inch_dumbbell_deadlift__grip_sport__testing": {
+          "applicability_id": "inch_dumbbell_deadlift__grip_sport__testing",
+          "exercise_id": "inch_dumbbell_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "inch_dumbbell_deadlift__grip_sport__competition": {
+          "applicability_id": "inch_dumbbell_deadlift__grip_sport__competition",
+          "exercise_id": "inch_dumbbell_deadlift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wrist_roller_roll__grip_sport__training": {
+          "applicability_id": "wrist_roller_roll__grip_sport__training",
+          "exercise_id": "wrist_roller_roll",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wrist_roller_roll__grip_sport__testing": {
+          "applicability_id": "wrist_roller_roll__grip_sport__testing",
+          "exercise_id": "wrist_roller_roll",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "wrist_roller_roll__grip_sport__competition": {
+          "applicability_id": "wrist_roller_roll__grip_sport__competition",
+          "exercise_id": "wrist_roller_roll",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hub_lift__grip_sport__training": {
+          "applicability_id": "hub_lift__grip_sport__training",
+          "exercise_id": "hub_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hub_lift__grip_sport__testing": {
+          "applicability_id": "hub_lift__grip_sport__testing",
+          "exercise_id": "hub_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "hub_lift__grip_sport__competition": {
+          "applicability_id": "hub_lift__grip_sport__competition",
+          "exercise_id": "hub_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "levering__grip_sport__training": {
+          "applicability_id": "levering__grip_sport__training",
+          "exercise_id": "levering",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "levering__grip_sport__testing": {
+          "applicability_id": "levering__grip_sport__testing",
+          "exercise_id": "levering",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "levering__grip_sport__competition": {
+          "applicability_id": "levering__grip_sport__competition",
+          "exercise_id": "levering",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "vertical_bar_lift__grip_sport__training": {
+          "applicability_id": "vertical_bar_lift__grip_sport__training",
+          "exercise_id": "vertical_bar_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "vertical_bar_lift__grip_sport__testing": {
+          "applicability_id": "vertical_bar_lift__grip_sport__testing",
+          "exercise_id": "vertical_bar_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "vertical_bar_lift__grip_sport__competition": {
+          "applicability_id": "vertical_bar_lift__grip_sport__competition",
+          "exercise_id": "vertical_bar_lift",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "towel_hang__grip_sport__training": {
+          "applicability_id": "towel_hang__grip_sport__training",
+          "exercise_id": "towel_hang",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "towel_hang__grip_sport__testing": {
+          "applicability_id": "towel_hang__grip_sport__testing",
+          "exercise_id": "towel_hang",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "towel_hang__grip_sport__competition": {
+          "applicability_id": "towel_hang__grip_sport__competition",
+          "exercise_id": "towel_hang",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "block_weight_pinch__grip_sport__training": {
+          "applicability_id": "block_weight_pinch__grip_sport__training",
+          "exercise_id": "block_weight_pinch",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "block_weight_pinch__grip_sport__testing": {
+          "applicability_id": "block_weight_pinch__grip_sport__testing",
+          "exercise_id": "block_weight_pinch",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "block_weight_pinch__grip_sport__competition": {
+          "applicability_id": "block_weight_pinch__grip_sport__competition",
+          "exercise_id": "block_weight_pinch",
+          "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_pinch__grip_sport__training": {
+          "applicability_id": "plate_pinch__grip_sport__training",
+          "exercise_id": "plate_pinch",
+          "activity_id": "grip_sport",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_pinch__grip_sport__testing": {
+          "applicability_id": "plate_pinch__grip_sport__testing",
+          "exercise_id": "plate_pinch",
+          "activity_id": "grip_sport",
+          "activity_context": "testing",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "plate_pinch__grip_sport__competition": {
+          "applicability_id": "plate_pinch__grip_sport__competition",
+          "exercise_id": "plate_pinch",
+          "activity_id": "grip_sport",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],
