@@ -28,6 +28,7 @@ import { pool } from "../db/pool.js";
 import { resolveStrengthReferenceLoad } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import {
   defaultLoadingMethod,
+  effectiveMax,
   LOADING_METHODS,
   type LiftSession,
   type LoadingMethod,
@@ -241,10 +242,15 @@ export async function resolveAthleteSessionLoads(userId: string, exercises: Json
     method === "rpe" ? Promise.resolve(new Map<string, LiftSession[]>()) : liftHistory(userId)
   ]);
   const benchmarks = [
-    ...saved.maxes.map((m) => ({
-      benchmark_id: `athlete_max_${m.exercise_id}`, exercise_id: m.exercise_id, value: m.value, unit: m.unit,
-      basis: m.basis, effective_date: m.effective_date, source_note: "entered by the athlete", replaces_reference_id: null
-    })),
+    ...saved.maxes.map((m) => {
+      // Logged training since the max was entered can raise it (never lower it).
+      const max = effectiveMax({ value: m.value, unit: m.unit, date: m.effective_date }, estimates.get(m.exercise_id));
+      return {
+        benchmark_id: `athlete_max_${m.exercise_id}`, exercise_id: m.exercise_id, value: max.value, unit: max.unit,
+        basis: max.raised ? "estimated_1rm" : m.basis, effective_date: max.date,
+        source_note: max.raised ? "raised from logged training" : "entered by the athlete", replaces_reference_id: null
+      };
+    }),
     ...[...estimates].filter(([id]) => !saved.maxes.some((m) => m.exercise_id === id)).map(([id, est]) => ({
       benchmark_id: `training_e1rm_${id}`, exercise_id: id, value: est.value, unit: est.unit,
       basis: "estimated_1rm", effective_date: est.date || new Date().toISOString().slice(0, 10),

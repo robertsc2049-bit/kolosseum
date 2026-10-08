@@ -23,9 +23,9 @@ import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
-import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunPosition, programmeRunSessionCount, programmeRunTotalSessions } from "./programme_catalogue_service.js";
+import { type ProgrammeRun, getCurrentProgrammeRun, programmeRunPosition, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 import { type OwnTrainingStamp, type TrainingWeek, TrainingWeekError, getCurrentTrainingWeek, ownTrainingProgram, ownTrainingStamp, todaysSession, trainingWeekSessionCount } from "./athlete_training_week_service.js";
-import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
+import { getAthleteTrainingPlan, getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { getAthleteCustomExerciseNames, getAthleteExerciseSelections, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { phase2CanonicaliseAndHash } from "@kolosseum/engine/phases/phase2.js";
 import { phase3ResolveConstraintsAndLoadRegistries } from "@kolosseum/engine/phases/phase3.js";
@@ -44,7 +44,8 @@ import {
 import {
   Beta18ProgrammeTemplateError,
   isCoachAuthoredTemplateId,
-  materialiseNextCoachTemplateProgram
+  materialiseNextCoachTemplateProgram,
+  nextTemplateSessionIndex
 } from "./beta18_programme_template_service.js";
 import { badRequest, notFound, internalError } from "./http_errors.js";
 import { getBlockByIdQuery } from "./block_query_service.js";
@@ -105,6 +106,15 @@ function queryHasTruthyFlag(req: Request, ...names: string[]): boolean {
   }
 
   return false;
+}
+
+// The competition a taper-ending programme is timed to: the event the coach
+// linked the programme to, else the meet, race or fight the athlete declared.
+async function peakCompetitionDate(userId: string, eventPlan: unknown): Promise<string | null> {
+  const eventDate = isRecord(eventPlan) && typeof eventPlan.event_date === "string" ? eventPlan.event_date : "";
+  if (/^\d{4}-\d{2}-\d{2}$/u.test(eventDate)) return eventDate;
+  const plan = await getAthleteTrainingPlan(userId).catch(() => null);
+  return plan?.competition_date ?? null;
 }
 
 function id(prefix: string): string {
@@ -461,7 +471,10 @@ export async function compileBlock(req: Request, res: Response) {
               .event_record_sha256,
           base_program:
             p4.program as unknown as
-              JsonRecord
+              JsonRecord,
+          ...(create_session
+            ? { peak_competition_date: await peakCompetitionDate(beta_session_binding.subject_user_id, beta_session_binding.event_plan) }
+            : {})
         });
 
       const templateExecution =
@@ -558,7 +571,7 @@ export async function compileBlock(req: Request, res: Response) {
 
   let programme_run_session: { run_id: string; listing_id: string; title: string; session_number: number; sessions_total: number; session_title: string; week_number?: number; weeks_total?: number; block_name?: string; block_type?: string } | undefined;
   if (programme_run && beta_individual_subject_user_id) {
-    const sessionIndex = await programmeRunSessionCount(beta_individual_subject_user_id, programme_run.run_id);
+    const baseIndex = await nextTemplateSessionIndex(programme_run.run_id);
     try {
       programForSession = await materialiseNextCoachTemplateProgram({
         coach_user_id: programme_run.author_user_id,
@@ -566,8 +579,9 @@ export async function compileBlock(req: Request, res: Response) {
         assignment_id: programme_run.run_id,
         template_id: programme_run.template_id,
         base_program: p4.program as unknown as JsonRecord,
-        session_index_override: sessionIndex,
-        athlete_sets_loads: true
+        session_index_override: baseIndex,
+        athlete_sets_loads: true,
+        peak_competition_date: await peakCompetitionDate(beta_individual_subject_user_id, null)
       });
     }
     catch (error) {
@@ -578,6 +592,7 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("BETA18_TEMPLATE_MATERIALISATION_FAILED", { failure_token: "beta18_programme_template_invalid", reason });
     }
     const templateExecution = isRecord(programForSession.coach_template_execution) ? programForSession.coach_template_execution : null;
+    const sessionIndex = templateExecution && Number.isInteger(templateExecution.template_session_index) ? Number(templateExecution.template_session_index) : baseIndex;
     canonical_hash = crypto.createHash("sha256").update(JSON.stringify({
       phase2_canonical_hash: canonical_hash,
       programme_run_id: programme_run.run_id,
@@ -624,6 +639,10 @@ export async function compileBlock(req: Request, res: Response) {
   const displayNames = sessionExerciseDisplayNames(
     p6.session.exercises.map((e: any) => String(e.exercise_id ?? "")),
     beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
+  const executionStamp = isRecord(programForSession?.coach_template_execution) ? programForSession.coach_template_execution : null;
+  const template_position = executionStamp && Number.isInteger(executionStamp.template_session_index)
+    ? { template_session_index: Number(executionStamp.template_session_index), ...(isRecord(executionStamp.peak_timing) ? { peak_timing: executionStamp.peak_timing } : {}) }
+    : null;
   const p6_session = programme_run_session || own_training_session
     ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput
     : p6.session;
@@ -631,6 +650,10 @@ export async function compileBlock(req: Request, res: Response) {
     ...p6_session,
     ...(programme_run_session ? { programme_run: programme_run_session } : {}),
     ...(own_training_session ? { own_training: own_training_session } : {}),
+    // Where this session sits in a coach's or a Kolosseum programme, so the
+    // next one follows it - even after weeks were skipped or held for a
+    // competition (peak_timing.ts).
+    ...(template_position ? { template_position } : {}),
     ...(!programme_run_session && !own_training_session && session_reentry && isRecord((p6.session as any).training_cycle)
       ? { training_cycle: { ...(p6.session as any).training_cycle, reentry: session_reentry } }
       : {}),

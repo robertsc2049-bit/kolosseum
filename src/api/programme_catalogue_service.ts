@@ -27,7 +27,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
-import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, orderedTemplateSessions, saveCoachProgrammeTemplate, templateRecordInput } from "./beta18_programme_template_service.js";
+import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, nextTemplateSessionIndex, orderedTemplateSessions, saveCoachProgrammeTemplate, templateRecordInput } from "./beta18_programme_template_service.js";
 import { getAthleteTrainingPlan, getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { programmeFit, programmeShape } from "./programme_fit.js";
 
@@ -207,13 +207,11 @@ export async function getCurrentProgrammeRun(userId: string): Promise<ProgrammeR
   };
 }
 
-// How many sessions the athlete has had on this run (the next one's index).
-export async function programmeRunSessionCount(userId: string, runId: string): Promise<number> {
-  const result = await pool.query(
-    `SELECT count(*)::integer AS n FROM sessions WHERE beta_subject_user_id = $1 AND planned_session->'programme_run'->>'run_id' = $2`,
-    [userId, runId]
-  );
-  return Number(result.rows?.[0]?.n ?? 0);
+// Where the athlete is in this run: the next session's index - after their
+// latest session, which may have skipped or held weeks to meet a competition
+// date (peak_timing.ts) - else how many sessions they've had.
+export async function programmeRunSessionCount(_userId: string, runId: string): Promise<number> {
+  return nextTemplateSessionIndex(runId);
 }
 
 // Who a listing suits: the athlete's level, then their sport - their sport's

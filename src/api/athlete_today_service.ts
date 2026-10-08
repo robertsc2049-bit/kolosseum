@@ -11,9 +11,11 @@ import {
 } from "./beta_product_record_store.js";
 import {
   Beta18ProgrammeTemplateError,
+  lastTemplateSessionIndex,
   loadExecutableCoachTemplateById,
   materialiseNextCoachTemplateProgram
 } from "./beta18_programme_template_service.js";
+import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
 import {
   getSessionStateQuery
 } from "./session_state_query_service.js";
@@ -358,6 +360,12 @@ export async function loadAthleteTodayView(
   const totalSessionCount = template ? Number(template.session_count ?? 0) : 0;
 
   const event = await loadTodayEventStatus(coachUserId, athleteUserId, assignmentId);
+  // The next session is timed to the linked event, else the athlete's own
+  // competition date, exactly as it will be when it's created.
+  const peakCompetitionDate =
+    cleanString((event as JsonRecord | null)?.event_date) ||
+    cleanString((await getAthleteTrainingPlan(athleteUserId).catch(() => null))?.competition_date) ||
+    null;
 
   let materialised: JsonRecord | null = null;
 
@@ -367,7 +375,8 @@ export async function loadAthleteTodayView(
       athlete_user_id: athleteUserId,
       assignment_id: assignmentId,
       template_id: templateId,
-      base_program: {}
+      base_program: {},
+      peak_competition_date: peakCompetitionDate
     })) as JsonRecord;
   }
   catch (error) {
@@ -397,7 +406,7 @@ export async function loadAthleteTodayView(
               assignment_id: assignmentId,
               template_id: templateId,
               base_program: {},
-              session_index_override: totalSessionCount - 1
+              session_index_override: (await lastTemplateSessionIndex(assignmentId)) ?? totalSessionCount - 1
             })) as JsonRecord;
 
             return baseResponse("ok", athleteUserId, {
@@ -482,7 +491,9 @@ export async function loadAthleteTodayView(
       assignment_id: assignmentId,
       template_id: templateId,
       base_program: {},
-      session_index_override: nextIndex - 1
+      // The open session's own place in the programme (it may have skipped
+      // or held weeks for a competition), else the one before next.
+      session_index_override: (await lastTemplateSessionIndex(assignmentId)) ?? nextIndex - 1
     })) as JsonRecord;
 
     return baseResponse("ok", athleteUserId, {
