@@ -9,6 +9,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { asyncHandler } from "./async_handler.js";
+import { programmeAdjustments } from "./programme_adjustment.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import {
   badRequest,
@@ -684,6 +685,10 @@ async function listReviewRecords(
                 assignmentId
               ) ?? null
             : null,
+        // What the app changed on its own: weeks skipped or held for a
+        // competition, a lighter week back.
+        programme_adjustments:
+          programmeAdjustments(plannedSession),
         review_status:
           reviewStatus,
         awaiting_review:

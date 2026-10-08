@@ -4632,3 +4632,20 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .my-training .my-training-day > .button { justify-self: start; }
 .programme-option > .button { justify-self: start; }
 .athlete-programme .programme-position { margin: 0 0 var(--k-space-1); font-weight: 600; color: var(--text, inherit); }
+
+/* What the app changed about a session on its own (coach review). */
+.programme-adjustments {
+  grid-column: 1 / -1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.programme-adjustments .inline-result {
+  display: block;
+  max-width: none;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+}
