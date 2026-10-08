@@ -979,7 +979,6 @@ with level.
   they're separate programmes, so edit either freely once you've reviewed
   them.
 - **Position splits:** collision sports split forwards and linemen from
-<<<<<<< HEAD
   backs and skill players; cricket splits fast bowlers from batters and
   spinners; athletics splits sprinters and jumpers from throwers.
 - **Strength-sport and hybrid preps** have their own pro versions (section 17).
@@ -1016,12 +1015,6 @@ that, and the lifting preps peak at 95%. Taper weeks are unchanged.
 | Street lifting | Heavy weighted pull-up and dip singles (RPE 7 → 9) with muscle-up practice |
 | HYROX | Race-pace 1 km intervals with heavy sled push and pull |
 | CrossFit | Gymnastics volume (muscle-ups, rope climbs) and a long aerobic piece |
-=======
-  backs and skill players. Not yet split: fast bowler vs batter.
-- **Strength-sport meet preps** (powerlifting, weightlifting, strongman,
-  street lifting) stay shared. They're already individualised by the
-  athlete's own maxes.
->>>>>>> origin/main
 
 ## Not in v1, and why
 

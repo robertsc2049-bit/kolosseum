@@ -1512,11 +1512,7 @@ export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
   collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
   enduranceRunRide, triathlonStrength, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
-<<<<<<< HEAD
   cricketOffSeason, cricketFastBowler, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
-=======
-  cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
->>>>>>> origin/main
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
   ...PRO_VERSIONS,
   contactBeginner, fieldBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
