@@ -19744,6 +19744,278 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "copenhagen_plank": {
+      "exercise_id": "copenhagen_plank",
+      "display_label": "Copenhagen plank",
+      "movement_pattern_id": "hip_adduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Copenhagen plank: Lie on your side with the top leg on a bench and lift your hips, holding the body straight on the inside of that leg.",
+      "instruction_detail_text": [
+        "Lie on your side with your forearm on the floor and the inside of your top leg resting on a bench, at the knee for the short lever or the ankle for the long lever.",
+        "Squeeze the top leg down into the bench to lift your hips until the body is straight, bottom leg off the floor or resting under the bench.",
+        "Hold for the prescribed time or lower and lift for the prescribed reps, then change sides."
+      ],
+      "coaching_cues": [
+        "Press the top leg down into the bench",
+        "Hips in line with the shoulders",
+        "Start at the knee before progressing to the ankle"
+      ],
+      "common_faults": [
+        "Hips sagging or piking",
+        "Rolling forward onto the chest",
+        "Progressing to the long lever too soon"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sled_rope_pull": {
+      "exercise_id": "sled_rope_pull",
+      "display_label": "Sled rope pull",
+      "movement_pattern_id": "conditioning_sled",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Sled rope pull: Standing still, pull a loaded sled towards you hand over hand on a rope for the prescribed distance.",
+      "instruction_detail_text": [
+        "Stand behind the line holding the rope attached to the loaded sled, feet set and knees bent.",
+        "Pull the rope hand over hand, driving with the legs and hips as well as the arms, until the sled reaches you.",
+        "Walk the sled back out or reset, and repeat for the prescribed distance."
+      ],
+      "coaching_cues": [
+        "Sit back and use the legs",
+        "Long, fast pulls",
+        "Lay the rope down behind you"
+      ],
+      "common_faults": [
+        "Pulling with the arms only",
+        "Standing up tall",
+        "Stepping over the line"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "sled",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "hyrox",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "atlas_stone_over_bar": {
+      "exercise_id": "atlas_stone_over_bar",
+      "display_label": "Atlas stone over bar",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "lumbar_medium",
+        "hip",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Atlas stone over bar: Lap the stone, then stand and extend the hips to throw it over a bar set at the prescribed height.",
+      "instruction_detail_text": [
+        "Stand over the stone, wrap your arms around it with the hands underneath, and roll it up onto your lap.",
+        "Re-grip high on the stone and stand up, driving the hips forward into the stone.",
+        "Extend and push the stone over the bar, then reset for the next repetition."
+      ],
+      "coaching_cues": [
+        "Lap it close",
+        "Chest over the stone before you stand",
+        "Drive the hips through"
+      ],
+      "common_faults": [
+        "Lifting off the floor without a lap",
+        "Hips stalling before full extension",
+        "Letting the stone drift away from the body"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "atlas_stone"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "atlas_stone_load": {
+      "exercise_id": "atlas_stone_load",
+      "display_label": "Atlas stone load to platform",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "lumbar_medium",
+        "hip",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Atlas stone load: Lap the stone, then stand and extend the hips to load it onto a platform at the prescribed height.",
+      "instruction_detail_text": [
+        "Stand over the stone, wrap your arms around it with the hands underneath, and roll it up onto your lap.",
+        "Re-grip high on the stone and stand up, driving the hips forward into the stone.",
+        "Extend and roll the stone onto the platform; take it down safely before the next repetition."
+      ],
+      "coaching_cues": [
+        "Lap it close",
+        "Chest over the stone before you stand",
+        "Finish with the hips, not the arms"
+      ],
+      "common_faults": [
+        "Skipping the lap",
+        "Hips stalling before full extension",
+        "Reaching for the platform with the arms"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "atlas_stone"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "axle_deadlift": {
+      "exercise_id": "axle_deadlift",
+      "display_label": "Axle deadlift",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Axle deadlift: Deadlift a thick, non-rotating axle bar from the floor to standing with a double-overhand or mixed grip.",
+      "instruction_detail_text": [
+        "Stand with the axle over the middle of your feet and grip it just outside the legs.",
+        "Brace, push the floor away and stand up with the axle close to the legs.",
+        "Lock out the hips and knees, then lower the axle under control."
+      ],
+      "coaching_cues": [
+        "Squeeze the axle hard before it moves",
+        "Keep the bar close",
+        "Brace before you pull"
+      ],
+      "common_faults": [
+        "Starting with loose hands",
+        "Hips rising before the bar",
+        "Hitching at lockout"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "axle_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }

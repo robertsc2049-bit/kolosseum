@@ -23,9 +23,30 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "atlas_stone_load__atlas_stone": {
+      "compatibility_id": "atlas_stone_load__atlas_stone",
+      "exercise_id": "atlas_stone_load",
+      "equipment_id": "atlas_stone",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "atlas_stone_over_bar__atlas_stone": {
+      "compatibility_id": "atlas_stone_over_bar__atlas_stone",
+      "exercise_id": "atlas_stone_over_bar",
+      "equipment_id": "atlas_stone",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "axle_bar_press__axle_bar": {
       "compatibility_id": "axle_bar_press__axle_bar",
       "exercise_id": "axle_bar_press",
+      "equipment_id": "axle_bar",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "axle_deadlift__axle_bar": {
+      "compatibility_id": "axle_deadlift__axle_bar",
+      "exercise_id": "axle_deadlift",
       "equipment_id": "axle_bar",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
@@ -1001,6 +1022,13 @@
       "exercise_id": "contralateral_single_leg_rdl",
       "equipment_id": "adjustable_dumbbell",
       "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "copenhagen_plank__bodyweight": {
+      "compatibility_id": "copenhagen_plank__bodyweight",
+      "exercise_id": "copenhagen_plank",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "countermovement_jump__bodyweight": {
@@ -3127,6 +3155,20 @@
     "sled_push__open_floor_space": {
       "compatibility_id": "sled_push__open_floor_space",
       "exercise_id": "sled_push",
+      "equipment_id": "open_floor_space",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "sled_rope_pull__sled": {
+      "compatibility_id": "sled_rope_pull__sled",
+      "exercise_id": "sled_rope_pull",
+      "equipment_id": "sled",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "sled_rope_pull__open_floor_space": {
+      "compatibility_id": "sled_rope_pull__open_floor_space",
+      "exercise_id": "sled_rope_pull",
       "equipment_id": "open_floor_space",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
