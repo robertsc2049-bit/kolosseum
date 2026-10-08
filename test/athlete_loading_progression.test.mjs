@@ -105,3 +105,13 @@ test("a powerlifter on % of max rowing at RPE 8: the start weight follows what s
   assert.deepEqual(startingLoadForEffort([session(150, [8, 8], "lb")], fromMax, "kg"), { value: 67.5, unit: "kg", basis: "last_session" }, "150 lb logged, shown in kg to a 2.5 kg plate");
   assert.deepEqual(startingLoadForEffort([session(0, [8, 8])], null, "kg"), null, "bodyweight sets and no max: just the effort target");
 });
+
+test("a lifter who reps out above her entered max trains from the new number; one bad day never lowers it", () => {
+  const { effectiveMax } = service;
+  const entered = { value: 140, unit: "kg", date: "2026-09-01" };
+  assert.deepEqual(effectiveMax(entered, { value: 147.5, unit: "kg", date: "2026-09-20" }), { value: 147.5, unit: "kg", date: "2026-09-20", raised: true }, "week 3 rep-out: 147.5 e1RM");
+  assert.deepEqual(effectiveMax(entered, { value: 130, unit: "kg", date: "2026-09-20" }), { ...entered, raised: false }, "a bad day doesn't shrink the max");
+  assert.deepEqual(effectiveMax(entered, { value: 150, unit: "kg", date: "2026-08-15" }), { ...entered, raised: false }, "an estimate older than the max she entered doesn't override it");
+  assert.equal(effectiveMax(entered, { value: 330, unit: "lb", date: "2026-09-20" }).value, 149.7, "converted to her unit");
+  assert.deepEqual(effectiveMax(entered, null), { ...entered, raised: false });
+});

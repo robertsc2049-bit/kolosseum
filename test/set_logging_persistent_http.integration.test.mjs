@@ -531,6 +531,19 @@ test(
     const nextBench = byId(next, "paused_bench_press");
     assert.ok(!nextBench.resolved_load);
     assert.equal(nextBench.load_guidance.type, "rpe", "still no bench max: an RPE target");
+
+    // A rep-out above her max: 140 kg x 8 (Epley 177.3) - the next session
+    // trains from the raised max, never from the old 150.
+    const nid = next.json.session_id;
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${nid}/start`, { cookie, csrf, body: {} }), 200, "start next");
+    assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${nid}/events`, {
+      cookie, csrf, body: { type: "SET_LOG_REPORT", client_request_id: crypto.randomUUID(), exercise_id: "back_squat", set_index: 1, reps: 8, load_value: 140, load_unit: "kg" }
+    }), 201, "log a squat rep-out");
+    const after = await compile();
+    assertStatus(after, 201, "session after the rep-out");
+    const raisedSquat = byId(after, "back_squat");
+    assert.equal(raisedSquat.resolved_load.source.source_type, "estimated_1rm", "raised from logged training");
+    assert.ok(raisedSquat.resolved_load.value > Math.round((150 * raisedSquat.intensity.value) / 100 / 2.5) * 2.5, JSON.stringify(raisedSquat.resolved_load));
   }
 );
 
