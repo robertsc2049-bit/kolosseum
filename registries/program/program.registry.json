@@ -35811,6 +35811,750 @@
           ]
         }
       ]
+    },
+    {
+      "activity_id": "grip_sport",
+      "template_id": "PROGRAM_GRIP_SPORT_V1",
+      "exercise_eligibility": [
+        "axle_deadlift",
+        "gripper_close",
+        "pinch_block_hold",
+        "rolling_handle_lift",
+        "hammer_curl",
+        "dead_bug"
+      ],
+      "item_prescriptions": [
+        {
+          "sets": 5,
+          "reps": 3,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 180,
+          "fixed": true
+        },
+        {
+          "sets": 5,
+          "reps": 5,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 120,
+          "fixed": true
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 150,
+          "fixed": true
+        },
+        {
+          "sets": 4,
+          "reps": 3,
+          "intensity": {
+            "type": "rpe",
+            "value": 8
+          },
+          "rest_seconds": 150,
+          "fixed": true
+        },
+        {
+          "sets": 3,
+          "reps": 10,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        },
+        {
+          "sets": 3,
+          "reps": 8,
+          "intensity": {
+            "type": "rpe",
+            "value": 7
+          },
+          "rest_seconds": 60
+        }
+      ],
+      "level_variants": {
+        "beginner": {
+          "exercise_eligibility": [
+            "trap_bar_deadlift",
+            "dumbbell_crush_grip_hold",
+            "plate_pinch",
+            "dumbbell_static_hold",
+            "hammer_curl",
+            "dead_bug"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 4,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 180,
+              "fixed": true
+            },
+            {
+              "sets": 4,
+              "reps": 5,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 120,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 1,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 150,
+              "fixed": true,
+              "duration_seconds": 20
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 6
+              },
+              "rest_seconds": 60
+            }
+          ],
+          "microcycle": [
+            {
+              "day_id": "crush",
+              "focus": "crush_and_pull",
+              "exercise_eligibility": [
+                "dumbbell_crush_grip_hold",
+                "trap_bar_deadlift",
+                "band_assisted_pull_up",
+                "hammer_curl",
+                "dead_bug"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 3,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 180,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "pinch",
+              "focus": "pinch_and_support",
+              "exercise_eligibility": [
+                "plate_pinch",
+                "dumbbell_static_hold",
+                "barbell_row",
+                "face_pull"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 2,
+                  "reps": 1,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true,
+                  "duration_seconds": 20
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 15,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "wrist",
+              "focus": "wrist_and_lever",
+              "exercise_eligibility": [
+                "dumbbell_wrist_curl",
+                "dumbbell_wrist_extension",
+                "overhead_press",
+                "side_plank"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 3,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 12,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 7
+                  },
+                  "rest_seconds": 60,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 6
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            }
+          ]
+        },
+        "pro": {
+          "exercise_eligibility": [
+            "axle_deadlift",
+            "gripper_close",
+            "pinch_block_hold",
+            "rolling_handle_lift",
+            "hammer_curl",
+            "dead_bug"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 6,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 9
+              },
+              "rest_seconds": 180,
+              "fixed": true
+            },
+            {
+              "sets": 6,
+              "reps": 5,
+              "intensity": {
+                "type": "rpe",
+                "value": 9
+              },
+              "rest_seconds": 120,
+              "fixed": true
+            },
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 9
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 9
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 60
+            }
+          ],
+          "microcycle": [
+            {
+              "day_id": "crush",
+              "focus": "crush_and_pull",
+              "exercise_eligibility": [
+                "gripper_close",
+                "axle_deadlift",
+                "pull_up",
+                "hammer_curl",
+                "dead_bug"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 6,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 120,
+                  "fixed": true
+                },
+                {
+                  "sets": 6,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 180,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 10,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "pinch",
+              "focus": "pinch_and_support",
+              "exercise_eligibility": [
+                "pinch_block_hold",
+                "inch_dumbbell_deadlift",
+                "blob_lift",
+                "barbell_row",
+                "face_pull"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 6,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 5,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 4,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 15,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            },
+            {
+              "day_id": "wrist",
+              "focus": "wrist_and_lever",
+              "exercise_eligibility": [
+                "rolling_handle_lift",
+                "levering",
+                "wrist_roller_roll",
+                "overhead_press",
+                "side_plank"
+              ],
+              "item_prescriptions": [
+                {
+                  "sets": 6,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 150,
+                  "fixed": true
+                },
+                {
+                  "sets": 5,
+                  "reps": 5,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 9
+                  },
+                  "rest_seconds": 90,
+                  "fixed": true
+                },
+                {
+                  "sets": 3,
+                  "reps": 3,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 90
+                },
+                {
+                  "sets": 3,
+                  "reps": 6,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 120
+                },
+                {
+                  "sets": 3,
+                  "reps": 8,
+                  "intensity": {
+                    "type": "rpe",
+                    "value": 8
+                  },
+                  "rest_seconds": 60
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "microcycle": [
+        {
+          "day_id": "crush",
+          "focus": "crush_and_pull",
+          "exercise_eligibility": [
+            "gripper_close",
+            "axle_deadlift",
+            "pull_up",
+            "hammer_curl",
+            "dead_bug"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 5,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 120,
+              "fixed": true
+            },
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 180,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 6,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 10,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_id": "pinch",
+          "focus": "pinch_and_support",
+          "exercise_eligibility": [
+            "pinch_block_hold",
+            "inch_dumbbell_deadlift",
+            "blob_lift",
+            "barbell_row",
+            "face_pull"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 4,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 15,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            }
+          ]
+        },
+        {
+          "day_id": "wrist",
+          "focus": "wrist_and_lever",
+          "exercise_eligibility": [
+            "rolling_handle_lift",
+            "levering",
+            "wrist_roller_roll",
+            "overhead_press",
+            "side_plank"
+          ],
+          "item_prescriptions": [
+            {
+              "sets": 5,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 150,
+              "fixed": true
+            },
+            {
+              "sets": 4,
+              "reps": 5,
+              "intensity": {
+                "type": "rpe",
+                "value": 8
+              },
+              "rest_seconds": 90,
+              "fixed": true
+            },
+            {
+              "sets": 3,
+              "reps": 3,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 90
+            },
+            {
+              "sets": 3,
+              "reps": 6,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 120
+            },
+            {
+              "sets": 3,
+              "reps": 8,
+              "intensity": {
+                "type": "rpe",
+                "value": 7
+              },
+              "rest_seconds": 60
+            }
+          ]
+        }
+      ]
     }
   ]
 }

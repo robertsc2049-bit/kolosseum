@@ -37,7 +37,8 @@ const expectedActivities = Object.freeze([
   "tennis",
   "triathlon",
   "rugby_league",
-  "street_lifting"
+  "street_lifting",
+  "grip_sport"
 ]);
 
 const fixturePath = path.join(

@@ -35,7 +35,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "crossfit"
+        "crossfit",
+        "grip_sport"
       ],
       "movement_pattern_id": "squat",
       "token_kind": "exercise_name_token",
@@ -74,7 +75,8 @@
         "triathlon",
         "rugby_league",
         "hyrox",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_id": "hinge",
       "token_kind": "exercise_name_token",
@@ -112,7 +114,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_id": "horizontal_push",
       "token_kind": "exercise_name_token",
@@ -151,7 +154,8 @@
         "rugby_league",
         "street_lifting",
         "hyrox",
-        "crossfit"
+        "crossfit",
+        "grip_sport"
       ],
       "movement_pattern_id": "core_anti_extension",
       "token_kind": "exercise_name_token",

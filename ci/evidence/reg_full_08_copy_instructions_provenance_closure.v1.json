@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "d40b129f48300828ad82cd40c130b9ec5bdb521a0d47989a323e0d93385ecb6e",
-  "copy_schema_sha256": "07e9374cf7e902c06fd370b63e215d609b185fa4ec265bc7e1fdc5071e41ac73",
+  "canonical_copy_registry_sha256": "5b0abd2779bbd759eebf0ca80328cbd03f8b9b52935998f44b7a35dc2767a001",
+  "copy_schema_sha256": "d79a449d8ddcd3e32a64141567df5cf756f945511f618f4a8c1de2ae6685f450",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 25646,
+  "exact_copy_control_count": 25820,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,16 +15,16 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 22722,
+  "provenance_record_count": 22901,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/activity/activity.registry.json",
-      "source_file_sha256": "ead97cc76527c83ae6a0381ae8d4faeef7d4d394619c21f7b058868cfd1f1ccf",
-      "source_git_blob_sha": "4c6f8a0e5abf6570365d699c4b6a566c9e5702da",
-      "source_record_count": 31,
+      "source_file_sha256": "f4c41d530525fed34ab899c35a636510afc3c2f7b1d303322d21b34e4a24f5fd",
+      "source_git_blob_sha": "8ad45411dcb85eab9579ddd401e7d1fe3f40c63c",
+      "source_record_count": 32,
       "source_registry_id": "activity_registry_1"
     },
     {
@@ -54,32 +54,32 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/movement/movement.registry.json",
-      "source_file_sha256": "5b1308b610a3874d3669989b18a69abfe4d6961a6518bd238f3898891430a582",
-      "source_git_blob_sha": "df17364685fb635aa07f63d51f03ef0bafe82642",
+      "source_file_sha256": "97b4ba8dd32c33b4d7bd833843129092c26b1ca772c465570dfe739650b4330c",
+      "source_git_blob_sha": "94e79eb626539cc6c181730775e35de7c8591768",
       "source_record_count": 55,
       "source_registry_id": "movement_registry_3"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "5f87f0c796fe4cc85842042eef068d288cc7179f8f1ba5a3d8cc025162ecc13b",
-      "source_git_blob_sha": "78d0c43e6c608123dde7e85809d3f64fabb4e132",
+      "source_file_sha256": "73cb604b84cbacd78d23ba8c74ef79e48099a0390f65573b1598a49727b618f8",
+      "source_git_blob_sha": "a48ee8fc91d79da44b47bcb15c5b641c5b55b8f7",
       "source_record_count": 306,
       "source_registry_id": "exercise_registry_3a"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_token/exercise_token.registry.json",
-      "source_file_sha256": "0ed39db6a945138f0e545b9e322371a29cd52a74954e5e2aff37bd37becbeb70",
-      "source_git_blob_sha": "d06241a3de08858aaf59fe13ab53f0379b1fb8cb",
+      "source_file_sha256": "be83e6847f1e013b4e2a5441f37795b6f9650d3a27b05159122e382e10a7748f",
+      "source_git_blob_sha": "6a85fcee590e76b5c0713a254eed2939059d6a36",
       "source_record_count": 4,
       "source_registry_id": "exercise_token_registry_3b"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/equipment/equipment.registry.json",
-      "source_file_sha256": "eb4936b862ded101d14c0a728bae26fc434bc7d4197dff2fd647d976ccee21f5",
-      "source_git_blob_sha": "8a149d529739ebb285a9ba91be52375679593189",
+      "source_file_sha256": "3175c317e3c54f41951a038be1be2ff79853bd3f76d17e754bc7df805a3c7515",
+      "source_git_blob_sha": "71b4f959434934f0faae0b3a86ec8acedbd28746",
       "source_record_count": 66,
       "source_registry_id": "equipment_environment_registry_3e"
     },
@@ -102,33 +102,33 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "434fda1ca10244e0dc1f8a5a9f4c5830545543d091914e9cb1a82eafbf959175",
-      "source_git_blob_sha": "b0eb5946a4dd3d7b29154c527790cbbf26a873e1",
-      "source_record_count": 20106,
+      "source_file_sha256": "b9911d99b228a262cd2c1661c45603db69b08566318858ae8e7cbce030820790",
+      "source_git_blob_sha": "7854be78b8c1ae37c7081a73c94c577f31481d28",
+      "source_record_count": 20274,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/program/program.registry.json",
-      "source_file_sha256": "e430d446d3d5764a1ace0d77b8893c3c1a40d21a965920cbf6d4fa5cec94a185",
-      "source_git_blob_sha": "f2f54378cbf86f275744e3636a14c19b2da052b2",
-      "source_record_count": 31,
+      "source_file_sha256": "20c1159342d804bca12eefa339057b697882373c80c10e997fc9d7504e2c87c4",
+      "source_git_blob_sha": "7cecc30666588678fbc8d9b1efe9b27ad24d0aea",
+      "source_record_count": 32,
       "source_registry_id": "sport_program_template_registry_5f"
     },
     {
       "source_authority": "authoritative",
       "source_file": "registries/program/sport_program_template.registry.json",
-      "source_file_sha256": "339d10b2115bccf50ee5e226db4ced638af8290aeeed96049a3ce5397b827d54",
-      "source_git_blob_sha": "df6763c1f0a18f07374b1524d3e22ad61f216d21",
-      "source_record_count": 105,
+      "source_file_sha256": "cefc4bab791bfbf08b425cd9996e60ae2abcdaf07fb6161838fde5a6586a1924",
+      "source_git_blob_sha": "205daee4ccdcc1904ff09eea0a06210b600dbcd3",
+      "source_record_count": 108,
       "source_registry_id": "sport_program_template_registry_5f"
     },
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "7396301987d850ad4d6d5ce4eddca5125644d7307f0174d948468d7e9c1f4253",
-      "source_git_blob_sha": "0b8b2aeab803189ce41bb39341a9f0c9dc0570b1",
-      "source_record_count": 1276,
+      "source_file_sha256": "f07396e8da7b4794b09cc5bc22904a3eb10b8a1b34666305ab7f3f4bc58ef547",
+      "source_git_blob_sha": "f39ea86cfe1a3d305d30ba524f0ebb6be6e0b881",
+      "source_record_count": 1282,
       "source_registry_id": "substitution_registry"
     },
     {
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 22722,
+  "source_record_count": 22901,
   "status": "authoritative"
 }

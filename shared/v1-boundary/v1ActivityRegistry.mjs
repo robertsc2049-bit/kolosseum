@@ -487,6 +487,21 @@ const V1_ACTIVITIES = Object.freeze([
       "street_lifting_intermediate",
       "street_lifting_low_equipment"
     ])
+  }),
+  Object.freeze({
+    activity_id: "grip_sport",
+    display_label: "Grip sport",
+    event_types: Object.freeze([
+      Object.freeze({ event_type_id: "grip_sport_competition", display_label: "Grip sport competition" }),
+      Object.freeze({ event_type_id: "strength_event", display_label: "Strength event" }),
+      Object.freeze({ event_type_id: "test_day", display_label: "Test day" }),
+      Object.freeze({ event_type_id: "other", display_label: "Other event" })
+    ]),
+    programme_template_family_ids: Object.freeze([
+      "grip_sport_novice",
+      "grip_sport_intermediate",
+      "grip_sport_low_equipment"
+    ])
   })
 ]);
 

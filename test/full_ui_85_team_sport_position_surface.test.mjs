@@ -98,7 +98,8 @@ test("position is validated structurally by validateAthletePosition and semantic
   assert.match(onboardingService, /export function validateAthletePosition/u);
   assert.match(onboardingService, /export function assertPositionMatchesActivity/u);
   assert.match(onboardingService, /addOptional\("position", validateAthletePosition\);/u);
-  assert.match(onboardingService, /"position"[\s\S]{0,40}\]\);/u);
+  // "position" is one of the declaration's field keys (no longer the last).
+  assert.match(onboardingService, /const FIELD_KEYS = new Set\(\[[^\]]*"position"[^\]]*\]\);/u);
 });
 
 test("confirmAthleteOnboarding cross-checks position against activity before writing the declaration", () => {

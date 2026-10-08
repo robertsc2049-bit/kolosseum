@@ -2141,7 +2141,7 @@ CREATE TABLE IF NOT EXISTS product_organisations (
         'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
         'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
         'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
-        'street_lifting'
+        'street_lifting', 'grip_sport'
       )
     ),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -2209,12 +2209,34 @@ BEGIN
           'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
           'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
           'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
-          'street_lifting'
+          'street_lifting', 'grip_sport'
         )
       );
   END IF;
 END;
 $$;
+
+-- product_organisations_activity_id_check_sync
+-- Replay-safe: re-create the team-sport CHECK so a database created before an
+-- activity was added (the column, and its CHECK, already existed, so the block
+-- above did not run) accepts every current V1_ACTIVITY_IDS sport.
+ALTER TABLE product_organisations
+  DROP CONSTRAINT IF EXISTS product_organisations_activity_id_check;
+
+ALTER TABLE product_organisations
+  ADD CONSTRAINT product_organisations_activity_id_check
+    CHECK (
+      activity_id IS NULL OR activity_id IN (
+        'powerlifting', 'general_strength', 'rugby_union', 'strongman',
+        'hyrox', 'crossfit', 'football_soccer', 'netball', 'basketball',
+        'rugby_sevens', 'field_hockey', 'ice_hockey', 'volleyball',
+        'cricket', 'american_football', 'athletics', 'swimming',
+        'olympic_weightlifting', 'cycling', 'rowing', 'kayaking',
+        'boxing', 'wrestling', 'judo', 'brazilian_jiu_jitsu',
+        'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
+        'street_lifting', 'grip_sport'
+      )
+    );
 
 DO $$
 BEGIN

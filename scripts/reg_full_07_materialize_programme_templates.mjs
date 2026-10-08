@@ -461,6 +461,20 @@ export const REG_FULL_07_FAMILY_SPECS = Object.freeze([
   Object.freeze({ template_id: "street_lifting_low_equipment", activity_id: "street_lifting", weeks: 4, low_equipment: true, days: Object.freeze([
     Object.freeze([work("goblet_squat", 3, 8), work("pull_up", 3, 5), work("dumbbell_bench_press", 3, 8)]),
     Object.freeze([work("goblet_squat", 3, 10), work("pull_up", 4, 5), work("dumbbell_bench_press", 3, 10)])
+  ]) }),
+  Object.freeze({ template_id: "grip_sport_novice", activity_id: "grip_sport", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("trap_bar_deadlift", 3, 5), work("plate_pinch", 3, 3), work("hammer_curl", 3, 10)]),
+    Object.freeze([work("pull_up", 3, 5), work("gripper_close", 4, 5), work("wrist_roller_roll", 3, 3)]),
+    Object.freeze([work("trap_bar_deadlift", 3, 5), work("plate_pinch", 4, 3), work("pull_up", 3, 5)])
+  ]) }),
+  Object.freeze({ template_id: "grip_sport_intermediate", activity_id: "grip_sport", weeks: 4, low_equipment: false, days: Object.freeze([
+    Object.freeze([work("axle_deadlift", 5, 3), work("gripper_close", 5, 5), work("hammer_curl", 3, 8)]),
+    Object.freeze([work("pinch_block_hold", 5, 3), work("inch_dumbbell_deadlift", 4, 3), work("pull_up", 4, 5)]),
+    Object.freeze([work("rolling_handle_lift", 5, 3), work("wrist_roller_roll", 3, 3), work("axle_deadlift", 3, 3)])
+  ]) }),
+  Object.freeze({ template_id: "grip_sport_low_equipment", activity_id: "grip_sport", weeks: 4, low_equipment: true, days: Object.freeze([
+    Object.freeze([work("plate_pinch", 4, 3), work("hammer_curl", 3, 10), work("pull_up", 3, 5)]),
+    Object.freeze([work("plate_pinch", 3, 3), work("hammer_curl", 3, 12), work("pull_up", 4, 5)])
   ]) })
 ]);
 
@@ -503,7 +517,16 @@ export const REG_FULL_07_EDGE_BY_EXERCISE = Object.freeze({
   handstand_push_up: "handstand_push_up__to__pike_push_up",
   pull_up: "pull_up__to__chin_up",
   dip: "dip__to__decline_bench_press",
-  goblet_squat: "goblet_squat__to__air_squat"
+  goblet_squat: "goblet_squat__to__air_squat",
+  trap_bar_deadlift: "trap_bar_deadlift__to__romanian_deadlift",
+  plate_pinch: "plate_pinch__to__dumbbell_static_hold",
+  hammer_curl: "hammer_curl__to__dumbbell_curl",
+  gripper_close: "gripper_close__to__dumbbell_crush_grip_hold",
+  wrist_roller_roll: "wrist_roller_roll__to__dumbbell_wrist_curl",
+  axle_deadlift: "axle_deadlift__to__trap_bar_deadlift",
+  pinch_block_hold: "pinch_block_hold__to__block_weight_pinch",
+  inch_dumbbell_deadlift: "inch_dumbbell_deadlift__to__blob_lift",
+  rolling_handle_lift: "rolling_handle_lift__to__hub_lift"
 });
 
 const COPY_FLAGS = Object.freeze(["formula_payload_not_visible", "no_marketplace_scope", "no_royalty_scope", "registry_bound"]);

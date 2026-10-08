@@ -32,6 +32,7 @@ const MODEL_BY_ACTIVITY: Readonly<Record<string, CycleModel>> = Object.freeze({
   olympic_weightlifting: "meet",
   strongman: "meet",
   street_lifting: "meet",
+  grip_sport: "meet",
   general_strength: "meet",
   hyrox: "event",
   crossfit: "event",

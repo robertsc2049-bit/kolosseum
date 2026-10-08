@@ -98,6 +98,7 @@ The public launch candidate uses the exact REG-FULL-09 accepted activity scope:
 - `triathlon`
 - `rugby_league`
 - `street_lifting`
+- `grip_sport`
 
 The activity set is closed world. An activity outside REG-FULL-09 accepted scope is not permitted by LAUNCH-00.
 

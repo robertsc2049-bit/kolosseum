@@ -100,7 +100,8 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   rugby_league: Object.freeze([
     "athlete", "prop", "hooker", "second_row", "loose_forward", "halfback", "stand_off", "centre", "wing", "fullback"
   ]),
-  street_lifting: Object.freeze(["athlete"])
+  street_lifting: Object.freeze(["athlete"]),
+  grip_sport: Object.freeze(["athlete"])
 });
 // The position groups that have their own Kolosseum programme (the engine's
 // program registry role_variants): a position here selects that programme

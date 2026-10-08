@@ -77,7 +77,8 @@
       "tennis",
       "triathlon",
       "rugby_league",
-      "street_lifting"
+      "street_lifting",
+      "grip_sport"
     ],
     "source": "REG-FULL-09 supported_activity_scope",
     "closed_world": true

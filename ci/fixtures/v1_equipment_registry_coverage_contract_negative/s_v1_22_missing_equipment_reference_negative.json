@@ -33,7 +33,8 @@
     "tennis",
     "triathlon",
     "rugby_league",
-    "street_lifting"
+    "street_lifting",
+    "grip_sport"
   ],
   "expected_failure_code": "v1_equipment_registry_coverage_contract_missing_equipment_reference",
   "missing_case": {
@@ -76,7 +77,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -121,7 +123,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -165,7 +168,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -208,7 +212,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -254,7 +259,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -301,7 +307,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -346,7 +353,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -390,7 +398,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "horizontal_pull",
@@ -434,7 +443,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -481,7 +491,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "vertical_pull",
@@ -523,7 +534,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "hinge",
@@ -565,7 +577,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "horizontal_push",
@@ -607,7 +620,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",
@@ -649,7 +663,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -692,7 +707,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "squat",
@@ -737,7 +753,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "conditioning_general"
@@ -778,7 +795,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "movement_pattern_applicability": [
         "sprint_acceleration",

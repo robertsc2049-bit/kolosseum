@@ -71,7 +71,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "crossfit"
+        "crossfit",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -311,7 +312,8 @@
         "rugby_league",
         "strongman",
         "street_lifting",
-        "crossfit"
+        "crossfit",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -714,7 +716,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -942,7 +945,8 @@
         "triathlon",
         "rugby_league",
         "hyrox",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1405,7 +1409,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1563,7 +1568,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "hyrox"
+        "hyrox",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -1719,7 +1725,8 @@
         "rugby_league",
         "hyrox",
         "strongman",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4199,7 +4206,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
@@ -4746,7 +4754,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -4895,7 +4904,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -5638,7 +5648,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [
         "overhead_loading"
@@ -6411,7 +6422,8 @@
         "rugby_league",
         "street_lifting",
         "strongman",
-        "hyrox"
+        "hyrox",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -6564,7 +6576,8 @@
         "rugby_league",
         "street_lifting",
         "hyrox",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -6717,7 +6730,8 @@
         "rugby_league",
         "street_lifting",
         "hyrox",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7013,7 +7027,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7089,7 +7104,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7167,7 +7183,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "strongman"
+        "strongman",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7320,7 +7337,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -7469,7 +7487,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8126,7 +8145,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -8940,7 +8960,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9014,7 +9035,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9088,7 +9110,8 @@
         "tennis",
         "triathlon",
         "rugby_league",
-        "street_lifting"
+        "street_lifting",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9691,7 +9714,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9764,7 +9788,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9839,7 +9864,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9912,7 +9938,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -9985,7 +10012,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10058,7 +10086,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10131,7 +10160,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10204,7 +10234,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10277,7 +10308,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10359,7 +10391,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10515,7 +10548,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10669,7 +10703,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -10976,7 +11011,8 @@
         "rugby_league",
         "street_lifting",
         "hyrox",
-        "crossfit"
+        "crossfit",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -11052,7 +11088,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "hyrox"
+        "hyrox",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -11568,7 +11605,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -17899,7 +17937,8 @@
         "mma",
         "tennis",
         "triathlon",
-        "rugby_league"
+        "rugby_league",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -18869,7 +18908,9 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "crossfit",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "grip_sport"
+      ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "restricted",
       "template_eligibility": "eligible",
@@ -20005,7 +20046,9 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "strongman",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "grip_sport"
+      ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
       ],
@@ -20154,7 +20197,9 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "strongman",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "grip_sport"
+      ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
       ],
@@ -20549,7 +20594,9 @@
       ],
       "equipment_alternatives": [],
       "primary_activity_applicability": "strongman",
-      "secondary_activity_applicability": [],
+      "secondary_activity_applicability": [
+        "grip_sport"
+      ],
       "contraindication_or_exclusion_tags": [
         "high_external_load"
       ],
@@ -20849,7 +20896,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -20901,7 +20949,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -20953,7 +21002,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21007,7 +21057,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21060,7 +21111,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21113,7 +21165,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21165,7 +21218,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21218,7 +21272,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21270,7 +21325,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21323,7 +21379,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21377,7 +21434,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21429,7 +21487,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",
@@ -21481,7 +21540,8 @@
         "wrestling",
         "judo",
         "brazilian_jiu_jitsu",
-        "mma"
+        "mma",
+        "grip_sport"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",

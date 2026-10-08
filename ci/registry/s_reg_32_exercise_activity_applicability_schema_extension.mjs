@@ -121,7 +121,8 @@ export const S_REG_32_ACTIVITY_ALLOWED_MOVEMENT_IDS = Object.freeze({
     "vertical_pull", "carry", "brace", "sprint_acceleration",
     "deceleration_change_of_direction", "jump_land", "conditioning_general"
   ]),
-  street_lifting: Object.freeze(["squat", "vertical_pull", "decline_push"])
+  street_lifting: Object.freeze(["squat", "vertical_pull", "decline_push"]),
+  grip_sport: Object.freeze(["hinge", "carry", "vertical_pull"])
 });
 
 export const S_REG_32_REQUIRED_TRUE_FLAGS = Object.freeze([
