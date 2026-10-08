@@ -207,73 +207,103 @@ more frequency.
 
 ---
 
-## 4. Team-sport strength and conditioning (amateur, pro · field and court sports)
+## 4. Team sports (amateur, pro · by family and position)
 
-Two programmes, matching the sporting year. They're listed for rugby union,
-rugby league, rugby sevens, football, field hockey, ice hockey, American
-football, netball, basketball and volleyball.
+Ten team sports don't share one set of demands, so they get four families of
+programmes, each with an off-season build and in-season maintenance:
 
-### 4a. Off-season build (3 days a week · 8 weeks)
+| Family | Sports | Off-season | In-season |
+|---|---|---|---|
+| Collision: forwards and linemen | rugby union, league, sevens; American football | 4 days · 12 weeks | 2 days · 12 weeks (shared) |
+| Collision: backs and skill players | the same | 3 days · 12 weeks | 2 days · 12 weeks (shared) |
+| Field and ice | football, field hockey, ice hockey | 3 days · 8 weeks | 2 days · 12 weeks |
+| Court | netball, basketball, volleyball | 3 days · 8 weeks | 2 days · 12 weeks |
 
-**Why this structure:** the off-season is where strength and muscle are built
-with the most room for training stress. Each session pairs explosive work done
-fresh (jumps, throws, short sprints) with heavy compound lifting. It also
-includes the injury-reducing work field and court athletes need: eccentric
-hamstring work (Nordic curls) and single-leg strength.
+Explosive work comes first in every session, while the athlete is fresh. The
+app's match-week setting keeps heavy leg work away from the day before a
+match in every in-season programme.
 
-| Day 1 (lower strength) | Sets × reps | Load |
+### 4a. Collision off-season: forwards and linemen (4 days a week · 12 weeks)
+
+**Why this structure:** forwards and linemen need mass, maximal strength and
+a neck that can take scrums, mauls, tackles and line play. The off-season
+runs the classic sequence: a hypertrophy block, a max-strength block, then
+strength and power, each ending with a lighter week.
+
+| Main lifts (squat, bench, trap bar deadlift) | Weeks 1–4 | Weeks 5–8 | Weeks 9–12 |
+|---|---|---|---|
+| Sets × reps | 4 × 8 | 5 × 5 | 4 × 3 |
+| Load | 67.5 → 72.5%, week 4 60% | 77.5 → 82.5%, week 8 70% | 82.5 → 87.5%, week 12 75% |
+
+| Day | Session |
+|---|---|
+| Lower A | Box jump; **back squat**; Romanian deadlift; Bulgarian split squat; Nordic curl; neck flexion and extension holds |
+| Upper A | Medicine ball chest pass; **bench press**; pull-up (weighted once 8 are easy); barbell row; dumbbell overhead press; neck side holds |
+| Lower B | Broad jump to stick; **trap bar deadlift**; front squat; heavy sled push; Copenhagen plank; neck flexion and extension holds |
+| Upper B | Incline bench press; chin-up; landmine press; chest-supported row; farmer's carry; face pull |
+
+Accessory reps follow the block: 10, then 8, then 6.
+
+### 4b. Collision off-season: backs and skill players (3 days a week · 12 weeks)
+
+**Why this structure:** backs and skill players win on speed, but they're
+tackled too. Each week has an acceleration day and a top-speed day (sprints
+first, full recovery), heavy lifting through the same 8s → 5s → 3s blocks,
+Nordic curls, Copenhagen planks, and neck strength twice a week.
+
+| Day | Session |
+|---|---|
+| Acceleration and squat | 20 m accelerations; **back squat**; single-leg RDL; Nordic curl; neck flexion and extension holds |
+| Upper strength | Medicine ball chest pass; **bench press**; pull-up; single-arm row; neck side holds; side plank |
+| Top speed and power | Flying 20 m sprints; **trap bar deadlift** (5s at most); lateral bound; walking lunge; Copenhagen plank; Pallof press |
+
+### 4c. Collision in-season maintenance (2 days a week · 12 weeks)
+
+Two short, heavy sessions (3 × 3 at 80–85%, every fourth week lighter) with
+neck holds in both, Nordic curls and Copenhagen planks every week.
+
+### 4d. Field and ice off-season (3 days a week · 8 weeks)
+
+**Why this structure:** football, field hockey and ice hockey lose most
+playing time to hamstring and groin injuries. The Nordic curl and the
+Copenhagen adductor plank are the two exercises with the strongest evidence
+for preventing them, so both are in every week of the year. Acceleration,
+deceleration and lateral bounds come first, for cutting and skating.
+
+| Main lifts (squat, trap bar deadlift) | Weeks 1–4 | Weeks 5–8 |
 |---|---|---|
-| Box jump | 4 × 3 | bodyweight, full rest |
-| Back squat | 4 × 5 | 72.5 → 80% |
-| Romanian deadlift | 3 × 8 | 65 → 70% |
-| Bulgarian split squat | 3 × 6 each leg | RPE 8 |
-| Nordic curl | 3 × 4 | bodyweight |
+| Sets × reps | 3–4 × 6 | 4 × 4 |
+| Load | 70 → 75%, week 4 65% | 80 → 85%, week 8 72.5% |
 
-| Day 2 (upper strength) | Sets × reps | Load |
-|---|---|---|
-| Medicine ball chest pass | 4 × 5 | explosive |
-| Bench press | 4 × 5 | 72.5 → 80% |
-| Pull-up | 4 × 6 | RPE 8 |
-| Single-arm dumbbell row | 3 × 10 | RPE 8 |
-| Side plank | 3 × 30 s each side | bodyweight |
+| Day | Session |
+|---|---|
+| Acceleration and squat | 10 m accelerations; **back squat**; Romanian deadlift; Nordic curl; Copenhagen plank |
+| Upper and trunk | Rotational medicine ball throw; pull-up; dumbbell bench press; single-arm row; side plank; Pallof press |
+| Change of direction and single leg | Lateral bound; **trap bar deadlift**; 10 m deceleration; Bulgarian split squat; lateral lunge; hip adduction; single-leg calf raise |
 
-| Day 3 (power and full body) | Sets × reps | Load |
-|---|---|---|
-| 10 m acceleration | 6 × 1 | full recovery |
-| Trap bar deadlift | 4 × 4 | 75 → 82.5% |
-| Push press / overhead press | 3 × 5 | 70 → 77.5% |
-| Walking lunge | 3 × 8 each leg | RPE 8 |
-| Pallof press | 3 × 10 each side | RPE 7 |
+### 4e. Field and ice in-season (2 days a week · 12 weeks)
 
-Week 4 and week 8 are lighter (−10%, a third fewer sets).
+Two short, heavy sessions with Nordic curls and Copenhagen planks every week,
+and adductor and trunk work.
 
-### 4b. In-season maintenance (2 days a week · 12 weeks, repeatable)
+### 4f. Court off-season (3 days a week · 8 weeks)
 
-**Why this structure:** in season the priority is keeping the strength and
-power built in the off-season while staying fresh for matches. Research
-consistently shows strength holds on 1–2 short, heavy sessions a week, with
-low volume at high intensity. The app's match-week setting already keeps
-heavy leg work away from the day before a match.
+**Why this structure:** netball, basketball and volleyball players jump
+hundreds of times a week in practice, so the gym adds only a few maximal
+jumps. The extra work goes into landing and deceleration, patellar-tendon
+holds (the bottom of a split squat held for 30 s), calves and shins, the
+groin, and the hitting and shooting shoulder. Main lifts as 4d.
 
-| Session 1 (early week) | Sets × reps | Load |
-|---|---|---|
-| Countermovement jump | 3 × 3 | explosive |
-| Back squat | 3 × 3 | 80–85% |
-| Bench press | 3 × 3 | 80–85% |
-| Pull-up | 3 × 5 | RPE 7 |
-| Nordic curl | 2 × 4 | bodyweight |
+| Day | Session |
+|---|---|
+| Jump, land and squat | Countermovement jump; **back squat**; drop to stick; split squat hold; Nordic curl; single-leg calf raise |
+| Upper and shoulder | Medicine ball chest pass; landmine press; pull-up; single-arm row; band external rotation; Pallof press |
+| Deceleration and single leg | Lateral bound; **trap bar deadlift**; lateral deceleration; Bulgarian split squat; Copenhagen plank; tibialis raise; side plank |
 
-| Session 2 (mid week) | Sets × reps | Load |
-|---|---|---|
-| Medicine ball rotational throw | 3 × 4 each side | explosive |
-| Trap bar deadlift | 3 × 3 | 80–85% |
-| Single-arm dumbbell press | 3 × 6 | RPE 7 |
-| Inverted row | 3 × 8 | bodyweight |
-| Side plank | 2 × 30 s each side | bodyweight |
+### 4g. Court in-season (2 days a week · 12 weeks)
 
-Every fourth week drops to one set less per lift.
-
----
+No extra jumping (games supply it). Heavy, low-rep squats and deadlifts,
+patellar-tendon holds, Copenhagen planks and shoulder care every week.
 
 ## 5. Endurance strength (amateur, pro · endurance sports)
 
@@ -830,9 +860,10 @@ day), and a light primer of power snatch, hang power clean and split jerk.
 ## 15. Pro versions of the sport builds (pro only)
 
 A full-time athlete has the recovery for more work and the training age for
-advanced methods. So the seven sport builds each have a pro version: team
-off-season, tennis, cricket, combat, sprint/jump/throw, run and ride, and
-swim, row and paddle.
+advanced methods. So the sport builds each have a pro version: the four
+team off-seasons (collision forwards, collision backs, field and ice, court),
+tennis, cricket, combat, sprint/jump/throw, run and ride, and swim, row and
+paddle.
 
 - **Contrast pairs:** a session that led with a jump, throw or sprint before
   a heavy lift flips the order into a pair: the heavy set first, then
@@ -854,8 +885,8 @@ with level.
   them in the content file, so changes there carry over. In the builder
   they're separate programmes, so edit either freely once you've reviewed
   them.
-- **Not included yet:** position splits (prop vs winger, fast bowler vs
-  batter).
+- **Position splits:** collision sports split forwards and linemen from
+  backs and skill players. Not yet split: fast bowler vs batter.
 - **Strength-sport meet preps** (powerlifting, weightlifting, strongman,
   street lifting) stay shared. They're already individualised by the
   athlete's own maxes.
@@ -883,6 +914,10 @@ with level.
   heavy session a week in professional football.
 - Nordic hamstring exercise and hamstring injury risk: Petersen et al. (2011);
   van der Horst et al. (2015).
+- Copenhagen adduction exercise and groin problems in football: Harøy et al.
+  (2019). FIFA 11+ injury prevention: Soligard et al. (2008).
+- Neck strengthening in rugby (World Rugby Activate): Attwood et al. (2018).
+- Isometric holds for patellar tendon pain: Rio et al. (2015).
 - Heavy strength training and plyometrics for endurance performance
   (better economy; no added mass when volume is low): Rønnestad and Mujika
   (2014); Beattie et al. (2014); Blagrove et al. (2018). One session a week

@@ -12,14 +12,15 @@ const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exer
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
 const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 
-test("twenty-eight programmes: every sport has its own, and pro versions of the sport builds", () => {
+test("thirty-six programmes: every sport has its own, team sports by family and position, and pro versions of the sport builds", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
-    "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep", "team_sport_off_season", "team_sport_in_season",
+    "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep",
+    "collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "field_ice_off_season", "field_ice_in_season", "court_off_season", "court_in_season",
     "endurance_run_ride_strength", "endurance_swim_row_paddle_strength", "endurance_in_season", "combat_strength_power", "combat_fight_camp", "tennis_off_season", "tennis_in_season",
     "cricket_off_season", "cricket_in_season", "athletics_power_build", "athletics_competition_season",
     "strongman_strength_events", "street_lifting_meet_prep", "hyrox_race_build", "crossfit_strength_conditioning",
     "olympic_weightlifting_meet_prep",
-    "team_sport_off_season_pro", "tennis_off_season_pro", "cricket_off_season_pro", "combat_strength_power_pro", "athletics_power_build_pro", "endurance_run_ride_strength_pro", "endurance_swim_row_paddle_strength_pro"
+    "collision_forwards_off_season_pro", "collision_backs_off_season_pro", "field_ice_off_season_pro", "court_off_season_pro", "tennis_off_season_pro", "cricket_off_season_pro", "combat_strength_power_pro", "athletics_power_build_pro", "endurance_run_ride_strength_pro", "endurance_swim_row_paddle_strength_pro"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -77,10 +78,9 @@ test("each programme is listed for the athletes its design notes describe", () =
   assert.deepEqual([byKey.beginner_full_body.levels, byKey.beginner_full_body.activity_ids], [["beginner"], []], "beginner, any sport");
   assert.deepEqual(byKey.intermediate_upper_lower.activity_ids, [], "any sport");
   assert.deepEqual(byKey.powerlifting_meet_prep.activity_ids, ["powerlifting"]);
-  for (const key of ["team_sport_off_season", "team_sport_in_season"]) {
-    assert.ok(byKey[key].activity_ids.includes("rugby_union") && byKey[key].activity_ids.includes("basketball"), key);
-    assert.ok(!byKey[key].levels.includes("beginner"), `${key}: beginners start on the full-body programme`);
-  }
+  for (const key of ["collision_forwards_off_season", "collision_backs_off_season", "collision_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["rugby_union", "rugby_league", "rugby_sevens", "american_football"], key);
+  for (const key of ["field_ice_off_season", "field_ice_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["football_soccer", "field_hockey", "ice_hockey"], key);
+  for (const key of ["court_off_season", "court_in_season"]) assert.deepEqual(byKey[key].activity_ids, ["netball", "basketball", "volleyball"], key);
   assert.deepEqual(byKey.endurance_run_ride_strength.activity_ids, ["athletics", "cycling", "triathlon"]);
   assert.deepEqual(byKey.endurance_swim_row_paddle_strength.activity_ids, ["swimming", "rowing", "kayaking"]);
   assert.deepEqual([...byKey.endurance_in_season.activity_ids].sort(), ["athletics", "cycling", "kayaking", "rowing", "swimming", "triathlon"]);
@@ -167,8 +167,12 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
   assert.deepEqual(next, {
     beginner_full_body: "intermediate_upper_lower",
     powerlifting_meet_prep: "intermediate_upper_lower",
-    team_sport_off_season: "team_sport_in_season",
-    team_sport_in_season: "team_sport_off_season",
+    collision_forwards_off_season: "collision_in_season",
+    collision_backs_off_season: "collision_in_season",
+    field_ice_off_season: "field_ice_in_season",
+    field_ice_in_season: "field_ice_off_season",
+    court_off_season: "court_in_season",
+    court_in_season: "court_off_season",
     endurance_run_ride_strength: "endurance_in_season",
     endurance_swim_row_paddle_strength: "endurance_in_season",
     combat_strength_power: "combat_fight_camp",
@@ -183,7 +187,10 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     street_lifting_meet_prep: "intermediate_upper_lower",
     hyrox_race_build: "intermediate_upper_lower",
     olympic_weightlifting_meet_prep: "intermediate_upper_lower",
-    team_sport_off_season_pro: "team_sport_in_season",
+    collision_forwards_off_season_pro: "collision_in_season",
+    collision_backs_off_season_pro: "collision_in_season",
+    field_ice_off_season_pro: "field_ice_in_season",
+    court_off_season_pro: "court_in_season",
     tennis_off_season_pro: "tennis_in_season",
     cricket_off_season_pro: "cricket_in_season",
     combat_strength_power_pro: "combat_fight_camp",
@@ -249,7 +256,7 @@ test("a weightlifter does the snatch and clean & jerk first, in low reps, and ta
 });
 
 test("a pro's version of each sport build: the same programme with contrast pairs - heavy lift straight into a jump, throw or sprint - and an extra set on the main lifts", () => {
-  for (const key of ["team_sport_off_season_pro","tennis_off_season_pro","cricket_off_season_pro","combat_strength_power_pro","athletics_power_build_pro","endurance_run_ride_strength_pro","endurance_swim_row_paddle_strength_pro"]) {
+  for (const key of ["collision_forwards_off_season_pro","collision_backs_off_season_pro","field_ice_off_season_pro","court_off_season_pro","tennis_off_season_pro","cricket_off_season_pro","combat_strength_power_pro","athletics_power_build_pro","endurance_run_ride_strength_pro","endurance_swim_row_paddle_strength_pro"]) {
     const pro = PROGRAMMES.find((p) => p.key === key);
     const amateur = PROGRAMMES.find((p) => p.key === key.replace(/_pro$/u, ""));
     assert.ok(amateur, key);
@@ -274,5 +281,42 @@ test("a pro's version of each sport build: the same programme with contrast pair
       }
     });
     assert.ok(pairs >= amSessions.length / 2, `${key}: most sessions have a contrast pair`);
+  }
+});
+
+const weeksOf = (key) => PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
+const weekHas = (week, test) => week.some((s) => s.items.some((i) => test(i, registry[i.id])));
+
+test("a rugby prop or an American football lineman trains the neck at least twice every week, in and out of season, like every collision player", () => {
+  for (const key of ["collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "collision_forwards_off_season_pro", "collision_backs_off_season_pro"]) {
+    for (const week of weeksOf(key)) {
+      const neckSessions = week.filter((s) => s.items.some((i) => registry[i.id].movement_pattern_id === "neck_isometric")).length;
+      assert.ok(neckSessions >= 2, `${key}: neck work in ${neckSessions} sessions`);
+    }
+  }
+});
+
+test("a footballer or ice hockey player does Nordic curls and Copenhagen planks every week of the year - the hamstring and groin injuries those sports lose most time to", () => {
+  for (const key of ["field_ice_off_season", "field_ice_in_season", "field_ice_off_season_pro", "collision_in_season", "court_in_season"]) {
+    for (const week of weeksOf(key)) {
+      if (key.startsWith("field_ice")) assert.ok(weekHas(week, (i) => i.id === "nordic_curl"), `${key}: Nordic curls`);
+      assert.ok(weekHas(week, (i) => i.id === "copenhagen_plank"), `${key}: Copenhagen plank`);
+    }
+  }
+});
+
+test("collision off-season is periodised: hypertrophy 8s, max strength 5s, then 3s, the heaviest squat rising block to block", () => {
+  const p = PROGRAMMES.find((x) => x.key === "collision_forwards_off_season");
+  assert.deepEqual(p.blocks.map((b) => b.block_type), ["volume", "strength", "peak"]);
+  const squats = p.blocks.map((b) => b.weeks.flat().flatMap((s) => s.items).filter((i) => i.id === "back_squat"));
+  assert.deepEqual(squats.map((list) => Math.max(...list.map((i) => i.reps))), [8, 5, 3]);
+  const top = squats.map((list) => Math.max(...list.map((i) => i.load.pct)));
+  assert.ok(top[0] < top[1] && top[1] < top[2], `top squat % rises: ${top}`);
+});
+
+test("a volleyball or basketball player in season does no extra jumping - games and practice supply it - and holds for the patellar tendon every week", () => {
+  for (const week of weeksOf("court_in_season")) {
+    assert.ok(!weekHas(week, (_, r) => ["jump_vertical", "jump_horizontal"].includes(r.movement_pattern_id)), "no jumps in season");
+    assert.ok(weekHas(week, (i) => i.id === "split_squat" && typeof i.reps === "object" && "seconds" in i.reps), "tendon holds");
   }
 });

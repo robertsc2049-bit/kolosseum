@@ -161,63 +161,238 @@ const powerliftingMeetPrep = {
 };
 
 // ---------------------------------------------------------------------------
-// 4. Team-sport strength and conditioning - amateur and pro, field and court
-// sports. Explosive work first, while fresh; heavy compound lifting; the
-// injury-reducing work these athletes need (Nordic curls, single-leg work).
-const TEAM_SPORTS = ["rugby_union", "rugby_league", "rugby_sevens", "football_soccer", "field_hockey", "ice_hockey", "american_football", "netball", "basketball", "volleyball"];
+// 4. Team sports - amateur and pro. Four families with different demands, so
+// four programmes, each with its own in-season maintenance:
+// - collision forwards and linemen (rugby forwards, American football linemen):
+//   mass, upper-body pushing and neck strength for the scrum, maul and line;
+// - collision backs and skill players: speed first, still neck strength - every
+//   collision athlete is tackled and hits the ground;
+// - field and ice sports (football, field hockey, ice hockey): acceleration,
+//   change of direction, and the hamstring (Nordic curl) and groin (Copenhagen
+//   plank) work that prevents those sports' most common time-loss injuries;
+// - court sports (netball, basketball, volleyball): landing, deceleration and
+//   patellar-tendon care, with jump volume kept low because practice is full of
+//   jumps.
+// Explosive work comes first in a session, while fresh.
+const COLLISION_SPORTS = ["rugby_union", "rugby_league", "rugby_sevens", "american_football"];
+const FIELD_ICE_SPORTS = ["football_soccer", "field_hockey", "ice_hockey"];
+const COURT_SPORTS = ["netball", "basketball", "volleyball"];
 
-const OFF_PCT = [72.5, 75, 77.5, 65, 75, 77.5, 80, 67.5];
-const offSeasonWeek = (week) => {
-  const pct = OFF_PCT[week - 1];
-  const deload = week % 4 === 0;
-  const s = (n) => (deload ? Math.max(2, n - 1) : n);
+// Collision off-season, 12 weeks: hypertrophy (8s), max strength (5s), then
+// strength and power (3s), each block ending with a lighter week.
+const COLLISION_MAIN = [[4, 8, 67.5], [4, 8, 70], [4, 8, 72.5], [3, 8, 60], [5, 5, 77.5], [5, 5, 80], [5, 5, 82.5], [3, 5, 70], [4, 3, 82.5], [4, 3, 85], [4, 3, 87.5], [3, 3, 75]];
+const collisionShape = (week) => {
+  const [sets, reps, pct] = COLLISION_MAIN[week - 1];
+  const lighter = week % 4 === 0;
+  return { sets, reps, pct, s: (n) => (lighter ? Math.max(2, n - 1) : n), accessoryReps: week <= 4 ? 10 : week <= 8 ? 8 : 6 };
+};
+const neck = (id, sets) => ex(id, sets, { seconds: 20 }, { rpe: 6 }, 45, "Push into your hand or a band and hold - build the effort slowly.");
+const collisionForwardsWeek = (week) => {
+  const { sets, reps, pct, s, accessoryReps } = collisionShape(week);
   return [
-    { title: "Lower strength", items: [
-      ex("box_jump", s(4), 3, "bw", 90), ex("back_squat", s(4), 5, { pct }, 180), ex("romanian_deadlift", s(3), 8, { pct: pct - 7.5 }, 150),
-      ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90), ex("nordic_curl", s(3), 4, "bw", 90)
+    { title: "Lower A - squat", items: [
+      ex("box_jump", s(4), 3, "bw", 90), ex("back_squat", sets, reps, { pct }, 210), ex("romanian_deadlift", s(3), accessoryReps, { rpe: 8 }, 150),
+      ex("bulgarian_split_squat", s(3), accessoryReps, { rpe: 8 }, 90), ex("nordic_curl", s(3), 4, "bw", 90),
+      neck("neck_flexion_isometric", 3), neck("neck_extension_isometric", 3)
     ] },
-    { title: "Upper strength", items: [
-      ex("medicine_ball_chest_pass", s(4), 5, { kg: 4 }, 75), ex("bench_press", s(4), 5, { pct }, 180), ex("pull_up", s(4), 6, { rpe: 8 }, 120),
-      ex("single_arm_dumbbell_row", s(3), 10, { rpe: 8 }, 75), ex("side_plank", s(3), { seconds: 30 }, "bw", 45)
+    { title: "Upper A - press", items: [
+      ex("medicine_ball_chest_pass", s(4), 5, { kg: 5 }, 75), ex("bench_press", sets, reps, { pct }, 180), ex("pull_up", s(4), [5, 8], { rpe: 8 }, 120, "Add weight once 8 are easy."),
+      ex("barbell_row", s(3), accessoryReps, { rpe: 8 }, 90), ex("dumbbell_overhead_press", s(3), accessoryReps, { rpe: 8 }, 90), neck("neck_lateral_flexion_isometric", 3)
     ] },
-    { title: "Power and full body", items: [
-      ex("ten_metre_acceleration", s(6), { metres: 10 }, "bw", 90), ex("trap_bar_deadlift", s(4), 4, { pct: pct + 2.5 }, 180), ex("overhead_press", s(3), 5, { pct: pct - 2.5 }, 150),
-      ex("walking_lunge", s(3), 8, { rpe: 8 }, 90), ex("pallof_press", s(3), 10, { rpe: 7 }, 60)
+    { title: "Lower B - hinge and push", items: [
+      ex("broad_jump_to_stick", s(4), 3, "bw", 90), ex("trap_bar_deadlift", sets, reps, { pct }, 210), ex("front_squat", s(3), 6, { rpe: 7 }, 150),
+      ex("sled_push", s(4), { metres: 20 }, { rpe: 8 }, 120, "Heavy: drive low, like hitting a ruck or the line."), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45),
+      neck("neck_flexion_isometric", 2), neck("neck_extension_isometric", 2)
+    ] },
+    { title: "Upper B - volume and carries", items: [
+      ex("incline_bench_press", s(4), accessoryReps, { rpe: 8 }, 120), ex("chin_up", s(3), accessoryReps, { rpe: 8 }, 90), ex("landmine_press", s(3), 6, { rpe: 8 }, 90),
+      ex("chest_supported_row", s(3), accessoryReps + 2, { rpe: 8 }, 75), ex("farmers_carry", 3, { metres: 30 }, { rpe: 8 }, 75), ex("face_pull", 3, 15, { rpe: 7 }, 45)
     ] }
   ];
 };
-const teamOffSeason = {
-  key: "team_sport_off_season",
-  template_name: "Team-sport off-season build",
+const collisionForwardsOffSeason = {
+  key: "collision_forwards_off_season",
+  template_name: "Collision off-season: forwards and linemen",
   activity_id: "general_strength",
-  description: "Eight weeks, three days a week: jumps, throws and sprints first while fresh, then heavy squats, presses and pulls, plus Nordic curls and single-leg work to keep hamstrings and knees robust.",
-  listing: { title: "Off-season strength build (8 weeks)", summary: "The off-season is when strength and power are built. Three days a week: jumps, throws and short sprints, then heavy lifting, plus hamstring and single-leg work for robustness.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 3, next: "team_sport_in_season" },
-  blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(offSeasonWeek) }]
+  description: "Twelve weeks, four days a week, for rugby forwards and American football linemen: a hypertrophy block (8s) to add muscle, a max-strength block (5s), then strength and power (3s), each ending lighter. Jumps and throws first while fresh, heavy squats, deadlifts and presses, sled pushes, and neck strength three times a week for the scrum, maul and line.",
+  listing: { title: "Collision off-season: forwards and linemen (12 weeks)", summary: "Rugby forwards and American football linemen. Four days a week: build muscle, then max strength, then strength and power - with sled pushes, carries and neck strength three times a week for the contact your position takes.", levels: ["amateur", "pro"], activity_ids: COLLISION_SPORTS, days_per_week: 4, next: "collision_in_season" },
+  blocks: [
+    { name: "Hypertrophy", block_type: "volume", weeks: [1, 2, 3, 4].map(collisionForwardsWeek) },
+    { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(collisionForwardsWeek) },
+    { name: "Strength and power", block_type: "peak", weeks: [9, 10, 11, 12].map(collisionForwardsWeek) }
+  ]
+};
+
+const collisionBacksWeek = (week) => {
+  const { sets, reps, pct, s } = collisionShape(week);
+  return [
+    { title: "Acceleration and squat", items: [
+      ex("twenty_metre_acceleration", s(5), { metres: 20 }, "bw", 120, "Full recovery: every rep at top speed."), ex("back_squat", sets, reps, { pct }, 210),
+      ex("single_leg_rdl", s(3), 6, { rpe: 8 }, 90), ex("nordic_curl", s(3), 4, "bw", 90), neck("neck_flexion_isometric", 3), neck("neck_extension_isometric", 3)
+    ] },
+    { title: "Upper strength", items: [
+      ex("medicine_ball_chest_pass", s(4), 5, { kg: 4 }, 75), ex("bench_press", sets, reps, { pct }, 180), ex("pull_up", s(4), [5, 8], { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), neck("neck_lateral_flexion_isometric", 3), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Top speed and power", items: [
+      ex("flying_twenty_sprint", s(4), { metres: 20 }, "bw", 180, "Build up over 20-30 m, then 20 m flat out. Full recovery."), ex("trap_bar_deadlift", sets, Math.min(reps, 5), { pct }, 180),
+      ex("lateral_bound", s(3), 4, "bw", 90), ex("walking_lunge", s(3), 8, { rpe: 8 }, 90), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45),
+      ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const collisionBacksOffSeason = {
+  key: "collision_backs_off_season",
+  template_name: "Collision off-season: backs and skill players",
+  activity_id: "general_strength",
+  description: "Twelve weeks, three days a week, for rugby backs and American football skill players: acceleration and top-speed sprints first, then heavy lifting through 8s, 5s and 3s, Nordic curls for the hamstrings, Copenhagen planks for the groin, and neck strength twice a week - every collision athlete is tackled.",
+  listing: { title: "Collision off-season: backs and skill players (12 weeks)", summary: "Rugby backs and American football skill players. Three days a week: acceleration and top-speed sprints first, heavy lifting from 8s to 3s, and hamstring, groin and neck work - fast, and robust in contact.", levels: ["amateur", "pro"], activity_ids: COLLISION_SPORTS, days_per_week: 3, next: "collision_in_season" },
+  blocks: [
+    { name: "Hypertrophy", block_type: "volume", weeks: [1, 2, 3, 4].map(collisionBacksWeek) },
+    { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(collisionBacksWeek) },
+    { name: "Strength and power", block_type: "peak", weeks: [9, 10, 11, 12].map(collisionBacksWeek) }
+  ]
 };
 
 const IN_PCT = [80, 82.5, 85, 75];
-const inSeasonWeek = (week) => {
+const collisionInSeasonWeek = (week) => {
   const pct = at(IN_PCT, week);
   const lighter = week % 4 === 0;
   const s = (n) => (lighter ? Math.max(2, n - 1) : n);
   return [
     { title: "Early-week session", items: [
       ex("countermovement_jump", 3, 3, "bw", 90), ex("back_squat", s(3), 3, { pct }, 180), ex("bench_press", s(3), 3, { pct }, 180),
-      ex("pull_up", s(3), 5, { rpe: 7 }, 120), ex("nordic_curl", 2, 4, "bw", 90)
+      ex("pull_up", s(3), 5, { rpe: 7 }, 120), ex("nordic_curl", 2, 4, "bw", 90), neck("neck_flexion_isometric", 2), neck("neck_extension_isometric", 2)
     ] },
     { title: "Mid-week session", items: [
       ex("medicine_ball_rotational_throw", 3, 4, { kg: 4 }, 75), ex("trap_bar_deadlift", s(3), 3, { pct }, 180), ex("single_arm_dumbbell_press", s(3), 6, { rpe: 7 }, 90),
-      ex("inverted_row", s(3), 8, "bw", 75), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+      ex("inverted_row", s(3), 8, "bw", 75), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45), neck("neck_lateral_flexion_isometric", 2)
     ] }
   ];
 };
-const teamInSeason = {
-  key: "team_sport_in_season",
-  template_name: "Team-sport in-season maintenance",
+const collisionInSeason = {
+  key: "collision_in_season",
+  template_name: "Collision in-season maintenance",
   activity_id: "general_strength",
-  description: "Two short, heavy sessions a week to keep the strength and power built in the off-season while staying fresh for matches. Every fourth week is lighter.",
-  listing: { title: "In-season maintenance (12 weeks)", summary: "Keep your strength and power through the season: two short, heavy sessions a week, low volume so you stay fresh for matches. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: TEAM_SPORTS, days_per_week: 2, next: "team_sport_off_season" },
-  blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => inSeasonWeek(i + 1)) }]
+  description: "Two short, heavy sessions a week through the season for rugby and American football: hold strength and power while staying fresh for matches, with neck, hamstring and groin work every week. Every fourth week is lighter.",
+  listing: { title: "Collision in-season maintenance (12 weeks)", summary: "Rugby and American football. Two short, heavy sessions a week to keep your strength and power through the season, with neck, hamstring and groin work every week. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: COLLISION_SPORTS, days_per_week: 2 },
+  blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => collisionInSeasonWeek(i + 1)) }]
+};
+
+// Field and ice, and court, off-season: 8 weeks - base strength (6s) then
+// strength and power (4s), each block ending lighter.
+const FIELD_MAIN = [[3, 6, 70], [3, 6, 72.5], [4, 6, 75], [2, 6, 65], [4, 4, 80], [4, 4, 82.5], [4, 4, 85], [3, 4, 72.5]];
+const fieldShape = (week) => {
+  const [sets, reps, pct] = FIELD_MAIN[week - 1];
+  const lighter = week % 4 === 0;
+  return { sets, reps, pct, s: (n) => (lighter ? Math.max(2, n - 1) : n) };
+};
+const fieldIceWeek = (week) => {
+  const { sets, reps, pct, s } = fieldShape(week);
+  return [
+    { title: "Acceleration and squat", items: [
+      ex("ten_metre_acceleration", s(6), { metres: 10 }, "bw", 90, "Every rep at top speed - full recovery."), ex("back_squat", sets, reps, { pct }, 180),
+      ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120), ex("nordic_curl", s(3), 4, "bw", 90), ex("copenhagen_plank", s(3), { seconds: 20 }, "bw", 45, "Short lever (top leg on the bench at the knee) until 30 s is easy.")
+    ] },
+    { title: "Upper and trunk", items: [
+      ex("medicine_ball_rotational_throw", s(4), 4, { kg: 4 }, 75), ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120), ex("dumbbell_bench_press", s(3), 8, { rpe: 8 }, 90),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("side_plank", 2, { seconds: 30 }, "bw", 45), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] },
+    { title: "Change of direction and single leg", items: [
+      ex("lateral_bound", s(4), 4, "bw", 90, "Stick each landing: skating and cutting start here."), ex("trap_bar_deadlift", sets, reps, { pct }, 180),
+      ex("ten_metre_deceleration", s(3), { metres: 10 }, "bw", 90), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90), ex("lateral_lunge", s(3), 6, { rpe: 7 }, 75),
+      ex("machine_hip_adduction", 2, 12, { rpe: 7 }, 60), ex("single_leg_calf_raise", 2, 10, { rpe: 8 }, 60)
+    ] }
+  ];
+};
+const fieldIceOffSeason = {
+  key: "field_ice_off_season",
+  template_name: "Field and ice off-season build",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, for football, field hockey and ice hockey: acceleration, deceleration and lateral bounds first, base strength then strength and power, and the hamstring (Nordic curl) and groin (Copenhagen plank, adduction) work that prevents these sports' most common injuries.",
+  listing: { title: "Field and ice off-season build (8 weeks)", summary: "Football, field hockey and ice hockey. Three days a week: acceleration, cutting and lateral power, heavy squats and deadlifts, and Nordic curls and Copenhagen planks every week - the hamstring and groin work that keeps players available.", levels: ["amateur", "pro"], activity_ids: FIELD_ICE_SPORTS, days_per_week: 3, next: "field_ice_in_season" },
+  blocks: [
+    { name: "Base strength", block_type: "volume", weeks: [1, 2, 3, 4].map(fieldIceWeek) },
+    { name: "Strength and power", block_type: "strength", weeks: [5, 6, 7, 8].map(fieldIceWeek) }
+  ]
+};
+const fieldIceInSeasonWeek = (week) => {
+  const pct = at(IN_PCT, week);
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Early-week session", items: [
+      ex("countermovement_jump", 3, 3, "bw", 90), ex("back_squat", s(3), 3, { pct }, 180), ex("pull_up", s(3), 5, { rpe: 7 }, 120),
+      ex("nordic_curl", 2, 4, "bw", 90), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45)
+    ] },
+    { title: "Mid-week session", items: [
+      ex("medicine_ball_rotational_throw", 3, 4, { kg: 4 }, 75), ex("trap_bar_deadlift", s(3), 3, { pct }, 180), ex("bulgarian_split_squat", s(3), 5, { rpe: 7 }, 90),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 7 }, 75), ex("machine_hip_adduction", 2, 10, { rpe: 7 }, 60), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const fieldIceInSeason = {
+  key: "field_ice_in_season",
+  template_name: "Field and ice in-season maintenance",
+  activity_id: "general_strength",
+  description: "Two short, heavy sessions a week through the season for football, field hockey and ice hockey: hold strength and power while staying fresh, with Nordic curls and Copenhagen planks every week. Every fourth week is lighter.",
+  listing: { title: "Field and ice in-season maintenance (12 weeks)", summary: "Football, field hockey and ice hockey. Two short, heavy sessions a week through the season, with Nordic curls and Copenhagen planks every week. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: FIELD_ICE_SPORTS, days_per_week: 2, next: "field_ice_off_season" },
+  blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => fieldIceInSeasonWeek(i + 1)) }]
+};
+
+const tendonHold = (sets) => ex("split_squat", sets, { seconds: 30 }, { rpe: 7 }, 60, "Hold the bottom of a split squat, front shin upright: a steady hold that settles a sore patellar tendon.");
+const courtWeek = (week) => {
+  const { sets, reps, pct, s } = fieldShape(week);
+  return [
+    { title: "Jump, land and squat", items: [
+      ex("countermovement_jump", s(4), 3, "bw", 90, "Few, maximal jumps - practice supplies the volume."), ex("back_squat", sets, reps, { pct }, 180),
+      ex("drop_to_stick", s(3), 4, "bw", 75, "Land soft and quiet, knees over toes, and hold for two seconds."), tendonHold(s(3)),
+      ex("nordic_curl", s(3), 4, "bw", 90), ex("single_leg_calf_raise", s(3), 10, { rpe: 8 }, 60)
+    ] },
+    { title: "Upper and shoulder", items: [
+      ex("medicine_ball_chest_pass", s(4), 5, { kg: 4 }, 75), ex("landmine_press", s(3), 6, { rpe: 8 }, 90), ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120),
+      ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75), ex("band_external_rotation", 3, 15, { rpe: 6 }, 45, "Volleyball: the hitting shoulder needs this every week."), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] },
+    { title: "Deceleration and single leg", items: [
+      ex("lateral_bound", s(3), 4, "bw", 90), ex("trap_bar_deadlift", sets, reps, { pct }, 180), ex("lateral_deceleration", s(3), 4, "bw", 75),
+      ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45), ex("wall_tibialis_raise", 2, 15, "bw", 45),
+      ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const courtOffSeason = {
+  key: "court_off_season",
+  template_name: "Court-sport off-season build",
+  activity_id: "general_strength",
+  description: "Eight weeks, three days a week, for netball, basketball and volleyball: a few maximal jumps (practice supplies the jump volume), landing and deceleration drills, base strength then strength and power, patellar-tendon holds, calves and shins, and shoulder care for hitters and shooters.",
+  listing: { title: "Court-sport off-season build (8 weeks)", summary: "Netball, basketball and volleyball. Three days a week: a few maximal jumps, landing and deceleration drills, heavy squats and deadlifts, and the knee, calf, groin and shoulder work that keeps court players jumping all season.", levels: ["amateur", "pro"], activity_ids: COURT_SPORTS, days_per_week: 3, next: "court_in_season" },
+  blocks: [
+    { name: "Base strength", block_type: "volume", weeks: [1, 2, 3, 4].map(courtWeek) },
+    { name: "Strength and power", block_type: "strength", weeks: [5, 6, 7, 8].map(courtWeek) }
+  ]
+};
+const courtInSeasonWeek = (week) => {
+  const pct = at(IN_PCT, week);
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  return [
+    { title: "Early-week session", items: [
+      ex("back_squat", s(3), 3, { pct }, 180), tendonHold(3), ex("pull_up", s(3), 5, { rpe: 7 }, 120),
+      ex("nordic_curl", 2, 4, "bw", 90), ex("single_leg_calf_raise", 2, 10, { rpe: 8 }, 60)
+    ] },
+    { title: "Mid-week session", items: [
+      ex("medicine_ball_chest_pass", 3, 4, { kg: 4 }, 75), ex("trap_bar_deadlift", s(3), 3, { pct }, 180), ex("landmine_press", s(3), 5, { rpe: 7 }, 90),
+      ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] }
+  ];
+};
+const courtInSeason = {
+  key: "court_in_season",
+  template_name: "Court-sport in-season maintenance",
+  activity_id: "general_strength",
+  description: "Two short, heavy sessions a week through the season for netball, basketball and volleyball: no extra jumping (games and practice supply it), heavy low-rep lifting, patellar-tendon holds, and groin and shoulder care. Every fourth week is lighter.",
+  listing: { title: "Court-sport in-season maintenance (12 weeks)", summary: "Netball, basketball and volleyball. Two short, heavy sessions a week, no extra jumping - games supply it - with patellar-tendon holds and groin and shoulder care. Your match week keeps heavy legs away from the day before a game.", levels: ["amateur", "pro"], activity_ids: COURT_SPORTS, days_per_week: 2, next: "court_off_season" },
+  blocks: [{ name: "In season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => courtInSeasonWeek(i + 1)) }]
 };
 
 // ---------------------------------------------------------------------------
@@ -880,7 +1055,10 @@ const proVersion = (amateur, title) => ({
   blocks: amateur.blocks.map((block) => ({ ...block, weeks: block.weeks.map((week) => week.map(proSession)) }))
 });
 const PRO_VERSIONS = [
-  proVersion(teamOffSeason, "Off-season strength build - pro (8 weeks)"),
+  proVersion(collisionForwardsOffSeason, "Collision off-season: forwards and linemen - pro (12 weeks)"),
+  proVersion(collisionBacksOffSeason, "Collision off-season: backs and skill players - pro (12 weeks)"),
+  proVersion(fieldIceOffSeason, "Field and ice off-season build - pro (8 weeks)"),
+  proVersion(courtOffSeason, "Court-sport off-season build - pro (8 weeks)"),
   proVersion(tennisOffSeason, "Tennis off-season build - pro (8 weeks)"),
   proVersion(cricketOffSeason, "Cricket off-season build - pro (8 weeks)"),
   proVersion(combatBuild, "Combat strength and power - pro (8 weeks)"),
@@ -890,7 +1068,8 @@ const PRO_VERSIONS = [
 ];
 
 export const PROGRAMMES = [
-  beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep, teamOffSeason, teamInSeason,
+  beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
+  collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
   enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
   cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsSeason,
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
