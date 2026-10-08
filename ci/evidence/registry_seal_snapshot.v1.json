@@ -26,7 +26,7 @@
     },
     {
       "path": "registries/program/program.registry.json",
-      "sha256": "b0e0a425740c388c27cc3838a4d78d1d71ffd267859bd165dc3428947f382cdc"
+      "sha256": "20c1159342d804bca12eefa339057b697882373c80c10e997fc9d7504e2c87c4"
     },
     {
       "path": "registries/equipment/equipment.registry.json",
