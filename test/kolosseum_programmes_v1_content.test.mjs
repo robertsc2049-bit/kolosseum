@@ -443,3 +443,12 @@ test("a fast bowler's off-season is built around his injuries: Nordic curls, fro
 test("a beginner footballer, netballer or tennis player does Nordic curls, Copenhagen planks and landing practice from week one", () => {
   for (const week of weeksOf("beginner_field_court_foundation")) for (const id of ["nordic_curl", "copenhagen_plank", "drop_to_stick"]) assert.ok(weekHas(week, (i) => i.id === id), id);
 });
+
+test("a strongman trains the contest implements, not the same five events every week: keg, frame, real farmer's handles, Husafell, duck walk, vehicle pull, circus dumbbell, Viking press and a timed medley in every four-week block", () => {
+  const weeks = weeksOf("strongman_strength_events");
+  for (const block of [weeks.slice(0, 4), weeks.slice(4, 8)]) {
+    const ids = new Set(block.flat().flatMap((s) => s.items.map((i) => i.id)));
+    for (const id of ["keg_carry", "keg_load", "frame_carry", "strongman_farmers_walk", "husafell_stone_carry", "duck_walk", "vehicle_pull", "circus_dumbbell_press", "viking_press", "frame_deadlift", "atlas_stone_load", "atlas_stone_over_bar"]) assert.ok(ids.has(id), id);
+    assert.ok(block.flat().some((s) => s.title === "Event day" && s.items.every((i) => i.group?.type === "for_time")), "a timed medley");
+  }
+});
