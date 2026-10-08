@@ -140,11 +140,19 @@ gains have stalled and progress now comes week to week.
 per muscle group while keeping each session manageable. Each half of the body
 gets a heavier strength day (5s) and a lighter volume day (8–12s): the classic
 heavy/light pairing for intermediates. Main lifts follow a 4-week wave (3
-building weeks, then a deload), and the second wave starts 2.5% higher.
+building weeks, then a deload), and the second wave starts 2.5% higher. The
+heavy 5s top out at 80%: four sets of 5 at 82.5% is about 95% of a 5-rep max,
+where reps get missed.
+
+**Re-setting the max:** in weeks 3 and 7 the last set of each main lift
+(bench, squat, deadlift) is a rep-out - as many good reps as possible,
+stopping one short of failure. The reps update the athlete's estimated max,
+so the next wave (and the next run of the programme) starts from where they
+are now, not from an old max.
 
 | Upper 1 (strength) | Sets × reps | Load |
 |---|---|---|
-| Bench press | 4 × 5 | 75 / 77.5 / 80 / 65% |
+| Bench press | 4 × 5 | 72.5 / 75 / 77.5 / 62.5% (rep-out in week 3) |
 | Barbell row | 4 × 6 | 70 / 72.5 / 75 / 60% |
 | Overhead press | 3 × 6 | 70 / 72.5 / 75 / 60% |
 | Pull-up | 3 × 6–8 | RPE 8 |
@@ -152,7 +160,7 @@ building weeks, then a deload), and the second wave starts 2.5% higher.
 
 | Lower 1 (strength) | Sets × reps | Load |
 |---|---|---|
-| Back squat | 4 × 5 | 75 / 77.5 / 80 / 65% |
+| Back squat | 4 × 5 | 72.5 / 75 / 77.5 / 62.5% (rep-out in week 3) |
 | Romanian deadlift | 3 × 8 | 65 / 67.5 / 70 / 60% |
 | Bulgarian split squat | 3 × 8 each leg | RPE 8 |
 | Lying leg curl | 3 × 10 | RPE 8 |
@@ -326,7 +334,7 @@ blocks. Every fourth week is lighter.
 | Sets × reps | 3 × 8 | 4 × 5 | 4 × 4 |
 | Load | 65 → 70% (60% week 4) | 77.5 → 82.5% (70% week 8) | 82.5 → 87.5% (75% week 12) |
 
-### 5a. Run and ride strength (athletics, cycling, triathlon · 2 days a week · 12 weeks)
+### 5a. Run and ride strength (distance running, cycling · 2 days a week · 12 weeks)
 
 | Strength A (squat) | Sets × reps | Load |
 |---|---|---|
@@ -350,6 +358,17 @@ single-leg calf raises are the most direct way to build their capacity.
 
 Sprinters, jumpers and throwers have their own programmes (section 9).
 Both are listed for athletics, so athletes pick the one for their event.
+
+### 5a-ii. Triathlon strength (2 days a week · 12 weeks)
+
+Triathletes train three sports, so their two sessions combine the run-and-ride
+lower body (the same heavy squat and trap bar deadlift waves, pogo and box
+jumps, calves and shins) with the swimmer's pulling (pull-ups, rows) and
+rotator-cuff work every week.
+
+| Strength A (squat and pull) | Strength B (hinge and row) |
+|---|---|
+| Pogo jump; **back squat**; pull-up 3 × 4–6; single-leg calf raise; band external rotation; side plank | Box jump; **trap bar deadlift**; Bulgarian split squat; seated cable row; side-lying external rotation; tibialis raise |
 
 ### 5b. Swim, row and paddle strength (swimming, rowing, kayaking · 2 days a week · 12 weeks)
 
@@ -628,7 +647,7 @@ Every fourth week is lighter.
 lumbar stress injury. Under-18s can't sign up in the beta, so these
 programmes are written for adults only.
 
-## 9. Athletics sprints, jumps and throws (amateur, pro)
+## 9. Athletics: sprints and jumps, and throws (amateur, pro)
 
 **Why this structure:** sprinting, jumping and throwing are decided by how
 much force an athlete can produce, and how fast. So the gym builds three
@@ -647,10 +666,10 @@ The off-season programme moves from general strength (5s) to max strength
 (3s) to power (2s). That's the classic order: strength first, then turning
 it into speed. Each four-week block ends with a lighter week.
 
-Throwers get rotational and backward overhead throws and a bench press every
-week. If you coach throwers, add more upper-body pressing in the builder.
+Throwers need more strength than sprinters, and more of it, so they have
+their own programme (9c).
 
-### 9a. Sprint, jump and throw power (off-season · 3 days a week · 12 weeks)
+### 9a. Sprint and jump power (off-season · 3 days a week · 12 weeks)
 
 | Main lifts (squat, bench) | Weeks 1–4 | Weeks 5–8 | Weeks 9–12 |
 |---|---|---|---|
@@ -685,7 +704,7 @@ week. If you coach throwers, add more upper-body pressing in the builder.
 
 The power clean assumes the athlete has been taught it.
 
-### 9b. Sprint, jump and throw competition season (2 days a week · 12 weeks)
+### 9b. Athletics competition season (sprints, jumps and throws · 2 days a week · 12 weeks)
 
 | Early-week session | Sets × reps | Load |
 |---|---|---|
@@ -707,6 +726,28 @@ The power clean assumes the athlete has been taught it.
   before a competition.
 - **Lighter weeks:** every fourth week.
 
+### 9c. Throws strength and power (off-season · 4 days a week · 12 weeks)
+
+**Why this structure:** shot, discus, hammer and javelin are decided by
+maximal strength and how fast it's delivered, with far less concern for body
+mass than in sprinting. Throwers lift heavier and more often: four days,
+moving from 5s to 3s to doubles and singles (peaking at 92.5%), with a heavy
+(6 kg) medicine-ball throw in three of the four sessions - backward overhead
+for the shot drive, rotational for discus and hammer, scoop toss for the
+whole-body extension.
+
+| Main lifts (squat, bench) | Weeks 1–4 | Weeks 5–8 | Weeks 9–12 |
+|---|---|---|---|
+| Sets × reps | 5 × 5 | 5 × 3 | 5 × 2 → 4 × 1 |
+| Load | 72.5 → 77.5%, week 4 65% | 82.5 → 87.5%, week 8 75% | 87.5 → 92.5%, week 12 80% |
+
+| Day | Session |
+|---|---|
+| Squat and back throw | Backward overhead medicine ball throw; **back squat**; Romanian deadlift; calf raise; side plank |
+| Bench and rotation | Rotational medicine ball throw; **bench press**; incline bench; pull-up; woodchop; band external rotation |
+| Clean and front squat | Scoop toss; **power clean** (to 85%); front squat; back extension; Copenhagen plank |
+| Overhead and upper volume | **Overhead press**; one-arm row; dumbbell bench; wrist curl; Pallof press |
+
 ## 10. Strongman (amateur, pro · 4 days a week · 12 weeks)
 
 **Why this structure:** three gym days build the base lifts. A separate
@@ -726,12 +767,14 @@ The squat runs 2.5% under the log and deadlift.
 | Log press (main) | Deadlift (main) | Yoke 4 × 20 m | Back squat (main) |
 | Axle press 3 × 5 RPE 8 | RDL 3 × 8 RPE 7 | Farmer's 4 × 30 m | Sandbag lunge 3 × 10 RPE 7 |
 | One-arm row 3 × 10 | Barbell row 4 × 8 | Sandbag carry 3 × 30 m | Pull-up 4 × 5–8 |
-| Face pull, triceps | Plank | Stone carry 3 × 15 m, tyre flip 3 × 4 | Side plank |
+| Face pull, triceps | Axle deadlift 3 × 3 RPE 7, plank | Stone load to platform / over bar (alternate weeks) 4 × 3, tyre flip 3 × 4 | Side plank |
 
 **For the coach:**
-- **Load to platform:** the registry has stone and sandbag *carries* but no
-  load-to-platform or frame. Add them in the builder if your athletes
-  compete with them.
+- **Contest events:** every event-day note says to swap in the contest's
+  implement, weight and distance once the events are announced - a contest
+  prep trains the events in the contest.
+- **Stones:** loaded to a platform on odd weeks and over a bar on even
+  weeks; the axle deadlift trains grip and the common contest deadlift.
 - **Event weights:** these are by effort. Contest weights belong to the
   athlete.
 
@@ -766,14 +809,14 @@ strength. Muscle-ups are practised strict and fresh.
   added weight. A true street-lifting e1RM includes bodyweight. That's a
   product gap, noted in the review.
 
-## 12. HYROX (amateur, pro · 3 days a week · 12 weeks)
+## 12. HYROX (amateur, pro · 5 days a week · 12 weeks)
 
 **Why this structure:** HYROX is 8 × 1 km runs, each followed by a station,
 in a fixed order:
 
 1. SkiErg 1,000 m
 2. Sled push
-3. Sled pull
+3. Sled pull (hand over hand on a rope)
 4. Burpee broad jumps 80 m
 5. Row 1,000 m
 6. Farmer's carry
@@ -781,7 +824,8 @@ in a fixed order:
 8. Wall balls
 
 The deciding quality is **compromised running**: running well straight
-after station work. So the programme has three days:
+after station work - and the running itself is half the race. So the
+programme has five days:
 - **Strength:** squat, RDL, a heavy sled push and pull-ups.
 - **Compromised running:** rounds of a 1 km run straight into a pair of
   stations, as one For Time piece. The pair rotates through all eight
@@ -792,12 +836,14 @@ after station work. So the programme has three days:
   taper.
 - **Station strength-endurance:** an AMRAP of wall balls, sandbag lunges,
   farmer's carry and rowing, plus hard SkiErg repeats.
+- **Threshold run:** 2–4 repeats of 6–15 minutes at a comfortably hard
+  effort (a pace you could hold for about an hour), 2 minutes easy between.
+- **Easy run:** 5–10 km at conversational pace - the aerobic base the
+  whole race runs on.
 
 **Division weights** (Open/Pro, men's/women's) are never set here. Every
-station note says to use your division's race weight. The backward sled drag
-stands in for the sled pull (the registry has no rope sled pull). The
-athlete's own easy and threshold running stays theirs, and the programme
-doesn't replace it.
+station note says to use your division's race weight. The sled pull is the
+race's rope pull, hand over hand from the box.
 
 ## 13. CrossFit (amateur, pro · 4 days a week · 8 weeks)
 
@@ -806,10 +852,17 @@ conditioning piece a day, in a deliberately different time domain:
 
 | Day | First | Then |
 |---|---|---|
-| 1 | Back squat 5 × 5 | **For Time** (8 min cap): thrusters and pull-ups |
-| 2 | Power clean + push jerk 5 × 2 | **AMRAP** 12 min: swings, box jumps, burpees |
-| 3 | Strict pull-ups, strict handstand push-ups | **EMOM** 12 min: double-unders / toes-to-bar |
-| 4 | Snatch 5 × 2 | **Chipper For Time** (20 min cap): row, wall balls, toes-to-bar, swings, bike |
+| 1 | Back squat 5 × 5 | **For Time** (8 min cap) |
+| 2 | Power clean + push jerk 5 × 2 | **AMRAP** 12 min |
+| 3 | Strict pull-ups, strict handstand push-ups | **EMOM** 12 min |
+| 4 | Snatch 5 × 2 | **Chipper For Time** (20 min cap) |
+
+**Varied, with a benchmark:** each time domain has four different workouts
+that rotate week to week (thrusters and pull-ups; wall balls and
+toes-to-bar; rowing and burpees; deadlifts and box jumps for the short For
+Time, and so on), so no workout repeats inside a four-week wave. Week 1's
+short For Time is a benchmark: logged, then repeated in week 8 to show what
+the eight weeks did.
 
 - **Gymnastics:** strict comes before kipping. The notes say kip only with
   10 strict pull-ups.
@@ -862,8 +915,8 @@ day), and a light primer of power snatch, hang power clean and split jerk.
 A full-time athlete has the recovery for more work and the training age for
 advanced methods. So the sport builds each have a pro version: the four
 team off-seasons (collision forwards, collision backs, field and ice, court),
-tennis, cricket, combat, sprint/jump/throw, run and ride, and swim, row and
-paddle.
+tennis, cricket, combat, sprint and jump, run and ride, triathlon, and swim,
+row and paddle.
 
 - **Contrast pairs:** a session that led with a jump, throw or sprint before
   a heavy lift flips the order into a pair: the heavy set first, then

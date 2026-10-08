@@ -71,18 +71,22 @@ const beginnerFullBody = {
 // Heavy and volume days for each half of the body; two 4-week waves (three
 // building weeks and a deload), the second 2.5% heavier.
 const wave = (start) => [start, start + 2.5, start + 5, start - 10, start + 2.5, start + 5, start + 7.5, start - 7.5];
-const UL = { bench: wave(75), squat: wave(75), row: wave(70), ohp: wave(70), rdl: wave(65), deadlift: wave(72.5), front: wave(62.5) };
+const UL = { bench: wave(72.5), squat: wave(72.5), row: wave(70), ohp: wave(70), rdl: wave(65), deadlift: wave(72.5), front: wave(62.5) };
+// Weeks 3 and 7 end each main lift with a rep-out: the reps it gives update
+// the athlete's estimated max, so the next wave starts from where they are.
+const REP_OUT = "Last set: as many good reps as you can, stopping one short of failure - log them; they update your max.";
 const intermediateWeek = (week) => {
   const p = (k) => ({ pct: UL[k][week - 1] });
   const deload = week % 4 === 0;
   const s = (n) => (deload ? Math.max(2, n - 1) : n);
+  const out = week % 4 === 3 ? REP_OUT : undefined;
   return [
     { title: "Upper 1 - strength", items: [
-      ex("bench_press", s(4), 5, p("bench"), 180), ex("barbell_row", s(4), 6, p("row"), 150), ex("overhead_press", s(3), 6, p("ohp"), 150),
+      ex("bench_press", s(4), 5, p("bench"), 180, out), ex("barbell_row", s(4), 6, p("row"), 150), ex("overhead_press", s(3), 6, p("ohp"), 150),
       ex("pull_up", s(3), [6, 8], { rpe: 8 }, 120), ex("cable_triceps_pressdown", s(3), 12, { rpe: 8 }, 75)
     ] },
     { title: "Lower 1 - strength", items: [
-      ex("back_squat", s(4), 5, p("squat"), 180), ex("romanian_deadlift", s(3), 8, p("rdl"), 150), ex("bulgarian_split_squat", s(3), 8, { rpe: 8 }, 90),
+      ex("back_squat", s(4), 5, p("squat"), 180, out), ex("romanian_deadlift", s(3), 8, p("rdl"), 150), ex("bulgarian_split_squat", s(3), 8, { rpe: 8 }, 90),
       ex("lying_leg_curl", s(3), 10, { rpe: 8 }, 75), ex("side_plank", s(3), { seconds: 30 }, "bw", 60)
     ] },
     { title: "Upper 2 - volume", items: [
@@ -90,7 +94,7 @@ const intermediateWeek = (week) => {
       ex("dumbbell_lateral_raise", s(3), 15, { rpe: 8 }, 60), ex("face_pull", s(3), 15, { rpe: 7 }, 60)
     ] },
     { title: "Lower 2 - volume", items: [
-      ex("deadlift", s(3), 5, p("deadlift"), 180), ex("front_squat", s(3), 8, p("front"), 150), ex("walking_lunge", s(3), 10, { rpe: 8 }, 90),
+      ex("deadlift", s(3), 5, p("deadlift"), 180, out), ex("front_squat", s(3), 8, p("front"), 150), ex("walking_lunge", s(3), 10, { rpe: 8 }, 90),
       ex("barbell_hip_thrust", s(3), 10, { rpe: 8 }, 90), ex("standing_calf_raise", s(3), 15, { rpe: 8 }, 60)
     ] }
   ];
@@ -402,9 +406,9 @@ const courtInSeason = {
 // volume stays low so it fits around the athlete's own training.
 // Runners, cyclists and triathletes lift with a lower-body bias; swimmers,
 // rowers and paddlers get more pulling and shoulder work.
-const RUN_RIDE_SPORTS = ["athletics", "cycling", "triathlon"];
+const RUN_RIDE_SPORTS = ["athletics", "cycling"];
 const SWIM_ROW_PADDLE_SPORTS = ["swimming", "rowing", "kayaking"];
-const ENDURANCE_SPORTS = [...RUN_RIDE_SPORTS, ...SWIM_ROW_PADDLE_SPORTS];
+const ENDURANCE_SPORTS = [...RUN_RIDE_SPORTS, "triathlon", ...SWIM_ROW_PADDLE_SPORTS];
 
 // [sets, reps, %] per week for the main lifts: four weeks of technique and
 // tissue preparation at 8s, then heavier 5s, then 4s; every fourth week lighter.
@@ -431,12 +435,40 @@ const enduranceRunRide = {
   key: "endurance_run_ride_strength",
   template_name: "Run and ride strength",
   activity_id: "general_strength",
-  description: "Twelve weeks, two short sessions a week, for distance runners, cyclists and triathletes: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
-  listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners, cyclists and triathletes. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2, next: "endurance_in_season" },
+  description: "Twelve weeks, two short sessions a week, for distance runners and cyclists: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
+  listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners and cyclists. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2, next: "endurance_in_season" },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(runRideWeek) },
     { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(runRideWeek) },
     { name: "Heavy strength 2", block_type: "strength", weeks: [9, 10, 11, 12].map(runRideWeek) }
+  ]
+};
+
+// Triathletes: the run-and-ride lower body plus the swimmer's pulling and
+// rotator-cuff work - three sports, one short programme.
+const triathlonWeek = (week) => {
+  const { sets, reps, pct, s, plyoSets } = enduranceWeekShape(week);
+  return [
+    { title: "Strength A - squat and pull", items: [
+      ex("pogo_jump", plyoSets, 10, "bw", 90), ex("back_squat", sets, reps, { pct }, 180), ex("pull_up", s(3), [4, 6], { rpe: 8 }, 120),
+      ex("single_leg_calf_raise", s(3), 8, { rpe: 8 }, 75), ex("band_external_rotation", 2, 15, { rpe: 6 }, 45), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Strength B - hinge and row", items: [
+      ex("box_jump", plyoSets, 3, "bw", 90), ex("trap_bar_deadlift", sets, reps, { pct }, 180), ex("bulgarian_split_squat", s(3), 6, { rpe: 8 }, 90),
+      ex("seated_cable_row", s(3), 8, { rpe: 8 }, 75), ex("side_lying_external_rotation", 2, 12, { rpe: 7 }, 45), ex("wall_tibialis_raise", 2, 15, "bw", 45)
+    ] }
+  ];
+};
+const triathlonStrength = {
+  key: "triathlon_strength",
+  template_name: "Triathlon strength",
+  activity_id: "general_strength",
+  description: "Twelve weeks, two short sessions a week, for triathletes: heavy, low-rep squats and deadlifts for run and bike economy, plyometrics for a stiffer lower leg, pull-ups and rows for the swim, and rotator-cuff, calf and shin work for robustness across three sports.",
+  listing: { title: "Triathlon strength (12 weeks)", summary: "For triathletes. Two short sessions a week: heavy, low-rep leg strength for the bike and run, pulling for the swim, jumps, and the shoulder, calf and shin work that keeps you training across three sports.", levels: ["amateur", "pro"], activity_ids: ["triathlon"], days_per_week: 2, next: "endurance_in_season" },
+  blocks: [
+    { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(triathlonWeek) },
+    { name: "Heavy strength", block_type: "strength", weeks: [5, 6, 7, 8].map(triathlonWeek) },
+    { name: "Heavy strength 2", block_type: "strength", weeks: [9, 10, 11, 12].map(triathlonWeek) }
   ]
 };
 
@@ -700,14 +732,56 @@ const athleticsPowerWeek = (week) => {
 };
 const athleticsPowerBuild = {
   key: "athletics_power_build",
-  template_name: "Sprint, jump and throw power",
+  template_name: "Sprint and jump power",
   activity_id: "general_strength",
-  description: "Twelve weeks, three days a week, in the general preparation phase for sprinters, jumpers and throwers: general strength (5s), max strength (3s), then power (2s), with jumps, throws and power cleans every week and hamstring, calf and hip flexor work for sprinters. Track sessions stay with your coach.",
-  listing: { title: "Sprint, jump and throw power (12 weeks)", summary: "For sprinters, jumpers and throwers in the off-season. Three days a week: heavy squats and power cleans moving from 5s to 3s to 2s, jumps and medicine ball throws every session, plus hamstring, calf and hip flexor work. Sits alongside your track sessions.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 3, next: "athletics_competition_season" },
+  description: "Twelve weeks, three days a week, in the general preparation phase for sprinters and jumpers: general strength (5s), max strength (3s), then power (2s), with jumps, throws and power cleans every week and hamstring, calf and hip flexor work for sprinters. Track sessions stay with your coach.",
+  listing: { title: "Sprint and jump power (12 weeks)", summary: "For sprinters and jumpers in the off-season. Three days a week: heavy squats and power cleans moving from 5s to 3s to 2s, jumps and medicine ball throws every session, plus hamstring, calf and hip flexor work. Sits alongside your track sessions.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 3, next: "athletics_competition_season" },
   blocks: [
     { name: "General strength", block_type: "volume", weeks: [1, 2, 3, 4].map(athleticsPowerWeek) },
     { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(athleticsPowerWeek) },
     { name: "Power", block_type: "peak", weeks: [9, 10, 11, 12].map(athleticsPowerWeek) }
+  ]
+};
+
+// Throwers (shot, discus, hammer, javelin): more strength and more of it -
+// four days, heavier and closer to max than sprinters, with heavy
+// medicine-ball throws in every session and Olympic lifts for power.
+const THROWS_MAIN = [[5, 5, 72.5], [5, 5, 75], [5, 5, 77.5], [3, 5, 65], [5, 3, 82.5], [5, 3, 85], [5, 3, 87.5], [3, 3, 75], [5, 2, 87.5], [4, 2, 90], [4, 1, 92.5], [3, 2, 80]];
+const throwsWeek = (week) => {
+  const [sets, reps, pct] = THROWS_MAIN[week - 1];
+  const lighter = week % 4 === 0;
+  const s = (n) => (lighter ? Math.max(2, n - 1) : n);
+  const cleanPct = Math.min(pct, 85);
+  return [
+    { title: "Squat and back throw", items: [
+      ex("backward_overhead_medicine_ball_throw", s(5), 3, { kg: 6 }, 90, "Heavy ball, full extension: the drive out of the back of the circle."), ex("back_squat", sets, reps, { pct }, 240),
+      ex("romanian_deadlift", s(3), 6, { rpe: 8 }, 150), ex("single_leg_calf_raise", 2, 8, { rpe: 8 }, 60), ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Bench and rotation", items: [
+      ex("medicine_ball_rotational_throw", s(5), 4, { kg: 6 }, 90, "Hips lead, arm last - throw through the wall."), ex("bench_press", sets, reps, { pct }, 210),
+      ex("incline_bench_press", s(3), 6, { rpe: 8 }, 150), ex("pull_up", s(3), [5, 8], { rpe: 8 }, 120), ex("cable_woodchop", s(3), 8, { rpe: 8 }, 60),
+      ex("band_external_rotation", 2, 15, { rpe: 6 }, 45, "Javelin: never skip this.")
+    ] },
+    { title: "Clean and front squat", items: [
+      ex("medicine_ball_scoop_toss", s(4), 3, { kg: 6 }, 90), ex("power_clean", s(5), Math.min(reps, 3), { pct: cleanPct }, 180),
+      ex("front_squat", s(4), Math.min(reps, 5), { pct: pct - 10 }, 180), ex("back_extension", s(3), 10, "bw", 60), ex("copenhagen_plank", 2, { seconds: 20 }, "bw", 45)
+    ] },
+    { title: "Overhead and upper volume", items: [
+      ex("overhead_press", s(4), Math.min(reps, 5), { pct: pct - 10 }, 180), ex("single_arm_dumbbell_row", s(3), 8, { rpe: 8 }, 75),
+      ex("dumbbell_bench_press", s(3), 8, { rpe: 8 }, 90), ex("barbell_wrist_curl", 2, 12, { rpe: 7 }, 45), ex("pallof_press", 2, 10, { rpe: 7 }, 45)
+    ] }
+  ];
+};
+const athleticsThrows = {
+  key: "athletics_throws_build",
+  template_name: "Throws strength and power",
+  activity_id: "general_strength",
+  description: "Twelve weeks, four days a week, in the general preparation phase for shot, discus, hammer and javelin throwers: heavy squats, benches, cleans and presses moving from 5s to 3s to doubles and singles, heavy medicine-ball throws in every session, and trunk, rotator-cuff and groin work. Technical throwing stays with your coach.",
+  listing: { title: "Throws strength and power (12 weeks)", summary: "For shot, discus, hammer and javelin throwers in the off-season. Four days a week: heavy squats, benches, cleans and presses from 5s to singles, heavy medicine-ball throws every session, and trunk and shoulder work. Sits alongside your throwing.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 4, next: "athletics_competition_season" },
+  blocks: [
+    { name: "General strength", block_type: "volume", weeks: [1, 2, 3, 4].map(throwsWeek) },
+    { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(throwsWeek) },
+    { name: "Power", block_type: "peak", weeks: [9, 10, 11, 12].map(throwsWeek) }
   ]
 };
 
@@ -728,10 +802,10 @@ const athleticsSeasonWeek = (week) => {
 };
 const athleticsSeason = {
   key: "athletics_competition_season",
-  template_name: "Sprint, jump and throw competition season",
+  template_name: "Athletics competition season",
   activity_id: "general_strength",
   description: "Two short, heavy sessions a week through the competition season to hold strength and power while staying fast. Every fourth week is lighter; in a competition week, do the early session only, and never in the 48 hours before you compete.",
-  listing: { title: "Sprint, jump and throw competition season (12 weeks)", summary: "Hold your strength and power through the competition season: two short, heavy sessions a week, low volume so you stay fast. In a competition week, do the early session only, and never in the 48 hours before you compete.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 2, next: "athletics_power_build" },
+  listing: { title: "Athletics competition season (12 weeks)", summary: "Sprinters, jumpers and throwers. Hold your strength and power through the competition season: two short, heavy sessions a week, low volume so you stay fast. In a competition week, do the early session only, and never in the 48 hours before you compete.", levels: ["amateur", "pro"], activity_ids: ["athletics"], days_per_week: 2, next: "athletics_power_build" },
   blocks: [{ name: "Competition season", block_type: "general", weeks: Array.from({ length: 12 }, (_, i) => athleticsSeasonWeek(i + 1)) }]
 };
 
@@ -747,7 +821,8 @@ const strongmanWeek = (week) => {
   const lighter = week % 4 === 0 || week === 12;
   const s = (n) => (lighter ? Math.max(2, n - 1) : n);
   const rpe = STRONGMAN_EVENT_RPE[week - 1];
-  const hold = "Choose a weight you can take the full distance at this effort; log it.";
+  const hold = "Choose a weight you can take the full distance at this effort; log it. Swap in your contest's implement and distance once it's announced.";
+  const stone = week % 2 === 1 ? "atlas_stone_load" : "atlas_stone_over_bar";
   return [
     { title: "Overhead day", items: [
       ex("strongman_log_press", sets, reps, { pct }, 210, "Clean the log each rep unless your contest allows a single clean."),
@@ -755,12 +830,12 @@ const strongmanWeek = (week) => {
       ex("face_pull", 3, 15, { rpe: 7 }, 45), ex("cable_triceps_pressdown", s(3), 12, { rpe: 8 }, 60)
     ] },
     { title: "Deadlift day", items: [
-      ex("deadlift", sets, reps, { pct }, 240), ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120),
+      ex("deadlift", sets, reps, { pct }, 240), ex("axle_deadlift", s(3), 3, { rpe: 7 }, 180, "Double overhand: the axle is a grip test as much as a pull."), ex("romanian_deadlift", s(3), 8, { rpe: 7 }, 120),
       ex("barbell_row", s(4), 8, { rpe: 8 }, 90), ex("front_plank", 3, { seconds: 45 }, "bw", 60)
     ] },
     { title: "Event day", items: [
       ex("yoke_walk", s(4), { metres: 20 }, { rpe }, 150, hold), ex("farmers_carry", s(4), { metres: 30 }, { rpe }, 120, hold),
-      ex("sandbag_carry", s(3), { metres: 30 }, { rpe: Math.min(rpe, 8) }, 120, hold), ex("atlas_stone_carry", s(3), { metres: 15 }, { rpe: Math.min(rpe, 8) }, 120, hold),
+      ex("sandbag_carry", s(3), { metres: 30 }, { rpe: Math.min(rpe, 8) }, 120, hold), ex(stone, s(4), 3, { rpe: Math.min(rpe, 8) }, 150, "Lap, re-grip, extend. Work up to the effort; your contest's stone series replaces this once announced."),
       ex("tire_flip", s(3), 4, { rpe: Math.min(rpe, 8) }, 120)
     ] },
     { title: "Squat day", items: [
@@ -773,8 +848,8 @@ const strongmanBuild = {
   key: "strongman_strength_events",
   template_name: "Strongman strength and events",
   activity_id: "strongman",
-  description: "Twelve weeks, four days a week: log, deadlift and squat waves on three gym days (5s, then 3s, then doubles and singles) and a separate event day on the yoke, farmer's, sandbag, stones and tyre at a hard but not maximal effort. Every fourth week is lighter, and the last week eases off before a contest.",
-  listing: { title: "Strongman strength and events (12 weeks)", summary: "Three gym days building your log, deadlift and squat from 5s to singles, and one event day on the yoke, farmer's, sandbag, stones and tyre - hard, never a max every week. Lighter every fourth week, and the last week eases off for a contest.", levels: ["amateur", "pro"], activity_ids: ["strongman"], days_per_week: 4, next: "intermediate_upper_lower" },
+  description: "Twelve weeks, four days a week: log, deadlift and squat waves on three gym days (5s, then 3s, then doubles and singles) and a separate event day on the yoke, farmer's, sandbag, stone loading (to a platform and over a bar on alternate weeks) and tyre at a hard but not maximal effort - swap in your contest's events once they're announced. Axle deadlifts for grip and the contest deadlift. Every fourth week is lighter, and the last week eases off before a contest.",
+  listing: { title: "Strongman strength and events (12 weeks)", summary: "Three gym days building your log, deadlift and squat from 5s to singles, and one event day on the yoke, farmer's, sandbag, stone loading and tyre - hard, never a max every week; swap in your contest's events. Lighter every fourth week, and the last week eases off for a contest.", levels: ["amateur", "pro"], activity_ids: ["strongman"], days_per_week: 4, next: "intermediate_upper_lower" },
   blocks: [
     { name: "Base", block_type: "volume", weeks: [1, 2, 3, 4].map(strongmanWeek) },
     { name: "Build", block_type: "strength", weeks: [5, 6, 7, 8].map(strongmanWeek) },
@@ -842,7 +917,7 @@ const race = "Race weight for your division (Open or Pro, men's or women's).";
 const station = {
   ski: (sets) => ex("ski_erg", sets, { metres: 1000 }, { rpe: 8 }, 0),
   push: (sets) => ex("sled_push", sets, { metres: 50 }, { rpe: 8 }, 0, race),
-  pull: (sets) => ex("backward_sled_drag", sets, { metres: 50 }, { rpe: 8 }, 0, `Stands in for the sled pull. ${race}`),
+  pull: (sets) => ex("sled_rope_pull", sets, { metres: 50 }, { rpe: 8 }, 0, `Hand over hand, standing in the box. ${race}`),
   bbj: (sets) => ex("burpee_broad_jump", sets, { metres: 80 }, "bw", 0),
   row: (sets) => ex("rowing_ergometer", sets, { metres: 1000 }, { rpe: 8 }, 0),
   farmers: (sets) => ex("farmers_carry", sets, { metres: 200 }, { rpe: 8 }, 0, race),
@@ -861,6 +936,10 @@ const raceSimulation = () => group("for_time", { cap: 75 * 60 }, [
   ...["ski", "push", "pull", "bbj", "row", "farmers", "lunge", "wallball"].map((name) => station[name](1))
 ]);
 const HYROX_SQUAT = [72.5, 75, 77.5, 65, 77.5, 80, 82.5, 70, 80, 82.5, 75, 65];
+// Running is half the race. Threshold: [repeats, minutes] at a comfortably
+// hard effort, 2 min easy between; easy aerobic run in km.
+const HYROX_THRESHOLD = [[3, 8], [3, 9], [4, 8], [2, 8], [4, 9], [4, 10], [3, 12], [3, 8], [2, 15], [2, 10], [3, 10], [2, 6]];
+const HYROX_EASY = [6, 7, 8, 5, 8, 9, 10, 6, 10, 7, 8, 5];
 const HYROX_ROUNDS = [2, 2, 3, 2, 3, 3, 4, 3, 4, 0, 3, 2];
 const hyroxWeek = (week) => {
   const lighter = week % 4 === 0 || week === 12;
@@ -879,6 +958,13 @@ const hyroxWeek = (week) => {
         ex("farmers_carry", 1, { metres: 50 }, { rpe: 8 }, 0, race), ex("rowing_ergometer", 1, { metres: 250 }, { rpe: 8 }, 0)
       ]),
       ex("ski_erg", s(4), { metres: 500 }, { rpe: 8 }, 90, "Hard repeats with 90 s rest.")
+    ] },
+    { title: "Threshold run", items: [
+      ex("tempo_run", HYROX_THRESHOLD[week - 1][0], { seconds: HYROX_THRESHOLD[week - 1][1] * 60 }, { rpe: 7 }, 120, "Comfortably hard: a pace you could hold for about an hour. 2 min easy jog between."),
+      ex("side_plank", 2, { seconds: 30 }, "bw", 45)
+    ] },
+    { title: "Easy run", items: [
+      ex("easy_run", 1, { metres: HYROX_EASY[week - 1] * 1000 }, { rpe: 5 }, 0, "Conversational pace the whole way - this builds the engine the race runs on.")
     ] }
   ];
 };
@@ -886,8 +972,8 @@ const hyroxBuild = {
   key: "hyrox_race_build",
   template_name: "HYROX race build",
   activity_id: "hyrox",
-  description: "Twelve weeks, three days a week, to a HYROX race: a strength day, a compromised-running day (rounds of a 1 km run straight into a pair of stations, through all eight in race order, and an all-station race simulation in week 10) and a station strength-endurance day. Station weights follow your division. Your own easy and threshold runs stay yours. Every fourth week is lighter and the last week is a taper.",
-  listing: { title: "HYROX race build (12 weeks)", summary: "A strength day, a compromised-running day - rounds of a 1 km run straight into the stations, and an all-station race simulation in week 10 - and a station strength-endurance day. Station weights follow your division; keep your own easy runs. Lighter every fourth week, then a taper.", levels: ["amateur", "pro"], activity_ids: ["hyrox"], days_per_week: 3, next: "intermediate_upper_lower" },
+  description: "Twelve weeks, five days a week, to a HYROX race: a strength day, a compromised-running day (rounds of a 1 km run straight into a pair of stations, through all eight in race order, and an all-station race simulation in week 10), a station strength-endurance day, a threshold run and an easy aerobic run - running is half the race. Station weights follow your division. Every fourth week is lighter and the last week is a taper.",
+  listing: { title: "HYROX race build (12 weeks)", summary: "Five days a week: strength, compromised running - 1 km runs straight into the stations, with a full race simulation in week 10 - station strength-endurance, a threshold run and an easy run. Station weights follow your division. Lighter every fourth week, then a taper.", levels: ["amateur", "pro"], activity_ids: ["hyrox"], days_per_week: 5, next: "intermediate_upper_lower" },
   blocks: [
     { name: "Base", block_type: "general", weeks: [1, 2, 3, 4].map(hyroxWeek) },
     { name: "Build", block_type: "volume", weeks: [5, 6, 7, 8].map(hyroxWeek) },
@@ -903,37 +989,58 @@ const hyroxBuild = {
 // an AMRAP, an EMOM and a longer chipper. Strict before kipping; Olympic
 // lifts in low reps, never high reps under fatigue.
 const CF_PCT = [72.5, 75, 77.5, 65, 77.5, 80, 82.5, 70];
+const rx = "Rx or scaled - log which.";
+// Each pool: four workouts in one time domain, rotated week to week.
+const CF_SHORT = [
+  () => [ex("thruster", 3, 12, { rpe: 7 }, 0, rx), ex("pull_up", 3, 12, "bw", 0, "Kip only once you have 10 strict.")],
+  () => [ex("wall_ball", 3, 15, { rpe: 7 }, 0, rx), ex("toes_to_bar", 3, 12, "bw", 0, "Scale to knee raises.")],
+  () => [ex("rowing_ergometer", 3, { metres: 500 }, { rpe: 8 }, 0), ex("burpee", 3, 12, "bw", 0)],
+  () => [ex("deadlift", 3, 10, { rpe: 7 }, 0, rx), ex("box_jump", 3, 12, "bw", 0, "Step down.")]
+];
+const CF_AMRAP = [
+  () => [ex("kettlebell_swing", 1, 15, { rpe: 7 }, 0), ex("box_jump", 1, 10, "bw", 0, "Step down."), ex("burpee", 1, 10, "bw", 0)],
+  () => [ex("wall_ball", 1, 15, { rpe: 7 }, 0, rx), ex("pull_up", 1, 10, "bw", 0), ex("rowing_ergometer", 1, { metres: 250 }, { rpe: 8 }, 0)],
+  () => [ex("double_under", 1, 50, "bw", 0, "Scale to 100 single-unders."), ex("kettlebell_swing", 1, 20, { rpe: 7 }, 0), ex("push_up", 1, 15, "bw", 0)],
+  () => [ex("bike_ergometer", 1, { metres: 500 }, { rpe: 8 }, 0), ex("air_squat", 1, 20, "bw", 0), ex("toes_to_bar", 1, 10, "bw", 0, "Scale to knee raises.")]
+];
+const CF_EMOM = [
+  () => [ex("double_under", 1, 40, "bw", 0, "Scale to 80 single-unders."), ex("toes_to_bar", 1, 10, "bw", 0, "Scale to knee raises.")],
+  () => [ex("rowing_ergometer", 1, { metres: 200 }, { rpe: 8 }, 0), ex("burpee", 1, 8, "bw", 0)],
+  () => [ex("kettlebell_swing", 1, 15, { rpe: 7 }, 0), ex("air_squat", 1, 15, "bw", 0)],
+  () => [ex("wall_ball", 1, 12, { rpe: 7 }, 0, rx), ex("double_under", 1, 30, "bw", 0, "Scale to 60 single-unders.")]
+];
+const CF_CHIPPER = [
+  () => [ex("rowing_ergometer", 1, { metres: 1000 }, { rpe: 8 }, 0), ex("wall_ball", 1, 40, { rpe: 7 }, 0), ex("toes_to_bar", 1, 30, "bw", 0), ex("kettlebell_swing", 1, 30, { rpe: 7 }, 0), ex("bike_ergometer", 1, { metres: 2000 }, { rpe: 8 }, 0)],
+  () => [ex("ski_erg", 1, { metres: 1000 }, { rpe: 8 }, 0), ex("thruster", 1, 30, { rpe: 7 }, 0, rx), ex("box_jump", 1, 30, "bw", 0, "Step down."), ex("pull_up", 1, 30, "bw", 0), ex("rowing_ergometer", 1, { metres: 1000 }, { rpe: 8 }, 0)],
+  () => [ex("bike_ergometer", 1, { metres: 2000 }, { rpe: 8 }, 0), ex("burpee", 1, 40, "bw", 0), ex("deadlift", 1, 30, { rpe: 7 }, 0, rx), ex("double_under", 1, 100, "bw", 0, "Scale to 200 single-unders."), ex("rowing_ergometer", 1, { metres: 1000 }, { rpe: 8 }, 0)],
+  () => [ex("treadmill_run", 1, { metres: 800 }, { rpe: 8 }, 0, "Outdoors is fine."), ex("wall_ball", 1, 50, { rpe: 7 }, 0, rx), ex("toes_to_bar", 1, 40, "bw", 0), ex("kettlebell_swing", 1, 40, { rpe: 7 }, 0), ex("bike_ergometer", 1, { metres: 1500 }, { rpe: 8 }, 0)]
+];
 const crossfitWeek = (week) => {
   const pct = CF_PCT[week - 1];
   const lighter = week % 4 === 0;
   const s = (n) => (lighter ? Math.max(2, n - 1) : n);
   const capScale = lighter ? 0.75 : 1;
+  const v = (week - 1) % 4;
+  // Week 8 repeats week 1's short workout: the benchmark retest.
+  const benchmark = week === 1 || week === 8;
+  const short = CF_SHORT[benchmark ? 0 : v]().map((item, i) => (benchmark && i === 0 ? { ...item, note: `Benchmark: ${week === 1 ? "log your time - you'll repeat this in week 8" : "your week 1 workout again - beat your time"}. ${rx}` } : item));
   return [
-    { title: "Squat and a short For Time", items: [
+    { title: benchmark ? "Squat and the benchmark" : "Squat and a short For Time", items: [
       ex("back_squat", s(5), 5, { pct }, 180),
-      ...group("for_time", { cap: Math.round(8 * capScale) * 60 }, [
-        ex("thruster", 3, 12, { rpe: 7 }, 0, "Rx or scaled - log which."), ex("pull_up", 3, 12, "bw", 0, "Kip only once you have 10 strict.")
-      ])
+      ...group("for_time", { cap: Math.round(8 * capScale) * 60 }, short)
     ] },
     { title: "Clean and jerk, then an AMRAP", items: [
       ex("power_clean", s(5), 2, { pct }, 120), ex("push_jerk", s(5), 2, { pct }, 120),
-      ...group("amrap", { cap: Math.round(12 * capScale) * 60 }, [
-        ex("kettlebell_swing", 1, 15, { rpe: 7 }, 0), ex("box_jump", 1, 10, "bw", 0, "Step down."), ex("burpee", 1, 10, "bw", 0)
-      ])
+      ...group("amrap", { cap: Math.round(12 * capScale) * 60 }, CF_AMRAP[v]())
     ] },
     { title: "Strict gymnastics, then an EMOM", items: [
       ex("pull_up", s(5), 5, { rpe: 8 }, 120, "Strict. Add weight once 5 are easy."),
       ex("handstand_push_up", s(4), 5, "bw", 120, "Strict; scale to a pike or box handstand push-up."),
-      ...group("emom", { round: 60, rounds: lighter ? 8 : 12 }, [
-        ex("double_under", 1, 40, "bw", 0, "Scale to 80 single-unders."), ex("toes_to_bar", 1, 10, "bw", 0, "Scale to knee raises.")
-      ])
+      ...group("emom", { round: 60, rounds: lighter ? 8 : 12 }, CF_EMOM[v]().filter((item) => item.id !== "pull_up"))
     ] },
     { title: "Snatch, then a chipper", items: [
       ex("snatch", s(5), 2, { pct: pct - 5 }, 150, "Technique first: every rep the same."),
-      ...group("for_time", { cap: Math.round(20 * capScale) * 60 }, [
-        ex("rowing_ergometer", 1, { metres: 1000 }, { rpe: 8 }, 0), ex("wall_ball", 1, 40, { rpe: 7 }, 0),
-        ex("toes_to_bar", 1, 30, "bw", 0), ex("kettlebell_swing", 1, 30, { rpe: 7 }, 0), ex("bike_ergometer", 1, { metres: 2000 }, { rpe: 8 }, 0)
-      ])
+      ...group("for_time", { cap: Math.round(20 * capScale) * 60 }, CF_CHIPPER[v]().filter((item) => item.id !== "snatch"))
     ] }
   ];
 };
@@ -941,8 +1048,8 @@ const crossfitBuild = {
   key: "crossfit_strength_conditioning",
   template_name: "CrossFit strength and conditioning",
   activity_id: "crossfit",
-  description: "Eight weeks, four days a week: strength or skill first while fresh (squat, power clean and push jerk, snatch, strict pull-ups and handstand push-ups), then one conditioning piece a day in a different time domain - a short For Time, an AMRAP, an EMOM and a longer chipper. Strict before kipping, Olympic lifts in low reps. Every fourth week is lighter.",
-  listing: { title: "CrossFit strength and conditioning (8 weeks)", summary: "Four days a week: strength or skill first - squat, Olympic lifts, strict gymnastics - then one conditioning piece in a different time domain each day: a short For Time, an AMRAP, an EMOM and a chipper. Rx or scaled, logged. Lighter every fourth week.", levels: ["amateur", "pro"], activity_ids: ["crossfit"], days_per_week: 4 },
+  description: "Eight weeks, four days a week: strength or skill first while fresh (squat, power clean and push jerk, snatch, strict pull-ups and handstand push-ups), then one conditioning piece a day in a different time domain - a short For Time, an AMRAP, an EMOM and a longer chipper - with four different workouts in each rotating week to week, and week 1's short workout retested as a benchmark in week 8. Strict before kipping, Olympic lifts in low reps. Every fourth week is lighter.",
+  listing: { title: "CrossFit strength and conditioning (8 weeks)", summary: "Four days a week: strength or skill first - squat, Olympic lifts, strict gymnastics - then one conditioning piece in a different time domain each day - different workouts every week, with a benchmark in week 1 retested in week 8. Rx or scaled, logged. Lighter every fourth week.", levels: ["amateur", "pro"], activity_ids: ["crossfit"], days_per_week: 4 },
   blocks: [
     { name: "Wave 1", block_type: "general", weeks: [1, 2, 3, 4].map(crossfitWeek) },
     { name: "Wave 2", block_type: "general", weeks: [5, 6, 7, 8].map(crossfitWeek) }
@@ -1062,16 +1169,17 @@ const PRO_VERSIONS = [
   proVersion(tennisOffSeason, "Tennis off-season build - pro (8 weeks)"),
   proVersion(cricketOffSeason, "Cricket off-season build - pro (8 weeks)"),
   proVersion(combatBuild, "Combat strength and power - pro (8 weeks)"),
-  proVersion(athleticsPowerBuild, "Sprint, jump and throw power - pro (12 weeks)"),
+  proVersion(athleticsPowerBuild, "Sprint and jump power - pro (12 weeks)"),
   proVersion(enduranceRunRide, "Run and ride strength - pro (12 weeks)"),
+  proVersion(triathlonStrength, "Triathlon strength - pro (12 weeks)"),
   proVersion(enduranceSwimRowPaddle, "Swim, row and paddle strength - pro (12 weeks)")
 ];
 
 export const PROGRAMMES = [
   beginnerFullBody, intermediateUpperLower, powerliftingMeetPrep,
   collisionForwardsOffSeason, collisionBacksOffSeason, collisionInSeason, fieldIceOffSeason, fieldIceInSeason, courtOffSeason, courtInSeason,
-  enduranceRunRide, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
-  cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsSeason,
+  enduranceRunRide, triathlonStrength, enduranceSwimRowPaddle, enduranceInSeason, combatBuild, fightCamp, tennisOffSeason, tennisInSeason,
+  cricketOffSeason, cricketInSeason, athleticsPowerBuild, athleticsThrows, athleticsSeason,
   strongmanBuild, streetLifting, hyroxBuild, crossfitBuild, olympicWeightlifting,
   ...PRO_VERSIONS
 ];
