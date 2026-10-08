@@ -810,10 +810,23 @@ The squat runs 2.5% under the log and deadlift.
 
 | Overhead day | Deadlift day | Event day (RPE 7 → 9) | Squat day |
 |---|---|---|---|
-| Log press (main) | Deadlift (main) | Yoke 4 × 20 m | Back squat (main) |
-| Axle press 3 × 5 RPE 8 | RDL 3 × 8 RPE 7 | Farmer's 4 × 30 m | Sandbag lunge 3 × 10 RPE 7 |
-| One-arm row 3 × 10 | Barbell row 4 × 8 | Sandbag carry 3 × 30 m | Pull-up 4 × 5–8 |
-| Face pull, triceps | Axle deadlift 3 × 3 RPE 7, plank | Stone load to platform / over bar (alternate weeks) 4 × 3, tyre flip 3 × 4 | Side plank |
+| Log press (main) | Deadlift (main) | Rotates weekly - see below | Back squat (main) |
+| Axle press / circus dumbbell / Viking press (rotating) | Axle deadlift / frame deadlift (alternating) | | Sandbag lunge 3 × 10 RPE 7 |
+| One-arm row 3 × 10 | RDL 3 × 8, barbell row 4 × 8 | | Pull-up 4 × 5–8 |
+| Face pull, triceps | Plank | | Side plank |
+
+**The event day rotates through the implements contests use**, a different
+set each week of a four-week block:
+
+| Week | Events |
+|---|---|
+| 1 | Yoke, farmer's walk (real handles), stone to platform, tyre flip |
+| 2 | Frame carry, keg carry, stone over bar, sandbag to shoulder |
+| 3 | Husafell stone carry, duck walk, keg load, vehicle pull |
+| 4 | A timed medley: yoke, sandbag, farmer's, stones, one run each against the clock |
+
+The pro version's second event day adds the other overhead event, a vehicle
+pull or Conan's wheel, tyre and a Hercules hold.
 
 **For the coach:**
 - **Contest events:** every event-day note says to swap in the contest's

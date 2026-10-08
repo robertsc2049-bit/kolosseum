@@ -129,7 +129,20 @@ function ReviewCard({
         <button className="button secondary small-button" type="button" onClick={() => onSelect(String(record.session_id))}>View details</button>
         <ReviewActions record={record} compact marking={marking} onMark={onMark} onNote={onNote} />
       </div>
+      <ProgrammeAdjustments record={record} />
     </article>
+  );
+}
+
+// What the app changed about this session on its own (weeks skipped or held
+// to time a taper, a lighter week back), so the coach is never surprised.
+function ProgrammeAdjustments({ record }: { record: ReviewRecord }) {
+  const lines = Array.isArray(record.programme_adjustments) ? (record.programme_adjustments as unknown[]).map(String).filter(Boolean) : [];
+  if (!lines.length) return null;
+  return (
+    <ul className="programme-adjustments" data-testid="programme-adjustments">
+      {lines.map((line) => <li key={line} className="inline-result" data-tone="warning">{line}</li>)}
+    </ul>
   );
 }
 
@@ -164,6 +177,7 @@ function ReviewDetail({
           <p className="eyebrow">Session detail</p>
           <h3>{athleteName}</h3>
           <p>{String(record.session_title ?? "Training session")}</p>
+          <ProgrammeAdjustments record={record} />
         </div>
         <StatusBadge record={record} />
       </div>
