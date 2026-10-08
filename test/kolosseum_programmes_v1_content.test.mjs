@@ -470,3 +470,27 @@ test("a grip athlete trains crush, pinch and wrist every week, attempt-style at 
   const beginner = PROGRAMMES.find((p) => p.key === "beginner_grip_sport_foundation");
   for (const s of sessionsOf(beginner)) for (const i of s.items) if (registry[i.id].movement_pattern_id.startsWith("grip") && i.load !== "bw" && "rpe" in i.load) assert.ok(i.load.rpe <= 6, `${i.id} gentle`);
 });
+
+test("a strongman's medley is trained hard in a loading week - never only in the lighter weeks - and contest week rehearses light openers", () => {
+  const weeks = weeksOf("strongman_strength_events");
+  const medleyWeeks = weeks.map((w, i) => [i + 1, w.find((s) => s.title === "Event day")]).filter(([, s]) => s.items.every((i) => i.group?.type === "for_time")).map(([n]) => n);
+  assert.ok(medleyWeeks.length >= 2 && medleyWeeks.every((n) => n % 4 !== 0 && n !== 12), `medley weeks ${medleyWeeks}`);
+  for (const n of medleyWeeks) assert.ok(weeks[n - 1].find((s) => s.title === "Event day").items.every((i) => i.sets >= 3 && i.load.rpe >= 7), `week ${n}: three hard runs`);
+  const contest = weeks[11].find((s) => s.title === "Event day");
+  assert.ok(contest.items.every((i) => i.load.rpe <= 6), "contest week is light");
+});
+
+test("a pro grip athlete's heavy-attempts day replaces volume: every attempt item on the other days has a set less than the amateur version", () => {
+  const am = PROGRAMMES.find((p) => p.key === "grip_sport_meet_prep");
+  const pro = PROGRAMMES.find((p) => p.key === "grip_sport_meet_prep_pro");
+  const amWeeks = am.blocks.flatMap((b) => b.weeks);
+  pro.blocks.flatMap((b) => b.weeks).forEach((week, w) => {
+    if (am.blocks.flatMap((b) => b.weeks.map(() => b.block_type))[w] === "deload") return;
+    for (const s of week.filter((x) => x.title !== "Heavy attempts")) {
+      const amS = amWeeks[w].find((x) => x.title === s.title);
+      for (const i of s.items.filter((x) => /Attempt-style|Set the gripper/u.test(x.note ?? ""))) {
+        assert.equal(i.sets, Math.max(2, amS.items.find((x) => x.id === i.id).sets - 1), `week ${w + 1} ${i.id}`);
+      }
+    }
+  });
+});
