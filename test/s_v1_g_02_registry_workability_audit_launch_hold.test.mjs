@@ -43,7 +43,7 @@ test("S-V1-G-02 records current active registry law counts", () => {
   const record = readJson(recordPath);
 
   assert.equal(record.registry_law_counts.activity, 32);
-  assert.equal(record.registry_law_counts.movement, 55);
+  assert.equal(record.registry_law_counts.movement, 56);
   assert.equal(record.registry_law_counts.exercise, 556);
   assert.equal(record.registry_law_counts.program, 32);
 });
