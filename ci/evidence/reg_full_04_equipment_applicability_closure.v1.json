@@ -11,20 +11,20 @@
     "generic_fallback_allowed": false
   },
   "counts": {
-    "exercise_count": 365,
-    "resolved_exercise_count": 365,
-    "compatibility_edge_count": 693,
-    "required_equipment_edge_count": 516,
-    "alternative_equipment_edge_count": 177,
-    "activity_relation_pair_count": 8206,
-    "applicability_row_count": 24618
+    "exercise_count": 401,
+    "resolved_exercise_count": 401,
+    "compatibility_edge_count": 771,
+    "required_equipment_edge_count": 573,
+    "alternative_equipment_edge_count": 198,
+    "activity_relation_pair_count": 9237,
+    "applicability_row_count": 27711
   },
   "sha256": {
-    "exercise_registry": "62fcfb925f161aa0a561decb40ec32cd22bffc65299fd3aee0123b6b5775cd1a",
-    "movement_registry": "ee77006afb8c5e7b575e5813e0547c7c1cd9572acd7b553ebbd0213451d2a77d",
+    "exercise_registry": "5731cd98741311d6107a43025ff3eb3bd51535c22dad02b104cfb13da835680c",
+    "movement_registry": "ac7549fbf5b5a4616f89921f1821958ad57c7f7ec7e14eb86c7e7449296013c7",
     "equipment_registry": "d1d837776524d6c52612a3dd77732dfa3ee33d2af6c18db275668ce7b90ddbb0",
     "activity_registry": "f4c41d530525fed34ab899c35a636510afc3c2f7b1d303322d21b34e4a24f5fd",
-    "exercise_activity_applicability_registry": "94ff4f0c99cf8b6e2a16525e14a9847a575cf56406b3ba84aad313c6bb3eb089",
-    "exercise_equipment_compatibility_registry": "4a5813a20c793725beafe9aaf12607a6f3496773b20c0cda1cc06bccbf4dea1a"
+    "exercise_activity_applicability_registry": "20cf2ef98a2d4eea6fe3168581be52303bd357ad15520e0bd0f8a137dab25624",
+    "exercise_equipment_compatibility_registry": "d07a83baf78f16534d9b076eefade18e32db4da5abb157903df9a70fb614829b"
   }
 }
