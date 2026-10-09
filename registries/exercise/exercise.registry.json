@@ -28535,6 +28535,2949 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "crunch": {
+      "exercise_id": "crunch",
+      "display_label": "Crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Crunch: Lying on your back with knees bent, curl the shoulders off the floor towards the hips.",
+      "instruction_detail_text": [
+        "Lie on your back, knees bent and feet flat, hands across the chest or by the ears.",
+        "Curl the head and shoulders up, bringing the ribs towards the hips.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Curl, don't sit up",
+        "Ribs to hips",
+        "Chin off the chest"
+      ],
+      "common_faults": [
+        "Pulling on the head",
+        "Sitting all the way up",
+        "Using momentum"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "decline_crunch": {
+      "exercise_id": "decline_crunch",
+      "display_label": "Decline crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Decline crunch: On a decline bench with the feet hooked, curl the shoulders up towards the hips.",
+      "instruction_detail_text": [
+        "Lie on a decline bench with the feet secured.",
+        "Curl the head and shoulders up towards the hips.",
+        "Lower under control; hold a plate to make it harder."
+      ],
+      "coaching_cues": [
+        "Curl the spine",
+        "Slow lowering",
+        "Breathe out on the way up"
+      ],
+      "common_faults": [
+        "Pulling on the head",
+        "Throwing the body up",
+        "Arching at the bottom"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "stability_ball_crunch": {
+      "exercise_id": "stability_ball_crunch",
+      "display_label": "Stability ball crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ball crunch: Lying back over a stability ball, curl the ribs towards the hips through the full range.",
+      "instruction_detail_text": [
+        "Sit on a stability ball and walk forward until it supports your lower and mid back.",
+        "Let the back extend over the ball, then curl the ribs towards the hips.",
+        "Lower back over the ball under control."
+      ],
+      "coaching_cues": [
+        "Full stretch over the ball",
+        "Feet wide for balance",
+        "Curl, don't sit up"
+      ],
+      "common_faults": [
+        "Ball rolling",
+        "Pulling on the head",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "stability_ball"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sit_up": {
+      "exercise_id": "sit_up",
+      "display_label": "Sit-up",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Sit-up: From lying with knees bent, curl up to sitting and lower back down under control.",
+      "instruction_detail_text": [
+        "Lie on your back, knees bent, feet flat (anchored if needed).",
+        "Curl up, ribs first, until you're sitting upright.",
+        "Lower back down one vertebra at a time."
+      ],
+      "coaching_cues": [
+        "Curl up, don't jerk",
+        "Slow on the way down",
+        "Arms across the chest"
+      ],
+      "common_faults": [
+        "Throwing the arms",
+        "Pulling on the neck",
+        "Dropping back down"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "decline_sit_up": {
+      "exercise_id": "decline_sit_up",
+      "display_label": "Decline sit-up",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Decline sit-up: On a decline bench with the feet hooked, curl up to sitting and lower back down under control.",
+      "instruction_detail_text": [
+        "Lie on a decline bench with the feet secured.",
+        "Curl up to sitting.",
+        "Lower back down under control; hold a plate to load it."
+      ],
+      "coaching_cues": [
+        "Curl, then sit",
+        "Slow lowering",
+        "Arms across the chest"
+      ],
+      "common_faults": [
+        "Jerking up",
+        "Pulling on the neck",
+        "Dropping back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ghd_sit_up": {
+      "exercise_id": "ghd_sit_up",
+      "display_label": "GHD sit-up",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "GHD sit-up: Seated on a glute-ham developer, lean back to about parallel, then sit up powerfully.",
+      "instruction_detail_text": [
+        "Sit on the GHD with the feet hooked and the hips just off the pad.",
+        "Lean back to about parallel (further only once well trained).",
+        "Sit up by driving the knees straight and reaching forward."
+      ],
+      "coaching_cues": [
+        "Build range gradually",
+        "Drive through the legs",
+        "Control the lowering"
+      ],
+      "common_faults": [
+        "Too many reps too soon",
+        "Dropping past parallel early",
+        "Arching hard at the bottom"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "glute_ham_bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_cable_crunch": {
+      "exercise_id": "standing_cable_crunch",
+      "display_label": "Standing cable crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Standing cable crunch: Facing away from a high pulley, hold the rope by your head and crunch the ribs down towards the hips.",
+      "instruction_detail_text": [
+        "Stand facing away from a high pulley, rope held beside the head.",
+        "Crunch the ribs down towards the hips without bending at the hips.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Crunch, don't hinge",
+        "Hips still",
+        "Exhale as you crunch"
+      ],
+      "common_faults": [
+        "Bending at the hips",
+        "Pulling with the arms",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_rope_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_crunch": {
+      "exercise_id": "machine_crunch",
+      "display_label": "Machine crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine crunch: Seated in an ab machine, crunch the ribs towards the hips against the pads.",
+      "instruction_detail_text": [
+        "Sit in the machine with the pads or handles at the chest or shoulders.",
+        "Crunch forward, curling the ribs towards the hips.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Curl the spine",
+        "Exhale on the crunch",
+        "Slow return"
+      ],
+      "common_faults": [
+        "Pulling with the arms",
+        "Using momentum",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "weighted_reach_crunch": {
+      "exercise_id": "weighted_reach_crunch",
+      "display_label": "Weighted reach crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Reach crunch: Lying on your back holding a weight over the chest, crunch up and reach it towards the ceiling.",
+      "instruction_detail_text": [
+        "Lie on your back, knees bent, holding a dumbbell or plate over the chest with straight arms.",
+        "Crunch up, reaching the weight towards the ceiling.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Reach up, not forward",
+        "Arms straight",
+        "Ribs to hips"
+      ],
+      "common_faults": [
+        "Swinging the weight",
+        "Bending the arms",
+        "Neck straining"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "plate",
+        "barbell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hanging_knee_raise": {
+      "exercise_id": "hanging_knee_raise",
+      "display_label": "Hanging knee raise",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hanging knee raise: Hanging from a bar, raise the knees towards the chest by curling the pelvis up.",
+      "instruction_detail_text": [
+        "Hang from a bar with straight arms and the body still.",
+        "Raise the knees towards the chest, curling the pelvis up at the top.",
+        "Lower under control without swinging."
+      ],
+      "coaching_cues": [
+        "Curl the pelvis",
+        "No swing",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Only lifting the knees to hip height",
+        "Dropping the legs"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hanging_leg_raise": {
+      "exercise_id": "hanging_leg_raise",
+      "display_label": "Hanging leg raise",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hanging leg raise: Hanging from a bar, raise straight legs to at least horizontal while curling the pelvis up.",
+      "instruction_detail_text": [
+        "Hang from a bar with straight arms.",
+        "Raise straight legs to horizontal or higher, curling the pelvis.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Legs straight",
+        "No swing",
+        "Curl the pelvis at the top"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Bending the knees",
+        "Arching the back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [
+        "ankle_weight"
+      ],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hanging_oblique_knee_raise": {
+      "exercise_id": "hanging_oblique_knee_raise",
+      "display_label": "Hanging oblique knee raise",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hanging oblique knee raise: Hanging from a bar, raise the knees up and across towards one shoulder.",
+      "instruction_detail_text": [
+        "Hang from a bar with straight arms.",
+        "Raise the knees up and across towards one shoulder.",
+        "Lower under control and alternate sides."
+      ],
+      "coaching_cues": [
+        "Knees to the shoulder",
+        "No swing",
+        "Control the lowering"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Twisting the upper body",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "captains_chair_knee_raise": {
+      "exercise_id": "captains_chair_knee_raise",
+      "display_label": "Captain's chair knee raise",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Captain's chair: Supported on the forearms in a knee-raise station, raise the knees towards the chest.",
+      "instruction_detail_text": [
+        "Support yourself on the forearm pads with the back against the pad.",
+        "Raise the knees towards the chest, curling the pelvis.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Back on the pad",
+        "Curl the pelvis",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Swinging the legs",
+        "Shrugging",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dip_bars"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lying_leg_raise": {
+      "exercise_id": "lying_leg_raise",
+      "display_label": "Lying leg raise",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Lying leg raise: Lying on your back, raise straight legs to vertical and lower them slowly without arching.",
+      "instruction_detail_text": [
+        "Lie on your back, hands under the hips or holding a bench behind the head.",
+        "Raise straight legs to vertical.",
+        "Lower slowly, keeping the lower back down."
+      ],
+      "coaching_cues": [
+        "Lower back flat",
+        "Slow lowering",
+        "Bend the knees to make it easier"
+      ],
+      "common_faults": [
+        "Arching the lower back",
+        "Dropping the legs",
+        "Swinging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "bench",
+        "ankle_weight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "seated_knee_tuck": {
+      "exercise_id": "seated_knee_tuck",
+      "display_label": "Seated knee tuck",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Seated knee tuck: Sitting on a bench leaning back on your hands, draw the knees in to the chest and extend them out.",
+      "instruction_detail_text": [
+        "Sit on the edge of a bench, hands behind you, leaning back with the legs out straight.",
+        "Draw the knees in to the chest while sitting up slightly.",
+        "Extend the legs back out."
+      ],
+      "coaching_cues": [
+        "Lean back",
+        "Knees to chest",
+        "Keep the feet off the floor"
+      ],
+      "common_faults": [
+        "Feet touching down",
+        "Rushing the reps",
+        "Rounding the shoulders"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ab_wheel_rollout": {
+      "exercise_id": "ab_wheel_rollout",
+      "display_label": "Ab wheel rollout",
+      "movement_pattern_id": "core_anti_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ab wheel rollout: From the knees, roll the wheel forward as far as you can control without arching, then pull back.",
+      "instruction_detail_text": [
+        "Kneel holding the wheel under the shoulders.",
+        "Roll forward, keeping the ribs down and the back flat.",
+        "Pull back to the start using the abs and lats."
+      ],
+      "coaching_cues": [
+        "Ribs down",
+        "Only as far as you control",
+        "Squeeze the glutes"
+      ],
+      "common_faults": [
+        "Arching the lower back",
+        "Hips sagging",
+        "Going too far too soon"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "ab_wheel"
+      ],
+      "equipment_alternatives": [
+        "barbell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_jack_knife": {
+      "exercise_id": "suspension_jack_knife",
+      "display_label": "Suspension jack-knife",
+      "movement_pattern_id": "core_anti_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Suspension jack-knife: In a push-up position with the feet in the straps, draw the knees in to the chest and push them back out.",
+      "instruction_detail_text": [
+        "Set up in a push-up position with the feet in the straps.",
+        "Draw the knees in towards the chest.",
+        "Push the legs back out to a straight plank."
+      ],
+      "coaching_cues": [
+        "Straight plank between reps",
+        "Shoulders over the hands",
+        "Smooth tempo"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Shoulders drifting back",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [
+        "stability_ball"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_pike": {
+      "exercise_id": "suspension_pike",
+      "display_label": "Suspension pike",
+      "movement_pattern_id": "core_anti_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Suspension pike: In a push-up position with the feet in the straps, lift the hips high with straight legs, then lower to a plank.",
+      "instruction_detail_text": [
+        "Set up in a push-up position with the feet in the straps.",
+        "Keeping the legs straight, raise the hips towards the ceiling.",
+        "Lower back to a straight plank."
+      ],
+      "coaching_cues": [
+        "Legs straight",
+        "Shoulders over the hands",
+        "Lead with the hips"
+      ],
+      "common_faults": [
+        "Bending the knees",
+        "Hips sagging between reps",
+        "Shoulders drifting back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [
+        "stability_ball"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_mountain_climber": {
+      "exercise_id": "suspension_mountain_climber",
+      "display_label": "Suspension mountain climber",
+      "movement_pattern_id": "core_anti_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Suspension mountain climber: In a push-up position with the feet in the straps, drive one knee then the other towards the chest.",
+      "instruction_detail_text": [
+        "Set up in a push-up position with the feet in the straps.",
+        "Drive one knee towards the chest, then switch.",
+        "Keep alternating at the prescribed pace."
+      ],
+      "coaching_cues": [
+        "Hips level",
+        "Shoulders over the hands",
+        "Quick, controlled switches"
+      ],
+      "common_faults": [
+        "Hips bouncing",
+        "Shoulders drifting back",
+        "Straps swinging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "abdominal_vacuum": {
+      "exercise_id": "abdominal_vacuum",
+      "display_label": "Abdominal vacuum",
+      "movement_pattern_id": "core_anti_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Abdominal vacuum: After a full exhale, draw the belly button in towards the spine and hold.",
+      "instruction_detail_text": [
+        "Kneel, stand or lie down and breathe all the way out.",
+        "Draw the belly button in towards the spine and hold.",
+        "Hold for the prescribed time, breathing shallowly, then relax."
+      ],
+      "coaching_cues": [
+        "Exhale fully first",
+        "Draw in and up",
+        "Keep the ribs still"
+      ],
+      "common_faults": [
+        "Holding the breath with a full chest",
+        "Sucking in the chest",
+        "Holding too long"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "street_lifting",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "twisting_crunch": {
+      "exercise_id": "twisting_crunch",
+      "display_label": "Twisting crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Twisting crunch: Crunch up and rotate one shoulder towards the opposite knee, alternating sides.",
+      "instruction_detail_text": [
+        "Lie on your back, knees bent, hands by the ears.",
+        "Crunch up and rotate, bringing one shoulder towards the opposite knee.",
+        "Lower and alternate sides."
+      ],
+      "coaching_cues": [
+        "Lead with the shoulder",
+        "Not the elbow",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Pulling on the head",
+        "Swinging the elbow",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "side_crunch": {
+      "exercise_id": "side_crunch",
+      "display_label": "Side crunch",
+      "movement_pattern_id": "trunk_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side crunch: Lying on your side, crunch the ribs towards the hip.",
+      "instruction_detail_text": [
+        "Lie on your side with the legs stacked or slightly bent, top hand by the ear.",
+        "Crunch the top ribs towards the hip, lifting the shoulder.",
+        "Lower under control; switch sides."
+      ],
+      "coaching_cues": [
+        "Ribs to hip",
+        "Stay on your side",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Rolling onto the back",
+        "Pulling on the head",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "russian_twist": {
+      "exercise_id": "russian_twist",
+      "display_label": "Russian twist",
+      "movement_pattern_id": "rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Russian twist: Sitting leaning back with the feet up or down, rotate a ball from side to side.",
+      "instruction_detail_text": [
+        "Sit with the knees bent, lean back with a straight back and hold a ball at the chest.",
+        "Rotate the shoulders to bring the ball beside one hip, then the other.",
+        "Keep the back straight throughout."
+      ],
+      "coaching_cues": [
+        "Rotate the ribs, not just the arms",
+        "Straight back",
+        "Feet down to make it easier"
+      ],
+      "common_faults": [
+        "Rounding the back",
+        "Only moving the arms",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "medicine_ball"
+      ],
+      "equipment_alternatives": [
+        "plate",
+        "dumbbell",
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "landmine_rotation": {
+      "exercise_id": "landmine_rotation",
+      "display_label": "Landmine rotation",
+      "movement_pattern_id": "rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Landmine rotation: Holding the end of a landmine bar overhead with straight arms, rotate it down to one hip, then the other.",
+      "instruction_detail_text": [
+        "Stand facing the landmine, holding the end of the bar at forehead height with straight arms.",
+        "Rotate the trunk and pivot the feet to bring the bar down beside one hip.",
+        "Return through the middle to the other side."
+      ],
+      "coaching_cues": [
+        "Arms straight",
+        "Pivot the back foot",
+        "Control the arc"
+      ],
+      "common_faults": [
+        "Bending the arms",
+        "Arching the back",
+        "Letting the bar pull you round"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "landmine_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_torso_rotation": {
+      "exercise_id": "machine_torso_rotation",
+      "display_label": "Machine torso rotation",
+      "movement_pattern_id": "rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine torso rotation: Seated in a rotary torso machine, rotate against the pads and return under control.",
+      "instruction_detail_text": [
+        "Sit with the chest against the pads and the hips locked in.",
+        "Rotate the trunk through a comfortable range.",
+        "Return under control and do both sides."
+      ],
+      "coaching_cues": [
+        "Hips stay still",
+        "Smooth range",
+        "Slow return"
+      ],
+      "common_faults": [
+        "Jerking the weight",
+        "Going too far",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [
+        "cable_machine"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dumbbell_side_bend": {
+      "exercise_id": "dumbbell_side_bend",
+      "display_label": "Dumbbell side bend",
+      "movement_pattern_id": "core_anti_lateral_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side bend: Holding a dumbbell in one hand, bend sideways towards it, then pull back up with the other side.",
+      "instruction_detail_text": [
+        "Stand tall holding a dumbbell at your side.",
+        "Bend sideways towards the weight.",
+        "Pull back up to upright with the opposite side; switch sides."
+      ],
+      "coaching_cues": [
+        "Straight sideways",
+        "No twisting",
+        "Pull up with the other side"
+      ],
+      "common_faults": [
+        "Leaning forward",
+        "Twisting",
+        "Using a dumbbell in each hand"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "cable_machine",
+        "kettlebell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "back_extension_side_bend": {
+      "exercise_id": "back_extension_side_bend",
+      "display_label": "45-degree side bend",
+      "movement_pattern_id": "core_anti_lateral_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "45-degree side bend: Lying sideways on a back-extension bench, lower the trunk towards the floor and raise it back up.",
+      "instruction_detail_text": [
+        "Lie on your side on a 45-degree back-extension bench, hip on the pad, feet secured.",
+        "Lower the trunk sideways towards the floor.",
+        "Raise it back to straight."
+      ],
+      "coaching_cues": [
+        "Stay on your side",
+        "Smooth range",
+        "Hold a plate to load it"
+      ],
+      "common_faults": [
+        "Rolling forward",
+        "Jerking up",
+        "Going past a comfortable range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "back_extension_bench"
+      ],
+      "equipment_alternatives": [
+        "plate"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "short_side_plank": {
+      "exercise_id": "short_side_plank",
+      "display_label": "Bent-knee side plank",
+      "movement_pattern_id": "core_anti_lateral_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Bent-knee side plank: Support yourself on one forearm and the knees with the body straight from knees to head.",
+      "instruction_detail_text": [
+        "Lie on your side with the knees bent and the elbow under the shoulder.",
+        "Lift the hips so the body is straight from knees to head.",
+        "Hold for the prescribed time; switch sides."
+      ],
+      "coaching_cues": [
+        "Hips up and forward",
+        "Elbow under the shoulder",
+        "Breathe normally"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Rolling forward",
+        "Shoulder shrugging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_back_extension": {
+      "exercise_id": "machine_back_extension",
+      "display_label": "Machine back extension",
+      "movement_pattern_id": "trunk_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine back extension: Seated in a back-extension machine, extend the trunk back against the pad and return under control.",
+      "instruction_detail_text": [
+        "Sit with the pad across the upper back and the hips secured.",
+        "Extend back against the pad.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Smooth range",
+        "Hips stay down",
+        "Don't overarch"
+      ],
+      "common_faults": [
+        "Jerking back",
+        "Overextending at the end",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "superman": {
+      "exercise_id": "superman",
+      "display_label": "Superman",
+      "movement_pattern_id": "trunk_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Superman: Lying face down, lift the arms, chest and legs a few centimetres off the floor and hold.",
+      "instruction_detail_text": [
+        "Lie face down with the arms overhead.",
+        "Lift the arms, chest and legs slightly off the floor, looking at the floor.",
+        "Hold for the prescribed time, or lift opposite arm and leg alternately."
+      ],
+      "coaching_cues": [
+        "Small lift",
+        "Long body",
+        "Look at the floor"
+      ],
+      "common_faults": [
+        "Cranking the neck up",
+        "Lifting too high",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "stability_ball_back_extension": {
+      "exercise_id": "stability_ball_back_extension",
+      "display_label": "Stability ball back extension",
+      "movement_pattern_id": "trunk_extension",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ball back extension: Lying face down over a stability ball with the feet against a wall, extend the trunk up to straight.",
+      "instruction_detail_text": [
+        "Lie face down over a ball with the hips on it and the feet against a wall.",
+        "Lower the chest around the ball, then extend up until the body is straight.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Stop at straight",
+        "Feet wide for balance",
+        "Squeeze the glutes"
+      ],
+      "common_faults": [
+        "Overarching at the top",
+        "Ball rolling",
+        "Jerking up"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "stability_ball"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cable_pull_through": {
+      "exercise_id": "cable_pull_through",
+      "display_label": "Cable pull-through",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Pull-through: Facing away from a low pulley with the rope between the legs, hinge back, then drive the hips forward to stand.",
+      "instruction_detail_text": [
+        "Stand facing away from a low pulley holding the rope between the legs.",
+        "Hinge back at the hips with a flat back.",
+        "Drive the hips forward to stand tall."
+      ],
+      "coaching_cues": [
+        "Hips back, not down",
+        "Arms just hold on",
+        "Squeeze the glutes at the top"
+      ],
+      "common_faults": [
+        "Squatting it",
+        "Pulling with the arms",
+        "Leaning back at the top"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_rope_attachment"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_leg_glute_bridge": {
+      "exercise_id": "single_leg_glute_bridge",
+      "display_label": "Single-leg glute bridge",
+      "movement_pattern_id": "hip_extension_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Single-leg glute bridge: Lying on your back with one foot down, drive the hips up through that heel until straight.",
+      "instruction_detail_text": [
+        "Lie on your back with one knee bent, foot flat, and the other leg raised.",
+        "Drive through the heel to lift the hips until the body is straight.",
+        "Lower under control; switch sides."
+      ],
+      "coaching_cues": [
+        "Hips level",
+        "Drive through the heel",
+        "Squeeze at the top"
+      ],
+      "common_faults": [
+        "Hips dropping to one side",
+        "Arching the back",
+        "Pushing through the toes"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_leg_hip_thrust": {
+      "exercise_id": "single_leg_hip_thrust",
+      "display_label": "Single-leg hip thrust",
+      "movement_pattern_id": "hip_extension_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Single-leg hip thrust: Shoulders on a bench and one foot down, drive the hips up to straight.",
+      "instruction_detail_text": [
+        "Sit with the upper back against a bench, one foot flat and the other leg raised.",
+        "Drive through the heel to raise the hips until the body is straight.",
+        "Lower under control; switch sides."
+      ],
+      "coaching_cues": [
+        "Chin tucked",
+        "Hips level",
+        "Shins vertical at the top"
+      ],
+      "common_faults": [
+        "Hips rotating",
+        "Arching the back",
+        "Pushing through the toes"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "dumbbell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_glute_kickback": {
+      "exercise_id": "machine_glute_kickback",
+      "display_label": "Machine glute kickback",
+      "movement_pattern_id": "hip_extension_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine kickback: On a glute kickback machine, drive one leg back against the pad until the hip is straight.",
+      "instruction_detail_text": [
+        "Set up on the machine with the working foot or knee against the pad.",
+        "Drive the leg back until the hip is fully extended.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Drive from the glute",
+        "No arching",
+        "Square hips"
+      ],
+      "common_faults": [
+        "Arching the lower back",
+        "Rotating the hips",
+        "Swinging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_hip_thrust": {
+      "exercise_id": "machine_hip_thrust",
+      "display_label": "Machine hip thrust",
+      "movement_pattern_id": "hip_extension_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine hip thrust: In a hip-thrust machine with the belt or pad over the hips, drive the hips up to straight.",
+      "instruction_detail_text": [
+        "Set up with the back on the pad and the belt or pad across the hips.",
+        "Drive through the heels to raise the hips.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Chin tucked",
+        "Ribs down",
+        "Squeeze at the top"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Pushing through the toes",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "side_lying_hip_abduction": {
+      "exercise_id": "side_lying_hip_abduction",
+      "display_label": "Side-lying hip abduction",
+      "movement_pattern_id": "hip_abduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side-lying hip abduction: Lying on your side, raise the straight top leg slightly behind the body and lower it slowly.",
+      "instruction_detail_text": [
+        "Lie on your side with the bottom knee bent and the top leg straight.",
+        "Raise the top leg, slightly behind the body, toes forward.",
+        "Lower slowly."
+      ],
+      "coaching_cues": [
+        "Toes forward",
+        "Leg slightly back",
+        "Hips stacked"
+      ],
+      "common_faults": [
+        "Rolling back",
+        "Leading with the toes up",
+        "Swinging the leg"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "ankle_weight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "side_plank_hip_abduction": {
+      "exercise_id": "side_plank_hip_abduction",
+      "display_label": "Side plank hip abduction",
+      "movement_pattern_id": "hip_abduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side plank hip abduction: Holding a side plank, raise and lower the top leg.",
+      "instruction_detail_text": [
+        "Hold a side plank on your forearm and the bottom foot.",
+        "Raise the top leg, toes forward.",
+        "Lower under control; switch sides."
+      ],
+      "coaching_cues": [
+        "Hips up throughout",
+        "Toes forward",
+        "Slow both ways"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Rolling back",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cable_hip_internal_rotation": {
+      "exercise_id": "cable_hip_internal_rotation",
+      "display_label": "Cable hip internal rotation",
+      "movement_pattern_id": "hip_abduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hip internal rotation: Seated with the knee bent and a cable around the ankle, rotate the foot outwards.",
+      "instruction_detail_text": [
+        "Sit on a bench with the knees bent at 90 degrees and a low cable cuffed to the ankle from the inside.",
+        "Rotate the foot outwards, keeping the thigh still.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Thigh still",
+        "Small, slow range",
+        "Sit tall"
+      ],
+      "common_faults": [
+        "Moving the thigh",
+        "Going too heavy",
+        "Jerking the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cable_hip_external_rotation": {
+      "exercise_id": "cable_hip_external_rotation",
+      "display_label": "Cable hip external rotation",
+      "movement_pattern_id": "hip_abduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Hip external rotation: Seated with the knee bent and a cable around the ankle, rotate the foot inwards.",
+      "instruction_detail_text": [
+        "Sit on a bench with the knees bent at 90 degrees and a low cable cuffed to the ankle from the outside.",
+        "Rotate the foot inwards, keeping the thigh still.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Thigh still",
+        "Small, slow range",
+        "Sit tall"
+      ],
+      "common_faults": [
+        "Moving the thigh",
+        "Going too heavy",
+        "Jerking the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "side_lying_hip_adduction": {
+      "exercise_id": "side_lying_hip_adduction",
+      "display_label": "Side-lying hip adduction",
+      "movement_pattern_id": "hip_adduction_isolation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side-lying hip adduction: Lying on your side with the top leg crossed in front, raise the straight bottom leg.",
+      "instruction_detail_text": [
+        "Lie on your side with the top foot planted in front of the bottom knee.",
+        "Raise the straight bottom leg off the floor.",
+        "Lower slowly."
+      ],
+      "coaching_cues": [
+        "Bottom leg straight",
+        "Slow both ways",
+        "Stay on your side"
+      ],
+      "common_faults": [
+        "Rolling back",
+        "Swinging",
+        "Bending the knee"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "ankle_weight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }
