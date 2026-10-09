@@ -447,7 +447,30 @@ export const EXERCISE_MUSCLES: Readonly<Record<string, ExerciseMuscles>> = Objec
   leg_press_calf_raise: m(["gastrocnemius"], ["soleus"]),
   donkey_calf_raise: m(["gastrocnemius"], ["soleus"]),
   smith_machine_calf_raise: m(["gastrocnemius", "soleus"]),
-  seated_dumbbell_tibialis_raise: m(["tibialis_anterior"])
+  seated_dumbbell_tibialis_raise: m(["tibialis_anterior"]),
+  // Library batch 5: Olympic-lift variations, kettlebell, gymnastics and strongman extras
+  push_press: m(["deltoid_anterior", "triceps_brachii"], ["quadriceps", "gluteus_maximus", "trapezius_upper", "deltoid_lateral"]),
+  hang_clean: m(["gluteus_maximus", "quadriceps", "trapezius_upper"], ["hamstrings", "erector_spinae", "deltoid_anterior"]),
+  hang_power_snatch: m(["gluteus_maximus", "quadriceps", "trapezius_upper"], ["hamstrings", "deltoid_lateral", "trapezius_lower", "triceps_brachii"]),
+  clean_high_pull: m(["gluteus_maximus", "hamstrings", "trapezius_upper"], ["quadriceps", "deltoid_lateral", "erector_spinae"]),
+  jump_shrug: m(["gluteus_maximus", "quadriceps", "trapezius_upper"], ["hamstrings", "gastrocnemius"]),
+  snatch_balance: m(["quadriceps", "deltoid_anterior", "trapezius_lower"], ["gluteus_maximus", "triceps_brachii", "transverse_abdominis"]),
+  dumbbell_hang_power_clean: m(["gluteus_maximus", "quadriceps", "trapezius_upper"], ["hamstrings", "deltoid_anterior"]),
+  dumbbell_snatch: m(["gluteus_maximus", "quadriceps", "deltoid_anterior"], ["hamstrings", "trapezius_upper", "obliques"]),
+  dumbbell_thruster: m(["quadriceps", "gluteus_maximus", "deltoid_anterior"], ["triceps_brachii", "cardiorespiratory"]),
+  sumo_deadlift_high_pull: m(["gluteus_maximus", "quadriceps", "trapezius_upper"], ["hip_adductors", "deltoid_lateral", "cardiorespiratory"]),
+  single_arm_kettlebell_swing: m(["gluteus_maximus", "hamstrings"], ["obliques", "erector_spinae", "wrist_flexors"]),
+  kettlebell_clean: m(["gluteus_maximus", "hamstrings"], ["biceps_brachii", "trapezius_upper", "wrist_flexors"]),
+  kettlebell_snatch: m(["gluteus_maximus", "hamstrings", "deltoid_anterior"], ["trapezius_upper", "wrist_flexors", "cardiorespiratory"]),
+  kettlebell_windmill: m(["obliques", "deltoid_anterior"], ["hamstrings", "gluteus_maximus", "quadratus_lumborum"]),
+  turkish_get_up: m(["deltoid_anterior", "obliques", "gluteus_maximus"], ["triceps_brachii", "quadriceps", "serratus_anterior", "transverse_abdominis"]),
+  kipping_pull_up: m(["latissimus_dorsi"], ["rectus_abdominis", "hip_flexors", "biceps_brachii"]),
+  butterfly_pull_up: m(["latissimus_dorsi"], ["rectus_abdominis", "hip_flexors", "biceps_brachii", "cardiorespiratory"]),
+  kipping_handstand_push_up: m(["deltoid_anterior", "triceps_brachii"], ["hip_flexors", "gluteus_maximus", "trapezius_upper"]),
+  ring_muscle_up: m(["latissimus_dorsi", "triceps_brachii", "pectoralis_major_sternal"], ["biceps_brachii", "wrist_flexors", "rectus_abdominis"]),
+  atlas_stone_to_shoulder: m(["gluteus_maximus", "hamstrings", "erector_spinae"], ["biceps_brachii", "trapezius_upper", "quadriceps"]),
+  jammer_press: m(["deltoid_anterior", "triceps_brachii", "quadriceps"], ["pectoralis_major_clavicular", "gluteus_maximus", "serratus_anterior"]),
+  battle_rope_waves: m(["cardiorespiratory", "deltoid_anterior"], ["rectus_abdominis", "wrist_flexors", "quadriceps"])
 });
 
 const groupOf = (muscle: string): MuscleGroupId | null => MUSCLES[muscle]?.group ?? null;

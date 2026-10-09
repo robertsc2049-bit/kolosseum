@@ -2057,11 +2057,14 @@
         "medicine_ball",
         "plate",
         "open_floor_space",
-        "cable_single_handle_attachment"
+        "cable_single_handle_attachment",
+        "kettlebell",
+        "dumbbell"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
-        "hip"
+        "hip",
+        "shoulder"
       ],
       "activity_applicability": [
         "powerlifting",
@@ -2113,7 +2116,8 @@
       ],
       "joint_stress_tags_vocab": [
         "neutral",
-        "hip"
+        "hip",
+        "shoulder"
       ],
       "activity_applicability": [
         "powerlifting",
@@ -2804,7 +2808,8 @@
         "cardio_machine_general",
         "bodyweight",
         "open_floor_space",
-        "jump_rope"
+        "jump_rope",
+        "battle_ropes"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

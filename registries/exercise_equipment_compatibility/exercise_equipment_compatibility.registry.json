@@ -121,6 +121,20 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "atlas_stone_to_shoulder__atlas_stone": {
+      "compatibility_id": "atlas_stone_to_shoulder__atlas_stone",
+      "exercise_id": "atlas_stone_to_shoulder",
+      "equipment_id": "atlas_stone",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "atlas_stone_to_shoulder__sandbag": {
+      "compatibility_id": "atlas_stone_to_shoulder__sandbag",
+      "exercise_id": "atlas_stone_to_shoulder",
+      "equipment_id": "sandbag",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "axle_bar_press__axle_bar": {
       "compatibility_id": "axle_bar_press__axle_bar",
       "exercise_id": "axle_bar_press",
@@ -520,6 +534,13 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "battle_rope_waves__battle_ropes": {
+      "compatibility_id": "battle_rope_waves__battle_ropes",
+      "exercise_id": "battle_rope_waves",
+      "equipment_id": "battle_ropes",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "bear_crawl__bodyweight": {
       "compatibility_id": "bear_crawl__bodyweight",
       "exercise_id": "bear_crawl",
@@ -804,6 +825,20 @@
       "compatibility_id": "burpee_broad_jump__open_floor_space",
       "exercise_id": "burpee_broad_jump",
       "equipment_id": "open_floor_space",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "butterfly_pull_up__bodyweight": {
+      "compatibility_id": "butterfly_pull_up__bodyweight",
+      "exercise_id": "butterfly_pull_up",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "butterfly_pull_up__pull_up_bar": {
+      "compatibility_id": "butterfly_pull_up__pull_up_bar",
+      "exercise_id": "butterfly_pull_up",
+      "equipment_id": "pull_up_bar",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
@@ -1353,6 +1388,13 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "clean_high_pull__barbell": {
+      "compatibility_id": "clean_high_pull__barbell",
+      "exercise_id": "clean_high_pull",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "clean_pull__barbell": {
       "compatibility_id": "clean_pull__barbell",
       "exercise_id": "clean_pull",
@@ -1759,6 +1801,13 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "dumbbell_hang_power_clean__dumbbell": {
+      "compatibility_id": "dumbbell_hang_power_clean__dumbbell",
+      "exercise_id": "dumbbell_hang_power_clean",
+      "equipment_id": "dumbbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "dumbbell_hip_thrust__dumbbell": {
       "compatibility_id": "dumbbell_hip_thrust__dumbbell",
       "exercise_id": "dumbbell_hip_thrust",
@@ -1899,6 +1948,20 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "dumbbell_snatch__dumbbell": {
+      "compatibility_id": "dumbbell_snatch__dumbbell",
+      "exercise_id": "dumbbell_snatch",
+      "equipment_id": "dumbbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "dumbbell_snatch__kettlebell": {
+      "compatibility_id": "dumbbell_snatch__kettlebell",
+      "exercise_id": "dumbbell_snatch",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "dumbbell_squat__dumbbell": {
       "compatibility_id": "dumbbell_squat__dumbbell",
       "exercise_id": "dumbbell_squat",
@@ -1916,6 +1979,13 @@
     "dumbbell_supination__dumbbell": {
       "compatibility_id": "dumbbell_supination__dumbbell",
       "exercise_id": "dumbbell_supination",
+      "equipment_id": "dumbbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "dumbbell_thruster__dumbbell": {
+      "compatibility_id": "dumbbell_thruster__dumbbell",
+      "exercise_id": "dumbbell_thruster",
       "equipment_id": "dumbbell",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
@@ -2452,9 +2522,23 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "hang_clean__barbell": {
+      "compatibility_id": "hang_clean__barbell",
+      "exercise_id": "hang_clean",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "hang_power_clean__barbell": {
       "compatibility_id": "hang_power_clean__barbell",
       "exercise_id": "hang_power_clean",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "hang_power_snatch__barbell": {
+      "compatibility_id": "hang_power_snatch__barbell",
+      "exercise_id": "hang_power_snatch",
       "equipment_id": "barbell",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
@@ -2746,6 +2830,34 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "jammer_press__barbell": {
+      "compatibility_id": "jammer_press__barbell",
+      "exercise_id": "jammer_press",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "jammer_press__landmine_attachment": {
+      "compatibility_id": "jammer_press__landmine_attachment",
+      "exercise_id": "jammer_press",
+      "equipment_id": "landmine_attachment",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "jammer_press__machine_general": {
+      "compatibility_id": "jammer_press__machine_general",
+      "exercise_id": "jammer_press",
+      "equipment_id": "machine_general",
+      "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "jump_shrug__barbell": {
+      "compatibility_id": "jump_shrug__barbell",
+      "exercise_id": "jump_shrug",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "keg_carry__keg": {
       "compatibility_id": "keg_carry__keg",
       "exercise_id": "keg_carry",
@@ -2764,6 +2876,13 @@
       "compatibility_id": "keg_load__loading_platform",
       "exercise_id": "keg_load",
       "equipment_id": "loading_platform",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kettlebell_clean__kettlebell": {
+      "compatibility_id": "kettlebell_clean__kettlebell",
+      "exercise_id": "kettlebell_clean",
+      "equipment_id": "kettlebell",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
@@ -2816,11 +2935,32 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "kettlebell_snatch__kettlebell": {
+      "compatibility_id": "kettlebell_snatch__kettlebell",
+      "exercise_id": "kettlebell_snatch",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "kettlebell_swing__kettlebell": {
       "compatibility_id": "kettlebell_swing__kettlebell",
       "exercise_id": "kettlebell_swing",
       "equipment_id": "kettlebell",
       "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kettlebell_windmill__kettlebell": {
+      "compatibility_id": "kettlebell_windmill__kettlebell",
+      "exercise_id": "kettlebell_windmill",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kettlebell_windmill__dumbbell": {
+      "compatibility_id": "kettlebell_windmill__dumbbell",
+      "exercise_id": "kettlebell_windmill",
+      "equipment_id": "dumbbell",
+      "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "kickstand_rdl__dumbbell": {
@@ -2842,6 +2982,27 @@
       "exercise_id": "kickstand_rdl",
       "equipment_id": "barbell",
       "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kipping_handstand_push_up__bodyweight": {
+      "compatibility_id": "kipping_handstand_push_up__bodyweight",
+      "exercise_id": "kipping_handstand_push_up",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kipping_pull_up__bodyweight": {
+      "compatibility_id": "kipping_pull_up__bodyweight",
+      "exercise_id": "kipping_pull_up",
+      "equipment_id": "bodyweight",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "kipping_pull_up__pull_up_bar": {
+      "compatibility_id": "kipping_pull_up__pull_up_bar",
+      "exercise_id": "kipping_pull_up",
+      "equipment_id": "pull_up_bar",
+      "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "knee_push_up__bodyweight": {
@@ -4013,6 +4174,20 @@
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "push_press__barbell": {
+      "compatibility_id": "push_press__barbell",
+      "exercise_id": "push_press",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "push_press__rack": {
+      "compatibility_id": "push_press__rack",
+      "exercise_id": "push_press",
+      "equipment_id": "rack",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "push_up__bodyweight": {
       "compatibility_id": "push_up__bodyweight",
       "exercise_id": "push_up",
@@ -4172,6 +4347,13 @@
       "exercise_id": "ring_dip",
       "equipment_id": "suspension_trainer",
       "compatibility_type": "alternative",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "ring_muscle_up__gymnastics_rings": {
+      "compatibility_id": "ring_muscle_up__gymnastics_rings",
+      "exercise_id": "ring_muscle_up",
+      "equipment_id": "gymnastics_rings",
+      "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "ring_pull_up__gymnastics_rings": {
@@ -4664,6 +4846,13 @@
       "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
+    "single_arm_kettlebell_swing__kettlebell": {
+      "compatibility_id": "single_arm_kettlebell_swing__kettlebell",
+      "exercise_id": "single_arm_kettlebell_swing",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
     "single_arm_overhead_carry__dumbbell": {
       "compatibility_id": "single_arm_overhead_carry__dumbbell",
       "exercise_id": "single_arm_overhead_carry",
@@ -5011,6 +5200,20 @@
       "compatibility_id": "snatch__barbell",
       "exercise_id": "snatch",
       "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "snatch_balance__barbell": {
+      "compatibility_id": "snatch_balance__barbell",
+      "exercise_id": "snatch_balance",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "snatch_balance__rack": {
+      "compatibility_id": "snatch_balance__rack",
+      "exercise_id": "snatch_balance",
+      "equipment_id": "rack",
       "compatibility_type": "required",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
@@ -5439,6 +5642,20 @@
       "exercise_id": "sumo_deadlift",
       "equipment_id": "barbell",
       "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "sumo_deadlift_high_pull__barbell": {
+      "compatibility_id": "sumo_deadlift_high_pull__barbell",
+      "exercise_id": "sumo_deadlift_high_pull",
+      "equipment_id": "barbell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "sumo_deadlift_high_pull__kettlebell": {
+      "compatibility_id": "sumo_deadlift_high_pull__kettlebell",
+      "exercise_id": "sumo_deadlift_high_pull",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "superman__bodyweight": {
@@ -5873,6 +6090,20 @@
       "exercise_id": "triceps_dip",
       "equipment_id": "dip_bars",
       "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "turkish_get_up__kettlebell": {
+      "compatibility_id": "turkish_get_up__kettlebell",
+      "exercise_id": "turkish_get_up",
+      "equipment_id": "kettlebell",
+      "compatibility_type": "required",
+      "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
+    },
+    "turkish_get_up__dumbbell": {
+      "compatibility_id": "turkish_get_up__dumbbell",
+      "exercise_id": "turkish_get_up",
+      "equipment_id": "dumbbell",
+      "compatibility_type": "alternative",
       "copy_legal_boundary_notes": "factual declared exercise-equipment compatibility only; no inference, fallback, recommendation or suitability claim"
     },
     "twenty_metre_acceleration__bodyweight": {

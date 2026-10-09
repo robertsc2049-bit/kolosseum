@@ -2857,6 +2857,52 @@
       "template_relevance": "template_selectable",
       "low_equipment_alternative_relevance": "not_low_equipment",
       "copy_legal_boundary_notes": "Factual equipment label only."
+    },
+    "battle_ropes": {
+      "equipment_id": "battle_ropes",
+      "display_label": "Battle ropes",
+      "equipment_class": "conditioning_tool",
+      "activity_applicability": [
+        "powerlifting",
+        "general_strength",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "movement_pattern_applicability": [
+        "conditioning_cyclical"
+      ],
+      "substitution_relevance": "lateral_swap",
+      "template_relevance": "template_selectable",
+      "low_equipment_alternative_relevance": "not_low_equipment",
+      "copy_legal_boundary_notes": "Factual equipment label only."
     }
   }
 }
