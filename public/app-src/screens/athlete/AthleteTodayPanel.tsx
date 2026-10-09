@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { loadTrainingWeek } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem } from "../../components/TrainingDayEditor";
+import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
 
@@ -138,7 +138,7 @@ export function AthleteTodayCreateSessionButton() {
     try {
       const week = await loadTrainingWeek();
       if (week.week || week.programme_in_progress === true) { requestCreateSession(); return; }
-      setOptions(Array.isArray(week.exercise_options) ? (week.exercise_options as JsonRecord[]).map((o) => ({ exercise_id: String(o.exercise_id), label: String(o.label) })) : []);
+      setOptions(Array.isArray(week.exercise_options) ? (week.exercise_options as JsonRecord[]).map(toExerciseOption) : []);
       setPicking(true);
     }
     catch {

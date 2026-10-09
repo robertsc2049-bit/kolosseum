@@ -75,7 +75,7 @@ test("nothing is chosen for the athlete: the lifts the programme names are shown
   assert.ok(screen.getByText("Back squat", { selector: "strong" }));
   assert.ok(screen.getByText("Paused bench press"));
   assert.equal(screen.getAllByText("Named in your programme").length, 2);
-  const selects = Array.from(document.querySelectorAll("select")) as HTMLSelectElement[];
+  const selects = Array.from(document.querySelectorAll(".programme-item select")) as HTMLSelectElement[];
   assert.equal(selects.length, 2);
   assert.ok(selects.every((select) => select.value === ""), "no slot is pre-filled");
   assert.ok(screen.getByText("Squat · 3 × 3 @ 68%"));
