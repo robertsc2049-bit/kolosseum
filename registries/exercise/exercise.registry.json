@@ -33184,6 +33184,1366 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "push_press": {
+      "exercise_id": "push_press",
+      "display_label": "Push press",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Push press: From the front rack, dip and drive with the legs, then press the bar to locked arms overhead.",
+      "instruction_detail_text": [
+        "Unrack the bar onto the front of the shoulders, feet hip-width.",
+        "Dip a few centimetres at the knees, then drive up hard and press the bar overhead.",
+        "Lock out with the bar over the back of the head and lower to the shoulders."
+      ],
+      "coaching_cues": [
+        "Short, straight dip",
+        "Drive, then press",
+        "Head through at lockout"
+      ],
+      "common_faults": [
+        "Dipping too deep or forward",
+        "Pressing before the legs finish",
+        "Bar drifting forward"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [
+        "olympic_weightlifting"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hang_clean": {
+      "exercise_id": "hang_clean",
+      "display_label": "Hang clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Hang clean: From the hang, jump and shrug the bar up, then pull under to catch it in a full front squat.",
+      "instruction_detail_text": [
+        "Stand with the bar at mid-thigh, back flat and shoulders over the bar.",
+        "Extend hips and knees explosively and shrug, then pull yourself under the bar.",
+        "Catch in a front squat with the elbows high and stand up."
+      ],
+      "coaching_cues": [
+        "Bar close",
+        "Finish the pull",
+        "Elbows fast"
+      ],
+      "common_faults": [
+        "Arm pulling early",
+        "Bar swinging away",
+        "Elbows down in the catch"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hang_power_snatch": {
+      "exercise_id": "hang_power_snatch",
+      "display_label": "Hang power snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Hang power snatch: From the hang with a wide grip, jump the bar up and catch it overhead above a quarter squat.",
+      "instruction_detail_text": [
+        "Stand with a wide grip, bar at mid-thigh.",
+        "Extend explosively and pull yourself under the bar.",
+        "Catch it on locked arms above parallel and stand."
+      ],
+      "coaching_cues": [
+        "Bar close",
+        "Punch up at the catch",
+        "Land in the squat stance"
+      ],
+      "common_faults": [
+        "Arm pulling early",
+        "Soft elbows overhead",
+        "Bar looping forward"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "clean_high_pull": {
+      "exercise_id": "clean_high_pull",
+      "display_label": "Clean high pull",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Clean high pull: Pull the bar from the floor or hang with full extension and keep pulling with the elbows high to the chest.",
+      "instruction_detail_text": [
+        "Set up as for a clean.",
+        "Extend hips and knees explosively and shrug.",
+        "Keep pulling with the elbows high and out until the bar reaches the lower chest."
+      ],
+      "coaching_cues": [
+        "Legs first, then arms",
+        "Elbows high and out",
+        "Bar close"
+      ],
+      "common_faults": [
+        "Pulling with the arms early",
+        "Bar swinging away",
+        "Not finishing the hips"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "jump_shrug": {
+      "exercise_id": "jump_shrug",
+      "display_label": "Jump shrug",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Jump shrug: From the hang, jump the bar up with straight arms and a hard shrug.",
+      "instruction_detail_text": [
+        "Stand with the bar at mid-thigh, back flat.",
+        "Jump explosively, shrugging hard with the arms straight.",
+        "Land softly and reset."
+      ],
+      "coaching_cues": [
+        "Arms straight",
+        "Jump and shrug",
+        "Land soft"
+      ],
+      "common_faults": [
+        "Bending the arms",
+        "Leaning back",
+        "Landing stiff"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "snatch_balance": {
+      "exercise_id": "snatch_balance",
+      "display_label": "Snatch balance",
+      "movement_pattern_id": "squat",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "thoracic_medium"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Snatch balance: With the bar on the back in a snatch grip, dip and drive, then punch yourself under it into an overhead squat.",
+      "instruction_detail_text": [
+        "Hold the bar on the upper back with a snatch grip.",
+        "Dip slightly, drive the bar up and push yourself down under it.",
+        "Catch in a full overhead squat and stand."
+      ],
+      "coaching_cues": [
+        "Fast feet",
+        "Punch up into the bar",
+        "Stable bottom position"
+      ],
+      "common_faults": [
+        "Pressing out slowly",
+        "Soft elbows",
+        "Falling forward"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "rack"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dumbbell_hang_power_clean": {
+      "exercise_id": "dumbbell_hang_power_clean",
+      "display_label": "Dumbbell hang power clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Dumbbell hang power clean: From the hang, jump the dumbbells up and catch them on the shoulders in a quarter squat.",
+      "instruction_detail_text": [
+        "Stand holding dumbbells at mid-thigh.",
+        "Extend explosively and pull the dumbbells up close to the body.",
+        "Rotate the elbows under and catch them on the shoulders."
+      ],
+      "coaching_cues": [
+        "Close to the body",
+        "Elbows fast",
+        "Land soft"
+      ],
+      "common_faults": [
+        "Reverse-curling them up",
+        "Dumbbells swinging",
+        "Landing stiff"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dumbbell_snatch": {
+      "exercise_id": "dumbbell_snatch",
+      "display_label": "Dumbbell snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Dumbbell snatch: From between the feet, jump a single dumbbell from the floor to locked out overhead in one movement.",
+      "instruction_detail_text": [
+        "Squat to hold a dumbbell between the feet with one hand.",
+        "Drive up explosively and pull the dumbbell close to the body.",
+        "Punch it to locked arm overhead and stand; alternate hands."
+      ],
+      "coaching_cues": [
+        "Hips drive it",
+        "Close to the body",
+        "Punch up"
+      ],
+      "common_faults": [
+        "Pressing it out",
+        "Rounding the back off the floor",
+        "Dumbbell looping away"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [
+        "kettlebell"
+      ],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [
+        "crossfit"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dumbbell_thruster": {
+      "exercise_id": "dumbbell_thruster",
+      "display_label": "Dumbbell thruster",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Dumbbell thruster: Front squat with dumbbells on the shoulders and drive straight into pressing them overhead.",
+      "instruction_detail_text": [
+        "Hold dumbbells on the shoulders.",
+        "Squat to depth, then drive up and press the dumbbells overhead in one movement.",
+        "Lower them to the shoulders as you go into the next squat."
+      ],
+      "coaching_cues": [
+        "Drive from the legs",
+        "Elbows up in the squat",
+        "Lock out overhead"
+      ],
+      "common_faults": [
+        "Pausing between squat and press",
+        "Elbows dropping",
+        "Leaning back at the top"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dumbbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sumo_deadlift_high_pull": {
+      "exercise_id": "sumo_deadlift_high_pull",
+      "display_label": "Sumo deadlift high pull",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low",
+        "shoulder"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Sumo deadlift high pull: From a wide stance and narrow grip, deadlift and pull the bar to the chin with the elbows high.",
+      "instruction_detail_text": [
+        "Stand wide with a narrow grip on the bar.",
+        "Drive up through the legs and hips, then pull the bar up to the chin, elbows high.",
+        "Lower in reverse."
+      ],
+      "coaching_cues": [
+        "Legs first, then arms",
+        "Elbows high",
+        "Back flat"
+      ],
+      "common_faults": [
+        "Pulling with the arms first",
+        "Rounding the back",
+        "Bar away from the body"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [
+        "kettlebell"
+      ],
+      "primary_activity_applicability": "olympic_weightlifting",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_arm_kettlebell_swing": {
+      "exercise_id": "single_arm_kettlebell_swing",
+      "display_label": "Single-arm kettlebell swing",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Single-arm swing: Hike a kettlebell back between the legs with one hand and snap the hips to float it to chest height.",
+      "instruction_detail_text": [
+        "Hinge with the kettlebell in front, one hand on the handle.",
+        "Hike it back between the legs, then drive the hips forward to swing it up.",
+        "Let it fall back into the next hinge without twisting."
+      ],
+      "coaching_cues": [
+        "Hips, not arms",
+        "Square shoulders",
+        "Snap to standing"
+      ],
+      "common_faults": [
+        "Squatting the swing",
+        "Twisting with the bell",
+        "Lifting with the arm"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kettlebell_clean": {
+      "exercise_id": "kettlebell_clean",
+      "display_label": "Kettlebell clean",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kettlebell clean: Swing a kettlebell back and drive the hips to bring it close up into the rack at the shoulder.",
+      "instruction_detail_text": [
+        "Hinge and hike the kettlebell back.",
+        "Drive the hips and guide it up close to the body.",
+        "Let it roll around the wrist into the rack at the shoulder, elbow tight."
+      ],
+      "coaching_cues": [
+        "Close to the body",
+        "Soft landing in the rack",
+        "Elbow tucked"
+      ],
+      "common_faults": [
+        "Flipping it over the wrist",
+        "Bell banging the forearm",
+        "Swinging it out wide"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kettlebell_snatch": {
+      "exercise_id": "kettlebell_snatch",
+      "display_label": "Kettlebell snatch",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kettlebell snatch: Swing a kettlebell back and drive the hips to bring it up close and punch it to locked arm overhead in one movement.",
+      "instruction_detail_text": [
+        "Hinge and hike the kettlebell back.",
+        "Drive the hips, pull it up close and punch through so it lands softly overhead.",
+        "Bring it back down into the next hike."
+      ],
+      "coaching_cues": [
+        "Punch through at the top",
+        "Close to the body",
+        "Hips drive it"
+      ],
+      "common_faults": [
+        "Bell banging the forearm",
+        "Pressing it out",
+        "Arching back overhead"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kettlebell_windmill": {
+      "exercise_id": "kettlebell_windmill",
+      "display_label": "Kettlebell windmill",
+      "movement_pattern_id": "core_anti_lateral_flexion",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "hip"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Windmill: With a kettlebell locked out overhead, push the hips out and lower the other hand down the leg towards the floor.",
+      "instruction_detail_text": [
+        "Press the kettlebell overhead and turn the feet away from it.",
+        "Push the hips towards the bell side and slide the free hand down the front leg, eyes on the bell.",
+        "Return to standing, arm locked out the whole time."
+      ],
+      "coaching_cues": [
+        "Eyes on the bell",
+        "Arm vertical",
+        "Hips push out"
+      ],
+      "common_faults": [
+        "Bending the overhead arm",
+        "Twisting instead of hinging",
+        "Going too heavy too soon"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [
+        "dumbbell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "turkish_get_up": {
+      "exercise_id": "turkish_get_up",
+      "display_label": "Turkish get-up",
+      "movement_pattern_id": "core_anti_rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "hip"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Turkish get-up: With a kettlebell locked out overhead, stand up from lying on your back in set stages, then reverse back down.",
+      "instruction_detail_text": [
+        "Lie on your back with the bell pressed up in one hand, same-side knee bent.",
+        "Roll to the elbow, then the hand, bridge the hips, sweep the leg under and stand up.",
+        "Reverse each step back down, arm locked out throughout."
+      ],
+      "coaching_cues": [
+        "Eyes on the bell",
+        "Arm vertical",
+        "One step at a time"
+      ],
+      "common_faults": [
+        "Bending the arm",
+        "Rushing the stages",
+        "Losing sight of the bell"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "kettlebell"
+      ],
+      "equipment_alternatives": [
+        "dumbbell"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kipping_pull_up": {
+      "exercise_id": "kipping_pull_up",
+      "display_label": "Kipping pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kipping pull-up: Use a hollow-to-arch swing from the shoulders to drive the hips and pull the chin over the bar.",
+      "instruction_detail_text": [
+        "Hang and swing from a hollow position to an arch with straight arms.",
+        "From the arch, snap to hollow and drive the hips up as you pull.",
+        "Push away from the bar at the top back into the swing."
+      ],
+      "coaching_cues": [
+        "Swing from the shoulders",
+        "Snap the hips",
+        "Strict pull-ups first"
+      ],
+      "common_faults": [
+        "Swinging from bent arms",
+        "Learning it before strict pull-ups",
+        "Losing the rhythm"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "butterfly_pull_up": {
+      "exercise_id": "butterfly_pull_up",
+      "display_label": "Butterfly pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Butterfly pull-up: A continuous, circular kipping pull-up for fast cycling, chin over the bar each rep.",
+      "instruction_detail_text": [
+        "Start from a kip swing.",
+        "Drive the hips up and pull the chin over the bar, then push the hips back and down in a circle.",
+        "Keep the circle continuous."
+      ],
+      "coaching_cues": [
+        "Circular rhythm",
+        "Chin over every rep",
+        "Master kipping first"
+      ],
+      "common_faults": [
+        "Short reps",
+        "Losing the rhythm",
+        "Shoulders loose at the bottom"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kipping_handstand_push_up": {
+      "exercise_id": "kipping_handstand_push_up",
+      "display_label": "Kipping handstand push-up",
+      "movement_pattern_id": "vertical_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow",
+        "wrist"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kipping handstand push-up: In a wall handstand, lower the head to the floor, tuck the knees, then kick the legs up hard to drive to locked arms.",
+      "instruction_detail_text": [
+        "Kick up into a handstand against a wall and lower your head to a pad.",
+        "Tuck the knees towards the chest.",
+        "Kick the legs up explosively and press to locked arms."
+      ],
+      "coaching_cues": [
+        "Pad under the head",
+        "Kick and press together",
+        "Strict reps first"
+      ],
+      "common_faults": [
+        "Landing on the head hard",
+        "Arching the back",
+        "Learning it before strict reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "overhead_loading"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ring_muscle_up": {
+      "exercise_id": "ring_muscle_up",
+      "display_label": "Ring muscle-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ring muscle-up: From a false grip on the rings, pull and turn over the rings into a dip, then press to straight arms.",
+      "instruction_detail_text": [
+        "Hang from the rings with a false grip.",
+        "Pull high and fast, turning the wrists over the rings into the bottom of a dip.",
+        "Press out of the dip to straight arms."
+      ],
+      "coaching_cues": [
+        "False grip",
+        "Pull to the chest",
+        "Fast turnover"
+      ],
+      "common_faults": [
+        "Losing the false grip",
+        "Chicken-winging one arm",
+        "Rings drifting wide"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "gymnastics_rings"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "atlas_stone_to_shoulder": {
+      "exercise_id": "atlas_stone_to_shoulder",
+      "display_label": "Atlas stone to shoulder",
+      "movement_pattern_id": "hinge",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "unstable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "lumbar_medium",
+        "hip",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Stone to shoulder: Lap an atlas stone, then drive it up to one shoulder and stand tall.",
+      "instruction_detail_text": [
+        "Straddle the stone, hug it and lap it onto your thighs.",
+        "Re-grip, then drive the hips through to bring the stone up to one shoulder.",
+        "Stand tall, then lower it back down under control."
+      ],
+      "coaching_cues": [
+        "Hug it tight",
+        "Hips drive it up",
+        "Stand tall at the top"
+      ],
+      "common_faults": [
+        "Lifting with the arms",
+        "Rounding without bracing",
+        "Dropping it from the shoulder"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "atlas_stone"
+      ],
+      "equipment_alternatives": [
+        "sandbag"
+      ],
+      "primary_activity_applicability": "strongman",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "jammer_press": {
+      "exercise_id": "jammer_press",
+      "display_label": "Jammer press",
+      "movement_pattern_id": "angled_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Jammer press: From a quarter squat holding the landmine bar at the shoulders, drive with the legs and press it forward and up.",
+      "instruction_detail_text": [
+        "Hold the end of a landmine bar (or jammer handles) at the shoulders in a quarter squat.",
+        "Drive up with the legs and press the bar forward and up to straight arms.",
+        "Lower it back to the shoulders as you sink into the next rep."
+      ],
+      "coaching_cues": [
+        "Legs start it",
+        "Arms finish it",
+        "Brace through the trunk"
+      ],
+      "common_faults": [
+        "Pressing with arms only",
+        "Arching the back",
+        "Losing the brace"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "landmine_attachment"
+      ],
+      "equipment_alternatives": [
+        "machine_general"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "battle_rope_waves": {
+      "exercise_id": "battle_rope_waves",
+      "display_label": "Battle rope waves",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Battle rope waves: In an athletic stance, whip a heavy rope up and down with both arms (together or alternating) for the prescribed time.",
+      "instruction_detail_text": [
+        "Hold one end of the rope in each hand in a quarter squat.",
+        "Whip the arms up and down to send waves along the rope, together or alternating.",
+        "Keep the waves going for the prescribed time."
+      ],
+      "coaching_cues": [
+        "Athletic stance",
+        "Waves all the way to the anchor",
+        "Breathe steadily"
+      ],
+      "common_faults": [
+        "Standing up straight",
+        "Small arm-only waves",
+        "Holding the breath"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "battle_ropes"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }
