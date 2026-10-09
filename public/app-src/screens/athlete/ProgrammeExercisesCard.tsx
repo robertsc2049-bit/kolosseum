@@ -5,7 +5,8 @@ import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
-import { inMuscleGroup, musclesText } from "../../utils/muscleGroups";
+import { ExerciseSearchInput } from "../../components/ExerciseSearchInput";
+import { inMuscleGroup, matchesExerciseSearch, musclesText } from "../../utils/muscleGroups";
 
 // The athlete chooses their own exercise for every open slot of their
 // programme; only competition lifts (and timed-group workouts) are named.
@@ -63,6 +64,7 @@ export function ProgrammeExercisesCard() {
   const [fieldErrors, setFieldErrors] = useState<JsonRecord>({});
   const [saved, setSaved] = useState(false);
   const [muscleFilter, setMuscleFilter] = useState("");
+  const [search, setSearch] = useState("");
   // Running a Kolosseum programme: its exercises come from the programme, so
   // there are none to choose here.
   const [runningProgramme, setRunningProgramme] = useState(false);
@@ -165,6 +167,7 @@ export function ProgrammeExercisesCard() {
       ) : (
         <form onSubmit={(event) => { event.preventDefault(); void save(); }}>
           <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} label="Show other exercises for" ariaLabel="Muscle group" />
+          <ExerciseSearchInput value={search} onChange={setSearch} />
           {days.map((day) => {
             const items = Array.isArray(day.items) ? (day.items as JsonRecord[]) : [];
             const dayName = titleCase(String(day.focus ?? day.day_id));
@@ -193,7 +196,7 @@ export function ProgrammeExercisesCard() {
                     const recommended = new Set(options.map((option) => String(option.exercise_id)));
                     const others = allExercises.filter((exercise) => !recommended.has(String(exercise.exercise_id)));
                     const current = draft[slotId] ?? "";
-                    const shownOthers = others.filter((exercise) => String(exercise.exercise_id) === current || inMuscleGroup(exercise, muscleFilter));
+                    const shownOthers = others.filter((exercise) => String(exercise.exercise_id) === current || (inMuscleGroup(exercise, muscleFilter) && matchesExerciseSearch(String(exercise.display_name ?? exercise.exercise_id), exercise, search)));
                     const currentMuscles = musclesText([...options, ...allExercises].find((exercise) => String(exercise.exercise_id) === current));
                     const fieldError = fieldErrors[slotId];
                     const fitNote = !current || recommended.has(current) ? null
@@ -214,7 +217,7 @@ export function ProgrammeExercisesCard() {
                               <optgroup label="Your own exercises">{ownExercises.map((c) => renderOption(c.exercise_id, c.display_name))}</optgroup>
                             ) : null}
                             {shownOthers.length ? (
-                              <optgroup label={muscleFilter ? "Other exercises for this muscle group" : "All other exercises"}>
+                              <optgroup label={muscleFilter || search ? "Other matching exercises" : "All other exercises"}>
                                 {shownOthers.map((o) => renderOption(String(o.exercise_id), String(o.display_name ?? o.exercise_id)))}
                               </optgroup>
                             ) : null}

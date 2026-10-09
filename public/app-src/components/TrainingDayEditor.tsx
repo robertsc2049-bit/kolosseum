@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-import { inMuscleGroup, musclesText } from "../utils/muscleGroups";
+import { inMuscleGroup, matchesExerciseSearch, musclesText } from "../utils/muscleGroups";
+import { ExerciseSearchInput } from "./ExerciseSearchInput";
 import { MuscleGroupSelect } from "./MuscleGroupSelect";
 
 // One training day's exercises with sets and reps - used for each day of an
@@ -25,18 +26,20 @@ export function TrainingDayEditor({ label, items, options, onChange }: {
   onChange: (items: DayItem[]) => void;
 }) {
   const [muscleFilter, setMuscleFilter] = useState("");
+  const [search, setSearch] = useState("");
   const update = (index: number, change: Partial<DayItem>) => onChange(items.map((item, i) => (i === index ? { ...item, ...change } : item)));
   return (
     <fieldset className="my-training-day">
       <legend>{label}</legend>
       <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} ariaLabel={`${label} muscle group`} />
+      <ExerciseSearchInput value={search} onChange={setSearch} ariaLabel={`${label} search exercises`} />
       {items.map((item, i) => (
         <div key={i} className="my-training-item">
           <label className="field">
             <span>Exercise</span>
             <select aria-label={`${label} exercise ${i + 1}`} value={item.exercise_id} onChange={(event) => update(i, { exercise_id: event.target.value })}>
               <option value="">Choose an exercise</option>
-              {options.filter((o) => o.exercise_id === item.exercise_id || inMuscleGroup(o, muscleFilter)).map((o) => <option key={o.exercise_id} value={o.exercise_id}>{o.label}</option>)}
+              {options.filter((o) => o.exercise_id === item.exercise_id || (inMuscleGroup(o, muscleFilter) && matchesExerciseSearch(o.label, o, search))).map((o) => <option key={o.exercise_id} value={o.exercise_id}>{o.label}</option>)}
             </select>
             {item.exercise_id ? <small className="muted exercise-muscles">{musclesText(options.find((o) => o.exercise_id === item.exercise_id))}</small> : null}
           </label>
