@@ -3,8 +3,6 @@
 // an estimated one-rep max per exercise per training day, so a coach can see
 // the trend from training rather than only from maxes they typed in.
 
-import { bodyweightShare, systemLoadKg } from "./bodyweight_load.js";
-
 type JsonRecord = Record<string, unknown>;
 
 export type LoggedSet = Readonly<{
@@ -13,20 +11,11 @@ export type LoggedSet = Readonly<{
   load_value: number;
   load_unit: "kg" | "lb";
   date: string; // YYYY-MM-DD (the day the set was logged, UTC)
-  // The athlete's bodyweight when the set was logged (bodyweight exercises).
-  bodyweight_kg?: number | null;
 }>;
 
 const LB_PER_KG = 2.2046226218;
 // Estimates past 10 reps are too unreliable to trend a max from.
 export const E1RM_MAX_REPS = 10;
-
-// Bodyweight lifts are judged on the whole system load - their share of the
-// athlete's bodyweight plus any added load (bodyweight_load.ts) - using the
-// bodyweight logged with the set, else the athlete's current bodyweight.
-export const BODYWEIGHT_PLUS_LOAD_EXERCISES: ReadonlySet<string> = new Set(
-  ["pull_up", "chin_up", "dip", "muscle_up", "rope_climb", "band_assisted_pull_up", "push_up", "feet_elevated_push_up"].filter((id) => bodyweightShare(id) > 0)
-);
 
 // An estimated max only means something for strength lifts: squat, hinge,
 // single-leg and pushing/pulling patterns. Jumps, sprints, throws, carries,
@@ -55,55 +44,50 @@ export function epleyE1rm(load: number, reps: number): number {
 }
 
 // The e1RM of one set in kg, or null when the set cannot estimate a max
-// (a failed set, more than 10 reps, or a net load of zero or less).
-export function setE1rmKg(set: LoggedSet, bodyweightKg: number | null): { e1rm_kg: number; includes_bodyweight: boolean } | null {
+// (a failed set, more than 10 reps, or no load). A bodyweight exercise's load
+// is only what was added on top, so an unweighted pull-up has no e1RM.
+export function setE1rmKg(set: LoggedSet): number | null {
   if (!Number.isInteger(set.reps) || set.reps < 1 || set.reps > E1RM_MAX_REPS) return null;
-  const addedKg = toKg(set.load_value, set.load_unit);
-  const bodyweight = set.bodyweight_kg && set.bodyweight_kg > 0 ? set.bodyweight_kg : bodyweightKg;
-  const system = systemLoadKg(set.exercise_id, addedKg, bodyweight);
-  const includesBodyweight = system !== null;
-  const systemKg = system ?? addedKg;
-  if (!(systemKg > 0)) return null;
-  return { e1rm_kg: epleyE1rm(systemKg, set.reps), includes_bodyweight: includesBodyweight };
+  const loadKg = toKg(set.load_value, set.load_unit);
+  if (!(loadKg > 0)) return null;
+  return epleyE1rm(loadKg, set.reps);
 }
 
 // Per exercise: the best e1RM on each training day, the latest day's value
 // and the change from the nearest day at least windowDays earlier.
 export function computeTrainingE1rmTrends(
   sets: readonly LoggedSet[],
-  bodyweightKg: number | null,
   displayUnit: "kg" | "lb",
   windowDays: number,
   patternOf: (exerciseId: string) => string | undefined
 ): JsonRecord[] {
-  const byExercise = new Map<string, Map<string, { e1rm_kg: number; includes_bodyweight: boolean }>>();
+  const byExercise = new Map<string, Map<string, number>>();
   for (const logged of sets) {
     // A repeat of an exercise in a session ("back_squat__r2") is that exercise.
     const set = { ...logged, exercise_id: logged.exercise_id.replace(/__r[0-9]+$/, "") };
     if (!isE1rmExercise(set.exercise_id, patternOf)) continue;
-    const est = setE1rmKg(set, bodyweightKg);
-    if (!est) continue;
+    const est = setE1rmKg(set);
+    if (est === null) continue;
     const days = byExercise.get(set.exercise_id) ?? new Map();
     const best = days.get(set.date);
-    if (!best || est.e1rm_kg > best.e1rm_kg) days.set(set.date, est);
+    if (best === undefined || est > best) days.set(set.date, est);
     byExercise.set(set.exercise_id, days);
   }
 
   const trends: JsonRecord[] = [];
   for (const exerciseId of [...byExercise.keys()].sort()) {
-    const days = [...(byExercise.get(exerciseId) as Map<string, { e1rm_kg: number; includes_bodyweight: boolean }>).entries()]
+    const days = [...(byExercise.get(exerciseId) as Map<string, number>).entries()]
       .sort(([a], [b]) => a.localeCompare(b));
     const [latestDate, latest] = days[days.length - 1];
     const cutoffMs = Date.parse(`${latestDate}T00:00:00Z`) - windowDays * 86_400_000;
     const prior = [...days].reverse().find(([date]) => Date.parse(`${date}T00:00:00Z`) <= cutoffMs) ?? null;
     const value = (kg: number) => round1(fromKg(kg, displayUnit));
-    const current = value(latest.e1rm_kg);
-    const priorValue = prior ? value(prior[1].e1rm_kg) : null;
+    const current = value(latest);
+    const priorValue = prior ? value(prior[1]) : null;
     trends.push(Object.freeze({
       exercise_id: exerciseId,
       unit: displayUnit,
       method: "epley",
-      includes_bodyweight: latest.includes_bodyweight,
       current_e1rm: current,
       current_date: latestDate,
       has_prior_value: prior !== null,
@@ -111,7 +95,7 @@ export function computeTrainingE1rmTrends(
       prior_date: prior ? prior[0] : null,
       delta: priorValue !== null ? round1(current - priorValue) : null,
       delta_percentage: priorValue ? round1((100 * (current - priorValue)) / priorValue) : null,
-      series: Object.freeze(days.map(([date, est]) => Object.freeze({ date, e1rm: value(est.e1rm_kg) })))
+      series: Object.freeze(days.map(([date, est]) => Object.freeze({ date, e1rm: value(est) })))
     }));
   }
   return trends;

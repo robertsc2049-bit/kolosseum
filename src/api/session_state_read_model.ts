@@ -50,8 +50,7 @@ export async function loadSessionSetLogs(client: any, session_id: string): Promi
     `SELECT DISTINCT ON (event->>'exercise_id', (event->>'set_index')::int)
        event->>'exercise_id' AS exercise_id, (event->>'set_index')::int AS set_index,
        (event->>'reps')::int AS reps, (event->>'load_value')::numeric AS load_value,
-       event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr,
-       (event->>'system_load_kg')::numeric AS system_load_kg
+       event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr
      FROM runtime_events
      WHERE session_id = $1 AND event->>'type' = 'SET_LOG_REPORT'
      ORDER BY event->>'exercise_id', (event->>'set_index')::int, seq DESC`,
@@ -64,9 +63,7 @@ export async function loadSessionSetLogs(client: any, session_id: string): Promi
       reps: row.reps,
       load_value: row.load_value === null ? null : Number(row.load_value),
       load_unit: row.load_unit ?? null,
-      is_pr: row.is_pr === true,
-      // A bodyweight exercise: bodyweight plus added load (null otherwise).
-      system_load_kg: row.system_load_kg === null || row.system_load_kg === undefined ? null : Number(row.system_load_kg)
+      is_pr: row.is_pr === true
     });
   }
   return setLogs;
