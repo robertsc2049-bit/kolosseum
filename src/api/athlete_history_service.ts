@@ -436,8 +436,8 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
   const rpeReports = new Map<string, number>();
   const borgReports = new Map<string, number>();
   const cr10Reports = new Map<string, number>();
-  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; system_load_kg: number | null; seq: number; created_at: string | null }>>();
-  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; system_load_kg: number | null; seq: number; created_at: string | null }>>();
+  const extraSetReports = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
+  const addedExercises = new Map<string, Array<{ reps: number; load_value: number | null; load_unit: string | null; is_pr: boolean; seq: number; created_at: string | null }>>();
   const substitutions = new Map<string, { substituted_exercise_id: string; substitution_edge_id: string }>();
   // Prescribed-set logs per exercise, keyed by set so a re-logged set replaces the earlier entry.
   const setLogs = new Map<string, Map<number, JsonRecord>>();
@@ -474,7 +474,6 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
         load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
         is_pr: event.is_pr === true,
-        system_load_kg: Number.isFinite(event.system_load_kg) ? (event.system_load_kg as number) : null,
         seq,
         created_at
       });
@@ -489,7 +488,6 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
         load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
         is_pr: event.is_pr === true,
-        system_load_kg: Number.isFinite(event.system_load_kg) ? (event.system_load_kg as number) : null,
         seq,
         created_at
       });
@@ -503,7 +501,6 @@ export async function buildAthleteHistoryDetailResult(input: unknown): Promise<B
         load_value: Number.isFinite(event.load_value) ? (event.load_value as number) : null,
         load_unit: typeof event.load_unit === "string" ? event.load_unit : null,
         is_pr: event.is_pr === true,
-        system_load_kg: Number.isFinite(event.system_load_kg) ? (event.system_load_kg as number) : null,
         seq,
         created_at
       });

@@ -3,8 +3,6 @@
 // an estimated one-rep max per exercise per training day, so a coach can see
 // the trend from training rather than only from maxes they typed in.
 
-import { bodyweightShare, systemLoadKg } from "./bodyweight_load.js";
-
 type JsonRecord = Record<string, unknown>;
 
 export type LoggedSet = Readonly<{
@@ -13,20 +11,20 @@ export type LoggedSet = Readonly<{
   load_value: number;
   load_unit: "kg" | "lb";
   date: string; // YYYY-MM-DD (the day the set was logged, UTC)
-  // The athlete's bodyweight when the set was logged (bodyweight exercises).
-  bodyweight_kg?: number | null;
 }>;
 
 const LB_PER_KG = 2.2046226218;
 // Estimates past 10 reps are too unreliable to trend a max from.
 export const E1RM_MAX_REPS = 10;
 
-// Bodyweight lifts are judged on the whole system load - their share of the
-// athlete's bodyweight plus any added load (bodyweight_load.ts) - using the
-// bodyweight logged with the set, else the athlete's current bodyweight.
-export const BODYWEIGHT_PLUS_LOAD_EXERCISES: ReadonlySet<string> = new Set(
-  ["pull_up", "chin_up", "dip", "muscle_up", "rope_climb", "band_assisted_pull_up", "push_up", "feet_elevated_push_up"].filter((id) => bodyweightShare(id) > 0)
-);
+// Bodyweight lifts are judged on the whole system load (street lifting ranks
+// weighted pull-ups and dips on bodyweight + added load), so their e1RM adds
+// the athlete's bodyweight when it is known. Partial-bodyweight lifts
+// (push-ups, inverted rows) are not listed: adding full bodyweight would
+// overstate them.
+export const BODYWEIGHT_PLUS_LOAD_EXERCISES: ReadonlySet<string> = new Set([
+  "pull_up", "chin_up", "dip", "muscle_up", "band_assisted_pull_up"
+]);
 
 // An estimated max only means something for strength lifts: squat, hinge,
 // single-leg and pushing/pulling patterns. Jumps, sprints, throws, carries,
@@ -59,10 +57,9 @@ export function epleyE1rm(load: number, reps: number): number {
 export function setE1rmKg(set: LoggedSet, bodyweightKg: number | null): { e1rm_kg: number; includes_bodyweight: boolean } | null {
   if (!Number.isInteger(set.reps) || set.reps < 1 || set.reps > E1RM_MAX_REPS) return null;
   const addedKg = toKg(set.load_value, set.load_unit);
-  const bodyweight = set.bodyweight_kg && set.bodyweight_kg > 0 ? set.bodyweight_kg : bodyweightKg;
-  const system = systemLoadKg(set.exercise_id, addedKg, bodyweight);
-  const includesBodyweight = system !== null;
-  const systemKg = system ?? addedKg;
+  const bodyweightLift = BODYWEIGHT_PLUS_LOAD_EXERCISES.has(set.exercise_id);
+  const includesBodyweight = bodyweightLift && bodyweightKg !== null && bodyweightKg > 0;
+  const systemKg = includesBodyweight ? (bodyweightKg as number) + addedKg : addedKg;
   if (!(systemKg > 0)) return null;
   return { e1rm_kg: epleyE1rm(systemKg, set.reps), includes_bodyweight: includesBodyweight };
 }

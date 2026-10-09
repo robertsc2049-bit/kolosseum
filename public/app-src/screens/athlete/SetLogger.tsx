@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { setLoadText } from "../../utils/format";
 
 // Per-set logging for the current prescribed exercise: one row per set,
 // pre-filled with the prescription (reps, and the resolved load when the
@@ -35,8 +34,7 @@ function prescribedLoad(exercise: JsonRecord): { value: string; unit: "kg" | "lb
 }
 
 function formatLogged(log: JsonRecord): string {
-  const loadText = setLoadText(log);
-  const load = loadText ? ` × ${loadText}` : "";
+  const load = log.load_value !== null && log.load_value !== undefined ? ` × ${Number(log.load_value)} ${String(log.load_unit ?? "kg")}` : "";
   return `${Number(log.reps)} reps${load}${log.is_pr === true ? " · PR" : ""}${log.pending === true ? " · saved on this phone" : ""}`;
 }
 
