@@ -50,7 +50,7 @@
     "equipment"
   ],
   "activated_record_count": 69,
-  "exercise_records_annotated_count": 365,
+  "exercise_records_annotated_count": 401,
   "human_authorisation": {
     "authorised_by": "repository owner",
     "authorisation_method": "explicit_chat_instruction",

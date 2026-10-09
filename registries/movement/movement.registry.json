@@ -676,7 +676,12 @@
         "cable_machine",
         "plate",
         "hex_dumbbell",
-        "adjustable_dumbbell"
+        "adjustable_dumbbell",
+        "cable_single_handle_attachment",
+        "resistance_band",
+        "smith_machine",
+        "suspension_trainer",
+        "gymnastics_rings"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -743,7 +748,9 @@
         "rack",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "cable_single_handle_attachment",
+        "smith_machine"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -800,7 +807,8 @@
         "resistance_band",
         "plate",
         "dip_bars",
-        "gymnastics_rings"
+        "gymnastics_rings",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -990,7 +998,14 @@
         "cable_v_bar_attachment",
         "cable_straight_bar_attachment",
         "landmine_attachment",
-        "bench"
+        "bench",
+        "smith_machine",
+        "cable_single_handle_attachment",
+        "cable_lat_bar_attachment",
+        "box",
+        "rack",
+        "suspension_trainer",
+        "gymnastics_rings"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1051,7 +1066,8 @@
         "climbing_rope",
         "gymnastics_rings",
         "cable_straight_bar_attachment",
-        "cable_rope_attachment"
+        "cable_rope_attachment",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1152,7 +1168,10 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "barbell",
+        "bench",
+        "smith_machine"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1203,7 +1222,12 @@
         "resistance_band",
         "plate",
         "barbell",
-        "trap_bar"
+        "trap_bar",
+        "smith_machine",
+        "pull_up_bar",
+        "gymnastics_rings",
+        "suspension_trainer",
+        "rack"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

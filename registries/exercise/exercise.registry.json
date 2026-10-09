@@ -25800,6 +25800,2741 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "underhand_barbell_row": {
+      "exercise_id": "underhand_barbell_row",
+      "display_label": "Underhand barbell row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Underhand barbell row: Bent over with a shoulder-width underhand grip, row the bar to the lower ribs.",
+      "instruction_detail_text": [
+        "Hinge forward with a flat back holding the bar with palms facing forward.",
+        "Row it to the lower ribs, elbows close to the body.",
+        "Lower to straight arms under control."
+      ],
+      "coaching_cues": [
+        "Flat back",
+        "Elbows close",
+        "Pull to the belly button"
+      ],
+      "common_faults": [
+        "Standing up as you row",
+        "Jerking the bar",
+        "Rounding the back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "smith_machine_bent_over_row": {
+      "exercise_id": "smith_machine_bent_over_row",
+      "display_label": "Smith machine bent-over row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Smith machine row: Bent over under the Smith bar, row it to the lower chest and lower it under control.",
+      "instruction_detail_text": [
+        "Set the bar at knee height, hinge forward and grip it shoulder-width.",
+        "Unhook and row to the lower chest.",
+        "Lower to straight arms and re-hook at the end."
+      ],
+      "coaching_cues": [
+        "Hinge, don't squat",
+        "Flat back",
+        "Drive the elbows back"
+      ],
+      "common_faults": [
+        "Rounding the back",
+        "Standing up as you row",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "smith_machine"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_arm_cable_row": {
+      "exercise_id": "single_arm_cable_row",
+      "display_label": "Single-arm cable row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Single-arm cable row: Row one cable handle to your side, seated or in a split stance, without twisting.",
+      "instruction_detail_text": [
+        "Sit or stand side-on in a split stance holding a handle at arm's length.",
+        "Row the handle to your side, elbow close.",
+        "Return under control with a full reach."
+      ],
+      "coaching_cues": [
+        "Square hips",
+        "Elbow to the back pocket",
+        "Full reach"
+      ],
+      "common_faults": [
+        "Twisting the trunk",
+        "Shrugging",
+        "Short reach"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_single_handle_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wide_grip_seated_cable_row": {
+      "exercise_id": "wide_grip_seated_cable_row",
+      "display_label": "Wide-grip seated cable row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Wide-grip cable row: Seated at a low pulley, row a wide bar to the lower chest with the elbows out.",
+      "instruction_detail_text": [
+        "Sit with knees soft holding a long bar wide.",
+        "Row to the lower chest, elbows out and shoulder blades together.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Chest up",
+        "Elbows out",
+        "Squeeze the shoulder blades"
+      ],
+      "common_faults": [
+        "Leaning back to pull",
+        "Shrugging",
+        "Rounding forward at the end"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_lat_bar_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "hyrox",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_high_row": {
+      "exercise_id": "machine_high_row",
+      "display_label": "Machine high row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine high row: Pull the high handles of a row machine down and back towards the shoulders.",
+      "instruction_detail_text": [
+        "Sit with the chest on the pad or thighs under the pad, handles high in front.",
+        "Pull down and back, driving the elbows towards the hips.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Chest up",
+        "Elbows down and back",
+        "Full stretch"
+      ],
+      "common_faults": [
+        "Shrugging",
+        "Short reps",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "feet_elevated_inverted_row": {
+      "exercise_id": "feet_elevated_inverted_row",
+      "display_label": "Feet-elevated inverted row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Feet-elevated inverted row: Hanging under a bar with your feet on a box, pull your chest to the bar.",
+      "instruction_detail_text": [
+        "Hang under a bar set at hip height with your heels on a box and the body straight.",
+        "Pull your chest to the bar.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Body in one line",
+        "Chest to the bar",
+        "Squeeze at the top"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Short reps",
+        "Head poking forward"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar",
+        "box"
+      ],
+      "equipment_alternatives": [
+        "rack",
+        "bench"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "underhand_inverted_row": {
+      "exercise_id": "underhand_inverted_row",
+      "display_label": "Underhand inverted row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Underhand inverted row: Hanging under a bar with palms facing you, pull your chest to the bar.",
+      "instruction_detail_text": [
+        "Hang under a bar at hip height, palms facing you, body straight.",
+        "Pull your chest to the bar, elbows close.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Body in one line",
+        "Elbows close",
+        "Chest to the bar"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Short reps",
+        "Shrugging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [
+        "rack"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_row": {
+      "exercise_id": "suspension_row",
+      "display_label": "Suspension row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Suspension row: Lean back holding the straps and row your chest up to the handles.",
+      "instruction_detail_text": [
+        "Face the anchor holding the handles and lean back with straight arms.",
+        "Row your chest up to the handles.",
+        "Lower under control; walk your feet forward to make it harder."
+      ],
+      "coaching_cues": [
+        "Body in one line",
+        "Elbows to the ribs",
+        "Walk forward to progress"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Short reps",
+        "Shrugging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [
+        "gymnastics_rings"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_arm_suspension_row": {
+      "exercise_id": "single_arm_suspension_row",
+      "display_label": "Single-arm suspension row",
+      "movement_pattern_id": "horizontal_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Single-arm suspension row: Lean back on one strap and row yourself up without letting the body twist.",
+      "instruction_detail_text": [
+        "Hold one handle, lean back with the arm straight and the free arm by your side.",
+        "Row yourself up without rotating.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Square shoulders",
+        "Body in one line",
+        "Elbow to the ribs"
+      ],
+      "common_faults": [
+        "Twisting open",
+        "Hips sagging",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "hyrox",
+        "street_lifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "assisted_pull_up": {
+      "exercise_id": "assisted_pull_up",
+      "display_label": "Assisted pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Assisted pull-up: Do pull-ups or chin-ups on an assisted machine so you lift only part of your bodyweight.",
+      "instruction_detail_text": [
+        "Set the assistance and kneel or stand on the platform, gripping the bar.",
+        "Pull until your chin is over the bar.",
+        "Lower to straight arms under control."
+      ],
+      "coaching_cues": [
+        "Less help as you get stronger",
+        "Full hang at the bottom",
+        "Chest to the bar"
+      ],
+      "common_faults": [
+        "Too much assistance",
+        "Half reps",
+        "Kicking the legs"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "neutral_grip_pull_up": {
+      "exercise_id": "neutral_grip_pull_up",
+      "display_label": "Neutral-grip pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Neutral-grip pull-up: Pull up on parallel handles with the palms facing each other.",
+      "instruction_detail_text": [
+        "Hang from parallel handles with straight arms, palms facing.",
+        "Pull until your chin clears the handles.",
+        "Lower to a full hang."
+      ],
+      "coaching_cues": [
+        "Full hang",
+        "Chest up",
+        "Elbows down to the ribs"
+      ],
+      "common_faults": [
+        "Kipping with the hips",
+        "Half reps",
+        "Shrugging at the top"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "archer_pull_up": {
+      "exercise_id": "archer_pull_up",
+      "display_label": "Archer pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Archer pull-up: With a very wide grip, pull up towards one hand while the other arm stays nearly straight.",
+      "instruction_detail_text": [
+        "Hang from a wide overhand grip.",
+        "Pull towards one hand, keeping the other arm nearly straight along the bar.",
+        "Lower under control and alternate sides."
+      ],
+      "coaching_cues": [
+        "Pull to one hand",
+        "Other arm long",
+        "Control the lowering"
+      ],
+      "common_faults": [
+        "Bending both arms equally",
+        "Kicking the legs",
+        "Partial range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "one_arm_pull_up": {
+      "exercise_id": "one_arm_pull_up",
+      "display_label": "One-arm pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "One-arm pull-up: Pull your chin over the bar with one arm.",
+      "instruction_detail_text": [
+        "Hang from the bar with one hand, the body braced and still.",
+        "Pull until your chin clears the bar.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Brace the whole body",
+        "Pull the elbow to the ribs",
+        "Slow lowering"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Twisting away from the bar",
+        "Dropping from the top"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ring_pull_up": {
+      "exercise_id": "ring_pull_up",
+      "display_label": "Ring pull-up",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ring pull-up: Pull up on gymnastics rings, letting the hands turn naturally.",
+      "instruction_detail_text": [
+        "Hang from the rings with straight arms.",
+        "Pull until your chin is over the rings, letting the palms turn in.",
+        "Lower to a full hang."
+      ],
+      "coaching_cues": [
+        "Rings close to the body at the top",
+        "Full hang",
+        "Still body"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Rings drifting wide",
+        "Half reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "gymnastics_rings"
+      ],
+      "equipment_alternatives": [
+        "suspension_trainer"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "underhand_lat_pulldown": {
+      "exercise_id": "underhand_lat_pulldown",
+      "display_label": "Underhand lat pulldown",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Underhand pulldown: Pull a bar down to the upper chest with a shoulder-width, palms-facing-you grip.",
+      "instruction_detail_text": [
+        "Sit under the pulley with the thighs pinned, holding the bar palms towards you, shoulder-width.",
+        "Pull it to the upper chest, elbows down and back.",
+        "Return to straight arms."
+      ],
+      "coaching_cues": [
+        "Chest up",
+        "Elbows to the ribs",
+        "Full stretch at the top"
+      ],
+      "common_faults": [
+        "Leaning back too far",
+        "Pulling behind the neck",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine"
+      ],
+      "equipment_alternatives": [
+        "machine_general",
+        "cable_straight_bar_attachment"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "straight_arm_pulldown": {
+      "exercise_id": "straight_arm_pulldown",
+      "display_label": "Straight-arm pulldown",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Straight-arm pulldown: Standing at a high pulley, sweep a bar from overhead down to the thighs with straight arms.",
+      "instruction_detail_text": [
+        "Stand facing a high pulley, hinge slightly and hold the bar with straight arms at eye level.",
+        "Sweep it down to the thighs keeping the arms straight.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Arms straight",
+        "Ribs down",
+        "Drive the bar to the thighs"
+      ],
+      "common_faults": [
+        "Bending the elbows into a pushdown",
+        "Arching the back",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_straight_bar_attachment"
+      ],
+      "equipment_alternatives": [
+        "cable_rope_attachment",
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_pullover": {
+      "exercise_id": "machine_pullover",
+      "display_label": "Machine pullover",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine pullover: Sweep the arm pads of a pullover machine from overhead down to your trunk.",
+      "instruction_detail_text": [
+        "Sit with the elbows on the pads and the arms raised overhead.",
+        "Drive the elbows down in an arc to your sides.",
+        "Return under control to the stretch."
+      ],
+      "coaching_cues": [
+        "Drive with the elbows",
+        "Full stretch",
+        "Back on the pad"
+      ],
+      "common_faults": [
+        "Short range",
+        "Arching off the seat",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "barbell_pullover": {
+      "exercise_id": "barbell_pullover",
+      "display_label": "Barbell pullover",
+      "movement_pattern_id": "vertical_pull",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Barbell pullover: Lying on a bench, lower a barbell in an arc behind your head with soft elbows, then pull it back over the chest.",
+      "instruction_detail_text": [
+        "Lie on a bench holding a barbell over the chest with a narrow grip and soft elbows.",
+        "Lower it in an arc behind the head to a comfortable stretch.",
+        "Pull it back over the chest."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Ribs down",
+        "Comfortable stretch"
+      ],
+      "common_faults": [
+        "Bending the elbows into a press",
+        "Arching the back",
+        "Going too heavy"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_shrug": {
+      "exercise_id": "machine_shrug",
+      "display_label": "Machine shrug",
+      "movement_pattern_id": "scapular_upward_rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Machine shrug: Shrug the handles of a shrug machine or Smith bar straight up and lower them under control.",
+      "instruction_detail_text": [
+        "Stand or sit in the machine holding the handles with straight arms.",
+        "Shrug the shoulders straight up towards the ears.",
+        "Lower under control to a full stretch."
+      ],
+      "coaching_cues": [
+        "Straight up, no rolling",
+        "Arms long",
+        "Pause at the top"
+      ],
+      "common_faults": [
+        "Rolling the shoulders",
+        "Bending the elbows",
+        "Short range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [
+        "smith_machine",
+        "cable_machine"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "inverted_shrug": {
+      "exercise_id": "inverted_shrug",
+      "display_label": "Inverted shrug",
+      "movement_pattern_id": "scapular_upward_rotation",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Inverted shrug: Hanging under a low bar with straight arms, pull the shoulder blades together and down to lift the chest slightly.",
+      "instruction_detail_text": [
+        "Hang under a bar at hip height with straight arms and the body straight.",
+        "Without bending the elbows, squeeze the shoulder blades back to lift the chest.",
+        "Lower under control."
+      ],
+      "coaching_cues": [
+        "Arms stay straight",
+        "Shoulder blades back and down",
+        "Small movement"
+      ],
+      "common_faults": [
+        "Bending the elbows",
+        "Hips sagging",
+        "Shrugging up to the ears"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [
+        "gymnastics_rings",
+        "suspension_trainer",
+        "rack"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dumbbell_fly": {
+      "exercise_id": "dumbbell_fly",
+      "display_label": "Dumbbell fly",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Dumbbell fly: Lying on a bench, open the arms in a wide arc with soft elbows, then bring the dumbbells together over the chest.",
+      "instruction_detail_text": [
+        "Lie on a bench with the dumbbells over the chest, palms facing and elbows slightly bent.",
+        "Open the arms in a wide arc to a comfortable chest stretch.",
+        "Squeeze them back together over the chest."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Chest up",
+        "Hug a barrel"
+      ],
+      "common_faults": [
+        "Turning it into a press",
+        "Dropping too low",
+        "Going too heavy"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "incline_dumbbell_fly": {
+      "exercise_id": "incline_dumbbell_fly",
+      "display_label": "Incline dumbbell fly",
+      "movement_pattern_id": "incline_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "semi_stable",
+      "equipment_tier": "TIER_3",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Incline dumbbell fly: On an incline bench, open the arms in a wide arc with soft elbows, then bring the dumbbells together.",
+      "instruction_detail_text": [
+        "Lie on a bench at about 30 degrees with the dumbbells over the chest, palms facing.",
+        "Open the arms in a wide arc to a comfortable stretch.",
+        "Squeeze them back together."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Low incline",
+        "Hug a barrel"
+      ],
+      "common_faults": [
+        "Pressing instead of flying",
+        "Dropping too low",
+        "Going too heavy"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dumbbell",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cable_fly": {
+      "exercise_id": "cable_fly",
+      "display_label": "Cable fly (crossover)",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Cable fly: Standing between two pulleys, bring the handles together in front of the chest in a wide arc.",
+      "instruction_detail_text": [
+        "Stand in a split stance between two pulleys set at shoulder height or above, arms open.",
+        "Bring the handles together in front of the chest with soft elbows.",
+        "Open under control."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Lean slightly forward",
+        "Squeeze the handles together"
+      ],
+      "common_faults": [
+        "Pressing the handles",
+        "Arching the back",
+        "Letting the cables pull the arms back too far"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_single_handle_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "low_to_high_cable_fly": {
+      "exercise_id": "low_to_high_cable_fly",
+      "display_label": "Low-to-high cable fly",
+      "movement_pattern_id": "incline_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Low-to-high cable fly: From low pulleys, sweep the handles up and together to upper-chest height.",
+      "instruction_detail_text": [
+        "Stand between two low pulleys holding the handles by your hips.",
+        "Sweep them up and together in front of the upper chest.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Soft elbows",
+        "Finish at upper-chest height",
+        "Ribs down"
+      ],
+      "common_faults": [
+        "Turning it into a front raise",
+        "Shrugging",
+        "Leaning back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_single_handle_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lying_cable_fly": {
+      "exercise_id": "lying_cable_fly",
+      "display_label": "Lying cable fly",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Lying cable fly: On a bench between two low pulleys, bring the handles together over the chest in a wide arc.",
+      "instruction_detail_text": [
+        "Lie on a bench between two low pulleys, handles in each hand, arms open.",
+        "Bring the handles together over the chest with soft elbows.",
+        "Open under control."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Constant tension",
+        "Squeeze at the top"
+      ],
+      "common_faults": [
+        "Pressing",
+        "Dropping too low",
+        "Arching off the bench"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "bench",
+        "cable_single_handle_attachment"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "pec_deck_fly": {
+      "exercise_id": "pec_deck_fly",
+      "display_label": "Pec deck fly",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Pec deck: Seated in a fly machine, bring the handles or pads together in front of the chest.",
+      "instruction_detail_text": [
+        "Set the seat so the handles are at chest height and sit with the back on the pad.",
+        "Bring the handles together in front of the chest.",
+        "Open under control to a comfortable stretch."
+      ],
+      "coaching_cues": [
+        "Back on the pad",
+        "Soft elbows",
+        "Squeeze together"
+      ],
+      "common_faults": [
+        "Shoulders rolling forward",
+        "Going past a comfortable stretch",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_cable_chest_press": {
+      "exercise_id": "standing_cable_chest_press",
+      "display_label": "Standing cable chest press",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Standing cable chest press: Facing away from two pulleys, press the handles forward from the chest in a split stance.",
+      "instruction_detail_text": [
+        "Stand in a split stance facing away from two chest-height pulleys, handles at the chest.",
+        "Press forward until the arms are straight.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Brace the trunk",
+        "Press straight forward",
+        "Split stance"
+      ],
+      "common_faults": [
+        "Leaning into it",
+        "Arching the back",
+        "Letting the cables pull you back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "cable_machine",
+        "cable_single_handle_attachment"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "machine_decline_chest_press": {
+      "exercise_id": "machine_decline_chest_press",
+      "display_label": "Machine decline chest press",
+      "movement_pattern_id": "decline_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Machine decline press: Press the low handles of a decline press machine forward and down from the lower chest.",
+      "instruction_detail_text": [
+        "Sit with the back on the pad and the handles at lower-chest height.",
+        "Press until the arms are straight.",
+        "Return under control."
+      ],
+      "coaching_cues": [
+        "Back on the pad",
+        "Full lockout",
+        "Smooth tempo"
+      ],
+      "common_faults": [
+        "Shoulders rolling forward",
+        "Short range",
+        "Letting the stack crash"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "smith_machine_bench_press": {
+      "exercise_id": "smith_machine_bench_press",
+      "display_label": "Smith machine bench press",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Smith machine bench press: Lower the Smith bar to the mid-chest from a flat bench and press it back up.",
+      "instruction_detail_text": [
+        "Set a flat bench so the bar lowers to the mid-chest.",
+        "Unhook, lower the bar to the chest under control.",
+        "Press back to straight arms and re-hook at the end."
+      ],
+      "coaching_cues": [
+        "Bench set so the bar meets mid-chest",
+        "Shoulder blades back",
+        "Feet planted"
+      ],
+      "common_faults": [
+        "Bench in the wrong place",
+        "Bouncing off the chest",
+        "Elbows flaring wide"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "smith_machine",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "powerlifting",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "rugby_union",
+        "street_lifting",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "high_external_load"
+      ],
+      "substitution_eligibility": "restricted",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "smith_machine_incline_press": {
+      "exercise_id": "smith_machine_incline_press",
+      "display_label": "Smith machine incline press",
+      "movement_pattern_id": "incline_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_1",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Smith machine incline press: Lower the Smith bar to the upper chest from an incline bench and press it back up.",
+      "instruction_detail_text": [
+        "Set an incline bench so the bar lowers to the upper chest.",
+        "Unhook and lower to the upper chest.",
+        "Press back to straight arms."
+      ],
+      "coaching_cues": [
+        "Low incline",
+        "Shoulder blades back",
+        "Bar to the upper chest"
+      ],
+      "common_faults": [
+        "Bench too upright",
+        "Bouncing",
+        "Elbows flaring"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "smith_machine",
+        "bench"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "knee_push_up": {
+      "exercise_id": "knee_push_up",
+      "display_label": "Knee push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Knee push-up: A push-up from the knees with the body straight from knees to head.",
+      "instruction_detail_text": [
+        "Kneel with the hands under the shoulders and the body straight from knees to head.",
+        "Lower the chest to the floor.",
+        "Press back up to straight arms."
+      ],
+      "coaching_cues": [
+        "Straight line from knees to head",
+        "Chest to the floor",
+        "Elbows at about 45 degrees"
+      ],
+      "common_faults": [
+        "Hips piking up",
+        "Head dropping",
+        "Half reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "archer_push_up": {
+      "exercise_id": "archer_push_up",
+      "display_label": "Archer push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Archer push-up: With the hands wide, lower towards one hand while the other arm stays nearly straight.",
+      "instruction_detail_text": [
+        "Set up in a wide push-up.",
+        "Lower towards one hand, keeping the other arm nearly straight.",
+        "Press back up and alternate sides."
+      ],
+      "coaching_cues": [
+        "Body in one line",
+        "Shift to one side",
+        "Other arm long"
+      ],
+      "common_faults": [
+        "Hips twisting",
+        "Bending both arms equally",
+        "Half reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_push_up": {
+      "exercise_id": "suspension_push_up",
+      "display_label": "Suspension push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Suspension push-up: Facing away from the anchor, lean into the straps and lower the chest between the handles, then press back.",
+      "instruction_detail_text": [
+        "Face away from the anchor holding the handles, arms straight in front, leaning forward.",
+        "Lower the chest between the handles, keeping them steady.",
+        "Press back to straight arms."
+      ],
+      "coaching_cues": [
+        "Body in one line",
+        "Handles steady and close",
+        "Steeper lean, harder rep"
+      ],
+      "common_faults": [
+        "Handles drifting wide",
+        "Hips sagging",
+        "Shoulders shrugging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [
+        "gymnastics_rings"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "suspension_fly": {
+      "exercise_id": "suspension_fly",
+      "display_label": "Suspension fly",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Suspension fly: Leaning into the straps with straight arms, open them out to the sides and squeeze back together.",
+      "instruction_detail_text": [
+        "Face away from the anchor, leaning forward with straight arms in front.",
+        "Open the arms out to the sides as your chest lowers.",
+        "Squeeze them back together to rise."
+      ],
+      "coaching_cues": [
+        "Soft, fixed elbows",
+        "Small lean to start",
+        "Body in one line"
+      ],
+      "common_faults": [
+        "Opening too far",
+        "Bending the elbows into a press",
+        "Hips sagging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "suspension_trainer"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "ring_dip": {
+      "exercise_id": "ring_dip",
+      "display_label": "Ring dip",
+      "movement_pattern_id": "decline_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Ring dip: Support yourself on rings with straight arms, lower until the upper arms are about level, then press up.",
+      "instruction_detail_text": [
+        "Support yourself on the rings with straight arms, rings close to the body.",
+        "Lower until the upper arms are about level, keeping the rings in.",
+        "Press back to straight arms, turning the rings out at the top."
+      ],
+      "coaching_cues": [
+        "Rings close to the body",
+        "Turn out at the top",
+        "Control the bottom"
+      ],
+      "common_faults": [
+        "Rings drifting wide",
+        "Going too deep",
+        "Shoulders rolling forward"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "gymnastics_rings"
+      ],
+      "equipment_alternatives": [
+        "suspension_trainer"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "incline_shoulder_raise": {
+      "exercise_id": "incline_shoulder_raise",
+      "display_label": "Incline shoulder raise",
+      "movement_pattern_id": "scapular_protraction",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Incline shoulder raise: Lying on an incline bench with straight arms, push the bar higher by reaching the shoulders forward.",
+      "instruction_detail_text": [
+        "Lie on an incline bench holding a bar or dumbbells over the chest with straight arms.",
+        "Without bending the elbows, reach the shoulders up off the bench.",
+        "Lower the shoulder blades back under control."
+      ],
+      "coaching_cues": [
+        "Arms stay straight",
+        "Reach, don't press",
+        "Small movement"
+      ],
+      "common_faults": [
+        "Bending the elbows",
+        "Shrugging up to the ears",
+        "Going too heavy"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "barbell",
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "dumbbell",
+        "smith_machine"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }
