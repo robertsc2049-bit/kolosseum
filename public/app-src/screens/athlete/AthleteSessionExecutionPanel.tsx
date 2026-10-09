@@ -4,6 +4,8 @@ import { withPendingSetLogs } from "../../api/offlineSessionQueue";
 import { type JsonRecord } from "../../api/transport";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
+import { inMuscleGroup, musclesText } from "../../utils/muscleGroups";
 import { PlateWarmupCalculator } from "../../components/PlateWarmupCalculator";
 import { borgAnchorLabel, cr10AnchorLabel, exerciseDetails, exerciseName, groupTimingLabel, rpeReserveLabel, titleCase } from "../../utils/format";
 import { trainingCycleSummary } from "../../utils/trainingPlan";
@@ -216,6 +218,7 @@ function painSwapNote(swap: JsonRecord): string {
 export function AthleteSessionExecutionPanel() {
   const session = useAthleteSessionExecution();
   const [painArea, setPainArea] = useState("");
+  const [addMuscleFilter, setAddMuscleFilter] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const captionInputRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -749,18 +752,20 @@ export function AthleteSessionExecutionPanel() {
           </button>
         ) : (
           <div className="extra-set-panel">
+            <MuscleGroupSelect value={addMuscleFilter} onChange={setAddMuscleFilter} />
             <label className="field">
               <span>Exercise</span>
               <select
                 value={session.addExerciseSelectedId}
                 onChange={(event) => session.setAddExerciseSelectedId(event.target.value)}
               >
-                {addableExercises.map((option) => (
+                {addableExercises.filter((option) => String(option.exercise_id) === session.addExerciseSelectedId || inMuscleGroup(option, addMuscleFilter)).map((option) => (
                   <option key={String(option.exercise_id)} value={String(option.exercise_id)}>
                     {String(option.display_name ?? option.exercise_id)}
                   </option>
                 ))}
               </select>
+              {session.addExerciseSelectedId ? <small className="muted exercise-muscles">{musclesText(addableExercises.find((option) => String(option.exercise_id) === session.addExerciseSelectedId))}</small> : null}
             </label>
             <label className="field">
               <span>Reps</span>

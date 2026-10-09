@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { loadTrainingWeek, saveTrainingWeek } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
-import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem } from "../../components/TrainingDayEditor";
+import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
 
 // "My training" (src/api/athlete_training_week_service.ts): an athlete without
 // a coach builds one week - how many days, and on each day the exercises
@@ -43,7 +43,7 @@ export function MyTrainingCard() {
     return () => { cancelled = true; };
   }, []);
 
-  const options: ExerciseOption[] = Array.isArray(data?.exercise_options) ? (data!.exercise_options as JsonRecord[]).map((o) => ({ exercise_id: String(o.exercise_id), label: String(o.label) })) : [];
+  const options: ExerciseOption[] = Array.isArray(data?.exercise_options) ? (data!.exercise_options as JsonRecord[]).map(toExerciseOption) : [];
   const labelOf = (id: string) => options.find((o) => o.exercise_id === id)?.label ?? id;
   const week = data?.week && typeof data.week === "object" ? (data.week as JsonRecord) : null;
   const next = data?.next && typeof data.next === "object" ? (data.next as JsonRecord) : null;

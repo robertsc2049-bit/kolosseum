@@ -297,6 +297,29 @@ test("filtering the exercise picker by equipment hides non-matching options but 
   assert.equal(optionByValue("back_squat").hidden, false, "the current selection stays visible even though it needs a barbell, not a dumbbell");
 });
 
+test("a coach filters the exercise picker by muscle group - hamstring work only, the current squat still there - and sees what the chosen exercise targets", async () => {
+  installExerciseRegistryMock([
+    { exercise_id: "back_squat", display_name: "Back Squat", pattern: "squat", equipment: ["barbell"], muscle_groups: ["quads", "glutes"], target_muscles: ["Quadriceps", "Glute max"], secondary_muscles: ["Adductors"] },
+    { exercise_id: "romanian_deadlift", display_name: "Romanian Deadlift", pattern: "hinge", equipment: ["barbell"], muscle_groups: ["hamstrings", "glutes"], target_muscles: ["Hamstrings", "Glute max"], secondary_muscles: [] },
+    { exercise_id: "nordic_curl", display_name: "Nordic Curl", pattern: "knee_flexion_isolation", equipment: ["bodyweight"], muscle_groups: ["hamstrings"], target_muscles: ["Hamstrings"], secondary_muscles: [] },
+    { exercise_id: "bench_press", display_name: "Bench Press", pattern: "horizontal_push", equipment: ["barbell"], muscle_groups: ["chest"], target_muscles: ["Chest (lower and mid pec)"], secondary_muscles: [] }
+  ]);
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ exercise_id: "back_squat" }));
+  await waitFor(() => assert.ok(container.querySelector('select[data-field="exercise_id"] optgroup')));
+  const optionByValue = (value: string) => container.querySelector(`option[value="${value}"]`) as HTMLOptionElement;
+  assert.ok(screen.getByText("Targets: Quadriceps, Glute max · Also works: Adductors"));
+
+  fireEvent.change(screen.getByLabelText("Muscle group"), { target: { value: "hamstrings" } });
+  assert.equal(optionByValue("romanian_deadlift").hidden, false);
+  assert.equal(optionByValue("nordic_curl").hidden, false);
+  assert.equal(optionByValue("bench_press").hidden, true, "a bench press is not hamstring work");
+  assert.equal(optionByValue("back_squat").hidden, false, "the exercise already chosen stays visible");
+
+  fireEvent.change(container.querySelector('select[data-field="exercise_id"]') as HTMLSelectElement, { target: { value: "nordic_curl" } });
+  assert.ok(screen.getByText("Targets: Hamstrings"));
+});
+
 test("the exercise picker surfaces equipment_alternatives (not just equipment_requirements) and prefers the equipment catalog's own display_label over a titleCased id", async () => {
   installExerciseRegistryMock(
     [

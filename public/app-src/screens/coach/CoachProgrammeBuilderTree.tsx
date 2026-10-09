@@ -5,6 +5,8 @@ import { InfoTooltip } from "../../components/InfoTooltip";
 import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
+import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
+import { inMuscleGroup, musclesText } from "../../utils/muscleGroups";
 import {
   EXERCISE_CATEGORY_ORDER,
   exerciseCategory,
@@ -412,6 +414,9 @@ function exerciseEquipmentIds(exercise: JsonRecord): string[] {
 
 function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex, templateExercises, equipmentCatalog }: WorkItemControlProps & { templateExercises: JsonRecord[]; equipmentCatalog: JsonRecord[] }) {
   const [equipmentFilter, setEquipmentFilter] = React.useState("");
+  const [muscleFilter, setMuscleFilter] = React.useState("");
+  const [selectedId, setSelectedId] = React.useState(String(workItem.exercise_id ?? ""));
+  const selectedMuscles = musclesText(templateExercises.find((exercise) => String(exercise.exercise_id) === selectedId));
 
   const equipmentLabel = React.useCallback((equipmentId: string) => {
     const match = equipmentCatalog.find((entry) => entry.equipment_id === equipmentId);
@@ -449,18 +454,19 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
           ))}
         </select>
       </label>
+      <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} />
       <label className="template-exercise-field">
         <span>Exercise</span>
-        <select defaultValue={workItem.exercise_id} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
+        <select defaultValue={workItem.exercise_id} onChange={(event) => setSelectedId(event.target.value)} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
           {groupedExercises.map(({ category, exercises }) => (
             <optgroup label={category} key={category}>
               {exercises.map((exercise) => {
                 const exerciseId = String(exercise.exercise_id);
                 const equipmentIds = exerciseEquipmentIds(exercise);
                 const equipmentTags = equipmentIds.map(equipmentLabel);
-                const matchesFilter = !equipmentFilter || equipmentIds.includes(equipmentFilter);
+                const matchesFilter = (!equipmentFilter || equipmentIds.includes(equipmentFilter)) && inMuscleGroup(exercise, muscleFilter);
                 return (
-                  <option key={exerciseId} value={exerciseId} hidden={!matchesFilter && exerciseId !== workItem.exercise_id}>
+                  <option key={exerciseId} value={exerciseId} hidden={!matchesFilter && exerciseId !== workItem.exercise_id && exerciseId !== selectedId}>
                     {String(exercise.display_name ?? exerciseId)}{equipmentTags.length ? ` (${equipmentTags.join(", ")})` : ""}
                   </option>
                 );
@@ -469,6 +475,7 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
           ))}
         </select>
       </label>
+      {selectedMuscles ? <p className="muted small exercise-muscles">{selectedMuscles}</p> : null}
     </>
   );
 }

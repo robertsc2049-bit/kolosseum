@@ -27,6 +27,7 @@ import {
 } from "./event_programme_compiler_service.js";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 import { peakTimedIndex } from "./peak_timing.js";
+import { exerciseMuscleFields } from "./exercise_muscles.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -2971,7 +2972,13 @@ export function listActiveExerciseOptions(): Readonly<{
                     .equipment_alternatives
                     .map(cleanString)
                     .filter(Boolean)
-                : []
+                : [],
+            ...exerciseMuscleFields(
+              exerciseId,
+              cleanString(
+                entry.movement_pattern_id
+              )
+            )
           });
         }
       )

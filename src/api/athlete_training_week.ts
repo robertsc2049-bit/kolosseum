@@ -6,6 +6,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { exerciseMuscleFields } from "./exercise_muscles.js";
 
 type Json = Record<string, unknown>;
 const isRecord = (v: unknown): v is Json => !!v && typeof v === "object" && !Array.isArray(v);
@@ -44,13 +45,13 @@ function registries() {
   return { exercises: exercises!, applicability: applicability! };
 }
 
-export function exerciseOptionsFor(activityId: string | undefined): { exercise_id: string; label: string; pattern: string }[] {
+export function exerciseOptionsFor(activityId: string | undefined): ({ exercise_id: string; label: string; pattern: string } & ReturnType<typeof exerciseMuscleFields>)[] {
   const { exercises: ex, applicability: ap } = registries();
   const allowed = ap.get(activityId ?? "") ?? ap.get("general_strength") ?? new Set<string>();
   return [...allowed]
     .map((id) => ex.get(id))
     .filter((e): e is Json => !!e)
-    .map((e) => ({ exercise_id: text(e.exercise_id), label: text(e.display_label) || text(e.exercise_id), pattern: text(e.movement_pattern_id) }))
+    .map((e) => ({ exercise_id: text(e.exercise_id), label: text(e.display_label) || text(e.exercise_id), pattern: text(e.movement_pattern_id), ...exerciseMuscleFields(text(e.exercise_id), text(e.movement_pattern_id)) }))
     .sort((a, b) => a.label.localeCompare(b.label));
 }
 

@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
+
+import { inMuscleGroup, musclesText } from "../utils/muscleGroups";
+import { MuscleGroupSelect } from "./MuscleGroupSelect";
 
 // One training day's exercises with sets and reps - used for each day of an
 // athlete's own week (MyTrainingCard) and for logging today's session when
 // they have no week (TodaysSessionPicker).
 
 export type DayItem = { exercise_id: string; sets: number; reps: number };
-export type ExerciseOption = { exercise_id: string; label: string };
+export type ExerciseOption = { exercise_id: string; label: string; muscle_groups?: string[]; target_muscles?: string[]; secondary_muscles?: string[] };
+
+// An exercise option as the server lists it (training week exercise_options).
+export function toExerciseOption(o: Record<string, unknown>): ExerciseOption {
+  const list = (value: unknown) => (Array.isArray(value) ? value.map(String) : []);
+  return { exercise_id: String(o.exercise_id), label: String(o.label), muscle_groups: list(o.muscle_groups), target_muscles: list(o.target_muscles), secondary_muscles: list(o.secondary_muscles) };
+}
 
 export const newDayItem = (): DayItem => ({ exercise_id: "", sets: 3, reps: 8 });
 
@@ -15,18 +24,21 @@ export function TrainingDayEditor({ label, items, options, onChange }: {
   options: ExerciseOption[];
   onChange: (items: DayItem[]) => void;
 }) {
+  const [muscleFilter, setMuscleFilter] = useState("");
   const update = (index: number, change: Partial<DayItem>) => onChange(items.map((item, i) => (i === index ? { ...item, ...change } : item)));
   return (
     <fieldset className="my-training-day">
       <legend>{label}</legend>
+      <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} ariaLabel={`${label} muscle group`} />
       {items.map((item, i) => (
         <div key={i} className="my-training-item">
           <label className="field">
             <span>Exercise</span>
             <select aria-label={`${label} exercise ${i + 1}`} value={item.exercise_id} onChange={(event) => update(i, { exercise_id: event.target.value })}>
               <option value="">Choose an exercise</option>
-              {options.map((o) => <option key={o.exercise_id} value={o.exercise_id}>{o.label}</option>)}
+              {options.filter((o) => o.exercise_id === item.exercise_id || inMuscleGroup(o, muscleFilter)).map((o) => <option key={o.exercise_id} value={o.exercise_id}>{o.label}</option>)}
             </select>
+            {item.exercise_id ? <small className="muted exercise-muscles">{musclesText(options.find((o) => o.exercise_id === item.exercise_id))}</small> : null}
           </label>
           <label className="field">
             <span>Sets</span>

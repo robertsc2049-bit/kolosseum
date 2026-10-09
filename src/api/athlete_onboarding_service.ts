@@ -18,6 +18,7 @@ import {
   type AccessibilityPreferences,
   parseAccessibilityPreferences
 } from "./accessibility_preferences_service.js";
+import { exerciseMuscleFields } from "./exercise_muscles.js";
 
 type Json = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -960,12 +961,13 @@ export async function getAthleteTrainingPlan(userId: string): Promise<Readonly<{
 // --- Programme exercise choices ---
 
 let exerciseLabels: Map<string, string> | null = null;
+let exercisePatterns: Map<string, string> | null = null;
 function exerciseLabel(exerciseId: string): string {
   if (!exerciseLabels) {
     const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
-    exerciseLabels = new Map(Object.values(record(doc?.entries) ? doc.entries : {})
-      .filter(record)
-      .map((entry: Json) => [text(entry.exercise_id), text(entry.display_label) || text(entry.exercise_id)] as [string, string]));
+    const entries = Object.values(record(doc?.entries) ? doc.entries : {}).filter(record);
+    exerciseLabels = new Map(entries.map((entry: Json) => [text(entry.exercise_id), text(entry.display_label) || text(entry.exercise_id)] as [string, string]));
+    exercisePatterns = new Map(entries.map((entry: Json) => [text(entry.exercise_id), text(entry.movement_pattern_id)] as [string, string]));
   }
   return exerciseLabels.get(exerciseId) ?? exerciseId;
 }
@@ -997,11 +999,15 @@ export function sessionExerciseDisplayNames(ids: string[], custom: Record<string
 }
 
 // Every exercise the athlete may choose from, by name: nothing is locked out.
+function muscleFieldsOf(exerciseId: string) {
+  exerciseLabel("");
+  return exerciseMuscleFields(exerciseId, exercisePatterns?.get(exerciseId));
+}
 function allExercises(): Array<{ exercise_id: string; display_name: string }> {
   exerciseLabel("");
   return [...(exerciseLabels as Map<string, string>).entries()]
     .filter(([id]) => id)
-    .map(([exercise_id, display_name]) => ({ exercise_id, display_name }))
+    .map(([exercise_id, display_name]) => ({ exercise_id, display_name, ...muscleFieldsOf(exercise_id) }))
     .sort((a, b) => a.display_name.localeCompare(b.display_name));
 }
 
@@ -1087,7 +1093,7 @@ function projectExerciseChoices(days: SlotListing[], custom: CustomExercise[]): 
         prescription: item.prescription,
         selected_exercise_id: choice,
         selected_fit_note: issue ? FIT_NOTES[issue] ?? "Not one of the recommended exercises for this slot." : null,
-        options: item.recommended_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id), programme_pick: id === item.programme_pick_exercise_id }))
+        options: item.recommended_exercise_ids.map((id) => ({ exercise_id: id, display_name: exerciseLabel(id), programme_pick: id === item.programme_pick_exercise_id, ...muscleFieldsOf(id) }))
       };
     })
   }));

@@ -4,6 +4,8 @@ import { type CustomExercise, loadAthleteProgrammes, loadProgrammeExercises, sav
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
+import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
+import { inMuscleGroup, musclesText } from "../../utils/muscleGroups";
 
 // The athlete chooses their own exercise for every open slot of their
 // programme; only competition lifts (and timed-group workouts) are named.
@@ -60,6 +62,7 @@ export function ProgrammeExercisesCard() {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<JsonRecord>({});
   const [saved, setSaved] = useState(false);
+  const [muscleFilter, setMuscleFilter] = useState("");
   // Running a Kolosseum programme: its exercises come from the programme, so
   // there are none to choose here.
   const [runningProgramme, setRunningProgramme] = useState(false);
@@ -161,6 +164,7 @@ export function ProgrammeExercisesCard() {
         </div>
       ) : (
         <form onSubmit={(event) => { event.preventDefault(); void save(); }}>
+          <MuscleGroupSelect value={muscleFilter} onChange={setMuscleFilter} label="Show other exercises for" ariaLabel="Muscle group" />
           {days.map((day) => {
             const items = Array.isArray(day.items) ? (day.items as JsonRecord[]) : [];
             const dayName = titleCase(String(day.focus ?? day.day_id));
@@ -189,6 +193,8 @@ export function ProgrammeExercisesCard() {
                     const recommended = new Set(options.map((option) => String(option.exercise_id)));
                     const others = allExercises.filter((exercise) => !recommended.has(String(exercise.exercise_id)));
                     const current = draft[slotId] ?? "";
+                    const shownOthers = others.filter((exercise) => String(exercise.exercise_id) === current || inMuscleGroup(exercise, muscleFilter));
+                    const currentMuscles = musclesText([...options, ...allExercises].find((exercise) => String(exercise.exercise_id) === current));
                     const fieldError = fieldErrors[slotId];
                     const fitNote = !current || recommended.has(current) ? null
                       : ownIds.has(current) ? OWN_EXERCISE
@@ -207,9 +213,9 @@ export function ProgrammeExercisesCard() {
                             {ownExercises.length ? (
                               <optgroup label="Your own exercises">{ownExercises.map((c) => renderOption(c.exercise_id, c.display_name))}</optgroup>
                             ) : null}
-                            {others.length ? (
-                              <optgroup label="All other exercises">
-                                {others.map((o) => renderOption(String(o.exercise_id), String(o.display_name ?? o.exercise_id)))}
+                            {shownOthers.length ? (
+                              <optgroup label={muscleFilter ? "Other exercises for this muscle group" : "All other exercises"}>
+                                {shownOthers.map((o) => renderOption(String(o.exercise_id), String(o.display_name ?? o.exercise_id)))}
                               </optgroup>
                             ) : null}
                             <option value={ADD_OWN}>Add your own exercise…</option>
@@ -232,6 +238,7 @@ export function ProgrammeExercisesCard() {
                             {adding.error ? <p className="field-error" role="alert">{adding.error}</p> : null}
                           </div>
                         ) : null}
+                        {currentMuscles ? <p className="muted small exercise-muscles">{currentMuscles}</p> : null}
                         {fitNote ? <p className="muted programme-fit-note" role="note">{fitNote}</p> : null}
                         {current && (uses.get(current) ?? 0) > 1 ? <p className="muted programme-fit-note" role="note">{REPEATED}</p> : null}
                         {fieldError ? <p className="field-error" role="alert">{String(fieldError)}</p> : null}
