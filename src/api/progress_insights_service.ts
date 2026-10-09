@@ -174,6 +174,7 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
       (re.event->>'reps')::int AS reps,
       (re.event->>'load_value')::numeric AS load_value,
       re.event->>'load_unit' AS load_unit,
+      (re.event->>'bodyweight_kg')::numeric AS bodyweight_kg,
       to_char(re.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
     FROM runtime_events re
     JOIN sessions s ON s.session_id = re.session_id
@@ -194,7 +195,8 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
       reps: Number(row.reps),
       load_value: hasLoad ? Number(row.load_value) : 0,
       load_unit: row.load_unit === "lb" ? "lb" : "kg",
-      date: cleanString(row.day)
+      date: cleanString(row.day),
+      bodyweight_kg: row.bodyweight_kg === null || row.bodyweight_kg === undefined ? null : Number(row.bodyweight_kg)
     });
   }
   return sets;

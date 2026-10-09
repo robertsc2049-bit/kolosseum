@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { titleCase } from "../../utils/format";
+import { setLoadText, titleCase } from "../../utils/format";
 
 // What the athlete actually did in a session, for the coach reviewing it:
 // every planned exercise in programme order with the sets logged against it
@@ -31,8 +31,8 @@ function formatNumber(value: unknown): string {
 export function setDose(entry: JsonRecord): string {
   const reps = Number(entry.reps);
   const repsText = `${reps} rep${reps === 1 ? "" : "s"}`;
-  if (entry.load_value === null || entry.load_value === undefined || entry.load_value === "") return repsText;
-  return `${reps} × ${formatNumber(entry.load_value)} ${String(entry.load_unit ?? "kg")}`;
+  const loadText = setLoadText(entry);
+  return loadText ? `${reps} × ${loadText}` : repsText;
 }
 
 // One row per set: an edited set appears once, as its latest log.

@@ -2,7 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
+import { countdownLabel, formatDate, setLoadText, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 
 // DEV NOTE: current programme, current event, and the assignment/
@@ -403,7 +403,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Sets:{" "}
                   {[...setLogsByExercise].map(([exerciseId, logs]) => `${titleCase(exerciseId)} ${logs
-                    .map((log) => `${Number(log.reps)}${log.load_value !== null && log.load_value !== undefined ? `×${Number(log.load_value)}${String(log.load_unit ?? "")}` : ""}${log.is_pr === true ? " (PR)" : ""}`)
+                    .map((log) => `${Number(log.reps)}${setLoadText(log) ? ` × ${setLoadText(log)}` : ""}${log.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}`).join("; ")}
                 </p>
               ) : null}
@@ -411,7 +411,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Extra sets:{" "}
                   {extraSetReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${setLoadText(entry) ? ` @ ${setLoadText(entry)}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}
@@ -419,7 +419,7 @@ export function AthleteSessionHistoryList() {
                 <p className="muted small">
                   Added exercises:{" "}
                   {extraExerciseReports
-                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${entry.load_value !== null && entry.load_value !== undefined ? ` @ ${Number(entry.load_value)}${String(entry.load_unit ?? "")}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
+                    .map((entry) => `${titleCase(entry.exercise_id)} ${Number(entry.reps)} reps${setLoadText(entry) ? ` @ ${setLoadText(entry)}` : ""}${entry.is_pr === true ? " (PR)" : ""}`)
                     .join(", ")}
                 </p>
               ) : null}
