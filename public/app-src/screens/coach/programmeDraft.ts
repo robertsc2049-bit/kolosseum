@@ -875,12 +875,13 @@ const EXERCISE_CATEGORY_BY_PATTERN: Record<string, string> = {
   change_of_direction: "Speed, power & conditioning", throw_slam: "Speed, power & conditioning",
   conditioning_cyclical: "Speed, power & conditioning", conditioning_row: "Speed, power & conditioning",
   conditioning_sled: "Speed, power & conditioning",
-  neck_isometric: "Core & carries"
+  neck_isometric: "Core & carries",
+  mobility: "Mobility"
 };
 
 export const EXERCISE_CATEGORY_ORDER = [
   "Squat & knee", "Hinge & hip", "Push", "Pull", "Shoulders & arms", "Core & carries",
-  "Speed, power & conditioning", "Other"
+  "Speed, power & conditioning", "Mobility", "Other"
 ];
 
 export function exerciseCategory(exercise: JsonRecord): string {

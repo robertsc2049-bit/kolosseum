@@ -135,7 +135,8 @@ export const PATTERN_MUSCLES: Readonly<Record<string, ExerciseMuscles>> = Object
   conditioning_cyclical: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "gastrocnemius"]),
   conditioning_row: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "latissimus_dorsi", "trapezius_middle", "biceps_brachii"]),
   conditioning_sled: m(["quadriceps", "gluteus_maximus"], ["gastrocnemius", "hamstrings", "cardiorespiratory"]),
-  neck_isometric: m(["sternocleidomastoid", "splenius"], ["trapezius_upper", "levator_scapulae"])
+  neck_isometric: m(["sternocleidomastoid", "splenius"], ["trapezius_upper", "levator_scapulae"]),
+  mobility: m(["hamstrings"])
 });
 
 // Exercises whose muscles differ from their pattern's.
@@ -495,7 +496,52 @@ export const EXERCISE_MUSCLES: Readonly<Record<string, ExerciseMuscles>> = Objec
   elliptical_trainer: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "hamstrings"]),
   arm_ergometer: m(["cardiorespiratory", "deltoid_anterior"], ["triceps_brachii", "biceps_brachii", "latissimus_dorsi"]),
   climbing_machine: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "latissimus_dorsi", "deltoid_anterior"]),
-  curved_treadmill_run: m(["cardiorespiratory"], ["hamstrings", "gluteus_maximus", "gastrocnemius", "hip_flexors"])
+  curved_treadmill_run: m(["cardiorespiratory"], ["hamstrings", "gluteus_maximus", "gastrocnemius", "hip_flexors"]),
+  // Library batch 7: mobility
+  upper_trap_stretch: m(["trapezius_upper", "levator_scapulae"], ["sternocleidomastoid"]),
+  neck_extensor_stretch: m(["splenius"], ["trapezius_upper"]),
+  doorway_chest_stretch: m(["pectoralis_major_sternal", "deltoid_anterior"], ["pectoralis_minor", "biceps_brachii"]),
+  cross_body_shoulder_stretch: m(["deltoid_posterior"], ["infraspinatus", "rhomboids"]),
+  sleeper_stretch: m(["infraspinatus"], ["deltoid_posterior"]),
+  dowel_shoulder_rotation_stretch: m(["subscapularis", "infraspinatus"], ["pectoralis_major_sternal"]),
+  dowel_shoulder_dislocate: m(["deltoid_anterior", "pectoralis_major_sternal"], ["latissimus_dorsi", "infraspinatus"]),
+  overhead_triceps_stretch: m(["triceps_brachii"], ["latissimus_dorsi"]),
+  biceps_wall_stretch: m(["biceps_brachii"], ["deltoid_anterior", "pectoralis_major_sternal"]),
+  wrist_flexor_stretch: m(["wrist_flexors"], ["forearm_rotators"]),
+  wrist_extensor_stretch: m(["wrist_extensors", "brachioradialis"]),
+  passive_hang: m(["latissimus_dorsi"], ["wrist_flexors", "pectoralis_major_sternal"]),
+  kneeling_lat_stretch: m(["latissimus_dorsi", "triceps_brachii"], ["pectoralis_major_sternal"]),
+  standing_side_reach: m(["latissimus_dorsi", "obliques"], ["quadratus_lumborum"]),
+  upper_back_hug_stretch: m(["rhomboids", "trapezius_middle"], ["deltoid_posterior"]),
+  cat_cow: m(["erector_spinae", "rectus_abdominis"], ["obliques"]),
+  quadruped_thoracic_rotation: m(["obliques"], ["rhomboids", "trapezius_middle", "erector_spinae"]),
+  prone_press_up: m(["rectus_abdominis"], ["hip_flexors"]),
+  supine_spinal_twist: m(["obliques", "erector_spinae"], ["gluteus_maximus"]),
+  knees_to_chest_stretch: m(["erector_spinae", "gluteus_maximus"]),
+  childs_pose: m(["latissimus_dorsi", "erector_spinae"], ["gluteus_maximus"]),
+  kneeling_hip_flexor_stretch: m(["hip_flexors"], ["quadriceps"]),
+  couch_stretch: m(["quadriceps", "hip_flexors"]),
+  pigeon_stretch: m(["gluteus_maximus", "hip_external_rotators"], ["hip_abductors"]),
+  figure_four_stretch: m(["gluteus_maximus", "hip_external_rotators"], ["hip_abductors"]),
+  butterfly_stretch: m(["hip_adductors"], ["hip_external_rotators"]),
+  frog_stretch: m(["hip_adductors"]),
+  side_lunge_stretch: m(["hip_adductors"], ["hamstrings"]),
+  standing_quad_stretch: m(["quadriceps"], ["hip_flexors"]),
+  lying_hamstring_stretch: m(["hamstrings"], ["gastrocnemius"]),
+  seated_hamstring_stretch: m(["hamstrings"], ["erector_spinae", "gastrocnemius"]),
+  standing_hamstring_stretch: m(["hamstrings"], ["gastrocnemius"]),
+  wall_calf_stretch: m(["gastrocnemius"], ["soleus"]),
+  bent_knee_calf_stretch: m(["soleus"], ["gastrocnemius"]),
+  step_calf_stretch: m(["gastrocnemius", "soleus"]),
+  kneeling_shin_stretch: m(["tibialis_anterior"], ["quadriceps"]),
+  arm_circles: m(["deltoid_lateral", "deltoid_anterior", "deltoid_posterior"], ["infraspinatus", "trapezius_upper"]),
+  leg_swing: m(["hamstrings", "hip_flexors"], ["gluteus_maximus"]),
+  lateral_leg_swing: m(["hip_adductors", "hip_abductors"]),
+  open_close_gate: m(["hip_abductors", "hip_adductors", "hip_flexors"], ["hip_external_rotators"]),
+  walking_lunge_with_rotation: m(["hip_flexors", "obliques"], ["quadriceps", "gluteus_maximus"]),
+  walking_quad_stretch: m(["quadriceps"], ["hip_flexors"]),
+  walking_straight_leg_kick: m(["hamstrings"], ["hip_flexors", "gluteus_maximus"]),
+  worlds_greatest_stretch: m(["hip_flexors", "hamstrings", "obliques"], ["gluteus_maximus", "hip_adductors"])
 });
 
 const groupOf = (muscle: string): MuscleGroupId | null => MUSCLES[muscle]?.group ?? null;
