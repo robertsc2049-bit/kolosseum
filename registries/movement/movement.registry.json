@@ -860,7 +860,10 @@
         "strongman_log",
         "axle_bar",
         "circus_dumbbell",
-        "viking_press_frame"
+        "viking_press_frame",
+        "smith_machine",
+        "cable_single_handle_attachment",
+        "box"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1046,7 +1049,9 @@
         "cable_lat_bar_attachment",
         "bench",
         "climbing_rope",
-        "gymnastics_rings"
+        "gymnastics_rings",
+        "cable_straight_bar_attachment",
+        "cable_rope_attachment"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1296,7 +1301,9 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "bench",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1397,7 +1404,11 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "cable_single_handle_attachment"
+        "cable_single_handle_attachment",
+        "barbell",
+        "cable_straight_bar_attachment",
+        "suspension_trainer",
+        "bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1448,7 +1459,13 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "cable_single_handle_attachment"
+        "cable_single_handle_attachment",
+        "barbell",
+        "bench",
+        "cable_rope_attachment",
+        "rack",
+        "pull_up_bar",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1499,7 +1516,10 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "cable_straight_bar_attachment"
+        "cable_straight_bar_attachment",
+        "bench",
+        "suspension_trainer",
+        "cable_rope_attachment"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1552,7 +1572,10 @@
         "resistance_band",
         "plate",
         "cable_rope_attachment",
-        "cable_straight_bar_attachment"
+        "cable_straight_bar_attachment",
+        "bench",
+        "cable_single_handle_attachment",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1705,7 +1728,8 @@
         "kettlebell",
         "trap_bar",
         "plate",
-        "hand_gripper"
+        "hand_gripper",
+        "machine_general"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2864,7 +2888,12 @@
       "equipment_vocab": [
         "bodyweight",
         "resistance_band",
-        "open_floor_space"
+        "open_floor_space",
+        "plate",
+        "bench",
+        "neck_harness",
+        "machine_general",
+        "cable_machine"
       ],
       "joint_stress_tags_vocab": [
         "neck"

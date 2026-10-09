@@ -80,7 +80,15 @@ export const EQUIPMENT_LEVEL = Object.freeze({
   levering_bar: 3,
   vertical_bar: 3,
   grip_towel: 3,
-  block_weight: 3
+  block_weight: 3,
+  smith_machine: 2,
+  suspension_trainer: 1,
+  neck_harness: 1,
+  cable_rope_attachment: 2,
+  cable_straight_bar_attachment: 2,
+  cable_v_bar_attachment: 2,
+  cable_single_handle_attachment: 2,
+  cable_lat_bar_attachment: 2
 });
 
 const CHANGE_PRIORITY = Object.freeze({
