@@ -28,9 +28,6 @@ import {
 } from "@kolosseum/engine/runtime/session_summary.js";
 import { findSubstitutionRegistryEdge, isKnownExerciseRegistryId } from "./session_substitution_registry.js";
 import { convertStrengthValue } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
-import { bodyweightShare, systemLoadKg, toKg } from "./bodyweight_load.js";
-import { getAthleteBodyweightKg } from "./athlete_bodyweight_service.js";
-import { epleyE1rm } from "./training_e1rm.js";
 import { applyQueuedActivityChangeIfDue } from "./athlete_activity_change_service.js";
 
 function cloneJson<T>(value: T): T {
@@ -312,39 +309,6 @@ async function computeIsPersonalRecord(
   );
 
   return newLoadKg > priorMaxKg;
-}
-
-// A bodyweight exercise's PR is on the whole system load - bodyweight plus
-// added load - as an estimated max, so a heavier vest or more reps at the
-// same bodyweight both count, and an unweighted set can be a PR. Prior sets
-// use the bodyweight logged with them, else the athlete's current bodyweight.
-async function computeIsBodyweightPersonalRecord(
-  client: any,
-  athleteUserId: string,
-  exerciseId: string,
-  newSystemKg: number,
-  newReps: number,
-  currentBodyweightKg: number
-): Promise<boolean> {
-  const result = await client.query(
-    `SELECT re.event->>'load_value' AS load_value, re.event->>'load_unit' AS load_unit,
-            re.event->>'reps' AS reps, re.event->>'bodyweight_kg' AS bodyweight_kg
-     FROM runtime_events re
-     JOIN sessions s ON s.session_id = re.session_id
-     WHERE s.beta_subject_user_id = $1
-       AND re.event->>'exercise_id' = $2
-       AND re.event->>'type' IN ('EXTRA_SET_REPORT', 'EXTRA_EXERCISE_REPORT', 'SET_LOG_REPORT')
-       AND COALESCE((re.event->>'reps')::int, 0) >= 1`,
-    [athleteUserId, exerciseId]
-  );
-  if ((result.rowCount ?? 0) === 0) return false;
-  const priorBest = Math.max(...result.rows.map((row: any) => {
-    const added = row.load_value === null || row.load_value === undefined ? 0 : toKg(Number(row.load_value), row.load_unit === "lb" ? "lb" : "kg");
-    const bodyweight = Number(row.bodyweight_kg) > 0 ? Number(row.bodyweight_kg) : currentBodyweightKg;
-    const system = systemLoadKg(exerciseId, added, bodyweight) ?? 0;
-    return epleyE1rm(system, Number(row.reps));
-  }));
-  return epleyE1rm(newSystemKg, newReps) > priorBest + 1e-9;
 }
 
 function rawEventType(raw: unknown): string | null {
@@ -1384,22 +1348,11 @@ export async function appendRuntimeEventMutation(
     ensureTerminalSessionEventRejected(workingSummary, event);
 
     let isPrResult: boolean | undefined;
-    const loggedSet = event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT" ||
-      (event.type === "SET_LOG_REPORT" && event.reps >= 1);
-    // A bodyweight exercise (pull-up, dip, push-up...): the set's load is the
-    // athlete's bodyweight (their share of it) plus anything added on top,
-    // recorded with the set so a later weigh-in never rewrites it.
-    if (loggedSet && bodyweightShare(event.exercise_id) > 0 && s.beta_subject_user_id) {
-      const bodyweightKg = await getAthleteBodyweightKg(s.beta_subject_user_id);
-      const addedKg = typeof event.load_value === "number" ? toKg(event.load_value, event.load_unit === "lb" ? "lb" : "kg") : 0;
-      const systemKg = systemLoadKg(event.exercise_id, addedKg, bodyweightKg);
-      if (systemKg !== null && bodyweightKg !== null) {
-        event = { ...event, bodyweight_kg: Math.round(bodyweightKg * 10) / 10, system_load_kg: systemKg };
-        isPrResult = await computeIsBodyweightPersonalRecord(client, s.beta_subject_user_id, event.exercise_id, systemKg, Number(event.reps ?? 1), bodyweightKg);
-        event = { ...event, is_pr: isPrResult };
-      }
-    }
-    if (isPrResult === undefined && loggedSet && typeof event.load_value === "number") {
+    if (
+      (event.type === "EXTRA_SET_REPORT" || event.type === "EXTRA_EXERCISE_REPORT" ||
+        (event.type === "SET_LOG_REPORT" && event.reps >= 1)) &&
+      typeof event.load_value === "number"
+    ) {
       isPrResult = await computeIsPersonalRecord(
         client,
         s.beta_subject_user_id ?? null,
