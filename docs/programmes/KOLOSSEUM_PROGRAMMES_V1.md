@@ -822,8 +822,12 @@ set each week of a four-week block:
 |---|---|
 | 1 | Yoke, farmer's walk (real handles), stone to platform, tyre flip |
 | 2 | Frame carry, keg carry, stone over bar, sandbag to shoulder |
-| 3 | Husafell stone carry, duck walk, keg load, vehicle pull |
-| 4 | A timed medley: yoke, sandbag, farmer's, stones, one run each against the clock |
+| 3 | A timed medley: yoke, sandbag, farmer's, stones against the clock - three hard runs, full rest between |
+| 4 (lighter) | Husafell stone carry, duck walk, keg load, vehicle pull |
+
+The medley is the most contest-like event, so it sits in a loading week, not
+the lighter one. Contest week (week 12) rehearses light openers instead: a
+light yoke run, farmer's and a stone or two at RPE 6.
 
 The pro version's second event day adds the other overhead event, a vehicle
 pull or Conan's wheel, tyre and a Hercules hold.
@@ -1054,7 +1058,10 @@ most), every fourth week is lighter, and week 12 is a taper with openers.
 Tendons adapt slower than muscle, so training never reaches a max.
 
 **Pro:** a fourth day of heavy single attempts on the gripper, pinch block,
-rolling handle and block weight (RPE 7 → 9 by block).
+rolling handle and block weight (RPE 7 → 9 by block). It replaces volume
+rather than adding to it: every attempt item on the other three days has a
+set less, so the week's load on finger flexors and elbow tendons rises only
+modestly.
 
 **Beginner foundation (3 days · 12 weeks):** strap-free trap bar deadlifts,
 presses and pull-ups adding weight as reps are made, plus light crush, pinch,
