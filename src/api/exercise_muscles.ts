@@ -470,7 +470,32 @@ export const EXERCISE_MUSCLES: Readonly<Record<string, ExerciseMuscles>> = Objec
   ring_muscle_up: m(["latissimus_dorsi", "triceps_brachii", "pectoralis_major_sternal"], ["biceps_brachii", "wrist_flexors", "rectus_abdominis"]),
   atlas_stone_to_shoulder: m(["gluteus_maximus", "hamstrings", "erector_spinae"], ["biceps_brachii", "trapezius_upper", "quadriceps"]),
   jammer_press: m(["deltoid_anterior", "triceps_brachii", "quadriceps"], ["pectoralis_major_clavicular", "gluteus_maximus", "serratus_anterior"]),
-  battle_rope_waves: m(["cardiorespiratory", "deltoid_anterior"], ["rectus_abdominis", "wrist_flexors", "quadriceps"])
+  battle_rope_waves: m(["cardiorespiratory", "deltoid_anterior"], ["rectus_abdominis", "wrist_flexors", "quadriceps"]),
+  // Library batch 6: plyometrics and conditioning
+  split_jump: m(["quadriceps", "gluteus_maximus"], ["hamstrings", "gastrocnemius", "hip_flexors"]),
+  jump_turn: m(["quadriceps", "gluteus_maximus", "gastrocnemius"], ["hamstrings", "soleus", "obliques"]),
+  depth_jump: m(["quadriceps", "gluteus_maximus", "gastrocnemius"], ["hamstrings", "soleus", "hip_adductors"]),
+  hurdle_hop: m(["quadriceps", "gluteus_maximus", "gastrocnemius"], ["hamstrings", "soleus", "hip_flexors"]),
+  single_leg_hop: m(["gastrocnemius", "soleus"], ["quadriceps", "gluteus_maximus", "hip_abductors"]),
+  lateral_line_hop: m(["gastrocnemius", "soleus"], ["hip_abductors", "hip_adductors", "quadriceps"]),
+  lateral_box_jump: m(["gluteus_maximus", "quadriceps", "hip_abductors"], ["gastrocnemius", "hip_adductors"]),
+  alternate_leg_bound: m(["gluteus_maximus", "hamstrings", "quadriceps"], ["gastrocnemius", "hip_flexors"]),
+  standing_triple_jump: m(["gluteus_maximus", "quadriceps", "hamstrings"], ["gastrocnemius", "hip_flexors"]),
+  clap_push_up: m(["pectoralis_major_sternal", "triceps_brachii"], ["deltoid_anterior", "serratus_anterior", "rectus_abdominis"]),
+  depth_push_up: m(["pectoralis_major_sternal", "triceps_brachii"], ["deltoid_anterior", "serratus_anterior"]),
+  shoulder_tap_push_up: m(["pectoralis_major_sternal", "transverse_abdominis"], ["obliques", "triceps_brachii", "deltoid_anterior"]),
+  jumping_jack: m(["cardiorespiratory"], ["gastrocnemius", "deltoid_lateral", "hip_abductors"]),
+  mountain_climber: m(["hip_flexors", "cardiorespiratory"], ["rectus_abdominis", "deltoid_anterior", "quadriceps"]),
+  high_knees: m(["hip_flexors", "cardiorespiratory"], ["quadriceps", "gastrocnemius"]),
+  butt_kicks: m(["hamstrings", "cardiorespiratory"], ["gastrocnemius"]),
+  carioca: m(["hip_adductors", "hip_abductors", "obliques"], ["gastrocnemius", "cardiorespiratory"]),
+  lateral_shuffle: m(["hip_abductors", "quadriceps", "gluteus_maximus"], ["hip_adductors", "gastrocnemius", "cardiorespiratory"]),
+  jump_rope: m(["cardiorespiratory", "gastrocnemius"], ["soleus", "deltoid_anterior"]),
+  stair_run: m(["cardiorespiratory", "quadriceps", "gluteus_maximus"], ["gastrocnemius", "hamstrings"]),
+  elliptical_trainer: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "hamstrings"]),
+  arm_ergometer: m(["cardiorespiratory", "deltoid_anterior"], ["triceps_brachii", "biceps_brachii", "latissimus_dorsi"]),
+  climbing_machine: m(["cardiorespiratory"], ["quadriceps", "gluteus_maximus", "latissimus_dorsi", "deltoid_anterior"]),
+  curved_treadmill_run: m(["cardiorespiratory"], ["hamstrings", "gluteus_maximus", "gastrocnemius", "hip_flexors"])
 });
 
 const groupOf = (muscle: string): MuscleGroupId | null => MUSCLES[muscle]?.group ?? null;

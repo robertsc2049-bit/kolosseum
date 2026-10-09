@@ -34544,6 +34544,1707 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "split_jump": {
+      "exercise_id": "split_jump",
+      "display_label": "Split jump",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Split jump: From a lunge, jump straight up and switch legs in the air, landing softly in the opposite lunge.",
+      "instruction_detail_text": [
+        "Start in a lunge, front knee over the foot.",
+        "Jump straight up, switching the legs in the air.",
+        "Land softly in the opposite lunge and go again."
+      ],
+      "coaching_cues": [
+        "Tall trunk",
+        "Land soft",
+        "Switch fast"
+      ],
+      "common_faults": [
+        "Landing stiff",
+        "Front knee caving",
+        "Leaning forward"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "jump_turn": {
+      "exercise_id": "jump_turn",
+      "display_label": "Jump turn (90-360 degrees)",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Jump turn: Jump straight up and rotate a quarter, half or full turn in the air, landing softly facing the new direction.",
+      "instruction_detail_text": [
+        "Stand with the feet hip-width.",
+        "Jump straight up, turning the prescribed amount in the air.",
+        "Land softly on both feet, knees over the toes."
+      ],
+      "coaching_cues": [
+        "Turn in the air",
+        "Land soft and balanced",
+        "Arms drive the turn"
+      ],
+      "common_faults": [
+        "Turning on the floor",
+        "Landing off balance",
+        "Knees caving on landing"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "depth_jump": {
+      "exercise_id": "depth_jump",
+      "display_label": "Depth jump",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Depth jump: Step off a low box, land on both feet and jump up immediately with the shortest possible contact.",
+      "instruction_detail_text": [
+        "Stand on a box of the prescribed height.",
+        "Step off (don't jump) and land on both feet.",
+        "Rebound straight up as fast as possible."
+      ],
+      "coaching_cues": [
+        "Step, don't jump off",
+        "Short ground contact",
+        "Low box first"
+      ],
+      "common_faults": [
+        "Box too high",
+        "Sinking deep on landing",
+        "Pausing before the jump"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "box",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "hurdle_hop": {
+      "exercise_id": "hurdle_hop",
+      "display_label": "Hurdle hops",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Hurdle hops: Jump continuously over a row of mini hurdles with both feet and quick ground contacts.",
+      "instruction_detail_text": [
+        "Line up mini hurdles a short stride apart.",
+        "Jump over each one with both feet, tucking the knees.",
+        "Keep ground contacts short and rhythmical."
+      ],
+      "coaching_cues": [
+        "Quick off the floor",
+        "Knees up",
+        "Land on the balls of the feet"
+      ],
+      "common_faults": [
+        "Long ground contacts",
+        "Clipping the hurdles",
+        "Landing heavy"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "hurdles",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "single_leg_hop": {
+      "exercise_id": "single_leg_hop",
+      "display_label": "Single-leg hop",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Single-leg hop: Hop continuously on one leg with quick, stiff-ankled contacts.",
+      "instruction_detail_text": [
+        "Stand on one leg, hips level.",
+        "Hop continuously with quick contacts.",
+        "Switch legs after the prescribed reps or distance."
+      ],
+      "coaching_cues": [
+        "Stiff ankle",
+        "Quick contacts",
+        "Hips level"
+      ],
+      "common_faults": [
+        "Knee caving on landing",
+        "Landing on the heel",
+        "Hip dropping"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lateral_line_hop": {
+      "exercise_id": "lateral_line_hop",
+      "display_label": "Lateral line hops",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Lateral line hops: Hop side to side over a line with both feet, keeping contacts quick.",
+      "instruction_detail_text": [
+        "Stand beside a line with the feet together.",
+        "Hop sideways over it and back continuously.",
+        "Keep the hips square and contacts quick."
+      ],
+      "coaching_cues": [
+        "Quick and light",
+        "Hips square",
+        "Small hops"
+      ],
+      "common_faults": [
+        "Big slow jumps",
+        "Landing heavy",
+        "Twisting"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lateral_box_jump": {
+      "exercise_id": "lateral_box_jump",
+      "display_label": "Lateral box jump",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Lateral box jump: Standing beside a low box, jump sideways onto it, landing softly, and step or jump down.",
+      "instruction_detail_text": [
+        "Stand side-on to a low box.",
+        "Jump sideways onto the box, landing softly with both feet.",
+        "Step down and repeat, facing the same way or alternating sides."
+      ],
+      "coaching_cues": [
+        "Land soft",
+        "Hips back on landing",
+        "Low box first"
+      ],
+      "common_faults": [
+        "Clipping the box",
+        "Landing stiff",
+        "Knees caving"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "box",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "alternate_leg_bound": {
+      "exercise_id": "alternate_leg_bound",
+      "display_label": "Alternate-leg bound",
+      "movement_pattern_id": "jump_horizontal",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Alternate-leg bound: Exaggerated running strides, pushing off one leg and landing on the other, covering as much ground as possible.",
+      "instruction_detail_text": [
+        "Jog in, then push off one leg, driving the other knee forward and up.",
+        "Land on the front leg and push straight into the next bound.",
+        "Continue for the prescribed distance."
+      ],
+      "coaching_cues": [
+        "Drive the knee up",
+        "Push the ground away",
+        "Hang in the air"
+      ],
+      "common_faults": [
+        "Short choppy bounds",
+        "Landing on the heel",
+        "Leaning back"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_triple_jump": {
+      "exercise_id": "standing_triple_jump",
+      "display_label": "Standing triple jump",
+      "movement_pattern_id": "jump_horizontal",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Standing triple jump: From two feet, take off into a hop, a step and a jump, landing on both feet.",
+      "instruction_detail_text": [
+        "Start with both feet together.",
+        "Take off from both feet, land on one (hop), bound to the other (step), then jump to both feet.",
+        "Land softly and measure."
+      ],
+      "coaching_cues": [
+        "Rhythm: hop, step, jump",
+        "Stay tall",
+        "Land soft on both feet"
+      ],
+      "common_faults": [
+        "Running out of rhythm",
+        "Collapsing on landing",
+        "Overreaching the first hop"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "hyrox",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "clap_push_up": {
+      "exercise_id": "clap_push_up",
+      "display_label": "Clap push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Clap push-up: Push up explosively so the hands leave the floor, clap, and land softly back into the next push-up.",
+      "instruction_detail_text": [
+        "Set up in a push-up.",
+        "Lower, then push up hard so the hands leave the floor; clap.",
+        "Land with soft elbows and go into the next rep."
+      ],
+      "coaching_cues": [
+        "Explode up",
+        "Land soft",
+        "Body in one line"
+      ],
+      "common_faults": [
+        "Hips sagging",
+        "Landing on straight arms",
+        "Losing the plank"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "depth_push_up": {
+      "exercise_id": "depth_push_up",
+      "display_label": "Depth push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "advanced",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Depth push-up: With the hands on two low platforms, drop down to the floor between them and push back up explosively.",
+      "instruction_detail_text": [
+        "Set up in a push-up with the hands on two low plates or blocks.",
+        "Drop the hands to the floor between them, landing softly.",
+        "Push up explosively back onto the platforms."
+      ],
+      "coaching_cues": [
+        "Low platforms first",
+        "Short contact",
+        "Body in one line"
+      ],
+      "common_faults": [
+        "Platforms too high",
+        "Hips sagging",
+        "Landing on locked elbows"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "plate"
+      ],
+      "equipment_alternatives": [
+        "box",
+        "medicine_ball"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "shoulder_tap_push_up": {
+      "exercise_id": "shoulder_tap_push_up",
+      "display_label": "Shoulder-tap push-up",
+      "movement_pattern_id": "horizontal_push",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "paused_and_tempo",
+      "instruction_short_text": "Shoulder-tap push-up: Do a push-up, then tap one shoulder with the opposite hand without the hips rocking.",
+      "instruction_detail_text": [
+        "Set up in a push-up with the feet a little wide.",
+        "Do a push-up, then tap one shoulder with the opposite hand.",
+        "Alternate sides each rep."
+      ],
+      "coaching_cues": [
+        "Hips still",
+        "Feet wide for balance",
+        "Quick, light tap"
+      ],
+      "common_faults": [
+        "Hips rocking",
+        "Hips piking",
+        "Half push-ups"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "strongman",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "street_lifting",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "jumping_jack": {
+      "exercise_id": "jumping_jack",
+      "display_label": "Jumping jack",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Jumping jack: Jump the feet out wide while raising the arms overhead, then jump back together, continuously.",
+      "instruction_detail_text": [
+        "Stand with the feet together and arms by your sides.",
+        "Jump the feet wide and swing the arms overhead.",
+        "Jump back to the start and keep going."
+      ],
+      "coaching_cues": [
+        "Light on the feet",
+        "Steady rhythm",
+        "Full arm swing"
+      ],
+      "common_faults": [
+        "Landing flat-footed",
+        "Half arm swings",
+        "Knees caving"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "mountain_climber": {
+      "exercise_id": "mountain_climber",
+      "display_label": "Mountain climber",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Mountain climber: In a push-up position, drive the knees towards the chest one after the other.",
+      "instruction_detail_text": [
+        "Set up in a push-up position.",
+        "Drive one knee towards the chest, then switch quickly.",
+        "Keep alternating at the prescribed pace."
+      ],
+      "coaching_cues": [
+        "Shoulders over the hands",
+        "Hips level",
+        "Quick switches"
+      ],
+      "common_faults": [
+        "Hips bouncing high",
+        "Shoulders drifting back",
+        "Feet scuffing"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "high_knees": {
+      "exercise_id": "high_knees",
+      "display_label": "High knees",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "High knees: Run on the spot or forward, driving the knees to hip height with quick contacts.",
+      "instruction_detail_text": [
+        "Stand tall.",
+        "Run, driving each knee to hip height, landing on the balls of the feet.",
+        "Pump the arms and keep the trunk tall."
+      ],
+      "coaching_cues": [
+        "Knees to hip height",
+        "Tall trunk",
+        "Quick feet"
+      ],
+      "common_faults": [
+        "Leaning back",
+        "Knees too low",
+        "Landing on the heels"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "butt_kicks": {
+      "exercise_id": "butt_kicks",
+      "display_label": "Butt kicks",
+      "movement_pattern_id": "jump_vertical",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Butt kicks: Jog on the spot or forward, flicking the heels up towards the glutes.",
+      "instruction_detail_text": [
+        "Stand tall.",
+        "Jog, flicking each heel up towards the glutes.",
+        "Keep the knees pointing down and contacts quick."
+      ],
+      "coaching_cues": [
+        "Knees point down",
+        "Quick heels",
+        "Tall trunk"
+      ],
+      "common_faults": [
+        "Leaning forward",
+        "Knees swinging forward",
+        "Heavy landings"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "carioca": {
+      "exercise_id": "carioca",
+      "display_label": "Carioca (grapevine)",
+      "movement_pattern_id": "change_of_direction",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Carioca: Travel sideways, crossing the trailing leg alternately in front of and behind the lead leg while the hips rotate.",
+      "instruction_detail_text": [
+        "Stand side-on to the direction of travel.",
+        "Step sideways, crossing the trail leg in front, then behind, letting the hips rotate.",
+        "Keep the shoulders square and travel the prescribed distance both ways."
+      ],
+      "coaching_cues": [
+        "Hips turn, shoulders stay square",
+        "Light feet",
+        "Build the speed"
+      ],
+      "common_faults": [
+        "Shoulders twisting",
+        "Tripping over the feet",
+        "Heavy landings"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lateral_shuffle": {
+      "exercise_id": "lateral_shuffle",
+      "display_label": "Lateral shuffle",
+      "movement_pattern_id": "change_of_direction",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Lateral shuffle: In an athletic stance, shuffle sideways without crossing the feet.",
+      "instruction_detail_text": [
+        "Get into a quarter squat, feet wider than the hips.",
+        "Push off the trailing leg to shuffle sideways without the feet touching.",
+        "Change direction on the coach's call or at the marker."
+      ],
+      "coaching_cues": [
+        "Stay low",
+        "Push, don't reach",
+        "Feet never touch"
+      ],
+      "common_faults": [
+        "Standing up tall",
+        "Crossing the feet",
+        "Bouncing up and down"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [
+        "impact_landing",
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "jump_rope": {
+      "exercise_id": "jump_rope",
+      "display_label": "Jump rope (single unders)",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "ankle",
+        "knee",
+        "hip"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Jump rope: Skip a rope with one turn per jump, landing softly on the balls of the feet.",
+      "instruction_detail_text": [
+        "Hold the handles at hip height, elbows close.",
+        "Turn the rope with the wrists and hop just high enough to clear it.",
+        "Keep a steady rhythm for the prescribed time or count."
+      ],
+      "coaching_cues": [
+        "Turn from the wrists",
+        "Small hops",
+        "Balls of the feet"
+      ],
+      "common_faults": [
+        "Big jumps",
+        "Turning from the shoulders",
+        "Landing on the heels"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "jump_rope"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "crossfit",
+      "secondary_activity_applicability": [],
+      "contraindication_or_exclusion_tags": [
+        "high_speed_execution"
+      ],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "stair_run": {
+      "exercise_id": "stair_run",
+      "display_label": "Stair runs",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Stair runs: Run up a flight of stairs one or two steps at a time and walk down to recover.",
+      "instruction_detail_text": [
+        "Find a flight of stairs.",
+        "Run up, one step at a time for speed or two for power, pumping the arms.",
+        "Walk down to recover; repeat as prescribed."
+      ],
+      "coaching_cues": [
+        "Drive the arms",
+        "Whole foot on each step",
+        "Walk down"
+      ],
+      "common_faults": [
+        "Running down",
+        "Leaning far forward",
+        "Clipping the step"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "elliptical_trainer": {
+      "exercise_id": "elliptical_trainer",
+      "display_label": "Elliptical trainer",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Elliptical trainer: Low-impact conditioning on an elliptical (cross) trainer at the prescribed pace or effort.",
+      "instruction_detail_text": [
+        "Step on and hold the moving handles.",
+        "Push and pull through the legs and arms at the prescribed effort.",
+        "Keep an upright posture throughout."
+      ],
+      "coaching_cues": [
+        "Stand tall",
+        "Push through the whole foot",
+        "Use the arms too"
+      ],
+      "common_faults": [
+        "Leaning on the console",
+        "Bouncing",
+        "Holding the static handles throughout"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "arm_ergometer": {
+      "exercise_id": "arm_ergometer",
+      "display_label": "Arm ergometer",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Arm ergometer: Seated or standing, crank an arm bike at the prescribed pace or effort.",
+      "instruction_detail_text": [
+        "Set the seat so the cranks are at shoulder height.",
+        "Turn the cranks smoothly, forwards or backwards, at the prescribed effort.",
+        "Keep the trunk tall."
+      ],
+      "coaching_cues": [
+        "Smooth circles",
+        "Tall trunk",
+        "Both directions"
+      ],
+      "common_faults": [
+        "Hunching forward",
+        "Jerky pulls",
+        "Shrugging"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "crossfit",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "climbing_machine": {
+      "exercise_id": "climbing_machine",
+      "display_label": "Climbing machine",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Climbing machine: Climb on a vertical climber with opposite arm and leg moving together.",
+      "instruction_detail_text": [
+        "Step on and hold the handles.",
+        "Drive one leg down while pulling the opposite arm down, alternating.",
+        "Keep a steady pace at the prescribed effort."
+      ],
+      "coaching_cues": [
+        "Opposite arm and leg",
+        "Full strokes",
+        "Steady pace"
+      ],
+      "common_faults": [
+        "Short strokes",
+        "Using only the legs",
+        "Hunching"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "curved_treadmill_run": {
+      "exercise_id": "curved_treadmill_run",
+      "display_label": "Curved treadmill run",
+      "movement_pattern_id": "conditioning_cyclical",
+      "stimulus_intent": "strength",
+      "rom": "task_defined",
+      "stability": "dynamic",
+      "equipment_tier": "TIER_2",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "ankle"
+      ],
+      "tempo_capability": "not_applicable",
+      "instruction_short_text": "Curved treadmill run: Run on a non-motorised curved treadmill, setting the speed with your own effort.",
+      "instruction_detail_text": [
+        "Step on holding the rails, then let go as you start moving.",
+        "Run on the balls of the feet near the front of the curve to speed up.",
+        "Move back towards the middle to slow down."
+      ],
+      "coaching_cues": [
+        "Front of the curve to go faster",
+        "Tall posture",
+        "Arms drive"
+      ],
+      "common_faults": [
+        "Heel striking at the front",
+        "Holding the rails",
+        "Leaning back"
+      ],
+      "fast_execution": true,
+      "equipment_requirements": [
+        "cardio_machine_general"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "rugby_union",
+      "secondary_activity_applicability": [
+        "general_strength",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "olympic_weightlifting",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }

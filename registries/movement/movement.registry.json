@@ -698,7 +698,9 @@
         "resistance_band",
         "smith_machine",
         "suspension_trainer",
-        "gymnastics_rings"
+        "gymnastics_rings",
+        "box",
+        "medicine_ball"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2471,7 +2473,8 @@
         "bodyweight",
         "box",
         "open_floor_space",
-        "medicine_ball"
+        "medicine_ball",
+        "hurdles"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
