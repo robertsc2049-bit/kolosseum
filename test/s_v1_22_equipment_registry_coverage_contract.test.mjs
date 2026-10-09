@@ -427,7 +427,7 @@ test("S-V1-22 real active equipment and exercise registries satisfy the coverage
   });
 
   assert.equal(result.ok, true);
-  assert.equal(result.equipment_count, 69);
+  assert.equal(result.equipment_count, 73);
   assert.deepEqual(result.locked_activity_ids, lockedActivityIds);
 });
 

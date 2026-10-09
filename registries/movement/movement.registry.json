@@ -97,7 +97,9 @@
         "deadlift_frame",
         "fingal_fingers",
         "sandbag",
-        "power_stairs"
+        "power_stairs",
+        "cable_rope_attachment",
+        "resistance_band"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -370,7 +372,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "ankle_weight"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -419,7 +422,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "ankle_weight"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1986,7 +1990,11 @@
         "resistance_band",
         "medicine_ball",
         "plate",
-        "open_floor_space"
+        "open_floor_space",
+        "ab_wheel",
+        "barbell",
+        "suspension_trainer",
+        "stability_ball"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2085,7 +2093,10 @@
         "resistance_band",
         "medicine_ball",
         "plate",
-        "open_floor_space"
+        "open_floor_space",
+        "dumbbell",
+        "kettlebell",
+        "back_extension_bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2135,7 +2146,16 @@
         "medicine_ball",
         "plate",
         "open_floor_space",
-        "pull_up_bar"
+        "pull_up_bar",
+        "bench",
+        "stability_ball",
+        "glute_ham_bench",
+        "cable_rope_attachment",
+        "machine_general",
+        "dumbbell",
+        "barbell",
+        "ankle_weight",
+        "dip_bars"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2184,7 +2204,9 @@
         "resistance_band",
         "medicine_ball",
         "plate",
-        "open_floor_space"
+        "open_floor_space",
+        "machine_general",
+        "stability_ball"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -2234,7 +2256,11 @@
         "medicine_ball",
         "plate",
         "open_floor_space",
-        "cable_single_handle_attachment"
+        "cable_single_handle_attachment",
+        "dumbbell",
+        "barbell",
+        "landmine_attachment",
+        "machine_general"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

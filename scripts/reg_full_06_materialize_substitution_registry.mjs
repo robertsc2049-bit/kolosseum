@@ -88,7 +88,11 @@ export const EQUIPMENT_LEVEL = Object.freeze({
   cable_straight_bar_attachment: 2,
   cable_v_bar_attachment: 2,
   cable_single_handle_attachment: 2,
-  cable_lat_bar_attachment: 2
+  cable_lat_bar_attachment: 2,
+  stability_ball: 1,
+  ab_wheel: 1,
+  back_extension_bench: 2,
+  ankle_weight: 1
 });
 
 const CHANGE_PRIORITY = Object.freeze({
