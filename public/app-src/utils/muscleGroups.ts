@@ -36,3 +36,28 @@ export function musclesText(option: { target_muscles?: unknown; secondary_muscle
   if (!target.length) return "";
   return `Targets: ${target.join(", ")}${secondary.length ? ` · Also works: ${secondary.join(", ")}` : ""}`;
 }
+
+// Gym shorthand a coach or athlete might type for an exercise.
+const SEARCH_ALIASES: Readonly<Record<string, string>> = {
+  rdl: "romanian deadlift", sldl: "stiff leg deadlift", db: "dumbbell", bb: "barbell", kb: "kettlebell",
+  ohp: "overhead press", bss: "bulgarian split squat", ghr: "glute ham raise", hspu: "handstand push",
+  trx: "suspension", ssb: "safety bar", tke: "terminal knee", bw: "bodyweight"
+};
+
+const normalise = (text: string) => text.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
+
+// Whether an exercise matches what was typed: every word must appear in its
+// name or the muscles it targets ("glutes" finds hip thrusts, "rdl" finds
+// Romanian deadlifts).
+// An empty search matches everything.
+export function matchesExerciseSearch(name: string, option: { target_muscles?: unknown }, query: string): boolean {
+  const words = normalise(query).split(" ").filter(Boolean);
+  if (!words.length) return true;
+  const muscles = Array.isArray(option.target_muscles) ? option.target_muscles.map(String) : [];
+  const haystack = normalise([name, ...muscles].join(" "));
+  return words.every((word) => {
+    const expanded = SEARCH_ALIASES[word];
+    const singular = word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word;
+    return haystack.includes(word) || haystack.includes(singular) || (!!expanded && haystack.includes(expanded));
+  });
+}

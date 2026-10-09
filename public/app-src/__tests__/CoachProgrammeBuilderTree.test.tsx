@@ -316,6 +316,11 @@ test("a coach filters the exercise picker by muscle group - hamstring work only,
   assert.equal(optionByValue("bench_press").hidden, true, "a bench press is not hamstring work");
   assert.equal(optionByValue("back_squat").hidden, false, "the exercise already chosen stays visible");
 
+  fireEvent.change(screen.getByLabelText("Search exercises"), { target: { value: "nordic" } });
+  assert.equal(optionByValue("nordic_curl").hidden, false, "search narrows within the muscle group");
+  assert.equal(optionByValue("romanian_deadlift").hidden, true);
+  fireEvent.change(screen.getByLabelText("Search exercises"), { target: { value: "" } });
+
   fireEvent.change(container.querySelector('select[data-field="exercise_id"]') as HTMLSelectElement, { target: { value: "nordic_curl" } });
   assert.ok(screen.getByText("Targets: Hamstrings"));
 });
