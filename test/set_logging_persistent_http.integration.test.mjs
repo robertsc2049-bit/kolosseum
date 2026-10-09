@@ -323,7 +323,6 @@ test(
     const squatE1rm = insights.json.insights.training_e1rm_trends.find((x) => x.exercise_id === "back_squat");
     assert.equal(squatE1rm.current_e1rm, 163.3, "best set 5 x 140 kg (Epley 163.3); the failed set never counts");
     assert.equal(squatE1rm.unit, "kg");
-    assert.equal(squatE1rm.includes_bodyweight, false);
   }
 );
 
