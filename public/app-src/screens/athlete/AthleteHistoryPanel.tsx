@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
-import { formatDate, titleCase } from "../../utils/format";
+import { formatDate, setLoadText, titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
 import { useTrainingHistory } from "./useTrainingHistory";
 
@@ -301,14 +301,14 @@ export function AthleteHistoryPanel() {
                       {(Array.isArray(exercise.set_logs) ? (exercise.set_logs as JsonRecord[]) : []).map((log) => (
                         <small key={`set-${String(log.set_index)}`}>
                           Set {String(log.set_index)}: {String(log.reps)} reps
-                          {log.load_value !== null && log.load_value !== undefined ? ` @ ${String(log.load_value)}${String(log.load_unit ?? "")}` : ""}
+                          {setLoadText(log) ? ` @ ${setLoadText(log)}` : ""}
                           {log.is_pr === true ? <> <span className="badge active">PR</span></> : null}
                         </small>
                       ))}
                       {extraSets.map((extraSet, extraSetIndex) => (
                         <small key={extraSetIndex}>
                           Extra set: {String(extraSet.reps)} reps
-                          {extraSet.load_value !== null && extraSet.load_value !== undefined ? ` @ ${String(extraSet.load_value)}${String(extraSet.load_unit ?? "")}` : ""}
+                          {setLoadText(extraSet) ? ` @ ${setLoadText(extraSet)}` : ""}
                           {extraSet.is_pr === true ? <> <span className="badge active">PR</span></> : null}
                         </small>
                       ))}
@@ -330,7 +330,7 @@ export function AthleteHistoryPanel() {
                           {sets.map((set, setIndex) => (
                             <small key={setIndex}>
                               {String(set.reps)} reps
-                              {set.load_value !== null && set.load_value !== undefined ? ` @ ${String(set.load_value)}${String(set.load_unit ?? "")}` : ""}
+                              {setLoadText(set) ? ` @ ${setLoadText(set)}` : ""}
                               {set.is_pr === true ? <> <span className="badge active">PR</span></> : null}
                             </small>
                           ))}

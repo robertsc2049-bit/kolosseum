@@ -321,3 +321,21 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
 
   return details;
 }
+
+// A logged set's load: "10 kg", or for a bodyweight exercise (pull-up, dip,
+// push-up...) the whole system load the server recorded with the set -
+// "bodyweight + 10 kg (90 kg)", or "bodyweight (80 kg)" with nothing added.
+// Empty when the set has no load at all.
+export function setLoadText(entry: Record<string, unknown>): string {
+  const unit = String(entry.load_unit ?? "") === "lb" ? "lb" : "kg";
+  const shown = (n: number) => String(Math.round(n * 10) / 10);
+  const addedValue = Number(entry.load_value);
+  const hasAdded = entry.load_value !== null && entry.load_value !== undefined && entry.load_value !== "" && Number.isFinite(addedValue) && addedValue !== 0;
+  const added = hasAdded ? `${shown(addedValue)} ${unit}` : "";
+  const system = Number(entry.system_load_kg);
+  if (entry.system_load_kg !== null && entry.system_load_kg !== undefined && Number.isFinite(system) && system > 0) {
+    const total = unit === "lb" ? system * 2.2046226218 : system;
+    return `bodyweight${hasAdded ? ` + ${added}` : ""} (${shown(total)} ${unit})`;
+  }
+  return added;
+}
