@@ -44,7 +44,7 @@ test("S-V1-G-02 records current active registry law counts", () => {
 
   assert.equal(record.registry_law_counts.activity, 32);
   assert.equal(record.registry_law_counts.movement, 55);
-  assert.equal(record.registry_law_counts.exercise, 442);
+  assert.equal(record.registry_law_counts.exercise, 466);
   assert.equal(record.registry_law_counts.program, 32);
 });
 

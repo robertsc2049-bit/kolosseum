@@ -422,7 +422,32 @@ export const EXERCISE_MUSCLES: Readonly<Record<string, ExerciseMuscles>> = Objec
   side_plank_hip_abduction: m(["hip_abductors", "obliques"], ["quadratus_lumborum"]),
   cable_hip_internal_rotation: m(["hip_abductors"], ["hip_adductors"]),
   cable_hip_external_rotation: m(["hip_external_rotators"], ["gluteus_maximus"]),
-  side_lying_hip_adduction: m(["hip_adductors"])
+  side_lying_hip_adduction: m(["hip_adductors"]),
+  // Library batch 4: quads, hamstrings, calves and shins
+  safety_bar_squat: m(["quadriceps", "gluteus_maximus"], ["erector_spinae", "hip_adductors", "trapezius_upper"]),
+  smith_machine_squat: m(["quadriceps", "gluteus_maximus"], ["hip_adductors", "soleus"]),
+  dumbbell_squat: m(["quadriceps", "gluteus_maximus"], ["hip_adductors", "wrist_flexors"]),
+  v_squat: m(["quadriceps"], ["gluteus_maximus", "hip_adductors"]),
+  seated_leg_press: m(["quadriceps", "gluteus_maximus"], ["hip_adductors"]),
+  single_leg_press: m(["quadriceps", "gluteus_maximus"], ["hip_abductors", "hip_adductors"]),
+  pistol_squat: m(["quadriceps", "gluteus_maximus"], ["hip_abductors", "hip_flexors", "soleus"]),
+  single_leg_box_squat: m(["quadriceps", "gluteus_maximus"], ["hip_abductors"]),
+  step_down: m(["quadriceps"], ["gluteus_maximus", "hip_abductors"]),
+  barbell_reverse_lunge: m(["quadriceps", "gluteus_maximus"], ["hip_adductors", "hip_abductors", "erector_spinae"]),
+  smith_machine_split_squat: m(["quadriceps", "gluteus_maximus"], ["hip_adductors"]),
+  suspension_single_leg_squat: m(["quadriceps", "gluteus_maximus"], ["hip_abductors"]),
+  supported_squat: m(["quadriceps", "gluteus_maximus"], ["hip_adductors"]),
+  reverse_nordic: m(["quadriceps"], ["hip_flexors", "rectus_abdominis"]),
+  dumbbell_romanian_deadlift: m(["hamstrings", "gluteus_maximus"], ["erector_spinae", "wrist_flexors"]),
+  forty_five_degree_back_extension: m(["hamstrings", "gluteus_maximus"], ["erector_spinae"]),
+  standing_leg_curl: m(["hamstrings"], ["gastrocnemius"]),
+  stability_ball_leg_curl: m(["hamstrings"], ["gluteus_maximus", "gastrocnemius"]),
+  suspension_leg_curl: m(["hamstrings"], ["gluteus_maximus", "gastrocnemius"]),
+  single_leg_hamstring_bridge: m(["hamstrings", "gluteus_maximus"]),
+  leg_press_calf_raise: m(["gastrocnemius"], ["soleus"]),
+  donkey_calf_raise: m(["gastrocnemius"], ["soleus"]),
+  smith_machine_calf_raise: m(["gastrocnemius", "soleus"]),
+  seated_dumbbell_tibialis_raise: m(["tibialis_anterior"])
 });
 
 const groupOf = (muscle: string): MuscleGroupId | null => MUSCLES[muscle]?.group ?? null;

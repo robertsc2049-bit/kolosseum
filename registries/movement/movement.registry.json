@@ -17,7 +17,9 @@
         "squat_bar",
         "safety_squat_bar",
         "hex_dumbbell",
-        "adjustable_dumbbell"
+        "adjustable_dumbbell",
+        "smith_machine",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -166,7 +168,10 @@
         "trap_bar",
         "plate",
         "box",
-        "sandbag"
+        "sandbag",
+        "resistance_band",
+        "bench",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -323,7 +328,10 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "glute_ham_bench"
+        "glute_ham_bench",
+        "ankle_weight",
+        "stability_ball",
+        "suspension_trainer"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -475,7 +483,9 @@
         "plate",
         "barbell",
         "bench",
-        "glute_ham_bench"
+        "glute_ham_bench",
+        "back_extension_bench",
+        "box"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -575,7 +585,9 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "smith_machine",
+        "box"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -625,7 +637,8 @@
         "machine_general",
         "cable_machine",
         "resistance_band",
-        "plate"
+        "plate",
+        "bench"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
