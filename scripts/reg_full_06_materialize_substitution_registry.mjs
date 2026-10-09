@@ -92,7 +92,8 @@ export const EQUIPMENT_LEVEL = Object.freeze({
   stability_ball: 1,
   ab_wheel: 1,
   back_extension_bench: 2,
-  ankle_weight: 1
+  ankle_weight: 1,
+  safety_squat_bar: 2
 });
 
 const CHANGE_PRIORITY = Object.freeze({
