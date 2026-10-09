@@ -27,7 +27,6 @@ export function TrainingE1rmCard({ trend, exercises }: { trend: JsonRecord; exer
       </div>
       <strong>{`${String(trend.current_e1rm)} ${unit} e1RM`}</strong>
       <p className="muted small">{change}</p>
-      {trend.includes_bodyweight === true ? <p className="muted small">Includes bodyweight plus added load.</p> : null}
       <LineChart compact series={[{ id: "e1rm", label: `${name} e1RM (${unit})`, points }]} emptyLabel="Not enough training logged to chart yet." />
     </article>
   );

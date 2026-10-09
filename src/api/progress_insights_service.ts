@@ -25,8 +25,7 @@ import {
   listHabitsWithStreaksForAthlete,
   queryHabitCompletions
 } from "./habit_tracking_service.js";
-import { BODYWEIGHT_PLUS_LOAD_EXERCISES, computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
-import { latestBodyweightKg } from "./bodyweight_load.js";
+import { computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
@@ -164,8 +163,8 @@ async function loadLatestStrengthProfilePayload(athleteUserId: string): Promise<
 
 // Every loaded set the athlete actually logged: prescribed-set logs (latest
 // entry per session, exercise and set) plus extra sets and added exercises.
-// Bodyweight lifts logged without added load count as load 0 (bodyweight is
-// added when the e1RM is estimated).
+// A bodyweight exercise's load is only what was added on top, so unweighted
+// pull-ups and dips are left out.
 async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
   const result = await pool.query(
     `
@@ -174,7 +173,6 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
       (re.event->>'reps')::int AS reps,
       (re.event->>'load_value')::numeric AS load_value,
       re.event->>'load_unit' AS load_unit,
-      (re.event->>'bodyweight_kg')::numeric AS bodyweight_kg,
       to_char(re.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD') AS day
     FROM runtime_events re
     JOIN sessions s ON s.session_id = re.session_id
@@ -189,14 +187,13 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
   for (const row of result.rows ?? []) {
     const exerciseId = cleanString(row.exercise_id);
     const hasLoad = row.load_value !== null && row.load_value !== undefined;
-    if (!exerciseId || (!hasLoad && !BODYWEIGHT_PLUS_LOAD_EXERCISES.has(exerciseId))) continue;
+    if (!exerciseId || !hasLoad) continue;
     sets.push({
       exercise_id: exerciseId,
       reps: Number(row.reps),
-      load_value: hasLoad ? Number(row.load_value) : 0,
+      load_value: Number(row.load_value),
       load_unit: row.load_unit === "lb" ? "lb" : "kg",
-      date: cleanString(row.day),
-      bodyweight_kg: row.bodyweight_kg === null || row.bodyweight_kg === undefined ? null : Number(row.bodyweight_kg)
+      date: cleanString(row.day)
     });
   }
   return sets;
@@ -258,9 +255,6 @@ function exercisePatternOf(exerciseId: string): string | undefined {
   }
   return exercisePatterns.get(exerciseId) || undefined;
 }
-
-// Bodyweight for bodyweight-lift e1RMs: the strength profile's, else the
-// latest body-weight entry.
 
 function computeStrengthTrends(profilePayload: JsonRecord | null): Readonly<JsonRecord>[] {
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) || "kg";
@@ -463,7 +457,7 @@ async function assembleProgressInsightsSummary(
     session_adherence: computeSessionAdherence(sessions),
     strength_trends: computeStrengthTrends(profilePayload),
     // Estimated maxes from what the athlete actually lifted in training.
-    training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, latestBodyweightKg(profilePayload, bodyMetricEntries), displayUnit, WINDOW_DAYS, exercisePatternOf),
+    training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, displayUnit, WINDOW_DAYS, exercisePatternOf),
     // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
     workout_scores: workoutHistories(workoutResults),
     habit_consistency: habitConsistency,
