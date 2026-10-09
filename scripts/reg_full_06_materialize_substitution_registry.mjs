@@ -95,7 +95,8 @@ export const EQUIPMENT_LEVEL = Object.freeze({
   ankle_weight: 1,
   safety_squat_bar: 2,
   battle_ropes: 2,
-  hurdles: 1
+  hurdles: 1,
+  dowel: 0
 });
 
 const CHANGE_PRIORITY = Object.freeze({

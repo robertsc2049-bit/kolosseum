@@ -36245,6 +36245,3450 @@
         "no_medical_claims",
         "no_performance_guarantees"
       ]
+    },
+    "upper_trap_stretch": {
+      "exercise_id": "upper_trap_stretch",
+      "display_label": "Upper trap stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Upper trap stretch: Tilt the ear towards one shoulder and gently draw the head further with the same-side hand.",
+      "instruction_detail_text": [
+        "Sit or stand tall with one hand holding the side of the seat or tucked behind the back.",
+        "Tilt the opposite ear towards the shoulder.",
+        "Add gentle pressure with the hand on the head and hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Shoulder down on the stretched side",
+        "Gentle pressure",
+        "Breathe slowly"
+      ],
+      "common_faults": [
+        "Pulling hard on the head",
+        "Shrugging the stretched shoulder",
+        "Bouncing into it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "neck_extensor_stretch": {
+      "exercise_id": "neck_extensor_stretch",
+      "display_label": "Neck extensor stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "neck"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Neck extensor stretch: Tuck the chin and gently draw the head down towards the chest.",
+      "instruction_detail_text": [
+        "Sit tall and tuck the chin.",
+        "Clasp the hands behind the head and let it bow forward.",
+        "Hold with gentle pressure only."
+      ],
+      "coaching_cues": [
+        "Chin tucked first",
+        "Gentle pressure",
+        "Shoulders relaxed"
+      ],
+      "common_faults": [
+        "Pulling hard",
+        "Rounding the whole back",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "doorway_chest_stretch": {
+      "exercise_id": "doorway_chest_stretch",
+      "display_label": "Doorway chest stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Doorway chest stretch: With the forearm on a doorframe at shoulder height, step through until you feel the chest and front shoulder stretch.",
+      "instruction_detail_text": [
+        "Place the forearm against a doorframe, elbow at shoulder height.",
+        "Step forward through the doorway until you feel the stretch.",
+        "Hold; raise or lower the elbow to change the area; switch sides."
+      ],
+      "coaching_cues": [
+        "Elbow at shoulder height",
+        "Step, don't lean",
+        "Ribs down"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Elbow too high for the shoulder",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cross_body_shoulder_stretch": {
+      "exercise_id": "cross_body_shoulder_stretch",
+      "display_label": "Cross-body shoulder stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Cross-body stretch: Draw one straight arm across the chest with the other arm to stretch the back of the shoulder.",
+      "instruction_detail_text": [
+        "Bring one arm across the chest at shoulder height.",
+        "Hook the other arm above the elbow and draw it closer.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Shoulder down",
+        "Pull above the elbow",
+        "Turn the head away for more"
+      ],
+      "common_faults": [
+        "Shrugging",
+        "Twisting the trunk",
+        "Pulling on the elbow joint"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "sleeper_stretch": {
+      "exercise_id": "sleeper_stretch",
+      "display_label": "Sleeper stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Sleeper stretch: Lying on your side with the bottom elbow at shoulder height, gently press the forearm down towards the floor.",
+      "instruction_detail_text": [
+        "Lie on your side with the bottom upper arm out at shoulder height and the elbow bent to 90 degrees.",
+        "With the top hand, gently press the bottom forearm towards the floor.",
+        "Hold at a comfortable stretch; switch sides."
+      ],
+      "coaching_cues": [
+        "Gentle pressure",
+        "Shoulder blade back",
+        "Stop before pain"
+      ],
+      "common_faults": [
+        "Forcing the range",
+        "Rolling onto the shoulder",
+        "Pinching at the front of the shoulder"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dowel_shoulder_rotation_stretch": {
+      "exercise_id": "dowel_shoulder_rotation_stretch",
+      "display_label": "Dowel shoulder rotation stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Dowel rotation stretch: Use a dowel behind the arm to gently rotate the shoulder out (or in) and hold.",
+      "instruction_detail_text": [
+        "Hold a dowel vertically behind one arm, elbow bent at your side.",
+        "Use the other hand to ease the dowel and forearm outward (or behind the back to rotate in).",
+        "Hold at a comfortable stretch; switch sides."
+      ],
+      "coaching_cues": [
+        "Elbow stays at the side",
+        "Gentle pressure",
+        "Both directions"
+      ],
+      "common_faults": [
+        "Forcing the end range",
+        "Elbow drifting away",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dowel"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "dowel_shoulder_dislocate": {
+      "exercise_id": "dowel_shoulder_dislocate",
+      "display_label": "Dowel pass-through",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Pass-through: With a wide grip on a dowel, raise it overhead and behind you with straight arms, then bring it back.",
+      "instruction_detail_text": [
+        "Hold a dowel or band with a wide grip in front of the hips.",
+        "Raise it overhead and behind you with straight arms, as far as is comfortable.",
+        "Bring it back the same way; narrow the grip gradually over time."
+      ],
+      "coaching_cues": [
+        "Arms straight",
+        "Wide grip first",
+        "Ribs down"
+      ],
+      "common_faults": [
+        "Bending the elbows",
+        "Arching the back",
+        "Grip too narrow too soon"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "dowel"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "overhead_triceps_stretch": {
+      "exercise_id": "overhead_triceps_stretch",
+      "display_label": "Overhead triceps stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Overhead triceps stretch: Reach one hand down the back with the elbow up, and ease the elbow back with the other hand.",
+      "instruction_detail_text": [
+        "Raise one arm and bend the elbow so the hand reaches down the back.",
+        "With the other hand, ease the elbow further back.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Elbow points up",
+        "Ribs down",
+        "Gentle pressure"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Leaning the head forward",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "biceps_wall_stretch": {
+      "exercise_id": "biceps_wall_stretch",
+      "display_label": "Biceps wall stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Biceps stretch: With the palm on a wall behind you at shoulder height, turn the body away until you feel the front of the arm stretch.",
+      "instruction_detail_text": [
+        "Place the palm flat on a wall at shoulder height, arm straight, thumb up.",
+        "Slowly turn the body away from the wall.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Arm straight",
+        "Turn slowly",
+        "Shoulder down"
+      ],
+      "common_faults": [
+        "Bending the elbow",
+        "Rolling the shoulder forward",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wrist_flexor_stretch": {
+      "exercise_id": "wrist_flexor_stretch",
+      "display_label": "Wrist flexor stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Wrist flexor stretch: With the arm straight and palm up, gently draw the fingers back towards you.",
+      "instruction_detail_text": [
+        "Hold one arm straight in front, palm up (or kneel with the palms on the floor, fingers towards you).",
+        "Draw the fingers back with the other hand.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Elbow straight",
+        "Gentle pull",
+        "Include the fingers"
+      ],
+      "common_faults": [
+        "Bending the elbow",
+        "Forcing it",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wrist_extensor_stretch": {
+      "exercise_id": "wrist_extensor_stretch",
+      "display_label": "Wrist extensor stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "wrist",
+        "elbow"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Wrist extensor stretch: With the arm straight and palm down, gently draw the back of the hand towards you.",
+      "instruction_detail_text": [
+        "Hold one arm straight in front, palm down (or kneel with the backs of the hands on the floor).",
+        "Draw the back of the hand towards you with the other hand.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Elbow straight",
+        "Gentle pull",
+        "Make a loose fist for more"
+      ],
+      "common_faults": [
+        "Bending the elbow",
+        "Forcing it",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "passive_hang": {
+      "exercise_id": "passive_hang",
+      "display_label": "Passive hang",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "wrist"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Passive hang: Hang from a bar with relaxed shoulders and let the body lengthen.",
+      "instruction_detail_text": [
+        "Grip a bar shoulder-width and hang with the feet off the floor (or toes touching for help).",
+        "Let the shoulders rise and the body relax.",
+        "Hold for the prescribed time."
+      ],
+      "coaching_cues": [
+        "Relax and breathe",
+        "Toes down to ease it",
+        "Shoulder-width grip"
+      ],
+      "common_faults": [
+        "Swinging",
+        "Holding past grip failure",
+        "Dropping off suddenly"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "pull_up_bar"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kneeling_lat_stretch": {
+      "exercise_id": "kneeling_lat_stretch",
+      "display_label": "Kneeling lat stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kneeling lat stretch: Kneeling with the elbows on a bench, sit the hips back and let the chest sink.",
+      "instruction_detail_text": [
+        "Kneel facing a bench with the elbows on it and the hands together.",
+        "Sit the hips back towards the heels and let the chest drop.",
+        "Hold and breathe into the stretch."
+      ],
+      "coaching_cues": [
+        "Hips back",
+        "Chest sinks",
+        "Ribs down"
+      ],
+      "common_faults": [
+        "Arching the lower back",
+        "Shrugging",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "box",
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_side_reach": {
+      "exercise_id": "standing_side_reach",
+      "display_label": "Standing side reach",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side reach: Standing tall, reach one arm up and over to the opposite side.",
+      "instruction_detail_text": [
+        "Stand with the feet hip-width.",
+        "Reach one arm overhead and lean to the opposite side.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Reach long",
+        "Stay side-on, not forward",
+        "Push the hip out"
+      ],
+      "common_faults": [
+        "Leaning forward",
+        "Twisting",
+        "Collapsing at the waist"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "upper_back_hug_stretch": {
+      "exercise_id": "upper_back_hug_stretch",
+      "display_label": "Upper-back hug stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder",
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Upper-back stretch: Hug yourself, reaching the hands around the shoulder blades, and round the upper back.",
+      "instruction_detail_text": [
+        "Wrap the arms around yourself, hands reaching for the shoulder blades.",
+        "Round the upper back and drop the chin.",
+        "Hold and breathe into the upper back."
+      ],
+      "coaching_cues": [
+        "Round the upper back",
+        "Reach far round",
+        "Breathe in to the back"
+      ],
+      "common_faults": [
+        "Shrugging",
+        "Rounding only at the neck",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "cat_cow": {
+      "exercise_id": "cat_cow",
+      "display_label": "Cat-cow",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "thoracic_low",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Cat-cow: On hands and knees, slowly round the whole spine up, then let it arch down, in time with the breath.",
+      "instruction_detail_text": [
+        "Start on hands and knees, hands under shoulders and knees under hips.",
+        "Round the spine up, tucking the chin and tail.",
+        "Then let the spine arch down, lifting the chest and tail; move slowly."
+      ],
+      "coaching_cues": [
+        "Move segment by segment",
+        "Breathe with the movement",
+        "Small range is fine"
+      ],
+      "common_faults": [
+        "Moving only the neck",
+        "Rushing the reps",
+        "Forcing the arch"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "quadruped_thoracic_rotation": {
+      "exercise_id": "quadruped_thoracic_rotation",
+      "display_label": "Quadruped thoracic rotation",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Thoracic rotation: On hands and knees with one hand behind the head, rotate the elbow down then up towards the ceiling.",
+      "instruction_detail_text": [
+        "Kneel on all fours, one hand behind the head.",
+        "Rotate the elbow down under the body, then open it up towards the ceiling.",
+        "Move slowly; switch sides."
+      ],
+      "coaching_cues": [
+        "Hips stay still",
+        "Eyes follow the elbow",
+        "Rotate through the upper back"
+      ],
+      "common_faults": [
+        "Hips swaying",
+        "Twisting from the lower back",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "prone_press_up": {
+      "exercise_id": "prone_press_up",
+      "display_label": "Prone press-up",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Prone press-up: Lying face down, press the chest up on the hands while the hips stay on the floor.",
+      "instruction_detail_text": [
+        "Lie face down with the hands under the shoulders.",
+        "Press the chest up, letting the hips and legs relax on the floor.",
+        "Hold briefly and lower; repeat slowly."
+      ],
+      "coaching_cues": [
+        "Hips stay down",
+        "Relax the glutes",
+        "Go as far as is comfortable"
+      ],
+      "common_faults": [
+        "Lifting the hips",
+        "Squeezing the glutes hard",
+        "Forcing the end range"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "supine_spinal_twist": {
+      "exercise_id": "supine_spinal_twist",
+      "display_label": "Supine spinal twist",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "lumbar_low",
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Supine twist: Lying on your back, drop both bent knees to one side while the shoulders stay down.",
+      "instruction_detail_text": [
+        "Lie on your back with the knees bent and the arms out wide.",
+        "Let both knees fall to one side, keeping the shoulders on the floor.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Shoulders stay down",
+        "Knees together",
+        "Breathe slowly"
+      ],
+      "common_faults": [
+        "Shoulders lifting",
+        "Forcing the knees down",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "knees_to_chest_stretch": {
+      "exercise_id": "knees_to_chest_stretch",
+      "display_label": "Knees-to-chest stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "lumbar_low",
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Knees to chest: Lying on your back, hug both knees in towards the chest.",
+      "instruction_detail_text": [
+        "Lie on your back.",
+        "Bring both knees towards the chest and hug them.",
+        "Hold, rocking gently if it helps."
+      ],
+      "coaching_cues": [
+        "Relax the lower back",
+        "Head stays down",
+        "Gentle hug"
+      ],
+      "common_faults": [
+        "Lifting the head",
+        "Pulling hard",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "childs_pose": {
+      "exercise_id": "childs_pose",
+      "display_label": "Child's pose",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Child's pose: Kneeling, sit back onto the heels and walk the hands forward to rest the chest towards the floor.",
+      "instruction_detail_text": [
+        "Kneel with the knees apart and the big toes together.",
+        "Sit back towards the heels and walk the hands forward.",
+        "Rest the chest towards the floor and breathe."
+      ],
+      "coaching_cues": [
+        "Hips back",
+        "Arms long",
+        "Breathe into the back"
+      ],
+      "common_faults": [
+        "Forcing the hips down",
+        "Shrugging",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kneeling_hip_flexor_stretch": {
+      "exercise_id": "kneeling_hip_flexor_stretch",
+      "display_label": "Kneeling hip flexor stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Kneeling hip flexor stretch: In a half-kneeling position, tuck the pelvis and shift forward to stretch the front of the back hip.",
+      "instruction_detail_text": [
+        "Kneel on one knee with the other foot forward.",
+        "Tuck the pelvis under and squeeze the glute of the back leg.",
+        "Shift forward slightly and hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Tuck the pelvis",
+        "Squeeze the back glute",
+        "Small shift is enough"
+      ],
+      "common_faults": [
+        "Arching the lower back",
+        "Leaning far forward",
+        "Front knee caving"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "couch_stretch": {
+      "exercise_id": "couch_stretch",
+      "display_label": "Couch stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Couch stretch: Kneeling with the back shin up a bench or wall, bring the trunk upright to stretch the quad and hip flexor.",
+      "instruction_detail_text": [
+        "Kneel with the back knee near a bench or wall and the shin up against it; front foot forward.",
+        "Tuck the pelvis and bring the trunk upright.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Tuck the pelvis",
+        "Upright trunk",
+        "Pad under the knee"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Forcing upright too soon",
+        "Hard surface under the knee"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bench"
+      ],
+      "equipment_alternatives": [
+        "box",
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "pigeon_stretch": {
+      "exercise_id": "pigeon_stretch",
+      "display_label": "Pigeon stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Pigeon stretch: With one shin across in front of you and the other leg long behind, fold forward over the front leg.",
+      "instruction_detail_text": [
+        "From all fours, bring one knee forward and the shin across the body; slide the other leg back.",
+        "Square the hips and fold forward over the front shin.",
+        "Hold; switch sides. Use a bench for a gentler version."
+      ],
+      "coaching_cues": [
+        "Square hips",
+        "Front foot flexed",
+        "Fold slowly"
+      ],
+      "common_faults": [
+        "Hips tilting to one side",
+        "Knee pain on the front leg",
+        "Forcing the fold"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "bench"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "figure_four_stretch": {
+      "exercise_id": "figure_four_stretch",
+      "display_label": "Figure-four stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Figure four: Lying on your back with one ankle across the other knee, draw the legs towards the chest.",
+      "instruction_detail_text": [
+        "Lie on your back and cross one ankle over the opposite knee.",
+        "Hold behind the bottom thigh and draw both legs towards the chest.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Flex the crossed foot",
+        "Head down",
+        "Gentle pull"
+      ],
+      "common_faults": [
+        "Lifting the head",
+        "Pushing on the knee",
+        "Holding the breath"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "butterfly_stretch": {
+      "exercise_id": "butterfly_stretch",
+      "display_label": "Butterfly stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Butterfly stretch: Sitting with the soles of the feet together, let the knees drop out and lean forward from the hips.",
+      "instruction_detail_text": [
+        "Sit with the soles of the feet together and the knees out.",
+        "Hold the feet and sit tall.",
+        "Lean forward from the hips and hold."
+      ],
+      "coaching_cues": [
+        "Sit tall",
+        "Lean from the hips",
+        "Let the knees drop"
+      ],
+      "common_faults": [
+        "Rounding the back",
+        "Pushing the knees down hard",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "frog_stretch": {
+      "exercise_id": "frog_stretch",
+      "display_label": "Frog stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "intermediate",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Frog stretch: On the forearms with the knees wide and the shins parallel, ease the hips back.",
+      "instruction_detail_text": [
+        "Kneel on all fours and slide the knees out wide, shins parallel, ankles in line with the knees.",
+        "Lower onto the forearms.",
+        "Ease the hips back and hold."
+      ],
+      "coaching_cues": [
+        "Knees on a soft surface",
+        "Shins parallel",
+        "Ease back slowly"
+      ],
+      "common_faults": [
+        "Knees too wide too soon",
+        "Arching the back",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "side_lunge_stretch": {
+      "exercise_id": "side_lunge_stretch",
+      "display_label": "Side lunge stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Side lunge stretch: With the feet wide, bend one knee and sit the hips towards it to stretch the inside of the straight leg.",
+      "instruction_detail_text": [
+        "Stand with the feet wide, toes forward.",
+        "Bend one knee and sit the hips back towards it, the other leg straight.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Hips back",
+        "Straight-leg toes up or forward",
+        "Chest up"
+      ],
+      "common_faults": [
+        "Knee caving",
+        "Rounding the back",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_quad_stretch": {
+      "exercise_id": "standing_quad_stretch",
+      "display_label": "Standing quad stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "knee",
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Standing quad stretch: Standing on one leg, hold the other foot behind you and draw the heel towards the glute.",
+      "instruction_detail_text": [
+        "Stand tall, holding a support if needed.",
+        "Bend one knee and hold the foot behind you.",
+        "Draw the heel towards the glute with the knees together; hold and switch."
+      ],
+      "coaching_cues": [
+        "Knees together",
+        "Tuck the pelvis",
+        "Stand tall"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Knee drifting forward",
+        "Pulling hard on the knee"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lying_hamstring_stretch": {
+      "exercise_id": "lying_hamstring_stretch",
+      "display_label": "Lying hamstring stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Lying hamstring stretch: Lying on your back, raise one straight leg and draw it gently towards you with the hands or a strap.",
+      "instruction_detail_text": [
+        "Lie on your back and raise one leg, holding behind the thigh or with a strap around the foot.",
+        "Keep the knee nearly straight and draw the leg towards you.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Other leg long",
+        "Knee nearly straight",
+        "Gentle pull"
+      ],
+      "common_faults": [
+        "Lifting the hips",
+        "Bending the knee a lot",
+        "Forcing it"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "resistance_band"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "seated_hamstring_stretch": {
+      "exercise_id": "seated_hamstring_stretch",
+      "display_label": "Seated hamstring stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "lumbar_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Seated hamstring stretch: Sitting with one or both legs straight, hinge forward from the hips towards the toes.",
+      "instruction_detail_text": [
+        "Sit with the legs straight (or one leg bent out of the way).",
+        "Sit tall, then hinge forward from the hips.",
+        "Hold at a comfortable stretch."
+      ],
+      "coaching_cues": [
+        "Hinge from the hips",
+        "Chest forward, not head down",
+        "Knees soft if needed"
+      ],
+      "common_faults": [
+        "Rounding the back to reach",
+        "Bouncing",
+        "Locking the knees hard"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "bench"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "standing_hamstring_stretch": {
+      "exercise_id": "standing_hamstring_stretch",
+      "display_label": "Standing hamstring stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Standing hamstring stretch: With one heel on a low step and the leg straight, hinge forward from the hips.",
+      "instruction_detail_text": [
+        "Put one heel on a low step, toes up, leg straight.",
+        "Keep the back flat and hinge forward from the hips.",
+        "Hold; switch sides."
+      ],
+      "coaching_cues": [
+        "Flat back",
+        "Hinge, don't bend over",
+        "Toes pointing up"
+      ],
+      "common_faults": [
+        "Rounding the back",
+        "Step too high",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [
+        "box",
+        "bench"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "wall_calf_stretch": {
+      "exercise_id": "wall_calf_stretch",
+      "display_label": "Wall calf stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "ankle",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Wall calf stretch: Hands on a wall, step one leg back with the heel down and the knee straight, and lean in.",
+      "instruction_detail_text": [
+        "Face a wall with the hands on it and step one leg back.",
+        "Keep the back heel down and the knee straight.",
+        "Lean in until you feel the calf stretch; hold and switch."
+      ],
+      "coaching_cues": [
+        "Back heel down",
+        "Back knee straight",
+        "Toes forward"
+      ],
+      "common_faults": [
+        "Heel lifting",
+        "Toes turned out",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "bent_knee_calf_stretch": {
+      "exercise_id": "bent_knee_calf_stretch",
+      "display_label": "Bent-knee calf stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "ankle",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Bent-knee calf stretch: As for a wall calf stretch, but bend the back knee to stretch the lower calf (soleus).",
+      "instruction_detail_text": [
+        "Face a wall with the hands on it, one foot back.",
+        "Keep the back heel down and bend the back knee.",
+        "Sink until you feel the lower calf stretch; hold and switch."
+      ],
+      "coaching_cues": [
+        "Heel stays down",
+        "Bend the back knee",
+        "Toes forward"
+      ],
+      "common_faults": [
+        "Heel lifting",
+        "Toes turned out",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "step_calf_stretch": {
+      "exercise_id": "step_calf_stretch",
+      "display_label": "Step calf stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "ankle"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Step calf stretch: Standing on the edge of a step, let the heels drop below the step and hold.",
+      "instruction_detail_text": [
+        "Stand with the balls of the feet on the edge of a step, holding a rail.",
+        "Let the heels sink below the step.",
+        "Hold; do one leg at a time for more."
+      ],
+      "coaching_cues": [
+        "Hold on for balance",
+        "Sink slowly",
+        "Knees straight or bent"
+      ],
+      "common_faults": [
+        "Bouncing",
+        "Dropping too fast",
+        "Rolling the ankles"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "box"
+      ],
+      "equipment_alternatives": [
+        "bodyweight"
+      ],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "kneeling_shin_stretch": {
+      "exercise_id": "kneeling_shin_stretch",
+      "display_label": "Kneeling shin stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "ankle",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Shin stretch: Kneeling with the tops of the feet flat, sit back on the heels; lift the knees slightly for more.",
+      "instruction_detail_text": [
+        "Kneel with the tops of the feet flat on the floor.",
+        "Sit back onto the heels.",
+        "Lean back or lift the knees slightly for more; hold."
+      ],
+      "coaching_cues": [
+        "Tops of the feet flat",
+        "Soft surface",
+        "Ease back slowly"
+      ],
+      "common_faults": [
+        "Forcing it with sore knees",
+        "Feet turned in",
+        "Bouncing"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "arm_circles": {
+      "exercise_id": "arm_circles",
+      "display_label": "Arm circles",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "shoulder"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Arm circles: Circle straight arms forwards then backwards, starting small and getting bigger.",
+      "instruction_detail_text": [
+        "Stand tall with the arms out to the sides.",
+        "Make small circles, gradually getting bigger.",
+        "Reverse direction."
+      ],
+      "coaching_cues": [
+        "Start small",
+        "Arms long",
+        "Ribs down"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Rushing big circles",
+        "Shrugging"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "leg_swing": {
+      "exercise_id": "leg_swing",
+      "display_label": "Leg swings (front to back)",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Leg swings: Holding a support, swing one straight-ish leg forwards and backwards, building the range.",
+      "instruction_detail_text": [
+        "Stand side-on to a support and hold it.",
+        "Swing the outside leg forwards and backwards.",
+        "Build the range gradually; switch legs."
+      ],
+      "coaching_cues": [
+        "Tall trunk",
+        "Build the range",
+        "Relaxed swing"
+      ],
+      "common_faults": [
+        "Leaning back and forth",
+        "Kicking hard from the start",
+        "Arching the back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "lateral_leg_swing": {
+      "exercise_id": "lateral_leg_swing",
+      "display_label": "Lateral leg swings",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Lateral leg swings: Facing a support, swing one leg across the body and out to the side.",
+      "instruction_detail_text": [
+        "Face a support and hold it.",
+        "Swing one leg across in front of the other and out to the side.",
+        "Build the range gradually; switch legs."
+      ],
+      "coaching_cues": [
+        "Hips square",
+        "Build the range",
+        "Relaxed swing"
+      ],
+      "common_faults": [
+        "Twisting the hips",
+        "Kicking hard from the start",
+        "Leaning on the support"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "open_close_gate": {
+      "exercise_id": "open_close_gate",
+      "display_label": "Open and close the gate",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Open and close the gate: Lift one knee to hip height and rotate it out to the side (open), then back in (close).",
+      "instruction_detail_text": [
+        "Stand tall on one leg.",
+        "Lift the other knee and rotate it out to the side, then lower it.",
+        "Reverse: lift it out to the side and bring it round to the front. Alternate legs."
+      ],
+      "coaching_cues": [
+        "Stand tall",
+        "Big circles at the hip",
+        "Slow and controlled"
+      ],
+      "common_faults": [
+        "Leaning away",
+        "Rushing the reps",
+        "Standing knee locked"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "walking_lunge_with_rotation": {
+      "exercise_id": "walking_lunge_with_rotation",
+      "display_label": "Walking lunge with rotation",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee",
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Lunge and rotate: Step into a lunge and rotate the trunk towards the front leg, then step through into the next lunge.",
+      "instruction_detail_text": [
+        "Step forward into a lunge.",
+        "Rotate the chest towards the front leg, arms reaching.",
+        "Return to centre and step through into the next lunge."
+      ],
+      "coaching_cues": [
+        "Tall trunk",
+        "Rotate from the upper back",
+        "Front knee over the foot"
+      ],
+      "common_faults": [
+        "Front knee caving",
+        "Rushing the rotation",
+        "Short steps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "walking_quad_stretch": {
+      "exercise_id": "walking_quad_stretch",
+      "display_label": "Walking quad stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "knee",
+        "hip"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Walking quad stretch: Walking forward, pull one heel to the glute for a moment, then step and switch.",
+      "instruction_detail_text": [
+        "Walk forward.",
+        "Each step, catch the back foot and draw the heel to the glute briefly.",
+        "Release and step through; alternate."
+      ],
+      "coaching_cues": [
+        "Knees together",
+        "Stand tall",
+        "Brief hold"
+      ],
+      "common_faults": [
+        "Arching the back",
+        "Wobbling",
+        "Pulling hard"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "walking_straight_leg_kick": {
+      "exercise_id": "walking_straight_leg_kick",
+      "display_label": "Walking straight-leg kick",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "knee"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "Straight-leg kicks: Walking forward, kick one straight leg up towards the opposite hand, then step and switch.",
+      "instruction_detail_text": [
+        "Walk forward with one arm reaching out in front.",
+        "Kick the opposite straight leg up towards the hand.",
+        "Step through and alternate."
+      ],
+      "coaching_cues": [
+        "Leg straight",
+        "Stand tall",
+        "Height comes gradually"
+      ],
+      "common_faults": [
+        "Rounding the back to reach",
+        "Kicking hard from the start",
+        "Leaning back"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
+    },
+    "worlds_greatest_stretch": {
+      "exercise_id": "worlds_greatest_stretch",
+      "display_label": "World's greatest stretch",
+      "movement_pattern_id": "mobility",
+      "stimulus_intent": "strength",
+      "rom": "full",
+      "stability": "stable",
+      "equipment_tier": "TIER_4",
+      "difficulty_tier": "beginner",
+      "joint_stress_tags": [
+        "hip",
+        "thoracic_low"
+      ],
+      "tempo_capability": "tempo",
+      "instruction_short_text": "World's greatest stretch: From a long lunge, drop the inside elbow towards the instep, then rotate that arm up to the ceiling.",
+      "instruction_detail_text": [
+        "Step into a long lunge and put the opposite hand on the floor.",
+        "Drop the inside elbow towards the front instep.",
+        "Rotate the same arm up to the ceiling, eyes following; switch sides."
+      ],
+      "coaching_cues": [
+        "Back knee straight",
+        "Rotate from the upper back",
+        "Slow and controlled"
+      ],
+      "common_faults": [
+        "Back knee collapsing",
+        "Twisting from the lower back",
+        "Rushing the reps"
+      ],
+      "fast_execution": false,
+      "equipment_requirements": [
+        "bodyweight",
+        "open_floor_space"
+      ],
+      "equipment_alternatives": [],
+      "primary_activity_applicability": "general_strength",
+      "secondary_activity_applicability": [
+        "powerlifting",
+        "rugby_union",
+        "crossfit",
+        "strongman",
+        "street_lifting",
+        "hyrox",
+        "olympic_weightlifting",
+        "football_soccer",
+        "netball",
+        "basketball",
+        "rugby_sevens",
+        "field_hockey",
+        "ice_hockey",
+        "volleyball",
+        "cricket",
+        "american_football",
+        "athletics",
+        "swimming",
+        "cycling",
+        "rowing",
+        "kayaking",
+        "boxing",
+        "wrestling",
+        "judo",
+        "brazilian_jiu_jitsu",
+        "muay_thai",
+        "mma",
+        "tennis",
+        "triathlon",
+        "rugby_league",
+        "grip_sport"
+      ],
+      "contraindication_or_exclusion_tags": [],
+      "substitution_eligibility": "eligible",
+      "template_eligibility": "eligible",
+      "copy_legal_boundary_flags": [
+        "factual_instruction_only",
+        "no_medical_claims",
+        "no_performance_guarantees"
+      ]
     }
   }
 }

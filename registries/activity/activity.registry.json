@@ -62,7 +62,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "general_strength": {
@@ -125,7 +126,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "rugby_union": {
@@ -188,7 +190,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "strongman": {
@@ -251,7 +254,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "hyrox": {
@@ -314,7 +318,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "crossfit": {
@@ -377,7 +382,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "football_soccer": {
@@ -440,7 +446,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "netball": {
@@ -503,7 +510,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "basketball": {
@@ -566,7 +574,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "rugby_sevens": {
@@ -629,7 +638,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "field_hockey": {
@@ -692,7 +702,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "ice_hockey": {
@@ -755,7 +766,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "volleyball": {
@@ -818,7 +830,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "cricket": {
@@ -881,7 +894,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "american_football": {
@@ -944,7 +958,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "athletics": {
@@ -1007,7 +1022,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "swimming": {
@@ -1070,7 +1086,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "olympic_weightlifting": {
@@ -1133,7 +1150,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "cycling": {
@@ -1196,7 +1214,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "rowing": {
@@ -1259,7 +1278,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "kayaking": {
@@ -1322,7 +1342,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "boxing": {
@@ -1385,7 +1406,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "wrestling": {
@@ -1448,7 +1470,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "judo": {
@@ -1511,7 +1534,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "brazilian_jiu_jitsu": {
@@ -1574,7 +1598,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "muay_thai": {
@@ -1637,7 +1662,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "mma": {
@@ -1700,7 +1726,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "tennis": {
@@ -1763,7 +1790,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "triathlon": {
@@ -1826,7 +1854,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "rugby_league": {
@@ -1889,7 +1918,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "street_lifting": {
@@ -1952,7 +1982,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     },
     "grip_sport": {
@@ -2015,7 +2046,8 @@
         "conditioning_cyclical",
         "conditioning_row",
         "conditioning_sled",
-        "neck_isometric"
+        "neck_isometric",
+        "mobility"
       ]
     }
   }
