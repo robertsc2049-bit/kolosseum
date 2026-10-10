@@ -62,7 +62,7 @@ test("pain input records only the permitted factual flag, never free text or sco
   assert.match(panel, /id="confirmPainReportButton"/u);
   assert.match(panel, /id="cancelPainReportButton"/u);
 
-  assert.match(writeService, /PAIN_REPORT_ALLOWED_KEYS = new Set\(\["type", "exercise_id", "pain_reported", "client_request_id"\]\)/u);
+  assert.match(writeService, /PAIN_REPORT_ALLOWED_KEYS = new Set\(\["type", "exercise_id", "pain_reported", "pain_area", "client_request_id"\]\)/u);
   assert.match(writeService, /phase6_runtime_pain_report_invalid_shape/u);
   assert.match(writeService, /obj\.pain_reported !== true/u);
 

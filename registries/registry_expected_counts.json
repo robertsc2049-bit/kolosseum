@@ -18,12 +18,12 @@
     "activity_relation_pair_count": 13051,
     "applicability_row_count": 39153,
     "programme_template_count": 108,
-    "substitution_edge_count": 3618,
-    "substitution_source_count": 506,
+    "substitution_edge_count": 3558,
+    "substitution_source_count": 509,
     "substitution_target_count": 457,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 44815,
-    "copy_provenance_record_count": 44815,
-    "exact_copy_control_count": 50243
+    "copy_source_record_count": 44755,
+    "copy_provenance_record_count": 44755,
+    "exact_copy_control_count": 50183
   }
 }
