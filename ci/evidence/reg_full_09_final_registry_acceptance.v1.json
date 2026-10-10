@@ -65,7 +65,7 @@
     "duplicate_id_count": 0,
     "closed_materialized_registry_count": 14,
     "declared_fk_field_count": 17,
-    "fk_reference_count": 88424,
+    "fk_reference_count": 88304,
     "orphan_relationship_count": 0,
     "dependency_gate_count": 10,
     "dependency_failure_count": 0,
@@ -111,14 +111,14 @@
     },
     "low_equipment_template_count": 30,
     "programme_template_coverage_gap_count": 0,
-    "substitution_edge_count": 3618,
-    "substitution_source_count": 506,
+    "substitution_edge_count": 3558,
+    "substitution_source_count": 509,
     "substitution_target_count": 457,
     "substitution_reachability_gap_count": 0,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 44815,
-    "copy_provenance_record_count": 44815,
-    "exact_copy_control_count": 50243
+    "copy_source_record_count": 44755,
+    "copy_provenance_record_count": 44755,
+    "exact_copy_control_count": 50183
   },
   "dependency_gates": {
     "reg_full_00": "PASS",
