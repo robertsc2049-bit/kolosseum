@@ -1,5 +1,5 @@
 {
-  "canonical_copy_registry_sha256": "8db16b2146a785744a4aae1f2989c750ff6d99e0e13146167fa39d90d8cf5c24",
+  "canonical_copy_registry_sha256": "cd0dadd1f6e98f345b87904e4eef90940d8aa151e5214c33463ebf533b9196c6",
   "copy_schema_sha256": "d79a449d8ddcd3e32a64141567df5cf756f945511f618f4a8c1de2ae6685f450",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
@@ -126,8 +126,8 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "5c0252ce79f41f5c21fa3fad9ec9e0cf20f27b1e5492cbdc6d8db116b59caf27",
-      "source_git_blob_sha": "cdbd237c45ecb0f5d80ed1bcfb0e61671768a5be",
+      "source_file_sha256": "b2a32529eb80cb24422c49c326356df7de5ac660e946c03906c78d8e24589602",
+      "source_git_blob_sha": "06ef164f5285b47bec4151e73fe79932618a111d",
       "source_record_count": 3618,
       "source_registry_id": "substitution_registry"
     },
