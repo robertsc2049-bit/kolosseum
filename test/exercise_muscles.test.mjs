@@ -60,3 +60,13 @@ test("the app's muscle-group list matches the server's", () => {
   const client = [...source.matchAll(/\{ id: "([a-z_]+)", label: "([^"]+)" \}/g)].map(([, id, label]) => ({ id, label }));
   assert.deepEqual(client, MUSCLE_GROUPS.map((g) => ({ id: g.id, label: g.label })));
 });
+
+test("coaches see each exercise by its real name - 'Romanian deadlift', 'Cable fly (crossover)' - not one built from its id", async () => {
+  const { listActiveExerciseOptions } = await import("../dist/src/api/beta18_programme_template_service.js");
+  const byId = Object.fromEntries(listActiveExerciseOptions().exercises.map((e) => [e.exercise_id, e.display_name]));
+  assert.equal(byId.romanian_deadlift, "Romanian deadlift");
+  assert.equal(byId.cable_fly, "Cable fly (crossover)");
+  assert.equal(byId.worlds_greatest_stretch, "World's greatest stretch");
+  assert.equal(byId.pull_up, REGISTRY.pull_up.display_label);
+  for (const [id, name] of Object.entries(byId)) assert.equal(name, REGISTRY[id].display_label, id);
+});

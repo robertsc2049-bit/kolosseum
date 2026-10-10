@@ -461,6 +461,7 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
       <label className="template-exercise-field">
         <span>Exercise</span>
         <select defaultValue={workItem.exercise_id} onChange={(event) => setSelectedId(event.target.value)} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "exercise_id")}>
+          <option value="">Choose an exercise</option>
           {groupedExercises.map(({ category, exercises }) => (
             <optgroup label={category} key={category}>
               {exercises.map((exercise) => {

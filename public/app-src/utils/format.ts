@@ -235,7 +235,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   const timedGroupMember = isTimedGroupMember(exercise);
 
   if (Number.isInteger(exercise?.sets) && !timedGroupMember) {
-    details.push(`${exercise?.sets} sets`);
+    details.push(`${exercise?.sets} ${exercise?.sets === 1 ? "set" : "sets"}`);
   }
 
   const repRange = exercise?.rep_range && typeof exercise.rep_range === "object" ? exercise.rep_range as JsonRecord : null;
@@ -315,7 +315,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
     details.push(`CR10 ${Number(intensity.value)}`);
   }
 
-  if (Number.isInteger(exercise?.rest_seconds) && !timedGroupMember) {
+  if (Number.isInteger(exercise?.rest_seconds) && Number(exercise?.rest_seconds) > 0 && !timedGroupMember) {
     details.push(`${exercise?.rest_seconds}s rest`);
   }
 

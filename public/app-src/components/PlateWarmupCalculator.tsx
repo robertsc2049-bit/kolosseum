@@ -22,6 +22,13 @@ function round2(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
+// Warm-up and cool-down items, and bodyweight work, carry no weight to build to.
+export function isUnloadedExercise(exercise: JsonRecord | null | undefined): boolean {
+  const segment = String(exercise?.segment ?? "working");
+  const intensity = exercise?.intensity && typeof exercise.intensity === "object" ? exercise.intensity as JsonRecord : null;
+  return segment === "warm_up" || segment === "cool_down" || intensity?.type === "bodyweight";
+}
+
 function initialTargetFromExercise(exercise: JsonRecord | null): { value: string; unit: WeightUnit } {
   const intensity = exercise?.intensity && typeof exercise.intensity === "object" ? exercise.intensity as JsonRecord : null;
 
@@ -313,8 +320,11 @@ export function PlateWarmupCalculatorFields({ initialTarget, initialUnit }: { in
 }
 
 export function PlateWarmupCalculator({ exercise }: { exercise: JsonRecord | null }) {
+  // Nothing to load: a warm-up drill, a cool-down stretch or bodyweight work.
+  const unloaded = isUnloadedExercise(exercise);
   const [initial] = useState(() => initialTargetFromExercise(exercise));
 
+  if (unloaded) return null;
   return (
     <details className="exercise-howto plate-calc">
       <summary>Plate calculator &amp; warm-up ramp</summary>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { withPendingSetLogs } from "../../api/offlineSessionQueue";
 import { type JsonRecord } from "../../api/transport";
@@ -223,6 +223,12 @@ export function AthleteSessionExecutionPanel() {
   const [addSearch, setAddSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const captionInputRef = useRef<HTMLTextAreaElement | null>(null);
+  // No rest after the last exercise: an ended session stops any rest timer.
+  const sessionEnded = ["completed", "partial"].includes(String(session.sessionState?.execution_status ?? ""));
+  const { restRemainingSeconds, stopRestTimer } = session;
+  useEffect(() => {
+    if (sessionEnded && restRemainingSeconds !== null) stopRestTimer();
+  }, [sessionEnded, restRemainingSeconds, stopRestTimer]);
 
   if (session.loading && !session.sessionState) {
     return (

@@ -46,18 +46,22 @@ const SEARCH_ALIASES: Readonly<Record<string, string>> = {
 
 const normalise = (text: string) => text.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
 
-// Whether an exercise matches what was typed: every word must appear in its
-// name or the muscles it targets ("glutes" finds hip thrusts, "rdl" finds
-// Romanian deadlifts).
-// An empty search matches everything.
+// Whether an exercise matches what was typed. Every word must start a word of
+// its name ("rdl" finds Romanian deadlifts by shorthand, never "hurdle"), or
+// the whole search must start the name of a muscle it targets ("glutes",
+// "chest"). An empty search matches everything.
 export function matchesExerciseSearch(name: string, option: { target_muscles?: unknown }, query: string): boolean {
-  const words = normalise(query).split(" ").filter(Boolean);
-  if (!words.length) return true;
-  const muscles = Array.isArray(option.target_muscles) ? option.target_muscles.map(String) : [];
-  const haystack = normalise([name, ...muscles].join(" "));
-  return words.every((word) => {
+  const search = normalise(query);
+  if (!search) return true;
+  const nameWords = normalise(name).split(" ");
+  const nameText = ` ${nameWords.join(" ")} `;
+  const startsAWord = (word: string) => nameWords.some((w) => w.startsWith(word));
+  const singular = (word: string) => (word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word);
+  const byName = search.split(" ").every((word) => {
     const expanded = SEARCH_ALIASES[word];
-    const singular = word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word;
-    return haystack.includes(word) || haystack.includes(singular) || (!!expanded && haystack.includes(expanded));
+    return startsAWord(word) || startsAWord(singular(word)) || (!!expanded && nameText.includes(` ${expanded}`));
   });
+  if (byName) return true;
+  const muscles = Array.isArray(option.target_muscles) ? option.target_muscles.map((m) => normalise(String(m))) : [];
+  return muscles.some((muscle) => muscle.startsWith(search) || muscle.startsWith(singular(search)));
 }
