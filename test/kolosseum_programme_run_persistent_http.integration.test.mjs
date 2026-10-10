@@ -14,6 +14,9 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 
+import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
+import { templateBody } from "../product/programmes/programme_template_body.mjs";
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
@@ -494,5 +497,105 @@ test(
     assert.equal(ownSession.json.planned_session.own_training.day_number, 1);
     assert.deepEqual(ownSession.json.planned_session.exercises.map((e) => e.exercise_id), ["back_squat", "push_up"]);
     assert.equal(ownSession.json.planned_session.programme_run, undefined);
+  }
+);
+
+test(
+  "Kolosseum programmes: all fifty-five save in the builder with their warm-ups and cool-downs, and an athlete's session opens with the warm-up, trains, then stretches",
+  { timeout: 600000 },
+  async (testContext) => {
+    const root = repoRoot();
+    const databaseUrl = process.env.DATABASE_URL;
+    assert.ok(typeof databaseUrl === "string" && databaseUrl.trim().length > 0, "requires DATABASE_URL");
+    const nonce = crypto.randomUUID().replaceAll("-", "");
+    const authorEmail = `programme-bookends-${nonce}@example.test`;
+    const environment = { ...process.env, DATABASE_URL: databaseUrl, NODE_ENV: "test", KOLOSSEUM_PROGRAMME_AUTHORS: authorEmail };
+    delete environment.SMOKE_NO_DB;
+    const ids = { author: "", athlete: "" };
+    const server = await startServer(root, environment);
+    testContext.after(async () => {
+      await stopServer(server);
+      await cleanup(databaseUrl, ids.athlete);
+      await cleanupCoach(databaseUrl, ids.author);
+    });
+    const base = server.baseUrl;
+    const author = await registerAccount(base, { actor_type: "coach", display_name: "Kolosseum Programmes", email: authorEmail });
+    ids.author = author.userId;
+    for (const [method, route, body] of [
+      ["PATCH", "/account/coach-onboarding/profile", { display_name: "Kolosseum Programmes", email: authorEmail }],
+      ["POST", "/account/coach-onboarding/terms", { accepted: true, terms_version: "terms_v1" }],
+      ["PATCH", "/account/coach-onboarding/accessibility", { accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false } }],
+      ["POST", "/account/coach-onboarding/complete", { completion_confirmed: true }]
+    ]) await requestJson(base, method, route, { cookie: author.cookie, csrf: author.csrf, body });
+
+    // Every programme, warm-ups and cool-downs included, is one the builder accepts.
+    const saved = {};
+    for (const programme of PROGRAMMES) {
+      const result = await requestJson(base, "POST", "/templates", { cookie: author.cookie, csrf: author.csrf, body: templateBody(programme, author.userId) });
+      assertStatus(result, 201, `save ${programme.key}`);
+      saved[programme.key] = result.json.template.template_id;
+    }
+
+    // The beginner programme, run by an athlete who started it.
+    const draftId = saved.beginner_full_body;
+    assertStatus(await requestJson(base, "POST", `/templates/${draftId}/complete`, { cookie: author.cookie, csrf: author.csrf, body: { coach_user_id: author.userId } }), 200, "complete");
+    const activated = await requestJson(base, "POST", `/templates/${draftId}/activate`, { cookie: author.cookie, csrf: author.csrf, body: { coach_user_id: author.userId } });
+    assertStatus(activated, 200, "activate");
+    const templateId = activated.json?.template?.template_id ?? draftId;
+    const listed = await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, {
+      cookie: author.cookie, csrf: author.csrf,
+      body: { title: "Beginner full-body", summary: "Three full-body sessions.", levels: ["beginner"], activity_ids: [], days_per_week: 3 }
+    });
+    assertStatus(listed, 200, "list programme");
+    const athlete = await registerAccount(base, { actor_type: "athlete", display_name: "Bookends Beginner", email: `bookends-beginner-${nonce}@example.test` });
+    ids.athlete = athlete.userId;
+    const fields = {
+      activity_id: "general_strength", experience_level: "beginner", training_days_per_week: 3, execution_scope: "individual",
+      product_acknowledged: true, jurisdiction_code: "england_wales", jurisdiction_acknowledged: true,
+      accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false }, instruction_density: "standard"
+    };
+    assertStatus(await requestJson(base, "PATCH", "/account/onboarding/draft", { cookie: athlete.cookie, csrf: athlete.csrf, body: { current_stage: "review", fields } }), 200, "draft");
+    assertStatus(await requestJson(base, "POST", "/account/onboarding/confirm", { cookie: athlete.cookie, csrf: athlete.csrf, body: { review_confirmed: true } }), 200, "confirm");
+    await withClient(databaseUrl, (client) => client.query(
+      "INSERT INTO product_account_events (event_id, user_id, event_type, event_payload, occurred_at) VALUES ($1, $2, 'athlete_programme_run_started', $3::jsonb, now())",
+      [`account_event_run_${nonce}`, athlete.userId, JSON.stringify({
+        run_id: `programme_run_${nonce}`, listing_id: listed.json.listing.listing_id, author_user_id: author.userId, template_id: templateId,
+        title: "Beginner full-body", started_at: new Date().toISOString(), schema_version: "athlete_programme_run_v1"
+      })]
+    ));
+    const detail = await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie });
+    const bootstrap = detail.json.bootstrap;
+    const created = await requestJson(base, "POST", "/blocks/compile?create_session=true&beta_path=true", {
+      cookie: athlete.cookie, csrf: detail.json.csrf_token,
+      body: {
+        phase1_input: bootstrap.declaration_record.engine_phase1_input,
+        beta_path_context: { auth_record: bootstrap.auth_record, acknowledgement_record: bootstrap.acknowledgement_record, declaration_record: bootstrap.declaration_record }
+      }
+    });
+    assertStatus(created, 201, "create session");
+    const exercises = created.json.planned_session.exercises;
+    assert.deepEqual(exercises.map((e) => [e.exercise_id, e.segment ?? "working"]), [
+      ["worlds_greatest_stretch", "warm_up"], ["arm_circles", "warm_up"], ["leg_swing", "warm_up"],
+      ["back_squat", "working"], ["bench_press", "working"], ["barbell_row", "working"], ["romanian_deadlift", "working"], ["front_plank", "working"],
+      ["kneeling_hip_flexor_stretch", "cool_down"], ["kneeling_lat_stretch", "cool_down"]
+    ]);
+    const squat = exercises.find((e) => e.exercise_id === "back_squat");
+    assert.deepEqual(squat.load_guidance, { type: "progression", basis: "first_time", reps: 5 }, "the first lift still gets its weight guidance");
+    assert.equal(exercises.find((e) => e.exercise_id === "arm_circles").duration_seconds, 30, "warm-up drills are timed");
+    assert.equal(exercises.find((e) => e.exercise_id === "kneeling_lat_stretch").duration_seconds, 45, "stretches are held 45 s");
+
+    // The athlete works through it: each drill and stretch is done by completing it.
+    const sessionId = created.json.session_id;
+    const csrf = (await requestJson(base, "GET", "/account/detail", { cookie: athlete.cookie })).json.csrf_token;
+    assertStatus(await requestJson(base, "POST", `/sessions/${sessionId}/start`, { cookie: athlete.cookie, csrf, body: {} }), 200, "start");
+    const order = [];
+    for (let guard = 0; guard < 15; guard += 1) {
+      const state = await requestJson(base, "GET", `/sessions/${sessionId}/state`, { cookie: athlete.cookie });
+      const current = state.json?.current_step?.exercise;
+      if (!state.json?.remaining_exercises?.length || !current) break;
+      order.push(current.exercise_id);
+      assertStatus(await requestJson(base, "POST", `/sessions/${sessionId}/events`, { cookie: athlete.cookie, csrf, body: { type: "COMPLETE_STEP", client_request_id: crypto.randomUUID() } }), 201, `complete ${current.exercise_id}`);
+    }
+    assert.deepEqual(order, exercises.map((e) => e.exercise_id), "done in order: warm-up, training, cool-down");
   }
 );

@@ -104,6 +104,27 @@ competition date the athlete declared in their training plan.
   taper's length away): the last build week repeats until the taper fits.
 - Off-season, in-season and maintenance programmes are never re-timed.
 
+## Warm-up and cool-down in every session
+
+Every session opens with a short warm-up and closes with a cool-down, both
+chosen for what that day trains. They're added to each programme
+automatically, so the tables below list only the training itself.
+
+- **Warm-up (about 5 minutes):** up to three dynamic mobility drills.
+  - **Lower-body days:** world's greatest stretch, leg swings, open and close the gate.
+  - **Upper-body days:** arm circles, quadruped thoracic rotations, cat-cow.
+  - **Full-body days:** a mix of the two.
+  - **Sprinting or jumping days:** walking lunges with rotation and straight-leg kicks, to open the hips and hamstrings before fast work.
+  - **Every warm-up ends** with "build up to your first working set in a few lighter sets", so the main lift is ramped into rather than started cold.
+- **Cool-down (about 2 minutes):** two stretches held 45 seconds, for the muscles worked.
+  - Lower body: hip flexors and hamstrings.
+  - Upper body: chest and lats.
+  - After running or jumping, the calves.
+  - After grip work, the wrist flexors.
+- **No equipment needed.** Every drill and stretch is bodyweight, so it works in any gym, and none repeats an exercise already in the session.
+- **Logging:** each drill or stretch is done by completing it, like a timed hold.
+- **Session size:** the builder takes at most 12 exercises a session, so a long session gets a shorter warm-up and cool-down rather than going over.
+
 ## Re-setting maxes
 
 Percentages come from the athlete's entered max, raised automatically when
