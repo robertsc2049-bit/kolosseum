@@ -55,8 +55,10 @@ function installMocks(options: {
   onEvent?: (path: string, method: string, body: unknown) => void;
   extraSetIsPr?: boolean;
   addExerciseIsPr?: boolean;
+  // Completing a step leaves another exercise to do (default: the session ends).
+  completeLeavesWork?: boolean;
 }) {
-  const { sessionState = baseSessionState(), sessionFails = false, onEvent, extraSetIsPr, addExerciseIsPr } = options;
+  const { sessionState = baseSessionState(), sessionFails = false, onEvent, extraSetIsPr, addExerciseIsPr, completeLeavesWork } = options;
   let currentSessionState = sessionState;
 
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -85,12 +87,10 @@ function installMocks(options: {
         body?.type === "EMOM_RESULT_REPORT" ||
         body?.type === "FOR_TIME_RESULT_REPORT"
       ) {
-        currentSessionState = {
-          ...currentSessionState,
-          completed_exercises: [baseExercise()],
-          remaining_exercises: [],
-          execution_status: "completed"
-        } as Record<string, unknown>;
+        const next = baseExercise({ exercise_id: "bench_press", display_name: "Bench press" });
+        currentSessionState = completeLeavesWork
+          ? { ...currentSessionState, completed_exercises: [baseExercise()], remaining_exercises: [next], current_step: { type: "EXERCISE", exercise: next } }
+          : { ...currentSessionState, completed_exercises: [baseExercise()], remaining_exercises: [], execution_status: "completed" } as Record<string, unknown>;
       }
       if (body?.type === "SKIP_EXERCISE") {
         currentSessionState = {
@@ -398,9 +398,9 @@ test("the CR10 panel shows a live anchor hint next to the raw 0-10 half-point va
   assert.ok(screen.getByText("CR10 7.5 - very hard effort"));
 });
 
-test("completing the current exercise starts a rest timer and refreshes the session", async () => {
+test("completing an exercise with work still to do starts a rest timer and moves to the next exercise", async () => {
   seedActiveSession("session_1");
-  installMocks({ sessionState: baseSessionState({ started: true }) });
+  installMocks({ sessionState: baseSessionState({ started: true }), completeLeavesWork: true });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByText("Mark exercise complete"));
 
@@ -410,7 +410,7 @@ test("completing the current exercise starts a rest timer and refreshes the sess
 
   await waitFor(() => screen.getByText("Resting"));
   assert.ok(screen.getByText("3:00"));
-  await waitFor(() => screen.getByText("Session complete"));
+  await waitFor(() => assert.ok(screen.getAllByText("Bench press").length > 0, "the next exercise is up"));
 
   // Stop the real setInterval this starts - it otherwise keeps ticking in
   // the background for the rest of this file's process (matching legacy's
@@ -423,6 +423,18 @@ test("completing the current exercise starts a rest timer and refreshes the sess
   await act(async () => {
     fireEvent.click(screen.getByText("Skip rest"));
   });
+});
+
+test("completing the last exercise ends the session with no rest timer left running", async () => {
+  seedActiveSession("session_1");
+  installMocks({ sessionState: baseSessionState({ started: true }) });
+  render(<AthleteSessionExecutionPanel />);
+  await waitFor(() => screen.getByText("Mark exercise complete"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Mark exercise complete"));
+  });
+  await waitFor(() => screen.getByText("Session complete"));
+  await waitFor(() => assert.equal(screen.queryByText("Resting"), null, "the rest timer stops when the session ends"));
 });
 
 test("skipping an exercise requires a reason and posts SKIP_EXERCISE", async () => {
