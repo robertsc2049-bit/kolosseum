@@ -271,7 +271,20 @@ export function buildV1SubstitutionInput(
   // unnarrowed set so a thin/incomplete position profile degrades to
   // today's activity-only behaviour rather than wrongly refusing an
   // otherwise-lawful substitution.
-  const relevantEdges = relevantEdgesNarrowed.length > 0 ? relevantEdgesNarrowed : relevantEdgesAll;
+  const offeredEdges = relevantEdgesNarrowed.length > 0 ? relevantEdgesNarrowed : relevantEdgesAll;
+
+  // The engine contract picks among the edges it is given by edge id, so it is
+  // given the best one: the first, in the registry's coach ranking (same
+  // training kind, closest variation, equipment change - see
+  // reg_full_06_materialize_substitution_registry.mjs), whose exercise can be
+  // done without the unavailable equipment. With none usable, every edge is
+  // passed and the contract refuses as before.
+  const unavailableSet = new Set(unavailableEquipmentIds.filter((value) => typeof value === "string" && value.length > 0));
+  const usable = offeredEdges.find((edge) => {
+    const target = projectExercise(edge.target_exercise_id as string, activity, authority);
+    return target !== null && !target.equipment_ids.some((equipmentId) => unavailableSet.has(equipmentId));
+  });
+  const relevantEdges = usable ? [usable] : offeredEdges;
 
   const orderedCandidateIds = [
     sourceId,
