@@ -28,7 +28,7 @@
     },
     "substitution": {
       "path": "registries/substitution/substitution.registry.json",
-      "sha256": "5c0252ce79f41f5c21fa3fad9ec9e0cf20f27b1e5492cbdc6d8db116b59caf27"
+      "sha256": "b2a32529eb80cb24422c49c326356df7de5ac660e946c03906c78d8e24589602"
     },
     "legacyProgram": {
       "path": "registries/program/program.registry.json",
