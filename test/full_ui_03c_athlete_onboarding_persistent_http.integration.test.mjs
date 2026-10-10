@@ -12,6 +12,10 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 
+// The training itself - a self-directed session also opens with a warm-up and ends with a cool-down.
+const training = (exercises) => exercises.filter((e) => e.segment !== "warm_up" && e.segment !== "cool_down");
+
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
@@ -742,7 +746,7 @@ test(
     assert.equal(new Set(ids.slice(0, 3)).size, 3, "three different sessions in the week");
     // Every exercise in the sessions is the athlete's own choice (rugby names nothing).
     const chosenIds = new Set(Object.values(chosen));
-    for (const s of sessions) for (const e of s.planned_session.exercises) assert.ok(chosenIds.has(e.exercise_id), `${e.exercise_id} was chosen by the athlete`);
+    for (const s of sessions) for (const e of training(s.planned_session.exercises)) assert.ok(chosenIds.has(e.exercise_id), `${e.exercise_id} was chosen by the athlete`);
 
     // The session state the athlete trains from carries the same plan position.
     const state = await requestJson(server.baseUrl, "GET", `/sessions/${sessions[1].session_id}/state`, { cookie });
@@ -903,7 +907,7 @@ test(
       seen.set(id, n);
       return n === 1 ? id : `${id}__r${n}`;
     });
-    const sessionExercises = created.json.planned_session.exercises;
+    const sessionExercises = training(created.json.planned_session.exercises);
     assert.deepEqual(sessionExercises.map((e) => e.exercise_id), expected);
     const named = (id) => sessionExercises.find((e) => e.exercise_id === id)?.display_name;
     const backSquatLabel = squatDay.items.find((i) => i.exercise_id === "back_squat").display_name;

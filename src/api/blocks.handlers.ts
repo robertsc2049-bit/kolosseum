@@ -16,6 +16,7 @@ import { gapReentryForAthlete, trainingCycleForAthlete } from "./training_cycle_
 import { applyPainCarryForward } from "./pain_flag_service.js";
 import { applyTodaysReadiness } from "./readiness_service.js";
 import { activeStandDown, exercisePatternOf, headInjuryReturn } from "./medical_stand_down_service.js";
+import { withSessionBookends } from "./session_bookends.js";
 import { holdBackAfterHeadInjury, lighterAfterHeadInjury } from "./head_injury_return.js";
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
@@ -795,6 +796,18 @@ export async function compileBlock(req: Request, res: Response) {
         template_position: { ...template_position, reentry: back }
       } as any;
     }
+  }
+
+  // A self-directed athlete's session opens with a warm-up for what it trains
+  // and ends with stretches for it - last, so it fits what the session became
+  // after pain, readiness, equipment, match-week and re-entry adjustments
+  // (session_bookends.ts). A Kolosseum programme brings its own; a coach's
+  // programme is left as the coach wrote it.
+  if (create_session && beta_individual_subject_user_id && !programme_run_session) {
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: withSessionBookends(planned_session_from_engine.exercises as any, exercisePatternOf) as any
+    };
   }
 
   const runtime_events = parseRuntimeEvents(readRuntimeEvents(body));

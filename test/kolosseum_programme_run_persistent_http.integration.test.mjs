@@ -17,6 +17,10 @@ import { Client } from "pg";
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 import { templateBody } from "../product/programmes/programme_template_body.mjs";
 
+// The training itself - a self-directed session also opens with a warm-up and ends with a cool-down.
+const training = (exercises) => exercises.filter((e) => e.segment !== "warm_up" && e.segment !== "cool_down");
+
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
@@ -483,10 +487,10 @@ test(
     const todayState = await requestJson(base, "GET", `/sessions/${today.json.session_id}/state`, { cookie: athlete.cookie });
     assertStatus(todayState, 200, "today's session state");
     assert.equal(todayState.json.own_training.today, true, "the session screen knows it's today's own session");
-    assert.deepEqual(today.json.planned_session.exercises.map((e) => e.exercise_id), ["deadlift", "push_up"]);
+    assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.exercise_id), ["deadlift", "push_up"]);
     // Still the week back after two weeks away: a set fewer than they chose.
     assert.equal(today.json.planned_session.own_training.reentry.reentry_week, true);
-    assert.deepEqual(today.json.planned_session.exercises.map((e) => e.sets), [1, 2]);
+    assert.deepEqual(training(today.json.planned_session.exercises).map((e) => e.sets), [1, 2]);
     const ownWeek = await requestJson(base, "PUT", "/account/onboarding/training-week", { cookie: athlete.cookie, csrf, body: {
       days: [{ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "push_up", sets: 3, reps: 10 }] }, { items: [{ exercise_id: "deadlift", sets: 1, reps: 5 }] }],
       lighter_every_fourth: true
@@ -495,7 +499,8 @@ test(
     const ownSession = await createSession();
     assertStatus(ownSession, 201, "a session from my own week");
     assert.equal(ownSession.json.planned_session.own_training.day_number, 1);
-    assert.deepEqual(ownSession.json.planned_session.exercises.map((e) => e.exercise_id), ["back_squat", "push_up"]);
+    assert.deepEqual(training(ownSession.json.planned_session.exercises).map((e) => e.exercise_id), ["back_squat", "push_up"]);
+    assert.equal(ownSession.json.planned_session.exercises[0].segment, "warm_up", "their own week warms up too");
     assert.equal(ownSession.json.planned_session.programme_run, undefined);
   }
 );

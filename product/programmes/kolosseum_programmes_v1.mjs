@@ -20,6 +20,8 @@
 
 import { readFileSync } from "node:fs";
 
+import { sessionBookends } from "../../shared/session-bookends/sessionBookends.mjs";
+
 export const ex = (id, sets, reps, load, rest, note) => ({ id, sets, reps, load, rest, ...(note ? { note } : {}) });
 
 let groupCount = 0;
@@ -1647,61 +1649,20 @@ const gripPro = { ...gripProBase, blocks: gripProBase.blocks.map((block) => bloc
 const GRIP_PROGRAMMES = [gripBeginner, gripMeetPrep, gripPro];
 
 // ---------------------------------------------------------------------------
-// Warm-up and cool-down. Every session opens with a few minutes of dynamic
-// mobility for what it trains and closes with stretches for the same muscles
-// (the mobility exercises; bodyweight only, so any gym will do). A day's
-// focus comes from its exercises' movement patterns: lower body, upper body
-// or both, with drills that open up the hips and hamstrings before sprinting
-// or jumping, a calf stretch after it, and wrist stretches after grip work.
-// The builder takes at most 12 exercises a session, so a long session gets a
-// shorter warm-up and cool-down rather than going over.
-const MAX_SESSION_ITEMS = 12;
+// Warm-up and cool-down: every session opens with dynamic mobility for what it
+// trains and closes with stretches for it (shared/session-bookends - the same
+// choice the app makes for a self-directed athlete's own sessions). The
+// builder takes at most 12 exercises a session.
 const PATTERN_OF = (() => {
   const registry = JSON.parse(readFileSync(new URL("../../registries/exercise/exercise.registry.json", import.meta.url), "utf8")).entries;
-  return (id) => registry[id.replace(/__r[0-9]+$/u, "")]?.movement_pattern_id ?? "";
+  return (id) => registry[id]?.movement_pattern_id ?? "";
 })();
-const LOWER = /^(squat|hinge|single_leg_|knee_|hip_|calf_raise|tibialis_raise|jump_|sprint_|deceleration|change_of_direction|locomotion_run|conditioning_sled)/u;
-const UPPER = /^(horizontal_|vertical_|incline_push|decline_push|angled_push|scapular_|shoulder_|elbow_|forearm_|grip_)/u;
-const FAST = /^(jump_|sprint_|deceleration|change_of_direction|locomotion_run)/u;
-const GRIP = /^(grip_|forearm_)/u;
-const mob = (id, reps, note) => ({ ...ex(id, 1, reps, "bw", 0, note), segment: "warm_up" });
-const stretch = (id, note = "Hold each side, breathing slowly.") => ({ ...ex(id, 1, { seconds: 45 }, "bw", 0, note), segment: "cool_down" });
-const BUILD_UP = "Then build up to your first working set in a few lighter sets.";
-
-export function sessionFocus(items) {
-  const patterns = items.map((item) => PATTERN_OF(item.id));
-  const lower = patterns.filter((p) => LOWER.test(p)).length;
-  const upper = patterns.filter((p) => UPPER.test(p)).length;
-  return {
-    region: lower && !upper ? "lower" : upper && !lower ? "upper" : "full",
-    fast: patterns.some((p) => FAST.test(p)),
-    grip: patterns.filter((p) => GRIP.test(p)).length >= 2
-  };
-}
-
-function warmUpFor({ region, fast }) {
-  if (region === "upper") return [mob("arm_circles", { seconds: 30 }, "Small to big, both directions."), mob("quadruped_thoracic_rotation", 6, "Each side."), mob("cat_cow", 8, "Slowly, with the breath.")];
-  if (fast) return [mob("worlds_greatest_stretch", 4, "Each side."), mob("walking_lunge_with_rotation", 6, "Each leg."), mob("walking_straight_leg_kick", 8, "Each leg; height comes gradually.")];
-  if (region === "lower") return [mob("worlds_greatest_stretch", 4, "Each side."), mob("leg_swing", 10, "Each leg."), mob("open_close_gate", 6, "Each leg, both directions.")];
-  return [mob("worlds_greatest_stretch", 4, "Each side."), mob("arm_circles", { seconds: 30 }, "Small to big, both directions."), mob("leg_swing", 10, "Each leg.")];
-}
-
-function coolDownFor({ region, fast, grip }) {
-  const lower = fast ? [stretch("kneeling_hip_flexor_stretch"), stretch("wall_calf_stretch")] : [stretch("kneeling_hip_flexor_stretch"), stretch("lying_hamstring_stretch")];
-  const upper = [stretch("doorway_chest_stretch"), stretch("kneeling_lat_stretch", "Hold, breathing slowly.")];
-  const list = region === "lower" ? lower : region === "upper" ? upper : [lower[0], upper[1]];
-  return grip ? [list[0], stretch("wrist_flexor_stretch", "Hold each hand, breathing slowly.")] : list;
-}
+const toItem = ({ exercise_id, segment, reps, seconds, note }) => ({ ...ex(exercise_id, 1, seconds ? { seconds } : reps, "bw", 0, note), segment });
 
 export function withWarmUpAndCoolDown(session) {
   if (session.items.some((item) => item.segment)) return session;
-  const focus = sessionFocus(session.items);
-  const taken = new Set(session.items.map((item) => item.id));
-  const room = Math.max(0, MAX_SESSION_ITEMS - session.items.length);
-  const cool = coolDownFor(focus).filter((item) => !taken.has(item.id)).slice(0, room >= 3 ? 2 : room >= 2 ? 1 : 0);
-  const warm = warmUpFor(focus).filter((item) => !taken.has(item.id)).slice(0, Math.min(3, room - cool.length));
-  if (warm.length) warm[warm.length - 1] = { ...warm[warm.length - 1], note: `${warm[warm.length - 1].note} ${BUILD_UP}` };
-  return { ...session, items: [...warm, ...session.items, ...cool] };
+  const { warm_up, cool_down } = sessionBookends(session.items.map((item) => item.id), PATTERN_OF, 12);
+  return { ...session, items: [...warm_up.map(toItem), ...session.items, ...cool_down.map(toItem)] };
 }
 
 const withSessionBookends = (programme) => ({

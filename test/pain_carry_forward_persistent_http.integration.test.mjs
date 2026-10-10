@@ -11,6 +11,10 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 
+// The training itself - a self-directed session also opens with a warm-up and ends with a cool-down.
+const training = (exercises) => exercises.filter((e) => e.segment !== "warm_up" && e.segment !== "cool_down");
+
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
@@ -260,7 +264,7 @@ test(
     // Session 1: her elbow hurts during the paused bench.
     const first = await compile();
     assertStatus(first, 201, "first session");
-    const firstIds = first.json.planned_session.exercises.map((e) => e.exercise_id);
+    const firstIds = training(first.json.planned_session.exercises).map((e) => e.exercise_id);
     assert.ok(firstIds.includes("paused_bench_press") && firstIds.includes("band_row"), firstIds.join(","));
     assert.ok(firstIds.some((id) => id !== "paused_bench_press" && loadsElbow(id)), "the session has other elbow exercises too");
     const sid = first.json.session_id;
@@ -328,7 +332,7 @@ test(
     assertStatus(await checkIn({ flag_key: "area:elbow", status: "still_sore", plan: "skip" }), 200, "still sore, leave out");
     const skipped = await compile();
     assertStatus(skipped, 201, "session with elbow exercises left out");
-    const skippedIds = skipped.json.planned_session.exercises.map((e) => e.exercise_id);
+    const skippedIds = training(skipped.json.planned_session.exercises).map((e) => e.exercise_id);
     assert.ok(skippedIds.length > 0 && skippedIds.every((id) => !loadsElbow(id)), skippedIds.join(","));
     assert.ok(skipped.json.planned_session.exercises.every((e) => !e.pain_swap));
     assert.deepEqual(skippedIds, firstIds.filter((id) => !loadsElbow(id)), "the rest of the session is unchanged");
@@ -339,7 +343,7 @@ test(
     assert.deepEqual(better.json.flags, []);
     const normal = await compile();
     assertStatus(normal, 201, "normal session again");
-    assert.deepEqual(normal.json.planned_session.exercises.map((e) => e.exercise_id), firstIds);
+    assert.deepEqual(training(normal.json.planned_session.exercises).map((e) => e.exercise_id), firstIds);
 
     // History records where it hurt.
     const history = await requestJson(server.baseUrl, "POST", "/sessions/beta-athlete-history-detail", { cookie, csrf, body: { athlete_user_id: userId, session_id: sid } });
