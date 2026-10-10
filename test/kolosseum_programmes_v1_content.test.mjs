@@ -10,7 +10,10 @@ import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 
 const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exercise.registry.json", import.meta.url), "utf8")).entries;
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
-const sessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
+// The training itself - the warm-up and cool-down are checked on their own below.
+const working = (s) => ({ ...s, items: s.items.filter((i) => !i.segment) });
+const allSessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
+const sessionsOf = (p) => allSessionsOf(p).map(working);
 
 test("fifty-five programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
@@ -310,7 +313,7 @@ test("a pro's version of each sport build: the same programme with contrast pair
   }
 });
 
-const weeksOf = (key) => PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks);
+const weeksOf = (key) => PROGRAMMES.find((p) => p.key === key).blocks.flatMap((b) => b.weeks).map((w) => w.map(working));
 const weekHas = (week, test) => week.some((s) => s.items.some((i) => test(i, registry[i.id])));
 
 test("a rugby prop or an American football lineman trains the neck at least twice every week, in and out of season, like every collision player", () => {
@@ -493,4 +496,43 @@ test("a pro grip athlete's heavy-attempts day replaces volume: every attempt ite
       }
     }
   });
+});
+
+test("every session opens with a warm-up for what it trains and ends with stretches for it - bodyweight mobility work, within the builder's 12 exercises, never repeating an exercise", () => {
+  const order = { warm_up: 0, undefined: 1, cool_down: 2 };
+  for (const p of PROGRAMMES) {
+    for (const s of allSessionsOf(p)) {
+      const where = `${p.key}: ${s.title}`;
+      assert.ok(s.items.length <= 12, `${where}: ${s.items.length} exercises`);
+      assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${where}: an exercise twice`);
+      const segments = s.items.map((i) => order[i.segment]);
+      assert.deepEqual(segments, [...segments].sort((a, b) => a - b), `${where}: warm-up, then training, then cool-down`);
+      const bookends = s.items.filter((i) => i.segment);
+      assert.ok(s.items.some((i) => i.segment === "warm_up") && s.items.some((i) => i.segment === "cool_down"), `${where}: has both`);
+      for (const i of bookends) {
+        assert.equal(registry[i.id].movement_pattern_id, "mobility", `${where}: ${i.id} is mobility work`);
+        assert.equal(i.load, "bw", `${where}: ${i.id} unloaded`);
+        const needs = registry[i.id].equipment_requirements.filter((e) => !["bodyweight", "open_floor_space"].includes(e));
+        assert.ok(needs.length === 0 || registry[i.id].equipment_alternatives.includes("bodyweight"), `${where}: ${i.id} needs no equipment`);
+      }
+      assert.match(s.items.filter((i) => i.segment === "warm_up").at(-1).note, /build up to your first working set/u, `${where}: ramps into the first set`);
+    }
+  }
+});
+
+test("a squat day stretches the hips and hamstrings, a bench day the chest and lats, a sprint day the calves, and a grip day the wrists", () => {
+  const find = (key, title) => allSessionsOf(PROGRAMMES.find((p) => p.key === key)).find((s) => s.title === title);
+  const cool = (s) => s.items.filter((i) => i.segment === "cool_down").map((i) => i.id);
+  const warm = (s) => s.items.filter((i) => i.segment === "warm_up").map((i) => i.id);
+  const lower = find("intermediate_upper_lower", "Lower 1 - strength");
+  assert.deepEqual(cool(lower), ["kneeling_hip_flexor_stretch", "lying_hamstring_stretch"]);
+  assert.deepEqual(warm(lower), ["worlds_greatest_stretch", "leg_swing", "open_close_gate"]);
+  const upper = find("intermediate_upper_lower", "Upper 1 - strength");
+  assert.deepEqual(cool(upper), ["doorway_chest_stretch", "kneeling_lat_stretch"]);
+  assert.deepEqual(warm(upper), ["arm_circles", "quadruped_thoracic_rotation", "cat_cow"]);
+  const sprint = allSessionsOf(PROGRAMMES.find((p) => p.key === "collision_backs_off_season")).find((s) => s.items.some((i) => registry[i.id]?.movement_pattern_id?.startsWith("sprint_")));
+  assert.ok(cool(sprint).includes("wall_calf_stretch"), "calves after sprinting");
+  assert.ok(warm(sprint).includes("walking_straight_leg_kick"), "hamstrings opened up before sprinting");
+  const grip = find("beginner_grip_sport_foundation", "Pull and crush");
+  assert.ok(cool(grip).includes("wrist_flexor_stretch"), "wrists after grip work");
 });
