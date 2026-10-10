@@ -106,6 +106,8 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   const exerciseId = String(exercise.exercise_id ?? "");
   const sets = Number(exercise.sets);
   if (!exerciseId || !Number.isInteger(sets) || sets < 1) return null;
+  // A warm-up drill or cool-down stretch is done by completing it, not logged set by set.
+  if (exercise.segment === "warm_up" || exercise.segment === "cool_down") return null;
   if (exercise.distance_value !== undefined || exercise.duration_seconds !== undefined || exercise.distance_range || exercise.duration_range) return null;
 
   const load = prescribedLoad(exercise);

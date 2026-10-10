@@ -2944,7 +2944,13 @@ export function listActiveExerciseOptions(): Readonly<{
           return deepFreeze({
             exercise_id:
               exerciseId,
+            // The registry names an exercise in display_label ("Romanian
+            // deadlift", "Cable fly (crossover)"); a name built from the id is
+            // only the fallback.
             display_name:
+              cleanString(
+                entry.display_label
+              ) ||
               cleanString(
                 entry.display_name
               ) ||

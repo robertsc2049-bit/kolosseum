@@ -22,6 +22,10 @@ test("a coach can find an exercise by name, shorthand, plural or the muscle it t
   assert.equal(matchesExerciseSearch("Cable fly (crossover)", fly, "chest"), true, "by target muscle");
   assert.equal(matchesExerciseSearch("Triceps dip", { target_muscles: ["Triceps"] }, "chest"), false, "secondary muscles don't count");
   assert.equal(matchesExerciseSearch("Anything", {}, "  "), true, "an empty search matches everything");
+  assert.equal(matchesExerciseSearch("Hurdle hops", { target_muscles: ["Quadriceps"] }, "rdl"), false, "a word has to start a word: 'hurdle' isn't an RDL");
+  assert.equal(matchesExerciseSearch("Rack pull", { target_muscles: ["Glute max", "Spinal erectors", "Upper traps"] }, "pull up"), false, "'up' in 'Upper traps' doesn't make a rack pull a pull-up");
+  assert.equal(matchesExerciseSearch("Pull-up", { target_muscles: ["Lats and teres major"] }, "pull up"), true);
+  assert.equal(matchesExerciseSearch("Leg extension", { target_muscles: ["Quadriceps"] }, "quads"), true, "a plural muscle name");
 });
 
 test("an athlete types 'curl' while planning a day and sees only curls, keeping what's already chosen", () => {

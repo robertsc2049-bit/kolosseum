@@ -577,7 +577,7 @@ export function AthleteSessionExecutionPanel() {
             </>
           )}
 
-          {session.restRemainingSeconds !== null ? (
+          {session.restRemainingSeconds !== null && !isEnded ? (
             <div className={`rest-timer-panel${session.restDone ? " rest-timer-done" : ""}`}>
               <p className="eyebrow">Resting</p>
               <p className="rest-timer-remaining">{session.restDone ? "Rest complete" : formatRestClock(session.restRemainingSeconds)}</p>
