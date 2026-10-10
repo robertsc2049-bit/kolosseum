@@ -14,6 +14,10 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { Client } from "pg";
 
+// The training itself - a self-directed session also opens with a warm-up and ends with a cool-down.
+const training = (exercises) => exercises.filter((e) => e.segment !== "warm_up" && e.segment !== "cool_down");
+
+
 function repoRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 }
@@ -263,7 +267,11 @@ test(
     });
     assertStatus(created, 201, "create squat-day session");
     const sid = created.json.session_id;
-    const exercises = created.json.planned_session.exercises;
+    const all = created.json.planned_session.exercises;
+    assert.equal(all[0].segment, "warm_up", "a self-directed session opens with a warm-up");
+    assert.equal(all.at(-1).segment, "cool_down", "and ends with a cool-down");
+    assert.ok(all.filter((e) => e.segment === "warm_up").every((e) => e.intensity?.type === "bodyweight" && e.sets === 1), "warm-up drills are one unloaded set");
+    const exercises = training(all);
     assert.equal(exercises[0].exercise_id, "back_squat", "squat day leads with the squat");
     assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
 
@@ -689,7 +697,7 @@ test(
     assert.deepEqual(empty.json, { match_days: [], fixtures: [] });
     const normal = await compile();
     assertStatus(normal, 201, "normal session");
-    const normalIds = normal.json.planned_session.exercises.map((e) => e.exercise_id);
+    const normalIds = training(normal.json.planned_session.exercises).map((e) => e.exercise_id);
     assert.ok(normalIds.includes("back_squat") && normalIds.includes("deadlift"));
 
     assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/match-week", { cookie, csrf, body: { match_days: ["someday"], fixtures: [] } }), 422, "refuse an unknown day");
@@ -1053,7 +1061,7 @@ test(
     };
     const before = await compile();
     assertStatus(before, 201, "normal session");
-    const normalIds = before.json.planned_session.exercises.map((e) => e.exercise_id);
+    const normalIds = training(before.json.planned_session.exercises).map((e) => e.exercise_id);
     assert.ok(normalIds.includes("ten_metre_acceleration"), normalIds.join(","));
 
     const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
@@ -1062,7 +1070,7 @@ test(
 
     const back = await compile();
     assertStatus(back, 201, "first session back");
-    const ids = back.json.planned_session.exercises.map((e) => e.exercise_id);
+    const ids = training(back.json.planned_session.exercises).map((e) => e.exercise_id);
     for (const id of ["ten_metre_acceleration", "self_resisted_neck_isometric"]) assert.ok(!ids.includes(id), `${id} held back: ${ids.join(",")}`);
     assert.ok(ids.includes("trap_bar_deadlift"), "his strength work stays");
     assert.deepEqual(back.json.planned_session.head_injury_return.held_back_exercise_ids.sort(), normalIds.filter((id) => !ids.includes(id)).sort());
