@@ -171,7 +171,8 @@
         "sandbag",
         "resistance_band",
         "bench",
-        "suspension_trainer"
+        "suspension_trainer",
+        "smith_machine"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1138,7 +1139,11 @@
         "cable_machine",
         "resistance_band",
         "plate",
-        "cable_rope_attachment"
+        "cable_rope_attachment",
+        "pull_up_bar",
+        "gymnastics_rings",
+        "suspension_trainer",
+        "rack"
       ],
       "joint_stress_tags_vocab": [
         "neutral",
@@ -1451,7 +1456,8 @@
         "barbell",
         "cable_straight_bar_attachment",
         "suspension_trainer",
-        "bench"
+        "bench",
+        "cable_rope_attachment"
       ],
       "joint_stress_tags_vocab": [
         "neutral",

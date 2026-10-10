@@ -804,7 +804,7 @@
     "split_squat": {
       "exercise_id": "split_squat",
       "display_label": "Split squat",
-      "movement_pattern_id": "squat",
+      "movement_pattern_id": "single_leg_squat",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -812,7 +812,8 @@
       "difficulty_tier": "intermediate",
       "joint_stress_tags": [
         "hip",
-        "knee"
+        "knee",
+        "ankle"
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction_short_text": "Split squat: Descend with the load balanced over the mid-foot to the prescribed depth, then drive to full standing extension.",
@@ -17658,7 +17659,7 @@
     "upright_row": {
       "exercise_id": "upright_row",
       "display_label": "Upright row",
-      "movement_pattern_id": "vertical_pull",
+      "movement_pattern_id": "shoulder_abduction_isolation",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -22168,7 +22169,7 @@
     "cable_upright_row": {
       "exercise_id": "cable_upright_row",
       "display_label": "Cable upright row",
-      "movement_pattern_id": "vertical_pull",
+      "movement_pattern_id": "shoulder_abduction_isolation",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -22242,7 +22243,7 @@
     "dumbbell_upright_row": {
       "exercise_id": "dumbbell_upright_row",
       "display_label": "Dumbbell upright row",
-      "movement_pattern_id": "vertical_pull",
+      "movement_pattern_id": "shoulder_abduction_isolation",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -27254,7 +27255,7 @@
     "inverted_shrug": {
       "exercise_id": "inverted_shrug",
       "display_label": "Inverted shrug",
-      "movement_pattern_id": "scapular_upward_rotation",
+      "movement_pattern_id": "scapular_retraction",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -31865,7 +31866,7 @@
     "single_leg_press": {
       "exercise_id": "single_leg_press",
       "display_label": "Single-leg leg press",
-      "movement_pattern_id": "squat",
+      "movement_pattern_id": "single_leg_squat",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -32193,7 +32194,7 @@
     "smith_machine_split_squat": {
       "exercise_id": "smith_machine_split_squat",
       "display_label": "Smith machine split squat",
-      "movement_pattern_id": "squat",
+      "movement_pattern_id": "single_leg_squat",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "stable",
@@ -32201,7 +32202,8 @@
       "difficulty_tier": "beginner",
       "joint_stress_tags": [
         "hip",
-        "knee"
+        "knee",
+        "ankle"
       ],
       "tempo_capability": "paused_and_tempo",
       "instruction_short_text": "Smith split squat: In a split stance under the Smith bar, lower the back knee towards the floor and drive back up.",
@@ -35476,7 +35478,7 @@
     "jumping_jack": {
       "exercise_id": "jumping_jack",
       "display_label": "Jumping jack",
-      "movement_pattern_id": "jump_vertical",
+      "movement_pattern_id": "conditioning_cyclical",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "dynamic",
@@ -35527,7 +35529,7 @@
     "mountain_climber": {
       "exercise_id": "mountain_climber",
       "display_label": "Mountain climber",
-      "movement_pattern_id": "jump_vertical",
+      "movement_pattern_id": "conditioning_cyclical",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "dynamic",
@@ -35577,7 +35579,7 @@
     "high_knees": {
       "exercise_id": "high_knees",
       "display_label": "High knees",
-      "movement_pattern_id": "jump_vertical",
+      "movement_pattern_id": "conditioning_cyclical",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "dynamic",
@@ -35628,7 +35630,7 @@
     "butt_kicks": {
       "exercise_id": "butt_kicks",
       "display_label": "Butt kicks",
-      "movement_pattern_id": "jump_vertical",
+      "movement_pattern_id": "conditioning_cyclical",
       "stimulus_intent": "strength",
       "rom": "full",
       "stability": "dynamic",
