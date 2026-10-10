@@ -100,6 +100,30 @@ export const REG_FULL_06_EQUIPMENT_LEVEL = Object.freeze({
 });
 
 const CHANGE_PRIORITY = Object.freeze({ same_required_equipment: 0, lateral: 1, downgrade: 2 });
+
+// How substitutes rank, after the equipment rules above decide which are
+// lawful: first one trained the same way (free weight, bodyweight or
+// machine), then the closest variation by name, then the equipment change
+// (same kit, same burden, lighter kit), then the smallest drop in
+// difficulty. A barbell overhead press without a barbell is a dumbbell
+// overhead press - not a pike push-up or a cable press.
+const MACHINE_CLASSES = new Set(["machine", "conditioning_machine"]);
+const LOADED_CLASSES = new Set(["free_weight", "load"]);
+function trainingKind(required, equipmentEntries) {
+  const classes = [...required].map((id) => equipmentEntries[id]?.equipment_class);
+  if (classes.some((c) => MACHINE_CLASSES.has(c))) return "machine";
+  return classes.some((c) => LOADED_CLASSES.has(c)) ? "free_weight" : "bodyweight";
+}
+function sharedNameWords(sourceId, targetId) {
+  const source = new Set(sourceId.split("_"));
+  return new Set(targetId.split("_").filter((word) => source.has(word))).size;
+}
+function substitutionOrderingKey(sourceId, targetId, change, difficultyDrop, sourceRequired, targetRequired, equipmentEntries) {
+  const kind = trainingKind(sourceRequired, equipmentEntries) === trainingKind(targetRequired, equipmentEntries) ? 0 : 1;
+  const nameDistance = 99 - Math.min(99, sharedNameWords(sourceId, targetId));
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${sourceId}|${pad(kind)}|${pad(nameDistance)}|${pad(CHANGE_PRIORITY[change])}|${pad(difficultyDrop)}|${targetId}`;
+}
 const REQUIRED_COPY_TOKENS = Object.freeze(["factual explicit substitution edge", "no closest-exercise inference", "no recommendation", "no medical claim", "no suitability claim", "no performance guarantee"]);
 const FALLBACK_MARKERS = Object.freeze(["fallback", "default", "generic", "catch_all", "unknown", "unspecified", "closest"]);
 const EXPECTED_LEGACY_GRAPH = Object.freeze({
@@ -219,7 +243,6 @@ function expectedCandidateRows(docs, errors) {
       if (!targetRequired) continue;
       const change = classifyEquipmentChange(requiredEquipment.get(sourceId), targetRequired, eq, errors, sourceId, targetId);
       if (!change || change === "upgrade") continue;
-      const priority = CHANGE_PRIORITY[change];
       const difficultyDrop = sourceDifficulty - targetDifficulty;
       rows.push({
         substitution_edge_id: `${sourceId}__to__${targetId}`,
@@ -232,7 +255,7 @@ function expectedCandidateRows(docs, errors) {
         joint_stress_handling: "target_subset_or_equal",
         activity_applicability: activities,
         difficulty_tier_compatibility: "same_or_lower",
-        deterministic_ordering_key: `${sourceId}|${String(priority).padStart(2, "0")}|${String(difficultyDrop).padStart(2, "0")}|${targetId}`
+        deterministic_ordering_key: substitutionOrderingKey(sourceId, targetId, change, difficultyDrop, requiredEquipment.get(sourceId), targetRequired, eq)
       });
     }
   }
@@ -313,9 +336,10 @@ export function auditRegFull06Documents(docs) {
 
     const expectedActivity = sharedActivities(row.source_exercise_id, row.target_exercise_id, trainingRows);
     if (!sameJson(row.activity_applicability, expectedActivity) || expectedActivity.length === 0) push(errors, "ACTIVITY_CLOSURE", { key, expected: expectedActivity, actual: row.activity_applicability });
-    const priority = CHANGE_PRIORITY[expectedChange];
     const difficultyDrop = sourceDifficulty - targetDifficulty;
-    const expectedOrdering = `${row.source_exercise_id}|${String(priority).padStart(2, "0")}|${String(difficultyDrop).padStart(2, "0")}|${row.target_exercise_id}`;
+    const expectedOrdering = expectedChange && expectedChange !== "upgrade"
+      ? substitutionOrderingKey(row.source_exercise_id, row.target_exercise_id, expectedChange, difficultyDrop, sourceRequired, targetRequired, eq)
+      : null;
     if (row.deterministic_ordering_key !== expectedOrdering) push(errors, "ORDERING_KEY", { key, expected: expectedOrdering, actual: row.deterministic_ordering_key });
     if (previousOrderingKey !== null && row.deterministic_ordering_key.localeCompare(previousOrderingKey) < 0) push(errors, "ORDERING_SEQUENCE", { previous: previousOrderingKey, current: row.deterministic_ordering_key });
     previousOrderingKey = row.deterministic_ordering_key;

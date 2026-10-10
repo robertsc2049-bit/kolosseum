@@ -105,6 +105,30 @@ const CHANGE_PRIORITY = Object.freeze({
   downgrade: 2
 });
 
+// How substitutes rank, after the equipment rules above decide which are
+// lawful: first one trained the same way (free weight, bodyweight or
+// machine), then the closest variation by name, then the equipment change
+// (same kit, same burden, lighter kit), then the smallest drop in
+// difficulty. A barbell overhead press without a barbell is a dumbbell
+// overhead press - not a pike push-up or a cable press.
+const MACHINE_CLASSES = new Set(["machine", "conditioning_machine"]);
+const LOADED_CLASSES = new Set(["free_weight", "load"]);
+function trainingKind(required, equipmentEntries) {
+  const classes = [...required].map((id) => equipmentEntries[id]?.equipment_class);
+  if (classes.some((c) => MACHINE_CLASSES.has(c))) return "machine";
+  return classes.some((c) => LOADED_CLASSES.has(c)) ? "free_weight" : "bodyweight";
+}
+function sharedNameWords(sourceId, targetId) {
+  const source = new Set(sourceId.split("_"));
+  return new Set(targetId.split("_").filter((word) => source.has(word))).size;
+}
+function substitutionOrderingKey(sourceId, targetId, change, difficultyDrop, sourceRequired, targetRequired, equipmentEntries) {
+  const kind = trainingKind(sourceRequired, equipmentEntries) === trainingKind(targetRequired, equipmentEntries) ? 0 : 1;
+  const nameDistance = 99 - Math.min(99, sharedNameWords(sourceId, targetId));
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${sourceId}|${pad(kind)}|${pad(nameDistance)}|${pad(CHANGE_PRIORITY[change])}|${pad(difficultyDrop)}|${targetId}`;
+}
+
 const COPY_BOUNDARY = "factual explicit substitution edge only; caller must apply current activity context and available-equipment facts; no closest-exercise inference; no recommendation; no medical claim; no suitability claim; no performance guarantee";
 
 function readJson(rel) {
@@ -234,8 +258,7 @@ export function buildSubstitutionEntries({ exercise, movement, equipment, equipm
       if (!equipmentChangeType) continue;
 
       const difficultyDrop = sourceDifficulty - targetDifficulty;
-      const priority = CHANGE_PRIORITY[equipmentChangeType];
-      const orderingKey = `${sourceId}|${String(priority).padStart(2, "0")}|${String(difficultyDrop).padStart(2, "0")}|${targetId}`;
+      const orderingKey = substitutionOrderingKey(sourceId, targetId, equipmentChangeType, difficultyDrop, sourceRequired, targetRequired, eq);
       const edgeId = `${sourceId}__to__${targetId}`;
 
       rows.push({
