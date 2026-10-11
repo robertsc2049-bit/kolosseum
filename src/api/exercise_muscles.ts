@@ -584,13 +584,22 @@ export function exerciseMuscleSummary(exerciseId: string, movementPatternId: str
 // groups it's filed under, and its target and secondary muscles by name.
 export function exerciseMuscleFields(exerciseId: string, movementPatternId: string | undefined): Readonly<{
   muscle_groups: readonly MuscleGroupId[];
+  secondary_muscle_groups: readonly MuscleGroupId[];
   target_muscles: readonly string[];
   secondary_muscles: readonly string[];
 }> {
   const summary = exerciseMuscleSummary(exerciseId, movementPatternId);
   const label = (muscle: string) => MUSCLES[muscle]?.label ?? muscle;
+  // The groups only its secondary muscles reach - a set counts as half a set
+  // for these when a coach adds up a week's volume.
+  const secondaryGroups: MuscleGroupId[] = [];
+  for (const muscle of summary.secondary_muscles) {
+    const group = groupOf(muscle);
+    if (group && !summary.muscle_groups.includes(group) && !secondaryGroups.includes(group)) secondaryGroups.push(group);
+  }
   return Object.freeze({
     muscle_groups: summary.muscle_groups,
+    secondary_muscle_groups: Object.freeze(secondaryGroups),
     target_muscles: Object.freeze(summary.target_muscles.map(label)),
     secondary_muscles: Object.freeze(summary.secondary_muscles.map(label))
   });

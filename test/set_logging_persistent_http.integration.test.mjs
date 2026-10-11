@@ -331,6 +331,15 @@ test(
     const squatE1rm = insights.json.insights.training_e1rm_trends.find((x) => x.exercise_id === "back_squat");
     assert.equal(squatE1rm.current_e1rm, 163.3, "best set 5 x 140 kg (Epley 163.3); the failed set never counts");
     assert.equal(squatE1rm.unit, "kg");
+
+    // The week's hard sets per muscle group, from the sets she logged: three
+    // squat sets with reps (the failed fourth doesn't count) - quads and glutes
+    // in full, the muscles a squat only assists at half a set each.
+    const volume = Object.fromEntries(insights.json.insights.weekly_muscle_volume.groups.map((g) => [g.group, g.sets]));
+    assert.equal(insights.json.insights.weekly_muscle_volume.window_days, 7);
+    assert.equal(volume.quads, 3);
+    assert.equal(volume.glutes, 3);
+    assert.equal(volume.adductors, 1.5);
   }
 );
 

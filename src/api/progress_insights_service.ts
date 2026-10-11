@@ -26,6 +26,7 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
+import { MUSCLE_GROUPS, exerciseMuscleFields } from "./exercise_muscles.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
@@ -161,11 +162,11 @@ async function loadLatestStrengthProfilePayload(athleteUserId: string): Promise<
   return isRecord(payload) ? payload : null;
 }
 
-// Every loaded set the athlete actually logged: prescribed-set logs (latest
-// entry per session, exercise and set) plus extra sets and added exercises.
-// A bodyweight exercise's load is only what was added on top, so unweighted
-// pull-ups and dips are left out.
-async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
+type LoggedSetRow = { exercise_id: string; reps: number; load_value: number | null; load_unit: "kg" | "lb"; date: string };
+
+// Every set the athlete actually logged: prescribed-set logs (latest entry per
+// session, exercise and set) plus extra sets and added exercises.
+async function loadLoggedSetRows(athleteUserId: string): Promise<LoggedSetRow[]> {
   const result = await pool.query(
     `
     SELECT DISTINCT ON (re.session_id, re.event->>'exercise_id', COALESCE(re.event->>'set_index', re.seq::text))
@@ -183,20 +184,54 @@ async function loadLoggedSets(athleteUserId: string): Promise<LoggedSet[]> {
     `,
     [athleteUserId]
   );
-  const sets: LoggedSet[] = [];
+  const rows: LoggedSetRow[] = [];
   for (const row of result.rows ?? []) {
     const exerciseId = cleanString(row.exercise_id);
+    if (!exerciseId) continue;
     const hasLoad = row.load_value !== null && row.load_value !== undefined;
-    if (!exerciseId || !hasLoad) continue;
-    sets.push({
+    rows.push({
       exercise_id: exerciseId,
       reps: Number(row.reps),
-      load_value: Number(row.load_value),
+      load_value: hasLoad ? Number(row.load_value) : null,
       load_unit: row.load_unit === "lb" ? "lb" : "kg",
       date: cleanString(row.day)
     });
   }
-  return sets;
+  return rows;
+}
+
+// The loaded sets, for estimated maxes. A bodyweight exercise's load is only
+// what was added on top, so unweighted pull-ups and dips are left out.
+function loadedSets(rows: readonly LoggedSetRow[]): LoggedSet[] {
+  return rows
+    .filter((row) => row.load_value !== null)
+    .map((row) => ({ exercise_id: row.exercise_id, reps: row.reps, load_value: row.load_value as number, load_unit: row.load_unit, date: row.date }));
+}
+
+// Hard sets per muscle group over the last 7 days, counted the way the coach
+// builder counts a planned week: a set counts in full for each group the
+// exercise targets and as half a set for each group only its secondary muscles
+// reach. Every logged set with at least one rep counts, weighted or not;
+// conditioning and exercises with no muscles (an athlete's own) don't.
+const VOLUME_WINDOW_DAYS = 7;
+function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date): Readonly<JsonRecord> {
+  const since = new Date(today.getTime() - (VOLUME_WINDOW_DAYS - 1) * 86_400_000).toISOString().slice(0, 10);
+  const sets = new Map<string, number>();
+  const add = (group: string, n: number) => { if (group !== "conditioning") sets.set(group, (sets.get(group) ?? 0) + n); };
+  for (const row of rows) {
+    if (row.date < since || !(row.reps > 0)) continue;
+    const id = row.exercise_id.replace(/__r[0-9]+$/u, "");
+    const pattern = exercisePatternOf(id);
+    if (!pattern) continue;
+    const fields = exerciseMuscleFields(id, pattern);
+    for (const group of fields.muscle_groups) add(group, 1);
+    for (const group of fields.secondary_muscle_groups) add(group, 0.5);
+  }
+  return Object.freeze({
+    window_days: VOLUME_WINDOW_DAYS,
+    since,
+    groups: Object.freeze(MUSCLE_GROUPS.filter((g) => (sets.get(g.id) ?? 0) > 0).map((g) => Object.freeze({ group: g.id, label: g.label, sets: sets.get(g.id) ?? 0 })))
+  });
 }
 
 // Timed-group results (AMRAP, EMOM, for time) with the group as prescribed,
@@ -441,11 +476,11 @@ async function assembleProgressInsightsSummary(
   habitsWithStreaks: readonly JsonRecord[],
   bodyMetricEntries: readonly JsonRecord[]
 ): Promise<Readonly<JsonRecord>> {
-  const [sessions, profilePayload, habitConsistency, loggedSets, workoutResults] = await Promise.all([
+  const [sessions, profilePayload, habitConsistency, loggedSetRows, workoutResults] = await Promise.all([
     loadEnrichedAthleteSessions(athleteUserId),
     loadLatestStrengthProfilePayload(athleteUserId),
     computeHabitConsistency(habitsWithStreaks, athleteUserId),
-    loadLoggedSets(athleteUserId),
+    loadLoggedSetRows(athleteUserId),
     loadWorkoutResults(athleteUserId)
   ]);
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) === "lb" ? "lb" : "kg";
@@ -457,7 +492,9 @@ async function assembleProgressInsightsSummary(
     session_adherence: computeSessionAdherence(sessions),
     strength_trends: computeStrengthTrends(profilePayload),
     // Estimated maxes from what the athlete actually lifted in training.
-    training_e1rm_trends: computeTrainingE1rmTrends(loggedSets, displayUnit, WINDOW_DAYS, exercisePatternOf),
+    training_e1rm_trends: computeTrainingE1rmTrends(loadedSets(loggedSetRows), displayUnit, WINDOW_DAYS, exercisePatternOf),
+    // What the athlete actually did: hard sets per muscle group, last 7 days.
+    weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date()),
     // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
     workout_scores: workoutHistories(workoutResults),
     habit_consistency: habitConsistency,

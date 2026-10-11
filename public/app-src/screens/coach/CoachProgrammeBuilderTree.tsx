@@ -6,6 +6,7 @@ import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveL
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
+import { WeeklyMuscleVolume } from "../../components/WeeklyMuscleVolume";
 import { ExerciseSearchInput } from "../../components/ExerciseSearchInput";
 import { inMuscleGroup, matchesExerciseSearch, musclesText } from "../../utils/muscleGroups";
 import {
@@ -746,6 +747,8 @@ function BuilderWeek({
   templateExercises: JsonRecord[];
   equipmentCatalog: JsonRecord[];
 }) {
+  const exercisesById = React.useMemo(() => new Map(templateExercises.map((exercise) => [String(exercise.exercise_id), exercise])), [templateExercises]);
+  const weekItems = week.sessions.flatMap((session) => session.work_items);
   return (
     <article className="template-week">
       <div className="template-week-header">
@@ -783,6 +786,7 @@ function BuilderWeek({
           />
         ))}
       </div>
+      <WeeklyMuscleVolume items={weekItems} exercises={exercisesById} />
       <button className="button secondary add-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} disabled={week.sessions.length >= 7}>Add session</button>
     </article>
   );
