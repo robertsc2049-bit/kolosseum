@@ -1,5 +1,6 @@
 import React from "react";
 import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
+import { LoggedMuscleVolume } from "../../components/WeeklyMuscleVolume";
 import { WorkoutScoreCard } from "../../components/WorkoutScoreCard";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
@@ -152,6 +153,8 @@ export function AthleteSelfProgressInsightsPanel() {
             }]}
             emptyLabel="No sessions recorded yet to chart adherence over time."
           />
+
+          <LoggedMuscleVolume weekly={insights?.weekly_muscle_volume} />
 
           <div className="progress-insights-section">
             <h4>Estimated maxes from training</h4>

@@ -4649,3 +4649,11 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   font-size: 0.85rem;
   padding: 0.35rem 0.65rem;
 }
+
+/* Coach builder: a week's hard sets per muscle group. */
+.weekly-muscle-volume { margin: 0.75rem 0; }
+.weekly-muscle-volume summary { cursor: pointer; font-weight: 600; }
+.weekly-muscle-volume-list { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.25rem 1rem; }
+.weekly-muscle-volume-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem; }
+.weekly-muscle-volume-list li[data-high="true"] strong { color: var(--warning, #b26a00); }
+.weekly-muscle-volume-list .field-warning { flex-basis: 100%; color: var(--warning, #b26a00); font-size: 0.75rem; }

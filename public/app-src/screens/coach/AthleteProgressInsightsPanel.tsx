@@ -3,6 +3,7 @@ import React from "react";
 
 import { type ChartPoint, LineChart } from "../../components/LineChart";
 import { TrainingE1rmCard } from "../../components/TrainingE1rmCard";
+import { LoggedMuscleVolume } from "../../components/WeeklyMuscleVolume";
 import { type JsonRecord } from "../../api/transport";
 import { BODY_METRIC_TYPE_LABELS, formatDate, titleCase } from "../../utils/format";
 import { useAthleteProgressInsights } from "./useAthleteProgressInsights";
@@ -139,6 +140,7 @@ export function AthleteProgressInsightsPanel() {
         }]}
         emptyLabel="No sessions recorded yet to chart adherence over time."
       />
+      <LoggedMuscleVolume weekly={insights.weekly_muscle_volume} />
       {trainingE1rmTrends.map((trend) => (
         <TrainingE1rmCard key={`e1rm-${String(trend.exercise_id)}`} trend={trend} exercises={exercises} />
       ))}

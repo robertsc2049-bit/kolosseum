@@ -65,3 +65,35 @@ export function matchesExerciseSearch(name: string, option: { target_muscles?: u
   const muscles = Array.isArray(option.target_muscles) ? option.target_muscles.map((m) => normalise(String(m))) : [];
   return muscles.some((muscle) => muscle.startsWith(search) || muscle.startsWith(singular(search)));
 }
+
+// A week's hard sets per muscle group, the way coaches count volume: every set
+// of a working exercise counts in full for each group it targets and as half a
+// set for each group only its secondary muscles reach. Warm-up and cool-down
+// items, conditioning work and exercises with no muscles (an athlete's own)
+// don't count.
+export type VolumeItem = { exercise_id: string; planned_sets: number; segment?: string };
+export type MuscleOption = { muscle_groups?: unknown; secondary_muscle_groups?: unknown };
+export type GroupVolume = { group: string; label: string; sets: number };
+
+export const MAJOR_MUSCLE_GROUPS: readonly string[] = ["chest", "back", "shoulders", "quads", "hamstrings", "glutes"];
+// Above this, a week's sets for one group is a lot to recover from.
+export const HIGH_WEEKLY_SETS = 25;
+
+export function weeklyMuscleVolume(items: readonly VolumeItem[], exercises: ReadonlyMap<string, MuscleOption>): GroupVolume[] {
+  const sets = new Map<string, number>();
+  const add = (group: string, n: number) => { if (group !== "conditioning") sets.set(group, (sets.get(group) ?? 0) + n); };
+  const list = (value: unknown) => (Array.isArray(value) ? value.map(String) : []);
+  for (const item of items) {
+    if (item.segment === "warm_up" || item.segment === "cool_down") continue;
+    const n = Number(item.planned_sets);
+    if (!Number.isFinite(n) || n <= 0) continue;
+    const option = exercises.get(item.exercise_id.replace(/__r[0-9]+$/u, ""));
+    if (!option) continue;
+    for (const group of list(option.muscle_groups)) add(group, n);
+    for (const group of list(option.secondary_muscle_groups)) add(group, n / 2);
+  }
+  return MUSCLE_GROUPS.filter((g) => (sets.get(g.id) ?? 0) > 0).map((g) => ({ group: g.id, label: g.label, sets: sets.get(g.id) ?? 0 }));
+}
+
+// "12" or "7.5".
+export const formatSets = (sets: number) => (Number.isInteger(sets) ? String(sets) : sets.toFixed(1));
