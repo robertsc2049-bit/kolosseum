@@ -522,7 +522,7 @@ test("Phase4: collision and combat programmes include neck work that survives a 
     const neck = full[4];
     assert.equal(neck.exercise_id, "self_resisted_neck_isometric", `${activity}: neck work is the first accessory`);
     assert.equal(neck.role, "accessory");
-    assert.deepEqual([neck.sets, neck.reps, neck.intensity.type, neck.intensity.value], [3, 4, "rpe", 6]);
+    assert.deepEqual([neck.sets, neck.reps, neck.duration_seconds, neck.intensity.type, neck.intensity.value], [3, 1, 10, "rpe", 6], "3 x 10-second holds");
     const short = phase4AssembleProgram(mkInput(activity, 40), mkPhase3()).program.planned_exercise_ids;
     assert.ok(short.includes("self_resisted_neck_isometric"), `${activity}: neck work kept at 40 minutes`);
   }
