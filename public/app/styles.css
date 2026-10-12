@@ -4657,3 +4657,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .weekly-muscle-volume-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem; }
 .weekly-muscle-volume-list li[data-high="true"] strong { color: var(--warning, #b26a00); }
 .weekly-muscle-volume-list .field-warning { flex-basis: 100%; color: var(--warning, #b26a00); font-size: 0.75rem; }
+
+/* Install-to-home-screen card on Today (InstallAppPrompt.tsx). */
+.install-app-prompt { margin-top: 1rem; padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 12px; }
+.install-app-prompt p { margin: 0 0 0.5rem; }

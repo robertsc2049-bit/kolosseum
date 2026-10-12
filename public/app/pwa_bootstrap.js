@@ -7,3 +7,11 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/app/sw.js").catch(() => {});
   });
 }
+
+// Chrome/Android's one-tap install: keep the browser's prompt (it fires once,
+// usually before the React app mounts) for the Today card's Install button.
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  window.kolosseumInstallPrompt = event;
+  document.dispatchEvent(new CustomEvent("kolosseum:install-available"));
+});
