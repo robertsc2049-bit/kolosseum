@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { PhoneNotificationsToggle } from "../../components/PhoneNotificationsToggle";
 import { formatDate } from "../../utils/format";
 import { notificationTypeLabel, resolveNotificationSubject } from "../../api/notificationsClient";
 import { useNotifications } from "./useNotifications";
@@ -155,6 +156,8 @@ export function NotificationBellPanel() {
               ))}
             </ul>
           ) : null}
+
+          <PhoneNotificationsToggle />
         </div>
       ) : null}
     </div>

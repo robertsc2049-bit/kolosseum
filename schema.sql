@@ -2773,3 +2773,25 @@ ON product_video_submission_feedback (
   submission_id,
   created_at ASC
 );
+
+-- Web Push: one row per browser/phone that turned notifications on
+-- (web_push.ts, product_push_service.ts). The endpoint is unique - signing in
+-- as someone else on the same phone moves it to them. last_pushed_at is the
+-- created_at of the newest notification already sent, so each is pushed once.
+CREATE TABLE IF NOT EXISTS product_push_subscriptions (
+  endpoint         TEXT PRIMARY KEY
+    CHECK (char_length(endpoint) BETWEEN 1 AND 2048),
+  user_id          TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  p256dh           TEXT NOT NULL
+    CHECK (char_length(p256dh) BETWEEN 1 AND 200),
+  auth             TEXT NOT NULL
+    CHECK (char_length(auth) BETWEEN 1 AND 100),
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_pushed_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_push_subscriptions_user
+ON product_push_subscriptions (user_id);

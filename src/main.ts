@@ -6,6 +6,7 @@
 // src/main.ts
 import { app } from "./server.js";
 import { attachRealtimeWebSocketServer } from "./api/realtime_hub.js";
+import { startPushSweeps } from "./api/product_push_service.js";
 
 function getPort(): number {
   const raw = process.env.PORT;
@@ -44,3 +45,6 @@ server.on("error", (err) => {
 
 // Part E - live delivery for messaging.
 attachRealtimeWebSocketServer(server);
+
+// Phone notifications (Web Push) - a no-op unless VAPID keys are configured.
+startPushSweeps();

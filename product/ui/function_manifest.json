@@ -5025,7 +5025,10 @@
           "api_routes": [
             "/account/notifications/:notification_id/read",
             "/account/notifications/:notification_id/unread",
-            "/account/notifications/mark-all-read"
+            "/account/notifications/mark-all-read",
+            "/account/notifications/push",
+            "/account/notifications/push/subscribe",
+            "/account/notifications/push/unsubscribe"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8730,6 +8733,24 @@
     {
       "method": "POST",
       "path": "/account/notifications/mark-all-read",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "GET",
+      "path": "/account/notifications/push",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/account/notifications/push/subscribe",
+      "source": "src/api/product_notification.routes.ts",
+      "tracked_by_area": "notifications"
+    },
+    {
+      "method": "POST",
+      "path": "/account/notifications/push/unsubscribe",
       "source": "src/api/product_notification.routes.ts",
       "tracked_by_area": "notifications"
     },

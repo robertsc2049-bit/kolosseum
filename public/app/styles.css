@@ -4661,3 +4661,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* Install-to-home-screen card on Today (InstallAppPrompt.tsx). */
 .install-app-prompt { margin-top: 1rem; padding: 0.85rem 1rem; border: 1px solid var(--line); border-radius: 12px; }
 .install-app-prompt p { margin: 0 0 0.5rem; }
+
+/* Phone notifications control at the foot of the bell panel (PhoneNotificationsToggle.tsx). */
+.phone-notifications { border-top: 1px solid var(--line); padding: 0.75rem 1rem 0.25rem; }
+.phone-notifications p { margin: 0 0 0.5rem; }
