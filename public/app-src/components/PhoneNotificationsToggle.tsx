@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../api/client";
 import { loadPushConfig, removePushSubscription, savePushSubscription } from "../api/notificationsClient";
 import { type JsonRecord } from "../api/transport";
+import { isInstalledApp, isIosBrowser } from "./InstallAppPrompt";
 
 // Notifications on this phone (Web Push): a coach's message or a new
 // assignment arrives on the lock screen, like a native app's. Shown in the
@@ -10,20 +11,6 @@ import { type JsonRecord } from "../api/transport";
 // allows it once Kolosseum is on the home screen, so there it says that.
 
 type Status = "checking" | "unavailable" | "needs_install" | "blocked" | "off" | "on" | "working";
-
-function isIosBrowser(): boolean {
-  return /iPhone|iPad|iPod/u.test(navigator.userAgent);
-}
-
-function isInstalledApp(): boolean {
-  try {
-    if (window.matchMedia?.("(display-mode: standalone)").matches) return true;
-  }
-  catch {
-    // matchMedia unavailable - fall through.
-  }
-  return (navigator as Navigator & { standalone?: boolean }).standalone === true;
-}
 
 function pushSupported(): boolean {
   return typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
