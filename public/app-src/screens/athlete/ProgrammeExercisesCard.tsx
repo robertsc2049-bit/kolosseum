@@ -52,6 +52,21 @@ function customList(value: unknown): CustomExercise[] {
     : [];
 }
 
+// "Doses shown are this week's: build phase, week 2 of 4" - the doses are the
+// ones the athlete's next session will serve, not the programme's base dose.
+const PHASE_NAMES: Record<string, string> = {
+  accumulation: "build phase", off_season: "off-season", base: "base phase", intensification: "strength phase",
+  specific: "competition-specific phase", peak: "peaking phase", in_season: "in-season", taper: "taper", transition: "recovery phase"
+};
+export function thisWeekText(week: unknown): string {
+  if (!week || typeof week !== "object") return "";
+  const { macro_phase: phase, meso_week: n } = week as { macro_phase?: unknown; meso_week?: unknown };
+  const name = PHASE_NAMES[String(phase ?? "")] ?? "";
+  if (!name) return "";
+  const wave = phase !== "taper" && phase !== "transition" && Number.isInteger(n) ? `, week ${n} of 4${n === 4 ? " (lighter week)" : ""}` : "";
+  return `Doses shown are this week's: ${name}${wave}.`;
+}
+
 export function ProgrammeExercisesCard() {
   const [data, setData] = useState<JsonRecord | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
@@ -155,6 +170,7 @@ export function ProgrammeExercisesCard() {
       <p className="eyebrow">Your programme exercises</p>
       <h3>{`${chosen} of ${open} exercises chosen`}</h3>
       <p>Your programme names only your competition lifts. For everything else you choose the exercise. We recommend ones that train the same thing and suit your level, but you can choose any exercise, add your own, or use the same one more than once.</p>
+      {thisWeekText(data.this_week) ? <p className="muted small programme-this-week">{thisWeekText(data.this_week)}</p> : null}
       {data.complete !== true ? (
         <p className="onboarding-boundary" role="status">Choose an exercise for every open slot before your next session.</p>
       ) : null}
