@@ -290,7 +290,8 @@ test("content: strength sports train each competition lift on its own day", () =
   const leads = (activity, level, extra = {}) => weekOf(activity, level, 3, MACRO_PHASES_BY_MODEL.meet[1], extra).map((p) => p.planned_exercise_ids[0]);
   for (const level of LEVELS) {
     assert.deepEqual(leads("powerlifting", level), ["back_squat", "paused_bench_press", "deadlift"], `powerlifting/${level}`);
-    assert.deepEqual(leads("olympic_weightlifting", level).slice(0, 2), ["snatch", "power_clean"], `weightlifting/${level}`);
+    // A beginner learns the lifts top-down, from the hang and caught high.
+    assert.deepEqual(leads("olympic_weightlifting", level).slice(0, 2), level === "beginner" ? ["hang_power_snatch", "hang_power_clean"] : ["snatch", "power_clean"], `weightlifting/${level}`);
     assert.equal(leads("powerlifting", level, { competition_event: "bench_only" })[0], "paused_bench_press");
     assert.equal(leads("powerlifting", level, { competition_event: "deadlift_only" })[0], "deadlift");
     assert.equal(leads("powerlifting", level, { competition_event: "squat_only" })[0], "back_squat");
@@ -311,7 +312,7 @@ test("content: collision and combat athletes train the neck at least twice in a 
 // Olympic lifts are technique-limited; a beginner learns them in doubles and
 // triples - fatigue from fives, sevens or eights breaks the technique first.
 test("a beginner never does more than 3 reps of an Olympic lift, in any sport, phase, week or session", () => {
-  const OLYMPIC = /^(snatch|power_snatch|hang_snatch|power_clean|hang_clean|hang_power_clean|clean|clean_and_jerk|push_jerk|split_jerk|jerk)$/;
+  const OLYMPIC = /^(snatch|power_snatch|hang_snatch|hang_power_snatch|power_clean|hang_clean|hang_power_clean|clean|clean_and_jerk|push_jerk|split_jerk|jerk)$/;
   let checked = 0;
   for (const activity of ACTIVITIES) {
     for (const phase of MACRO_PHASES_BY_MODEL[cycleModelFor(activity)]) {

@@ -138,10 +138,14 @@ test("athlete level: pros get at least amateur volume, and endurance pros keep a
   }
 });
 
-test("athlete level: strength-sport beginners still learn their competition lifts, just lighter", () => {
+test("athlete level: strength-sport beginners still learn their competition lifts, just lighter - weightlifters from the hang", () => {
   const ids = (a) => plan(a, "beginner").map((x) => x.exercise_id);
   for (const lift of ["back_squat", "bench_press", "deadlift"]) assert.ok(ids("powerlifting").includes(lift), `powerlifting beginner: ${lift}`);
-  for (const lift of ["snatch", "power_clean", "push_jerk"]) assert.ok(ids("olympic_weightlifting").includes(lift), `weightlifting beginner: ${lift}`);
+  // Weightlifting is taught top-down: the snatch and clean from the hang, caught
+  // in a power position, before the full lift from the floor.
+  for (const lift of ["hang_power_snatch", "hang_power_clean", "push_jerk"]) assert.ok(ids("olympic_weightlifting").includes(lift), `weightlifting beginner: ${lift}`);
+  for (const lift of ["snatch", "power_clean", "clean_and_jerk"]) assert.ok(!ids("olympic_weightlifting").includes(lift), `weightlifting beginner: no ${lift} from the floor yet`);
+  for (const lift of ["snatch", "power_clean"]) assert.ok(plan("olympic_weightlifting", "amateur").map((x) => x.exercise_id).includes(lift), `weightlifting amateur: ${lift}`);
   assert.ok(ids("street_lifting").includes("band_assisted_pull_up"), "street lifting beginner: assisted pull-up");
   assert.ok(!ids("street_lifting").includes("muscle_up"), "street lifting beginner: no muscle-ups");
 });
