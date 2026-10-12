@@ -24035,8 +24035,8 @@
       "level_variants": {
         "beginner": {
           "exercise_eligibility": [
-            "snatch",
-            "power_clean",
+            "hang_power_snatch",
+            "hang_power_clean",
             "push_jerk",
             "front_squat",
             "snatch_grip_deadlift"
@@ -24096,7 +24096,7 @@
               "day_id": "snatch",
               "focus": "snatch_day",
               "exercise_eligibility": [
-                "snatch",
+                "hang_power_snatch",
                 "snatch_grip_deadlift",
                 "front_squat",
                 "back_extension"
@@ -24145,7 +24145,7 @@
               "day_id": "clean_jerk",
               "focus": "clean_and_jerk_day",
               "exercise_eligibility": [
-                "power_clean",
+                "hang_power_clean",
                 "push_jerk",
                 "back_squat",
                 "band_assisted_pull_up"
