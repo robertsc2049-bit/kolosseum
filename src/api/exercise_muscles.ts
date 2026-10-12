@@ -5,6 +5,9 @@
 // muscles - its movement pattern's default, or its own entry below - and each
 // muscle belongs to one of the muscle groups a coach filters by.
 
+import fs from "node:fs";
+import path from "node:path";
+
 export type MuscleGroupId =
   | "neck" | "shoulders" | "rotator_cuff" | "chest" | "back" | "traps"
   | "biceps" | "triceps" | "forearms_grip" | "abs_obliques" | "lower_back"
@@ -580,6 +583,36 @@ export function exerciseMuscleSummary(exerciseId: string, movementPatternId: str
   });
 }
 
+// Whether an exercise's sets count as hard strength sets in a week's volume.
+// Coaches count jumps, sprints, cutting, throws, carries, conditioning,
+// mobility and neck work separately (by contacts, distance or time), and the
+// Olympic lifts and other fast-execution work as power and technique - so they
+// don't add to a muscle group's hard sets.
+const NOT_STRENGTH_VOLUME = /^(jump_|sprint_|deceleration|change_of_direction|throw_slam|carry_|locomotion_|conditioning_|mobility|neck_)/u;
+let fastExecution: Set<string> | null = null;
+function isFastExecution(exerciseId: string): boolean {
+  if (!fastExecution) {
+    try {
+      const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+      fastExecution = new Set(Object.values(doc?.entries ?? {}).filter((e: any) => e?.fast_execution === true).map((e: any) => String(e.exercise_id)));
+    }
+    catch {
+      fastExecution = new Set();
+    }
+  }
+  return fastExecution.has(exerciseId);
+}
+// Medicine-ball throws and slams are power work whatever pattern they're filed under.
+const POWER_BY_NAME = /medicine_ball|_throw|_slam/u;
+export function countsAsStrengthVolume(exerciseId: string, movementPatternId: string | undefined): boolean {
+  if (!movementPatternId || NOT_STRENGTH_VOLUME.test(movementPatternId) || POWER_BY_NAME.test(exerciseId)) return false;
+  return !isFastExecution(exerciseId.replace(/__r[0-9]+$/u, ""));
+}
+
+// The groups a sport trains on purpose, so high weekly sets there aren't a
+// warning: a grip athlete's forearms, a weightlifter's legs.
+export const SPORT_FOCUS_GROUPS: Readonly<Record<string, readonly MuscleGroupId[]>> = Object.freeze({ grip_sport: ["forearms_grip"], olympic_weightlifting: ["quads", "glutes"] });
+
 // The muscle fields an exercise option carries in every picker's list: the
 // groups it's filed under, and its target and secondary muscles by name.
 export function exerciseMuscleFields(exerciseId: string, movementPatternId: string | undefined): Readonly<{
@@ -587,19 +620,24 @@ export function exerciseMuscleFields(exerciseId: string, movementPatternId: stri
   secondary_muscle_groups: readonly MuscleGroupId[];
   target_muscles: readonly string[];
   secondary_muscles: readonly string[];
+  volume_counted: boolean;
 }> {
   const summary = exerciseMuscleSummary(exerciseId, movementPatternId);
   const label = (muscle: string) => MUSCLES[muscle]?.label ?? muscle;
   // The groups only its secondary muscles reach - a set counts as half a set
   // for these when a coach adds up a week's volume.
   const secondaryGroups: MuscleGroupId[] = [];
-  for (const muscle of summary.secondary_muscles) {
+  // A plank or Pallof press is trunk work: it counts for the trunk only, never
+  // as half a set of glutes or shoulders.
+  const coreHold = (movementPatternId ?? "").startsWith("core_");
+  for (const muscle of coreHold ? [] : summary.secondary_muscles) {
     const group = groupOf(muscle);
     if (group && !summary.muscle_groups.includes(group) && !secondaryGroups.includes(group)) secondaryGroups.push(group);
   }
   return Object.freeze({
     muscle_groups: summary.muscle_groups,
     secondary_muscle_groups: Object.freeze(secondaryGroups),
+    volume_counted: countsAsStrengthVolume(exerciseId, movementPatternId),
     target_muscles: Object.freeze(summary.target_muscles.map(label)),
     secondary_muscles: Object.freeze(summary.secondary_muscles.map(label))
   });

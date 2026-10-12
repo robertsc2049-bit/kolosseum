@@ -26,7 +26,8 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
-import { MUSCLE_GROUPS, exerciseMuscleFields } from "./exercise_muscles.js";
+import { MUSCLE_GROUPS, SPORT_FOCUS_GROUPS, exerciseMuscleFields } from "./exercise_muscles.js";
+import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
@@ -209,12 +210,13 @@ function loadedSets(rows: readonly LoggedSetRow[]): LoggedSet[] {
 }
 
 // Hard sets per muscle group over the last 7 days, counted the way the coach
-// builder counts a planned week: a set counts in full for each group the
-// exercise targets and as half a set for each group only its secondary muscles
-// reach. Every logged set with at least one rep counts, weighted or not;
-// conditioning and exercises with no muscles (an athlete's own) don't.
+// builder counts a planned week: a set of strength work counts in full for
+// each group the exercise targets and as half a set for each group only its
+// secondary muscles reach. Every logged strength set with at least one rep
+// counts, weighted or not; power, plyometric, carry, conditioning and
+// mobility work and exercises with no muscles (an athlete's own) don't.
 const VOLUME_WINDOW_DAYS = 7;
-function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date): Readonly<JsonRecord> {
+function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activityId: string | undefined): Readonly<JsonRecord> {
   const since = new Date(today.getTime() - (VOLUME_WINDOW_DAYS - 1) * 86_400_000).toISOString().slice(0, 10);
   const sets = new Map<string, number>();
   const add = (group: string, n: number) => { if (group !== "conditioning") sets.set(group, (sets.get(group) ?? 0) + n); };
@@ -224,12 +226,15 @@ function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date): Readonl
     const pattern = exercisePatternOf(id);
     if (!pattern) continue;
     const fields = exerciseMuscleFields(id, pattern);
+    if (!fields.volume_counted) continue;
     for (const group of fields.muscle_groups) add(group, 1);
     for (const group of fields.secondary_muscle_groups) add(group, 0.5);
   }
   return Object.freeze({
     window_days: VOLUME_WINDOW_DAYS,
     since,
+    // Groups this athlete's sport trains on purpose - never flagged as very high.
+    focus_groups: Object.freeze([...(SPORT_FOCUS_GROUPS[activityId ?? ""] ?? [])]),
     groups: Object.freeze(MUSCLE_GROUPS.filter((g) => (sets.get(g.id) ?? 0) > 0).map((g) => Object.freeze({ group: g.id, label: g.label, sets: sets.get(g.id) ?? 0 })))
   });
 }
@@ -476,12 +481,13 @@ async function assembleProgressInsightsSummary(
   habitsWithStreaks: readonly JsonRecord[],
   bodyMetricEntries: readonly JsonRecord[]
 ): Promise<Readonly<JsonRecord>> {
-  const [sessions, profilePayload, habitConsistency, loggedSetRows, workoutResults] = await Promise.all([
+  const [sessions, profilePayload, habitConsistency, loggedSetRows, workoutResults, trainingProfile] = await Promise.all([
     loadEnrichedAthleteSessions(athleteUserId),
     loadLatestStrengthProfilePayload(athleteUserId),
     computeHabitConsistency(habitsWithStreaks, athleteUserId),
     loadLoggedSetRows(athleteUserId),
-    loadWorkoutResults(athleteUserId)
+    loadWorkoutResults(athleteUserId),
+    getAthleteTrainingProfile(athleteUserId).catch(() => ({} as { activity_id?: string }))
   ]);
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) === "lb" ? "lb" : "kg";
 
@@ -494,7 +500,7 @@ async function assembleProgressInsightsSummary(
     // Estimated maxes from what the athlete actually lifted in training.
     training_e1rm_trends: computeTrainingE1rmTrends(loadedSets(loggedSetRows), displayUnit, WINDOW_DAYS, exercisePatternOf),
     // What the athlete actually did: hard sets per muscle group, last 7 days.
-    weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date()),
+    weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date(), trainingProfile.activity_id),
     // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
     workout_scores: workoutHistories(workoutResults),
     habit_consistency: habitConsistency,
