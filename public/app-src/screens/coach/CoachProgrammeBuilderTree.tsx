@@ -738,7 +738,8 @@ function BuilderWeek({
   weekIndex,
   weekCount,
   templateExercises,
-  equipmentCatalog
+  equipmentCatalog,
+  activityId
 }: {
   week: ProgrammeWeekDraft;
   blockIndex: number;
@@ -746,6 +747,7 @@ function BuilderWeek({
   weekCount: number;
   templateExercises: JsonRecord[];
   equipmentCatalog: JsonRecord[];
+  activityId: string;
 }) {
   const exercisesById = React.useMemo(() => new Map(templateExercises.map((exercise) => [String(exercise.exercise_id), exercise])), [templateExercises]);
   const weekItems = week.sessions.flatMap((session) => session.work_items);
@@ -786,7 +788,7 @@ function BuilderWeek({
           />
         ))}
       </div>
-      <WeeklyMuscleVolume items={weekItems} exercises={exercisesById} />
+      <WeeklyMuscleVolume items={weekItems} exercises={exercisesById} activityId={activityId} />
       <button className="button secondary add-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} disabled={week.sessions.length >= 7}>Add session</button>
     </article>
   );
@@ -799,7 +801,8 @@ function BuilderBlock({
   totalWeeks,
   hasEventPlan,
   templateExercises,
-  equipmentCatalog
+  equipmentCatalog,
+  activityId
 }: {
   block: ProgrammeBlockDraft;
   blockIndex: number;
@@ -808,6 +811,7 @@ function BuilderBlock({
   hasEventPlan: boolean;
   templateExercises: JsonRecord[];
   equipmentCatalog: JsonRecord[];
+  activityId: string;
 }) {
   return (
     <article className="template-block">
@@ -871,6 +875,7 @@ function BuilderBlock({
             weekCount={block.weeks.length}
             templateExercises={templateExercises}
             equipmentCatalog={equipmentCatalog}
+            activityId={activityId}
           />
         ))}
       </div>
@@ -897,6 +902,7 @@ export function CoachProgrammeBuilderTree() {
           hasEventPlan={hasEventPlan}
           templateExercises={templateExercises}
           equipmentCatalog={equipmentCatalog}
+          activityId={String(draft.activity_id ?? "")}
         />
       ))}
     </>
