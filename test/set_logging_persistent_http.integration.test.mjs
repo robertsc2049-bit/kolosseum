@@ -273,6 +273,14 @@ test(
     assert.ok(all.filter((e) => e.segment === "warm_up").every((e) => e.intensity?.type === "bodyweight" && e.sets === 1), "warm-up drills are one unloaded set");
     const exercises = training(all);
     assert.equal(exercises[0].exercise_id, "back_squat", "squat day leads with the squat");
+    // The doses she chose her exercises from are the ones her session serves:
+    // this week's, periodised - not the programme's base dose.
+    const listing = await requestJson(server.baseUrl, "GET", "/account/onboarding/exercises", { cookie });
+    assert.ok(listing.json.this_week?.macro_phase, "the choices screen says which week its doses are for");
+    const squatDay = listing.json.days.find((d) => d.items.some((i) => i.kind === "fixed" && i.exercise_id === "back_squat"));
+    const listedSquat = squatDay.items.find((i) => i.exercise_id === "back_squat").prescription;
+    const servedSquat = exercises.find((e) => e.exercise_id === "back_squat");
+    assert.deepEqual([listedSquat.sets, listedSquat.reps], [servedSquat.sets, servedSquat.reps], "listed squat sets x reps = served");
     assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
 
     const log = (body) => requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, { cookie, csrf, body: { type: "SET_LOG_REPORT", client_request_id: crypto.randomUUID(), ...body } });
