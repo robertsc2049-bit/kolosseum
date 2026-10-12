@@ -67,17 +67,21 @@ export function matchesExerciseSearch(name: string, option: { target_muscles?: u
 }
 
 // A week's hard sets per muscle group, the way coaches count volume: every set
-// of a working exercise counts in full for each group it targets and as half a
-// set for each group only its secondary muscles reach. Warm-up and cool-down
-// items, conditioning work and exercises with no muscles (an athlete's own)
-// don't count.
+// of a working strength exercise counts in full for each group it targets and
+// as half a set for each group only its secondary muscles reach. Warm-up and
+// cool-down items, power and plyometric work (jumps, sprints, throws, Olympic
+// lifts), carries, conditioning, mobility and exercises with no muscles (an
+// athlete's own) don't count.
 export type VolumeItem = { exercise_id: string; planned_sets: number; segment?: string };
-export type MuscleOption = { muscle_groups?: unknown; secondary_muscle_groups?: unknown };
+export type MuscleOption = { muscle_groups?: unknown; secondary_muscle_groups?: unknown; volume_counted?: unknown };
 export type GroupVolume = { group: string; label: string; sets: number };
 
 export const MAJOR_MUSCLE_GROUPS: readonly string[] = ["chest", "back", "shoulders", "quads", "hamstrings", "glutes"];
 // Above this, a week's sets for one group is a lot to recover from.
 export const HIGH_WEEKLY_SETS = 25;
+// Groups a sport trains on purpose, never flagged as very high (mirrors
+// SPORT_FOCUS_GROUPS in src/api/exercise_muscles.ts).
+export const SPORT_FOCUS_GROUPS: Readonly<Record<string, readonly string[]>> = { grip_sport: ["forearms_grip"], olympic_weightlifting: ["quads", "glutes"] };
 
 export function weeklyMuscleVolume(items: readonly VolumeItem[], exercises: ReadonlyMap<string, MuscleOption>): GroupVolume[] {
   const sets = new Map<string, number>();
@@ -88,7 +92,8 @@ export function weeklyMuscleVolume(items: readonly VolumeItem[], exercises: Read
     const n = Number(item.planned_sets);
     if (!Number.isFinite(n) || n <= 0) continue;
     const option = exercises.get(item.exercise_id.replace(/__r[0-9]+$/u, ""));
-    if (!option) continue;
+    // Power, plyometric, carry, conditioning and mobility work isn't hard sets.
+    if (!option || option.volume_counted === false) continue;
     for (const group of list(option.muscle_groups)) add(group, n);
     for (const group of list(option.secondary_muscle_groups)) add(group, n / 2);
   }

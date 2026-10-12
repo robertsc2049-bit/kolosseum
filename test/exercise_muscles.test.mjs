@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-import { EXERCISE_MUSCLES, MUSCLES, MUSCLE_GROUPS, PATTERN_MUSCLES, exerciseMuscleFields, exerciseMuscleSummary } from "../dist/src/api/exercise_muscles.js";
+import { EXERCISE_MUSCLES, MUSCLES, MUSCLE_GROUPS, PATTERN_MUSCLES, SPORT_FOCUS_GROUPS, countsAsStrengthVolume, exerciseMuscleFields, exerciseMuscleSummary } from "../dist/src/api/exercise_muscles.js";
 
 const REGISTRY = JSON.parse(fs.readFileSync("registries/exercise/exercise.registry.json", "utf8")).entries;
 const groupsOf = (id) => exerciseMuscleSummary(id, REGISTRY[id]?.movement_pattern_id).muscle_groups;
@@ -69,4 +69,25 @@ test("coaches see each exercise by its real name - 'Romanian deadlift', 'Cable f
   assert.equal(byId.worlds_greatest_stretch, "World's greatest stretch");
   assert.equal(byId.pull_up, REGISTRY.pull_up.display_label);
   for (const [id, name] of Object.entries(byId)) assert.equal(name, REGISTRY[id].display_label, id);
+});
+
+test("weekly volume counts hard strength sets only: squats and rows yes, jumps, sprints, med-ball throws, Olympic lifts, carries and stretches no", () => {
+  const counted = (id) => exerciseMuscleFields(id, REGISTRY[id].movement_pattern_id).volume_counted;
+  for (const id of ["back_squat", "romanian_deadlift", "barbell_row", "bench_press", "leg_extension", "hammer_curl"]) assert.equal(counted(id), true, id);
+  for (const id of ["box_jump", "medicine_ball_rotational_throw", "power_clean", "farmers_carry", "bike_ergometer", "worlds_greatest_stretch"]) {
+    if (REGISTRY[id]) assert.equal(counted(id), false, id);
+  }
+  assert.equal(countsAsStrengthVolume("custom_zercher_lunge", undefined), false, "an athlete's own exercise with no pattern isn't counted");
+});
+
+test("a plank counts for the trunk only, never as half a set of glutes or shoulders", () => {
+  const plank = Object.keys(REGISTRY).find((id) => REGISTRY[id].movement_pattern_id === "core_anti_extension");
+  assert.deepEqual(exerciseMuscleFields(plank, "core_anti_extension").secondary_muscle_groups, []);
+});
+
+test("a grip athlete's forearms and a weightlifter's legs are the sport, not a warning", () => {
+  assert.deepEqual([...SPORT_FOCUS_GROUPS.grip_sport], ["forearms_grip"]);
+  assert.deepEqual([...SPORT_FOCUS_GROUPS.olympic_weightlifting], ["quads", "glutes"]);
+  const client = fs.readFileSync("public/app-src/utils/muscleGroups.ts", "utf8");
+  for (const [sport, groups] of Object.entries(SPORT_FOCUS_GROUPS)) assert.ok(client.includes(`${sport}: ${JSON.stringify(groups).replace(/,/gu, ", ")}`), `the app's copy has ${sport}`);
 });

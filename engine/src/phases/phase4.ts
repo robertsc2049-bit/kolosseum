@@ -163,12 +163,22 @@ export function describeProgrammeSlots(input: {
   days_per_week?: number;
   constraints?: SlotConstraints;
   selections?: ExerciseSelections;
+  // The athlete's current place in their plan: each day's doses are shown as
+  // this week's - periodised exactly as the session will serve them.
+  training_cycle?: TrainingCycle;
 }): SlotListing[] | null {
   const template = selectTemplate(input.activity_id, input.experience_level, input.competition_event, input.sport_role_id);
   if (!template) return null;
   const registry = loadEntriesFromDisk();
-  return listProgrammeSlots(programmeDays(template, input.days_per_week),
-    slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints), input.selections);
+  const fastExecution = (exerciseId: string) => (registry.entries[exerciseId] as { fast_execution?: unknown } | undefined)?.fast_execution === true;
+  const days = programmeDays(template, input.days_per_week).map((day) => (input.training_cycle && day.item_prescriptions
+    ? {
+        ...day,
+        item_prescriptions: periodisePrescriptions(day.item_prescriptions, input.training_cycle, input.experience_level,
+          day.exercise_eligibility.map((id) => isPowerOrEccentricWork(id, fastExecution(id))))
+      }
+    : day));
+  return listProgrammeSlots(days, slotContext(input.activity_id, input.experience_level, registry.entries, input.constraints), input.selections);
 }
 
 // Exercises that could stand in for another: what the engine recommends for
@@ -207,5 +217,6 @@ export default phase4AssembleProgram;
 // Periodisation vocabulary for callers that declare an athlete's training cycle.
 export { ALL_MACRO_PHASES, MACRO_PHASES_BY_MODEL, cycleModelFor, sessionsPerWeek } from "./phase4/periodisation.js";
 export type { CycleModel, TrainingCycle, TrainingCycleOutput } from "./phase4/periodisation.js";
+import { isPowerOrEccentricWork, periodisePrescriptions, type TrainingCycle } from "./phase4/periodisation.js";
 export { CUSTOM_EXERCISE_PREFIX, baseExerciseId, isCustomExerciseId, recommendedExercisesForSlot, repeatOf, slotFitIssue, slotIdsForDay } from "./phase4/exercise_slots.js";
 export type { ExerciseSelections, SlotListing } from "./phase4/exercise_slots.js";
