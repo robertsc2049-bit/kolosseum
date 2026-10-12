@@ -4657,3 +4657,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .weekly-muscle-volume-list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem; }
 .weekly-muscle-volume-list li[data-high="true"] strong { color: var(--warning, #b26a00); }
 .weekly-muscle-volume-list .field-warning { flex-basis: 100%; color: var(--warning, #b26a00); font-size: 0.75rem; }
+
+/* Phone notifications control at the foot of the bell panel (PhoneNotificationsToggle.tsx). */
+.phone-notifications { border-top: 1px solid var(--line); padding: 0.75rem 1rem 0.25rem; }
+.phone-notifications p { margin: 0 0 0.5rem; }

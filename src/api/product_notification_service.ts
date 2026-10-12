@@ -1475,6 +1475,45 @@ export async function listNotificationsForRecipient(
   }
 }
 
+// For Web Push (product_push_service.ts): derive this recipient's
+// notifications - exactly as opening the bell does - and return the unread
+// ones recorded after `sinceIso`, oldest first, so each is pushed once.
+export async function deriveUnreadNotificationsSince(
+  recipientUserId: string,
+  sinceIso: string
+): Promise<readonly Readonly<{ notification_id: string; notification_type: string; created_at_iso8601: string }>[]> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await deriveNotificationsForRecipient(client, recipientUserId);
+    const result = await client.query(
+      `
+      SELECT notification_id, notification_type, created_at
+      FROM product_notifications
+      WHERE recipient_user_id = $1
+        AND read_at IS NULL
+        AND created_at > $2::timestamptz
+      ORDER BY created_at ASC, notification_id ASC
+      LIMIT 20
+      `,
+      [recipientUserId, sinceIso]
+    );
+    await client.query("COMMIT");
+    return result.rows.map((row) => Object.freeze({
+      notification_id: cleanString(row.notification_id),
+      notification_type: cleanString(row.notification_type),
+      created_at_iso8601: toIso(row.created_at)
+    }));
+  }
+  catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  }
+  finally {
+    client.release();
+  }
+}
+
 export async function getUnreadNotificationCount(
   recipientUserId: string
 ): Promise<number> {

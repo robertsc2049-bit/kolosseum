@@ -23,7 +23,14 @@ import {
   markNotificationUnread,
   ProductNotificationError
 } from "./product_notification_service.js";
-import { badRequest, notFound } from "./http_errors.js";
+import {
+  ProductPushError,
+  deletePushSubscription,
+  pushConfig,
+  pushSubscriptionCount,
+  savePushSubscription
+} from "./product_push_service.js";
+import { badRequest, conflict, notFound } from "./http_errors.js";
 
 export const productNotificationRouter = Router();
 
@@ -176,4 +183,57 @@ productNotificationRouter.use(
       account_state: error.account_state ?? null
     });
   }
+);
+
+// --- Web Push: notifications on this phone (product_push_service.ts) -------
+
+function rethrowPushError(error: unknown): never {
+  if (error instanceof ProductPushError) {
+    throw error.status === 409
+      ? conflict(error.message, { failure_token: error.message })
+      : badRequest(error.message, { failure_token: error.message });
+  }
+  throw error;
+}
+
+productNotificationRouter.get(
+  "/notifications/push",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    const session = await resolveProductSession(token);
+    const subscriptions = await pushSubscriptionCount(session.account_row.user_id);
+    return response.status(200).json({ ...pushConfig(), subscription_count: subscriptions });
+  })
+);
+
+productNotificationRouter.post(
+  "/notifications/push/subscribe",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+    const session = await resolveProductSession(token);
+    try {
+      await savePushSubscription(session.account_row.user_id, request.body);
+    }
+    catch (error) {
+      rethrowPushError(error);
+    }
+    return response.status(200).json({ ok: true });
+  })
+);
+
+productNotificationRouter.post(
+  "/notifications/push/unsubscribe",
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+    const session = await resolveProductSession(token);
+    try {
+      await deletePushSubscription(session.account_row.user_id, request.body);
+    }
+    catch (error) {
+      rethrowPushError(error);
+    }
+    return response.status(200).json({ ok: true });
+  })
 );

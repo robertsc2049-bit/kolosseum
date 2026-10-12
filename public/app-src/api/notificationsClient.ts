@@ -101,3 +101,18 @@ export async function markNotificationUnread(notificationId: string, csrfToken: 
 export async function markAllNotificationsRead(csrfToken: string): Promise<void> {
   await request("POST", "/account/notifications/mark-all-read", {}, csrfToken);
 }
+
+// Phone notifications (Web Push): whether the server has push set up, its
+// public key, and turning this phone's subscription on or off.
+export async function loadPushConfig(): Promise<{ enabled: boolean; publicKey: string | null }> {
+  const body = await request("GET", "/account/notifications/push");
+  return { enabled: body.enabled === true, publicKey: typeof body.public_key === "string" ? body.public_key : null };
+}
+
+export async function savePushSubscription(subscription: JsonRecord, csrfToken: string): Promise<void> {
+  await request("POST", "/account/notifications/push/subscribe", subscription, csrfToken);
+}
+
+export async function removePushSubscription(endpoint: string, csrfToken: string): Promise<void> {
+  await request("POST", "/account/notifications/push/unsubscribe", { endpoint }, csrfToken);
+}
