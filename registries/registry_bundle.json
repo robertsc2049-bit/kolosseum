@@ -48589,12 +48589,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -48664,12 +48665,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -48741,12 +48743,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -48809,12 +48812,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -48876,12 +48880,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -48945,12 +48950,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -49020,12 +49026,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -49088,12 +49095,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -49155,12 +49163,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -49226,12 +49235,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -49294,12 +49304,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -49361,12 +49372,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -49430,12 +49442,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 5,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 4,
@@ -49497,12 +49510,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 5,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -49566,21 +49580,23 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -49634,12 +49650,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -49702,12 +49719,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -49771,12 +49789,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 5,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 4,
@@ -49840,21 +49859,23 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -49908,12 +49929,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 5,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 7
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -49975,12 +49997,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -50048,21 +50071,23 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 5,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
-                      "reps": 5,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -50116,12 +50141,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 5,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -50183,12 +50209,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -50260,12 +50287,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ],
               "level_variants": {
@@ -50326,12 +50354,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -50393,12 +50422,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -50452,12 +50482,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -50596,12 +50627,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -50662,12 +50694,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -50721,12 +50754,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -50868,12 +50902,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -50927,12 +50962,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -57456,12 +57492,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -57531,12 +57568,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -57617,12 +57655,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -57676,12 +57715,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -57814,12 +57854,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -57898,12 +57939,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -57957,12 +57999,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -58106,12 +58149,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -58165,12 +58209,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -59923,12 +59968,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -59999,12 +60045,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -60076,12 +60123,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -60144,12 +60192,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -60281,12 +60330,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -60358,12 +60408,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -60426,12 +60477,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -60565,12 +60617,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -60633,12 +60686,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -64030,12 +64084,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -64104,12 +64159,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -64189,12 +64245,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -64256,12 +64313,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -64324,12 +64382,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 }
@@ -64383,12 +64442,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -64466,12 +64526,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -64533,12 +64594,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -64601,12 +64663,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 }
@@ -64671,12 +64734,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -64738,12 +64802,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -64806,12 +64871,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             }
@@ -64865,12 +64931,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 4,
@@ -64932,12 +64999,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -65000,12 +65068,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -65069,12 +65138,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -65137,12 +65207,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -65206,12 +65277,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 4,
@@ -65274,12 +65346,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 4,
@@ -65343,12 +65416,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -65411,12 +65485,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -65483,12 +65558,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 4,
@@ -65552,12 +65628,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -65620,12 +65697,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -65697,12 +65775,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ],
               "level_variants": {
@@ -65763,12 +65842,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -65830,12 +65910,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -65889,12 +65970,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -66033,12 +66115,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -66099,12 +66182,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -66158,12 +66242,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -66305,12 +66390,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -66364,12 +66450,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -71045,12 +71132,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -71119,12 +71207,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -71195,12 +71284,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -71329,12 +71419,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -71397,12 +71488,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -71473,12 +71565,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -71607,12 +71700,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -71679,12 +71773,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -71813,12 +71908,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -71884,12 +71980,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -71961,12 +72058,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -72039,21 +72137,23 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -72118,12 +72218,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -72247,12 +72348,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -72325,21 +72427,23 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -72404,12 +72508,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -72536,21 +72641,23 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -72615,12 +72722,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -72746,12 +72854,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -72822,12 +72931,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -72899,12 +73009,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -72978,12 +73089,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -73105,12 +73217,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -73182,12 +73295,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -73261,12 +73375,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -73391,12 +73506,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -73470,12 +73586,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -73599,12 +73716,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -73675,12 +73793,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -73761,12 +73880,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -73889,12 +74009,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -73958,12 +74079,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -74043,12 +74165,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -74171,12 +74294,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -74251,12 +74375,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             },
@@ -74379,12 +74504,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -74449,12 +74575,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -74523,12 +74650,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -74658,12 +74786,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 7
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -74734,12 +74863,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -74802,12 +74932,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -74937,12 +75068,13 @@
                     },
                     {
                       "sets": 5,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -75013,12 +75145,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -75144,12 +75277,13 @@
                 },
                 {
                   "sets": 4,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -75220,12 +75354,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -75291,12 +75426,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -75366,12 +75502,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -75442,12 +75579,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -75588,12 +75726,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 }
@@ -75647,12 +75786,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -75722,12 +75862,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -75868,12 +76009,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 }
@@ -75929,12 +76071,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -76075,12 +76218,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ]
             }
@@ -77491,12 +77635,13 @@
             },
             {
               "sets": 3,
-              "reps": 4,
+              "reps": 1,
               "intensity": {
                 "type": "rpe",
                 "value": 6
               },
-              "rest_seconds": 60
+              "rest_seconds": 60,
+              "duration_seconds": 10
             },
             {
               "sets": 3,
@@ -77565,12 +77710,13 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 2,
@@ -77641,12 +77787,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -77709,12 +77856,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 2,
@@ -77845,12 +77993,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -77919,12 +78068,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -77987,12 +78137,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -78125,12 +78276,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -78193,12 +78345,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 3,
@@ -78329,12 +78482,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 },
                 {
                   "sets": 4,
@@ -78396,12 +78550,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -78464,12 +78619,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -78533,12 +78689,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -78601,12 +78758,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -78670,12 +78828,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 4,
@@ -78737,12 +78896,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 4,
@@ -78806,12 +78966,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -78874,12 +79035,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -78945,12 +79107,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 4,
@@ -79014,12 +79177,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -79082,12 +79246,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,
@@ -79159,12 +79324,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 4,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 6
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 10
                 }
               ],
               "level_variants": {
@@ -79225,12 +79391,13 @@
                     },
                     {
                       "sets": 2,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -79292,12 +79459,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -79351,12 +79519,13 @@
                         },
                         {
                           "sets": 2,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 2,
@@ -79495,12 +79664,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ],
                   "microcycle": [
@@ -79561,12 +79731,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         }
                       ]
                     },
@@ -79620,12 +79791,13 @@
                         },
                         {
                           "sets": 3,
-                          "reps": 4,
+                          "reps": 1,
                           "intensity": {
                             "type": "rpe",
                             "value": 6
                           },
-                          "rest_seconds": 60
+                          "rest_seconds": 60,
+                          "duration_seconds": 10
                         },
                         {
                           "sets": 3,
@@ -79767,12 +79939,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     }
                   ]
                 },
@@ -79826,12 +79999,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 4,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 10
                     },
                     {
                       "sets": 3,

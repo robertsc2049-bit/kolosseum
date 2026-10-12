@@ -113,7 +113,9 @@ const repsLocked = (p: Phase4ItemPrescription) => p.distance_m !== undefined || 
 // eccentric overload (Nordics) keep their authored sets and reps in general
 // preparation: power is low-volume, full-recovery quality work, and doubling
 // eccentric volume invites exactly the injury it is there to prevent.
-function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWork: boolean): Phase4ItemPrescription {
+// A beginner's volume isn't raised either: their programme's sets and reps
+// are already a novice dose, and they progress by adding weight, not sets.
+function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWork: boolean, beginner: boolean): Phase4ItemPrescription {
   if (p.group) return p;
   const q: Phase4ItemPrescription = { ...p, intensity: { ...p.intensity } as PlannedItemIntensity };
   const primary = i < PRIMARY_COUNT;
@@ -122,7 +124,7 @@ function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWo
     case "off_season":
     case "accumulation":
     case "base":
-      if (!powerWork) {
+      if (!powerWork && !beginner) {
         q.sets = Math.min(primary ? 6 : 4, q.sets + 1);
         if (!repsLocked(q) && q.reps >= 2 && q.reps <= 6) q.reps += 2;
       }
@@ -194,7 +196,7 @@ export function periodisePrescriptions(
 ): Phase4ItemPrescription[] {
   const meso = cycle.macro_phase !== "taper" && cycle.macro_phase !== "transition";
   return prescriptions.map((p, i) => {
-    let q = applyPhase(p, i, cycle.macro_phase, powerWork[i] === true);
+    let q = applyPhase(p, i, cycle.macro_phase, powerWork[i] === true, level === "beginner");
     if (meso) q = applyMesoWeek(q, cycle.meso_week);
     return applyLevelCeiling(q, level);
   });
