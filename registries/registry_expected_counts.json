@@ -15,15 +15,15 @@
     "equipment_compatibility_edge_count": 1021,
     "required_equipment_edge_count": 758,
     "alternative_equipment_edge_count": 263,
-    "activity_relation_pair_count": 13051,
+    "activity_relation_pair_count": 13052,
     "applicability_row_count": 39156,
     "programme_template_count": 108,
     "substitution_edge_count": 3558,
     "substitution_source_count": 509,
     "substitution_target_count": 457,
     "copy_source_file_count": 18,
-    "copy_source_record_count": 44755,
-    "copy_provenance_record_count": 44755,
-    "exact_copy_control_count": 50183
+    "copy_source_record_count": 44758,
+    "copy_provenance_record_count": 44758,
+    "exact_copy_control_count": 50186
   }
 }
