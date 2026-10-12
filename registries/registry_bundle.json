@@ -12469,7 +12469,8 @@
             "triathlon",
             "rugby_league",
             "street_lifting",
-            "grip_sport"
+            "grip_sport",
+            "crossfit"
           ],
           "contraindication_or_exclusion_tags": [],
           "substitution_eligibility": "eligible",
@@ -326832,6 +326833,42 @@
           "applicability_id": "band_assisted_pull_up__grip_sport__competition",
           "exercise_id": "band_assisted_pull_up",
           "activity_id": "grip_sport",
+          "activity_context": "competition",
+          "applicability_state": "prohibited",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "not_eligible",
+          "substitution_applicability": "not_eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__crossfit__training": {
+          "applicability_id": "band_assisted_pull_up__crossfit__training",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "crossfit",
+          "activity_context": "training",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__crossfit__testing": {
+          "applicability_id": "band_assisted_pull_up__crossfit__testing",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "crossfit",
+          "activity_context": "testing",
+          "applicability_state": "allowed",
+          "conditions": [],
+          "tier_cap": null,
+          "template_applicability": "eligible",
+          "substitution_applicability": "eligible",
+          "copy_legal_boundary_notes": "factual declared exercise activity applicability only; no evaluator or interpretation"
+        },
+        "band_assisted_pull_up__crossfit__competition": {
+          "applicability_id": "band_assisted_pull_up__crossfit__competition",
+          "exercise_id": "band_assisted_pull_up",
+          "activity_id": "crossfit",
           "activity_context": "competition",
           "applicability_state": "prohibited",
           "conditions": [],

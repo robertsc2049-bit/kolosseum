@@ -1,9 +1,9 @@
 {
-  "canonical_copy_registry_sha256": "da76225e308112d895373e12468fae3f246bab44de0df685b75888ba5a843d84",
+  "canonical_copy_registry_sha256": "801309e38e2f0d713f6cb7bc7d64bf409c4b6fa8fff6f7c521f40f473a1437b4",
   "copy_schema_sha256": "d79a449d8ddcd3e32a64141567df5cf756f945511f618f4a8c1de2ae6685f450",
   "coverage_policy": "every_explicit_active_source_record",
   "evidence_version": "1.0.0",
-  "exact_copy_control_count": 50183,
+  "exact_copy_control_count": 50186,
   "licensed_content_inference": false,
   "no_runtime_inference": true,
   "no_source_content_mutation": true,
@@ -15,7 +15,7 @@
     "manual_review_status": "approved",
     "source": "canonical_project_document"
   },
-  "provenance_record_count": 44755,
+  "provenance_record_count": 44758,
   "slice_id": "REG-FULL-08",
   "source_file_count": 18,
   "source_files": [
@@ -62,8 +62,8 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise/exercise.registry.json",
-      "source_file_sha256": "631992421b213797448a05d5a0336579da29decd10a8712ec5e2599f2b1b56d2",
-      "source_git_blob_sha": "95bbca4bad3d4fb444c42c0cada29aa77a2f5194",
+      "source_file_sha256": "1457f50676163f5ba042d26d7d8b18f13343a5a24707dacb50425356623296cf",
+      "source_git_blob_sha": "e66ad8997278c83e5b42442074431111b51cccee",
       "source_record_count": 556,
       "source_registry_id": "exercise_registry_3a"
     },
@@ -102,9 +102,9 @@
     {
       "source_authority": "compatibility_projection",
       "source_file": "registries/exercise_activity_applicability/exercise_activity_applicability.registry.json",
-      "source_file_sha256": "216251d95900cd2aef4b7658fde03a230dae2996248d39893436516471aa1040",
-      "source_git_blob_sha": "13c2f800c23f708132ba7e58e13c0f45f81f7da5",
-      "source_record_count": 39153,
+      "source_file_sha256": "9ee17b4c061eefab2fcf83ebe6b1a245e142dd0baad56cc4ede9a4080add41f2",
+      "source_git_blob_sha": "65340023c71ee5b997f0e60d538cbabb0e1615ec",
+      "source_record_count": 39156,
       "source_registry_id": "exercise_sport_applicability_registry_6x"
     },
     {
@@ -126,8 +126,8 @@
     {
       "source_authority": "authoritative",
       "source_file": "registries/substitution/substitution.registry.json",
-      "source_file_sha256": "5a02081d4dec23d87ba5546de522c04959c5c2aa19ebf9a5d83e6fb7fe99a821",
-      "source_git_blob_sha": "e78c5b165ebbdb3f3ee9ca04c9ce7cf277514e1c",
+      "source_file_sha256": "46b324fd43d33af14d0cf26e5c760d8606c28ca78718f44b348ad6e611cdd683",
+      "source_git_blob_sha": "87fa48a117c58cd43455b8e7ae5ac30e5b3c4d8d",
       "source_record_count": 3558,
       "source_registry_id": "substitution_registry"
     },
@@ -164,6 +164,6 @@
       "source_registry_id": "copy_registry"
     }
   ],
-  "source_record_count": 44755,
+  "source_record_count": 44758,
   "status": "authoritative"
 }
