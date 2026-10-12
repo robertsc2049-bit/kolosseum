@@ -8605,11 +8605,11 @@
         "beginner": {
           "exercise_eligibility": [
             "kettlebell_deadlift",
-            "pull_up",
+            "band_assisted_pull_up",
             "burpee",
             "air_squat",
-            "toes_to_bar",
-            "double_under"
+            "hanging_knee_raise",
+            "jump_rope"
           ],
           "item_prescriptions": [
             {
@@ -8670,7 +8670,7 @@
             },
             {
               "sets": 2,
-              "reps": 50,
+              "reps": 100,
               "intensity": {
                 "type": "bodyweight"
               },
@@ -8683,11 +8683,11 @@
               "focus": "strength_and_metcon",
               "exercise_eligibility": [
                 "kettlebell_deadlift",
-                "pull_up",
+                "band_assisted_pull_up",
                 "burpee",
                 "air_squat",
-                "toes_to_bar",
-                "double_under"
+                "hanging_knee_raise",
+                "jump_rope"
               ],
               "item_prescriptions": [
                 {
@@ -8749,7 +8749,7 @@
                 },
                 {
                   "sets": 2,
-                  "reps": 50,
+                  "reps": 100,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
@@ -8824,7 +8824,7 @@
                 "air_squat",
                 "rowing_ergometer",
                 "dumbbell_overhead_press",
-                "pull_up",
+                "band_assisted_pull_up",
                 "kettlebell_swing"
               ],
               "item_prescriptions": [
@@ -8866,7 +8866,7 @@
                 },
                 {
                   "sets": 1,
-                  "reps": 15,
+                  "reps": 8,
                   "intensity": {
                     "type": "bodyweight"
                   },
