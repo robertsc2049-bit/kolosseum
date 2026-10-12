@@ -216,7 +216,13 @@ function loadedSets(rows: readonly LoggedSetRow[]): LoggedSet[] {
 // counts, weighted or not; power, plyometric, carry, conditioning and
 // mobility work and exercises with no muscles (an athlete's own) don't.
 const VOLUME_WINDOW_DAYS = 7;
-function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activityId: string | undefined): Readonly<JsonRecord> {
+// Above this many sets in a week, a group is flagged "very high". A pro's
+// accumulation block legitimately runs 25-30 hard sets for the big lower-body
+// groups (glutes get a full set from every squat, hinge and lunge), so the
+// warning sits higher for them and stays meaningful.
+const HIGH_WEEKLY_SETS = 25;
+const PRO_HIGH_WEEKLY_SETS = 30;
+function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activityId: string | undefined, experienceLevel: string | undefined): Readonly<JsonRecord> {
   const since = new Date(today.getTime() - (VOLUME_WINDOW_DAYS - 1) * 86_400_000).toISOString().slice(0, 10);
   const sets = new Map<string, number>();
   const add = (group: string, n: number) => { if (group !== "conditioning") sets.set(group, (sets.get(group) ?? 0) + n); };
@@ -235,6 +241,7 @@ function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activity
     since,
     // Groups this athlete's sport trains on purpose - never flagged as very high.
     focus_groups: Object.freeze([...(SPORT_FOCUS_GROUPS[activityId ?? ""] ?? [])]),
+    high_sets: experienceLevel === "pro" ? PRO_HIGH_WEEKLY_SETS : HIGH_WEEKLY_SETS,
     groups: Object.freeze(MUSCLE_GROUPS.filter((g) => (sets.get(g.id) ?? 0) > 0).map((g) => Object.freeze({ group: g.id, label: g.label, sets: sets.get(g.id) ?? 0 })))
   });
 }
@@ -487,7 +494,7 @@ async function assembleProgressInsightsSummary(
     computeHabitConsistency(habitsWithStreaks, athleteUserId),
     loadLoggedSetRows(athleteUserId),
     loadWorkoutResults(athleteUserId),
-    getAthleteTrainingProfile(athleteUserId).catch(() => ({} as { activity_id?: string }))
+    getAthleteTrainingProfile(athleteUserId).catch(() => ({} as { activity_id?: string; experience_level?: string }))
   ]);
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) === "lb" ? "lb" : "kg";
 
@@ -500,7 +507,7 @@ async function assembleProgressInsightsSummary(
     // Estimated maxes from what the athlete actually lifted in training.
     training_e1rm_trends: computeTrainingE1rmTrends(loadedSets(loggedSetRows), displayUnit, WINDOW_DAYS, exercisePatternOf),
     // What the athlete actually did: hard sets per muscle group, last 7 days.
-    weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date(), trainingProfile.activity_id),
+    weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date(), trainingProfile.activity_id, trainingProfile.experience_level),
     // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
     workout_scores: workoutHistories(workoutResults),
     habit_consistency: habitConsistency,

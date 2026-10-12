@@ -610,8 +610,8 @@ export function countsAsStrengthVolume(exerciseId: string, movementPatternId: st
 }
 
 // The groups a sport trains on purpose, so high weekly sets there aren't a
-// warning: a grip athlete's forearms, a weightlifter's legs.
-export const SPORT_FOCUS_GROUPS: Readonly<Record<string, readonly MuscleGroupId[]>> = Object.freeze({ grip_sport: ["forearms_grip"], olympic_weightlifting: ["quads", "glutes"] });
+// warning: a grip athlete's forearms, a weightlifter's legs and the lower back its pulls load.
+export const SPORT_FOCUS_GROUPS: Readonly<Record<string, readonly MuscleGroupId[]>> = Object.freeze({ grip_sport: ["forearms_grip"], olympic_weightlifting: ["quads", "glutes", "lower_back"] });
 
 // The muscle fields an exercise option carries in every picker's list: the
 // groups it's filed under, and its target and secondary muscles by name.

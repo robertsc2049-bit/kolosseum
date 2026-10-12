@@ -65,6 +65,18 @@ test("logged volume uses the sport's focus groups from the server", () => {
   assert.equal(screen.queryByText("Very high - check recovery"), null, "a weightlifter's squat volume");
 });
 
+test("a pro's 28 sets of glutes in an accumulation block isn't flagged, but 32 is; an amateur's 28 is", () => {
+  const week = (sets: number, high_sets: number) => ({ window_days: 7, groups: [{ group: "glutes", label: "Glutes", sets }], high_sets });
+  render(<LoggedMuscleVolume weekly={week(28, 30)} />);
+  assert.equal(screen.queryByText("Very high - check recovery"), null, "pro, 28 sets");
+  cleanup();
+  render(<LoggedMuscleVolume weekly={week(32, 30)} />);
+  assert.ok(screen.getByText("Very high - check recovery"), "pro, 32 sets");
+  cleanup();
+  render(<LoggedMuscleVolume weekly={week(28, 25)} />);
+  assert.ok(screen.getByText("Very high - check recovery"), "amateur, 28 sets");
+});
+
 test("progress insights show what the athlete actually logged over the last 7 days", () => {
   render(<LoggedMuscleVolume weekly={{ window_days: 7, groups: [{ group: "quads", label: "Quads", sets: 12 }, { group: "chest", label: "Chest", sets: 4.5 }] }} />);
   assert.ok(screen.getByText(/Sets per muscle group, last 7 days: Quads 12 · Chest 4\.5/u));
