@@ -7339,7 +7339,8 @@
         "triathlon",
         "rugby_league",
         "street_lifting",
-        "grip_sport"
+        "grip_sport",
+        "crossfit"
       ],
       "contraindication_or_exclusion_tags": [],
       "substitution_eligibility": "eligible",

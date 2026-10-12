@@ -154,6 +154,14 @@ test("athlete level: the CrossFit AMRAP group survives at every level", () => {
   }
 });
 
+test("athlete level: a CrossFit beginner does banded pull-ups, knee raises and single-unders, not strict pull-ups, toes-to-bar and double-unders", () => {
+  const beginner = plan("crossfit", "beginner").map((x) => x.exercise_id);
+  for (const rx of ["pull_up", "toes_to_bar", "double_under"]) assert.ok(!beginner.includes(rx), `beginner gets ${rx}`);
+  for (const scaled of ["band_assisted_pull_up", "hanging_knee_raise", "jump_rope"]) assert.ok(beginner.includes(scaled), `beginner missing ${scaled}`);
+  const amateur = plan("crossfit", "amateur").map((x) => x.exercise_id);
+  for (const rx of ["pull_up", "toes_to_bar", "double_under"]) assert.ok(amateur.includes(rx), `amateur keeps ${rx}`);
+});
+
 // Carries, sleds, sprints, runs and static holds are dosed by distance or time;
 // "4 x 1 rep" of a yoke walk is not a prescription an athlete can execute.
 const DISTANCE_OR_TIME = /carry|sled|sprint|acceleration|_run$|yoke_walk|static_hold/;
