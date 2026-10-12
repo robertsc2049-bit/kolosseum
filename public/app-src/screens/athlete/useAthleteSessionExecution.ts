@@ -58,6 +58,7 @@ async function postOrQueue(sessionId: string, event: JsonRecord, csrfToken: stri
 
 const OFFLINE_STEP_MESSAGE = "No connection. Your sets and ratings are saved on this phone - finish this step when you're back online.";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
+import { keepScreenOn, playRestCompleteCue as playRestCue, unlockRestAudio } from "../../utils/sessionDevice";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
 // startSession()/postSessionEvent()/loadSessionState()/
@@ -337,44 +338,22 @@ export function useAthleteSessionExecution() {
     setState((current) => ({ ...current, restRemainingSeconds: null, restDone: false }));
   }, []);
 
-  const playRestCompleteCue = useCallback(() => {
-    try {
-      if (typeof navigator.vibrate === "function") navigator.vibrate([180, 80, 180]);
-    }
-    catch {
-      // Vibration is a best-effort cue; ignore if unsupported or blocked.
-    }
-
-    try {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const context = new AudioContextClass();
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = 880;
-      gain.gain.setValueAtTime(0.15, context.currentTime);
-      oscillator.connect(gain);
-      gain.connect(context.destination);
-      oscillator.start();
-      oscillator.stop(context.currentTime + 0.4);
-      oscillator.onended = () => context.close();
-    }
-    catch {
-      // AudioContext can be blocked pre-interaction in some browsers; the
-      // visual done-state is the primary cue, this is a best-effort extra.
-    }
-  }, []);
+  const playRestCompleteCue = useCallback(() => playRestCue(), []);
 
   const startRestTimer = useCallback((totalSeconds: number) => {
     if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
     if (restTimeoutRef.current !== null) clearTimeout(restTimeoutRef.current);
 
+    // Count down to a fixed end time, not by ticks: a phone throttles timers
+    // when the screen dims, and the rest must still end on time.
+    const endsAt = Date.now() + totalSeconds * 1000;
     let remaining = totalSeconds;
     setState((current) => ({ ...current, restRemainingSeconds: remaining, restDone: false }));
 
     restIntervalRef.current = setInterval(() => {
-      remaining -= 1;
+      const left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+      if (left === remaining) return;
+      remaining = left;
 
       if (remaining <= 0) {
         if (restIntervalRef.current !== null) clearInterval(restIntervalRef.current);
@@ -388,8 +367,21 @@ export function useAthleteSessionExecution() {
       }
 
       setState((current) => ({ ...current, restRemainingSeconds: remaining }));
-    }, 1000);
+    }, 250);
   }, [playRestCompleteCue]);
+
+  // While a session is under way: keep the screen on, and unlock the rest
+  // cue's audio on the athlete's taps (iOS only plays sound started by one).
+  const sessionRunning = state.sessionId !== null && String(state.sessionState?.execution_status ?? "") === "in_progress";
+  useEffect(() => {
+    if (!sessionRunning) return undefined;
+    const release = keepScreenOn();
+    document.addEventListener("pointerdown", unlockRestAudio);
+    return () => {
+      release();
+      document.removeEventListener("pointerdown", unlockRestAudio);
+    };
+  }, [sessionRunning]);
 
   const maybeStartRestTimer = useCallback((sessionState: JsonRecord | null) => {
     const exercise = currentStepExercise(sessionState);

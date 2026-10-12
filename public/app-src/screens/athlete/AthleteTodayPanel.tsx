@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { loadTrainingWeek } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { InstallAppPrompt } from "../../components/InstallAppPrompt";
 import { type DayItem, type ExerciseOption, TrainingDayEditor, newDayItem, toExerciseOption } from "../../components/TrainingDayEditor";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { useAthleteToday } from "./useAthleteToday";
@@ -294,6 +295,8 @@ export function AthleteTodaySessionCard() {
           </ul>
         </div>
       ) : null}
+
+      <InstallAppPrompt />
     </div>
   );
 }
