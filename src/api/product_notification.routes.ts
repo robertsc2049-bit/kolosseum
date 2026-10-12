@@ -2,6 +2,7 @@
 // exactly like every other account-scoped surface (product_account.routes.ts) -
 // this file never accepts a caller-supplied recipient id.
 
+import { rateLimit } from "express-rate-limit";
 import {
   Router,
   type NextFunction,
@@ -187,6 +188,9 @@ productNotificationRouter.use(
 
 // --- Web Push: notifications on this phone (product_push_service.ts) -------
 
+// A phone turns notifications on or off a handful of times at most.
+const pushSubscriptionRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
+
 function rethrowPushError(error: unknown): never {
   if (error instanceof ProductPushError) {
     throw error.status === 409
@@ -208,6 +212,7 @@ productNotificationRouter.get(
 
 productNotificationRouter.post(
   "/notifications/push/subscribe",
+  pushSubscriptionRateLimit,
   asyncHandler(async (request, response) => {
     const token = sessionToken(request);
     assertMutationAuthorised(request, token);
@@ -224,6 +229,7 @@ productNotificationRouter.post(
 
 productNotificationRouter.post(
   "/notifications/push/unsubscribe",
+  pushSubscriptionRateLimit,
   asyncHandler(async (request, response) => {
     const token = sessionToken(request);
     assertMutationAuthorised(request, token);
