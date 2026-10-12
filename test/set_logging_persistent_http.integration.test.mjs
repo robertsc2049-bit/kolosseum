@@ -345,6 +345,7 @@ test(
     // in full, the muscles a squat only assists at half a set each.
     const volume = Object.fromEntries(insights.json.insights.weekly_muscle_volume.groups.map((g) => [g.group, g.sets]));
     assert.equal(insights.json.insights.weekly_muscle_volume.window_days, 7);
+    assert.equal(insights.json.insights.weekly_muscle_volume.high_sets, 25, "an amateur lifter is flagged above 25 sets; a pro above 30");
     assert.equal(volume.quads, 3);
     assert.equal(volume.glutes, 3);
     assert.equal(volume.adductors, 1.5);

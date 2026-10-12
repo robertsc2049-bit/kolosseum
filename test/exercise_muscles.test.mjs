@@ -85,9 +85,9 @@ test("a plank counts for the trunk only, never as half a set of glutes or should
   assert.deepEqual(exerciseMuscleFields(plank, "core_anti_extension").secondary_muscle_groups, []);
 });
 
-test("a grip athlete's forearms and a weightlifter's legs are the sport, not a warning", () => {
+test("a grip athlete's forearms and a weightlifter's legs and lower back are the sport, not a warning", () => {
   assert.deepEqual([...SPORT_FOCUS_GROUPS.grip_sport], ["forearms_grip"]);
-  assert.deepEqual([...SPORT_FOCUS_GROUPS.olympic_weightlifting], ["quads", "glutes"]);
+  assert.deepEqual([...SPORT_FOCUS_GROUPS.olympic_weightlifting], ["quads", "glutes", "lower_back"]);
   const client = fs.readFileSync("public/app-src/utils/muscleGroups.ts", "utf8");
   for (const [sport, groups] of Object.entries(SPORT_FOCUS_GROUPS)) assert.ok(client.includes(`${sport}: ${JSON.stringify(groups).replace(/,/gu, ", ")}`), `the app's copy has ${sport}`);
 });
