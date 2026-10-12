@@ -3,7 +3,7 @@
 // suitability, risk or recommendation is inferred here.
 
 import { getAthleteEquipment } from "./athlete_equipment_service.js";
-import { CUSTOM_EXERCISE_PREFIX, cycleModelFor, describeProgrammeSlots, isCustomExerciseId, repeatOf, type SlotListing } from "@kolosseum/engine/phases/phase4.js";
+import { CUSTOM_EXERCISE_PREFIX, cycleModelFor, describeProgrammeSlots, isCustomExerciseId, repeatOf, type SlotListing, type TrainingCycle } from "@kolosseum/engine/phases/phase4.js";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -1045,9 +1045,31 @@ async function latestExerciseChoices(client: QueryClient, userId: string): Promi
 
 // The athlete's programme as it stands today (sport, level, event, training
 // days), or null before they have declared a sport.
-function programmeSlotsFor(declared: Fields, selections: Record<string, string> = {}, availableEquipment: string[] | null = null): SlotListing[] | null {
+// Where the athlete is in their plan right now, so the doses they choose from
+// are this week's - the same cycle their next session is built from. The
+// cycle service imports this module, so it's loaded on use.
+async function currentTrainingCycle(userId: string): Promise<TrainingCycle | null> {
+  try {
+    const { trainingCycleForAthlete } = await import("./training_cycle_service.js");
+    const cycle = await trainingCycleForAthlete(userId);
+    if (!cycle) return null;
+    const { reentry: _reentry, ...rest } = cycle;
+    return rest;
+  }
+  catch {
+    return null;
+  }
+}
+
+// "This week" for the choices screen: the plan phase and the week of its 4-week wave.
+function thisWeek(cycle: TrainingCycle | null): Json | null {
+  return cycle ? { macro_phase: cycle.macro_phase, meso_week: cycle.meso_week } : null;
+}
+
+function programmeSlotsFor(declared: Fields, selections: Record<string, string> = {}, availableEquipment: string[] | null = null, trainingCycle: TrainingCycle | null = null): SlotListing[] | null {
   if (!declared.activity_id) return null;
   return describeProgrammeSlots({
+    ...(trainingCycle ? { training_cycle: trainingCycle } : {}),
     activity_id: declared.activity_id,
     experience_level: declared.experience_level,
     competition_event: declared.activity_id === COMPETITION_EVENT_ACTIVITY ? declared.competition_event : undefined,
@@ -1123,9 +1145,10 @@ export async function getAthleteProgrammeExercises(userId: string): Promise<Read
   try {
     const declared = await currentDeclaredFields(client, userId);
     const saved = await latestExerciseChoices(client, userId);
-    const days = declared ? programmeSlotsFor(declared, saved.selections, await getAthleteEquipment(userId)) : null;
+    const cycle = declared ? await currentTrainingCycle(userId) : null;
+    const days = declared ? programmeSlotsFor(declared, saved.selections, await getAthleteEquipment(userId), cycle) : null;
     if (!declared || !days) return Object.freeze({ status: "no_programme", days: [], selections: {}, open_slot_count: 0, missing_slot_ids: [], complete: false, all_exercises: [], custom_exercises: [] });
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, saved.custom_exercises) });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(days, saved.custom_exercises), this_week: thisWeek(cycle) });
   }
   finally { client.release(); }
 }
@@ -1143,6 +1166,7 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
   const incoming = input.selections as Json;
   const incomingCustom = input.custom_exercises;
   if (incomingCustom !== undefined && !Array.isArray(incomingCustom)) fail("custom_exercises", "Your own exercises must be a list.");
+  const cycle = await currentTrainingCycle(userId);
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
@@ -1176,7 +1200,7 @@ export async function saveAthleteProgrammeExercises(userId: string, input: unkno
     const at = new Date().toISOString();
     await append(client, userId, EXERCISE_SELECTIONS_EVENT, { selections: clean, custom_exercises: custom, saved_at_iso8601: at, schema_version: "exercise_selections_v2" }, at);
     await client.query("COMMIT");
-    return Object.freeze({ status: "ok", ...projectExerciseChoices(programmeSlotsFor(declared, clean) as SlotListing[], custom) });
+    return Object.freeze({ status: "ok", ...projectExerciseChoices(programmeSlotsFor(declared, clean, null, cycle) as SlotListing[], custom), this_week: thisWeek(cycle) });
   }
   catch (error) {
     await client.query("ROLLBACK").catch(() => undefined);
