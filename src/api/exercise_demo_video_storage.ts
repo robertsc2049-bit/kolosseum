@@ -59,18 +59,29 @@ async function isVideoFile(filePath: string): Promise<boolean> {
 
 export type PendingDemoUpload = Readonly<{ stagedFilePath: string; byteSize: number }>;
 
+// The staged file's path is rebuilt from the staging directory and the name
+// multer generated for it (above) - never used as given - so nothing outside
+// the staging directory can be read or removed.
+const STAGED_NAME = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.upload$/u;
+function stagedPath(file: { path: string }): string {
+  const name = path.basename(String(file.path));
+  if (!STAGED_NAME.test(name)) throw new ExerciseDemoUploadError("demo_video_file_required");
+  return path.join(STAGING_DIR, name);
+}
+
 export async function validateStagedDemoUpload(file: { path: string } | undefined): Promise<PendingDemoUpload> {
   if (!file) throw new ExerciseDemoUploadError("demo_video_file_required");
-  if (!(await isVideoFile(file.path))) {
-    await fs.promises.rm(file.path, { force: true }).catch(() => {});
+  const stagedFilePath = stagedPath(file);
+  if (!(await isVideoFile(stagedFilePath))) {
+    await fs.promises.rm(stagedFilePath, { force: true }).catch(() => {});
     throw new ExerciseDemoUploadError("demo_video_type_unsupported");
   }
-  const stat = await fs.promises.stat(file.path);
+  const stat = await fs.promises.stat(stagedFilePath);
   if (stat.size > MAX_VIDEO_BYTES) {
-    await fs.promises.rm(file.path, { force: true }).catch(() => {});
+    await fs.promises.rm(stagedFilePath, { force: true }).catch(() => {});
     throw new ExerciseDemoUploadError("demo_video_too_large");
   }
-  return Object.freeze({ stagedFilePath: file.path, byteSize: stat.size });
+  return Object.freeze({ stagedFilePath, byteSize: stat.size });
 }
 
 export async function discardStagedDemoUpload(pending: PendingDemoUpload | null | undefined): Promise<void> {
