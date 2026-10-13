@@ -63,9 +63,9 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
 
   const authCallCount = [...routes.matchAll(/authenticatedAdmin\(request,\s*(?:false|true)\)/gu)].length;
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
-  // once: 22 routes total, minus the 2 unauthenticated sign-in/sign-out
+  // once: 23 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 20, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 21, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -197,7 +197,7 @@ test("a repeated correlation_id replays the existing audit record instead of rep
   // same transaction as the mutation and the audit write - returning the
   // existing record as a replay rather than performing the mutation again.
   const replayCallCount = [...actionService.matchAll(/if \(existingAudit\) return toAuditOutcome\(existingAudit, true\);/gu)].length;
-  assert.equal(replayCallCount, 5, "each of the 5 mutating actions must check for and replay an existing audit record");
+  assert.equal(replayCallCount, 6, "each of the 6 mutating actions must check for and replay an existing audit record");
 });
 
 test("confirmed operational actions require an explicit second confirmation click before the request is sent", () => {
