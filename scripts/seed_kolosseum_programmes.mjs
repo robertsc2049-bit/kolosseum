@@ -14,6 +14,12 @@
 // --publish (local testing only): also completes, activates and lists each
 // programme, and sets which programme each one offers next. Programmes the
 // author already has (same name) are skipped.
+//
+// --refresh-drafts: brings the author's existing DRAFTS up to date with the
+// programme content (e.g. warm-ups and cool-downs added since they were
+// seeded) - but only a draft nobody has saved since it was seeded. A draft
+// the author has edited is left as is and listed, as is anything already
+// completed or active.
 
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 import { templateBody } from "../product/programmes/programme_template_body.mjs";
@@ -22,6 +28,7 @@ const base = (process.env.KOLOSSEUM_BASE_URL || "http://localhost:3000").replace
 const email = process.env.KOLOSSEUM_AUTHOR_EMAIL;
 const password = process.env.KOLOSSEUM_AUTHOR_PASSWORD;
 const publish = process.argv.includes("--publish");
+const refreshDrafts = process.argv.includes("--refresh-drafts");
 if (!email || !password) {
   console.error("Set KOLOSSEUM_AUTHOR_EMAIL and KOLOSSEUM_AUTHOR_PASSWORD (the catalogue author's account).");
   process.exit(1);
@@ -57,10 +64,40 @@ const unknown = new Set();
 for (const p of PROGRAMMES) for (const b of p.blocks) for (const w of b.weeks) for (const s of w) for (const i of s.items) if (!registry.has(i.id)) unknown.add(`${p.key}: ${i.id}`);
 if (unknown.size) throw new Error(`Exercises the builder doesn't offer:\n${[...unknown].join("\n")}`);
 
-const existing = new Set(((await call("GET", `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`)).templates ?? []).map((t) => t.template_name));
+// A draft nobody has saved since it was seeded still has its updated time
+// equal to its created time; any save in the builder moves it on.
+function untouchedSinceSeeded(template) {
+  const created = Date.parse(template.created_at_iso8601 ?? "");
+  const updated = Date.parse(template.updated_at_iso8601 ?? "");
+  return Number.isFinite(created) && Number.isFinite(updated) && Math.abs(updated - created) < 2000;
+}
+
+const libraryTemplates = (await call("GET", `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`)).templates ?? [];
+const existing = new Map(libraryTemplates.map((t) => [t.template_name, t]));
+const edited = [];
 for (const programme of PROGRAMMES) {
-  if (existing.has(programme.template_name)) {
-    console.log(`skip  ${programme.template_name} (already in this library)`);
+  const current = existing.get(programme.template_name);
+  if (current) {
+    const body = templateBody(programme, coachUserId);
+    if (!refreshDrafts) {
+      console.log(`skip  ${programme.template_name} (already in this library)`);
+    }
+    else if (current.template_status !== "draft") {
+      console.log(`skip  ${programme.template_name} (${current.template_status} - only drafts are refreshed)`);
+    }
+    else if (!untouchedSinceSeeded(current)) {
+      edited.push(programme.template_name);
+      console.log(`keep  ${programme.template_name} (you've edited it - left as is)`);
+    }
+    else {
+      await call("POST", "/templates", {
+        ...body,
+        template_id: current.template_id,
+        template_family_id: current.template_family_id,
+        template_version: current.template_version
+      });
+      console.log(`fresh ${programme.template_name} (brought up to date)`);
+    }
     continue;
   }
   const saved = await call("POST", "/templates", templateBody(programme, coachUserId));
@@ -77,6 +114,11 @@ for (const programme of PROGRAMMES) {
   else {
     console.log(`draft ${programme.template_name} (${sessions} sessions) - review it in the builder, then activate and publish`);
   }
+}
+
+if (edited.length) {
+  console.log(`
+${edited.length} draft(s) you've edited were left as is. To get the latest content for one, delete or rename it and run this again.`);
 }
 
 // What each programme offers when an athlete finishes it (listing.next).
