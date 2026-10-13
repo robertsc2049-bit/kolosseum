@@ -26,6 +26,7 @@ import {
   changeOrgOwnerSupportRequestStatus,
   changeSupportRequestStatus,
   AdminActionError,
+  eraseAccountForDeletionRequest,
   setTestAccountMarking
 } from "./product_admin_action_service.js";
 import {
@@ -233,6 +234,26 @@ productAdminRouter.get(
     await authenticatedAdmin(request, false);
     const requests = await listAdminDataDeletionRequests(request.query.user_id);
     return response.status(200).json({ requests });
+  })
+);
+
+// GDPR erasure: carry out a reviewed athlete/coach deletion request
+// (product_admin_action_service.ts eraseAccountForDeletionRequest). Irreversible;
+// the admin app asks for a typed confirmation first.
+const dataErasureRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
+
+productAdminRouter.post(
+  "/data-rights/deletions/:deletion_request_id/erase",
+  dataErasureRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    try {
+      const outcome = await eraseAccountForDeletionRequest(admin.user_id, String(request.body?.correlation_id ?? ""), String(request.params.deletion_request_id));
+      return response.status(200).json({ ok: true, audit: outcome });
+    }
+    catch (error) {
+      return rethrowActionError(error);
+    }
   })
 );
 

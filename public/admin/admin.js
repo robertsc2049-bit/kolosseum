@@ -576,14 +576,46 @@ function renderDataRightsReview() {
   const deletionRequests = filteredDeletionRequests();
   for (const request of deletionRequests) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>`;
+    const eraseCell = request.queue_status === "completed"
+      ? `<td class="muted">Erased</td>`
+      : `<td><button type="button" class="confirm" data-erase-request="${escapeHtml(request.deletion_request_id)}" data-erase-user="${escapeHtml(request.user_id)}">Erase</button></td>`;
+    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
     deletionsBody.appendChild(row);
   }
   if (state.dataRightsDeletions.length > 0 && deletionRequests.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="5" class="muted">No deletion requests match.</td>`;
+    emptyRow.innerHTML = `<td colspan="6" class="muted">No deletion requests match.</td>`;
     deletionsBody.appendChild(emptyRow);
   }
+}
+
+// GDPR erasure of a reviewed deletion request. Irreversible, so the admin
+// types the account's user id to confirm. Training sessions, billing and
+// terms acceptances are kept (no longer linked to anyone); everything else
+// of theirs - data and files - is deleted.
+async function eraseDeletionRequest(deletionRequestId, userId) {
+  const typed = window.prompt(
+    `Erase account ${userId}?
+
+This permanently deletes their profile, messages, photos, videos, notifications and other personal data, and anonymises the training, billing and terms records that are kept. It can't be undone.
+
+Type the user id to confirm:`
+  );
+  if (typed === null) return;
+  if (typed.trim() !== userId) {
+    window.alert("The user id didn't match - nothing was erased.");
+    return;
+  }
+  try {
+    const result = await api("POST", `/admin/data-rights/deletions/${encodeURIComponent(deletionRequestId)}/erase`, { correlation_id: generateCorrelationId() });
+    const removed = result.audit?.files_removed;
+    window.alert(`Erased ${userId}.${removed && removed.failed ? ` ${removed.failed} file(s) couldn't be removed - check the server.` : ""}`);
+  }
+  catch (error) {
+    window.alert(error.message === "admin_deletion_request_already_erased" ? "That request has already been erased." : `Couldn't erase: ${error.message}`);
+  }
+  await refreshDataRightsReview();
+  await refreshAuditRecords();
 }
 
 async function refreshOrgOwnerDataRightsReview() {
@@ -735,6 +767,10 @@ async function removeExerciseDemoVideo(exerciseId) {
 }
 
 el("adminSignInForm").addEventListener("submit", signIn);
+el("deletionRequestsList").addEventListener("click", (event) => {
+  const button = event.target?.closest?.("[data-erase-request]");
+  if (button) eraseDeletionRequest(button.dataset.eraseRequest, button.dataset.eraseUser).catch(console.error);
+});
 el("exerciseDemoVideoForm").addEventListener("submit", (event) => saveExerciseDemoVideo(event).catch(console.error));
 el("exerciseDemoVideoList").addEventListener("click", (event) => {
   const exerciseId = event.target?.dataset?.removeDemo;

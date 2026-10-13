@@ -1838,7 +1838,8 @@ CREATE TABLE IF NOT EXISTS product_admin_audit_records (
         'test_account_marked',
         'test_account_unmarked',
         'support_request_status_change',
-        'org_owner_support_request_status_change'
+        'org_owner_support_request_status_change',
+        'data_deletion_executed'
       )
     ),
   target_record_type    TEXT NOT NULL,
@@ -2838,3 +2839,21 @@ ALTER TABLE product_exercise_demo_videos
 ALTER TABLE product_exercise_demo_videos
   ADD CONSTRAINT product_exercise_demo_videos_video_id_check
     CHECK (char_length(video_id) BETWEEN 1 AND 64);
+
+-- GDPR erasure (gdpr_erasure_service.ts): an admin carrying out a reviewed
+-- deletion request is audited as data_deletion_executed. Widens the existing
+-- action_type check for databases created before it.
+ALTER TABLE product_admin_audit_records
+  DROP CONSTRAINT IF EXISTS product_admin_audit_records_action_type_check;
+ALTER TABLE product_admin_audit_records
+  ADD CONSTRAINT product_admin_audit_records_action_type_check
+  CHECK (
+    action_type IN (
+      'account_state_change',
+      'test_account_marked',
+      'test_account_unmarked',
+      'support_request_status_change',
+      'org_owner_support_request_status_change',
+      'data_deletion_executed'
+    )
+  );

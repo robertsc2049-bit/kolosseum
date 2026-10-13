@@ -5934,7 +5934,8 @@
           "route_id": null,
           "api_routes": [
             "/admin/data-rights/exports",
-            "/admin/data-rights/deletions"
+            "/admin/data-rights/deletions",
+            "/admin/data-rights/deletions/:deletion_request_id/erase"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8890,6 +8891,12 @@
     {
       "method": "GET",
       "path": "/admin/data-rights/deletions",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/data-rights/deletions/:deletion_request_id/erase",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

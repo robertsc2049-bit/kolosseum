@@ -13,6 +13,7 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
+import { type ErasureCounts, eraseUserData, eraseUserFiles } from "./gdpr_erasure_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -458,3 +459,60 @@ export async function changeOrgOwnerSupportRequestStatus(
     });
   });
 }
+
+// GDPR erasure: carry out a queued athlete/coach deletion request after the
+// admin has reviewed it (gdpr_erasure_service.ts says exactly what is deleted
+// and kept). One transaction: the person's data is deleted, the account left
+// as a tombstone, every open deletion request of theirs completed, and an
+// audit record written - then their files are removed. Repeating the same
+// correlation id replays the audit; an already-erased request is refused.
+export async function eraseAccountForDeletionRequest(
+  adminUserId: string,
+  correlationId: string,
+  deletionRequestId: string
+): Promise<AuditOutcome & Readonly<{ files_removed?: ErasureCounts }>> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanRequestId = cleanString(deletionRequestId);
+  if (!cleanCorrelationId || !cleanRequestId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+
+  let files: Awaited<ReturnType<typeof eraseUserData>>["files"] | null = null;
+  const outcome = await withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const request = await client.query(
+      `SELECT deletion_request_id, user_id, queue_status FROM data_deletion_requests WHERE deletion_request_id = $1 FOR UPDATE`,
+      [cleanRequestId]
+    );
+    const row = request.rows[0];
+    if (!row) throw new AdminActionError("admin_deletion_request_not_found", 404);
+    if (cleanString(row.queue_status) === "completed") throw new AdminActionError("admin_deletion_request_already_erased", 409);
+    const userId = cleanString(row.user_id);
+
+    const account = await client.query(`SELECT actor_type, account_state FROM product_accounts WHERE user_id = $1 FOR UPDATE`, [userId]);
+    if (!account.rows[0]) throw new AdminActionError("admin_account_not_found", 404);
+
+    const erased = await eraseUserData(client, userId);
+    files = erased.files;
+    await client.query(
+      `UPDATE data_deletion_requests SET queue_status = 'completed' WHERE user_id = $1 AND queue_status <> 'completed'`,
+      [userId]
+    );
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "data_deletion_executed",
+      targetRecordType: "data_deletion_requests",
+      targetRecordId: cleanRequestId,
+      beforeState: { queue_status: cleanString(row.queue_status), account_state: cleanString(account.rows[0].account_state), actor_type: cleanString(account.rows[0].actor_type) },
+      afterState: { queue_status: "completed", account_state: "deleted", erased_user_id: userId, deleted: erased.counts }
+    });
+  });
+
+  if (!files) return outcome;
+  return Object.freeze({ ...outcome, files_removed: await eraseUserFiles(files) });
+}
+
