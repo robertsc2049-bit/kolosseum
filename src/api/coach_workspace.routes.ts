@@ -4,6 +4,14 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 
 import { asyncHandler } from "./async_handler.js";
+import { authenticatedCoach } from "./coach_session_auth.js";
+import {
+  ExerciseDemoVideoError,
+  listExerciseDemoVideos,
+  removeExerciseDemoVideo,
+  setExerciseDemoVideo
+} from "./exercise_demo_video_service.js";
+import { badRequest, notFound } from "./http_errors.js";
 import {
   acceptAthleteRelationshipInvitationHandler,
   createAthleteProfileAssignment,
@@ -218,4 +226,56 @@ coachWorkspaceRouter.post(
 coachWorkspaceRouter.get(
   "/org-context/mine",
   asyncHandler(getAthleteOrgContextHandler)
+);
+
+// A coach's own exercise demo videos (exercise_demo_video_service.ts): a
+// YouTube/Vimeo link shown to them and their athletes instead of the default.
+const exerciseDemoVideoRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+function rethrowDemoVideoError(error: unknown): never {
+  if (error instanceof ExerciseDemoVideoError) {
+    throw error.status === 404
+      ? notFound(error.message, { failure_token: error.message })
+      : badRequest(error.message, { failure_token: error.message });
+  }
+  throw error;
+}
+
+coachWorkspaceRouter.get(
+  "/exercise-demo-videos",
+  exerciseDemoVideoRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    return res.status(200).json({ ok: true, demo_videos: await listExerciseDemoVideos(coachUserId) });
+  })
+);
+
+coachWorkspaceRouter.put(
+  "/exercise-demo-videos/:exercise_id",
+  exerciseDemoVideoRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try {
+      const demo = await setExerciseDemoVideo(String(req.params.exercise_id), coachUserId, coachUserId, req.body?.video_url);
+      return res.status(200).json({ ok: true, demo_video: demo });
+    }
+    catch (error) {
+      return rethrowDemoVideoError(error);
+    }
+  })
+);
+
+coachWorkspaceRouter.delete(
+  "/exercise-demo-videos/:exercise_id",
+  exerciseDemoVideoRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    await removeExerciseDemoVideo(String(req.params.exercise_id), coachUserId);
+    return res.status(200).json({ ok: true });
+  })
 );

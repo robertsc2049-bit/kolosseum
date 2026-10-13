@@ -43,6 +43,12 @@ import {
   searchAdminOrgOwnerAccounts
 } from "./product_admin_review_service.js";
 import { badRequest, conflict, notFound } from "./http_errors.js";
+import {
+  ExerciseDemoVideoError,
+  listExerciseDemoVideos,
+  removeExerciseDemoVideo,
+  setExerciseDemoVideo
+} from "./exercise_demo_video_service.js";
 
 export const productAdminRouter = Router();
 
@@ -346,6 +352,50 @@ productAdminRouter.get(
     await authenticatedAdmin(request, false);
     const records = await listAdminAuditRecords(request.query.user_id);
     return response.status(200).json({ records });
+  })
+);
+
+// --- Platform default exercise demo videos (exercise_demo_video_service.ts):
+// what athletes without a coach demo see.
+
+const exerciseDemoAdminRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+
+productAdminRouter.get(
+  "/exercise-demo-videos",
+  exerciseDemoAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    return response.status(200).json({ ok: true, demo_videos: await listExerciseDemoVideos(null) });
+  })
+);
+
+productAdminRouter.put(
+  "/exercise-demo-videos/:exercise_id",
+  exerciseDemoAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    try {
+      const demo = await setExerciseDemoVideo(String(request.params.exercise_id), null, admin.user_id, request.body?.video_url);
+      return response.status(200).json({ ok: true, demo_video: demo });
+    }
+    catch (error) {
+      if (error instanceof ExerciseDemoVideoError) {
+        throw error.status === 404
+          ? notFound(error.message, { failure_token: error.message })
+          : badRequest(error.message, { failure_token: error.message });
+      }
+      throw error;
+    }
+  })
+);
+
+productAdminRouter.delete(
+  "/exercise-demo-videos/:exercise_id",
+  exerciseDemoAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, true);
+    await removeExerciseDemoVideo(String(request.params.exercise_id), null);
+    return response.status(200).json({ ok: true });
   })
 );
 

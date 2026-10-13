@@ -77,6 +77,7 @@ function showWorkspace() {
   el("dataRightsReviewSection").hidden = false;
   el("orgOwnerDataRightsReviewSection").hidden = false;
   el("auditSection").hidden = false;
+  el("exerciseDemoVideoSection").hidden = false;
 
   refreshCommercialRecords();
   refreshSupportRequests();
@@ -84,6 +85,7 @@ function showWorkspace() {
   refreshDataRightsReview();
   refreshOrgOwnerDataRightsReview();
   refreshAuditRecords();
+  refreshExerciseDemoVideos().catch(console.error);
 }
 
 async function signIn(event) {
@@ -682,7 +684,62 @@ function renderAuditRecords() {
   }
 }
 
+// Platform default exercise demo videos (src/api/exercise_demo_video_service.ts).
+async function refreshExerciseDemoVideos() {
+  const result = await api("GET", "/admin/exercise-demo-videos");
+  const tbody = el("exerciseDemoVideoList");
+  tbody.innerHTML = "";
+  const demos = result.demo_videos ?? [];
+  for (const demo of demos) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${escapeHtml(demo.exercise_id)}</td>
+      <td><a href="${escapeHtml(demo.watch_url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(demo.provider)}: ${escapeHtml(demo.video_id)}</a></td>
+      <td><button type="button" data-remove-demo="${escapeHtml(demo.exercise_id)}">Remove</button></td>
+    `;
+    tbody.appendChild(row);
+  }
+  if (demos.length === 0) {
+    const emptyRow = document.createElement("tr");
+    emptyRow.innerHTML = `<td colspan="3" class="muted">No default demos set yet.</td>`;
+    tbody.appendChild(emptyRow);
+  }
+}
+
+function showDemoVideoResult(text) {
+  el("exerciseDemoVideoResult").textContent = text;
+  el("exerciseDemoVideoResult").hidden = false;
+}
+
+async function saveExerciseDemoVideo(event) {
+  event.preventDefault();
+  const exerciseId = el("exerciseDemoVideoExerciseId").value.trim();
+  try {
+    await api("PUT", `/admin/exercise-demo-videos/${encodeURIComponent(exerciseId)}`, { video_url: el("exerciseDemoVideoUrl").value.trim() });
+    showDemoVideoResult(`Default demo set for ${exerciseId}.`);
+    el("exerciseDemoVideoUrl").value = "";
+    await refreshExerciseDemoVideos();
+  }
+  catch (error) {
+    showDemoVideoResult(error.message === "exercise_not_found" ? `No exercise with id ${exerciseId}.`
+      : error.message === "demo_video_link_invalid" ? "That isn't a YouTube or Vimeo video link."
+      : `Couldn't save: ${error.message}`);
+  }
+}
+
+async function removeExerciseDemoVideo(exerciseId) {
+  if (!window.confirm(`Remove the default demo for ${exerciseId}?`)) return;
+  await api("DELETE", `/admin/exercise-demo-videos/${encodeURIComponent(exerciseId)}`);
+  showDemoVideoResult(`Removed the default demo for ${exerciseId}.`);
+  await refreshExerciseDemoVideos();
+}
+
 el("adminSignInForm").addEventListener("submit", signIn);
+el("exerciseDemoVideoForm").addEventListener("submit", (event) => saveExerciseDemoVideo(event).catch(console.error));
+el("exerciseDemoVideoList").addEventListener("click", (event) => {
+  const exerciseId = event.target?.dataset?.removeDemo;
+  if (exerciseId) removeExerciseDemoVideo(exerciseId).catch(console.error);
+});
 el("adminSignOutButton").addEventListener("click", signOut);
 el("accountSearchForm").addEventListener("submit", searchAccounts);
 el("accountToggleStateButton").addEventListener("click", requestAccountStateToggle);

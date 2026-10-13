@@ -18,6 +18,7 @@ import {
   type ProgrammeWeekDraft,
   type ProgrammeWorkItemDraft
 } from "./programmeDraft";
+import { CoachDemoVideoEditor } from "./CoachDemoVideoEditor";
 import { useExerciseHowto } from "./useExerciseHowto";
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
 
@@ -591,7 +592,10 @@ function BuilderWorkItem({
         {howto.expanded && workItem.exercise_id && howto.status === "loading" ? <p className="muted">Loading…</p> : null}
         {howto.expanded && workItem.exercise_id && howto.status === "error" ? <p className="muted">Instructions could not be loaded right now.</p> : null}
         {howto.expanded && workItem.exercise_id && howto.status === "loaded" && howto.result ? (
-          <ExerciseHowtoBody content={howto.result.content} referenceMedia={howto.result.referenceMedia} respectDensity={false} />
+          <>
+            <ExerciseHowtoBody content={howto.result.content} referenceMedia={howto.result.referenceMedia} respectDensity={false} />
+            <CoachDemoVideoEditor key={workItem.exercise_id} exerciseId={workItem.exercise_id} referenceMedia={howto.result.referenceMedia} onChanged={howto.reloadReferenceMedia} />
+          </>
         ) : null}
       </div>
       <div className="template-prescription-grid">

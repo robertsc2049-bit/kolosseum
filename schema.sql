@@ -2795,3 +2795,27 @@ CREATE TABLE IF NOT EXISTS product_push_subscriptions (
 CREATE INDEX IF NOT EXISTS
   idx_product_push_subscriptions_user
 ON product_push_subscriptions (user_id);
+
+-- Exercise demo videos (exercise_demo_video_service.ts): a coach's own demo
+-- for an exercise (coach_user_id set - shown to them and their athletes) or
+-- the platform default (coach_user_id NULL, set by an admin). A YouTube or
+-- Vimeo video id, played through the provider's embed player.
+CREATE TABLE IF NOT EXISTS product_exercise_demo_videos (
+  demo_key        TEXT PRIMARY KEY,
+  exercise_id     TEXT NOT NULL
+    CHECK (char_length(exercise_id) BETWEEN 1 AND 200),
+  coach_user_id   TEXT
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  provider        TEXT NOT NULL
+    CHECK (provider IN ('youtube', 'vimeo')),
+  video_id        TEXT NOT NULL
+    CHECK (char_length(video_id) BETWEEN 1 AND 20),
+  set_by_user_id  TEXT NOT NULL,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_exercise_demo_videos_exercise
+ON product_exercise_demo_videos (exercise_id);
