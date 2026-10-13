@@ -63,9 +63,9 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
 
   const authCallCount = [...routes.matchAll(/authenticatedAdmin\(request,\s*(?:false|true)\)/gu)].length;
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
-  // once: 19 routes total, minus the 2 unauthenticated sign-in/sign-out
+  // once: 22 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 17, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 20, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -439,7 +439,7 @@ test("every new interactive admin control is a real focusable button/form, not a
 
 test("every table in the founder/admin surface is wrapped in a horizontally-scrollable container, so wide tables scroll instead of squashing illegibly on narrow viewports", () => {
   const tableOpenTags = [...html.matchAll(/<table\b[^>]*>/gu)];
-  assert.equal(tableOpenTags.length, 12, "expected exactly 12 <table> elements in the admin surface");
+  assert.equal(tableOpenTags.length, 13, "expected exactly 13 <table> elements in the admin surface");
 
   // Every <table> must be the very first thing inside a div.table-scroll
   // wrapper - not just present somewhere on the page - so a future table

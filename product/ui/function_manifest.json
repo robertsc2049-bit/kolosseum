@@ -5956,7 +5956,9 @@
           ],
           "route_id": null,
           "api_routes": [
-            "/admin/audit-records"
+            "/admin/audit-records",
+            "/admin/exercise-demo-videos",
+            "/admin/exercise-demo-videos/:exercise_id"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -7524,7 +7526,9 @@
           ],
           "route_id": null,
           "api_routes": [
-            "/exercises/:exercise_id/reference-media"
+            "/exercises/:exercise_id/reference-media",
+            "/coach-workspace/exercise-demo-videos",
+            "/coach-workspace/exercise-demo-videos/:exercise_id"
           ],
           "persistence": "server_registry_read",
           "state": "implemented",
@@ -8894,6 +8898,24 @@
     },
     {
       "method": "GET",
+      "path": "/admin/exercise-demo-videos",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "PUT",
+      "path": "/admin/exercise-demo-videos/:exercise_id",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "DELETE",
+      "path": "/admin/exercise-demo-videos/:exercise_id",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
       "path": "/admin/org-owner-accounts",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
@@ -9413,6 +9435,24 @@
       "path": "/exercises/:exercise_id/reference-media",
       "source": "src/api/exercise_reference_media.routes.ts",
       "tracked_by_area": "exercise_reference_media"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/exercise-demo-videos",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "PUT",
+      "path": "/coach-workspace/exercise-demo-videos/:exercise_id",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "DELETE",
+      "path": "/coach-workspace/exercise-demo-videos/:exercise_id",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
     },
     {
       "method": "GET",

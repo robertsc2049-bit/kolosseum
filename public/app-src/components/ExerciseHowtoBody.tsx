@@ -14,6 +14,20 @@ import { type JsonRecord } from "../api/transport";
 // preference - the coach's call site passes respectDensity={false} to
 // always see full content regardless of any athlete's setting, matching
 // legacy's respectDensity parameter.
+// Only the providers' own embed players are framed (exercise_demo_video_service.ts).
+const EMBED_URL = /^https:\/\/(www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}|player\.vimeo\.com\/video\/[0-9]{6,12})(\?[^"<>\s]*)?$/u;
+
+export function demoEmbedUrl(referenceMedia: JsonRecord | null): string {
+  const url = typeof referenceMedia?.embed_url === "string" ? referenceMedia.embed_url : "";
+  return EMBED_URL.test(url) ? url : "";
+}
+
+const DEMO_SOURCE_LABEL: Record<string, string> = {
+  coach_entered: "Your coach's demo",
+  admin_entered: "Demo video",
+  curated: "Demo video"
+};
+
 export function ExerciseHowtoBody({
   content,
   referenceMedia,
@@ -29,6 +43,7 @@ export function ExerciseHowtoBody({
   const cues = density !== "minimal" && Array.isArray(content?.coaching_cues) ? (content.coaching_cues as string[]) : [];
   const faults = density === "detailed" && Array.isArray(content?.common_faults) ? (content.common_faults as string[]) : [];
   const videoUrl = typeof referenceMedia?.video_url === "string" ? referenceMedia.video_url : "";
+  const embedUrl = demoEmbedUrl(referenceMedia);
 
   if (!detailedSteps.length && !cues.length && !faults.length && !videoUrl) {
     return <p className="muted">No written instructions are available for this exercise yet.</p>;
@@ -57,7 +72,22 @@ export function ExerciseHowtoBody({
           </ul>
         </>
       ) : null}
-      {videoUrl ? (
+      {embedUrl ? (
+        <>
+          <p className="exercise-howto-heading">{DEMO_SOURCE_LABEL[String(referenceMedia?.source ?? "")] ?? "Demo video"}</p>
+          <div className="exercise-demo-video">
+            <iframe
+              src={embedUrl}
+              title="Exercise demo video"
+              loading="lazy"
+              allow="encrypted-media; picture-in-picture; fullscreen"
+              allowFullScreen
+              referrerPolicy="strict-origin-when-cross-origin"
+            />
+          </div>
+          <a className="exercise-reference-media-link small" href={videoUrl} target="_blank" rel="noopener noreferrer">Open in {referenceMedia?.provider === "vimeo" ? "Vimeo" : "YouTube"}</a>
+        </>
+      ) : videoUrl ? (
         <>
           <p className="exercise-howto-heading">Reference video</p>
           <a className="exercise-reference-media-link" href={videoUrl} target="_blank" rel="noopener noreferrer">

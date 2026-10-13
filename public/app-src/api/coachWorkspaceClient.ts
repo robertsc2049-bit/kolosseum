@@ -470,3 +470,13 @@ export function saveProgrammeCatalogueListing(
 ): Promise<JsonRecord> {
   return request("PUT", `/templates/${encodeURIComponent(templateId)}/catalogue-listing`, input, csrfToken);
 }
+
+// A coach's own demo video for an exercise (a YouTube or Vimeo link), shown
+// to them and their athletes in place of the default.
+export async function setMyExerciseDemoVideo(exerciseId: string, videoUrl: string, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", `/coach-workspace/exercise-demo-videos/${encodeURIComponent(exerciseId)}`, { video_url: videoUrl }, csrfToken);
+}
+
+export async function removeMyExerciseDemoVideo(exerciseId: string, csrfToken: string): Promise<void> {
+  await request("DELETE", `/coach-workspace/exercise-demo-videos/${encodeURIComponent(exerciseId)}`, undefined, csrfToken);
+}

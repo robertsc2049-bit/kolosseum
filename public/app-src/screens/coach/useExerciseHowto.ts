@@ -63,5 +63,17 @@ export function useExerciseHowto(exerciseId: string) {
     }
   }
 
-  return { expanded, status, result, toggle: () => { toggle().catch(() => {}); } };
+  // A coach changed this exercise's demo: show it now, and in every other
+  // work item using the same exercise when next opened.
+  async function reloadReferenceMedia() {
+    if (!exerciseId) return;
+    const referenceMediaResult = await loadExerciseReferenceMedia(exerciseId).catch(() => null);
+    const referenceMedia = (referenceMediaResult?.reference_media as JsonRecord | undefined) ?? null;
+    const cached = howtoCache.get(exerciseId);
+    const next = { content: cached?.content ?? result?.content ?? {}, referenceMedia };
+    howtoCache.set(exerciseId, next);
+    setResult(next);
+  }
+
+  return { expanded, status, result, toggle: () => { toggle().catch(() => {}); }, reloadReferenceMedia };
 }

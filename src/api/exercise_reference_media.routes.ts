@@ -19,6 +19,7 @@ import {
   resolveProductSession
 } from "./product_account_service.js";
 import { forbidden, unauthorized } from "./http_errors.js";
+import { resolveExerciseDemoVideo } from "./exercise_demo_video_service.js";
 import { cookieValue } from "./coach_session_auth.js";
 import {
   ExerciseReferenceMediaError,
@@ -39,7 +40,7 @@ function asyncHandler(handler: AsyncHandler) {
   };
 }
 
-async function authenticatedAthleteOrCoach(request: Request): Promise<void> {
+async function authenticatedAthleteOrCoach(request: Request): Promise<Readonly<{ userId: string; actorType: string }>> {
   const rawToken = cookieValue(request, PRODUCT_SESSION_COOKIE);
   if (!rawToken) {
     throw unauthorized("ACCOUNT_SESSION_REQUIRED", { failure_token: "account_session_missing" });
@@ -50,6 +51,7 @@ async function authenticatedAthleteOrCoach(request: Request): Promise<void> {
     if (session.account_row.actor_type !== "athlete" && session.account_row.actor_type !== "coach") {
       throw forbidden("ACCOUNT_ACTION_DENIED", { failure_token: "athlete_or_coach_account_required" });
     }
+    return Object.freeze({ userId: session.account_row.user_id, actorType: session.account_row.actor_type });
   }
   catch (error) {
     if (error instanceof ProductAccountError) {
@@ -65,9 +67,18 @@ async function authenticatedAthleteOrCoach(request: Request): Promise<void> {
 exerciseReferenceMediaRouter.get(
   "/:exercise_id/reference-media",
   asyncHandler(async (request, response) => {
-    await authenticatedAthleteOrCoach(request);
+    const viewer = await authenticatedAthleteOrCoach(request);
     const result = await getExerciseReferenceMedia(String(request.params.exercise_id));
-    return response.status(200).json({ ok: true, ...result });
+    // The demo this viewer sees: their coach's, else the platform default,
+    // else the curated video (exercise_demo_video_service.ts).
+    const demo = await resolveExerciseDemoVideo(result.exercise_id, viewer);
+    return response.status(200).json({
+      ok: true,
+      exercise_id: result.exercise_id,
+      reference_media: demo
+        ? { video_url: demo.video_url, embed_url: demo.embed_url, provider: demo.provider, source: demo.source }
+        : null
+    });
   })
 );
 

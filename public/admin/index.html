@@ -250,6 +250,23 @@
     </div>
   </section>
 
+  <section id="exerciseDemoVideoSection" hidden>
+    <h2>Exercise demo videos</h2>
+    <p class="muted">The default demo for an exercise - what every athlete sees unless their coach has set their own. A YouTube or Vimeo link; it plays inside the app. Exercises without one fall back to the curated video, if any.</p>
+    <form id="exerciseDemoVideoForm">
+      <label>Exercise id<br /><input id="exerciseDemoVideoExerciseId" type="text" required placeholder="e.g. back_squat" /></label><br />
+      <label>Video link<br /><input id="exerciseDemoVideoUrl" type="url" required placeholder="https://www.youtube.com/watch?v=..." /></label><br />
+      <button type="submit">Set default demo</button>
+    </form>
+    <p id="exerciseDemoVideoResult" class="muted" hidden></p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Exercise</th><th>Video</th><th></th></tr></thead>
+        <tbody id="exerciseDemoVideoList"></tbody>
+      </table>
+    </div>
+  </section>
+
   <script type="module" src="/admin/admin.js"></script>
 </body>
 </html>
