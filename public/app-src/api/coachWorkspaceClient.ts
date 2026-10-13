@@ -480,3 +480,21 @@ export async function setMyExerciseDemoVideo(exerciseId: string, videoUrl: strin
 export async function removeMyExerciseDemoVideo(exerciseId: string, csrfToken: string): Promise<void> {
   await request("DELETE", `/coach-workspace/exercise-demo-videos/${encodeURIComponent(exerciseId)}`, undefined, csrfToken);
 }
+
+// A coach's own clip of the exercise (MP4/MOV, up to 75MB).
+export async function uploadMyExerciseDemoVideo(exerciseId: string, file: File, csrfToken: string): Promise<JsonRecord> {
+  const formData = new FormData();
+  formData.append("video", file);
+  const response = await fetch(`/coach-workspace/exercise-demo-videos/${encodeURIComponent(exerciseId)}/upload`, {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "x-kolosseum-csrf": csrfToken },
+    body: formData
+  });
+  const payload = (await response.json().catch(() => ({}))) as JsonRecord;
+  if (!response.ok) {
+    const details = payload.details as JsonRecord | undefined;
+    throw new ApiRequestError(String(details?.failure_token ?? payload.error ?? "demo_video_upload_failed"), response.status, payload);
+  }
+  return payload;
+}

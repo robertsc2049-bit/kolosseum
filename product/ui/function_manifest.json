@@ -7528,7 +7528,10 @@
           "api_routes": [
             "/exercises/:exercise_id/reference-media",
             "/coach-workspace/exercise-demo-videos",
-            "/coach-workspace/exercise-demo-videos/:exercise_id"
+            "/coach-workspace/exercise-demo-videos/:exercise_id",
+            "/coach-workspace/exercise-demo-videos/:exercise_id/upload",
+            "/exercises/:exercise_id/demo-uploads/:upload_id",
+            "/exercises/:exercise_id/demo-uploads/:upload_id/poster"
           ],
           "persistence": "server_registry_read",
           "state": "implemented",
@@ -9438,6 +9441,18 @@
     },
     {
       "method": "GET",
+      "path": "/exercises/:exercise_id/demo-uploads/:upload_id",
+      "source": "src/api/exercise_reference_media.routes.ts",
+      "tracked_by_area": "exercise_reference_media"
+    },
+    {
+      "method": "GET",
+      "path": "/exercises/:exercise_id/demo-uploads/:upload_id/poster",
+      "source": "src/api/exercise_reference_media.routes.ts",
+      "tracked_by_area": "exercise_reference_media"
+    },
+    {
+      "method": "GET",
       "path": "/coach-workspace/exercise-demo-videos",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
@@ -9759,6 +9774,12 @@
       "path": "/coach-workspace/athlete-position-change-proposal",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "relationships"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/exercise-demo-videos/:exercise_id/upload",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
     }
   ],
   "completion_rules": [

@@ -2819,3 +2819,22 @@ CREATE TABLE IF NOT EXISTS product_exercise_demo_videos (
 CREATE INDEX IF NOT EXISTS
   idx_product_exercise_demo_videos_exercise
 ON product_exercise_demo_videos (exercise_id);
+
+-- Exercise demo video uploads: a coach's own clip (provider 'upload',
+-- video_id = the upload's id, files under var/exercise-demo-videos). The
+-- table above already exists in databases created before uploads, so the
+-- new columns and the widened checks are applied explicitly.
+ALTER TABLE product_exercise_demo_videos ADD COLUMN IF NOT EXISTS storage_key TEXT;
+ALTER TABLE product_exercise_demo_videos ADD COLUMN IF NOT EXISTS poster_key TEXT;
+
+ALTER TABLE product_exercise_demo_videos
+  DROP CONSTRAINT IF EXISTS product_exercise_demo_videos_provider_check;
+ALTER TABLE product_exercise_demo_videos
+  ADD CONSTRAINT product_exercise_demo_videos_provider_check
+    CHECK (provider IN ('youtube', 'vimeo', 'upload'));
+
+ALTER TABLE product_exercise_demo_videos
+  DROP CONSTRAINT IF EXISTS product_exercise_demo_videos_video_id_check;
+ALTER TABLE product_exercise_demo_videos
+  ADD CONSTRAINT product_exercise_demo_videos_video_id_check
+    CHECK (char_length(video_id) BETWEEN 1 AND 64);

@@ -20,7 +20,8 @@ import {
   resolveProductSession
 } from "./product_account_service.js";
 import { forbidden, unauthorized } from "./http_errors.js";
-import { resolveExerciseDemoVideo } from "./exercise_demo_video_service.js";
+import { demoUploadForViewer, resolveExerciseDemoVideo } from "./exercise_demo_video_service.js";
+import { resolveDemoUploadPath, sendDemoUploadFile } from "./exercise_demo_video_storage.js";
 import { cookieValue } from "./coach_session_auth.js";
 import {
   ExerciseReferenceMediaError,
@@ -82,10 +83,41 @@ exerciseReferenceMediaRouter.get(
       ok: true,
       exercise_id: result.exercise_id,
       reference_media: demo
-        ? { video_url: demo.video_url, embed_url: demo.embed_url, provider: demo.provider, source: demo.source }
+        ? {
+          video_url: demo.video_url,
+          embed_url: demo.embed_url,
+          provider: demo.provider,
+          source: demo.source,
+          ...(demo.poster_url ? { poster_url: demo.poster_url } : {})
+        }
         : null
     });
   })
+);
+
+// A coach's uploaded demo clip and its poster frame - served only to a
+// viewer whose demo for this exercise resolves to exactly this upload (the
+// coach and their athletes). Range requests are answered, so phones can play
+// and seek it.
+async function sendDemoUpload(request: Request, response: Response, part: "video" | "poster"): Promise<unknown> {
+  const viewer = await authenticatedAthleteOrCoach(request);
+  const upload = await demoUploadForViewer(String(request.params.exercise_id), String(request.params.upload_id), viewer);
+  const key = part === "video" ? upload?.storage_key : upload?.poster_key;
+  const filePath = key ? resolveDemoUploadPath(key) : null;
+  if (!filePath) return response.status(404).json({ error: "demo_upload_not_found" });
+  return sendDemoUploadFile(response, filePath, part === "video" ? "video/mp4" : "image/jpeg");
+}
+
+exerciseReferenceMediaRouter.get(
+  "/:exercise_id/demo-uploads/:upload_id",
+  referenceMediaRateLimit,
+  asyncHandler((request, response) => sendDemoUpload(request, response, "video"))
+);
+
+exerciseReferenceMediaRouter.get(
+  "/:exercise_id/demo-uploads/:upload_id/poster",
+  referenceMediaRateLimit,
+  asyncHandler((request, response) => sendDemoUpload(request, response, "poster"))
 );
 
 exerciseReferenceMediaRouter.use(

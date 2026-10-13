@@ -1,6 +1,6 @@
 // DEV NOTE: BETA-19 coach programme workspace routes.
 
-import { Router } from "express";
+import { Router, type NextFunction, type Request, type Response } from "express";
 import { rateLimit } from "express-rate-limit";
 
 import { asyncHandler } from "./async_handler.js";
@@ -9,8 +9,16 @@ import {
   ExerciseDemoVideoError,
   listExerciseDemoVideos,
   removeExerciseDemoVideo,
+  setExerciseDemoUpload,
   setExerciseDemoVideo
 } from "./exercise_demo_video_service.js";
+import {
+  ExerciseDemoUploadError,
+  discardStagedDemoUpload,
+  exerciseDemoUpload,
+  finalizeDemoUpload,
+  validateStagedDemoUpload
+} from "./exercise_demo_video_storage.js";
 import { badRequest, notFound } from "./http_errors.js";
 import {
   acceptAthleteRelationshipInvitationHandler,
@@ -238,7 +246,7 @@ const exerciseDemoVideoRateLimit = rateLimit({
 });
 
 function rethrowDemoVideoError(error: unknown): never {
-  if (error instanceof ExerciseDemoVideoError) {
+  if (error instanceof ExerciseDemoVideoError || error instanceof ExerciseDemoUploadError) {
     throw error.status === 404
       ? notFound(error.message, { failure_token: error.message })
       : badRequest(error.message, { failure_token: error.message });
@@ -277,5 +285,35 @@ coachWorkspaceRouter.delete(
     const coachUserId = await authenticatedCoach(req, true);
     await removeExerciseDemoVideo(String(req.params.exercise_id), coachUserId);
     return res.status(200).json({ ok: true });
+  })
+);
+
+// A coach's own clip of the exercise (MP4/MOV from their phone). The session
+// and CSRF are checked before the upload is accepted at all; a rejected or
+// failed upload never leaves its staged file behind.
+coachWorkspaceRouter.post(
+  "/exercise-demo-videos/:exercise_id/upload",
+  exerciseDemoVideoRateLimit,
+  (req: Request, res: Response, next: NextFunction) => {
+    authenticatedCoach(req, true).then((coachUserId) => {
+      res.locals.coachUserId = coachUserId;
+      next();
+    }, next);
+  },
+  exerciseDemoUpload.single("video"),
+  asyncHandler(async (req, res) => {
+    const staged = req.file ? { path: req.file.path } : undefined;
+    let pending = null;
+    try {
+      pending = await validateStagedDemoUpload(staged);
+      const stored = await finalizeDemoUpload(pending);
+      pending = null;
+      const demo = await setExerciseDemoUpload(String(req.params.exercise_id), String(res.locals.coachUserId), stored);
+      return res.status(201).json({ ok: true, demo_video: demo });
+    }
+    catch (error) {
+      await discardStagedDemoUpload(pending);
+      return rethrowDemoVideoError(error);
+    }
   })
 );

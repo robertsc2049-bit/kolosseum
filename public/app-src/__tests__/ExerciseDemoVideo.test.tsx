@@ -80,3 +80,53 @@ test("a coach with their own demo can remove it", async () => {
   await waitFor(() => assert.ok(screen.getByText("Removed - your athletes see the default demo.")));
   assert.deepEqual(deletes, ["/coach-workspace/exercise-demo-videos/back_squat"]);
 });
+
+test("a coach's own uploaded clip plays in the app's own player, with its poster frame", () => {
+  const url = "/exercises/sled_push/demo-uploads/0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d";
+  const { container } = render(<ExerciseHowtoBody content={content} referenceMedia={{ video_url: url, poster_url: `${url}/poster`, provider: "upload", source: "coach_entered" }} />);
+  const video = container.querySelector("video");
+  assert.equal(video?.getAttribute("src"), url);
+  assert.equal(video?.getAttribute("poster"), `${url}/poster`);
+  assert.ok(video?.hasAttribute("playsinline"), "plays inline on an iPhone, not full screen");
+  assert.equal(container.querySelector("iframe"), null);
+});
+
+test("an 'upload' that points anywhere but the app's own clip route is never played", () => {
+  const { container } = render(<ExerciseHowtoBody content={content} referenceMedia={{ video_url: "https://evil.example/clip.mp4", provider: "upload", source: "coach_entered" }} />);
+  assert.equal(container.querySelector("video"), null);
+});
+
+test("a coach uploads a clip from their phone; a file that isn't a video gets a plain message", async () => {
+  const posts: string[] = [];
+  let reject = true;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const json = (status: number, body: unknown) => ({ ok: status < 400, status, json: async () => body, text: async () => JSON.stringify(body) }) as Response;
+    if (path === "/account/detail") return json(200, { csrf_token: "csrf-1" });
+    posts.push(path);
+    assert.ok(init?.body instanceof FormData);
+    if (reject) return json(400, { ok: false, error: "demo_video_type_unsupported", details: { failure_token: "demo_video_type_unsupported" } });
+    return json(201, { ok: true });
+  }) as typeof fetch;
+  let changed = 0;
+  const { container } = render(<CoachDemoVideoEditor exerciseId="sled_push" referenceMedia={null} onChanged={() => { changed++; }} />);
+  const input = container.querySelector("input[type=file]") as HTMLInputElement;
+  const file = new File([new Uint8Array([0, 0, 0, 24])], "push.mov", { type: "video/quicktime" });
+
+  await act(async () => { fireEvent.change(input, { target: { files: [file] } }); });
+  await waitFor(() => assert.ok(screen.getByText("That file isn't a video. Upload an MP4 or MOV from your phone.")));
+  assert.equal(changed, 0);
+
+  reject = false;
+  await act(async () => { fireEvent.change(input, { target: { files: [file] } }); });
+  await waitFor(() => assert.ok(screen.getByText("Uploaded - your athletes see your clip.")));
+  assert.equal(changed, 1);
+  assert.deepEqual(posts, ["/coach-workspace/exercise-demo-videos/sled_push/upload", "/coach-workspace/exercise-demo-videos/sled_push/upload"]);
+});
+
+test("a coach showing their uploaded clip is told so and can remove it", () => {
+  render(<CoachDemoVideoEditor exerciseId="sled_push" referenceMedia={{ video_url: "/exercises/sled_push/demo-uploads/0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d", provider: "upload", source: "coach_entered" }} onChanged={() => {}} />);
+  assert.ok(screen.getByText(/You're showing your uploaded clip\./u));
+  assert.ok(screen.getByText("Remove my demo"));
+  assert.equal((screen.getByPlaceholderText("https://youtu.be/...") as HTMLInputElement).value, "", "the link box isn't filled with the clip's internal address");
+});

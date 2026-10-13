@@ -17,6 +17,14 @@ import { type JsonRecord } from "../api/transport";
 // Only the providers' own embed players are framed (exercise_demo_video_service.ts).
 const EMBED_URL = /^https:\/\/(www\.youtube-nocookie\.com\/embed\/[A-Za-z0-9_-]{11}|player\.vimeo\.com\/video\/[0-9]{6,12})(\?[^"<>\s]*)?$/u;
 
+// A coach's uploaded clip plays from the app's own authenticated route.
+const UPLOAD_URL = /^\/exercises\/[A-Za-z0-9_%-]+\/demo-uploads\/[0-9a-f-]{36}$/u;
+
+export function demoUploadUrl(referenceMedia: JsonRecord | null): string {
+  const url = referenceMedia?.provider === "upload" && typeof referenceMedia.video_url === "string" ? referenceMedia.video_url : "";
+  return UPLOAD_URL.test(url) ? url : "";
+}
+
 export function demoEmbedUrl(referenceMedia: JsonRecord | null): string {
   const url = typeof referenceMedia?.embed_url === "string" ? referenceMedia.embed_url : "";
   return EMBED_URL.test(url) ? url : "";
@@ -44,6 +52,8 @@ export function ExerciseHowtoBody({
   const faults = density === "detailed" && Array.isArray(content?.common_faults) ? (content.common_faults as string[]) : [];
   const videoUrl = typeof referenceMedia?.video_url === "string" ? referenceMedia.video_url : "";
   const embedUrl = demoEmbedUrl(referenceMedia);
+  const uploadUrl = demoUploadUrl(referenceMedia);
+  const posterUrl = uploadUrl && typeof referenceMedia?.poster_url === "string" && referenceMedia.poster_url === `${uploadUrl}/poster` ? referenceMedia.poster_url : undefined;
 
   if (!detailedSteps.length && !cues.length && !faults.length && !videoUrl) {
     return <p className="muted">No written instructions are available for this exercise yet.</p>;
@@ -72,7 +82,14 @@ export function ExerciseHowtoBody({
           </ul>
         </>
       ) : null}
-      {embedUrl ? (
+      {uploadUrl ? (
+        <>
+          <p className="exercise-howto-heading">{DEMO_SOURCE_LABEL[String(referenceMedia?.source ?? "")] ?? "Demo video"}</p>
+          <div className="exercise-demo-video">
+            <video src={uploadUrl} poster={posterUrl} controls playsInline preload="metadata" aria-label="Exercise demo video" />
+          </div>
+        </>
+      ) : embedUrl ? (
         <>
           <p className="exercise-howto-heading">{DEMO_SOURCE_LABEL[String(referenceMedia?.source ?? "")] ?? "Demo video"}</p>
           <div className="exercise-demo-video">
