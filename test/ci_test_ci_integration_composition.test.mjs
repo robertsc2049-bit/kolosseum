@@ -54,6 +54,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/pain_carry_forward_persistent_http.integration.test.mjs",
     "node test/pain_carry_forward_coach_persistent.integration.test.mjs",
     "node test/peak_timing_persistent.integration.test.mjs",
+    "node test/coach_review_self_directed_persistent.integration.test.mjs",
     "node test/ci_test_ci_integration_launch_03_account_access_manifest_file.test.mjs",
     "node test/ci_test_ci_integration_launch_03_account_access_manifest.test.mjs",
     "node test/launch_03_public_account_access.test.mjs",

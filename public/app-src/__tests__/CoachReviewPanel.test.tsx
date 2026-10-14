@@ -139,6 +139,23 @@ test("loads and displays a review record with the resolved athlete name and stat
   assert.ok(screen.getAllByText("Awaiting review").length > 0);
 });
 
+test("a session the athlete ran on their own is labelled self-directed, with no assignment", async () => {
+  installMocks({ records: [baseRecord({ self_directed: true, assignment_id: null, assignment_provenance: null, session_title: "Own squat day" })] });
+  render(<CoachReviewPanel />);
+
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Own squat day"]));
+  assert.ok(document.querySelector(".review-record-card")?.textContent?.includes("Self-directed"));
+  await waitFor(() => screen.getByText("None - the athlete ran this session themselves"));
+});
+
+test("an assigned session carries no self-directed label", async () => {
+  installMocks({});
+  render(<CoachReviewPanel />);
+
+  await waitFor(() => assert.deepEqual(cardTitles(), ["Upper body strength"]));
+  assert.ok(!document.querySelector(".review-record-card")?.textContent?.includes("Self-directed"));
+});
+
 test("search filters the list by athlete name and session title", async () => {
   installMocks({
     records: [
