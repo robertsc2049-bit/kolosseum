@@ -132,6 +132,43 @@ function relationshipRecord(
   return relationship;
 }
 
+// When the athlete accepted this coach; a self-directed session recorded
+// before then stays private to the athlete. Null when it isn't recorded.
+function acceptedAtMs(
+  relationship: JsonRecord
+): number | null {
+  const accepted =
+    new Date(
+      cleanString(
+        relationship.accepted_at_iso8601
+      )
+    ).getTime();
+
+  return Number.isFinite(accepted)
+    ? accepted
+    : null;
+}
+
+async function relationshipAthleteIds(
+  coachUserId: string
+): Promise<string[]> {
+  const result =
+    await pool.query(
+      `
+      SELECT DISTINCT subject_user_id
+      FROM beta_product_records
+      WHERE
+        record_type = 'beta17_coach_relationship'
+        AND actor_user_id = $1
+      `,
+      [coachUserId]
+    );
+
+  return result.rows
+    .map((row) => cleanString(row.subject_user_id))
+    .filter(Boolean);
+}
+
 async function requireAcceptedAccess(
   coachUserId: string,
   athleteUserId: string
@@ -452,8 +489,19 @@ async function listReviewRecords(
     );
   }
 
-  const values: string[] = [
-    coachUserId
+  // Self-directed sessions (no coach on the session) are included for the
+  // athletes this coach has a relationship record with; access and the
+  // accepted-since cut-off are checked per athlete below.
+  const connectedAthleteIds =
+    requestedAthleteId
+      ? [requestedAthleteId]
+      : await relationshipAthleteIds(
+          coachUserId
+        );
+
+  const values: unknown[] = [
+    coachUserId,
+    connectedAthleteIds
   ];
 
   let athleteClause = "";
@@ -464,7 +512,7 @@ async function listReviewRecords(
     );
 
     athleteClause =
-      "AND s.beta_subject_user_id = $2";
+      "AND s.beta_subject_user_id = $3";
   }
 
   const sessionResult =
@@ -476,6 +524,7 @@ async function listReviewRecords(
         s.status,
         s.planned_session,
         s.beta_subject_user_id,
+        s.beta_coach_user_id,
         s.beta_assignment_id,
         s.created_at,
         s.updated_at,
@@ -486,7 +535,13 @@ async function listReviewRecords(
         ON re.session_id =
           s.session_id
       WHERE
-        s.beta_coach_user_id = $1
+        (
+          s.beta_coach_user_id = $1
+          OR (
+            s.beta_coach_user_id IS NULL
+            AND s.beta_subject_user_id = ANY($2::text[])
+          )
+        )
         ${athleteClause}
       GROUP BY
         s.session_id,
@@ -494,6 +549,7 @@ async function listReviewRecords(
         s.status,
         s.planned_session,
         s.beta_subject_user_id,
+        s.beta_coach_user_id,
         s.beta_assignment_id,
         s.created_at,
         s.updated_at
@@ -504,8 +560,9 @@ async function listReviewRecords(
       values
     );
 
+  // athlete id -> the relationship's accepted_at (ms), or null without access.
   const accessCache =
-    new Map<string, boolean>();
+    new Map<string, number | null>();
 
   const accessibleRows:
     JsonRecord[] = [];
@@ -522,30 +579,40 @@ async function listReviewRecords(
 
     if (!accessCache.has(athleteUserId)) {
       try {
-        await requireAcceptedAccess(
-          coachUserId,
-          athleteUserId
-        );
+        const relationship =
+          await requireAcceptedAccess(
+            coachUserId,
+            athleteUserId
+          );
 
         accessCache.set(
           athleteUserId,
-          true
+          acceptedAtMs(relationship)
         );
       }
       catch {
         accessCache.set(
           athleteUserId,
-          false
+          null
         );
       }
     }
 
-    if (
-      accessCache.get(athleteUserId) ===
-      true
-    ) {
-      accessibleRows.push(row);
+    const acceptedAt =
+      accessCache.get(athleteUserId);
+
+    if (acceptedAt == null) {
+      continue;
     }
+
+    if (
+      !cleanString(row.beta_coach_user_id) &&
+      new Date(String(row.created_at)).getTime() < acceptedAt
+    ) {
+      continue;
+    }
+
+    accessibleRows.push(row);
   }
 
   const sessionIds =
@@ -670,6 +737,11 @@ async function listReviewRecords(
             .filter(Boolean),
         assignment_id:
           assignmentId || null,
+        // The athlete ran it themselves (no coach assignment).
+        self_directed:
+          !cleanString(
+            row.beta_coach_user_id
+          ),
         assignment_provenance:
           assignmentId
             ? assignments.get(
@@ -845,7 +917,8 @@ async function setSessionReview(
           session_id,
           status,
           beta_subject_user_id,
-          beta_coach_user_id
+          beta_coach_user_id,
+          created_at
         FROM sessions
         WHERE
           session_id = $1
@@ -863,10 +936,22 @@ async function setSessionReview(
       );
     }
 
-    if (
+    const sessionCoachId =
       cleanString(
         session.beta_coach_user_id
-      ) !== input.coach_user_id ||
+      );
+
+    const coachOwnsSession =
+      sessionCoachId ===
+        input.coach_user_id ||
+      (
+        !sessionCoachId &&
+        new Date(String(session.created_at)).getTime() >=
+          (acceptedAtMs(relationship) ?? Infinity)
+      );
+
+    if (
+      !coachOwnsSession ||
       cleanString(
         session.beta_subject_user_id
       ) !== input.athlete_user_id

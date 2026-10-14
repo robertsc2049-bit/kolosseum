@@ -125,6 +125,7 @@ function ReviewCard({
       </div>
       <div className="record-meta review-record-actions">
         <StatusBadge record={record} />
+        {record.self_directed === true ? <span className="badge neutral">Self-directed</span> : null}
         <span className="badge neutral">{notes} note{notes === 1 ? "" : "s"}</span>
         <button className="button secondary small-button" type="button" onClick={() => onSelect(String(record.session_id))}>View details</button>
         <ReviewActions record={record} compact marking={marking} onMark={onMark} onNote={onNote} />
@@ -245,7 +246,7 @@ function ReviewDetail({
           <section className="review-provenance">
           <h4>Provenance</h4>
           <dl className="review-fact-grid">
-            <div><dt>Assignment</dt><dd>{String(record.assignment_id || "Not recorded")}</dd></div>
+            <div><dt>Assignment</dt><dd>{record.self_directed === true ? "None - the athlete ran this session themselves" : String(record.assignment_id || "Not recorded")}</dd></div>
             <div><dt>Programme</dt><dd>{String(assignment.template_name ?? assignment.template_id ?? "Not recorded")}</dd></div>
             <div><dt>Programme version</dt><dd>{Number(assignment.template_version ?? 0) || "Not recorded"}</dd></div>
             <div><dt>Activity</dt><dd>{titleCase(assignment.activity_id ?? "not recorded")}</dd></div>
