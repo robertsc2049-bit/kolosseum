@@ -1,0 +1,12 @@
+# HTTPS in front of the app (docker-compose.prod.yml). Caddy gets and renews
+# a Let's Encrypt certificate for KOLOSSEUM_DOMAIN by itself; the domain's
+# DNS A record must point at this server and ports 80/443 must be open.
+# WebSockets (the realtime hub) are proxied as-is.
+{$KOLOSSEUM_DOMAIN} {
+	encode zstd gzip
+	# Uploaded videos are capped at 75MB by the app itself.
+	request_body {
+		max_size 100MB
+	}
+	reverse_proxy app:3000
+}

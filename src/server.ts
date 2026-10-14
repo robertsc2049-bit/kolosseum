@@ -48,8 +48,12 @@ import { apiErrorMiddleware } from "./api/error_middleware.js";
 import { initialiseErrorReporting } from "./v1ErrorReportingInitialisation.mjs";
 
 import { VERSION } from "./version.js";
+import { trustProxySetting } from "./trust_proxy.js";
 
 export const app = express();
+
+// See src/trust_proxy.ts.
+app.set("trust proxy", trustProxySetting(process.env.KOLOSSEUM_TRUST_PROXY));
 
 // S-V1-O-02: local, factual error-reporting initialisation only (no provider
 // SDK, no network transport - see src/v1ErrorReportingInitialisation.mjs).
