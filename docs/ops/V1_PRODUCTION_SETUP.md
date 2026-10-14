@@ -30,7 +30,7 @@ Apply the schema to your target database:
 node scripts/apply-schema.mjs
 ```
 
-This runs every `CREATE TABLE IF NOT EXISTS` / migration block in `schema.sql` against `DATABASE_URL`. It is idempotent - safe to re-run against an already-provisioned database when `schema.sql` changes.
+This runs every `CREATE TABLE IF NOT EXISTS` / migration block in `schema.sql` against `DATABASE_URL`. It is idempotent - safe to re-run against an already-provisioned database when `schema.sql` changes. A CHECK constraint widened over time is re-added NOT VALID in every version but its last, so re-applying never fails on rows a later version allows (`test/schema_reapply_safety.test.mjs`).
 
 ## 3. First founder/admin account
 
