@@ -228,7 +228,7 @@ ALTER TABLE beta_product_records
         'beta19_coach_event',
         'beta19_event_athlete_link'
       )
-    );
+    ) NOT VALID;
 
 
 -- beta_product_records_beta19_type_migration
@@ -252,7 +252,7 @@ ALTER TABLE beta_product_records
         'beta19_coach_event',
         'beta19_event_athlete_link'
       )
-    );
+    ) NOT VALID;
 
 
 -- beta_product_records_full_ui_28_type_migration
@@ -278,7 +278,7 @@ ALTER TABLE beta_product_records
         'beta19_event_athlete_link',
         'beta_progress_photo'
       )
-    );
+    ) NOT VALID;
 
 
 -- beta_product_records_full_ui_29_type_migration
@@ -309,7 +309,7 @@ ALTER TABLE beta_product_records
         'habit_definition',
         'habit_completion'
       )
-    );
+    ) NOT VALID;
 
 
 -- beta_product_records_full_ui_31_type_migration
@@ -347,7 +347,7 @@ ALTER TABLE beta_product_records
         'device_connection_record',
         'device_metric_entry'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_37_type_migration
 -- Additive FULL-UI-37 athlete goal-setting record. A goal is a low-frequency
@@ -386,7 +386,7 @@ ALTER TABLE beta_product_records
         'device_metric_entry',
         'athlete_goal'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_64_type_migration
 -- Additive FULL-UI-64 athlete weekly check-in record. A check-in is a
@@ -424,7 +424,7 @@ ALTER TABLE beta_product_records
         'athlete_goal',
         'weekly_checkin_entry'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_65_type_migration
 -- Additive FULL-UI-65 coach branding preference record. A brand
@@ -462,7 +462,7 @@ ALTER TABLE beta_product_records
         'weekly_checkin_entry',
         'coach_brand_preference'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_67_type_migration
 -- Additive FULL-UI-67 programme template marketplace visibility record.
@@ -500,7 +500,7 @@ ALTER TABLE beta_product_records
         'coach_brand_preference',
         'programme_template_sharing_preference'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_68_type_migration
 -- Additive FULL-UI-68 programme template release record. A release is a
@@ -539,7 +539,7 @@ ALTER TABLE beta_product_records
         'programme_template_sharing_preference',
         'programme_template_release'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_76_type_migration
 -- Additive FULL-UI-76 attendance events (a DIFFERENT, unrelated concept
@@ -585,7 +585,7 @@ ALTER TABLE beta_product_records
         'attendance_event_invite',
         'attendance_event_rsvp'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_83_type_migration
 -- Additive FULL-UI-83 athlete_activity_change_request. Tracks a single
@@ -631,7 +631,7 @@ ALTER TABLE beta_product_records
         'attendance_event_rsvp',
         'athlete_activity_change_request'
       )
-    );
+    ) NOT VALID;
 
 -- beta_product_records_full_ui_89_type_migration
 -- Additive FULL-UI-89 beta17_relationship_athlete_ended. A narrow marker
@@ -1107,7 +1107,7 @@ ALTER TABLE product_notifications
         'billing_action_required',
         'marketplace_template_released'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_71_type_migration
 -- Additive FULL-UI-71 weekly_checkin_submitted notification type - same
@@ -1136,7 +1136,7 @@ ALTER TABLE product_notifications
         'marketplace_template_released',
         'weekly_checkin_submitted'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_72_type_migration
 -- Additive FULL-UI-72 video_feedback_received notification type - same
@@ -1166,7 +1166,7 @@ ALTER TABLE product_notifications
         'weekly_checkin_submitted',
         'video_feedback_received'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_73_type_migration
 -- Additive FULL-UI-73 athlete_goal_achieved notification type - same
@@ -1197,7 +1197,7 @@ ALTER TABLE product_notifications
         'video_feedback_received',
         'athlete_goal_achieved'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_74_type_migration
 -- Additive FULL-UI-74 video_submitted notification type - same reason and
@@ -1229,7 +1229,7 @@ ALTER TABLE product_notifications
         'athlete_goal_achieved',
         'video_submitted'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_75_type_migration
 -- Additive FULL-UI-75 marketplace_template_sold notification type - same
@@ -1262,7 +1262,7 @@ ALTER TABLE product_notifications
         'video_submitted',
         'marketplace_template_sold'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_attendance_events_slice_5_type_migration
 -- Additive attendance-events slice 5 notification types
@@ -1300,7 +1300,7 @@ ALTER TABLE product_notifications
         'attendance_event_cancelled',
         'attendance_event_occurrence_changed'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_83_type_migration
 -- Additive FULL-UI-83 activity_change_proposed/activity_change_applied -
@@ -1342,7 +1342,7 @@ ALTER TABLE product_notifications
         'activity_change_proposed',
         'activity_change_applied'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_86_type_migration
 -- Additive FULL-UI-86 athlete_position_overridden - alerts the athlete when
@@ -1385,7 +1385,7 @@ ALTER TABLE product_notifications
         'activity_change_applied',
         'athlete_position_overridden'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_87_type_migration
 -- Additive FULL-UI-87 attendance_rsvp_declined - alerts the organizing
@@ -1430,7 +1430,7 @@ ALTER TABLE product_notifications
         'athlete_position_overridden',
         'attendance_rsvp_declined'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_88_type_migration
 -- Additive FULL-UI-88 activity_change_declined - alerts the proposing coach
@@ -1475,7 +1475,7 @@ ALTER TABLE product_notifications
         'attendance_rsvp_declined',
         'activity_change_declined'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_89_type_migration
 -- Additive FULL-UI-89 relationship_ended_by_athlete - alerts the coach when
@@ -1522,7 +1522,7 @@ ALTER TABLE product_notifications
         'activity_change_declined',
         'relationship_ended_by_athlete'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_90_type_migration
 -- Additive FULL-UI-90 coach_athlete_message_received / org_owner_message_received
@@ -1574,7 +1574,7 @@ ALTER TABLE product_notifications
         'coach_athlete_message_received',
         'org_owner_message_received'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_full_ui_91_recipient_fk_relaxation
 -- FULL-UI-91 gives org owners the same bell-notification capability
@@ -1645,7 +1645,7 @@ ALTER TABLE product_notifications
         'owner_message_received_from_coach',
         'owner_message_received_from_athlete'
       )
-    );
+    ) NOT VALID;
 
 -- product_notifications_pain_carry_forward_type_migration
 -- Additive athlete_pain_reported - alerts a coach when an athlete reports
@@ -1893,7 +1893,7 @@ BEGIN
           'support_request_status_change',
           'org_owner_support_request_status_change'
         )
-      );
+      ) NOT VALID;
   END IF;
 END;
 $$;
@@ -2212,7 +2212,7 @@ BEGIN
           'muay_thai', 'mma', 'tennis', 'triathlon', 'rugby_league',
           'street_lifting', 'grip_sport'
         )
-      );
+      ) NOT VALID;
   END IF;
 END;
 $$;
@@ -2411,7 +2411,7 @@ BEGIN
           'seat_plan_changed',
           'athlete_position_overridden'
         )
-      );
+      ) NOT VALID;
   END IF;
 END;
 $$;
@@ -2443,7 +2443,7 @@ BEGIN
           'seat_plan_changed',
           'athlete_position_overridden'
         )
-      );
+      ) NOT VALID;
   END IF;
 END;
 $$;
