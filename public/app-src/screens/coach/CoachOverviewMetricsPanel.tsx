@@ -1,5 +1,6 @@
 import React from "react";
 
+import { CoachOrgHandoverCard } from "./CoachOrgHandoverCard";
 import { useCoachOverviewMetrics } from "./useCoachOverviewMetrics";
 
 // DEV NOTE: see useCoachOverviewMetrics.ts. Field labels/order match the
@@ -11,6 +12,7 @@ export function CoachOverviewMetricsPanel() {
 
   return (
     <>
+      <CoachOrgHandoverCard />
       <article className="panel metric-card">
         <span>Connected athletes</span>
         <strong>{athleteCount}</strong>

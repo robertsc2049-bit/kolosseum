@@ -27,6 +27,8 @@ import {
   changeSupportRequestStatus,
   AdminActionError,
   eraseAccountForDeletionRequest,
+  eraseOrgOwnerForDeletionRequest,
+  getOrgOwnerErasurePlan,
   setTestAccountMarking
 } from "./product_admin_action_service.js";
 import {
@@ -417,6 +419,38 @@ productAdminRouter.delete(
     await authenticatedAdmin(request, true);
     await removeExerciseDemoVideo(String(request.params.exercise_id), null);
     return response.status(200).json({ ok: true });
+  })
+);
+
+// Org-owner GDPR erasure: the plan (each organisation the owner owns and its
+// active coaches) and the erase itself, handing each organisation to the
+// chosen coach or closing it (product_admin_action_service.ts).
+productAdminRouter.get(
+  "/org-owner-data-rights/deletions/:deletion_request_id/erase-plan",
+  dataErasureRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    try {
+      return response.status(200).json({ ok: true, plan: await getOrgOwnerErasurePlan(String(request.params.deletion_request_id)) });
+    }
+    catch (error) {
+      return rethrowActionError(error);
+    }
+  })
+);
+
+productAdminRouter.post(
+  "/org-owner-data-rights/deletions/:deletion_request_id/erase",
+  dataErasureRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    try {
+      const outcome = await eraseOrgOwnerForDeletionRequest(admin.user_id, String(request.body?.correlation_id ?? ""), String(request.params.deletion_request_id), request.body?.handovers);
+      return response.status(200).json({ ok: true, audit: outcome });
+    }
+    catch (error) {
+      return rethrowActionError(error);
+    }
   })
 );
 

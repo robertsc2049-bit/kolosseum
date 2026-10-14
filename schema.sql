@@ -2857,3 +2857,30 @@ ALTER TABLE product_admin_audit_records
       'data_deletion_executed'
     )
   );
+
+-- Org-owner erasure (gdpr_erasure_service.ts): an erased owner's
+-- organisation is handed to one of its active coaches, who takes it over
+-- from their own signed-in coach account (org_handover_service.ts) - only
+-- then does ownership move. NULL = no pending handover.
+ALTER TABLE product_organisations
+  ADD COLUMN IF NOT EXISTS handover_to_coach_user_id TEXT
+    REFERENCES product_accounts(user_id)
+    ON DELETE SET NULL;
+
+-- A coach taking over an organisation is audited as org_ownership_handed_over.
+ALTER TABLE product_org_audit_records
+  DROP CONSTRAINT IF EXISTS product_org_audit_records_action_type_check;
+ALTER TABLE product_org_audit_records
+  ADD CONSTRAINT product_org_audit_records_action_type_check
+  CHECK (
+    action_type IN (
+      'org_created',
+      'coach_invited',
+      'coach_membership_activated',
+      'coach_membership_removed',
+      'coach_membership_left',
+      'seat_plan_changed',
+      'athlete_position_overridden',
+      'org_ownership_handed_over'
+    )
+  );

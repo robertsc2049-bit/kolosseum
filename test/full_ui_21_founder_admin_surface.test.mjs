@@ -63,9 +63,9 @@ test("every admin-scoped read route requires authenticatedAdmin, and every mutat
 
   const authCallCount = [...routes.matchAll(/authenticatedAdmin\(request,\s*(?:false|true)\)/gu)].length;
   // Every route except sign-in/sign-out calls authenticatedAdmin exactly
-  // once: 23 routes total, minus the 2 unauthenticated sign-in/sign-out
+  // once: 25 routes total, minus the 2 unauthenticated sign-in/sign-out
   // routes.
-  assert.equal(authCallCount, 21, "every non-auth admin route must call authenticatedAdmin exactly once");
+  assert.equal(authCallCount, 23, "every non-auth admin route must call authenticatedAdmin exactly once");
 
   assert.match(routes, /authenticatedAdmin\(request, false\)/u);
   assert.match(routes, /authenticatedAdmin\(request, true\)/u);
@@ -97,11 +97,24 @@ test("no organisation, gym, team or roster ADMINISTRATION exists anywhere in thi
   }
   // "organisation" itself stays banned everywhere except the FULL-UI-80
   // read-only org-owner visibility layer (reviewService's organisations_owned
-  // read and its rendering in html/js) - identity/auth/action/routing files
-  // must still never reference it.
-  for (const source of [accountService, auth, actionService, routes]) {
+  // read and its rendering in html/js) and one narrow carve-out: carrying
+  // out an org owner's GDPR erasure, where the admin chooses which of the
+  // org's active coaches it is handed to (or it is closed). That section is
+  // cut out below and checked on its own - it may only read the plan and
+  // erase, never create, invite or manage a roster.
+  const withoutOrgOwnerErasure = (source, start, end) => {
+    const from = source.indexOf(start);
+    if (from < 0) return source;
+    const to = end ? source.indexOf(end, from) : source.length;
+    return source.slice(0, from) + source.slice(to < 0 ? source.length : to);
+  };
+  const actionOutside = withoutOrgOwnerErasure(actionService, "// Org-owner GDPR erasure:", null);
+  const routesOutside = withoutOrgOwnerErasure(routes, "// Org-owner GDPR erasure:", "// AdminAuthError is not an ApiError");
+  for (const source of [accountService, auth, actionOutside, routesOutside]) {
     assert.doesNotMatch(source, /organisation|organization/iu);
   }
+  const erasureSection = actionService.slice(actionService.indexOf("// Org-owner GDPR erasure:"));
+  assert.doesNotMatch(erasureSection, /INSERT INTO product_organisations|INSERT INTO product_org_coach_memberships|coach_invited|roster/iu, "the erasure carve-out never creates an org or manages its coaches");
 });
 
 test("account search, account-state review and coach entitlement/payment review are read-only cross-user queries", () => {
@@ -197,7 +210,7 @@ test("a repeated correlation_id replays the existing audit record instead of rep
   // same transaction as the mutation and the audit write - returning the
   // existing record as a replay rather than performing the mutation again.
   const replayCallCount = [...actionService.matchAll(/if \(existingAudit\) return toAuditOutcome\(existingAudit, true\);/gu)].length;
-  assert.equal(replayCallCount, 6, "each of the 6 mutating actions must check for and replay an existing audit record");
+  assert.equal(replayCallCount, 7, "each of the 7 mutating actions must check for and replay an existing audit record");
 });
 
 test("confirmed operational actions require an explicit second confirmation click before the request is sent", () => {

@@ -233,9 +233,20 @@
     <label>Search deletion requests<br /><input id="orgOwnerDeletionRequestsSearch" type="search" placeholder="Request ID, user ID, reason or status" /></label>
     <div class="table-scroll">
       <table>
-        <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th></tr></thead>
+        <thead><tr><th>Deletion request</th><th>User</th><th>Reason</th><th>Queue status</th><th>Requested</th><th>Erase</th></tr></thead>
         <tbody id="orgOwnerDeletionRequestsList"></tbody>
       </table>
+    </div>
+    <div id="orgOwnerErasePanel" hidden>
+      <h3>Erase org owner <span id="orgOwnerEraseUserId"></span></h3>
+      <p class="muted">Their account, sign-ins, messages they sent, support reports and requests are deleted. Each organisation they own is handed to the coach you choose - who takes it over from their own coach account - or closed if it has no active coach. Coaches' work, billing and the organisation's audit trail stay.</p>
+      <div id="orgOwnerEraseOrganisations"></div>
+      <label>Type the org owner's user id to confirm<br /><input id="orgOwnerEraseConfirm" type="text" autocomplete="off" /></label>
+      <p>
+        <button id="orgOwnerEraseSubmit" type="button" class="confirm">Erase</button>
+        <button id="orgOwnerEraseCancel" type="button">Cancel</button>
+      </p>
+      <p id="orgOwnerEraseResult" class="muted" hidden></p>
     </div>
   </section>
 
