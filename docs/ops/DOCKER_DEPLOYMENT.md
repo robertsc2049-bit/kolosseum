@@ -1,5 +1,10 @@
 # Docker deployment
 
+For a real internet-facing server use `docker-compose.prod.yml` and
+`docs/ops/IONOS_VPS_DEPLOYMENT.md` instead: it adds HTTPS, keeps the app and
+database off the internet, requires a real database password and backs up
+nightly. This page covers the plain local stack.
+
 Platform-agnostic local/self-hosted deployment via `Dockerfile` +
 `docker-compose.yml`. This works on any host that runs containers (a laptop,
 a VM, a self-managed server) - it does not commit to one hosting vendor.

@@ -1,0 +1,95 @@
+# DEV NOTE: Production stack for a single Linux server (e.g. an IONOS VPS) -
+# see docs/ops/IONOS_VPS_DEPLOYMENT.md. Differs from docker-compose.yml (local
+# use): Caddy terminates HTTPS in front of the app, the app and database are
+# not published to the internet, the database password comes from .env, every
+# production setting is passed through, and a backup service dumps the
+# database and uploads nightly.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: kolosseum
+    volumes:
+      - kolosseum-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Reachable only through Caddy - no published port.
+    expose:
+      - "3000"
+    # Uploaded progress photos, video submissions, message attachments and
+    # demo clips live under /app/var.
+    volumes:
+      - kolosseum-uploads:/app/var
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/kolosseum
+      # One proxy hop (Caddy) - per-user rate limits need the real client IP.
+      KOLOSSEUM_TRUST_PROXY: 1
+      KOLOSSEUM_PUBLIC_APP_URL: ${KOLOSSEUM_PUBLIC_APP_URL:?set KOLOSSEUM_PUBLIC_APP_URL in .env}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO: ${KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO:-}
+      KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM: ${KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_PLAN_ID: ${KOLOSSEUM_CONTROLLED_LAUNCH_PLAN_ID:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID: ${KOLOSSEUM_CONTROLLED_LAUNCH_PRICE_ID:-}
+      KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT: ${KOLOSSEUM_CONTROLLED_LAUNCH_SEAT_LIMIT:-}
+      KOLOSSEUM_PROGRAMME_AUTHORS: ${KOLOSSEUM_PROGRAMME_AUTHORS:-}
+
+  caddy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      KOLOSSEUM_DOMAIN: ${KOLOSSEUM_DOMAIN:?set KOLOSSEUM_DOMAIN in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  backup:
+    image: postgres:16
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    entrypoint: ["sh", "/backup.sh"]
+    environment:
+      DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/kolosseum
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ./deploy/backup.sh:/backup.sh:ro
+      - kolosseum-uploads:/uploads:ro
+      - kolosseum-backups:/backups
+
+volumes:
+  kolosseum-db-data:
+  kolosseum-uploads:
+  kolosseum-backups:
+  caddy-data:
+  caddy-config:

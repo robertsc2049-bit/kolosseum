@@ -61,7 +61,7 @@ At this point you can register a coach/athlete account through `/app`, sign in t
 
 ## Deployment target
 
-This document deliberately stops at "a place that can run `node` with a reachable Postgres database." There is no Dockerfile, platform config (Render/Fly/Heroku/etc.), or CI/CD deploy job in this repository as of this writing - choosing and provisioning a host is a real infrastructure decision for an operator to make, not something a checklist can decide. Once a target is chosen, this document's steps 1-4 are what needs to run there.
+For a single Linux server (an IONOS VPS or similar), `docs/ops/IONOS_VPS_DEPLOYMENT.md` and `docker-compose.prod.yml` are a tested, ready-made target: Caddy HTTPS, private app and database, nightly backups. Otherwise, this document deliberately stops at "a place that can run `node` with a reachable Postgres database." There is no platform config (Render/Fly/Heroku/etc.) or CI/CD deploy job - choosing and provisioning a host is an operator decision. Once a target is chosen, this document's steps 1-4 are what needs to run there.
 
 ## Related surfaces
 
