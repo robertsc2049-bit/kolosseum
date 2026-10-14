@@ -2714,7 +2714,17 @@ async function refreshCoachDashboard(
                 failure: null
               };
             }
-            catch {
+            catch (error) {
+              // A connected athlete with no programme assigned yet has no
+              // coach-visible sessions - that's nothing to show, not an
+              // unavailable record.
+              if (error?.payload?.reason === "stored_relationship_or_assignment_access_denied") {
+                return {
+                  athlete,
+                  artefacts: [],
+                  failure: null
+                };
+              }
               return {
                 athlete,
                 artefacts: [],
@@ -2802,13 +2812,15 @@ function renderCoachWorkspace() {
 // interaction, driving the exact same untouched mutation functions
 // below). See CoachProgrammeBuilderTree.tsx's own DEV NOTE.
 
+// A new row starts with no exercise chosen ("Choose an exercise"): the coach
+// picks it. It used to take the library's exercise at the same position,
+// which - with the library sorted A-Z - filled every new programme with
+// sprint drills loaded at % of 1RM.
 function newTemplateWorkItem(index) {
-  const exercise = state.templateExercises[index] ?? state.templateExercises[0] ?? null;
-
   return {
     work_item_id: "",
     order_index: index + 1,
-    exercise_id: exercise?.exercise_id ?? "",
+    exercise_id: "",
     planned_sets: 3,
     prescription_mode: "reps",
     rep_mode: "fixed",
