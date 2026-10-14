@@ -19,7 +19,8 @@ import {
   finalizeDemoUpload,
   validateStagedDemoUpload
 } from "./exercise_demo_video_storage.js";
-import { badRequest, notFound } from "./http_errors.js";
+import { badRequest, conflict, notFound } from "./http_errors.js";
+import { OrgHandoverError, acceptOrgHandover, listPendingOrgHandovers } from "./org_handover_service.js";
 import {
   acceptAthleteRelationshipInvitationHandler,
   createAthleteProfileAssignment,
@@ -317,3 +318,45 @@ coachWorkspaceRouter.post(
     }
   })
 );
+
+// Organisations handed to this coach after their owner was erased
+// (org_handover_service.ts): listed on their workspace, taken over by
+// choosing a password for the organisation app.
+const orgHandoverRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachWorkspaceRouter.get(
+  "/org-handovers",
+  orgHandoverRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    return res.status(200).json({ ok: true, handovers: await listPendingOrgHandovers(coachUserId) });
+  })
+);
+
+coachWorkspaceRouter.post(
+  "/org-handovers/:org_id/accept",
+  orgHandoverRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try {
+      const result = await acceptOrgHandover(coachUserId, String(req.params.org_id), req.body?.password);
+      return res.status(200).json({ ok: true, handover: result });
+    }
+    catch (error) {
+      if (error instanceof OrgHandoverError) {
+        throw error.status === 404
+          ? notFound(error.message, { failure_token: error.message })
+          : error.status === 409
+            ? conflict(error.message, { failure_token: error.message })
+            : badRequest(error.message, { failure_token: error.message });
+      }
+      throw error;
+    }
+  })
+);
+

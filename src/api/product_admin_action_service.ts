@@ -13,7 +13,15 @@ import crypto from "node:crypto";
 import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
-import { type ErasureCounts, eraseUserData, eraseUserFiles } from "./gdpr_erasure_service.js";
+import {
+  type ErasureCounts,
+  type OrgHandoverChoice,
+  OrgHandoverChoiceError,
+  eraseOrgOwnerData,
+  eraseUserData,
+  eraseUserFiles,
+  orgOwnerErasurePlan
+} from "./gdpr_erasure_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -509,6 +517,95 @@ export async function eraseAccountForDeletionRequest(
       targetRecordId: cleanRequestId,
       beforeState: { queue_status: cleanString(row.queue_status), account_state: cleanString(account.rows[0].account_state), actor_type: cleanString(account.rows[0].actor_type) },
       afterState: { queue_status: "completed", account_state: "deleted", erased_user_id: userId, deleted: erased.counts }
+    });
+  });
+
+  if (!files) return outcome;
+  return Object.freeze({ ...outcome, files_removed: await eraseUserFiles(files) });
+}
+
+// Org-owner GDPR erasure: what the admin chooses between - each organisation
+// the owner owns and its active coaches to hand it to.
+export async function getOrgOwnerErasurePlan(deletionRequestId: string) {
+  const cleanRequestId = cleanString(deletionRequestId);
+  const client = await pool.connect();
+  try {
+    const request = await client.query(
+      `SELECT user_id, queue_status FROM org_owner_data_deletion_requests WHERE deletion_request_id = $1`,
+      [cleanRequestId]
+    );
+    if (!request.rows[0]) throw new AdminActionError("admin_deletion_request_not_found", 404);
+    return Object.freeze({
+      deletion_request_id: cleanRequestId,
+      queue_status: cleanString(request.rows[0].queue_status),
+      organisations: await orgOwnerErasurePlan(client, cleanString(request.rows[0].user_id))
+    });
+  }
+  finally {
+    client.release();
+  }
+}
+
+// Carry out a reviewed org-owner deletion request: every organisation they
+// own is handed to the coach the admin chose (taken over from that coach's
+// own account) or, with no active coach, closed; their own data is deleted
+// and the account left as a tombstone. One transaction, audited; files after.
+export async function eraseOrgOwnerForDeletionRequest(
+  adminUserId: string,
+  correlationId: string,
+  deletionRequestId: string,
+  handoversInput: unknown
+): Promise<AuditOutcome & Readonly<{ files_removed?: ErasureCounts }>> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanRequestId = cleanString(deletionRequestId);
+  if (!cleanCorrelationId || !cleanRequestId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+  const handovers: Record<string, string | null> = {};
+  if (handoversInput && typeof handoversInput === "object" && !Array.isArray(handoversInput)) {
+    for (const [orgId, coach] of Object.entries(handoversInput as Record<string, unknown>)) {
+      handovers[orgId] = typeof coach === "string" && coach.trim() ? coach.trim() : null;
+    }
+  }
+
+  let files: Awaited<ReturnType<typeof eraseOrgOwnerData>>["files"] | null = null;
+  const outcome = await withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const request = await client.query(
+      `SELECT deletion_request_id, user_id, queue_status FROM org_owner_data_deletion_requests WHERE deletion_request_id = $1 FOR UPDATE`,
+      [cleanRequestId]
+    );
+    const row = request.rows[0];
+    if (!row) throw new AdminActionError("admin_deletion_request_not_found", 404);
+    if (cleanString(row.queue_status) === "completed") throw new AdminActionError("admin_deletion_request_already_erased", 409);
+    const userId = cleanString(row.user_id);
+    const account = await client.query(`SELECT account_state FROM product_org_owner_accounts WHERE user_id = $1 FOR UPDATE`, [userId]);
+    if (!account.rows[0]) throw new AdminActionError("admin_account_not_found", 404);
+
+    let erased: Awaited<ReturnType<typeof eraseOrgOwnerData>>;
+    try {
+      erased = await eraseOrgOwnerData(client, userId, handovers as OrgHandoverChoice);
+    }
+    catch (error) {
+      if (error instanceof OrgHandoverChoiceError) throw new AdminActionError(error.message.split(":")[0], 400);
+      throw error;
+    }
+    files = erased.files;
+    await client.query(
+      `UPDATE org_owner_data_deletion_requests SET queue_status = 'completed' WHERE user_id = $1 AND queue_status <> 'completed'`,
+      [userId]
+    );
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "data_deletion_executed",
+      targetRecordType: "org_owner_data_deletion_requests",
+      targetRecordId: cleanRequestId,
+      beforeState: { queue_status: cleanString(row.queue_status), account_state: cleanString(account.rows[0].account_state), actor_type: "org_owner" },
+      afterState: { queue_status: "completed", account_state: "closed", erased_user_id: userId, deleted: erased.counts, organisations: erased.organisations }
     });
   });
 

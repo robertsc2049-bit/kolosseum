@@ -667,12 +667,15 @@ function renderOrgOwnerDataRightsReview() {
   const deletionRequests = filteredOrgOwnerDeletionRequests();
   for (const request of deletionRequests) {
     const row = document.createElement("tr");
-    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>`;
+    const eraseCell = request.queue_status === "completed"
+      ? `<td class="muted">Erased</td>`
+      : `<td><button type="button" class="confirm" data-org-owner-erase-request="${escapeHtml(request.deletion_request_id)}" data-org-owner-erase-user="${escapeHtml(request.user_id)}">Erase</button></td>`;
+    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
     deletionsBody.appendChild(row);
   }
   if (state.orgOwnerDataRightsDeletions.length > 0 && deletionRequests.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="5" class="muted">No deletion requests match.</td>`;
+    emptyRow.innerHTML = `<td colspan="6" class="muted">No deletion requests match.</td>`;
     deletionsBody.appendChild(emptyRow);
   }
 }
@@ -766,7 +769,76 @@ async function removeExerciseDemoVideo(exerciseId) {
   await refreshExerciseDemoVideos();
 }
 
+// Org-owner GDPR erasure: choose who takes over each organisation, then
+// confirm with the owner's user id (src/api/gdpr_erasure_service.ts).
+const orgOwnerErase = { requestId: "", userId: "", organisations: [] };
+
+async function openOrgOwnerErase(requestId, userId) {
+  const result = await api("GET", `/admin/org-owner-data-rights/deletions/${encodeURIComponent(requestId)}/erase-plan`);
+  orgOwnerErase.requestId = requestId;
+  orgOwnerErase.userId = userId;
+  orgOwnerErase.organisations = result.plan?.organisations ?? [];
+  el("orgOwnerEraseUserId").textContent = userId;
+  el("orgOwnerEraseConfirm").value = "";
+  el("orgOwnerEraseResult").hidden = true;
+  const container = el("orgOwnerEraseOrganisations");
+  container.innerHTML = "";
+  if (orgOwnerErase.organisations.length === 0) {
+    container.innerHTML = `<p class="muted">They don't own any organisations.</p>`;
+  }
+  for (const org of orgOwnerErase.organisations) {
+    const block = document.createElement("p");
+    if (org.coaches.length === 0) {
+      block.innerHTML = `<strong>${escapeHtml(org.org_name)}</strong>: no active coaches - it will be closed.`;
+    }
+    else {
+      const options = org.coaches.map((c) => `<option value="${escapeHtml(c.coach_user_id)}">${escapeHtml(c.display_name)} (${escapeHtml(c.email)})</option>`).join("");
+      block.innerHTML = `<label><strong>${escapeHtml(org.org_name)}</strong> - hand it to<br /><select data-org-handover="${escapeHtml(org.org_id)}"><option value="">Choose a coach</option>${options}</select></label>`;
+    }
+    container.appendChild(block);
+  }
+  el("orgOwnerErasePanel").hidden = false;
+  el("orgOwnerErasePanel").scrollIntoView({ block: "center" });
+}
+
+function showOrgOwnerEraseResult(text) {
+  el("orgOwnerEraseResult").textContent = text;
+  el("orgOwnerEraseResult").hidden = false;
+}
+
+async function submitOrgOwnerErase() {
+  if (el("orgOwnerEraseConfirm").value.trim() !== orgOwnerErase.userId) {
+    showOrgOwnerEraseResult("The user id didn't match - nothing was erased.");
+    return;
+  }
+  const handovers = {};
+  for (const org of orgOwnerErase.organisations) {
+    if (org.coaches.length === 0) { handovers[org.org_id] = null; continue; }
+    const chosen = document.querySelector(`[data-org-handover="${CSS.escape(org.org_id)}"]`)?.value ?? "";
+    if (!chosen) { showOrgOwnerEraseResult(`Choose a coach to hand ${org.org_name} to.`); return; }
+    handovers[org.org_id] = chosen;
+  }
+  try {
+    const result = await api("POST", `/admin/org-owner-data-rights/deletions/${encodeURIComponent(orgOwnerErase.requestId)}/erase`, { correlation_id: generateCorrelationId(), handovers });
+    const orgs = result.audit?.after_state?.organisations ?? [];
+    const handed = orgs.filter((o) => o.outcome === "handed_over").length;
+    const closed = orgs.filter((o) => o.outcome === "closed").length;
+    showOrgOwnerEraseResult(`Erased ${orgOwnerErase.userId}. ${handed} organisation(s) handed over - the coach takes it over from their coach workspace; ${closed} closed.`);
+  }
+  catch (error) {
+    showOrgOwnerEraseResult(error.message === "admin_deletion_request_already_erased" ? "That request has already been erased." : `Couldn't erase: ${error.message}`);
+  }
+  await refreshOrgOwnerDataRightsReview();
+  await refreshAuditRecords();
+}
+
 el("adminSignInForm").addEventListener("submit", signIn);
+el("orgOwnerDeletionRequestsList").addEventListener("click", (event) => {
+  const button = event.target?.closest?.("[data-org-owner-erase-request]");
+  if (button) openOrgOwnerErase(button.dataset.orgOwnerEraseRequest, button.dataset.orgOwnerEraseUser).catch((error) => showOrgOwnerEraseResult(`Couldn't load the organisations: ${error.message}`));
+});
+el("orgOwnerEraseSubmit").addEventListener("click", () => submitOrgOwnerErase().catch(console.error));
+el("orgOwnerEraseCancel").addEventListener("click", () => { el("orgOwnerErasePanel").hidden = true; });
 el("deletionRequestsList").addEventListener("click", (event) => {
   const button = event.target?.closest?.("[data-erase-request]");
   if (button) eraseDeletionRequest(button.dataset.eraseRequest, button.dataset.eraseUser).catch(console.error);

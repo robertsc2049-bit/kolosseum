@@ -4674,3 +4674,10 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 
 .exercise-demo-video video { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
 .coach-demo-video-upload input { width: 100%; }
+
+/* An organisation handed to this coach (CoachOrgHandoverCard.tsx) - full width above the metric cards. */
+.org-handover-card { grid-column: 1 / -1; }
+.org-handover-list { list-style: none; padding: 0; margin: 0.5rem 0 0; display: grid; gap: 1rem; }
+.org-handover-row { display: grid; gap: 0.5rem; }
+.org-handover-row p { margin: 0; }
+.org-handover-row input { width: 100%; }

@@ -154,3 +154,107 @@ export async function eraseUserFiles(files: ErasureFiles): Promise<ErasureCounts
   for (const key of files.demoStorageKeys) await attempt("demo_clips", () => removeDir(DEMO_UPLOAD_ROOT, key.split("/")[0] ?? ""));
   return Object.freeze(removed);
 }
+
+// --- Org owners ------------------------------------------------------------
+//
+// An org owner is a separate account (product_org_owner_accounts). Erasing
+// one deletes their sign-in sessions, closure/export requests, support
+// reports and the messages they sent (with attachments), and leaves their
+// account as a tombstone. Each organisation they own is either handed to one
+// of its active coaches - who takes it over from their own coach account
+// (org_handover_service.ts) - or, with no coach to hand it to, closed. The
+// organisation's audit trail, billing and coaches' work stay.
+
+export type OrgHandoverChoice = Readonly<Record<string, string | null>>;
+
+// What an admin chooses between before erasing: each organisation the owner
+// owns and its active coaches.
+export async function orgOwnerErasurePlan(client: PoolClient, orgOwnerUserId: string): Promise<readonly Readonly<{
+  org_id: string;
+  org_name: string;
+  org_state: string;
+  coaches: readonly Readonly<{ coach_user_id: string; display_name: string; email: string }>[];
+}>[]> {
+  const orgs = (await client.query(
+    `SELECT org_id, org_name, org_state FROM product_organisations WHERE owner_user_id = $1 ORDER BY created_at, org_id`,
+    [orgOwnerUserId]
+  )).rows;
+  const plan = [];
+  for (const org of orgs) {
+    const coaches = (await client.query(
+      `
+      SELECT a.user_id AS coach_user_id, a.display_name, a.email_canonical AS email
+      FROM product_org_coach_memberships m
+      JOIN product_accounts a ON a.user_id = m.coach_user_id
+      WHERE m.org_id = $1 AND m.membership_status = 'active' AND a.account_state = 'active'
+      ORDER BY a.display_name, a.user_id
+      `,
+      [org.org_id]
+    )).rows;
+    plan.push(Object.freeze({
+      org_id: String(org.org_id),
+      org_name: String(org.org_name),
+      org_state: String(org.org_state),
+      coaches: coaches.map((c) => Object.freeze({ coach_user_id: String(c.coach_user_id), display_name: String(c.display_name), email: String(c.email) }))
+    }));
+  }
+  return plan;
+}
+
+export class OrgHandoverChoiceError extends Error {}
+
+export async function eraseOrgOwnerData(
+  client: PoolClient,
+  orgOwnerUserId: string,
+  handovers: OrgHandoverChoice
+): Promise<{ counts: ErasureCounts; files: ErasureFiles; organisations: readonly Readonly<{ org_id: string; outcome: "handed_over" | "closed"; coach_user_id: string | null }>[] }> {
+  const plan = await orgOwnerErasurePlan(client, orgOwnerUserId);
+  const organisations = [];
+  for (const org of plan) {
+    const chosen = Object.prototype.hasOwnProperty.call(handovers, org.org_id) ? handovers[org.org_id] : undefined;
+    if (chosen === undefined) throw new OrgHandoverChoiceError(`org_handover_choice_missing:${org.org_id}`);
+    if (chosen === null) {
+      if (org.coaches.length > 0) throw new OrgHandoverChoiceError(`org_handover_coach_required:${org.org_id}`);
+      await client.query(`UPDATE product_organisations SET org_state = 'closed', handover_to_coach_user_id = NULL WHERE org_id = $1`, [org.org_id]);
+      organisations.push(Object.freeze({ org_id: org.org_id, outcome: "closed" as const, coach_user_id: null }));
+      continue;
+    }
+    if (!org.coaches.some((c) => c.coach_user_id === chosen)) throw new OrgHandoverChoiceError(`org_handover_coach_not_active_member:${org.org_id}`);
+    await client.query(`UPDATE product_organisations SET handover_to_coach_user_id = $2 WHERE org_id = $1`, [org.org_id, chosen]);
+    organisations.push(Object.freeze({ org_id: org.org_id, outcome: "handed_over" as const, coach_user_id: chosen }));
+  }
+
+  const files: ErasureFiles = Object.freeze({
+    userId: orgOwnerUserId,
+    messageIds: (await client.query(
+      `SELECT message_id FROM product_messages WHERE sender_user_id = $1 AND attachment_storage_key IS NOT NULL`, [orgOwnerUserId]
+    )).rows.map((row) => String(row.message_id)),
+    submissionIds: [],
+    demoStorageKeys: []
+  });
+
+  const counts: Record<string, number> = {};
+  counts.messages = await count(client, `DELETE FROM product_messages WHERE sender_user_id = $1`, [orgOwnerUserId]);
+  counts.sign_in_sessions = await count(client, `DELETE FROM product_org_owner_sessions WHERE user_id = $1`, [orgOwnerUserId]);
+  counts.closure_requests = await count(client, `DELETE FROM org_owner_closure_requests WHERE user_id = $1`, [orgOwnerUserId]);
+  counts.export_requests = await count(client, `DELETE FROM org_owner_data_export_requests WHERE user_id = $1`, [orgOwnerUserId]);
+  counts.support_reports = await count(client, `DELETE FROM org_owner_support_requests WHERE user_id = $1`, [orgOwnerUserId]);
+  counts.account_scrubbed = await count(
+    client,
+    `
+    UPDATE product_org_owner_accounts
+    SET email_canonical = 'erased+' || user_id || '@erased.invalid',
+        display_name = 'Erased account',
+        account_state = 'closed',
+        password_salt = md5(random()::text || clock_timestamp()::text),
+        password_hash = md5(random()::text || clock_timestamp()::text) || md5(random()::text),
+        locked_until = NULL,
+        failed_sign_in_count = 0
+    WHERE user_id = $1
+    `,
+    [orgOwnerUserId]
+  );
+  counts.organisations_handed_over = organisations.filter((o) => o.outcome === "handed_over").length;
+  counts.organisations_closed = organisations.filter((o) => o.outcome === "closed").length;
+  return { counts: Object.freeze(counts), files, organisations };
+}

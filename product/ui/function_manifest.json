@@ -1219,7 +1219,9 @@
           ],
           "route_id": "coach_athletes",
           "api_routes": [
-            "/coach-workspace/relationships"
+            "/coach-workspace/relationships",
+            "/coach-workspace/org-handovers",
+            "/coach-workspace/org-handovers/:org_id/accept"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -6047,7 +6049,9 @@
           "route_id": null,
           "api_routes": [
             "/admin/org-owner-data-rights/exports",
-            "/admin/org-owner-data-rights/deletions"
+            "/admin/org-owner-data-rights/deletions",
+            "/admin/org-owner-data-rights/deletions/:deletion_request_id/erase-plan",
+            "/admin/org-owner-data-rights/deletions/:deletion_request_id/erase"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8956,6 +8960,18 @@
     },
     {
       "method": "GET",
+      "path": "/admin/org-owner-data-rights/deletions/:deletion_request_id/erase-plan",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/org-owner-data-rights/deletions/:deletion_request_id/erase",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
       "path": "/admin/org-owner-support-requests",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
@@ -9143,6 +9159,18 @@
     {
       "method": "GET",
       "path": "/coach-workspace/relationships",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/org-handovers",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/org-handovers/:org_id/accept",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },
