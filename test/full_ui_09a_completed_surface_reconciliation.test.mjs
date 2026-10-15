@@ -261,7 +261,7 @@ const targets = [
         "public/app/index.html",
         [
           "id=\"coach-overview-metrics-root\"",
-          "Upcoming events"
+          "Upcoming competitions"
         ]
       ],
       [
@@ -304,7 +304,7 @@ const targets = [
         "public/app/index.html",
         [
           "id=\"coach-overview-review-queue-root\"",
-          "Completed since review"
+          "Sessions to review"
         ]
       ],
       [

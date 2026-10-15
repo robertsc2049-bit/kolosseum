@@ -38,9 +38,9 @@ export function AttendanceEventCreatePanel() {
     <div className="panel">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Attendance</p>
-          <h3>Create an event</h3>
-          <p className="muted">Invite your accepted athletes to a class, practice or session, and see who's coming.</p>
+          <p className="eyebrow">Classes</p>
+          <h3>Schedule a class or session</h3>
+          <p className="muted">Invite your athletes to a class, practice or session, and see who's coming.</p>
         </div>
       </div>
 
@@ -234,7 +234,7 @@ export function AttendanceEventCreatePanel() {
 
         <div className="button-row">
           <button className="button primary" type="submit" disabled={submitting}>
-            {submitting ? "Creating…" : "Create event"}
+            {submitting ? "Scheduling…" : "Schedule"}
           </button>
         </div>
         </PhoneDisclosure>

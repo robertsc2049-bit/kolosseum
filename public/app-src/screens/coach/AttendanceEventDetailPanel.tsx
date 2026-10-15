@@ -220,8 +220,8 @@ export function AttendanceEventDetailPanel() {
     <div className="panel">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Attendance</p>
-          <h3>Your events</h3>
+          <p className="eyebrow">Classes</p>
+          <h3>Your classes and sessions</h3>
         </div>
         {!selectedEventId ? (
           <a className="button secondary small-button" href="/attendance-events/calendar.ics">Export calendar (.ics)</a>

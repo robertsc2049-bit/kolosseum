@@ -399,7 +399,7 @@ const targets = [
       {
         "path": "public/app/index.html",
         "all": [
-          "Open sessions",
+          "Training right now",
           "coach-overview-open-sessions-root"
         ]
       }
@@ -421,6 +421,7 @@ const targets = [
       {
         "path": "public/app/index.html",
         "any": [
+          "Sessions to review",
           "Completed since review",
           "Awaiting review",
           "coachAwaitingReviewCount"

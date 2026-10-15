@@ -193,6 +193,12 @@ function ReviewDetail({
           {Number(summary.split_event_count ?? 0) > 0 ? (
             <div><dt>Paused</dt><dd>{`${Number(summary.split_event_count)} time${Number(summary.split_event_count) === 1 ? "" : "s"}`}</dd></div>
           ) : null}
+          {Number(summary.return_continue_count ?? 0) > 0 ? (
+            <div><dt>Came back and carried on</dt><dd>{Number(summary.return_continue_count)}</dd></div>
+          ) : null}
+          {Number(summary.return_skip_count ?? 0) > 0 ? (
+            <div><dt>Came back and skipped the rest</dt><dd>{Number(summary.return_skip_count)}</dd></div>
+          ) : null}
         </dl>
       ) : null}
 

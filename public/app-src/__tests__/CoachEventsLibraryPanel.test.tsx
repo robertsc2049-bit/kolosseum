@@ -75,7 +75,7 @@ test("excludes a cancelled or archived event from the upcoming count even with a
 test("shows a factual empty state when the coach has no compiled events", async () => {
   installMocks([]);
   render(<CoachEventsListPanel />);
-  await waitFor(() => screen.getByText("No events created"));
+  await waitFor(() => screen.getByText("No competitions yet"));
   assert.ok(screen.getByText(/Add a meet, race or match day/u));
 });
 
@@ -179,7 +179,7 @@ test("an event name and notes containing markup are rendered as inert text, neve
 test("refetches when kolosseum:coach-events-changed fires", async () => {
   installMocks([]);
   render(<CoachEventsListPanel />);
-  await waitFor(() => screen.getByText("No events created"));
+  await waitFor(() => screen.getByText("No competitions yet"));
 
   installMocks([
     { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }
@@ -195,7 +195,7 @@ test("refetches when kolosseum:coach-events-changed fires", async () => {
 test("refetches once a same-tab sign-in completes", async () => {
   installMocks([]);
   render(<CoachEventsListPanel />);
-  await waitFor(() => screen.getByText("No events created"));
+  await waitFor(() => screen.getByText("No competitions yet"));
 
   installMocks([
     { event_id: "event_1", event_plan: { event_name: "Regional Meet", event_date: daysFromNow(10) } }

@@ -278,6 +278,12 @@ export function AthleteHistoryPanel() {
                   {Number(detailSummary.split_event_count) > 0 ? (
                     <div><span>Paused</span><strong>{`${String(detailSummary.split_event_count)} time${Number(detailSummary.split_event_count) === 1 ? "" : "s"}`}</strong></div>
                   ) : null}
+                  {Number(detailSummary.return_continue_count) > 0 ? (
+                    <div><span>Came back and carried on</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
+                  ) : null}
+                  {Number(detailSummary.return_skip_count) > 0 ? (
+                    <div><span>Came back and skipped the rest</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
+                  ) : null}
                 </div>
               ) : null}
 

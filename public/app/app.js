@@ -954,11 +954,11 @@ function viewTitle(view) {
     history: "History",
     "coach-onboarding": "Coach setup",
     attendance: "Attendance",
-    "coach-attendance": "Attendance",
+    "coach-attendance": "Classes",
     "coach-progress": "Progress",
     "coach-overview": "Overview",
     athletes: "Athletes",
-    events: "Events",
+    events: "Competitions",
     templates: "Programmes",
     marketplace: "Marketplace",
     review: "Review",
@@ -6159,7 +6159,12 @@ function showEntry() {
 }
 
 for (const button of document.querySelectorAll("[data-view]")) {
-  button.addEventListener("click", () => setView(button.dataset.view));
+  button.addEventListener("click", () => {
+    // The Athletes menu item always means the roster: an athlete profile left
+    // open earlier takes over the page now, so close it first.
+    if (button.dataset.view === "athletes" && state.selectedCoachAthleteId) closeAthleteProfile();
+    setView(button.dataset.view);
+  });
 }
 
 for (const button of document.querySelectorAll("[data-view-link]")) {

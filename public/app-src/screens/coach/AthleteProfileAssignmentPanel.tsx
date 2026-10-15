@@ -100,6 +100,18 @@ export function AthleteProfileAssignmentPanel() {
 
       <form className="athlete-assignment-form" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
         <label className="field">
+          <span>Programme</span>
+          <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)} disabled={activeTemplates.length === 0}>
+            <option value="">{activeTemplates.length ? "Choose a programme" : "None for this sport yet"}</option>
+            {activeTemplates.map((template) => (
+              <option key={String(template.template_id)} value={String(template.template_id)}>
+                {String(template.template_name)} · v{Number(template.template_version)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="field">
           <span>Competition (optional)</span>
           <select value={selectedEventId} onChange={(event) => setSelectedEventId(event.target.value)}>
             <option value="">No competition</option>
@@ -111,18 +123,6 @@ export function AthleteProfileAssignmentPanel() {
                 </option>
               );
             })}
-          </select>
-        </label>
-
-        <label className="field">
-          <span>Programme</span>
-          <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)} disabled={activeTemplates.length === 0}>
-            <option value="">{activeTemplates.length ? "Choose a programme" : "No active programmes yet - activate one in Programmes"}</option>
-            {activeTemplates.map((template) => (
-              <option key={String(template.template_id)} value={String(template.template_id)}>
-                {String(template.template_name)} · v{Number(template.template_version)}
-              </option>
-            ))}
           </select>
         </label>
 

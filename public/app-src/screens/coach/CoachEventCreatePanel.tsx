@@ -51,10 +51,10 @@ export function CoachEventCreatePanel() {
   return (
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
-        <p className="eyebrow">New event</p>
-        <h3>Create event</h3>
+        <p className="eyebrow">New competition</p>
+        <h3>Add a competition</h3>
       </div>
-      <PhoneDisclosure label="New event" openLabel="Cancel">
+      <PhoneDisclosure label="New competition" openLabel="Cancel">
 
       <label className="field">
         <span>Event name</span>
@@ -113,7 +113,7 @@ export function CoachEventCreatePanel() {
       {error ? <p role="status" className="muted small error">{error}</p> : null}
       {resultMessage ? <p role="status" className="muted small">{resultMessage}</p> : null}
 
-      <button className="button primary" type="submit" disabled={submitting}>Create event</button>
+      <button className="button primary" type="submit" disabled={submitting}>Add competition</button>
       </PhoneDisclosure>
     </form>
   );
