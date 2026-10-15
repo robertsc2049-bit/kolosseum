@@ -4439,7 +4439,43 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* Programme builder on a phone: every exercise is a one-line summary
    ("4 × 5 @ 80% 1RM · 180s rest") that opens to edit; Save, Complete and
    Activate stay pinned above the tab bar; the long explainer is dropped. */
-.template-work-item-summary { display: none; }
+/* Every exercise is a one-line summary ("4 × 5 @ 80% 1RM · 180s rest")
+   that opens to edit, on every screen size. */
+.template-work-item-summary {
+  display: grid;
+  width: 100%;
+  min-height: 56px;
+  padding: var(--k-space-2) 40px var(--k-space-2) 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--k-space-3);
+  position: relative;
+  border: 0;
+  background: transparent;
+  color: var(--stone);
+  text-align: left;
+  cursor: pointer;
+}
+.template-work-item-summary::after {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--stone-dim);
+  border-bottom: 2px solid var(--stone-dim);
+  content: "";
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform var(--k-motion-base) var(--k-ease-standard);
+}
+.template-work-item[data-open="true"] > .template-work-item-summary::after { transform: translateY(-30%) rotate(-135deg); }
+.template-work-item-summary-text { display: grid; min-width: 0; gap: 2px; }
+.template-work-item-summary-text strong { overflow: hidden; font-size: 0.98rem; text-overflow: ellipsis; white-space: nowrap; }
+.template-work-item-summary-text span { color: var(--stone-dim); font-size: 0.82rem; }
+.template-work-item[data-open="false"] > :not(.template-work-item-summary) { display: none; }
+.template-work-item[data-open="true"] > .template-work-item-summary { margin-bottom: var(--k-space-2); border-bottom: 1px solid var(--line-soft); }
+.template-work-item[data-open="true"] .template-work-item-header > .exercise-order { display: none; }
+.template-work-item[data-open="false"] { padding-top: var(--k-space-1); padding-bottom: var(--k-space-1); }
 
 @media (max-width: 900px) {
   .template-builder-heading > div > p.muted,
@@ -4461,41 +4497,6 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .template-builder-heading .button-row .button { min-width: 0; min-height: 44px; padding: var(--k-space-2); flex: 1 1 0; font-size: 0.82rem; line-height: 1.15; }
   #view-templates:has(#templateBuilderView:not([hidden])) { padding-bottom: 72px; }
 
-  .template-work-item-summary {
-    display: grid;
-    width: 100%;
-    min-height: 56px;
-    padding: var(--k-space-2) 40px var(--k-space-2) 0;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: var(--k-space-3);
-    position: relative;
-    border: 0;
-    background: transparent;
-    color: var(--stone);
-    text-align: left;
-    cursor: pointer;
-  }
-  .template-work-item-summary::after {
-    position: absolute;
-    top: 50%;
-    right: 12px;
-    width: 9px;
-    height: 9px;
-    border-right: 2px solid var(--stone-dim);
-    border-bottom: 2px solid var(--stone-dim);
-    content: "";
-    transform: translateY(-70%) rotate(45deg);
-    transition: transform var(--k-motion-base) var(--k-ease-standard);
-  }
-  .template-work-item[data-open="true"] > .template-work-item-summary::after { transform: translateY(-30%) rotate(-135deg); }
-  .template-work-item-summary-text { display: grid; min-width: 0; gap: 2px; }
-  .template-work-item-summary-text strong { overflow: hidden; font-size: 0.98rem; text-overflow: ellipsis; white-space: nowrap; }
-  .template-work-item-summary-text span { color: var(--stone-dim); font-size: 0.82rem; }
-  .template-work-item[data-open="false"] > :not(.template-work-item-summary) { display: none; }
-  .template-work-item[data-open="true"] > .template-work-item-summary { margin-bottom: var(--k-space-2); border-bottom: 1px solid var(--line-soft); }
-  .template-work-item[data-open="true"] .template-work-item-header > .exercise-order { display: none; }
-  .template-work-item[data-open="false"] { padding-top: var(--k-space-1); padding-bottom: var(--k-space-1); }
 }
 @media (max-width: 620px) {
   /* Programme facts in one row; headers stack their title above their
@@ -4733,3 +4734,26 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .programme-sport-heading { display: flex; align-items: baseline; gap: var(--k-space-2); margin: 0 0 var(--k-space-2); }
 .kolosseum-starter-header { display: flex; align-items: center; justify-content: space-between; gap: var(--k-space-3); }
 .kolosseum-starter-header h4 { margin: 0; }
+
+/* Programme builder: blocks, weeks and sessions collapse to a summary line. */
+.builder-expand-controls { display: flex; justify-content: flex-end; gap: var(--k-space-2); margin-bottom: var(--k-space-3); }
+.builder-collapsible-body:not([hidden]) { display: contents; }
+.template-block-header, .template-week-header, .template-session-header { position: relative; }
+.template-block-header, .template-week-header { padding-left: 44px; }
+.template-session-header { padding-left: 44px; }
+.builder-collapse-toggle {
+  position: absolute; top: 0; left: 0; width: 36px; height: 36px; min-height: 36px;
+  border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: transparent; cursor: pointer;
+}
+.builder-collapse-toggle::after {
+  position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
+  border-right: 2px solid var(--stone-dim); border-bottom: 2px solid var(--stone-dim);
+  content: ""; transform: translate(-50%, -70%) rotate(45deg); transition: transform var(--k-motion-base) var(--k-ease-standard);
+}
+.builder-collapse-toggle[aria-expanded="false"]::after { transform: translate(-70%, -50%) rotate(-45deg); }
+.builder-collapsed-summary { margin: var(--k-space-1) 0 0; color: var(--stone-dim); font-size: 0.86rem; }
+.template-session[data-open="false"] > .builder-collapsed-summary { padding-left: 44px; }
+@media (max-width: 620px) {
+  .builder-collapse-toggle { width: 44px; height: 44px; min-height: 44px; }
+  .template-block-header, .template-week-header, .template-session-header, .template-session[data-open="false"] > .builder-collapsed-summary { padding-left: 52px; }
+}

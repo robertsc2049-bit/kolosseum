@@ -490,6 +490,37 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
 // a rest - e.g. "4 × 5 @ 80% 1RM · 180s rest".
 const GROUP_LABELS: Record<string, string> = { superset: "Superset", circuit: "Circuit", complex: "Complex", amrap: "AMRAP", emom: "EMOM", for_time: "For time" };
 
+// Expand all / Collapse all reach every block, week and session.
+const BUILDER_EXPAND_EVENT = "kolosseum:builder-expand";
+
+function useCollapsible(initial: boolean) {
+  const [open, setOpen] = React.useState(initial);
+  React.useEffect(() => {
+    const handler = (event: Event) => setOpen(Boolean((event as CustomEvent).detail?.open));
+    document.addEventListener(BUILDER_EXPAND_EVENT, handler);
+    return () => document.removeEventListener(BUILDER_EXPAND_EVENT, handler);
+  }, []);
+  return [open, setOpen] as const;
+}
+
+function CollapseToggle({ open, onToggle, label }: { open: boolean; onToggle: () => void; label: string }) {
+  return (
+    <button
+      className="builder-collapse-toggle"
+      type="button"
+      aria-expanded={open}
+      aria-label={`${open ? "Collapse" : "Expand"} ${label}`}
+      title={open ? "Collapse" : "Expand"}
+      onClick={onToggle}
+    />
+  );
+}
+
+function exerciseNameOf(exerciseId: string, templateExercises: JsonRecord[]): string {
+  const found = templateExercises.find((exercise) => exercise.exercise_id === exerciseId);
+  return String(found?.display_name ?? (exerciseId ? titleCase(exerciseId) : "No exercise chosen"));
+}
+
 function formatSeconds(total: number): string {
   if (!Number.isFinite(total) || total <= 0) return "0s";
   const minutes = Math.floor(total / 60);
@@ -536,9 +567,9 @@ function BuilderWorkItem({
   // file's own established uncontrolled-input convention.
   const [groupTypeHint, setGroupTypeHint] = React.useState(workItem.group_type);
   const howto = useExerciseHowto(workItem.exercise_id);
-  // On a phone each exercise is a one-line summary until tapped (CSS keeps
-  // every exercise open on wider screens); one with nothing chosen yet -
-  // just added - starts open.
+  // Each exercise is a one-line summary until opened, so a 36-session
+  // programme isn't one endless form; one with nothing chosen yet - just
+  // added - starts open.
   const [open, setOpen] = React.useState(!workItem.exercise_id);
   const exerciseName = String(templateExercises.find((exercise) => exercise.exercise_id === workItem.exercise_id)?.display_name ?? (workItem.exercise_id ? titleCase(workItem.exercise_id) : "Choose an exercise"));
 
@@ -680,9 +711,15 @@ function BuilderSession({
   templateExercises: JsonRecord[];
   equipmentCatalog: JsonRecord[];
 }) {
+  const [open, setOpen] = useCollapsible(true);
+  // The main work by name; warm-up and cool-down drills just noted.
+  const working = session.work_items.filter((item) => item.segment !== "warm_up" && item.segment !== "cool_down");
+  const names = working.map((item) => exerciseNameOf(item.exercise_id, templateExercises));
+  const bookends = session.work_items.length - working.length;
   return (
-    <section className="template-session">
+    <section className="template-session" data-open={String(open)}>
       <div className="template-session-header">
+        <CollapseToggle open={open} onToggle={() => setOpen(!open)} label={`session ${sessionIndex + 1}: ${session.title}`} />
         <label className="field template-session-title-field">
           <span>Session title</span>
           <input
@@ -704,6 +741,12 @@ function BuilderSession({
           ) : null}
         </div>
       </div>
+      {open ? null : (
+        <p className="builder-collapsed-summary">
+          {names.length ? `${names.length} exercise${names.length === 1 ? "" : "s"} · ${names.join(", ")}${bookends ? " · plus warm-up and cool-down" : ""}` : bookends ? "Warm-up and cool-down only" : "No exercises yet"}
+        </p>
+      )}
+      <div className="builder-collapsible-body" hidden={!open}>
       <label className="field template-session-notes-field">
         <span>Session coaching notes</span>
         <textarea
@@ -732,6 +775,7 @@ function BuilderSession({
         ))}
       </div>
       <button className="button secondary add-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={session.work_items.length >= 12}>Add exercise</button>
+      </div>
     </section>
   );
 }
@@ -755,12 +799,19 @@ function BuilderWeek({
 }) {
   const exercisesById = React.useMemo(() => new Map(templateExercises.map((exercise) => [String(exercise.exercise_id), exercise])), [templateExercises]);
   const weekItems = week.sessions.flatMap((session) => session.work_items);
+  const [open, setOpen] = useCollapsible(weekIndex === 0 || !week.week_id);
   return (
-    <article className="template-week">
+    <article className="template-week" data-open={String(open)}>
       <div className="template-week-header">
+        <CollapseToggle open={open} onToggle={() => setOpen(!open)} label={`week ${weekIndex + 1}`} />
         <div>
           <p className="eyebrow">Week {weekIndex + 1}</p>
           <h4>Training week</h4>
+          {open ? null : (
+            <p className="builder-collapsed-summary">
+              {`${week.sessions.length} session${week.sessions.length === 1 ? "" : "s"}${week.sessions.length ? ` · ${week.sessions.map((session) => session.title).join(", ")}` : ""}`}
+            </p>
+          )}
           {week.calendar_start_date ? (
             <p className="template-week-calendar">
               {formatDate(week.calendar_start_date)} – {formatDate(week.calendar_end_date)}
@@ -778,6 +829,7 @@ function BuilderWeek({
           ) : null}
         </div>
       </div>
+      <div className="builder-collapsible-body" hidden={!open}>
       <div className="template-sessions">
         {week.sessions.map((session, sessionIndex) => (
           <BuilderSession
@@ -794,6 +846,7 @@ function BuilderWeek({
       </div>
       <WeeklyMuscleVolume items={weekItems} exercises={exercisesById} activityId={activityId} />
       <button className="button secondary add-template-session" type="button" data-block-index={blockIndex} data-week-index={weekIndex} disabled={week.sessions.length >= 7}>Add session</button>
+      </div>
     </article>
   );
 }
@@ -817,12 +870,20 @@ function BuilderBlock({
   equipmentCatalog: JsonRecord[];
   activityId: string;
 }) {
+  const [open, setOpen] = useCollapsible(true);
+  const sessionTotal = block.weeks.reduce((sum, week) => sum + week.sessions.length, 0);
   return (
-    <article className="template-block">
+    <article className="template-block" data-open={String(open)}>
       <div className="template-block-header">
+        <CollapseToggle open={open} onToggle={() => setOpen(!open)} label={`block ${blockIndex + 1}: ${block.name}`} />
         <div>
           <p className="eyebrow">Training block {blockIndex + 1}</p>
           <h3>{block.name || `Block ${blockIndex + 1}`}</h3>
+          {open ? null : (
+            <p className="builder-collapsed-summary">
+              {`${block.weeks.length} week${block.weeks.length === 1 ? "" : "s"} · ${sessionTotal} session${sessionTotal === 1 ? "" : "s"}`}
+            </p>
+          )}
         </div>
         <div className="builder-action-row">
           <button className="button secondary small-button move-template-block" type="button" aria-label="Move block up" title="Move block up" data-direction={-1} data-block-index={blockIndex} disabled={blockIndex === 0}>↑</button>
@@ -835,6 +896,7 @@ function BuilderBlock({
         </div>
       </div>
 
+      <div className="builder-collapsible-body" hidden={!open}>
       <div className="template-block-settings">
         <label className="field">
           <span>Block name</span>
@@ -883,6 +945,7 @@ function BuilderBlock({
           />
         ))}
       </div>
+      </div>
     </article>
   );
 }
@@ -894,8 +957,14 @@ export function CoachProgrammeBuilderTree() {
   const totalWeeks = templateCounts(draft).weeks;
   const hasEventPlan = Boolean(draft.event_plan);
 
+  const expandAll = (open: boolean) => document.dispatchEvent(new CustomEvent(BUILDER_EXPAND_EVENT, { detail: { open } }));
+
   return (
     <>
+      <div className="builder-expand-controls">
+        <button className="button secondary small-button" type="button" onClick={() => expandAll(true)}>Expand all</button>
+        <button className="button secondary small-button" type="button" onClick={() => expandAll(false)}>Collapse all</button>
+      </div>
       {draft.blocks.map((block, blockIndex) => (
         <BuilderBlock
           key={block.block_id || `new_${blockIndex}`}
