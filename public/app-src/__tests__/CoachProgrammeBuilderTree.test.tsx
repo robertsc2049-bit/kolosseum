@@ -679,3 +679,45 @@ test("a chosen exercise starts as its summary line and opens on tap; one with no
   await waitFor(() => assert.ok(fresh.container.querySelector(".template-work-item")));
   assert.equal((fresh.container.querySelector(".template-work-item") as HTMLElement).dataset.open, "true", "a just-added exercise opens straight to its fields");
 });
+
+// A saved 12-week programme opened to edit: three saved weeks in one block.
+function savedThreeWeekDraft(): ProgrammeDraft {
+  const item = (exerciseId: string, index: number, segment = "working") => ({ ...storedWorkItemToDraft({ exercise_id: exerciseId, segment }, index), work_item_id: `wi_${exerciseId}_${index}` });
+  const session = (title: string, n: number) => ({ ...newTemplateSession(n), session_id: `s_${title}_${n}`, title, work_items: [item("arm_circles", 0, "warm_up"), item("snatch", 1), item("back_squat", 2)] });
+  const week = (n: number) => ({ ...newTemplateWeek(n), week_id: `w_${n}`, sessions: [session("Snatch and back squat", 1), session("Clean and jerk", 2)] });
+  return draft({ blocks: [{ ...newTemplateBlock(1), block_id: "b_1", name: "Foundation", weeks: [week(1), week(2), week(3)] }] });
+}
+
+test("a long programme opens with only the first week of each block open, each later week a one-line summary, and every exercise a one-line summary", async () => {
+  installExerciseRegistryMock([{ exercise_id: "snatch", display_name: "Snatch" }, { exercise_id: "back_squat", display_name: "Back squat" }, { exercise_id: "arm_circles", display_name: "Arm circles" }]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(savedThreeWeekDraft());
+  const weeks = [...document.querySelectorAll(".template-week")];
+  assert.deepEqual(weeks.map((week) => week.getAttribute("data-open")), ["true", "false", "false"]);
+  assert.equal(weeks[1].querySelector(".builder-collapsed-summary")?.textContent, "2 sessions · Snatch and back squat, Clean and jerk");
+  assert.equal((weeks[1].querySelector(".builder-collapsible-body") as HTMLElement).hidden, true, "hidden, not removed - the inputs stay for the legacy listeners");
+  assert.ok(weeks[1].querySelector(".template-session-title-field input"), "a collapsed week's inputs are still in the page");
+  assert.ok([...document.querySelectorAll(".template-work-item")].every((item) => item.getAttribute("data-open") === "false"), "chosen exercises start as summaries");
+});
+
+test("a collapsed day names its main lifts, not its warm-up", async () => {
+  installExerciseRegistryMock([{ exercise_id: "snatch", display_name: "Snatch" }, { exercise_id: "back_squat", display_name: "Back squat" }, { exercise_id: "arm_circles", display_name: "Arm circles" }]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(savedThreeWeekDraft());
+  await waitFor(() => assert.ok(document.querySelector(".template-session-title-field")));
+  const firstSession = document.querySelector(".template-session") as HTMLElement;
+  fireEvent.click(firstSession.querySelector(":scope > .template-session-header .builder-collapse-toggle") as HTMLElement);
+  await waitFor(() => assert.equal(firstSession.getAttribute("data-open"), "false"));
+  assert.match(firstSession.querySelector(".builder-collapsed-summary")?.textContent ?? "", /^2 exercises · Snatch, Back squat · plus warm-up and cool-down$/u);
+});
+
+test("Collapse all folds every block, week and day; Expand all opens them again", async () => {
+  installExerciseRegistryMock([]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(savedThreeWeekDraft());
+  await act(async () => { fireEvent.click(screen.getByText("Collapse all")); });
+  assert.ok([...document.querySelectorAll(".template-block, .template-week, .template-session")].every((node) => node.getAttribute("data-open") === "false"));
+  assert.equal(document.querySelector(".template-block .builder-collapsed-summary")?.textContent, "3 weeks · 6 sessions");
+  await act(async () => { fireEvent.click(screen.getByText("Expand all")); });
+  assert.ok([...document.querySelectorAll(".template-block, .template-week, .template-session")].every((node) => node.getAttribute("data-open") === "true"));
+});
