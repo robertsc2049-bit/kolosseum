@@ -301,8 +301,24 @@ function loadState() {
   }
 }
 
+// Large server lists the app always fetches again - a coach with the 55
+// Kolosseum programme drafts pushed the saved copy past the browser's ~5 MB
+// localStorage quota, and the throw blocked signing in. Unsaved builder
+// drafts, offline sessions and the small session fields stay saved.
+const UNSAVED_STATE_KEYS = ["coachTemplates", "templateExercises"];
+
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  const saved = { ...state };
+  for (const key of UNSAVED_STATE_KEYS) delete saved[key];
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  }
+  catch (error) {
+    // Storage full or unavailable (private mode): never let that break the
+    // action in progress. The app still works; it just won't restore this
+    // browser state after a reload.
+    console.warn("Kolosseum could not save its state in this browser.", error);
+  }
 }
 
 function createId(prefix) {
