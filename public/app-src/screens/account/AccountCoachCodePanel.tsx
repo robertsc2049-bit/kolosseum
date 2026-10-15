@@ -46,7 +46,13 @@ export function AccountCoachCodePanel() {
     const trimmed = code.trim();
     const stored = readPersistedState();
     stored.coachCode = trimmed;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+    }
+    catch {
+      setNotice("This browser couldn't save the code - try again after clearing site data.");
+      return;
+    }
     setCode(trimmed);
     setNotice(trimmed ? "Coach account code saved." : "Coach account code cleared.");
   };
