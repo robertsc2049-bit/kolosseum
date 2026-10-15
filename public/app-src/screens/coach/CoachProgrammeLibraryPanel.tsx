@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
+import { programmeSportGroup } from "./kolosseumProgrammeGroups";
 import { KolosseumStarterForm } from "./KolosseumStarterForm";
 import {
   filteredProgrammeTemplates,
@@ -41,6 +42,18 @@ export function templateStatusBadgeClass(status: string): { label: string; class
 function openProgrammeDetail(templateId: string) {
   window.location.hash = `#/coach/programmes/${encodeURIComponent(templateId)}`;
   document.dispatchEvent(new CustomEvent("kolosseum:open-programme-detail", { detail: { template_id: templateId } }));
+}
+
+// Consecutive runs of one sport, in the order already sorted.
+function sportGroups(templates: JsonRecord[]): [string, JsonRecord[]][] {
+  const groups: [string, JsonRecord[]][] = [];
+  for (const template of templates) {
+    const sport = programmeSportGroup(template);
+    const last = groups[groups.length - 1];
+    if (last && last[0] === sport) last[1].push(template);
+    else groups.push([sport, [template]]);
+  }
+  return groups;
 }
 
 function dispatchProgrammeAction(eventName: string, templateId: string) {
@@ -88,7 +101,7 @@ function TemplateCard({ template, allTemplates, assignments }: { template: JsonR
     <article className="template-card" data-template-id={templateId} data-template-state={displayState}>
       <div>
         <h3>{String(template.template_name ?? "")}</h3>
-        <p>{titleCase(template.activity_id)} · Version {version} of {versions.length}</p>
+        <p>{programmeSportGroup(template)} · Version {version} of {versions.length}</p>
         <div className="template-card-facts">
           <span>{blockCount} block{blockCount === 1 ? "" : "s"}</span>
           <span>{weekCount} week{weekCount === 1 ? "" : "s"}</span>
@@ -147,7 +160,7 @@ export function CoachProgrammeLibraryPanel() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activityFilter, setActivityFilter] = useState("all");
-  const [sortMode, setSortMode] = useState<ProgrammeSortMode>("updated_desc");
+  const [sortMode, setSortMode] = useState<ProgrammeSortMode>("sport_name");
 
   const visible = useMemo(
     () => filteredProgrammeTemplates(templates, assignments, { search, statusFilter, activityFilter, sortMode }),
@@ -158,7 +171,7 @@ export function CoachProgrammeLibraryPanel() {
     setSearch("");
     setStatusFilter("all");
     setActivityFilter("all");
-    setSortMode("updated_desc");
+    setSortMode("sport_name");
   }
 
   return (
@@ -182,7 +195,7 @@ export function CoachProgrammeLibraryPanel() {
           />
         </label>
 
-        <PhoneDisclosure label="Filters" openLabel="Hide filters" count={[statusFilter !== "all", activityFilter !== "all", sortMode !== "updated_desc"].filter(Boolean).length}>
+        <PhoneDisclosure label="Filters" openLabel="Hide filters" count={[statusFilter !== "all", activityFilter !== "all", sortMode !== "sport_name"].filter(Boolean).length}>
         <label className="field">
           <span>State</span>
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
@@ -208,6 +221,7 @@ export function CoachProgrammeLibraryPanel() {
         <label className="field">
           <span>Sort</span>
           <select value={sortMode} onChange={(event) => setSortMode(event.target.value as ProgrammeSortMode)}>
+            <option value="sport_name">Sport, then name</option>
             <option value="updated_desc">Recently updated</option>
             <option value="name_asc">Name A–Z</option>
             <option value="version_desc">Highest version</option>
@@ -248,6 +262,17 @@ export function CoachProgrammeLibraryPanel() {
           <h3>No programmes match these filters</h3>
           <p>Clear or change the search, state or activity filters.</p>
         </div>
+      ) : sortMode === "sport_name" ? (
+        sportGroups(visible).map(([sport, group]) => (
+          <section className="programme-sport-group" key={sport} aria-label={sport}>
+            <h4 className="programme-sport-heading">{sport} <span className="muted small">{group.length}</span></h4>
+            <div className="template-library">
+              {group.map((template) => (
+                <TemplateCard key={String(template.template_id)} template={template} allTemplates={templates} assignments={assignments} />
+              ))}
+            </div>
+          </section>
+        ))
       ) : (
         <div className="template-library">
           {visible.map((template) => (
