@@ -47,7 +47,7 @@ test("athlete profile owns programme and event assignment", () => {
   assert.match(index, /id="athlete-profile-assignment-root"/u);
   assert.doesNotMatch(index, /id="athleteAssignmentForm"/u);
 
-  assert.match(assignmentPanel, /Event<\/span>/u);
+  assert.match(assignmentPanel, /Competition \(optional\)<\/span>/u);
   assert.match(assignmentPanel, /Programme<\/span>/u);
   assert.match(assignmentPanel, /Linked assignments/u);
   assert.match(assignmentClient, /export function createAthleteAssignment/u);

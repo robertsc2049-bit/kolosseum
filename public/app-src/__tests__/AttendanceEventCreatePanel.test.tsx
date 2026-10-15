@@ -156,7 +156,7 @@ test("creating an event with selected athletes submits the form and shows a succ
   }) as typeof fetch;
 
   await act(async () => {
-    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+    fireEvent.submit(screen.getByText("Schedule").closest("form") as HTMLFormElement);
   });
 
   await waitFor(() => screen.getByText("Saturday class created."));
@@ -199,7 +199,7 @@ test("toggling repeats reveals recurrence fields, and a weekly series submits th
   }) as typeof fetch;
 
   await act(async () => {
-    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+    fireEvent.submit(screen.getByText("Schedule").closest("form") as HTMLFormElement);
   });
 
   await waitFor(() => screen.getByText("MWF class created (3 occurrences)."));
@@ -255,7 +255,7 @@ test("selecting a shared team switches the picker to the org roster and submits 
   }) as typeof fetch;
 
   await act(async () => {
-    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+    fireEvent.submit(screen.getByText("Schedule").closest("form") as HTMLFormElement);
   });
 
   await waitFor(() => screen.getByText("Team practice created."));
@@ -277,7 +277,7 @@ test("a rejected create shows a plain error message, never the raw server code",
   fireEvent.change(screen.getByLabelText("Date"), { target: { value: "2026-09-05" } });
 
   await act(async () => {
-    fireEvent.submit(screen.getByText("Create event").closest("form") as HTMLFormElement);
+    fireEvent.submit(screen.getByText("Schedule").closest("form") as HTMLFormElement);
   });
 
   assert.equal(screen.queryByText("attendance_event_title_invalid"), null);

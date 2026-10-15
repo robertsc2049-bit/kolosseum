@@ -42,7 +42,7 @@ test("Open sessions shows a factual empty state when nothing is open", async () 
 test("Open sessions lists records with review_status open, with athlete name, status and event count", async () => {
   installMocks({
     records: [
-      { artefact_id: "a1", athlete_user_id: "athlete_1", review_status: "open", session_status: "in_progress", runtime_event_count: 4, updated_at: "2026-08-20T10:00:00.000Z" },
+      { artefact_id: "a1", athlete_user_id: "athlete_1", review_status: "open", session_status: "in_progress", runtime_event_count: 4, planned_work_item_count: 4, session_title: "Squat day", updated_at: "2026-08-20T10:00:00.000Z" },
       { artefact_id: "a2", athlete_user_id: "athlete_2", review_status: "unreviewed", session_status: "recorded", runtime_event_count: 2, updated_at: "2026-08-21T10:00:00.000Z" }
     ],
     relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex" }]
@@ -52,7 +52,8 @@ test("Open sessions lists records with review_status open, with athlete name, st
 
   await screen.findByText("Alex");
   assert.match(document.body.textContent ?? "", /In Progress/u);
-  assert.match(document.body.textContent ?? "", /4 recorded events/u);
+  assert.match(document.body.textContent ?? "", /Squat day/u);
+  assert.match(document.body.textContent ?? "", /4 exercises/u);
   assert.ok(screen.getByText("Open live status"));
 });
 
@@ -98,7 +99,7 @@ test("Review queue lists only records with awaiting_review true, excluding open 
   installMocks({
     records: [
       { artefact_id: "a1", athlete_user_id: "athlete_1", review_status: "open", awaiting_review: false, session_status: "in_progress", runtime_event_count: 1, updated_at: "2026-08-20T10:00:00.000Z" },
-      { artefact_id: "a2", athlete_user_id: "athlete_2", review_status: "unreviewed", awaiting_review: true, session_status: "completed", runtime_event_count: 5, updated_at: "2026-08-21T10:00:00.000Z" },
+      { artefact_id: "a2", athlete_user_id: "athlete_2", review_status: "unreviewed", awaiting_review: true, session_status: "completed", runtime_event_count: 5, planned_work_item_count: 5, updated_at: "2026-08-21T10:00:00.000Z" },
       { artefact_id: "a3", athlete_user_id: "athlete_3", review_status: "reviewed", awaiting_review: false, session_status: "completed", runtime_event_count: 3, updated_at: "2026-08-19T10:00:00.000Z" }
     ],
     relationships: [{ athlete_user_id: "athlete_2", display_name: "Jordan" }]
@@ -107,11 +108,11 @@ test("Review queue lists only records with awaiting_review true, excluding open 
   render(<CoachOverviewReviewQueuePanel />);
 
   await screen.findByText("Jordan");
-  assert.match(document.body.textContent ?? "", /5 recorded events/u);
-  assert.ok(screen.getByText("Review record"));
+  assert.match(document.body.textContent ?? "", /5 exercises/u);
+  assert.ok(screen.getByText("Review"));
 });
 
-test("Review record dispatches kolosseum:open-session-review with the athlete id", async () => {
+test("Review dispatches kolosseum:open-session-review with the athlete id", async () => {
   installMocks({
     records: [{ artefact_id: "a2", athlete_user_id: "athlete_2", review_status: "unreviewed", awaiting_review: true, session_status: "completed", runtime_event_count: 0, updated_at: "2026-08-21T10:00:00.000Z" }],
     relationships: [{ athlete_user_id: "athlete_2", display_name: "Jordan" }]
@@ -123,10 +124,10 @@ test("Review record dispatches kolosseum:open-session-review with the athlete id
   });
 
   render(<CoachOverviewReviewQueuePanel />);
-  await screen.findByText("Review record");
+  await screen.findByText("Review");
 
   act(() => {
-    screen.getByText("Review record").click();
+    screen.getByText("Review").click();
   });
 
   assert.deepEqual(received, { athlete_user_id: "athlete_2" });

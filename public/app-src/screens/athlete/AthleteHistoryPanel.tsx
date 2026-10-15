@@ -6,6 +6,7 @@ import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { formatDate, titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
 import { useTrainingHistory } from "./useTrainingHistory";
+import { topPersonalRecord } from "../../utils/personalRecords";
 
 // DEV NOTE: FULL-UI-16C athlete training history - ported from app.js's
 // populateHistoryFilterOptions()/applyHistoryFilters()/
@@ -271,12 +272,18 @@ export function AthleteHistoryPanel() {
 
               {detailSummary ? (
                 <div className="history-facts">
-                  <div><span>Items completed</span><strong>{String(detailSummary.prescribed_items_completed)}</strong></div>
-                  <div><span>Items skipped</span><strong>{String(detailSummary.prescribed_items_skipped)}</strong></div>
-                  <div><span>Items remaining</span><strong>{String(detailSummary.prescribed_items_remaining)}</strong></div>
-                  <div><span>Splits recorded</span><strong>{String(detailSummary.split_event_count)}</strong></div>
-                  <div><span>Return - continue</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
-                  <div><span>Return - skip</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
+                  <div><span>Exercises done</span><strong>{String(detailSummary.prescribed_items_completed)}</strong></div>
+                  <div><span>Skipped</span><strong>{String(detailSummary.prescribed_items_skipped)}</strong></div>
+                  <div><span>Not reached</span><strong>{String(detailSummary.prescribed_items_remaining)}</strong></div>
+                  {Number(detailSummary.split_event_count) > 0 ? (
+                    <div><span>Paused</span><strong>{`${String(detailSummary.split_event_count)} time${Number(detailSummary.split_event_count) === 1 ? "" : "s"}`}</strong></div>
+                  ) : null}
+                  {Number(detailSummary.return_continue_count) > 0 ? (
+                    <div><span>Came back and carried on</span><strong>{String(detailSummary.return_continue_count)}</strong></div>
+                  ) : null}
+                  {Number(detailSummary.return_skip_count) > 0 ? (
+                    <div><span>Came back and skipped the rest</span><strong>{String(detailSummary.return_skip_count)}</strong></div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -298,18 +305,18 @@ export function AthleteHistoryPanel() {
                       {exercise.rpe_reported ? <small>RPE reported: {String(exercise.rpe_reported)}</small> : null}
                       {exercise.borg_reported ? <small>Borg reported: {String(exercise.borg_reported)}</small> : null}
                       {exercise.cr10_reported !== null && exercise.cr10_reported !== undefined ? <small>CR10 reported: {String(exercise.cr10_reported)}</small> : null}
-                      {(Array.isArray(exercise.set_logs) ? (exercise.set_logs as JsonRecord[]) : []).map((log) => (
+                      {(Array.isArray(exercise.set_logs) ? (exercise.set_logs as JsonRecord[]) : []).map((log, _i, logs) => (
                         <small key={`set-${String(log.set_index)}`}>
                           Set {String(log.set_index)}: {String(log.reps)} reps
                           {log.load_value !== null && log.load_value !== undefined ? ` @ ${String(log.load_value)}${String(log.load_unit ?? "")}` : ""}
-                          {log.is_pr === true ? <> <span className="badge active">PR</span></> : null}
+                          {log === topPersonalRecord([...logs, ...extraSets]) ? <> <span className="badge active">PR</span></> : null}
                         </small>
                       ))}
                       {extraSets.map((extraSet, extraSetIndex) => (
                         <small key={extraSetIndex}>
                           Extra set: {String(extraSet.reps)} reps
                           {extraSet.load_value !== null && extraSet.load_value !== undefined ? ` @ ${String(extraSet.load_value)}${String(extraSet.load_unit ?? "")}` : ""}
-                          {extraSet.is_pr === true ? <> <span className="badge active">PR</span></> : null}
+                          {extraSet === topPersonalRecord([...(Array.isArray(exercise.set_logs) ? (exercise.set_logs as JsonRecord[]) : []), ...extraSets]) ? <> <span className="badge active">PR</span></> : null}
                         </small>
                       ))}
                       {substitution ? <small>Substituted with {String(substitution.substituted_exercise_id)}</small> : null}
@@ -331,7 +338,7 @@ export function AthleteHistoryPanel() {
                             <small key={setIndex}>
                               {String(set.reps)} reps
                               {set.load_value !== null && set.load_value !== undefined ? ` @ ${String(set.load_value)}${String(set.load_unit ?? "")}` : ""}
-                              {set.is_pr === true ? <> <span className="badge active">PR</span></> : null}
+                              {set === topPersonalRecord(sets) ? <> <span className="badge active">PR</span></> : null}
                             </small>
                           ))}
                         </div>

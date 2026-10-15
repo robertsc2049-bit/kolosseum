@@ -88,8 +88,15 @@ function programmeDisplayState(templates: JsonRecord[], template: JsonRecord): s
   return "active";
 }
 
+// A general-strength programme (Beginner full-body, or a Kolosseum programme
+// written for several sports - Collision off-season for rugby and American
+// football) suits an athlete of any sport; anything else must match theirs.
+function suitsActivity(template: JsonRecord, activityId: string): boolean {
+  return template.activity_id === activityId || template.activity_id === "general_strength";
+}
+
 function activeTemplatesForActivity(templates: JsonRecord[], activityId: string): JsonRecord[] {
-  return templates.filter((template) => programmeDisplayState(templates, template) === "active" && template.activity_id === activityId);
+  return templates.filter((template) => programmeDisplayState(templates, template) === "active" && suitsActivity(template, activityId));
 }
 
 function coachEventPlan(eventRecord: JsonRecord | undefined): JsonRecord | null {
@@ -156,11 +163,11 @@ function computeRequirements(
   exercises: JsonRecord[]
 ): AssignmentRequirements {
   if (!template) {
-    return { className: "neutral", message: "Select an active programme.", canSubmit: false };
+    return { className: "neutral", message: "Choose a programme to assign.", canSubmit: false };
   }
 
-  if (template.activity_id !== activityId) {
-    return { className: "warning", message: "The programme activity does not match this athlete.", canSubmit: false };
+  if (!suitsActivity(template, activityId)) {
+    return { className: "warning", message: "This programme is for a different sport from this athlete's.", canSubmit: false };
   }
 
   if (eventRecord && eventRecord.activity_id !== activityId) {
@@ -252,7 +259,7 @@ export function useAthleteProfileAssignment() {
       ]);
 
       const entry = relationships.find((candidate) => String(candidate.athlete_user_id ?? "") === id);
-      const athleteActivityId = String(entry?.activity_id ?? "powerlifting");
+      const athleteActivityId = String(entry?.activity_id ?? "");
 
       const assignments = rawAssignments
         .filter((raw) => String(raw.assigned_athlete_id ?? "") === id)

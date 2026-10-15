@@ -29,8 +29,10 @@ function SessionCard({ record, athleteName, badgeClass, buttonLabel }: {
     <article className="record-card dashboard-record-card">
       <div>
         <h4>{athleteName}</h4>
-        <p>
-          {titleCase(String(record.session_status ?? "recorded"))} · {Number(record.runtime_event_count ?? 0)} recorded events
+        <p>{String(record.session_title || "Training session")}</p>
+        <p className="muted small">
+          {titleCase(String(record.session_status ?? "recorded"))}
+          {Number(record.planned_work_item_count ?? 0) > 0 ? ` · ${Number(record.planned_work_item_count)} exercises` : ""}
         </p>
       </div>
       <div className="record-meta">
@@ -111,7 +113,7 @@ export function CoachOverviewReviewQueuePanel() {
             record={record}
             athleteName={athleteNamesById[athleteUserId] ?? "Connected athlete"}
             badgeClass="complete"
-            buttonLabel="Review record"
+            buttonLabel="Review"
           />
         );
       })}

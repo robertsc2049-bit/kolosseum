@@ -318,10 +318,15 @@ export async function loadStoredBetaCompileAdmission(
       );
     }
 
+    // A general-strength programme suits an athlete of any sport (see
+    // product_assignment.routes.ts); any other must match the athlete's.
     if (
       cleanString(
         template.activity_id
-      ) !== activityId
+      ) !== activityId &&
+      cleanString(
+        template.activity_id
+      ) !== "general_strength"
     ) {
       throw new BetaProductJourneyError(
         "assigned_template_activity_mismatch"

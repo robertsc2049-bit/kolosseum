@@ -80,7 +80,7 @@
           <span class="nav-icon">A</span><span>Athletes</span>
         </button>
         <button class="nav-item coach-nav" data-view="events">
-          <span class="nav-icon">E</span><span>Events</span>
+          <span class="nav-icon">E</span><span>Competitions</span>
         </button>
         <button class="nav-item coach-nav" data-view="templates">
           <span class="nav-icon">P</span><span>Programmes</span>
@@ -95,7 +95,7 @@
           <span class="nav-icon">G</span><span>Progress</span>
         </button>
         <button class="nav-item coach-nav" data-view="coach-attendance">
-          <span class="nav-icon">V</span><span>Attendance</span>
+          <span class="nav-icon">V</span><span>Classes</span>
         </button>
 
         <button id="athleteOnboardingNav" class="nav-item athlete-nav" type="button">
@@ -275,27 +275,27 @@
             <article class="panel coach-dashboard-panel">
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Relationships</p>
-                  <h3>Connected athletes</h3>
+                  <p class="eyebrow">Review</p>
+                  <h3>Sessions to review</h3>
                 </div>
 
                 <button
                   class="button secondary small-button"
-                  data-view-link="athletes"
+                  data-view-link="review"
                   type="button"
                 >
-                  Manage athletes
+                  Review sessions
                 </button>
               </div>
 
-              <div id="coach-overview-athletes-root" class="record-list dashboard-record-list"></div>
+              <div id="coach-overview-review-queue-root" class="record-list dashboard-record-list"></div>
             </article>
 
             <article class="panel coach-dashboard-panel">
               <div class="panel-header">
                 <div>
                   <p class="eyebrow">Assignments</p>
-                  <h3>Action queue</h3>
+                  <h3>Needs a programme</h3>
                 </div>
 
                 <button
@@ -314,7 +314,7 @@
               <div class="panel-header">
                 <div>
                   <p class="eyebrow">Live status</p>
-                  <h3>Open sessions</h3>
+                  <h3>Training right now</h3>
                 </div>
 
                 <button
@@ -332,27 +332,27 @@
             <article class="panel coach-dashboard-panel">
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Review</p>
-                  <h3>Completed since review</h3>
+                  <p class="eyebrow">Relationships</p>
+                  <h3>Connected athletes</h3>
                 </div>
 
                 <button
                   class="button secondary small-button"
-                  data-view-link="review"
+                  data-view-link="athletes"
                   type="button"
                 >
-                  Review sessions
+                  Manage athletes
                 </button>
               </div>
 
-              <div id="coach-overview-review-queue-root" class="record-list dashboard-record-list"></div>
+              <div id="coach-overview-athletes-root" class="record-list dashboard-record-list"></div>
             </article>
 
             <article class="panel coach-dashboard-panel dashboard-wide-panel">
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Events</p>
-                  <h3>Upcoming events</h3>
+                  <p class="eyebrow">Competitions</p>
+                  <h3>Upcoming competitions</h3>
                 </div>
 
                 <button
@@ -409,18 +409,27 @@
                React - see public/app-src/screens/coach/
                InviteAthleteByEmailPanel.tsx/CoachBroadcastPanel.tsx/
                ConnectAthletePanel.tsx/AthleteRelationshipDetailPanel.tsx. -->
-          <div id="invite-athlete-root"></div>
+          <div class="athlete-actions">
+            <details class="athlete-action">
+              <summary class="button primary">Invite an athlete</summary>
+              <div id="invite-athlete-root"></div>
+            </details>
+            <details class="athlete-action">
+              <summary class="button secondary">Message all athletes</summary>
+              <div id="coach-broadcast-root"></div>
+            </details>
+            <details class="athlete-action">
+              <summary class="button secondary">Add by account code</summary>
+              <div id="connect-athlete-root"></div>
+            </details>
+          </div>
 
-          <div id="coach-broadcast-root"></div>
-
-          <div class="two-column athlete-directory-layout">
-            <div id="connect-athlete-root"></div>
-
+          <div class="athlete-directory-layout">
             <article class="panel athlete-directory-panel">
               <div class="panel-header">
                 <div>
-                  <p class="eyebrow">Directory</p>
-                  <h3>Coach–athlete relationships</h3>
+                  <p class="eyebrow">Roster</p>
+                  <h3>Your athletes</h3>
                 </div>
               </div>
 
@@ -433,14 +442,12 @@
           <article id="athleteProfilePanel" class="panel athlete-profile-panel" hidden>
             <div class="panel-header athlete-profile-header">
               <div>
-                <p class="eyebrow">Athlete training profile</p>
+                <p class="eyebrow">Athlete</p>
                 <h3 id="athleteProfileHeading">Athlete profile</h3>
                 <p id="athleteProfileActivity" class="muted"></p>
               </div>
-              <button id="closeAthleteProfileButton" class="button secondary" type="button">Close profile</button>
+              <button id="closeAthleteProfileButton" class="button secondary" type="button">← All athletes</button>
             </div>
-
-            <div id="athlete-profile-editor-root"></div>
 
             <!-- DEV NOTE: the assignment-from-profile form is now React -
                  see public/app-src/screens/coach/AthleteProfileAssignmentPanel.tsx. -->
@@ -779,6 +786,10 @@
             </section>
 
 
+            <details class="athlete-settings">
+              <summary>Units, bodyweight and maxes</summary>
+              <div id="athlete-profile-editor-root"></div>
+            </details>
           </article>
         </section>
 
@@ -787,8 +798,8 @@
           <div class="page-heading">
             <div>
               <p class="eyebrow">Coach workspace</p>
-              <h2>Events</h2>
-              <p class="muted">Compile coach-owned event dates, then link athletes and programmes from each athlete profile.</p>
+              <h2>Competitions</h2>
+              <p class="muted">Meets, races and match days your athletes are training for. Choose one when you assign a programme and it's timed to peak for that date.</p>
             </div>
           </div>
 
@@ -801,7 +812,7 @@
 
             <article class="panel">
               <div class="panel-header">
-                <div><p class="eyebrow">Event library</p><h3>Coach events</h3></div>
+                <div><p class="eyebrow">Competitions</p><h3>Your competitions</h3></div>
                 <div class="inline-controls">
                   <a id="exportEventsCalendarLink" class="button secondary" href="/coach-workspace/events/calendar.ics">Export calendar (.ics)</a>
                   <button id="refreshEventsButton" class="button secondary" type="button">Refresh</button>

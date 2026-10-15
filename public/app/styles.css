@@ -4170,7 +4170,11 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #view-athletes > .page-heading { order: 0; }
   #view-athletes > #athleteDirectoryStatus { order: 1; }
   #view-athletes > .athlete-directory-layout { order: 2; margin-bottom: var(--k-space-4); }
-  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout) { order: 3; }
+  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout):not(.athlete-actions) { order: 3; }
+  /* ...but the compact Invite / Message / Add buttons stay above it. */
+  #view-athletes > .athlete-actions { order: 1; }
+  .athlete-actions > .athlete-action:not([open]) { flex: 1 1 auto; }
+  .athlete-actions > .athlete-action:not([open]) > summary { width: 100%; justify-content: center; }
   .athlete-directory-layout > .athlete-directory-panel { order: -1; }
 }
 
@@ -4682,6 +4686,48 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .org-handover-row p { margin: 0; }
 .org-handover-row input { width: 100%; }
 
+/* Coach Athletes page: the roster first; invite / broadcast / add-by-code
+   are buttons that open their form in place. */
+.athlete-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); margin: 0 0 var(--k-space-4); }
+.athlete-action > summary { list-style: none; cursor: pointer; }
+.athlete-action > summary::-webkit-details-marker { display: none; }
+.athlete-action[open] { flex-basis: 100%; order: -1; }
+.athlete-action[open] > summary { margin-bottom: var(--k-space-3); }
+.athlete-action > div > .panel { margin: 0; }
+.athlete-directory-layout { display: block; }
+
+/* An open athlete profile is the page: the roster and its forms step aside
+   until "All athletes" closes it, instead of the profile opening far below. */
+#view-athletes:has(#athleteProfilePanel:not([hidden])) > .athlete-directory-heading,
+#view-athletes:has(#athleteProfilePanel:not([hidden])) > #athleteDirectoryStatus,
+#view-athletes:has(#athleteProfilePanel:not([hidden])) > .athlete-actions,
+#view-athletes:has(#athleteProfilePanel:not([hidden])) > .athlete-directory-layout,
+#view-athletes:has(#athleteProfilePanel:not([hidden])) > #athlete-relationship-detail-root { display: none; }
+.athlete-profile-header { flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: var(--k-space-3); }
+
+/* Rarely-changed athlete settings, after the training record. */
+.athlete-settings { margin-top: var(--k-space-4); border-top: 1px solid var(--line-soft); padding-top: var(--k-space-3); }
+.athlete-settings > summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 700; }
+
+/* Thumb-sized actions on a phone. */
+@media (max-width: 620px) {
+  .button.small-button { min-height: 44px; padding-inline: var(--k-space-3); }
+}
+
+/* Phone: the five relationship counts as one compact row, not a screen of
+   tiles above the athletes themselves. */
+@media (max-width: 620px) {
+  .relationship-metric-cards { display: flex; gap: var(--k-space-2); overflow-x: auto; grid-template-columns: none; padding-bottom: var(--k-space-1); }
+  .relationship-metric-cards > .relationship-metric-card { flex: 0 0 auto; min-height: 0; padding: var(--k-space-2) var(--k-space-3); }
+  .relationship-metric-cards > .relationship-metric-card strong { font-size: 1.1rem; }
+}
+
+/* Phone tab bar: "More" needs less room than "Programmes", which used to be
+   cut to "Programm…". */
+@media (max-width: 620px) {
+  #tabMoreButton { flex: 0.6 1 0; }
+  .tab-item span { letter-spacing: -0.01em; }
+}
 /* Programme library and Kolosseum programmes, grouped by sport. */
 .programme-sport-group { margin-top: var(--k-space-4); }
 .programme-sport-heading { display: flex; align-items: baseline; gap: var(--k-space-2); margin: 0 0 var(--k-space-2); }

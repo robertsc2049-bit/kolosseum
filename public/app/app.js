@@ -954,11 +954,11 @@ function viewTitle(view) {
     history: "History",
     "coach-onboarding": "Coach setup",
     attendance: "Attendance",
-    "coach-attendance": "Attendance",
+    "coach-attendance": "Classes",
     "coach-progress": "Progress",
     "coach-overview": "Overview",
     athletes: "Athletes",
-    events: "Events",
+    events: "Competitions",
     templates: "Programmes",
     marketplace: "Marketplace",
     review: "Review",
@@ -1647,7 +1647,7 @@ function mapCoachAthleteDirectoryRow(raw, existing = null) {
     activityId: String(
       raw?.activity_id ??
       existing?.activityId ??
-      "powerlifting"
+      ""
     ),
     relationship,
     relationshipState: String(
@@ -2013,7 +2013,7 @@ function renderAthleteProfileEditor() {
 
   elements.athleteProfilePanel.hidden = false;
   elements.athleteProfileHeading.textContent = athlete.displayName;
-  elements.athleteProfileActivity.textContent = `${titleCase(athlete.activityId)} · ${athlete.userId}`;
+  elements.athleteProfileActivity.textContent = athlete.activityId ? titleCase(athlete.activityId) : "Sport not set";
   // NOTE: the preferred-unit/rounding/bodyweight/benchmark editor and the
   // assignment-from-profile form below this header are both React-owned
   // now (public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx/
@@ -2200,7 +2200,7 @@ function renderAthleteDetail() {
 
   elements.athleteDetailStatus
     .textContent =
-      `Loaded ${assignments.length} assignment, ${sessions.length} session and ${notes.length} note record${notes.length === 1 ? "" : "s"} for ${athlete.displayName}.`;
+      `${sessions.length} session${sessions.length === 1 ? "" : "s"} · ${notes.length} note${notes.length === 1 ? "" : "s"}`;
 }
 
 async function refreshAthleteDetail(
@@ -6159,7 +6159,12 @@ function showEntry() {
 }
 
 for (const button of document.querySelectorAll("[data-view]")) {
-  button.addEventListener("click", () => setView(button.dataset.view));
+  button.addEventListener("click", () => {
+    // The Athletes menu item always means the roster: an athlete profile left
+    // open earlier takes over the page now, so close it first.
+    if (button.dataset.view === "athletes" && state.selectedCoachAthleteId) closeAthleteProfile();
+    setView(button.dataset.view);
+  });
 }
 
 for (const button of document.querySelectorAll("[data-view-link]")) {

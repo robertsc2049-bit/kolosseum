@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { useAthleteDirectory } from "./useAthleteDirectory";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: FULL-UI-04A coach athlete directory (roster) - ported from
 // app.js's renderCoachAthleteDirectory(). The invite-by-email form,
@@ -154,7 +155,7 @@ export function AthleteDirectoryPanel() {
             return (
               <article className="record-card athlete-record-card relationship-directory-card" key={athleteUserId || index}>
                 <div>
-                  <p className="eyebrow">{titleCase(record.activity_id ?? "powerlifting")}</p>
+                  <p className="eyebrow">{record.activity_id ? sportLabel(String(record.activity_id)) : "Sport not set"}</p>
                   <h3>{String(record.display_name || "Connected athlete")}</h3>
                   <p>{String(record.email || "No email on file")}</p>
                   <p className="muted small">{programmeLabelFor(athleteUserId, assignments, templates)}</p>
@@ -175,7 +176,7 @@ export function AthleteDirectoryPanel() {
                     data-relationship-action="audit"
                     data-relationship-athlete-id={athleteUserId}
                   >
-                    View audit
+                    History
                   </button>
 
                   {accepted ? (

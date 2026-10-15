@@ -1,7 +1,7 @@
 import React from "react";
 
-import { titleCase } from "../../utils/format";
 import { type CoachOverviewAthleteEntry, useCoachOverviewAthletes } from "./useCoachOverviewAthletes";
+import { sportLabel } from "../../utils/sportLabel";
 
 // DEV NOTE: part of FULL-UI-03's Coach Overview dashboard - ported from
 // app.js's (removed) renderCoachDashboard()/renderCoachWorkspace()
@@ -21,16 +21,17 @@ function AthleteCard({ athlete }: { athlete: CoachOverviewAthleteEntry }) {
     <article className="record-card athlete-record-card">
       <div>
         <h3>{athlete.displayName}</h3>
-        <p>{titleCase(athlete.activityId)}</p>
+        <p>{athlete.activityId ? sportLabel(athlete.activityId) : "Sport not set"}</p>
       </div>
       <div className="record-meta athlete-record-meta">
-        <span className="badge complete">Connected</span>
-        <span className={`badge ${athlete.hasProfile ? "active" : "neutral"}`}>
-          {athlete.hasProfile
-            ? `${athlete.referenceCount} strength reference${athlete.referenceCount === 1 ? "" : "s"}`
-            : "Profile not recorded"}
+        <span className={`badge ${athlete.assignmentCount > 0 ? "complete" : "warning"}`}>
+          {athlete.assignmentCount > 0 ? "On a programme" : "No programme"}
         </span>
-        <span className="badge neutral">{athlete.assignmentCount} assignment{athlete.assignmentCount === 1 ? "" : "s"}</span>
+        <span className="badge neutral">
+          {athlete.hasProfile && athlete.referenceCount > 0
+            ? `${athlete.referenceCount} max${athlete.referenceCount === 1 ? "" : "es"} recorded`
+            : "No maxes recorded"}
+        </span>
         <button className="button secondary small-button" type="button" onClick={() => openProfile(athlete.athleteUserId)}>
           Open profile
         </button>

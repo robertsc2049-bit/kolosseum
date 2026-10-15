@@ -110,8 +110,8 @@ export function CoachEventsListPanel() {
     return (
       <div className="empty-state">
         <div className="empty-icon">E</div>
-        <h3>No events created</h3>
-        <p>Create an event date anchor, then link athletes and programmes from each athlete profile.</p>
+        <h3>No competitions yet</h3>
+        <p>Add a meet, race or match day, then choose it when you assign an athlete's programme - the programme is timed to peak for it.</p>
       </div>
     );
   }

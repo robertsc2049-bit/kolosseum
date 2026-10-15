@@ -121,7 +121,7 @@ function ReviewCard({
       <div>
         <p className="eyebrow">{athleteName}</p>
         <h3>{String(record.session_title ?? "Training session")}</h3>
-        <p>{dateLabel} · {Number(record.runtime_event_count ?? 0)} recorded events</p>
+        <p>{dateLabel}{Number(record.planned_work_item_count ?? 0) > 0 ? ` · ${Number(record.planned_work_item_count)} exercises` : ""}</p>
       </div>
       <div className="record-meta review-record-actions">
         <StatusBadge record={record} />
@@ -187,20 +187,26 @@ function ReviewDetail({
 
       {summary ? (
         <dl className="review-fact-grid">
-          <div><dt>Items completed</dt><dd>{Number(summary.prescribed_items_completed ?? 0)}</dd></div>
-          <div><dt>Items skipped</dt><dd>{Number(summary.prescribed_items_skipped ?? 0)}</dd></div>
-          <div><dt>Items remaining</dt><dd>{Number(summary.prescribed_items_remaining ?? 0)}</dd></div>
-          <div><dt>Splits recorded</dt><dd>{Number(summary.split_event_count ?? 0)}</dd></div>
-          <div><dt>Return - continue</dt><dd>{Number(summary.return_continue_count ?? 0)}</dd></div>
-          <div><dt>Return - skip</dt><dd>{Number(summary.return_skip_count ?? 0)}</dd></div>
+          <div><dt>Exercises done</dt><dd>{Number(summary.prescribed_items_completed ?? 0)}</dd></div>
+          <div><dt>Skipped</dt><dd>{Number(summary.prescribed_items_skipped ?? 0)}</dd></div>
+          <div><dt>Not reached</dt><dd>{Number(summary.prescribed_items_remaining ?? 0)}</dd></div>
+          {Number(summary.split_event_count ?? 0) > 0 ? (
+            <div><dt>Paused</dt><dd>{`${Number(summary.split_event_count)} time${Number(summary.split_event_count) === 1 ? "" : "s"}`}</dd></div>
+          ) : null}
+          {Number(summary.return_continue_count ?? 0) > 0 ? (
+            <div><dt>Came back and carried on</dt><dd>{Number(summary.return_continue_count)}</dd></div>
+          ) : null}
+          {Number(summary.return_skip_count ?? 0) > 0 ? (
+            <div><dt>Came back and skipped the rest</dt><dd>{Number(summary.return_skip_count)}</dd></div>
+          ) : null}
         </dl>
       ) : null}
 
 
       <p className={`review-boundary-copy${status === "open" ? " live" : ""}`}>
         {status === "open"
-          ? "Live status is read-only. This screen shows recorded session facts and can't control or change the active session."
-          : "Marking a session reviewed or unreviewed is for your own tracking only - it doesn't change the session record, programme, assignment, or how the training itself was calculated."}
+          ? "This session is still in progress - you're seeing it live, read-only."
+          : "Reviewed is just your own marker - it doesn't change the athlete's session or programme."}
       </p>
 
       <div className="assignment-action-row">

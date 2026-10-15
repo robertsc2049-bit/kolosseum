@@ -89,12 +89,12 @@ test("shows an athlete's activity, assignment count and strength-reference count
   render(<CoachOverviewAthletesPanel />);
 
   await screen.findByText("Alex");
-  assert.match(document.body.textContent ?? "", /Rugby Union/u);
-  assert.ok(screen.getByText("3 strength references"));
-  assert.ok(screen.getByText("2 assignments"));
+  assert.match(document.body.textContent ?? "", /Rugby union/u);
+  assert.ok(screen.getByText("3 maxes recorded"));
+  assert.ok(screen.getByText("On a programme"));
 });
 
-test("shows 'Profile not recorded' when the athlete has no strength profile yet", async () => {
+test("shows 'No maxes recorded' when the athlete has no strength profile yet", async () => {
   installMocks({
     relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex", relationship_state: "accepted" }],
     assignments: [],
@@ -104,8 +104,8 @@ test("shows 'Profile not recorded' when the athlete has no strength profile yet"
   render(<CoachOverviewAthletesPanel />);
 
   await screen.findByText("Alex");
-  assert.ok(screen.getByText("Profile not recorded"));
-  assert.ok(screen.getByText("0 assignments"));
+  assert.ok(screen.getByText("No maxes recorded"));
+  assert.ok(screen.getByText("No programme"));
 });
 
 test("a failed strength-profile fetch for one athlete degrades gracefully rather than breaking the whole card", async () => {
@@ -125,7 +125,7 @@ test("a failed strength-profile fetch for one athlete degrades gracefully rather
   render(<CoachOverviewAthletesPanel />);
 
   await screen.findByText("Alex");
-  assert.ok(screen.getByText("Profile not recorded"));
+  assert.ok(screen.getByText("No maxes recorded"));
 });
 
 test("caps the displayed list at 6 athletes", async () => {

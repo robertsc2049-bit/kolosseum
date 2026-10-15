@@ -51,12 +51,11 @@ export function CoachOverviewAssignmentsPanel() {
           <article className="record-card dashboard-record-card" key={athleteUserId || index}>
             <div>
               <h4>{String(athlete.display_name ?? athleteUserId)}</h4>
-              <p>No programme assignment is currently recorded.</p>
+              <p>Not on a programme yet.</p>
             </div>
             <div className="record-meta">
-              <span className="badge neutral">Action required</span>
               <button className="button secondary small-button" type="button" onClick={() => openAssignmentProfile(athleteUserId)}>
-                Open profile
+                Assign a programme
               </button>
             </div>
           </article>

@@ -52,7 +52,7 @@ test("renders the compile-event form with default activity, event type options, 
   installMocks();
   render(<CoachEventCreatePanel />);
 
-  assert.ok(screen.getByRole("heading", { name: "Create event" }));
+  assert.ok(screen.getByRole("heading", { name: "Add a competition" }));
   const activitySelect = screen.getByDisplayValue("Powerlifting") as HTMLSelectElement;
   assert.equal(activitySelect.value, "powerlifting");
   assert.ok(screen.getByText("Powerlifting meet"));
@@ -104,7 +104,7 @@ test("submitting posts the CSRF-guarded event, dispatches the change event, rese
   fireEvent.change(screen.getByPlaceholderText("Optional venue or town"), { target: { value: "Birmingham" } });
 
   await act(async () => {
-    fireEvent.submit(screen.getByRole("button", { name: "Create event" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Add competition" }).closest("form")!);
   });
 
   assert.equal(changed, true);
@@ -136,7 +136,7 @@ test("a rejected creation request shows the server's factual error and keeps the
   fireEvent.change(dateInputs[1], { target: { value: "2027-01-01" } });
 
   await act(async () => {
-    fireEvent.submit(screen.getByRole("button", { name: "Create event" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Add competition" }).closest("form")!);
   });
 
   await screen.findByText("Enter a valid event date.");

@@ -44,7 +44,7 @@ test("shows a factual empty state when there are no upcoming events", async () =
   installMocks([]);
   render(<CoachOverviewEventsPanel />);
   await waitFor(() => screen.getByText("No upcoming events"));
-  assert.ok(screen.getByText("Create an event date anchor to display it on the coach dashboard."));
+  assert.ok(screen.getByText("Add a competition in Events and it will count down here."));
 });
 
 test("displays an upcoming event with its name, type, date, countdown and linked-athlete count", async () => {

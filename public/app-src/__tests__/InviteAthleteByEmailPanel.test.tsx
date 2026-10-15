@@ -41,7 +41,7 @@ test.afterEach(() => {
 test("renders the invite form", () => {
   installMocks();
   render(<InviteAthleteByEmailPanel />);
-  assert.ok(screen.getByText("Invite athlete by email"));
+  assert.ok(screen.getByText("Invite an athlete by email"));
   assert.ok(screen.getByText("Send invitation"));
 });
 

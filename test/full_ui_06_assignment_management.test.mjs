@@ -120,7 +120,7 @@ test("FULL-UI-06 projects lifecycle state into assignment reads", () => {
 test("FULL-UI-06 confirms exact version and separates optional event state", () => {
   assert.match(assignmentHook, /version \$\{templateVersion\}/u);
   assert.match(assignmentHook, /event_id/u);
-  assert.match(assignmentPanel, /No event link/u);
+  assert.match(assignmentPanel, /No competition/u);
   assert.match(assignmentPanel, /window\.confirm\(confirmation\)/u);
   assert.match(assignmentHook, /preserved_session_count/u);
 });
