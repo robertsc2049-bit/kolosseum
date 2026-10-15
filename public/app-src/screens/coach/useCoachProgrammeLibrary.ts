@@ -4,6 +4,7 @@ import { loadAccountDetail } from "../../api/client";
 import { loadCoachAssignments, loadCoachTemplates } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
+import { programmeSportGroup } from "./kolosseumProgrammeGroups";
 
 // DEV NOTE: FULL-UI-05A programme library (read-only) - the metric cards,
 // search/filter/sort and card list. Ported from public/app/app.js's
@@ -169,7 +170,7 @@ export function programmeSearchText(template: JsonRecord): string {
     .join(" ");
 }
 
-export type ProgrammeSortMode = "updated_desc" | "name_asc" | "version_desc" | "usage_desc";
+export type ProgrammeSortMode = "sport_name" | "updated_desc" | "name_asc" | "version_desc" | "usage_desc";
 
 export function filteredProgrammeTemplates(
   templates: JsonRecord[],
@@ -189,6 +190,15 @@ export function filteredProgrammeTemplates(
   });
 
   visible.sort((left, right) => {
+    // The default: grouped by sport, A-Z within each.
+    if (options.sortMode === "sport_name") {
+      return (
+        programmeSportGroup(left).localeCompare(programmeSportGroup(right)) ||
+        String(left.template_name ?? "").localeCompare(String(right.template_name ?? "")) ||
+        programmeVersionNumber(right) - programmeVersionNumber(left)
+      );
+    }
+
     if (options.sortMode === "name_asc") {
       return (
         String(left.template_name ?? "").localeCompare(String(right.template_name ?? "")) ||

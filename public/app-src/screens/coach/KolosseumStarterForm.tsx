@@ -6,12 +6,38 @@ import { type JsonRecord } from "../../api/transport";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
+import { sportGroupLabel } from "./kolosseumProgrammeGroups";
 
 // "Start from a Kolosseum programme": the coach-written Kolosseum programmes
 // (programme_catalogue_service.ts) - copy one into your library as a draft to
 // change and assign. Until any are published, a draft built from the engine's
 // own programme for a sport, level and training days (a 4-week block with a
 // deload) instead.
+// The panel can run to dozens of programmes, so Close sits at the top, not
+// only at the end of the list.
+function StarterHeader({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <div className="panel-header kolosseum-starter-header">
+      <h4>{title}</h4>
+      <button className="button secondary small-button" type="button" onClick={onClose}>Close</button>
+    </div>
+  );
+}
+
+// Grouped by the sports each is written for ("Combat sports", "Cricket"),
+// "Any sport" first, A-Z throughout.
+function programmesBySport(programmes: JsonRecord[]): [string, JsonRecord[]][] {
+  const groups = new Map<string, JsonRecord[]>();
+  for (const programme of programmes) {
+    const sports = Array.isArray(programme.activity_ids) ? programme.activity_ids.map(String) : [];
+    const key = sportGroupLabel(sports);
+    groups.set(key, [...(groups.get(key) ?? []), programme]);
+  }
+  return [...groups.entries()]
+    .sort(([a], [b]) => (a === "Any sport" ? -1 : b === "Any sport" ? 1 : a.localeCompare(b)))
+    .map(([key, group]) => [key, group.sort((x, y) => String(x.title).localeCompare(String(y.title)))]);
+}
+
 export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: string) => void }) {
   const [open, setOpen] = useState(false);
   const [programmes, setProgrammes] = useState<JsonRecord[] | null>(null);
@@ -83,16 +109,25 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
   }
 
   if (programmes === null) {
-    return <div className="panel kolosseum-starter-form" data-testid="kolosseum-starter"><p className="muted">Loading Kolosseum programmes…</p></div>;
+    return (
+      <div className="panel kolosseum-starter-form" data-testid="kolosseum-starter">
+        <StarterHeader title="Kolosseum programmes" onClose={() => setOpen(false)} />
+        <p className="muted">Loading Kolosseum programmes…</p>
+      </div>
+    );
   }
 
   if (programmes.length > 0) {
     return (
       <div className="panel kolosseum-starter-form" data-testid="kolosseum-programmes">
+        <StarterHeader title="Kolosseum programmes" onClose={() => setOpen(false)} />
         <p className="muted">Programmes written by Kolosseum coaches. Copy one into your library as a draft - change anything, then assign it.</p>
         {error ? <p className="field-error" role="alert">{error}</p> : null}
+        {programmesBySport(programmes).map(([sport, group]) => (
+        <section className="programme-sport-group" key={sport} aria-label={sport}>
+        <h4 className="programme-sport-heading">{sport}</h4>
         <ul className="programme-options">
-          {programmes.map((programme) => {
+          {group.map((programme) => {
             const id = String(programme.listing_id);
             const sports = Array.isArray(programme.activity_ids) ? programme.activity_ids.map(String) : [];
             const levels = Array.isArray(programme.levels) ? programme.levels.map((l) => titleCase(String(l))) : [];
@@ -111,6 +146,8 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
             );
           })}
         </ul>
+        </section>
+        ))}
         <div className="button-row">
           <button className="button secondary" type="button" onClick={() => setOpen(false)}>Cancel</button>
         </div>
@@ -120,6 +157,7 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
 
   return (
     <div className="panel kolosseum-starter-form" data-testid="kolosseum-starter">
+      <StarterHeader title="Start from a Kolosseum programme" onClose={() => setOpen(false)} />
       <p className="muted">A 4-week block (three loading weeks and a deload) from the Kolosseum programme for this sport and level, as a draft you can change before assigning.</p>
       <ActivityCategoryFilter value={activityId} onChange={setActivityId} sportLabel="Sport" />
       <label className="field">

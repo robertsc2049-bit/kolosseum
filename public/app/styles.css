@@ -4728,3 +4728,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #tabMoreButton { flex: 0.6 1 0; }
   .tab-item span { letter-spacing: -0.01em; }
 }
+/* Programme library and Kolosseum programmes, grouped by sport. */
+.programme-sport-group { margin-top: var(--k-space-4); }
+.programme-sport-heading { display: flex; align-items: baseline; gap: var(--k-space-2); margin: 0 0 var(--k-space-2); }
+.kolosseum-starter-header { display: flex; align-items: center; justify-content: space-between; gap: var(--k-space-3); }
+.kolosseum-starter-header h4 { margin: 0; }

@@ -839,35 +839,8 @@
 
             <div id="templates-metrics-root" class="metric-cards programme-metric-cards"></div>
 
-            <article class="panel programme-library-panel">
-              <div class="panel-header">
-                <div>
-                  <p class="eyebrow">Programme library</p>
-                  <h3>Your programmes</h3>
-                </div>
-                <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
-              </div>
-
-              <div id="templates-library-root"></div>
-
-              <aside
-                id="templateDraftRecovery"
-                class="panel template-draft-recovery"
-                aria-labelledby="templateDraftRecoveryTitle"
-                hidden
-              >
-                <div>
-                  <p class="eyebrow">Recovered browser draft</p>
-                  <h4 id="templateDraftRecoveryTitle">Recover programme</h4>
-                  <p id="templateDraftRecoveryText" class="muted">Unsaved programme changes are available in this browser.</p>
-                </div>
-                <div class="template-draft-recovery-actions">
-                  <button id="templateDraftRecoveryResumeButton" class="button primary" type="button">Resume changes</button>
-                  <button id="templateDraftRecoveryDiscardButton" class="button secondary" type="button">Discard changes</button>
-                </div>
-              </aside>
-            </article>
-
+            <!-- Above the library: with dozens of programmes the panel opened
+                 out of sight below the last card. -->
             <section
               id="templateDetailPanel"
               class="panel programme-detail-panel"
@@ -903,6 +876,36 @@
                 <div id="programme-preview-root" class="programme-preview"></div>
               </article>
             </section>
+
+            <article class="panel programme-library-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Programme library</p>
+                  <h3>Your programmes</h3>
+                </div>
+                <button id="refreshTemplatesButton" class="button secondary" type="button">Refresh</button>
+              </div>
+
+              <div id="templates-library-root"></div>
+
+              <aside
+                id="templateDraftRecovery"
+                class="panel template-draft-recovery"
+                aria-labelledby="templateDraftRecoveryTitle"
+                hidden
+              >
+                <div>
+                  <p class="eyebrow">Recovered browser draft</p>
+                  <h4 id="templateDraftRecoveryTitle">Recover programme</h4>
+                  <p id="templateDraftRecoveryText" class="muted">Unsaved programme changes are available in this browser.</p>
+                </div>
+                <div class="template-draft-recovery-actions">
+                  <button id="templateDraftRecoveryResumeButton" class="button primary" type="button">Resume changes</button>
+                  <button id="templateDraftRecoveryDiscardButton" class="button secondary" type="button">Discard changes</button>
+                </div>
+              </aside>
+            </article>
+
           </div>
 
           <div id="templateBuilderView" hidden>

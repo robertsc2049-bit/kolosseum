@@ -6254,17 +6254,35 @@ document.addEventListener("kolosseum:continue-history-session", (event) => {
 // (openProgrammeDetail/openTemplateBuilder/completeTemplateById/
 // activateTemplateById/duplicateTemplate/archiveTemplate) - and the
 // still-legacy detail panel/builder they open - are unchanged.
+// The React library loads programmes itself; this file's own copy can lag
+// (programmes added in another tab, by a script, or since sign-in), and a
+// card action then silently did nothing. Reload the copy once and retry.
+async function coachTemplateById(templateId) {
+  const find = () => state.coachTemplates.find((entry) => entry.template_id === templateId);
+  if (!find()) await refreshTemplates({ quiet: true });
+  return find();
+}
+
 document.addEventListener("kolosseum:open-programme-detail", (event) => {
   const templateId = event.detail?.template_id;
-  if (templateId) openProgrammeDetail(templateId);
+  if (!templateId) return;
+  coachTemplateById(templateId)
+    .then((template) => {
+      if (template) openProgrammeDetail(templateId);
+      else handleError(new Error("That programme could not be found - refresh the programme library."));
+    })
+    .catch(handleError);
 });
 
 document.addEventListener("kolosseum:edit-programme", (event) => {
   const templateId = event.detail?.template_id;
-  const template = state.coachTemplates.find(
-    (entry) => entry.template_id === templateId
-  );
-  if (template) openTemplateBuilder(templateRecordToDraft(template));
+  if (!templateId) return;
+  coachTemplateById(templateId)
+    .then((template) => {
+      if (template) openTemplateBuilder(templateRecordToDraft(template));
+      else handleError(new Error("That programme could not be found - refresh the programme library."));
+    })
+    .catch(handleError);
 });
 
 document.addEventListener("kolosseum:complete-programme", (event) => {
