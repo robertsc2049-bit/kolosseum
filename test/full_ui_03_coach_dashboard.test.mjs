@@ -231,8 +231,10 @@ test("FULL-UI-03 remains factual and read-only", () => {
     );
   }
 
+  // A recorded fact (how many exercises the session had), in words a coach
+  // uses - not the raw runtime-event count it used to show.
   assert.ok(
-    coachOverviewSessionReviewPanel.includes("recorded events")
+    coachOverviewSessionReviewPanel.includes("planned_work_item_count")
   );
 
   assert.ok(

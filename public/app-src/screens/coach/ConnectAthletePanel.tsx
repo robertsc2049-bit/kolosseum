@@ -46,8 +46,8 @@ export function ConnectAthletePanel() {
   return (
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
-        <p className="eyebrow">Relationship record</p>
-        <h3>Add athlete</h3>
+        <p className="eyebrow">Account code</p>
+        <h3>Add an athlete by account code</h3>
       </div>
 
       <label className="field">

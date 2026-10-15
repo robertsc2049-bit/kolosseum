@@ -289,9 +289,9 @@ test("opening a session shows the neutral session summary facts fetched from GET
   await waitFor(() => screen.getByText("5"));
   const factValues = Array.from(document.querySelectorAll(".history-facts strong")).map((el) => el.textContent);
   assert.deepEqual(
-    factValues.slice(-6),
-    ["5", "2", "1", "4", "6", "0"],
-    "prescribed_items_completed/skipped/remaining, split_event_count, return_continue_count and return_skip_count should all render in order"
+    factValues.slice(-4),
+    ["5", "2", "1", "4 times"],
+    "exercises done, skipped, not reached, then how often it was paused (only when it was)"
   );
 });
 

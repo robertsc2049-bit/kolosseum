@@ -23,6 +23,7 @@ import {
 } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
+import { plannedSessionTitle } from "./session_title.js";
 
 type JsonRecord = Record<string, unknown>;
 type QueryClient = Pick<PoolClient, "query">;
@@ -509,6 +510,7 @@ export async function listCoachAthleteRelationships(
       // #1082, training_focus) is never itself projected into phase1Input
       // below, so it needs its own read of the athlete's own current
       // declaration.
+      let declaredActivity: string | null = null;
       let declaredPosition: string | null = null;
       let declaredTrainingFocus: readonly string[] = [];
       try {
@@ -527,6 +529,7 @@ export async function listCoachAthleteRelationships(
             ),
             getAthleteDeclaredActivityAndPosition(athleteUserId)
           ]);
+        declaredActivity = declared.activity_id;
         declaredPosition = declared.position;
         declaredTrainingFocus = declared.training_focus;
       }
@@ -542,7 +545,12 @@ export async function listCoachAthleteRelationships(
           ? declaration.phase1_input
           : {};
 
+      // The athlete's current declaration first: athletes who onboard
+      // through the account flow never get the older beta16 declaration
+      // record, and the roster then showed no sport (and the UI fell back
+      // to "Powerlifting" for a tennis player).
       const activityId =
+        cleanString(declaredActivity) ||
         cleanString(phase1Input.activity_id);
 
       const storedState =
@@ -1668,6 +1676,8 @@ export async function loadCoachAthleteDetail(
               row.session_id
             )}`,
           exercise_ids: exerciseIds,
+          session_title:
+            plannedSessionTitle(plannedSession),
           block_id:
             String(row.block_id ?? ""),
           session_status:

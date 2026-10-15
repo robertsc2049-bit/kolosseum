@@ -510,7 +510,7 @@ test("the open review record's detail shows the neutral session summary facts fe
   });
 
   const summaryFacts = Array.from(factGrids[0].querySelectorAll("dd")).map((el) => el.textContent);
-  assert.deepEqual(summaryFacts, ["4", "1", "0", "3", "7", "1"]);
+  assert.deepEqual(summaryFacts, ["4", "1", "0", "3 times"], "done, skipped, not reached, paused - no engine return counters");
 });
 
 test("a coach reviewing a squat session sees what was actually lifted: each set with its load, the PR, the RPE, a swap, an unlogged exercise and an added one", async () => {

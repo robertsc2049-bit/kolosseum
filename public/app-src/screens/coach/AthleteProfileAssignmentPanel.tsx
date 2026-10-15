@@ -28,7 +28,6 @@ function AssignmentHistoryCard({ entry }: { entry: AssignmentEntry }) {
       <div>
         <h4>{entry.templateName}</h4>
         <p>{titleCase(entry.activityId || "training")} · {formatDate(entry.recordedAt)}</p>
-        <p className="muted small">Assignment {entry.assignmentId}</p>
         {entry.preservedSessionCount > 0 ? (
           <p className="muted small">{entry.preservedSessionCount} prior session{entry.preservedSessionCount === 1 ? "" : "s"} preserved.</p>
         ) : null}
@@ -93,17 +92,17 @@ export function AthleteProfileAssignmentPanel() {
     <section className="athlete-assignment-panel">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Programme assignment</p>
-          <h3>Assign from athlete profile</h3>
-          <p className="muted">Select an active programme and optionally link it to a compiled event.</p>
+          <p className="eyebrow">Training</p>
+          <h3>Assign a programme</h3>
+          <p className="muted">Choose one of your active programmes, and the competition it's building to if there is one.</p>
         </div>
       </div>
 
       <form className="athlete-assignment-form" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
         <label className="field">
-          <span>Event</span>
+          <span>Competition (optional)</span>
           <select value={selectedEventId} onChange={(event) => setSelectedEventId(event.target.value)}>
-            <option value="">No event link</option>
+            <option value="">No competition</option>
             {activeEvents.map((eventRecord) => {
               const plan = (eventRecord.event_plan as JsonRecord | undefined) ?? {};
               return (
@@ -118,7 +117,7 @@ export function AthleteProfileAssignmentPanel() {
         <label className="field">
           <span>Programme</span>
           <select value={selectedTemplateId} onChange={(event) => setSelectedTemplateId(event.target.value)} disabled={activeTemplates.length === 0}>
-            <option value="">{activeTemplates.length ? "No active programmes" : "No active programmes for this activity"}</option>
+            <option value="">{activeTemplates.length ? "Choose a programme" : "No active programmes yet - activate one in Programmes"}</option>
             {activeTemplates.map((template) => (
               <option key={String(template.template_id)} value={String(template.template_id)}>
                 {String(template.template_name)} · v{Number(template.template_version)}

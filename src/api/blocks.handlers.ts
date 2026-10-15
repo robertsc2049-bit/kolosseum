@@ -647,8 +647,14 @@ export async function compileBlock(req: Request, res: Response) {
   const p6_session = programme_run_session || own_training_session
     ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput
     : p6.session;
+  // The programme's own name for this session ("Squat day"), so review and
+  // history don't list a column of identical "Training session"s.
+  const templateSessionTitle = executionStamp && typeof executionStamp.template_session_title === "string"
+    ? executionStamp.template_session_title.trim()
+    : "";
   const named_session: Phase6SessionOutput = {
     ...p6_session,
+    ...(templateSessionTitle ? { title: templateSessionTitle } : {}),
     ...(programme_run_session ? { programme_run: programme_run_session } : {}),
     ...(own_training_session ? { own_training: own_training_session } : {}),
     // Where this session sits in a coach's or a Kolosseum programme, so the

@@ -64,11 +64,10 @@ test("lists accepted athletes without a recorded assignment", async () => {
   await waitFor(() => screen.getByText("Jordan"));
   assert.equal(screen.queryByText("Alex"), null);
   assert.equal(screen.queryByText("Pending Pat"), null);
-  assert.ok(screen.getByText("No programme assignment is currently recorded."));
-  assert.ok(screen.getByText("Action required"));
+  assert.ok(screen.getByText("Not on a programme yet."));
 });
 
-test("the Open profile button dispatches kolosseum:open-athlete-profile-request with focus_assignment", async () => {
+test("the Assign a programme button dispatches kolosseum:open-athlete-profile-request with focus_assignment", async () => {
   installMocks({
     relationships: [{ athlete_user_id: "athlete_1", display_name: "Alex", relationship_state: "accepted" }],
     assignments: []
@@ -80,10 +79,10 @@ test("the Open profile button dispatches kolosseum:open-athlete-profile-request 
   });
 
   render(<CoachOverviewAssignmentsPanel />);
-  await waitFor(() => screen.getByText("Open profile"));
+  await waitFor(() => screen.getByText("Assign a programme"));
 
   act(() => {
-    screen.getByText("Open profile").click();
+    screen.getByText("Assign a programme").click();
   });
 
   assert.deepEqual(received, { athlete_user_id: "athlete_1", focus_assignment: true });

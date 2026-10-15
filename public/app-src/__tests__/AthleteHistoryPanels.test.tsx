@@ -279,7 +279,6 @@ test("displays a session with its recorded event count and every bespoke fact - 
 
   await waitFor(() => screen.getByText("Training session"));
 
-  assert.match(document.body.textContent ?? "", /12\s*recorded events/u);
   assert.ok(screen.getByText("Completed"));
   assert.ok(screen.getByText("Pain reported"));
   assert.ok(screen.getByText("Split session"));

@@ -76,7 +76,7 @@ test("shows a factual empty state when the coach has no compiled events", async 
   installMocks([]);
   render(<CoachEventsListPanel />);
   await waitFor(() => screen.getByText("No events created"));
-  assert.ok(screen.getByText("Create an event date anchor, then link athletes and programmes from each athlete profile."));
+  assert.ok(screen.getByText(/Add a meet, race or match day/u));
 });
 
 test("displays an event with its activity, type, date, location, timezone, countdown and week/athlete badges", async () => {

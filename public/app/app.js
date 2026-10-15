@@ -1647,7 +1647,7 @@ function mapCoachAthleteDirectoryRow(raw, existing = null) {
     activityId: String(
       raw?.activity_id ??
       existing?.activityId ??
-      "powerlifting"
+      ""
     ),
     relationship,
     relationshipState: String(
@@ -2013,7 +2013,7 @@ function renderAthleteProfileEditor() {
 
   elements.athleteProfilePanel.hidden = false;
   elements.athleteProfileHeading.textContent = athlete.displayName;
-  elements.athleteProfileActivity.textContent = `${titleCase(athlete.activityId)} · ${athlete.userId}`;
+  elements.athleteProfileActivity.textContent = athlete.activityId ? titleCase(athlete.activityId) : "Sport not set";
   // NOTE: the preferred-unit/rounding/bodyweight/benchmark editor and the
   // assignment-from-profile form below this header are both React-owned
   // now (public/app-src/screens/coach/AthleteStrengthProfilePanel.tsx/
@@ -2200,7 +2200,7 @@ function renderAthleteDetail() {
 
   elements.athleteDetailStatus
     .textContent =
-      `Loaded ${assignments.length} assignment, ${sessions.length} session and ${notes.length} note record${notes.length === 1 ? "" : "s"} for ${athlete.displayName}.`;
+      `${sessions.length} session${sessions.length === 1 ? "" : "s"} · ${notes.length} note${notes.length === 1 ? "" : "s"}`;
 }
 
 async function refreshAthleteDetail(

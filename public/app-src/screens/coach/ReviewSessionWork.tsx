@@ -2,6 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
+import { topPersonalRecord } from "../../utils/personalRecords";
 
 // What the athlete actually did in a session, for the coach reviewing it:
 // every planned exercise in programme order with the sets logged against it
@@ -81,6 +82,7 @@ export function ReviewSessionWork({ athleteName, work, exerciseNames }: {
         {order.map((exerciseId) => {
           const sets = latestSets(setLogs.filter((log) => String(log.exercise_id) === exerciseId));
           const extras = extraSets.filter((entry) => String(entry.exercise_id) === exerciseId);
+          const record = topPersonalRecord([...sets, ...extras]);
           const effort = ratings.filter(([id]) => id === exerciseId).map(([, text]) => text);
           const swappedFor = swaps.get(exerciseId);
           return (
@@ -98,14 +100,14 @@ export function ReviewSessionWork({ athleteName, work, exerciseNames }: {
                     <li key={`set-${String(log.set_index)}`}>
                       <span>{`Set ${String(log.set_index)}`}</span>
                       <strong>{setDose(log)}</strong>
-                      {log.is_pr === true ? <span className="badge complete">PR</span> : null}
+                      {log === record ? <span className="badge complete">PR</span> : null}
                     </li>
                   ))}
                   {extras.map((entry, index) => (
                     <li key={`extra-${index}`}>
                       <span>Extra</span>
                       <strong>{setDose(entry)}</strong>
-                      {entry.is_pr === true ? <span className="badge complete">PR</span> : null}
+                      {entry === record ? <span className="badge complete">PR</span> : null}
                     </li>
                   ))}
                 </ul>

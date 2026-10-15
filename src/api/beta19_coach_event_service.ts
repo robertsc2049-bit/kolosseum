@@ -704,7 +704,14 @@ export async function assignAthleteProgrammeFromProfile(
     throw new Beta19CoachEventError("relationship_access_denied");
   }
 
-  if (!template || cleanString(template.activity_id) !== activityId) {
+  // A general-strength programme (including the Kolosseum programmes written
+  // for several sports) suits an athlete of any sport; a linked event must
+  // still match the athlete's own.
+  if (
+    !template ||
+    (cleanString(template.activity_id) !== activityId &&
+      cleanString(template.activity_id) !== "general_strength")
+  ) {
     throw new Beta19CoachEventError("template_not_active_for_activity");
   }
 

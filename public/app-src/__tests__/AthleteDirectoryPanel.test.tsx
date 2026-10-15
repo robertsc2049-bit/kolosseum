@@ -63,14 +63,14 @@ test("displays relationship counts and a roster card for an accepted athlete", a
   assert.ok(card.getByText("No programme assigned"));
   assert.ok(card.getByText("Accepted"));
   assert.ok(card.getByText("Open profile"));
-  assert.ok(card.getByText("View audit"));
+  assert.ok(card.getByText("History"));
 
   const counts = document.querySelectorAll(".relationship-metric-card strong");
   const values = Array.from(counts).map((node) => node.textContent);
   assert.deepEqual(values, ["1", "0", "0", "0", "0"]);
 });
 
-test("falls back to Powerlifting when the relationship record's activity_id is null, matching the real /coach-workspace/relationships response shape", async () => {
+test("says the sport isn't set when the relationship record's activity_id is null - never a made-up Powerlifting", async () => {
   installMocks({
     relationships: [
       { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: null, relationship_state: "accepted" }
@@ -81,7 +81,8 @@ test("falls back to Powerlifting when the relationship record's activity_id is n
 
   await waitFor(() => screen.getByText("Jordan Lee"));
   const card = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
-  assert.ok(card.getByText("Powerlifting"));
+  assert.ok(card.getByText("Sport not set"));
+  assert.equal(card.queryByText("Powerlifting"), null);
 });
 
 test("resolves the programme label from the athlete's current assignment and templates", async () => {
@@ -187,7 +188,7 @@ test("a declined invitation is counted in its own metric card, filterable, and n
   assert.equal(screen.queryByText("Jordan Lee"), null);
 });
 
-test("the View audit button carries the relationship-action data attributes the existing global click delegation relies on", async () => {
+test("the History button carries the relationship-action data attributes the existing global click delegation relies on", async () => {
   installMocks({
     relationships: [
       { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: "powerlifting", relationship_state: "accepted" }
@@ -198,7 +199,7 @@ test("the View audit button carries the relationship-action data attributes the 
 
   await waitFor(() => screen.getByText("Jordan Lee"));
 
-  const button = screen.getByText("View audit");
+  const button = screen.getByText("History");
   assert.equal(button.getAttribute("data-relationship-action"), "audit");
   assert.equal(button.getAttribute("data-relationship-athlete-id"), "athlete_1");
 });

@@ -11,6 +11,7 @@ import { pool } from "../db/pool.js";
 import { asyncHandler } from "./async_handler.js";
 import { programmeAdjustments } from "./programme_adjustment.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
+import { plannedSessionTitle } from "./session_title.js";
 import {
   badRequest,
   conflict,
@@ -404,6 +405,33 @@ async function assignmentRows(
   return output;
 }
 
+// Programme names by template id - an assignment record carries only the
+// id, and a session recorded before titles were stored is named from it.
+async function templateNames(
+  templateIds: string[]
+): Promise<Map<string, string>> {
+  const output = new Map<string, string>();
+  if (templateIds.length === 0) return output;
+  const result = await pool.query(
+    `
+    SELECT DISTINCT ON (record_id)
+      record_id,
+      record_payload->>'template_name' AS template_name
+    FROM beta_product_records
+    WHERE
+      record_type = 'beta18_programme_template'
+      AND record_id = ANY($1::text[])
+    ORDER BY record_id, effective_at DESC, created_at DESC
+    `,
+    [templateIds]
+  );
+  for (const row of result.rows) {
+    const name = cleanString(row.template_name);
+    if (name) output.set(String(row.record_id), name);
+  }
+  return output;
+}
+
 async function eventLinkRows(
   coachUserId: string,
   assignmentIds: string[]
@@ -657,6 +685,19 @@ async function listReviewRecords(
     )
   ]);
 
+  const programmeNames =
+    await templateNames(
+      [
+        ...new Set(
+          [...assignments.values()]
+            .map((assignment) =>
+              cleanString(assignment.template_id)
+            )
+            .filter(Boolean)
+        )
+      ]
+    );
+
   const records =
     accessibleRows.map((row) => {
       const sessionId =
@@ -711,13 +752,16 @@ async function listReviewRecords(
         block_id:
           cleanString(row.block_id),
         session_title:
-          cleanString(
-            plannedSession.title
-          ) ||
-          cleanString(
-            plannedSession.name
-          ) ||
-          "Training session",
+          plannedSessionTitle(
+            plannedSession,
+            assignmentId
+              ? programmeNames.get(
+                  cleanString(
+                    assignments.get(assignmentId)?.template_id
+                  )
+                )
+              : undefined
+          ),
         session_status:
           cleanString(row.status) ||
           "recorded",

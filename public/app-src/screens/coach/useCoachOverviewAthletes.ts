@@ -105,7 +105,7 @@ export function useCoachOverviewAthletes() {
           return {
             athleteUserId,
             displayName: String(athlete.display_name ?? athleteUserId),
-            activityId: String(athlete.activity_id ?? "powerlifting"),
+            activityId: String(athlete.activity_id ?? ""),
             assignmentCount,
             hasProfile,
             referenceCount

@@ -652,10 +652,17 @@ async function validateReplacementInput(
     );
   }
 
+  // A general-strength programme (including the Kolosseum programmes written
+  // for several sports) suits an athlete of any sport; the assignment keeps
+  // the athlete's own activity, which a linked event must still match.
   if (
     !template ||
-    cleanString(template.activity_id) !==
-      input.activity_id
+    (
+      cleanString(template.activity_id) !==
+        input.activity_id &&
+      cleanString(template.activity_id) !==
+        "general_strength"
+    )
   ) {
     throw conflict(
       "Select an active programme for the athlete activity."

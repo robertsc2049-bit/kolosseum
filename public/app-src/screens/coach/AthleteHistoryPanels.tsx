@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
+import { topPersonalRecord } from "../../utils/personalRecords";
 
 // DEV NOTE: current programme, current event, and the assignment/
 // strength/bodyweight/event-link/session history lists from
@@ -369,10 +370,8 @@ export function AthleteSessionHistoryList() {
         return (
           <article className="record-card" key={String(session.session_id ?? index)}>
             <div>
-              <h4>Training session</h4>
-              <p>
-                {formatDate(session.updated_at as string | undefined)} · {Number(session.runtime_event_count ?? 0)} recorded events
-              </p>
+              <h4>{String(session.session_title || "Training session")}</h4>
+              <p>{formatDate(session.updated_at as string | undefined)}</p>
               {skipReasons.length > 0 ? (
                 <p className="muted small">Skipped: {skipReasons.map((reason) => titleCase(reason)).join(", ")}</p>
               ) : null}
@@ -402,9 +401,9 @@ export function AthleteSessionHistoryList() {
               {setLogsByExercise.size > 0 ? (
                 <p className="muted small">
                   Sets:{" "}
-                  {[...setLogsByExercise].map(([exerciseId, logs]) => `${titleCase(exerciseId)} ${logs
-                    .map((log) => `${Number(log.reps)}${log.load_value !== null && log.load_value !== undefined ? `×${Number(log.load_value)}${String(log.load_unit ?? "")}` : ""}${log.is_pr === true ? " (PR)" : ""}`)
-                    .join(", ")}`).join("; ")}
+                  {[...setLogsByExercise].map(([exerciseId, logs]) => { const record = topPersonalRecord(logs); return `${titleCase(exerciseId)} ${logs
+                    .map((log) => `${Number(log.reps)}${log.load_value !== null && log.load_value !== undefined ? `×${Number(log.load_value)}${String(log.load_unit ?? "")}` : ""}${log === record ? " (PR)" : ""}`)
+                    .join(", ")}`; }).join("; ")}
                 </p>
               ) : null}
               {extraSetReports.length > 0 ? (

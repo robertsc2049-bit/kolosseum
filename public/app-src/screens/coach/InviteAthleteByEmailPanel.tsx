@@ -17,11 +17,11 @@ export function InviteAthleteByEmailPanel() {
   return (
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
-        <p className="eyebrow">Lawful invitation</p>
-        <h3>Invite athlete by email</h3>
+        <p className="eyebrow">Invite</p>
+        <h3>Invite an athlete by email</h3>
         <p className="muted small">
-          The athlete receives this invitation in their own account and
-          accepts it themselves - no account code is exchanged.
+          They'll see the invitation when they sign in, and join your
+          roster once they accept.
         </p>
       </div>
 

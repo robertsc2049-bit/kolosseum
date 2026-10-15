@@ -89,7 +89,7 @@ export function CoachOverviewEventsPanel() {
     return (
       <div className="empty-state dashboard-empty-state">
         <h4>No upcoming events</h4>
-        <p>Create an event date anchor to display it on the coach dashboard.</p>
+        <p>Add a competition in Events and it will count down here.</p>
       </div>
     );
   }
