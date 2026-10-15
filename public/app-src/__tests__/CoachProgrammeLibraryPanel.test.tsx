@@ -291,3 +291,37 @@ test("shows a factual error with a working retry when the library fails to load"
 
   await screen.findByText("Base Strength Block");
 });
+
+test("a coach's 55 seeded Kolosseum drafts are grouped by sport, A-Z, not by when they were saved", async () => {
+  installMocks([
+    template({ template_id: "t1_v1", template_family_id: "t1", template_name: "Strongman strength and events", activity_id: "strongman", updated_at_iso8601: "2026-10-15T12:00:03.000Z" }),
+    template({ template_id: "t2_v1", template_family_id: "t2", template_name: "Collision off-season: forwards and linemen", activity_id: "general_strength", updated_at_iso8601: "2026-10-15T12:00:02.000Z" }),
+    template({ template_id: "t3_v1", template_family_id: "t3", template_name: "Powerlifting meet prep (pro)", activity_id: "powerlifting", updated_at_iso8601: "2026-10-15T12:00:01.000Z" }),
+    template({ template_id: "t4_v1", template_family_id: "t4", template_name: "Powerlifting meet prep", activity_id: "powerlifting", updated_at_iso8601: "2026-10-15T12:00:04.000Z" }),
+    template({ template_id: "t5_v1", template_family_id: "t5", template_name: "My own crossfit block", activity_id: "crossfit", updated_at_iso8601: "2026-10-15T12:00:05.000Z" })
+  ]);
+  render(<CoachProgrammeLibraryPanel />);
+  await screen.findByText("My own crossfit block");
+  const groups = [...document.querySelectorAll(".programme-sport-group")].map((group) => [
+    group.querySelector(".programme-sport-heading")?.firstChild?.textContent?.trim(),
+    [...group.querySelectorAll(".template-card h3")].map((h) => h.textContent)
+  ]);
+  assert.deepEqual(groups, [
+    ["CrossFit", ["My own crossfit block"]],
+    ["Powerlifting", ["Powerlifting meet prep", "Powerlifting meet prep (pro)"]],
+    ["Rugby and American football", ["Collision off-season: forwards and linemen"]],
+    ["Strongman", ["Strongman strength and events"]]
+  ]);
+});
+
+test("choosing Recently updated drops the sport headings", async () => {
+  installMocks([
+    template({ template_id: "t1_v1", template_family_id: "t1", template_name: "Older", activity_id: "strongman", updated_at_iso8601: "2026-10-15T12:00:01.000Z" }),
+    template({ template_id: "t2_v1", template_family_id: "t2", template_name: "Newer", activity_id: "powerlifting", updated_at_iso8601: "2026-10-15T12:00:02.000Z" })
+  ]);
+  render(<CoachProgrammeLibraryPanel />);
+  await screen.findByText("Newer");
+  fireEvent.change(screen.getByDisplayValue("Sport, then name"), { target: { value: "updated_desc" } });
+  assert.equal(document.querySelectorAll(".programme-sport-group").length, 0);
+  assert.deepEqual([...document.querySelectorAll(".template-card h3")].map((h) => h.textContent), ["Newer", "Older"]);
+});

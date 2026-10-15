@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 
 import { KolosseumStarterForm } from "../screens/coach/KolosseumStarterForm";
 
@@ -42,6 +42,11 @@ const programmes = [
   { listing_id: "programme_beginner", title: "Beginner full-body", summary: "Three full-body days.", levels: ["beginner"], activity_ids: [], days_per_week: 3 }
 ];
 
+function copyButtonFor(title: string): HTMLElement {
+  const item = screen.getByText(title).closest("li") as HTMLElement;
+  return within(item).getByText("Copy to my library");
+}
+
 function catalogueMocks() {
   const copies: string[] = [];
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -65,12 +70,15 @@ test("a rugby coach copies the coach-written off-season build into their library
   render(<KolosseumStarterForm onCreated={(id) => opened.push(id)} />);
   fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
   await screen.findByText("Off-season strength build (8 weeks)");
-  assert.ok(screen.getByText("Rugby union, Basketball"));
-  assert.ok(screen.getByText("Any sport"));
+  assert.deepEqual(
+    [...document.querySelectorAll(".programme-sport-heading")].map((h) => h.textContent),
+    ["Any sport", "Rugby union, Basketball"],
+    "grouped by sport, Any sport first"
+  );
   assert.ok(screen.getByText("3 days a week · Amateur, Pro"));
   assert.equal(screen.queryByLabelText("Sport"), null, "no generated programme once coach-written ones are published");
   await act(async () => {
-    fireEvent.click(screen.getAllByText("Copy to my library")[0]);
+    fireEvent.click(copyButtonFor("Off-season strength build (8 weeks)"));
   });
   await waitFor(() => assert.deepEqual(opened, ["tpl_copy"]));
   assert.deepEqual(copies, ["programme_off_season"]);
@@ -81,11 +89,34 @@ test("a double tap on Copy to my library copies once", async () => {
   render(<KolosseumStarterForm onCreated={() => {}} />);
   fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
   await screen.findByText("Off-season strength build (8 weeks)");
-  const button = screen.getAllByText("Copy to my library")[0];
+  const button = copyButtonFor("Off-season strength build (8 weeks)");
   await act(async () => {
     fireEvent.click(button);
     fireEvent.click(button);
     await new Promise((resolve) => setTimeout(resolve, 60));
   });
   assert.deepEqual(copies, ["programme_off_season"]);
+});
+
+test("a long programme list closes from the Close button at its top, back to the single button", async () => {
+  catalogueMocks();
+  render(<KolosseumStarterForm onCreated={() => {}} />);
+  fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
+  await screen.findByText("Off-season strength build (8 weeks)");
+  const panel = screen.getByTestId("kolosseum-programmes");
+  const close = within(panel.querySelector(".kolosseum-starter-header") as HTMLElement).getByText("Close");
+  assert.equal(panel.firstElementChild?.contains(close), true, "Close is in the panel header, before the list");
+  fireEvent.click(close);
+  assert.equal(screen.queryByTestId("kolosseum-programmes"), null);
+  assert.ok(screen.getByText("Start from a Kolosseum programme"));
+});
+
+test("the generated-programme form also closes from its header", async () => {
+  globalThis.fetch = (async (input: RequestInfo | URL) =>
+    String(input) === "/templates/kolosseum-programmes" ? jsonResponse({ programmes: [] }) : jsonResponse({ error: "unhandled" }, false, 404)) as typeof fetch;
+  render(<KolosseumStarterForm onCreated={() => {}} />);
+  fireEvent.click(screen.getByText("Start from a Kolosseum programme"));
+  await screen.findByLabelText("Sport");
+  fireEvent.click(within(document.querySelector(".kolosseum-starter-header") as HTMLElement).getByText("Close"));
+  assert.equal(screen.queryByLabelText("Sport"), null);
 });
