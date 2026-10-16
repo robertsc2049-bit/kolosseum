@@ -1,0 +1,165 @@
+// A powerlifter's coach assigns a two-block programme and records her
+// maxes. "My programme" (GET /account/onboarding/my-programme) shows both
+// blocks, every session in order with the weight worked out from her max,
+// and moves her along as she finishes a session; the session itself is
+// called by its programme name, in the session screen and in her history.
+import assert from "node:assert/strict";
+import crypto from "node:crypto";
+import test from "node:test";
+
+import { app } from "../dist/src/server.js";
+import { pool } from "../dist/src/db/pool.js";
+
+const STAGES = ["activity", "experience_level", "training_plan", "execution_scope", "product_acknowledgement", "jurisdiction", "accessibility", "instruction_density", "review"];
+
+function client(baseUrl) {
+  const jar = new Map();
+  let csrf = "";
+  async function req(method, route, body) {
+    const headers = { origin: baseUrl };
+    if (body !== undefined) headers["content-type"] = "application/json";
+    if (jar.size) headers.cookie = [...jar].map(([k, v]) => `${k}=${v}`).join("; ");
+    if (csrf && method !== "GET") headers["x-kolosseum-csrf"] = csrf;
+    const response = await fetch(baseUrl + route, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    for (const cookie of response.headers.getSetCookie()) {
+      const [pair] = cookie.split(";");
+      const i = pair.indexOf("=");
+      jar.set(pair.slice(0, i).trim(), pair.slice(i + 1));
+    }
+    const text = await response.text();
+    let json = null;
+    try { json = text ? JSON.parse(text) : null; } catch {}
+    return { status: response.status, json, text };
+  }
+  async function refresh() {
+    const detail = await req("GET", "/account/detail");
+    csrf = detail.json?.csrf_token ?? csrf;
+    return detail.json;
+  }
+  return { req, refresh };
+}
+
+function ok(result, status, label) {
+  assert.equal(result.status, status, `${label}: expected ${status}, received ${result.status}. raw=${result.text}`);
+  return result;
+}
+
+function item(exerciseId, index, percent) {
+  return {
+    work_item_id: "", order_index: index + 1, exercise_id: exerciseId, planned_sets: 5, rep_mode: "fixed", planned_reps: 5, rep_min: 5, rep_max: 5,
+    load_mode: percent ? "percent_1rm" : "rpe", percent_1rm: percent ?? 75, weight_value: 20, weight_unit: "kg", rpe_value: 7, rest_seconds: 240,
+    role: index ? "accessory" : "primary", coaching_notes: index ? "" : "Belt on for the top sets.", segment: "working", group_id: "", group_type: "straight"
+  };
+}
+
+const session = (title, items, order) => ({ session_id: "", order_index: order, title, coaching_notes: "", work_items: items });
+const blocks = [
+  { block_id: "", order_index: 1, name: "Accumulation", description: "", block_type: "volume", week_count: 1,
+    weeks: [{ week_id: "", order_index: 1, sessions: [session("Squat day", [item("back_squat", 0, 72.5), item("barbell_row", 1)], 1), session("Bench day", [item("bench_press", 0, 70)], 2)] }] },
+  { block_id: "", order_index: 2, name: "Intensification", description: "", block_type: "strength", week_count: 1,
+    weeks: [{ week_id: "", order_index: 1, sessions: [session("Heavy squat", [item("back_squat", 0, 85)], 1)] }] }
+];
+
+test("a coached powerlifter sees her whole programme with her weights, and it moves her on as she trains", { timeout: 120000 }, async (testContext) => {
+  const nonce = crypto.randomUUID().replaceAll("-", "").slice(0, 12);
+  const server = await new Promise((resolve) => { const s = app.listen(0, "127.0.0.1", () => resolve(s)); });
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  const userIds = [];
+  testContext.after(async () => {
+    await new Promise((resolve) => server.close(resolve));
+    for (const userId of userIds) {
+      await pool.query("DELETE FROM sessions WHERE beta_subject_user_id = $1", [userId]).catch(() => {});
+      for (const table of ["product_account_events", "product_auth_sessions", "product_auth_challenges", "product_accounts"]) await pool.query(`DELETE FROM ${table} WHERE user_id = $1`, [userId]).catch(() => {});
+    }
+    await pool.query("DELETE FROM beta_product_records WHERE subject_user_id = ANY($1::text[]) OR actor_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+    await pool.end();
+  });
+  const register = async (c, actorType, name, extra = {}) => {
+    const email = `my_programme_${name}_${nonce}@example.com`;
+    ok(await c.req("POST", "/account/register", {
+      actor_type: actorType, display_name: name, email, password: "MyProgrammeTest!2026", date_of_birth: "1994-06-06",
+      accepted_terms: true, accepted_consent: true, accepted_terms_version: "terms_v1", accepted_consent_version: "consent_v1", ...extra
+    }), 201, `register ${name}`);
+    const detail = await c.refresh();
+    userIds.push(detail.account.user_id);
+    return { email, userId: detail.account.user_id };
+  };
+
+  const coach = client(baseUrl);
+  const coachAccount = await register(coach, "coach", "coach");
+  for (const [method, route, body] of [
+    ["PATCH", "/account/coach-onboarding/profile", { display_name: "Coach", email: coachAccount.email }],
+    ["POST", "/account/coach-onboarding/terms", { accepted: true, terms_version: "terms_v1" }],
+    ["PATCH", "/account/coach-onboarding/accessibility", { accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false } }],
+    ["POST", "/account/coach-onboarding/complete", { completion_confirmed: true }]
+  ]) await coach.req(method, route, body);
+  const saved = ok(await coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Meet prep ${nonce}`, description: "", activity_id: "powerlifting", blocks,
+    updated_at_iso8601: new Date().toISOString()
+  }), 201, "save programme");
+  const templateId = saved.json.template.template_id;
+  ok(await coach.req("POST", `/templates/${templateId}/complete`, { coach_user_id: coachAccount.userId }), 200, "complete");
+  ok(await coach.req("POST", `/templates/${templateId}/activate`, { coach_user_id: coachAccount.userId }), 200, "activate");
+
+  const athlete = client(baseUrl);
+  const athleteAccount = await register(athlete, "athlete", "lifter", { activity_id: "powerlifting" });
+  const fields = {
+    activity_id: "powerlifting", experience_level: "amateur", execution_scope: "coach_managed", product_acknowledged: true,
+    jurisdiction_code: "england_wales", jurisdiction_acknowledged: true, training_days_per_week: 3, no_fixed_date: true,
+    accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false }, instruction_density: "standard"
+  };
+  for (const stage of STAGES.slice(1)) await athlete.req("PATCH", "/account/onboarding/draft", { current_stage: stage, fields });
+  ok(await athlete.req("POST", "/account/onboarding/confirm", { review_confirmed: true }), 200, "confirm onboarding");
+  assert.equal(ok(await athlete.req("GET", "/account/onboarding/my-programme"), 200, "before any programme").json.status, "none");
+
+  ok(await coach.req("POST", "/coach-workspace/relationship-invitations", { athlete_email: athleteAccount.email }), 201, "invite");
+  await athlete.refresh();
+  const invitations = (await athlete.req("GET", "/coach-workspace/relationship-invitations")).json;
+  const relationshipId = (invitations.invitations ?? invitations.records ?? invitations.relationships ?? [])[0]?.relationship_id;
+  ok(await athlete.req("POST", `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/accept`, {}), 201, "accept");
+  ok(await coach.req("POST", "/coach-workspace/athlete-assignment", {
+    request_id: `my_programme_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coachAccount.userId,
+    athlete_user_id: athleteAccount.userId, template_id: templateId, activity_id: "powerlifting", event_id: ""
+  }), 201, "assign");
+  await coach.refresh();
+  ok(await coach.req("POST", "/coach-workspace/athlete-strength-profile", {
+    coach_user_id: coachAccount.userId, athlete_user_id: athleteAccount.userId, preferred_weight_unit: "kg", load_rounding_increment: 2.5, bodyweight: 74, bodyweight_unit: "kg",
+    benchmarks: [["back_squat", 160], ["bench_press", 100]].map(([exercise_id, value]) => ({ benchmark_id: "", exercise_id, value, unit: "kg", basis: "tested_1rm", effective_date: new Date().toISOString().slice(0, 10), source_note: "" })),
+    expected_current_record_sha256: null
+  }), 201, "her maxes");
+
+  const before = ok(await athlete.req("GET", "/account/onboarding/my-programme"), 200, "my programme").json;
+  assert.equal(before.status, "active");
+  assert.equal(before.source, "coach");
+  assert.equal(before.programme.total_sessions, 3);
+  assert.deepEqual(before.blocks.map((b) => [b.name, b.weeks.map((w) => w.week_number)]), [["Accumulation", [1]], ["Intensification", [2]]]);
+  const [squatDay, benchDay] = before.blocks[0].weeks[0].sessions;
+  assert.deepEqual([squatDay.title, squatDay.state, benchDay.state], ["Squat day", "current", "upcoming"]);
+  const squat = squatDay.exercises.find((e) => e.exercise_id === "back_squat");
+  assert.deepEqual([squat.sets, squat.reps, squat.load, squat.rest_seconds, squat.notes], [5, "5", "115 kg (72.5%)", 240, "Belt on for the top sets."], "72.5% of a 160 kg max, to the nearest 2.5 kg");
+  assert.equal(squatDay.exercises.find((e) => e.exercise_id === "barbell_row").load, "RPE 7");
+  assert.equal(before.blocks[1].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").load, "135 kg (85%)");
+
+  // She trains Squat day: the session screen and her history call it that.
+  const detail = await athlete.refresh();
+  const created = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
+    phase1_input: detail.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
+  }), 201, "session").json;
+  const sessionId = created.session_id;
+  assert.equal(ok(await athlete.req("GET", `/sessions/${sessionId}/state`), 200, "state").json.session_title, "Squat day");
+  ok(await athlete.req("POST", `/sessions/${sessionId}/start`, {}), 200, "start");
+  for (const exercise of created.planned_session.exercises) {
+    ok(await athlete.req("POST", `/sessions/${sessionId}/events`, { event: { type: "COMPLETE_EXERCISE", exercise_id: exercise.exercise_id } }), 201, `complete ${exercise.exercise_id}`);
+  }
+  const history = ok(await athlete.req("POST", "/sessions/beta-athlete-history", { athlete_user_id: athleteAccount.userId }), 200, "history").json;
+  const listed = (history.sessions ?? history.records ?? []).find((s) => s.session_id === sessionId);
+  assert.equal(listed?.session_title, "Squat day", JSON.stringify(Object.keys(history)));
+
+  const after = ok(await athlete.req("GET", "/account/onboarding/my-programme"), 200, "after training").json;
+  const [doneDay, nextDay] = after.blocks[0].weeks[0].sessions;
+  assert.deepEqual([doneDay.state, nextDay.state, after.completed_sessions, after.current.session_index], ["done", "current", 1, 1]);
+  assert.ok(doneDay.date, "the done day carries the date she trained it");
+
+  // It is hers alone: a coach gets nothing from it.
+  assert.notEqual((await coach.req("GET", "/account/onboarding/my-programme")).status, 200);
+});

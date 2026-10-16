@@ -968,6 +968,7 @@ function viewTitle(view) {
     today: "Today",
     session: "Session",
     history: "History",
+    programme: "My programme",
     "coach-onboarding": "Coach setup",
     attendance: "Attendance",
     "coach-attendance": "Classes",

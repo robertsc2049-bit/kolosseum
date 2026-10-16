@@ -66,6 +66,9 @@
         <button class="nav-item athlete-nav" data-view="session">
           <span class="nav-icon">S</span><span>Session</span>
         </button>
+        <button class="nav-item athlete-nav" data-view="programme">
+          <span class="nav-icon">P</span><span>My programme</span>
+        </button>
         <button class="nav-item athlete-nav" data-view="history">
           <span class="nav-icon">H</span><span>History</span>
         </button>
@@ -1012,6 +1015,10 @@
           <div id="attendance-event-detail-root"></div>
         </section>
 
+        <section id="view-programme" class="view" hidden>
+          <div id="athlete-my-programme-root"></div>
+        </section>
+
         <section id="view-attendance" class="view" hidden>
           <div id="athlete-attendance-events-root"></div>
         </section>
@@ -1085,6 +1092,7 @@
     <nav class="tab-bar" aria-label="Main screens">
       <button class="tab-item athlete-nav" type="button" data-view="today"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Today</span></button>
       <button class="tab-item athlete-nav" type="button" data-view="session"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2.5 12h19M6 8v8M3.5 9.5v5M18 8v8M20.5 9.5v5"/></svg><span>Session</span></button>
+      <button class="tab-item athlete-nav" type="button" data-view="programme"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="5" height="14" rx="1.5"/><rect x="9.5" y="5" width="5" height="14" rx="1.5"/><rect x="16" y="5" width="5" height="14" rx="1.5"/></svg><span>Programme</span></button>
       <button class="tab-item athlete-nav" type="button" data-view="history"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3.5 4.5V9H8M12 7.5V12l3 2"/></svg><span>History</span></button>
       <button class="tab-item coach-nav" type="button" data-view="coach-overview"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>Overview</span></button>
       <button class="tab-item coach-nav" type="button" data-view="athletes"><svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c2 .7 3.2 2.4 3.5 5.2"/></svg><span>Athletes</span></button>

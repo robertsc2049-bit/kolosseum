@@ -140,3 +140,8 @@ export function loadTrainingWeek(): Promise<JsonRecord> {
 export function saveTrainingWeek(input: { days: { items: { exercise_id: string; sets: number; reps: number }[] }[]; lighter_every_fourth: boolean }, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/training-week", input, csrfToken);
 }
+
+// The athlete's whole current programme, block by block (read-only).
+export function loadAthleteMyProgramme(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/my-programme");
+}

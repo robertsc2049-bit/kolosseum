@@ -6,6 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/api/session_state_read_model.ts
 import { sessionStateCache } from "./session_state_cache.js";
+import { plannedSessionTitle } from "./session_title.js";
 
 export type PlannedExercise = {
   exercise_id: string;
@@ -526,6 +527,10 @@ export function projectSessionStatePayload(
     // A session from the athlete's own week (or today's own exercises).
     ...(planned?.own_training && typeof planned.own_training === "object"
       ? { own_training: planned.own_training }
+      : {}),
+    // The programme's own name for it ("Squat day"), when it has one.
+    ...(plannedSessionTitle(planned) !== "Training session"
+      ? { session_title: plannedSessionTitle(planned) }
       : {})
   };
 }

@@ -277,13 +277,11 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
 
     if (resolved && Number.isFinite(Number(resolved.value))) {
       const unit = resolved.unit === "lb" ? "lb" : "kg";
-      details.push(`${Number(intensity.value)}% 1RM · ${Number(resolved.value)} ${unit}`);
+      details.push(`${Number(resolved.value)} ${unit} (${Number(intensity.value)}% of your max)`);
 
       const source = resolved?.source && typeof resolved.source === "object" ? resolved.source as JsonRecord : null;
       if (source) {
-        details.push(
-          `${strengthSourceLabel(source.source_type)} source · ${Number(source.source_value)} ${source.source_unit === "lb" ? "lb" : "kg"} · effective ${String(source.effective_date ?? "")}`
-        );
+        details.push(`Your ${strengthSourceLabel(source.source_type).replace("1RM", "max").toLowerCase()}: ${Number(source.source_value)} ${source.source_unit === "lb" ? "lb" : "kg"}`);
       }
     }
     else if (exercise?.load_guidance && typeof exercise.load_guidance === "object" && Number.isFinite(Number((exercise.load_guidance as JsonRecord).value))) {

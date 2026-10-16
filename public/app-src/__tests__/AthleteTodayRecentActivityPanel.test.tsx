@@ -43,14 +43,15 @@ test("shows the total session count", async () => {
   await screen.findByText("2");
 });
 
-test("shows a session's status and event count", async () => {
+test("shows a session's title, status and exercises done - not a count of taps", async () => {
   installMocks([
-    { session_id: "s1", status: "in_progress", runtime_event_count: 3, updated_at: "2026-01-05T10:00:00.000Z" }
+    { session_id: "s1", status: "in_progress", session_title: "Squat day", runtime_event_count: 18, completed_count: 4, remaining_count: 5, dropped_count: 0, updated_at: "2026-01-05T10:00:00.000Z" }
   ]);
   render(<AthleteTodayRecentActivityList />);
-  await screen.findByText("Training session");
+  await screen.findByText("Squat day");
   assert.ok(screen.getByText("In Progress"));
-  assert.ok(screen.getByText("3 actions recorded"));
+  assert.ok(screen.getByText("4 of 9 exercises done"));
+  assert.equal(screen.queryByText(/actions recorded/u), null);
 });
 
 test("caps the preview at the 4 most recent sessions, newest first", async () => {
@@ -58,14 +59,15 @@ test("caps the preview at the 4 most recent sessions, newest first", async () =>
     session_id: `s${index}`,
     status: "recorded",
     runtime_event_count: index,
+    session_title: `Session ${index}`,
     created_at: `2026-01-0${index + 1}T10:00:00.000Z`
   }));
   installMocks(sessions);
   render(<AthleteTodayRecentActivityList />);
-  await screen.findByText("5 actions recorded");
+  await screen.findByText("Session 5");
   assert.equal(document.querySelectorAll(".record-card").length, 4);
-  assert.equal(screen.queryByText("0 actions recorded"), null);
-  assert.equal(screen.queryByText("1 actions recorded"), null);
+  assert.equal(screen.queryByText("Session 0"), null);
+  assert.equal(screen.queryByText("Session 1"), null);
 });
 
 test("clicking a session card dispatches kolosseum:continue-history-session with the session id", async () => {

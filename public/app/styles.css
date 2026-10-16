@@ -4795,3 +4795,52 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .template-sessions .template-session-header { grid-template-columns: minmax(0, 1fr); gap: var(--k-space-2); }
   .template-sessions .template-session-header .builder-action-row { display: flex; flex-wrap: wrap; gap: var(--k-space-2); justify-content: flex-start; }
 }
+
+/* Athlete "My programme": blocks as a strip sized by weeks, the chosen
+   week's days side by side (stacked on a phone). */
+.my-programme { display: grid; gap: var(--k-space-4); min-width: 0; }
+.my-programme-heading { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--k-space-2) var(--k-space-4); }
+.my-programme-heading h3 { margin: 0; }
+.my-programme-progress { margin: 0; }
+.my-programme-timeline { display: flex; gap: var(--k-space-2); overflow-x: auto; padding-bottom: var(--k-space-1); }
+.my-programme-block { min-width: 88px; display: grid; gap: var(--k-space-1); padding: var(--k-space-2); border: 1px solid var(--line-soft); border-radius: var(--k-radius-s); background: var(--k-surface-1); }
+.my-programme-block.is-deload { border-style: dashed; }
+.my-programme-block-name { font-size: 0.8rem; font-weight: 700; color: var(--k-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.my-programme-week-cells { display: flex; gap: 3px; }
+.my-programme-week-cell { flex: 1 1 0; min-width: 28px; min-height: 32px; padding: 0; border: 1px solid var(--k-border); border-radius: var(--k-radius-xs); background: var(--k-surface-2); color: var(--k-text-secondary); font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.my-programme-week-cell.is-done { background: var(--k-accent-deep); border-color: var(--k-accent-deep); color: var(--k-text); }
+.my-programme-week-cell.is-started { background: linear-gradient(90deg, var(--k-accent-deep) 50%, var(--k-surface-2) 50%); color: var(--k-text); }
+.my-programme-week-cell.is-current { border-color: var(--k-accent-bright); color: var(--k-accent-bright); }
+.my-programme-week-cell.is-skipped { opacity: 0.5; }
+.my-programme-week-cell.is-selected { box-shadow: var(--k-focus-ring); outline: 2px solid var(--k-text); outline-offset: 1px; }
+.my-programme-week-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--k-space-3); }
+.my-programme-week-bar h4 { margin: 0; text-align: center; }
+.my-programme-back { justify-self: start; }
+.my-programme-days { display: grid; gap: var(--k-space-3); }
+@media (min-width: 760px) {
+  .my-programme-days { grid-auto-flow: column; grid-auto-columns: minmax(260px, 1fr); overflow-x: auto; align-items: start; }
+}
+.my-programme-day { min-width: 0; padding: var(--k-space-4); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: rgba(0, 0, 0, 0.12); }
+.my-programme-day.is-current { border-color: var(--k-accent); box-shadow: 0 0 0 1px var(--k-accent); }
+.my-programme-day.is-done, .my-programme-day.is-partial { background: rgba(126, 184, 0, 0.06); }
+.my-programme-day.is-skipped { opacity: 0.6; }
+.my-programme-day header { display: grid; gap: 2px; margin-bottom: var(--k-space-3); }
+.my-programme-day h4 { margin: 0; }
+.my-programme-state { justify-self: start; font-size: 0.78rem; font-weight: 700; padding: 2px 8px; border-radius: var(--k-radius-pill); background: var(--k-surface-3); color: var(--k-text-secondary); }
+.my-programme-state.is-done, .my-programme-state.is-partial { background: var(--k-accent-deep); color: var(--k-text); }
+.my-programme-state.is-current { background: var(--k-accent); color: var(--k-canvas); }
+.my-programme-exercises { list-style: none; margin: 0; padding: 0; display: grid; }
+.my-programme-exercises li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 var(--k-space-2); padding: var(--k-space-2) 0; border-top: 1px solid var(--line-soft); }
+.my-programme-exercises li:first-child { border-top: 0; }
+.my-programme-exercise-name { font-weight: 600; overflow-wrap: anywhere; }
+.my-programme-dose { font-weight: 700; text-align: right; white-space: nowrap; }
+.my-programme-load { color: var(--k-accent-bright); font-size: 0.88rem; }
+.my-programme-rest { font-size: 0.82rem; text-align: right; white-space: nowrap; }
+.my-programme-bookend { margin: 0 0 var(--k-space-2); font-size: 0.9rem; }
+.my-programme-bookend summary { cursor: pointer; color: var(--k-text-secondary); min-height: 32px; display: flex; align-items: center; }
+.my-programme-notes { grid-column: 1 / -1; font-size: 0.82rem; margin-top: 2px; }
+.my-programme-block { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 759px) {
+  .my-programme-wide { display: none; }
+  .my-programme-week-bar .button { min-width: 44px; min-height: 44px; }
+}

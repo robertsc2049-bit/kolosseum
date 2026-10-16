@@ -47,6 +47,7 @@ import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_clas
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } from "./programme_catalogue_service.js";
 import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek } from "./athlete_training_week_service.js";
+import { loadAthleteMyProgramme } from "./athlete_my_programme_service.js";
 
 export const athleteOnboardingRouter = Router();
 
@@ -338,6 +339,17 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await getAthleteProgrammes(session.account_row.user_id));
+  })
+);
+
+// The athlete's whole current programme, block by block, read-only
+// (athlete_my_programme_service.ts).
+athleteOnboardingRouter.get(
+  "/my-programme",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await loadAthleteMyProgramme(session.account_row.user_id));
   })
 );
 

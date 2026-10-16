@@ -127,6 +127,7 @@ function continueToSession() {
 
 export function AthleteTodayCreateSessionButton() {
   const { today } = useAthleteToday();
+  const coachedWithOpenSession = Boolean(today?.coach_user_id) && today?.state === "ok";
   const [picking, setPicking] = useState(false);
   const [checking, setChecking] = useState(false);
   const [options, setOptions] = useState<ExerciseOption[]>([]);
@@ -159,6 +160,9 @@ export function AthleteTodayCreateSessionButton() {
       />
     );
   }
+  // A coached athlete with today's session open just opens it (the card
+  // below); a second session would skip them ahead in their programme.
+  if (coachedWithOpenSession) return null;
   return (
     <button className="button primary" type="button" disabled={checking} onClick={() => void start()}>
       {createSessionButtonLabel(today)}
@@ -272,7 +276,7 @@ export function AthleteTodaySessionCard() {
               <p className="today-resolved-load-value">{`${resolvedLoad.value} ${resolvedLoad.unit}`}</p>
               <p className="muted">
                 {resolvedLoadSource
-                  ? `${resolvedLoadSource.source_type === "estimated_1rm" ? "Estimated 1RM" : resolvedLoadSource.source_type === "training_max" ? "Training max" : "Tested 1RM"} · effective ${formatDate(resolvedLoadSource.effective_date)}`
+                  ? `From your ${resolvedLoadSource.source_type === "estimated_1rm" ? "estimated max" : resolvedLoadSource.source_type === "training_max" ? "training max" : "tested max"}${Number.isFinite(Number(resolvedLoadSource.source_value)) ? ` of ${Number(resolvedLoadSource.source_value)} ${resolvedLoadSource.source_unit === "lb" ? "lb" : "kg"}` : ""}`
                   : ""}
               </p>
             </div>

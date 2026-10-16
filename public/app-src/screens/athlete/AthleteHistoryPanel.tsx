@@ -216,7 +216,7 @@ export function AthleteHistoryPanel() {
                 }}
               >
                 <div>
-                  <h3>{String(programmeName || "Training session")}</h3>
+                  <h3>{String(session.session_title || programmeName || "Training session")}</h3>
                   <p>
                     {formatDate(session.updated_at ?? session.created_at)}
                     {eventName ? ` · ${String(eventName)}` : ""}
