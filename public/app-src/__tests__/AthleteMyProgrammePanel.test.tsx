@@ -8,6 +8,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { AthleteMyProgrammePanel, doseLabel, restLabel } from "../screens/athlete/AthleteMyProgrammePanel";
+import { overviewRows } from "../screens/athlete/ProgrammePrintSheet";
 
 function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
   return { ok, status, json: async () => body, text: async () => JSON.stringify(body) } as Response;
@@ -100,7 +101,7 @@ test("printing the whole programme puts every week on the paper sheet, then puts
   const sheet = document.getElementById("programme-print-root");
   assert.equal(sheet?.parentElement, document.body, "the sheet sits outside the app so the app can be hidden when printing");
   assert.equal(sheet?.querySelectorAll(".print-week").length, 3);
-  const squat = [...(sheet?.querySelectorAll("tr") ?? [])].find((row) => row.textContent?.includes("Back squat"));
+  const squat = [...(sheet?.querySelectorAll(".print-week tr") ?? [])].find((row) => row.textContent?.includes("Back squat"));
   assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg (72.5%)") && squat.textContent.includes("4 min"));
   assert.equal(squat?.querySelectorAll(".print-box").length, 5, "a box to write in for each set");
   assert.ok(sheet?.textContent?.includes("Warm-up: Leg swings 10"), "the warm-up is on the sheet, on one line");
@@ -121,4 +122,49 @@ test("'Print this week' prints just the week on screen, with done sessions dated
   assert.ok(sheet?.textContent?.includes("Week 1 · Accumulation"));
   assert.match(sheet?.textContent ?? "", /✓ Done (12 Oct|Oct 12)/u);
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
+});
+
+test("the overview is one page of the whole programme: a row per training day, a column per week, the main lift's dose and load, trained days ticked", async () => {
+  installMocks(meetPrep);
+  window.print = () => {};
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByTestId("my-programme");
+  await act(async () => { fireEvent.click(screen.getByText("Print overview")); });
+  const sheet = document.getElementById("programme-print-root");
+  assert.equal(sheet?.querySelectorAll(".print-week").length, 0, "the overview alone - no week pages");
+  const overview = sheet?.querySelector("[data-testid='print-overview']");
+  assert.ok(overview?.textContent?.includes("3 weeks · 6 sessions · 2 done"));
+  assert.deepEqual([...(overview?.querySelectorAll(".print-overview-blocks th[colspan]") ?? [])].map((th) => [th.textContent, th.getAttribute("colspan")]), [["AccumulationVolume", "1"], ["IntensificationStrength", "2"]]);
+  const rows = [...(overview?.querySelectorAll("tbody tr") ?? [])];
+  assert.deepEqual(rows.map((row) => row.querySelector("th")?.textContent), ["Squat dayBack squat", "Bench dayBack squat"]);
+  const firstCell = rows[0].querySelectorAll("td")[0];
+  assert.equal(firstCell.querySelector("b")?.textContent, "5×5");
+  assert.equal(firstCell.querySelector("span")?.textContent, "115 kg");
+  assert.equal(firstCell.querySelector("small")?.textContent, "72.5%");
+  assert.ok(firstCell.textContent?.includes("✓"), "week 1's Squat day was trained");
+  assert.equal(rows[0].querySelectorAll("td")[2].textContent?.includes("✓"), false);
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
+});
+
+test("the whole programme prints the overview first, then every week", async () => {
+  installMocks(meetPrep);
+  window.print = () => {};
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByTestId("my-programme");
+  await act(async () => { fireEvent.click(screen.getByText("Print whole programme")); });
+  const sheet = document.getElementById("programme-print-root");
+  assert.deepEqual([...(sheet?.children ?? [])].map((child) => child.className), ["print-overview", "print-week", "print-week", "print-week"]);
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
+});
+
+test("overview rows are labelled by each day's usual title and main lift, so a one-off openers week doesn't rename the row", () => {
+  const exercise = (name: string) => ({ name, segment: "working", sets: 3, reps: "3", load: "", rest_seconds: null });
+  const session = (index: number, title: string, lift: string) => ({ session_index: index, title, state: "upcoming", date: null, exercises: [exercise(lift)] });
+  const block = { name: "Block", block_type: "strength" };
+  const rows = overviewRows([
+    { week_number: 1, block, sessions: [session(0, "Squat day", "Back squat"), session(1, "Pull day", "Deadlift")] },
+    { week_number: 2, block, sessions: [session(2, "Squat day", "Back squat"), session(3, "Pull day", "Deadlift")] },
+    { week_number: 3, block, sessions: [session(4, "Openers", "Back squat")] }
+  ]);
+  assert.deepEqual(rows.map((row) => [row.title, row.lift, row.sessions.filter(Boolean).length]), [["Squat day", "Back squat", 3], ["Pull day", "Deadlift", 2]]);
 });

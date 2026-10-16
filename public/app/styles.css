@@ -4892,6 +4892,25 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   body.printing-programme > *:not(#programme-print-root) { display: none !important; }
   body.printing-programme #programme-print-root { display: block; font: 8.5pt/1.25 Inter, "Segoe UI", Arial, sans-serif; color: #000; }
   #programme-print-root * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
+  /* The overview is a landscape page (a named page), the weeks portrait. */
+  @page overview { size: A4 landscape; margin: 9mm 10mm; }
+  .print-overview { page: overview; break-after: page; }
+  .print-overview:last-child { break-after: auto; }
+  .print-overview-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .print-overview-grid col.print-overview-label { width: 38mm; }
+  .print-overview-grid th, .print-overview-grid td { border: 0.5pt solid #666; padding: 1.2mm 1.4mm; vertical-align: top; text-align: left; font-size: 8.5pt; line-height: 1.25; }
+  .print-overview-grid thead th { font-size: 6.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .print-overview-blocks th { font-size: 9pt !important; text-transform: none !important; letter-spacing: 0 !important; border-bottom: 1pt solid #000; }
+  .print-overview-blocks th span { display: block; font-weight: 400; font-size: 7.5pt; }
+  .print-overview-grid tbody th { font-size: 9.5pt; }
+  .print-overview-grid tbody th span { display: block; font-weight: 400; font-style: italic; }
+  .print-overview-grid td { height: 21mm; position: relative; }
+  .print-overview-grid td em { display: block; font-size: 7pt; overflow-wrap: anywhere; }
+  .print-overview-grid td b { display: block; font-size: 11pt; margin-bottom: 0.5mm; }
+  .print-overview-grid td small { display: block; font-size: 7.5pt; }
+  .print-overview-grid td span { display: block; overflow-wrap: anywhere; }
+  .print-overview-grid td i { position: absolute; top: 0.5mm; right: 1mm; font-style: normal; font-weight: 700; }
+  .print-overview-key { margin: 2mm 0 0; font-size: 8pt; }
   .print-week { break-after: page; }
   .print-week:last-child { break-after: auto; }
   .print-week-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; border-bottom: 1.5pt solid #000; padding-bottom: 1.5mm; margin-bottom: 3mm; }
