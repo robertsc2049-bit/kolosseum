@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { useAthleteMyProgramme } from "./useAthleteMyProgramme";
@@ -98,11 +98,12 @@ export function AthleteMyProgrammePanel() {
   const weeks = useMemo(() => blocks.flatMap((block) => block.weeks.map((week) => ({ ...week, block }))), [blocks]);
   const current = (data?.current ?? {}) as JsonRecord;
   const currentWeek = Number(current.week_number) || 1;
-  const [selected, setSelected] = useState<number | null>(null);
-
-  // Open on the athlete's current week, and follow it when they move on.
-  useEffect(() => { setSelected(null); }, [currentWeek]);
-  const weekNumber = selected ?? currentWeek;
+  // Open on the athlete's current week, and follow it when they move on: a
+  // week they chose only holds while their current week is the one it was
+  // chosen from (worked out here, not in an effect, so it can't race a click).
+  const [choice, setChoice] = useState<{ week: number; from: number } | null>(null);
+  const setSelected = (week: number | null) => setChoice(week === null ? null : { week, from: currentWeek });
+  const weekNumber = choice && choice.from === currentWeek ? choice.week : currentWeek;
   const week = weeks.find((entry) => entry.week_number === weekNumber) ?? weeks[0];
 
   if (error && !data) return <p className="field-error" role="alert">{error}</p>;

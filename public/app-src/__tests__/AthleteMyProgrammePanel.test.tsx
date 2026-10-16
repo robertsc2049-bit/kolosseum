@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import React from "react";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { AthleteMyProgrammePanel, doseLabel, restLabel } from "../screens/athlete/AthleteMyProgrammePanel";
 
@@ -58,10 +58,10 @@ test("choosing an earlier week shows its done days ticked, and 'back to this wee
   render(<AthleteMyProgrammePanel />);
   await screen.findByText("Powerlifting meet prep");
   await act(async () => { fireEvent.click(screen.getByLabelText("Week 1")); });
-  assert.equal(document.querySelectorAll(".my-programme-day.is-done").length, 2);
+  await waitFor(() => assert.equal(document.querySelectorAll(".my-programme-day.is-done").length, 2));
   assert.ok(document.querySelector(".my-programme-day.is-done")?.textContent?.includes("✓ Done"));
   await act(async () => { fireEvent.click(screen.getByText("Back to this week (week 2)")); });
-  assert.ok(document.querySelector(".my-programme-day.is-current"));
+  await waitFor(() => assert.ok(document.querySelector(".my-programme-day.is-current")));
 });
 
 test("warm-ups are folded away so the working sets lead", async () => {
