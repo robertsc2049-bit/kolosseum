@@ -4790,3 +4790,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .template-work-item[data-open="false"] .core-field > input { -moz-appearance: textfield; appearance: textfield; text-align: center; }
 .template-work-item[data-open="false"] .core-field > input::-webkit-outer-spin-button,
 .template-work-item[data-open="false"] .core-field > input::-webkit-inner-spin-button { margin: 0; -webkit-appearance: none; }
+/* In the week grid a day's title gets its own line, its buttons a row under it. */
+@media (min-width: 760px) {
+  .template-sessions .template-session-header { grid-template-columns: minmax(0, 1fr); gap: var(--k-space-2); }
+  .template-sessions .template-session-header .builder-action-row { display: flex; flex-wrap: wrap; gap: var(--k-space-2); justify-content: flex-start; }
+}
