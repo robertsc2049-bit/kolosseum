@@ -8,6 +8,7 @@
 // rows are returned.
 
 import { pool } from "../db/pool.js";
+import { plannedSessionTitle } from "./session_title.js";
 import {
   deriveTrace,
   normalizeSummary
@@ -213,6 +214,7 @@ export type EnrichedHistorySession = {
   status: string;
   assignment_id: string | null;
   runtime_event_count: number;
+  session_title: string;
   created_at: string | null;
   updated_at: string | null;
   activity_id: string | null;
@@ -318,6 +320,7 @@ export async function loadEnrichedAthleteSessions(athleteUserId: string): Promis
       status: String(row.status),
       assignment_id: assignmentId,
       runtime_event_count: Number(row.runtime_event_count),
+      session_title: plannedSessionTitle(row.planned_session, provenance.programme?.template_name),
       created_at: isoString(row.created_at),
       updated_at: isoString(row.updated_at),
       activity_id: cleanString(row.activity_id) || null,

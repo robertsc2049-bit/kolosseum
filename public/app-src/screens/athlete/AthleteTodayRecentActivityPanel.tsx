@@ -21,6 +21,13 @@ export function AthleteTodayHistoryCountBadge() {
   return <>{sessionCount}</>;
 }
 
+// "4 of 9 exercises done" - what the athlete did, not how many taps it took.
+export function exercisesDoneLabel(session: JsonRecord): string {
+  const done = Number(session.completed_count ?? 0);
+  const total = done + Number(session.remaining_count ?? 0) + Number(session.dropped_count ?? 0);
+  return total > 0 ? `${done} of ${total} exercises done` : "";
+}
+
 export function AthleteTodayRecentActivityList() {
   const { loading, recentSessions } = useAthleteTodayRecentActivity();
 
@@ -53,12 +60,12 @@ export function AthleteTodayRecentActivityList() {
             onClick={() => dispatchContinueSession(sessionId)}
           >
             <div>
-              <h3>Training session</h3>
+              <h3>{String(session.session_title || "Training session")}</h3>
               <p>{formatDate(session.updated_at ?? session.created_at)}</p>
             </div>
             <div className="record-meta">
               <span className="badge neutral">{status}</span>
-              <span className="badge neutral">{Number(session.runtime_event_count ?? 0)} actions recorded</span>
+              {exercisesDoneLabel(session) ? <span className="badge neutral">{exercisesDoneLabel(session)}</span> : null}
             </div>
           </article>
         );

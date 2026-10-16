@@ -77,6 +77,21 @@ test("shows the correct copy and badge for every declared message state", async 
   }
 });
 
+test("a coached athlete with today's session open is not offered a second session", async () => {
+  installMocks({
+    state: "ok",
+    coach_user_id: "coach_1",
+    assignment: { template_name: "Base Block", activity_id: "powerlifting" },
+    session: { session_id: "session_1", template_session_title: "Squat day" },
+    event: null,
+    notes: []
+  }, {});
+  const { container, unmount } = render(<AthleteTodayCreateSessionButton />);
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 50)); });
+  assert.equal(container.querySelector("button"), null);
+  unmount();
+});
+
 test("the create-session button reflects each state's label and dispatches the reverse bridge on click", async () => {
   const cases: Array<[string, string]> = [
     ["no_current_assignment", "Create session"],
@@ -161,7 +176,7 @@ test("an active session shows activity, title, real completed/remaining/dropped 
   assert.ok(screen.getByText("2"));
   assert.ok(screen.getByText("1"));
   assert.ok(screen.getByText("120 kg"));
-  assert.match(document.body.textContent ?? "", /Training max · effective/u);
+  assert.match(document.body.textContent ?? "", /From your training max/u);
   assert.ok(screen.getByText("In progress"));
   assert.ok(screen.getByLabelText("About today's working weight"));
 });

@@ -1,0 +1,89 @@
+// "My programme": a powerlifter four weeks into a 12-week meet prep sees
+// every block as one strip, this week's days side by side with the weights
+// worked out from their maxes, done days ticked and the next one marked.
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import React from "react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+
+import { AthleteMyProgrammePanel, doseLabel, restLabel } from "../screens/athlete/AthleteMyProgrammePanel";
+
+function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Response {
+  return { ok, status, json: async () => body, text: async () => JSON.stringify(body) } as Response;
+}
+
+const squat = { exercise_id: "back_squat", name: "Back squat", segment: "working", sets: 5, reps: "5", load: "115 kg (72.5%)", rest_seconds: 240, notes: "" };
+const warmUp = { exercise_id: "leg_swing", name: "Leg swings", segment: "warm_up", sets: 1, reps: "10", load: "", rest_seconds: 0, notes: "Each leg." };
+const day = (index: number, title: string, state: string) => ({ session_index: index, title, state, date: state === "done" ? "2026-10-12T09:00:00.000Z" : null, exercises: [warmUp, squat] });
+const week = (number: number, first: number, states: string[]) => ({ week_number: number, sessions: states.map((state, i) => day(first + i, ["Squat day", "Bench day"][i] ?? `Day ${i + 1}`, state)) });
+
+const meetPrep = {
+  ok: true,
+  status: "active",
+  source: "coach",
+  programme: { name: "Powerlifting meet prep", activity_id: "powerlifting", total_sessions: 6 },
+  current: { session_index: 3, week_number: 2, block_name: "Intensification" },
+  completed_sessions: 2,
+  blocks: [
+    { name: "Accumulation", block_type: "volume", weeks: [week(1, 0, ["done", "done"])] },
+    { name: "Intensification", block_type: "strength", weeks: [week(2, 2, ["skipped", "current"]), week(3, 4, ["upcoming", "upcoming"])] }
+  ]
+};
+
+function installMocks(body: unknown) {
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    if (String(input) === "/account/onboarding/my-programme") return jsonResponse(body);
+    return jsonResponse({ error: "unhandled" }, false, 404);
+  }) as typeof fetch;
+}
+
+test.afterEach(() => cleanup());
+
+test("opens on the athlete's current week with every block in one strip and the next session marked", async () => {
+  installMocks(meetPrep);
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByText("Powerlifting meet prep");
+  assert.equal(document.querySelectorAll("[data-testid='my-programme-block']").length, 2);
+  assert.ok(screen.getByText(/2 of 6 sessions done · Week 2 of 3 · Intensification/u));
+  const current = document.querySelector(".my-programme-day.is-current");
+  assert.ok(current?.textContent?.includes("Bench day"));
+  assert.ok(current?.textContent?.includes("Next up"));
+  assert.ok(current?.textContent?.includes("115 kg (72.5%)"));
+  assert.ok(document.querySelector(".my-programme-day.is-skipped")?.textContent?.includes("Skipped"));
+});
+
+test("choosing an earlier week shows its done days ticked, and 'back to this week' returns", async () => {
+  installMocks(meetPrep);
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByText("Powerlifting meet prep");
+  await act(async () => { fireEvent.click(screen.getByLabelText("Week 1")); });
+  await waitFor(() => assert.equal(document.querySelectorAll(".my-programme-day.is-done").length, 2));
+  assert.ok(document.querySelector(".my-programme-day.is-done")?.textContent?.includes("✓ Done"));
+  await act(async () => { fireEvent.click(screen.getByText("Back to this week (week 2)")); });
+  await waitFor(() => assert.ok(document.querySelector(".my-programme-day.is-current")));
+});
+
+test("warm-ups are folded away so the working sets lead", async () => {
+  installMocks(meetPrep);
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByText("Powerlifting meet prep");
+  const folded = document.querySelector(".my-programme-day.is-current details.my-programme-bookend");
+  assert.ok(folded?.querySelector("summary")?.textContent?.includes("Warm-up (1)"));
+  assert.equal((folded as HTMLDetailsElement).open, false);
+});
+
+test("an athlete with no programme is told where it will come from", async () => {
+  installMocks({ ok: true, status: "none" });
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByText("No programme yet");
+});
+
+test("doses and rests read the way a lifter says them", () => {
+  assert.equal(doseLabel({ name: "", segment: "working", sets: 5, reps: "5", load: "", rest_seconds: null }), "5 × 5");
+  assert.equal(doseLabel({ name: "", segment: "working", sets: 1, reps: "400 m", load: "", rest_seconds: null }), "400 m");
+  assert.equal(restLabel(240), "4 min rest");
+  assert.equal(restLabel(210), "3.5 min rest");
+  assert.equal(restLabel(75), "75s rest");
+  assert.equal(restLabel(0), "");
+});

@@ -19,6 +19,7 @@ export const PRODUCT_ROUTE_MAP = Object.freeze([
   { route_id: "athlete_session", pattern: "#/athlete/session/:session_id", view: "session", actors: ["athlete"], entity_key: "session_id" },
   { route_id: "athlete_history", pattern: "#/athlete/history", view: "history", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_history_detail", pattern: "#/athlete/history/:session_id", view: "history", actors: ["athlete"], entity_key: "session_id" },
+  { route_id: "athlete_programme", pattern: "#/athlete/programme", view: "programme", actors: ["athlete"], entity_key: null },
   { route_id: "athlete_attendance_events", pattern: "#/athlete/attendance", view: "attendance", actors: ["athlete"], entity_key: null },
   { route_id: "coach_overview", pattern: "#/coach/overview", view: "coach-overview", actors: ["coach"], entity_key: null },
   { route_id: "coach_athletes", pattern: "#/coach/athletes", view: "athletes", actors: ["coach"], entity_key: null },
@@ -126,6 +127,7 @@ export function routeForView(actor, view, entity = {}) {
     if (view === "history") return serializeProductRoute("athlete_history");
     if (view === "today") return serializeProductRoute("athlete_today");
     if (view === "attendance") return serializeProductRoute("athlete_attendance_events");
+    if (view === "programme") return serializeProductRoute("athlete_programme");
   }
 
   if (view === "account") return serializeProductRoute("shared_account");
