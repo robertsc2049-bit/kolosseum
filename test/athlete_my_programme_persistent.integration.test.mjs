@@ -136,9 +136,9 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   const [squatDay, benchDay] = before.blocks[0].weeks[0].sessions;
   assert.deepEqual([squatDay.title, squatDay.state, benchDay.state], ["Squat day", "current", "upcoming"]);
   const squat = squatDay.exercises.find((e) => e.exercise_id === "back_squat");
-  assert.deepEqual([squat.sets, squat.reps, squat.load, squat.rest_seconds, squat.notes], [5, "5", "115 kg (72.5%)", 240, "Belt on for the top sets."], "72.5% of a 160 kg max, to the nearest 2.5 kg");
+  assert.deepEqual([squat.sets, squat.reps, squat.load, squat.rest_seconds, squat.notes], [5, "5", "115 kg", 240, "Belt on for the top sets."], "72.5% of a 160 kg max, to the nearest 2.5 kg - the weight only, never the %");
   assert.equal(squatDay.exercises.find((e) => e.exercise_id === "barbell_row").load, "RPE 7");
-  assert.equal(before.blocks[1].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").load, "135 kg (85%)");
+  assert.equal(before.blocks[1].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").load, "135 kg");
 
   // She trains Squat day: the session screen and her history call it that.
   const detail = await athlete.refresh();

@@ -14,7 +14,7 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
   return { ok, status, json: async () => body, text: async () => JSON.stringify(body) } as Response;
 }
 
-const squat = { exercise_id: "back_squat", name: "Back squat", segment: "working", sets: 5, reps: "5", load: "115 kg (72.5%)", rest_seconds: 240, notes: "" };
+const squat = { exercise_id: "back_squat", name: "Back squat", segment: "working", sets: 5, reps: "5", load: "115 kg", rest_seconds: 240, notes: "" };
 const warmUp = { exercise_id: "leg_swing", name: "Leg swings", segment: "warm_up", sets: 1, reps: "10", load: "", rest_seconds: 0, notes: "Each leg." };
 const day = (index: number, title: string, state: string) => ({ session_index: index, title, state, date: state === "done" ? "2026-10-12T09:00:00.000Z" : null, exercises: [warmUp, squat] });
 const week = (number: number, first: number, states: string[]) => ({ week_number: number, sessions: states.map((state, i) => day(first + i, ["Squat day", "Bench day"][i] ?? `Day ${i + 1}`, state)) });
@@ -50,7 +50,7 @@ test("opens on the athlete's current week with every block in one strip and the 
   const current = document.querySelector(".my-programme-day.is-current");
   assert.ok(current?.textContent?.includes("Bench day"));
   assert.ok(current?.textContent?.includes("Next up"));
-  assert.ok(current?.textContent?.includes("115 kg (72.5%)"));
+  assert.ok(current?.textContent?.includes("115 kg"));
   assert.ok(document.querySelector(".my-programme-day.is-skipped")?.textContent?.includes("Skipped"));
 });
 
@@ -102,7 +102,7 @@ test("printing the whole programme puts every week on the paper sheet, then puts
   assert.equal(sheet?.parentElement, document.body, "the sheet sits outside the app so the app can be hidden when printing");
   assert.equal(sheet?.querySelectorAll(".print-week").length, 3);
   const squat = [...(sheet?.querySelectorAll(".print-week tr") ?? [])].find((row) => row.textContent?.includes("Back squat"));
-  assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg (72.5%)") && squat.textContent.includes("4 min"));
+  assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg") && squat.textContent.includes("4 min"));
   assert.equal(squat?.querySelectorAll(".print-box").length, 5, "a box to write in for each set");
   assert.ok(sheet?.textContent?.includes("Warm-up: Leg swings 10"), "the warm-up is on the sheet, on one line");
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
@@ -140,7 +140,7 @@ test("the overview is one page of the whole programme: a row per training day, a
   const firstCell = rows[0].querySelectorAll("td")[0];
   assert.equal(firstCell.querySelector("b")?.textContent, "5×5");
   assert.equal(firstCell.querySelector("span")?.textContent, "115 kg");
-  assert.equal(firstCell.querySelector("small")?.textContent, "72.5%");
+  assert.equal(firstCell.querySelector("small"), null, "no percentage");
   assert.ok(firstCell.textContent?.includes("✓"), "week 1's Squat day was trained");
   assert.equal(rows[0].querySelectorAll("td")[2].textContent?.includes("✓"), false);
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });

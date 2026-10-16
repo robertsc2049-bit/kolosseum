@@ -232,7 +232,7 @@ test("an exercise held back because of last time says what was planned and why",
   installMocks({ sessionState: baseSessionState({ started: true, current_step: { type: "EXERCISE", exercise: held }, remaining_exercises: [held] }) });
   render(<AthleteSessionExecutionPanel />);
   await waitFor(() => screen.getByText("Mark exercise complete"));
-  assert.ok(screen.getByText("Held back from 77.5% 1RM - 3 of 5 sets short of 5 reps last time."));
+  assert.ok(screen.getByText("Held back from the planned weight - 3 of 5 sets short of 5 reps last time."));
   cleanup();
 });
 

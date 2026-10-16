@@ -36,8 +36,7 @@ function doseText(prescription: JsonRecord | null | undefined): string {
     : prescription.duration_seconds !== undefined ? `${Number(prescription.duration_seconds)} s`
       : `${Number(prescription.reps)}`;
   const intensity = prescription.intensity as JsonRecord | undefined;
-  const effort = intensity?.type === "percent_1rm" ? ` @ ${Number(intensity.value)}%`
-    : intensity?.type === "rpe" ? ` @ RPE ${Number(intensity.value)}` : "";
+  const effort = intensity?.type === "rpe" ? ` @ RPE ${Number(intensity.value)}` : "";
   return Number.isFinite(sets) ? `${sets} × ${dose}${effort}` : "";
 }
 

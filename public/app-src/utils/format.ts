@@ -277,7 +277,8 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
 
     if (resolved && Number.isFinite(Number(resolved.value))) {
       const unit = resolved.unit === "lb" ? "lb" : "kg";
-      details.push(`${Number(resolved.value)} ${unit} (${Number(intensity.value)}% of your max)`);
+      // The weight only - the % of max behind it is the coach's design.
+      details.push(`${Number(resolved.value)} ${unit}`);
 
       const source = resolved?.source && typeof resolved.source === "object" ? resolved.source as JsonRecord : null;
       if (source) {
@@ -289,7 +290,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
       details.push(`No max recorded - choose a weight at about RPE ${Number((exercise.load_guidance as JsonRecord).value)}`);
     }
     else {
-      details.push(`${Number(intensity.value)}% 1RM`);
+      details.push("No max recorded for this lift yet - choose a weight you can lift for every rep with good form");
     }
   }
   else if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
