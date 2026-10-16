@@ -773,15 +773,22 @@ button:focus-visible,
 
 .exercise-howto {
   margin-top: var(--k-space-3);
-  padding: var(--k-space-2) var(--k-space-3);
+  padding: 0 var(--k-space-3);
   border: 1px solid var(--line-soft);
   border-radius: var(--k-radius-s);
 }
 
+/* The whole row is the tap target - 44px, so it can be opened mid-set. */
 .exercise-howto summary {
+  padding: 12px 0;
+  line-height: 20px;
   color: var(--bronze-light);
   font-size: 0.85rem;
   cursor: pointer;
+}
+
+.exercise-howto[open] {
+  padding-bottom: var(--k-space-2);
 }
 
 .exercise-howto-body {
