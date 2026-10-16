@@ -98,11 +98,11 @@ function RepControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIn
         </label>
         {rangeMode ? (
           <>
-            <label><span>Minimum</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.rep_min} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_min")} /></label>
-            <label><span>Maximum</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.rep_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_max")} /></label>
+            <label className="core-field" data-short="Min reps"><span>Minimum</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.rep_min} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_min")} /></label>
+            <label className="core-field" data-short="Max reps"><span>Maximum</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.rep_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rep_max")} /></label>
           </>
         ) : (
-          <label><span>Reps</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.planned_reps} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_reps")} /></label>
+          <label className="core-field" data-short="Reps"><span>Reps</span><input type="number" min={1} max={100} step={1} defaultValue={workItem.planned_reps} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_reps")} /></label>
         )}
         <label className="template-tempo-field">
           <span>Tempo (optional)</span>
@@ -128,11 +128,11 @@ function DurationControls({ workItem, blockIndex, weekIndex, sessionIndex, workI
         </label>
         {rangeMode ? (
           <>
-            <label><span>Minimum (s)</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.duration_min_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_min_seconds")} /></label>
-            <label><span>Maximum (s)</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.duration_max_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_max_seconds")} /></label>
+            <label className="core-field" data-short="Min s"><span>Minimum (s)</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.duration_min_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_min_seconds")} /></label>
+            <label className="core-field" data-short="Max s"><span>Maximum (s)</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.duration_max_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "duration_max_seconds")} /></label>
           </>
         ) : (
-          <label><span>Seconds</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.planned_duration_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_duration_seconds")} /></label>
+          <label className="core-field" data-short="Secs"><span>Seconds</span><input type="number" min={1} max={1800} step={1} defaultValue={workItem.planned_duration_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_duration_seconds")} /></label>
         )}
       </div>
     </fieldset>
@@ -154,11 +154,11 @@ function DistanceControls({ workItem, blockIndex, weekIndex, sessionIndex, workI
         </label>
         {rangeMode ? (
           <>
-            <label><span>Minimum</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.distance_min_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_min_value")} /></label>
-            <label><span>Maximum</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.distance_max_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_max_value")} /></label>
+            <label className="core-field" data-short="Min dist"><span>Minimum</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.distance_min_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_min_value")} /></label>
+            <label className="core-field" data-short="Max dist"><span>Maximum</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.distance_max_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "distance_max_value")} /></label>
           </>
         ) : (
-          <label><span>Distance</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.planned_distance_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_distance_value")} /></label>
+          <label className="core-field" data-short="Dist"><span>Distance</span><input type="number" min={0.1} max={10000} step={0.1} defaultValue={workItem.planned_distance_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_distance_value")} /></label>
         )}
         <label>
           <span>Unit</span>
@@ -221,7 +221,7 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
-            <label><span>Weight<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+            <label className="core-field" data-short="Weight"><span>Weight<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
             <label>
               <span>Unit</span>
               <select defaultValue={workItem.weight_unit} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}>
@@ -261,7 +261,7 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
 
   return (
     <>
-      <label>
+      <label className="core-field" data-short="% 1RM">
         <span>% 1RM<InfoTooltip label="About % 1RM">1RM means one-rep max - the heaviest weight the athlete could lift once. It's resolved from their own recorded strength reference.</InfoTooltip></span>
         <input
           type="number"
@@ -313,7 +313,7 @@ function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
         </select>
       </label>
       {entryMode === "rpe" ? (
-        <label>
+        <label className="core-field" data-short="RPE">
           <span>RPE</span>
           <input
             key="rpe-input"
@@ -327,7 +327,7 @@ function RpeLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
           />
         </label>
       ) : (
-        <label>
+        <label className="core-field" data-short="RIR">
           <span>Reps in reserve</span>
           <input
             key="rir-input"
@@ -355,7 +355,7 @@ function BorgLoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
 
   return (
     <>
-      <label>
+      <label className="core-field" data-short="Borg">
         <span>Borg (6-20)</span>
         <input
           type="number"
@@ -381,7 +381,7 @@ function Cr10LoadField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
 
   return (
     <>
-      <label>
+      <label className="core-field" data-short="CR10">
         <span>Modified Borg / CR10 (0-10)</span>
         <input
           type="number"
@@ -567,9 +567,10 @@ function BuilderWorkItem({
   // file's own established uncontrolled-input convention.
   const [groupTypeHint, setGroupTypeHint] = React.useState(workItem.group_type);
   const howto = useExerciseHowto(workItem.exercise_id);
-  // Each exercise is a one-line summary until opened, so a 36-session
-  // programme isn't one endless form; one with nothing chosen yet - just
-  // added - starts open.
+  // Closed, each exercise is one compact row - its name, then its own sets /
+  // reps / load / rest inputs (styles.css hides the rest of the editor) - so
+  // a week fits on a screen; the name opens the full editor. One with
+  // nothing chosen yet - just added - starts open.
   const [open, setOpen] = React.useState(!workItem.exercise_id);
   const exerciseName = String(templateExercises.find((exercise) => exercise.exercise_id === workItem.exercise_id)?.display_name ?? (workItem.exercise_id ? titleCase(workItem.exercise_id) : "Choose an exercise"));
 
@@ -630,13 +631,13 @@ function BuilderWorkItem({
         ) : null}
       </div>
       <div className="template-prescription-grid">
-        <label className="template-sets-field">
+        <label className="template-sets-field core-field" data-short="Sets">
           <span>Sets</span>
           <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
         </label>
         <PrescriptionControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         <LoadControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
-        <label className="template-rest-field">
+        <label className="template-rest-field core-field" data-short="Rest s">
           <span>Rest seconds</span>
           <input type="number" min={0} max={900} step={5} defaultValue={workItem.rest_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rest_seconds")} />
         </label>
@@ -692,6 +693,28 @@ function BuilderWorkItem({
       </label>
     </div>
   );
+}
+
+// A session's warm-up drills (always first) and cool-down drills (always
+// last) fold into one closed line each, so a day column shows its main
+// lifts; the drills stay in the page (a closed <details>), never removed.
+// Anything out of that order renders flat, exactly as stored.
+function bookendGroups(workItems: ProgrammeWorkItemDraft[]): { label: string; indexes: number[] }[] {
+  const segments = workItems.map((item) => item.segment);
+  let warmEnd = 0;
+  while (warmEnd < segments.length && segments[warmEnd] === "warm_up") warmEnd++;
+  let coolStart = segments.length;
+  while (coolStart > warmEnd && segments[coolStart - 1] === "cool_down") coolStart--;
+  const middle = segments.slice(warmEnd, coolStart);
+  const all = workItems.map((_, index) => index);
+  if (middle.some((segment) => segment !== "working") || (warmEnd === 0 && coolStart === segments.length)) {
+    return [{ label: "", indexes: all }];
+  }
+  return [
+    ...(warmEnd ? [{ label: "Warm-up", indexes: all.slice(0, warmEnd) }] : []),
+    { label: "", indexes: all.slice(warmEnd, coolStart) },
+    ...(coolStart < segments.length ? [{ label: "Cool-down", indexes: all.slice(coolStart) }] : [])
+  ];
 }
 
 function BuilderSession({
@@ -760,19 +783,27 @@ function BuilderSession({
         />
       </label>
       <div className="template-work-items">
-        {session.work_items.map((workItem, workItemIndex) => (
-          <BuilderWorkItem
-            key={workItem.work_item_id || `new_${workItemIndex}`}
-            workItem={workItem}
-            blockIndex={blockIndex}
-            weekIndex={weekIndex}
-            sessionIndex={sessionIndex}
-            workItemIndex={workItemIndex}
-            workItemCount={session.work_items.length}
-            templateExercises={templateExercises}
-            equipmentCatalog={equipmentCatalog}
-          />
-        ))}
+        {bookendGroups(session.work_items).map((group) => {
+          const items = group.indexes.map((workItemIndex) => (
+            <BuilderWorkItem
+              key={session.work_items[workItemIndex].work_item_id || `new_${workItemIndex}`}
+              workItem={session.work_items[workItemIndex]}
+              blockIndex={blockIndex}
+              weekIndex={weekIndex}
+              sessionIndex={sessionIndex}
+              workItemIndex={workItemIndex}
+              workItemCount={session.work_items.length}
+              templateExercises={templateExercises}
+              equipmentCatalog={equipmentCatalog}
+            />
+          ));
+          return group.label ? (
+            <details className="builder-bookend" key={group.label}>
+              <summary>{`${group.label} · ${group.indexes.length} drill${group.indexes.length === 1 ? "" : "s"}`}</summary>
+              {items}
+            </details>
+          ) : <React.Fragment key="working">{items}</React.Fragment>;
+        })}
       </div>
       <button className="button secondary add-template-work-item" type="button" data-block-index={blockIndex} data-week-index={weekIndex} data-session-index={sessionIndex} disabled={session.work_items.length >= 12}>Add exercise</button>
       </div>
