@@ -4843,6 +4843,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 @media (max-width: 759px) {
   .my-programme-wide { display: none; }
   .my-programme-week-bar .button { min-width: 44px; min-height: 44px; }
+}
+
 /* Layout audit (2026-10-16): no cramping, overlap or sideways spill. */
 
 /* A form's single column is the panel's width, never its widest field's -
