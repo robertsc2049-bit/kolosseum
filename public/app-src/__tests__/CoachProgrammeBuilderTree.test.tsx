@@ -721,3 +721,8 @@ test("Collapse all folds every block, week and day; Expand all opens them again"
   await act(async () => { fireEvent.click(screen.getByText("Expand all")); });
   assert.ok([...document.querySelectorAll(".template-block, .template-week, .template-session")].every((node) => node.getAttribute("data-open") === "true"));
 });
+
+test("a new session starts with one exercise row - the coach adds more as it needs them, nothing presumed", () => {
+  assert.equal(newTemplateSession(1).work_items.length, 1);
+  assert.equal(newTemplateBlock(1).weeks[0].sessions[0].work_items.length, 1, "a new programme's first session too");
+});

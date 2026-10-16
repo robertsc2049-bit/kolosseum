@@ -192,7 +192,8 @@ export function newTemplateSession(orderIndex: number): ProgrammeSessionDraft {
     order_index: orderIndex,
     title: `Session ${orderIndex}`,
     coaching_notes: "",
-    work_items: Array.from({ length: 4 }, () => newTemplateWorkItem())
+    // One exercise row to start; the coach adds more as the session needs.
+    work_items: [newTemplateWorkItem()]
   };
 }
 

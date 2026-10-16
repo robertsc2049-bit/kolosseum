@@ -2872,7 +2872,8 @@ function newTemplateSession(orderIndex) {
     order_index: orderIndex,
     title: `Session ${orderIndex}`,
     coaching_notes: "",
-    work_items: Array.from({ length: 4 }, (_, index) => newTemplateWorkItem(index))
+    // One exercise row to start; the coach adds more as the session needs.
+    work_items: [newTemplateWorkItem(0)]
   };
 }
 
