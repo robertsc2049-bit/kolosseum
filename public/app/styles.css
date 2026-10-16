@@ -4847,7 +4847,12 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .my-programme-bookend summary { cursor: pointer; color: var(--k-text-secondary); min-height: 32px; display: flex; align-items: center; }
 .my-programme-notes { grid-column: 1 / -1; font-size: 0.82rem; margin-top: 2px; }
 .my-programme-block { grid-template-columns: minmax(0, 1fr); }
+/* A block is never narrower than its week buttons (the strip scrolls). */
+.my-programme-block { min-width: calc(var(--weeks, 1) * 31px + 16px); }
 @media (max-width: 759px) {
+  .my-programme-block { min-width: calc(var(--weeks, 1) * 47px + 16px); }
+  .my-programme-week-cell { min-width: 44px; min-height: 44px; }
+  .my-programme-bookend summary { min-height: 44px; }
   .my-programme-wide { display: none; }
   .my-programme-week-bar .button { min-width: 44px; min-height: 44px; }
 }
@@ -4873,4 +4878,41 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .badge-toggle { min-height: 40px; padding-inline: var(--k-space-3); }
   .template-work-item[data-open="false"] .core-field > input { min-height: 40px; }
   .builder-bookend > summary { min-height: 44px; }
+}
+
+/* "My programme" on paper (ProgrammePrintSheet.tsx): only the sheet prints -
+   black on white, a week to a page, empty boxes to write in what was lifted. */
+#programme-print-root { display: none; }
+.my-programme-print-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); }
+.my-programme-week-bar .button { display: inline-flex; align-items: center; justify-content: center; gap: 0.35em; }
+@media print {
+  @page { size: A4; margin: 10mm 11mm; }
+  html:has(body.printing-programme) { color-scheme: light; background: #fff !important; }
+  body.printing-programme { background: #fff !important; color: #000 !important; }
+  body.printing-programme > *:not(#programme-print-root) { display: none !important; }
+  body.printing-programme #programme-print-root { display: block; font: 8.5pt/1.25 Inter, "Segoe UI", Arial, sans-serif; color: #000; }
+  #programme-print-root * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
+  .print-week { break-after: page; }
+  .print-week:last-child { break-after: auto; }
+  .print-week-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; border-bottom: 1.5pt solid #000; padding-bottom: 1.5mm; margin-bottom: 3mm; }
+  .print-week-header p { margin: 0; font-size: 7pt; text-transform: uppercase; letter-spacing: 0.08em; }
+  .print-week-header h1 { margin: 0; font-size: 13pt; }
+  .print-week-header h2 { margin: 0; font-size: 11pt; white-space: nowrap; }
+  .print-session { break-inside: avoid; margin-bottom: 3.5mm; }
+  .print-session header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8mm; }
+  .print-session h3 { margin: 0; font-size: 10pt; }
+  .print-date { font-size: 8pt; }
+  .print-session table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  .print-session th, .print-session td { border: 0.5pt solid #666; padding: 0.7mm 1.2mm; text-align: left; vertical-align: middle; }
+  .print-session th { font-size: 6.5pt; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1pt solid #000; }
+  .print-session th:nth-child(1) { width: 27%; }
+  .print-session th:nth-child(2) { width: 10%; }
+  .print-session th:nth-child(3) { width: 14%; }
+  .print-session th:nth-child(4) { width: 7%; }
+  .print-exercise strong { display: block; }
+  .print-notes { display: block; font-size: 7pt; font-style: italic; }
+  .print-dose { font-weight: 700; white-space: nowrap; }
+  .print-segment td { font-size: 7.5pt; }
+  .print-box { display: inline-block; width: 10.5mm; height: 4.2mm; margin: 0.3mm 0.8mm 0.3mm 0; border: 0.5pt solid #000; vertical-align: middle; }
+  .print-session-notes { margin: 0.8mm 0 0; padding-bottom: 3mm; border-bottom: 0.5pt dotted #000; font-size: 7.5pt; }
 }

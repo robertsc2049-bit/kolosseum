@@ -43,7 +43,7 @@ test.afterEach(() => cleanup());
 test("opens on the athlete's current week with every block in one strip and the next session marked", async () => {
   installMocks(meetPrep);
   render(<AthleteMyProgrammePanel />);
-  await screen.findByText("Powerlifting meet prep");
+  await screen.findByTestId("my-programme");
   assert.equal(document.querySelectorAll("[data-testid='my-programme-block']").length, 2);
   assert.ok(screen.getByText(/2 of 6 sessions done · Week 2 of 3 · Intensification/u));
   const current = document.querySelector(".my-programme-day.is-current");
@@ -56,7 +56,7 @@ test("opens on the athlete's current week with every block in one strip and the 
 test("choosing an earlier week shows its done days ticked, and 'back to this week' returns", async () => {
   installMocks(meetPrep);
   render(<AthleteMyProgrammePanel />);
-  await screen.findByText("Powerlifting meet prep");
+  await screen.findByTestId("my-programme");
   await act(async () => { fireEvent.click(screen.getByLabelText("Week 1")); });
   await waitFor(() => assert.equal(document.querySelectorAll(".my-programme-day.is-done").length, 2));
   assert.ok(document.querySelector(".my-programme-day.is-done")?.textContent?.includes("✓ Done"));
@@ -67,7 +67,7 @@ test("choosing an earlier week shows its done days ticked, and 'back to this wee
 test("warm-ups are folded away so the working sets lead", async () => {
   installMocks(meetPrep);
   render(<AthleteMyProgrammePanel />);
-  await screen.findByText("Powerlifting meet prep");
+  await screen.findByTestId("my-programme");
   const folded = document.querySelector(".my-programme-day.is-current details.my-programme-bookend");
   assert.ok(folded?.querySelector("summary")?.textContent?.includes("Warm-up (1)"));
   assert.equal((folded as HTMLDetailsElement).open, false);
@@ -86,4 +86,39 @@ test("doses and rests read the way a lifter says them", () => {
   assert.equal(restLabel(210), "3.5 min rest");
   assert.equal(restLabel(75), "75s rest");
   assert.equal(restLabel(0), "");
+});
+
+test("printing the whole programme puts every week on the paper sheet, then puts the app back", async () => {
+  installMocks(meetPrep);
+  let printed = 0;
+  window.print = () => { printed += 1; };
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByTestId("my-programme");
+  await act(async () => { fireEvent.click(screen.getByText("Print whole programme")); });
+  assert.equal(printed, 1);
+  assert.ok(document.body.classList.contains("printing-programme"));
+  const sheet = document.getElementById("programme-print-root");
+  assert.equal(sheet?.parentElement, document.body, "the sheet sits outside the app so the app can be hidden when printing");
+  assert.equal(sheet?.querySelectorAll(".print-week").length, 3);
+  const squat = [...(sheet?.querySelectorAll("tr") ?? [])].find((row) => row.textContent?.includes("Back squat"));
+  assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg (72.5%)") && squat.textContent.includes("4 min"));
+  assert.equal(squat?.querySelectorAll(".print-box").length, 5, "a box to write in for each set");
+  assert.ok(sheet?.textContent?.includes("Warm-up: Leg swings 10"), "the warm-up is on the sheet, on one line");
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
+  assert.equal(document.body.classList.contains("printing-programme"), false);
+  assert.equal(document.getElementById("programme-print-root")?.querySelectorAll(".print-week").length, 1, "back to the week on screen");
+});
+
+test("'Print this week' prints just the week on screen, with done sessions dated", async () => {
+  installMocks(meetPrep);
+  window.print = () => {};
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByTestId("my-programme");
+  await act(async () => { fireEvent.click(screen.getByLabelText("Week 1")); });
+  await act(async () => { fireEvent.click(screen.getByText("Print this week")); });
+  const sheet = document.getElementById("programme-print-root");
+  assert.equal(sheet?.querySelectorAll(".print-week").length, 1);
+  assert.ok(sheet?.textContent?.includes("Week 1 · Accumulation"));
+  assert.match(sheet?.textContent ?? "", /✓ Done (12 Oct|Oct 12)/u);
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
 });

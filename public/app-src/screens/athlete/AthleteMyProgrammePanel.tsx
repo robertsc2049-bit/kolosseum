@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { useAthleteMyProgramme } from "./useAthleteMyProgramme";
+import { PRINTING_CLASS, ProgrammePrintSheet } from "./ProgrammePrintSheet";
 
 // "My programme": the whole programme at a glance. A strip of blocks sized
 // by their weeks (so a 12-week plan reads left to right, like the coach's
@@ -106,6 +107,28 @@ export function AthleteMyProgrammePanel() {
   const weekNumber = choice && choice.from === currentWeek ? choice.week : currentWeek;
   const week = weeks.find((entry) => entry.week_number === weekNumber) ?? weeks[0];
 
+  // Printing: the buttons choose this week or the whole programme; the
+  // browser's own Print (Ctrl+P) on this page prints the week on screen.
+  // Either way only the paper sheet prints, never the app around it.
+  const [printScope, setPrintScope] = useState<"week" | "all" | null>(null);
+  useEffect(() => {
+    const onScreen = () => document.getElementById("view-programme")?.hidden === false;
+    const before = () => { if (onScreen()) document.body.classList.add(PRINTING_CLASS); };
+    const after = () => { document.body.classList.remove(PRINTING_CLASS); setPrintScope(null); };
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+    return () => {
+      window.removeEventListener("beforeprint", before);
+      window.removeEventListener("afterprint", after);
+      document.body.classList.remove(PRINTING_CLASS);
+    };
+  }, []);
+  useEffect(() => {
+    if (!printScope) return;
+    document.body.classList.add(PRINTING_CLASS);
+    window.print();
+  }, [printScope]);
+
   if (error && !data) return <p className="field-error" role="alert">{error}</p>;
   if (!data) return <p className="muted">Loading your programme…</p>;
   if (data.status === "none") {
@@ -128,16 +151,25 @@ export function AthleteMyProgrammePanel() {
 
   return (
     <section className="my-programme" data-testid="my-programme">
+      <ProgrammePrintSheet
+        programmeName={String(programme.name ?? "Your programme")}
+        source={String(data.source ?? "")}
+        weeks={printScope === "all" ? weeks : [week]}
+      />
       <div className="my-programme-heading">
         <div>
           <p className="eyebrow">{data.source === "coach" ? "From your coach" : "Kolosseum programme"}</p>
           <h3>{String(programme.name ?? "Your programme")}</h3>
+          <p className="my-programme-progress muted">
+            {data.status === "complete"
+              ? `Finished - all ${total} sessions done`
+              : `${done} of ${total} sessions done · Week ${currentWeek} of ${totalWeeks}${current.block_name ? ` · ${String(current.block_name)}` : ""}`}
+          </p>
         </div>
-        <p className="my-programme-progress muted">
-          {data.status === "complete"
-            ? `Finished - all ${total} sessions done`
-            : `${done} of ${total} sessions done · Week ${currentWeek} of ${totalWeeks}${current.block_name ? ` · ${String(current.block_name)}` : ""}`}
-        </p>
+        <div className="my-programme-print-actions">
+          <button type="button" className="button secondary small-button" onClick={() => setPrintScope("week")}>Print this week</button>
+          <button type="button" className="button secondary small-button" onClick={() => setPrintScope("all")}>Print whole programme</button>
+        </div>
       </div>
 
       <div className="my-programme-timeline" role="group" aria-label="Blocks and weeks">
@@ -145,7 +177,7 @@ export function AthleteMyProgrammePanel() {
           <div
             key={`${block.name}-${blockIndex}`}
             className={`my-programme-block is-${block.block_type}`}
-            style={{ flexGrow: block.weeks.length, flexBasis: 0 }}
+            style={{ flexGrow: block.weeks.length, flexBasis: 0, ["--weeks" as string]: block.weeks.length } as React.CSSProperties}
             data-testid="my-programme-block"
           >
             <span className="my-programme-block-name" title={block.name}>{block.name}</span>
