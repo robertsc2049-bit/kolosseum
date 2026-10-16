@@ -726,3 +726,26 @@ test("a new session starts with one exercise row - the coach adds more as it nee
   assert.equal(newTemplateSession(1).work_items.length, 1);
   assert.equal(newTemplateBlock(1).weeks[0].sessions[0].work_items.length, 1, "a new programme's first session too");
 });
+
+test("a closed exercise row keeps its own sets / reps / load / rest inputs editable - the same inputs the full editor uses, never copies", async () => {
+  installExerciseRegistryMock([{ exercise_id: "back_squat", display_name: "Back squat" }]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ planned_sets: 4, planned_reps: 5, load_mode: "percent_1rm", rest_seconds: 240 }));
+  const item = document.querySelector(".template-work-item") as HTMLElement;
+  assert.equal(item.getAttribute("data-open"), "false");
+  const core = [...item.querySelectorAll(".core-field")].map((label) => [label.getAttribute("data-short"), (label.querySelector("input") as HTMLInputElement).value]);
+  assert.deepEqual(core, [["Sets", "4"], ["Reps", "5"], ["% 1RM", "75"], ["Rest s", "240"]]);
+  assert.equal(item.querySelectorAll('[data-field="planned_sets"]').length, 1, "one sets input per exercise");
+});
+
+test("a day's warm-up and cool-down drills fold into one closed line each, around its main lifts", async () => {
+  installExerciseRegistryMock([]);
+  const item = (exerciseId: string, index: number, segment: string) => ({ ...storedWorkItemToDraft({ exercise_id: exerciseId, segment }, index), work_item_id: `wi_${index}` });
+  const session = { ...newTemplateSession(1), work_items: [item("arm_circles", 0, "warm_up"), item("leg_swings", 1, "warm_up"), item("back_squat", 2, "working"), item("bench_press", 3, "working"), item("hip_flexor_stretch", 4, "cool_down")] };
+  const week = { ...newTemplateWeek(1), sessions: [session] };
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draft({ blocks: [{ ...newTemplateBlock(1), weeks: [week] }] }));
+  const bookends = [...document.querySelectorAll(".builder-bookend")] as HTMLDetailsElement[];
+  assert.deepEqual(bookends.map((details) => [details.querySelector("summary")?.textContent, details.open, details.querySelectorAll(".template-work-item").length]), [["Warm-up · 2 drills", false, 2], ["Cool-down · 1 drill", false, 1]]);
+  assert.equal(document.querySelectorAll(".template-work-item").length, 5, "every drill stays in the page");
+});

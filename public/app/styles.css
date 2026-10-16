@@ -4472,7 +4472,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .template-work-item-summary-text { display: grid; min-width: 0; gap: 2px; }
 .template-work-item-summary-text strong { overflow: hidden; font-size: 0.98rem; text-overflow: ellipsis; white-space: nowrap; }
 .template-work-item-summary-text span { color: var(--stone-dim); font-size: 0.82rem; }
-.template-work-item[data-open="false"] > :not(.template-work-item-summary) { display: none; }
+.template-work-item[data-open="false"] > :not(.template-work-item-summary):not(.template-prescription-grid) { display: none; }
 .template-work-item[data-open="true"] > .template-work-item-summary { margin-bottom: var(--k-space-2); border-bottom: 1px solid var(--line-soft); }
 .template-work-item[data-open="true"] .template-work-item-header > .exercise-order { display: none; }
 .template-work-item[data-open="false"] { padding-top: var(--k-space-1); padding-bottom: var(--k-space-1); }
@@ -4757,3 +4757,36 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .builder-collapse-toggle { width: 44px; height: 44px; min-height: 44px; }
   .template-block-header, .template-week-header, .template-session-header, .template-session[data-open="false"] > .builder-collapsed-summary { padding-left: 52px; }
 }
+
+/* Builder: a closed exercise is a compact row - its name, then its own sets,
+   reps, load and rest inputs with short captions; method selects, tempo,
+   units, hints, grouping and notes wait until the name opens the editor. */
+.template-work-item[data-open="false"] { display: flex; flex-wrap: wrap; align-items: end; gap: 4px var(--k-space-2); }
+.template-work-item[data-open="false"] > .template-work-item-summary { flex: 1 1 100%; min-height: 34px; }
+.template-work-item[data-open="false"] .template-work-item-summary-text > span { display: none; }
+.template-work-item[data-open="false"] > .template-prescription-grid { display: flex; flex-wrap: wrap; align-items: end; gap: 4px var(--k-space-2); margin: 0; padding: 0; border: 0; background: none; }
+.template-work-item[data-open="false"] > .template-prescription-grid :is(fieldset, .template-prescription-fields, .template-prescription-mode-field) { display: contents; }
+.template-work-item[data-open="false"] > .template-prescription-grid :is(legend, label:not(.core-field), p, .template-prilepin-reference, .template-bodyweight-note) { display: none; }
+.template-work-item[data-open="false"] .core-field { display: grid; gap: 2px; margin: 0; color: var(--stone-dim); font-size: 0.7rem; font-weight: 700; }
+.template-work-item[data-open="false"] .core-field::before { content: attr(data-short); }
+.template-work-item[data-open="false"] .core-field > span { display: none; }
+.template-work-item[data-open="false"] .core-field > input { width: 3.2rem; min-height: 34px; padding: 4px 6px; font-size: 0.9rem; }
+
+/* Builder: on a wide screen a week's days sit side by side; a day with an
+   open exercise widens to fit the full editor. Phones keep them stacked. */
+@media (min-width: 760px) {
+  .template-sessions { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); align-items: start; gap: var(--k-space-3); overflow-x: auto; padding-bottom: var(--k-space-2); }
+  .template-sessions > .template-session { min-width: 0; margin: 0; }
+  .template-sessions > .template-session:has(.template-work-item[data-open="true"]) { grid-column: span 2; }
+}
+/* A day's notes are one line until used. */
+.template-sessions .template-session-notes-field textarea { min-height: 38px; height: 38px; resize: vertical; transition: height var(--k-motion-base) var(--k-ease-standard); }
+.template-sessions .template-session-notes-field textarea:focus { height: 96px; }
+/* A day's warm-up and cool-down drills: one closed line each. */
+.builder-bookend { margin: 0 0 var(--k-space-2); border: 1px dashed var(--line-soft); border-radius: var(--k-radius-m); }
+.builder-bookend > summary { min-height: 38px; display: flex; align-items: center; padding: 0 var(--k-space-3); color: var(--stone-dim); font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+.builder-bookend[open] > summary { border-bottom: 1px dashed var(--line-soft); }
+/* Compact row inputs: no spinner arrows, so "72.5" fits. */
+.template-work-item[data-open="false"] .core-field > input { -moz-appearance: textfield; appearance: textfield; text-align: center; }
+.template-work-item[data-open="false"] .core-field > input::-webkit-outer-spin-button,
+.template-work-item[data-open="false"] .core-field > input::-webkit-inner-spin-button { margin: 0; -webkit-appearance: none; }
