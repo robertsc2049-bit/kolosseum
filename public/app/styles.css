@@ -4843,4 +4843,25 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 @media (max-width: 759px) {
   .my-programme-wide { display: none; }
   .my-programme-week-bar .button { min-width: 44px; min-height: 44px; }
+/* Layout audit (2026-10-16): no cramping, overlap or sideways spill. */
+
+/* A form's single column is the panel's width, never its widest field's -
+   the Competitions form ran under the list beside it on a laptop. */
+.form-panel { grid-template-columns: minmax(0, 1fr); }
+.form-panel :is(input, select, textarea) { min-width: 0; max-width: 100%; }
+
+/* The builder's nested grids may shrink: the week grid scrolls sideways
+   inside its week instead of widening the whole page. */
+#templateBlocks, .template-block, .template-week, .template-session { min-width: 0; }
+
+/* Builder rows: a long exercise name wraps rather than hiding behind "...". */
+.template-work-item[data-open="false"] .template-work-item-summary-text strong { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+
+/* Phone tap targets: 44px for every control. */
+@media (max-width: 620px) {
+  .text-button.back-button, .text-button { min-height: 44px; display: inline-flex; align-items: center; }
+  .section-tab { min-height: 44px; }
+  .badge-toggle { min-height: 40px; padding-inline: var(--k-space-3); }
+  .template-work-item[data-open="false"] .core-field > input { min-height: 40px; }
+  .builder-bookend > summary { min-height: 44px; }
 }
