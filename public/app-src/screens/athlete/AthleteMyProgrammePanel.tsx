@@ -110,7 +110,7 @@ export function AthleteMyProgrammePanel() {
   // Printing: the buttons choose this week or the whole programme; the
   // browser's own Print (Ctrl+P) on this page prints the week on screen.
   // Either way only the paper sheet prints, never the app around it.
-  const [printScope, setPrintScope] = useState<"week" | "all" | null>(null);
+  const [printScope, setPrintScope] = useState<"week" | "all" | "overview" | null>(null);
   useEffect(() => {
     const onScreen = () => document.getElementById("view-programme")?.hidden === false;
     const before = () => { if (onScreen()) document.body.classList.add(PRINTING_CLASS); };
@@ -154,7 +154,8 @@ export function AthleteMyProgrammePanel() {
       <ProgrammePrintSheet
         programmeName={String(programme.name ?? "Your programme")}
         source={String(data.source ?? "")}
-        weeks={printScope === "all" ? weeks : [week]}
+        weeks={printScope === "all" ? weeks : printScope === "overview" ? [] : [week]}
+        overview={printScope === "all" || printScope === "overview" ? { weeks, totals: { weeks: totalWeeks, sessions: total, done } } : null}
       />
       <div className="my-programme-heading">
         <div>
@@ -167,6 +168,7 @@ export function AthleteMyProgrammePanel() {
           </p>
         </div>
         <div className="my-programme-print-actions">
+          <button type="button" className="button secondary small-button" onClick={() => setPrintScope("overview")}>Print overview</button>
           <button type="button" className="button secondary small-button" onClick={() => setPrintScope("week")}>Print this week</button>
           <button type="button" className="button secondary small-button" onClick={() => setPrintScope("all")}>Print whole programme</button>
         </div>

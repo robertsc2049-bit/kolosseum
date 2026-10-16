@@ -78,7 +78,7 @@ test("nothing is chosen for the athlete: the lifts the programme names are shown
   const selects = Array.from(document.querySelectorAll(".programme-item select")) as HTMLSelectElement[];
   assert.equal(selects.length, 2);
   assert.ok(selects.every((select) => select.value === ""), "no slot is pre-filled");
-  assert.ok(screen.getByText("Squat · 3 × 3 @ 68%"));
+  assert.ok(screen.getByText("Squat · 3 × 3"));
 });
 
 test("the athlete's choices are saved and the prompt clears once every slot is chosen", async () => {

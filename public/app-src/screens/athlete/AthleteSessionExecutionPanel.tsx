@@ -205,7 +205,7 @@ function matchWeekNote(context: JsonRecord): string {
 // An exercise held back because of what the athlete did last time.
 function autoregulationNote(hold: JsonRecord): string {
   const planned = hold.planned_intensity as JsonRecord | undefined;
-  const plannedText = planned?.type === "percent_1rm" ? `${Number(planned.value)}% 1RM` : planned?.type === "rpe" ? `RPE ${Number(planned.value)}` : "the plan";
+  const plannedText = planned?.type === "percent_1rm" ? "the planned weight" : planned?.type === "rpe" ? `RPE ${Number(planned.value)}` : "the plan";
   return `Held back from ${plannedText} - ${String(hold.detail ?? "last time was hard")}.`;
 }
 

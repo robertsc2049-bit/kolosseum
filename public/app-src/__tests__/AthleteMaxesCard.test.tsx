@@ -105,9 +105,10 @@ test("a max the server refuses is shown on its lift", async () => {
 test("a % of 1RM exercise with no max recorded shows an RPE target, and a resolved one shows the weight", () => {
   const noMax = exerciseDetails({ sets: 5, rep_range: { minimum: 5, maximum: 5 }, intensity: { type: "percent_1rm", value: 77.5 }, load_guidance: { type: "rpe", value: 7, reason: "no_max_recorded" } });
   assert.ok(noMax.includes("No max recorded - choose a weight at about RPE 7"), noMax.join(" | "));
-  assert.ok(!noMax.some((line) => line.includes("77.5% of your max")));
+  assert.ok(!noMax.some((line) => line.includes("%")), "no percentage shown to the athlete");
   const resolved = exerciseDetails({ sets: 5, intensity: { type: "percent_1rm", value: 77.5 }, resolved_load: { value: 115, unit: "kg" } });
-  assert.ok(resolved.includes("115 kg (77.5% of your max)"), resolved.join(" | "));
+  assert.ok(resolved.includes("115 kg"), resolved.join(" | "));
+  assert.ok(!resolved.some((line) => line.includes("%")), "the weight only - never the % of max behind it");
 });
 
 test("a beginner's session reads as a weight to lift and why - never an RPE", () => {

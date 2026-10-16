@@ -49,7 +49,9 @@ async function sessionsByIndex(trackingId: string): Promise<Map<number, Json>> {
 }
 
 // A stored item's dose in plain words: "5" / "8-10" / "30s" / "400 m", and
-// the load as kg (from the athlete's max), a %, an RPE or "Bodyweight".
+// the load as the weight to lift (from the athlete's max) or an RPE. Never
+// the % of max behind a weight: that is the coach's programme design, and
+// athletes are not shown it (nor encouraged to copy the programme).
 function range(prescription: unknown, unit: string): string {
   if (!isRecord(prescription)) return "";
   const suffix = unit === "s" ? "s" : unit ? ` ${unit}` : "";
@@ -71,7 +73,7 @@ function dose(item: Json, profile: Json | null): Json {
   let load = "";
   if (loading.type === "percent_1rm" && value !== null) {
     const resolved = profile ? resolvePercentageLoad(profile, text(item.exercise_id), value) : null;
-    load = resolved && num(resolved.value) !== null ? `${num(resolved.value)} ${text(resolved.unit) || "kg"} (${value}%)` : `${value}% of max`;
+    load = resolved && num(resolved.value) !== null ? `${num(resolved.value)} ${text(resolved.unit) || "kg"}` : "";
   }
   else if (loading.type === "load" && value !== null) load = `${value} ${text(loading.unit) || "kg"}`;
   else if (loading.type === "rpe" && value !== null) load = `RPE ${value}`;
@@ -92,8 +94,8 @@ export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Rea
 
   const ordered = orderedTemplateSessions(template);
   const done = await sessionsByIndex(assignment ? text(assignment.assignment_id) : run!.run_id);
-  // A coach's programme loads % of max from the maxes the coach recorded;
-  // a Kolosseum programme's athlete sets their own loads, so it stays a %.
+  // A coach's programme gives a weight from the maxes the coach recorded;
+  // a Kolosseum programme's athlete sets their own loads on the day.
   const profile = assignment ? await loadAthleteStrengthProfile(ownerId, athleteUserId).catch(() => null) : null;
   const ids = [...new Set(ordered.flatMap((session) => (Array.isArray(session.work_items) ? session.work_items : []).map((item) => text(isRecord(item) ? item.exercise_id : ""))))];
   const names = sessionExerciseDisplayNames(ids, await getAthleteCustomExerciseNames(athleteUserId).catch(() => ({})));
