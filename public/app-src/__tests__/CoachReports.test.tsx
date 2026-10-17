@@ -186,3 +186,18 @@ test("the athlete finds the report in History: their coach's message and the wei
   assert.equal(/estimated|%/.test(body), false, "no maxes or percentages");
   assert.ok(screen.getByText("Print"));
 });
+
+test("every part of a report, and sending it, explains itself", async () => {
+  installMocks();
+  render(<CoachReports athleteUserId="a1" />);
+  await screen.findByText("Week of 12 Oct");
+  assert.ok(screen.getByTestId("explain-reports").textContent?.includes("Custom dates: any two dates"));
+  await act(async () => { fireEvent.click(screen.getByText("Block (2)")); });
+  await act(async () => { fireEvent.click(screen.getByText("Volume - Meet prep")); });
+  await screen.findByTestId("report-body");
+  for (const id of ["report_overview", "report_strength", "report_weeks", "report_exercises", "report_effort", "report_patterns", "report_bodyweight", "report_sessions", "report_plan", "report_wellbeing"]) {
+    assert.ok(screen.getByTestId(`explain-${id}`).textContent?.includes("How to read it"), `${id} is explained`);
+  }
+  await act(async () => { fireEvent.click(screen.getByText("Send to athlete")); });
+  assert.ok(screen.getByTestId("explain-report_send").textContent?.includes("never shows estimated maxes"));
+});

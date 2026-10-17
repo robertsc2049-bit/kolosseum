@@ -118,3 +118,19 @@ test("opening the Analysis page from the menu (the section is un-hidden, no hash
     section.remove();
   }
 });
+
+test("every part of an athlete's analysis explains itself - what it shows, how to read it, how it's worked out", async () => {
+  installMocks();
+  render(<CoachAnalysisPanel />);
+  await screen.findByText("Jordan");
+  assert.ok(screen.getByTestId("explain-roster"), "the roster explains its statuses and columns");
+  await act(async () => { fireEvent.click(screen.getByText("Jordan")); });
+  await screen.findByTestId("analysis-summary");
+  for (const id of ["summary", "strength", "execution", "load", "adherence", "readiness", "pain", "volume"]) {
+    const explain = screen.getByTestId(`explain-${id}`) as HTMLDetailsElement;
+    assert.equal(explain.open, false, `${id}: folded away until asked for`);
+    const text = explain.textContent ?? "";
+    assert.ok(text.includes("How to read it") && text.includes("How it's worked out"), `${id}: full explanation`);
+  }
+  assert.ok(screen.getByTestId("explain-load").textContent?.includes("0.8-1.3 (the shaded band) is normal"));
+});

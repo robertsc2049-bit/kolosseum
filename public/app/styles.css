@@ -5109,3 +5109,13 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #athlete-report-print-root .report-section { break-inside: avoid; }
   #report-print-root details > summary { display: none; }
 }
+
+/* "What this means" (analysisGuide.tsx): a plain-English explanation folded
+   under every part of Analysis and the progress reports. */
+.analysis-explain { border: 1px dashed var(--k-border); border-radius: var(--k-radius-m); padding: 0 var(--k-space-3); }
+.analysis-explain > summary { cursor: pointer; padding: 11px 0; line-height: 22px; font-size: 0.85rem; color: var(--k-accent-bright); }
+.analysis-explain-body { padding-bottom: var(--k-space-3); font-size: 0.9rem; line-height: 1.5; color: var(--k-text-secondary); }
+.analysis-explain-body > p:first-child { margin-top: 0; color: var(--k-text); }
+.analysis-explain-body ul { margin: 0 0 var(--k-space-2); padding-left: 1.1em; display: grid; gap: 4px; }
+.analysis-explain-body .eyebrow { margin: var(--k-space-2) 0 4px; }
+@media print { .analysis-explain { display: none !important; } }

@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { loadAccountDetail } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
 import { AthleteReportBody } from "../athlete/AthleteProgressReports";
+import { Explain } from "./analysisGuide";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
 
 // The coach's progress reports for one athlete: one for every week, every
@@ -105,6 +106,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         ) : <p className="muted small">Nothing stood out.</p>}
       </section>
 
+      <Explain id="summary" />
       <div className="report-tiles" data-testid="report-tiles">
         <Tile label={num(sessions.planned) ? `Sessions (${sessions.planned} planned)` : "Sessions"} value={`${show(sessions.completed)}${num(sessions.partial) ? ` + ${sessions.partial} part` : ""}`} change={<Change value={compared?.sessions_completed} />} />
         <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
@@ -115,6 +117,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <Tile label="Readiness (avg of 15)" value={show(wellbeing.readiness_average)} change={<Change value={compared?.readiness_average} />} />
         <Tile label="Pain reports" value={show(pain.reports)} change={<Change value={compared?.pain_reports} upIsGood={false} />} />
       </div>
+      <Explain id="report_overview" />
 
       <section className="report-section" data-testid="report-strength">
         <h4>Strength</h4>
@@ -138,11 +141,13 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
           </div>
         ) : <p className="muted small">No lift was logged often enough with a weight to estimate a max.</p>}
         <p className="muted small">Estimated max from the best set each week (RTS RPE chart where the athlete rated it, else Epley). ★ main lift.</p>
+        <Explain id="report_strength" />
       </section>
 
       {weeks.length > 1 ? (
         <section className="report-section">
           <h4>Week by week</h4>
+          <Explain id="report_weeks" />
           <TrendChart title="Weekly training load (AU) and sets" weeks={weeks} series={[{ id: "load", label: "Load (AU)", kind: "bar", values: loadRows.map((row) => num(row.load)) }]} emptyLabel="No rated sessions in this period." height={140} />
           <div className="analysis-table-wrap">
             <table className="analysis-table">
@@ -168,6 +173,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
 
       <section className="report-section" data-testid="report-exercises">
         <h4>Every exercise</h4>
+        <Explain id="report_exercises" />
         {exercises.length ? (
           <div className="analysis-table-wrap">
             <table className="analysis-table">
@@ -193,6 +199,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
       <div className="report-columns">
         <section className="report-section" data-testid="report-effort">
           <h4>How hard it felt</h4>
+          <Explain id="report_effort" />
           {num(summary.effort_rated) ? (
             <ul className="analysis-weekdays report-bands">
               {rows(summary.effort_bands).map((band) => (
@@ -208,12 +215,14 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         </section>
         <section className="report-section" data-testid="report-patterns">
           <h4>Sets by movement</h4>
+          <Explain id="report_patterns" />
           {rows(summary.patterns).length ? (
             <ul className="report-facts">
               {rows(summary.patterns).map((row) => <li key={String(row.pattern)}>{`${String(row.pattern).replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase())}: ${show(row.sets)} sets`}</li>)}
             </ul>
           ) : <p className="muted small">No sets logged.</p>}
           <h4>Bodyweight</h4>
+          <Explain id="report_bodyweight" />
           {rows(summary.bodyweight).length ? (
             <ul className="report-facts">
               {rows(summary.bodyweight).map((entry, index) => <li key={index}>{`${show(entry.value)} ${String(entry.unit ?? "kg")}${entry.date ? ` (${shortWeek(String(entry.date))} ${String(entry.date).slice(0, 4)})` : ""}`}</li>)}
@@ -224,6 +233,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
 
       <details className="analysis-numbers" open={printing || sessionLog.length <= 12} data-testid="report-sessions">
         <summary>{`Every session (${sessionLog.length})`}</summary>
+        <Explain id="report_sessions" />
         {sessionLog.length ? (
           <div className="analysis-table-wrap">
             <table className="analysis-table">
@@ -250,6 +260,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
       <div className="report-columns">
         <section className="report-section">
           <h4>Doing the plan</h4>
+          <Explain id="report_plan" />
           <ul className="report-facts">
             <li>{`Sets logged: ${show(execution.sets_logged_pct, "%")} of those planned, in the sessions done`}</li>
             <li>{`Reps hit: ${show(execution.reps_hit_pct, "%")} of logged sets reached the target`}</li>
@@ -262,6 +273,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         </section>
         <section className="report-section">
           <h4>Readiness and wellbeing</h4>
+          <Explain id="report_wellbeing" />
           <ul className="report-facts">
             <li>{`Daily check-ins: ${show(wellbeing.check_ins)}, average ${show(wellbeing.readiness_average)} of 15`}</li>
             <li>{`Weeks well below their normal: ${show(wellbeing.low_weeks)}`}</li>
@@ -367,6 +379,7 @@ function SendToAthlete({ athleteUserId, type, id, athleteName, onClose }: { athl
     <section className="panel report-send" data-testid="report-send">
       <h3>{`Send to ${athleteName}`}</h3>
       <p className="muted small">They get the sessions they did, the best set they lifted on each exercise, their volume and how they felt - no estimated maxes, load ratios or your flags.</p>
+      <Explain id="report_send" />
       <label className="field">
         <span>Your message (optional)</span>
         <textarea rows={4} maxLength={2000} value={message} disabled={busy || sent} onChange={(event) => setMessage(event.target.value)} placeholder="What went well, and what's next." />
@@ -425,6 +438,7 @@ export function CoachReports({ athleteUserId }: { athleteUserId: string }) {
     <section className="panel report-list" data-testid="report-list">
       <h3>Progress reports</h3>
       <p className="muted small">A report is compiled for every week, programme block, training cycle, programme and year - each compared with the one before it - or pick your own dates.</p>
+      <Explain id="reports" />
       <div className="analysis-weeks" role="group" aria-label="Report type">
         {TYPES.map((entry) => (
           <button key={entry.type} type="button" className={`button secondary small-button${entry.type === type ? " is-selected" : ""}`} aria-pressed={entry.type === type} onClick={() => setType(entry.type)}>

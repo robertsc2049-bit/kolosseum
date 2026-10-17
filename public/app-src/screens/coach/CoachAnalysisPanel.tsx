@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
+import { Explain } from "./analysisGuide";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -74,6 +75,7 @@ function Section({ id, title, headline, children }: { id: string; title: string;
         <h3>{title}</h3>
         {headline ? <p className={`analysis-headline is-${headline.level}`}>{headline.text}</p> : null}
       </header>
+      <Explain id={id} />
       {children}
     </section>
   );
@@ -126,6 +128,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           <section className="analysis-summary panel" data-testid="analysis-summary">
             <h3>What stands out</h3>
             <FindingList findings={findings} />
+            <Explain id="summary" />
           </section>
 
           <div className="analysis-sections">
@@ -291,6 +294,7 @@ export function CoachAnalysisPanel() {
           <p className="muted">Your athletes over the last 8 weeks, the ones needing attention first. Open an athlete for their trends and the numbers behind them.</p>
         </div>
       </div>
+      <Explain id="roster" />
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {!roster && !error ? <p className="muted">Working out the patterns…</p> : null}
       {roster && !athletes.length ? <div className="empty-state"><h3>No athletes yet</h3><p className="muted">Once athletes train with you, their patterns show here.</p></div> : null}
