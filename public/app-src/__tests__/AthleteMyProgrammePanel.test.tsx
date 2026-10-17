@@ -26,6 +26,7 @@ const meetPrep = {
   programme: { name: "Powerlifting meet prep", activity_id: "powerlifting", total_sessions: 6 },
   current: { session_index: 3, week_number: 2, block_name: "Intensification" },
   completed_sessions: 2,
+  cover: { athlete_name: "Sam Lifter", coach_name: "Morgan", description: "Twelve weeks to the meet.", started_on: "2026-09-28", competition: { name: "Regional open", date: "2026-12-12" }, bodyweight: { value: 74, unit: "kg", as_of: "2026-10-01" }, weight_class_kg: 74 },
   blocks: [
     { name: "Accumulation", block_type: "volume", weeks: [week(1, 0, ["done", "done"])] },
     { name: "Intensification", block_type: "strength", weeks: [week(2, 2, ["skipped", "current"]), week(3, 4, ["upcoming", "upcoming"])] }
@@ -147,14 +148,14 @@ test("the overview is one page of the whole programme: a row per training day, a
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
 });
 
-test("the whole programme prints the overview first, then every week", async () => {
+test("the whole programme prints the cover, the overview, then every week", async () => {
   installMocks(meetPrep);
   window.print = () => {};
   render(<AthleteMyProgrammePanel />);
   await screen.findByTestId("my-programme");
   await act(async () => { fireEvent.click(screen.getByText("Print whole programme")); });
   const sheet = document.getElementById("programme-print-root");
-  assert.deepEqual([...(sheet?.children ?? [])].map((child) => child.className), ["print-overview", "print-week", "print-week", "print-week"]);
+  assert.deepEqual([...(sheet?.children ?? [])].map((child) => child.className), ["print-cover", "print-overview", "print-week", "print-week", "print-week"]);
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
 });
 
@@ -168,4 +169,23 @@ test("overview rows are labelled by each day's usual title and main lift, so a o
     { week_number: 3, block, sessions: [session(4, "Openers", "Back squat")] }
   ]);
   assert.deepEqual(rows.map((row) => [row.title, row.lift, row.sessions.filter(Boolean).length]), [["Squat day", "Back squat", 3], ["Pull day", "Deadlift", 2]]);
+});
+
+test("the overview and the whole programme open with a cover: who it's for and from, start, competition, bodyweight, weight class, blocks with dates - and how to use the sheets, never maxes", async () => {
+  installMocks(meetPrep);
+  window.print = () => {};
+  render(<AthleteMyProgrammePanel />);
+  await screen.findByTestId("my-programme");
+  await act(async () => { fireEvent.click(screen.getByText("Print overview")); });
+  const sheet = document.getElementById("programme-print-root");
+  assert.deepEqual([...(sheet?.children ?? [])].map((child) => child.className), ["print-cover", "print-overview"]);
+  const cover = sheet?.querySelector("[data-testid='print-cover']");
+  const text = cover?.textContent ?? "";
+  for (const expected of ["Sam Lifter", "Morgan", "Regional open", "74 kg", "Weight class74 kg", "Twelve weeks to the meet.", "Using these sheets", "Weeks 2-3"]) assert.ok(text.includes(expected), expected);
+  assert.equal(cover?.querySelector("[data-testid='print-cover-maxes']"), null, "no maxes on the athlete's cover");
+  assert.doesNotMatch(text, /coach's copy/iu);
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
+  await act(async () => { fireEvent.click(screen.getByText("Print this week")); });
+  assert.equal(document.querySelector("[data-testid='print-cover']"), null, "a single week prints without a cover");
+  await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
 });

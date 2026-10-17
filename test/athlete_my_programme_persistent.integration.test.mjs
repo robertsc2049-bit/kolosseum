@@ -140,6 +140,23 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.equal(squatDay.exercises.find((e) => e.exercise_id === "barbell_row").load, "RPE 7");
   assert.equal(before.blocks[1].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").load, "135 kg");
 
+  // Her cover: who it is for and from, when it started, her bodyweight -
+  // never the maxes or the % behind the weights.
+  assert.equal(before.cover.athlete_name, "lifter");
+  assert.equal(before.cover.coach_name, "Coach");
+  assert.equal(before.cover.bodyweight.value, 74);
+  assert.equal(before.cover.started_on, new Date().toISOString().slice(0, 10));
+  assert.equal("maxes" in before.cover, false, "no maxes on the athlete's cover");
+  assert.equal(JSON.stringify(before).includes('"percent"'), false, "no % anywhere in the athlete's copy");
+
+  // The coach's copy of the same programme keeps both.
+  const coachCopy = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "coach copy").json;
+  const coachSquat = coachCopy.blocks[0].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat");
+  assert.deepEqual([coachSquat.load, coachSquat.percent], ["115 kg", 72.5]);
+  assert.deepEqual(coachCopy.cover.maxes.map((m) => [m.name, m.value, m.basis]), [["Back squat", 160, "Tested 1RM"], ["Bench press", 100, "Tested 1RM"]]);
+  assert.deepEqual(coachCopy.cover.bodyweight_history.map((b) => b.value), [74]);
+  assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`)).status, 403, "the athlete can't fetch the coach's copy");
+
   // She trains Squat day: the session screen and her history call it that.
   const detail = await athlete.refresh();
   const created = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {

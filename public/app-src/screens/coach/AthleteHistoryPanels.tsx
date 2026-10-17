@@ -5,6 +5,7 @@ import { InfoTooltip } from "../../components/InfoTooltip";
 import { countdownLabel, formatDate, strengthSourceLabel } from "../../utils/format";
 import { useAthleteHistory } from "./useAthleteHistory";
 import { topPersonalRecord } from "../../utils/personalRecords";
+import { CoachProgrammePrintButton } from "./CoachProgrammePrintButton";
 
 // DEV NOTE: current programme, current event, and the assignment/
 // strength/bodyweight/event-link/session history lists from
@@ -144,9 +145,12 @@ export function AthleteCurrentProgrammeCard() {
           {formatDate(recordDate(currentAssignment))}
         </p>
       </div>
-      <button className="button secondary small-button" type="button" onClick={() => openProgramme(templateId)}>
-        Open programme
-      </button>
+      <div className="record-actions">
+        <button className="button secondary small-button" type="button" onClick={() => openProgramme(templateId)}>
+          Open programme
+        </button>
+        <CoachProgrammePrintButton athleteUserId={athleteUserId} />
+      </div>
     </article>
   );
 }

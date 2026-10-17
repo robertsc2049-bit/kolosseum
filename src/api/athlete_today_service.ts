@@ -136,7 +136,7 @@ async function loadCurrentAssignment(
 // (beta19_coach_event_service.ts) collapses both cases to null, which is the
 // right shape for compile-time event override but the wrong shape for a
 // Today read where the two must be told apart.
-async function loadTodayEventStatus(
+export async function loadTodayEventStatus(
   coachUserId: string,
   athleteUserId: string,
   assignmentId: string

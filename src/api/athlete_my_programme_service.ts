@@ -7,9 +7,11 @@
 // when it's created.
 import { pool } from "../db/pool.js";
 import { orderedTemplateSessions, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
-import { loadAthleteStrengthProfile, resolvePercentageLoad } from "./beta19_coach_workspace_service.js";
+import { loadAthleteStrengthProfile, requireCoachAthleteAccess, resolvePercentageLoad } from "./beta19_coach_workspace_service.js";
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
-import { getAthleteCustomExerciseNames, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
+import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
+import { loadTodayEventStatus } from "./athlete_today_service.js";
+import { getWeightClass } from "./weight_class_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -60,7 +62,7 @@ function range(prescription: unknown, unit: string): string {
     : num(prescription.value) === null ? "" : `${num(prescription.value)}${suffix}`;
 }
 
-function dose(item: Json, profile: Json | null): Json {
+function dose(item: Json, profile: Json | null): Json & { percent: number | null } {
   const mode = text(item.prescription_mode) || "reps";
   const distance = isRecord(item.distance_prescription) ? item.distance_prescription : {};
   const reps = mode === "duration"
@@ -79,12 +81,45 @@ function dose(item: Json, profile: Json | null): Json {
   else if (loading.type === "rpe" && value !== null) load = `RPE ${value}`;
   else if (loading.type === "borg" && value !== null) load = `Effort ${value}/20`;
   else if (loading.type === "cr10" && value !== null) load = `Effort ${value}/10`;
-  return { sets: num(item.planned_sets) ?? 1, reps, load, rest_seconds: num(item.rest_seconds), notes: text(item.coaching_notes) };
+  return { sets: num(item.planned_sets) ?? 1, reps, load, rest_seconds: num(item.rest_seconds), notes: text(item.coaching_notes), percent: loading.type === "percent_1rm" ? value : null };
 }
 
-export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Readonly<Json>> {
-  const assignment = await currentAssignment(athleteUserId);
-  const run = assignment ? null : await getCurrentProgrammeRun(athleteUserId);
+async function displayName(userId: string): Promise<string> {
+  if (!userId) return "";
+  const result = await pool.query("SELECT display_name FROM product_accounts WHERE user_id = $1", [userId]).catch(() => null);
+  return text(result?.rows?.[0]?.display_name);
+}
+
+const BASIS_LABEL: Record<string, string> = { tested_1rm: "Tested 1RM", estimated_1rm: "Estimated 1RM", training_max: "Training max" };
+
+// Every bodyweight the coach has recorded, oldest first, one line per change.
+async function bodyweightHistory(coachUserId: string, athleteUserId: string): Promise<Json[]> {
+  const result = await pool.query(
+    `SELECT record_payload FROM beta_product_records
+     WHERE record_type = 'beta19_athlete_strength_profile' AND actor_user_id = $1 AND subject_user_id = $2
+     ORDER BY created_at ASC, record_id ASC`,
+    [coachUserId, athleteUserId]
+  );
+  const history: Json[] = [];
+  for (const row of result.rows) {
+    const payload = isRecord(row.record_payload) ? row.record_payload : {};
+    const value = num(payload.bodyweight);
+    if (value === null) continue;
+    const last = history[history.length - 1];
+    if (last && last.value === value) continue;
+    history.push({ value, unit: text(payload.bodyweight_unit) || "kg", date: text(payload.updated_at_iso8601).slice(0, 10) || null });
+  }
+  return history;
+}
+
+type Viewer = "athlete" | "coach";
+
+// The programme laid out block > week > session, plus a cover: who it is
+// for, who wrote it, when it started, the competition it builds to, the
+// athlete's bodyweight and weight class, and the coach's notes. The coach's
+// copy (viewer "coach") also keeps the % of max behind every weight and adds
+// the maxes and bodyweight history; the athlete's never has either.
+async function buildProgramme(athleteUserId: string, viewer: Viewer, assignment: Json | null, run: Awaited<ReturnType<typeof getCurrentProgrammeRun>>): Promise<Readonly<Json>> {
   if (!assignment && !run) return { ok: true, status: "none" };
 
   const ownerId = assignment ? text(assignment.assigned_by_coach_id) : run!.author_user_id;
@@ -98,7 +133,8 @@ export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Rea
   // a Kolosseum programme's athlete sets their own loads on the day.
   const profile = assignment ? await loadAthleteStrengthProfile(ownerId, athleteUserId).catch(() => null) : null;
   const ids = [...new Set(ordered.flatMap((session) => (Array.isArray(session.work_items) ? session.work_items : []).map((item) => text(isRecord(item) ? item.exercise_id : ""))))];
-  const names = sessionExerciseDisplayNames(ids, await getAthleteCustomExerciseNames(athleteUserId).catch(() => ({})));
+  const custom = await getAthleteCustomExerciseNames(athleteUserId).catch(() => ({}));
+  const names = sessionExerciseDisplayNames(ids, custom);
 
   // Where they are: the open session if there is one, else the one after
   // the furthest they've reached (weeks skipped for a competition stay
@@ -134,20 +170,54 @@ export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Rea
       title: text(session.title) || `Session ${index + 1}`,
       state,
       date: record?.date ?? null,
-      exercises: (Array.isArray(session.work_items) ? session.work_items : []).filter(isRecord).map((item) => ({
-        exercise_id: text(item.exercise_id),
-        name: names[text(item.exercise_id)] ?? text(item.exercise_id),
-        segment: ["warm_up", "cool_down"].includes(text(item.segment)) ? text(item.segment) : "working",
-        ...dose(item, profile)
-      }))
+      exercises: (Array.isArray(session.work_items) ? session.work_items : []).filter(isRecord).map((item) => {
+        const { percent, ...prescribed } = dose(item, profile);
+        return {
+          exercise_id: text(item.exercise_id),
+          name: names[text(item.exercise_id)] ?? text(item.exercise_id),
+          segment: ["warm_up", "cool_down"].includes(text(item.segment)) ? text(item.segment) : "working",
+          ...prescribed,
+          ...(viewer === "coach" ? { percent } : {})
+        };
+      })
     });
   });
+
+  // The cover.
+  const plan = await getAthleteTrainingPlan(athleteUserId).catch(() => null);
+  const event = assignment ? await loadTodayEventStatus(ownerId, athleteUserId, text(assignment.assignment_id)).catch(() => null) : null;
+  const weightClass = await getWeightClass(athleteUserId).catch(() => null);
+  const bodyweight = num(profile?.bodyweight);
+  const competitionDate = text(event?.event_date) || text(plan?.competition_date);
+  const cover: Json = {
+    athlete_name: await displayName(athleteUserId),
+    coach_name: assignment ? await displayName(ownerId) : "",
+    description: text(template.description),
+    started_on: (assignment ? text(assignment.requested_at_iso8601) : text(run!.started_at)).slice(0, 10) || null,
+    competition: competitionDate ? { name: text(event?.event_name) || "Competition", date: competitionDate } : null,
+    bodyweight: bodyweight !== null ? { value: bodyweight, unit: text(profile?.bodyweight_unit) || "kg", as_of: text(profile?.updated_at_iso8601).slice(0, 10) || null } : null,
+    weight_class_kg: weightClass?.competes_at_weight_class && num(weightClass.weight_class_kg) !== null ? num(weightClass.weight_class_kg) : null
+  };
+  if (viewer === "coach") {
+    const benchmarks = Array.isArray(profile?.benchmarks) ? (profile!.benchmarks as unknown[]).filter(isRecord) : [];
+    const maxNames = sessionExerciseDisplayNames(benchmarks.map((benchmark) => text(benchmark.exercise_id)), custom);
+    cover.maxes = benchmarks.map((benchmark) => ({
+      exercise_id: text(benchmark.exercise_id),
+      name: maxNames[text(benchmark.exercise_id)] ?? text(benchmark.exercise_id),
+      value: num(benchmark.value),
+      unit: text(benchmark.unit) || "kg",
+      basis: BASIS_LABEL[text(benchmark.basis)] ?? "Max",
+      date: text(benchmark.effective_date) || null
+    }));
+    cover.bodyweight_history = assignment ? await bodyweightHistory(ownerId, athleteUserId).catch(() => []) : [];
+  }
 
   const currentSession = ordered[Math.min(current, ordered.length - 1)];
   return {
     ok: true,
     status: current >= ordered.length ? "complete" : "active",
     source: assignment ? "coach" : "kolosseum",
+    viewer,
     programme: { name: text(template.template_name), activity_id: text(template.activity_id), total_sessions: ordered.length },
     current: {
       session_index: Math.min(current, ordered.length - 1),
@@ -155,6 +225,22 @@ export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Rea
       block_name: text(currentSession?.template_block_name)
     },
     completed_sessions: [...done.values()].filter((record) => ["completed", "partial"].includes(text(record.status))).length,
+    cover,
     blocks: blocks.map(({ key: _key, ...block }) => ({ ...block, weeks: (block.weeks as Json[]).map(({ key: _week, ...week }) => week) }))
   };
+}
+
+export async function loadAthleteMyProgramme(athleteUserId: string): Promise<Readonly<Json>> {
+  const assignment = await currentAssignment(athleteUserId);
+  const run = assignment ? null : await getCurrentProgrammeRun(athleteUserId);
+  return buildProgramme(athleteUserId, "athlete", assignment, run);
+}
+
+// The coach's printable copy of the programme they assigned this athlete.
+// Only for the coach who assigned it (and who still coaches the athlete).
+export async function loadCoachAthleteProgramme(coachUserId: string, athleteUserId: string): Promise<Readonly<Json>> {
+  await requireCoachAthleteAccess(coachUserId, athleteUserId);
+  const assignment = await currentAssignment(athleteUserId);
+  if (!assignment || text(assignment.assigned_by_coach_id) !== coachUserId) return { ok: true, status: "none" };
+  return buildProgramme(athleteUserId, "coach", assignment, null);
 }
