@@ -488,6 +488,42 @@ test(
       assert.equal(rawGymAnalysis.includes(athlete.email), false);
       assert.equal(rawGymAnalysis.includes(athlete.displayName), false);
     }
+    // The gym's head coach (coachB, named by the owner) sees the same
+    // averages from their coaching workspace - and only them; coachA, not
+    // head coach, is refused. Naming someone who isn't an active coach fails.
+    const headGymBefore = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(gymOrgId)}/organisation-analysis`, undefined, { cookie: coachB.cookie }
+    );
+    assert.equal(headGymBefore.response.status, 403, "not head coach yet");
+    const notACoach = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/head-coach`, { coach_user_id: cohort1.userId }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assert.equal(notACoach.response.status, 409, "an athlete can't be named head coach");
+    assertStatus(await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/head-coach`, { coach_user_id: coachB.userId }, { cookie: owner.cookie, csrf: owner.csrf }
+    ), 200, "owner names coachB head coach of the gym");
+    const headGym = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(gymOrgId)}/organisation-analysis`, undefined, { cookie: coachB.cookie }
+    );
+    assertStatus(headGym, 200, "the gym's head coach reads its analysis");
+    assert.equal(headGym.json.analysis.visibility_mode, "individual");
+    assert.equal(headGym.json.analysis.head_coach_user_id, coachB.userId);
+    assert.equal(headGym.text.includes("athlete_user_id"), false);
+    assert.equal(/pain/iu.test(headGym.text), false);
+    for (const athlete of [athlete1, cohort1, cohort2, cohort3]) {
+      assert.equal(headGym.text.includes(athlete.userId), false);
+      assert.equal(headGym.text.includes(athlete.displayName), false);
+    }
+    const notHead = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(gymOrgId)}/organisation-analysis`, undefined, { cookie: coachA.cookie }
+    );
+    assert.equal(notHead.response.status, 403, "only the head coach");
+    const audit = await pool.query("SELECT action_type FROM product_org_audit_records WHERE org_id = $1 AND action_type = 'head_coach_designated'", [gymOrgId]);
+    assert.equal(audit.rows.length, 1, "naming the head coach is audited");
+    // The owner's own view says who it is.
+    const ownerGymView = await request(baseUrl, "GET", `/org/organisations/${encodeURIComponent(gymOrgId)}/analysis`, undefined, { cookie: owner.cookie });
+    assert.equal(ownerGymView.json.analysis.head_coach_user_id, coachB.userId);
+
     // A gym has no team view for its coaches either.
     const gymTeamView = await request(
       baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(gymOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie }
@@ -586,6 +622,39 @@ test(
     );
     assert.equal(outsiderCoach.response.status, 403, "a coach who isn't in the team can't see it");
 
+    // A team's head coach can open a teammate who isn't theirs: coachB joins
+    // the team with cohort1 (who has training logged); coachA can't open
+    // cohort1 until the owner names coachA head coach - and can't again once
+    // it's cleared.
+    const teamInviteB = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/roster/invite`,
+      { coach_email: coachB.email, request_id: `org_prog_invite_${nonce}_team_b` }, { cookie: owner.cookie, csrf: owner.csrf }
+    );
+    assertStatus(teamInviteB, 201, "invite coachB to team org");
+    await acceptOrgInvite(baseUrl, coachB, teamInviteB.json?.membership?.membership_id, `org_prog_accept_${nonce}_team_b`);
+    const openTeammate = () => request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/analysis?weeks=8`, undefined, { cookie: coachA.cookie });
+    assert.equal((await openTeammate()).response.status, 403, "a teammate's athlete is closed to a plain team coach");
+    const plainTeamView = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
+    assert.equal(plainTeamView.json.athletes.find((row) => row.athlete_user_id === cohort1.userId)?.openable, false);
+    assertStatus(await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: owner.cookie, csrf: owner.csrf }
+    ), 200, "owner names coachA head coach of the team");
+    const asHead = await openTeammate();
+    assertStatus(asHead, 200, "the head coach opens a teammate in full");
+    assert.equal(asHead.json.viewed_as, "head_coach");
+    assert.equal(asHead.json.org.org_id, teamOrgId);
+    const headTeamView = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
+    assert.equal(headTeamView.json.head_coach, true);
+    assert.ok(headTeamView.json.athletes.every((row) => row.openable === true));
+    assertStatus(await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: null }, { cookie: owner.cookie, csrf: owner.csrf }
+    ), 200, "owner clears the head coach");
+    assert.equal((await openTeammate()).response.status, 403, "cleared: closed again");
+    const crossOwnerHead = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: owner.cookie }
+    );
+    assert.equal(crossOwnerHead.response.status >= 400, true, "a change needs the CSRF token");
+
     // ============================================================
     // Cross-org isolation: an unrelated org owner cannot read this org's
     // progress rollup.
@@ -600,6 +669,10 @@ test(
       baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: otherOwner.cookie }
     );
     assertStatus(crossOrgAnalysis, 403, "an unrelated org owner cannot read another org's analysis");
+    const crossOrgHead = await request(
+      baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: otherOwner.cookie, csrf: otherOwner.csrf }
+    );
+    assert.equal(crossOrgHead.response.status, 403, "an unrelated owner can't name a head coach");
 
     // ============================================================
     // An unauthenticated caller is rejected outright.

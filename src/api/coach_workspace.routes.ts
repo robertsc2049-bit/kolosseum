@@ -63,6 +63,8 @@ import {
 } from "./coach_workspace.handlers.js";
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
+import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
+import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
 import { CoachReportInputError, CoachReportNotFoundError, listCoachReports, loadCoachReport, previewAthleteReport, sendAthleteReport } from "./coach_report_service.js";
 import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
@@ -417,7 +419,13 @@ coachWorkspaceRouter.get(
       return res.status(200).json(await analyseAthleteForCoach(coachUserId, String(req.params.athlete_id), req.query.weeks));
     }
     catch (error) {
-      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      if (error instanceof Beta19CoachWorkspaceError) {
+        // A team's head coach can open a teammate who isn't theirs.
+        const weeks = [4, 8, 12, 26].includes(Number(req.query.weeks)) ? Number(req.query.weeks) : 12;
+        const asHead = await analyseAthleteForHeadCoach(coachUserId, String(req.params.athlete_id), weeks);
+        if (asHead) return res.status(200).json(asHead);
+        return res.status(403).json({ ok: false, error: error.message });
+      }
       throw error;
     }
   })
@@ -453,6 +461,40 @@ coachWorkspaceRouter.get(
       if (error instanceof CoachReportNotFoundError) return res.status(404).json({ ok: false, error: error.message });
       throw error;
     }
+  })
+);
+
+// Performance tests the coach records for their athlete (athlete_tests_service.ts).
+const testErrorStatus = (error: unknown) =>
+  error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof AthleteTestInputError ? error.status : null;
+
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/tests",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try { return res.status(200).json(await listTestResultsForCoach(coachUserId, String(req.params.athlete_id))); }
+    catch (error) { const status = testErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+  })
+);
+
+coachWorkspaceRouter.post(
+  "/athletes/:athlete_id/tests",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try { return res.status(200).json(await recordTestResult(coachUserId, String(req.params.athlete_id), req.body)); }
+    catch (error) { const status = testErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+  })
+);
+
+coachWorkspaceRouter.post(
+  "/athletes/:athlete_id/tests/remove",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try { return res.status(200).json(await removeTestResult(coachUserId, String(req.params.athlete_id), req.body)); }
+    catch (error) { const status = testErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
   })
 );
 

@@ -52,7 +52,9 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     shows: "How strong the athlete is on each of their main lifts, week by week, as an estimated one-rep max worked out from the sets they logged - no max testing needed.",
     read: [
       "A rising line means they are getting stronger. Most athletes should see a slow rise across a training block, with small dips in heavy or deload weeks.",
-      "Rising: up 2% or more on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift - time to change something (rep range, exercise, volume). Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks - check fatigue, sleep, pain or life stress before pushing on.",
+      "Real change only: every lift wobbles week to week (a good day, a bad night's sleep). Each lift's own normal variation is measured, and Rising or Falling needs a change bigger than 1.5× that wobble (never under 2%). The lift list shows the wobble as '±x% is normal week-to-week variation'.",
+      "× bodyweight is the estimated max divided by their latest bodyweight - the number weight-class and team-sport coaches compare (e.g. a 1.8× bodyweight squat). The tested max is the latest max in their strength profile, next to the estimate: a big gap means it's time to retest or update it.",
+      "Rising: up by more than the smallest worthwhile change on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift - time to change something (rep range, exercise, volume). Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks - check fatigue, sleep, pain or life stress before pushing on.",
       "Main lifts are the ones you marked as the primary lift in a session. Accessories are listed in the numbers for reference but are never flagged - an accessory kept at one weight on purpose isn't a plateau."
     ],
     how: [
@@ -87,6 +89,20 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Where the athlete chooses their own weights (no prescribed weight), there is no load to compare - reps and effort still are."
     ]
   },
+  testing: {
+    title: "Testing",
+    shows: "The tests you record for the athlete - jumps, sprints, agility, conditioning, grip - with their latest result, the change since last time, their best, and whether the change is real.",
+    read: [
+      "Real improvement / Real decline: the change since the previous result is bigger than the test's smallest worthwhile change. Within normal variation: it isn't - the athlete may have improved, or it may be a good or bad day; retest before drawing conclusions.",
+      "Smallest worthwhile changes used: CMJ and squat jump 1.5 cm, broad jump 5 cm, 10 m sprint 0.03 s, 20 m 0.04 s, 40 m 0.06 s, 505 0.05 s, Yo-Yo IR1 40 m, Bronco 5 s, 2 km row 3 s, grip 2 kg, pull-ups 1 rep. Hover a verdict to see it.",
+      "Test in the same conditions each time - same warm-up, surface, time of day, and not the day after a hard session - or the change measures the conditions, not the athlete."
+    ],
+    how: [
+      "Record a result with the form below the table; remove a wrong one with ×. Results are kept on the athlete's record, with who recorded them.",
+      "Lower is better for times (sprints, 505, Bronco, 2 km row); higher for the rest."
+    ],
+    mind: ["The smallest worthwhile changes are typical values for trained athletes. With a squad of 10 or more, the team view works out your own squad's."]
+  },
   intensity: {
     title: "Intensity (% of max)",
     shows: "How heavy the athlete's lifting was relative to their max, where your programme sets weights as a % of max: the share of sets in each zone, and the average % they lifted each week.",
@@ -105,17 +121,19 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     title: "Training load",
     shows: "How much total work the athlete did each week - combining how hard it felt with how long it took - and whether this week is a big jump from what they're used to.",
     read: [
-      "Weekly load: higher bars are harder weeks. Planned hard weeks and deloads should be visible as you wrote them.",
+      "Weekly load: higher bars are harder weeks, split into gym and sport (team practice, matches, conditioning the athlete logs). For a team-sport athlete the sport bar is usually the bigger one - a 'quiet' gym week can still be a heavy week.",
+      "Letters on the charts mark the weeks with a Competition (C), Match (M), Deload (D), Peak block (P) or Season start/end (S) - hover for the detail. Read the trend against them: load should drop in a deload and before a competition.",
       "Load ratio (acute:chronic): this week against their average of the 4 weeks before. 1.0 means the same as usual. 0.8-1.3 (the shaded band) is normal week-to-week variation. Above 1.3 is a big jump; above 1.5 is a spike - common before soreness, niggles and missed sessions. Below 0.8 is a drop - expected in a deload or a taper, worth asking about otherwise.",
       "Monotony (in the numbers): how similar the days of the week are. Above 2 means every day is about as hard as every other, with no easy days - a risk for staleness.",
       "Strain (in the numbers): weekly load × monotony. A high load and high monotony together is the combination to avoid."
     ],
     how: [
-      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Effort is the average of the athlete's exercise ratings that session on a 0-10 scale (RPE and CR10 as given; Borg 6-20 rescaled). Minutes run from starting the session to the last thing they logged, capped at 4 hours.",
+      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured: the athlete rates the whole session (0-10) and says how long it took when they finish it. Estimated, if they don't: the average of their exercise ratings × the minutes from starting the session to the last thing they logged (capped at 4 hours). The Load section says how many sessions were measured.",
+      "Practice, matches and conditioning the athlete logs add their own effort × minutes.",
       "Load ratio = this week's load ÷ the mean of the 4 previous weeks' loads. Monotony = the week's average daily load ÷ the standard deviation of its 7 daily loads (rest days count as 0). Strain = weekly load × monotony."
     ],
     mind: [
-      "Sessions with no effort ratings add no load, which makes a week look lighter than it was.",
+      "Sessions with no effort ratings add no load, and practice or matches the athlete doesn't log are missing - both make a week look lighter than it was.",
       "The load ratio is a guide, not a prediction: research disagrees on how well it predicts injury. Use it with what the athlete tells you."
     ]
   },
@@ -179,7 +197,10 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Group findings count athletes: '3 athletes of 7 had a big jump in training load' means the group, not one person. When several athletes show the same thing at once, look at what they have in common - the plan, the fixture list, exams, travel or an illness going round - before treating them one by one.",
       "Sessions done and Load vs usual are averages across the athletes who trained. Big jumps count athletes over 1.3× their own usual load; Low readiness counts athletes well below their own normal.",
       "By position and By coach show the same numbers per group - for example whether it's the forwards or the backs carrying the load.",
-      "Every athlete lists the whole team. Your own athletes open in full. A teammate's detail stays with their own coach: their pain shows only as 'recurring pain reported', never the area."
+      "Every athlete lists the whole team. Your own athletes open in full. A teammate's detail stays with their own coach: their pain shows only as 'recurring pain reported', never the area. The team's head coach (named by the organisation's owner) can open every athlete in full.",
+      "Available today: Unavailable is an active stand-down (for example after a head injury), Modified is an active pain flag (they train around it), Available is neither. The reason shows on hover for your own athletes - or all of them, as head coach.",
+      "Squad testing puts every athlete's latest result side by side, best first: percentile is their rank in the squad (100 = best) and 'vs position' compares them with their position group. With 10 or more tested, the smallest worthwhile change is worked out from your own squad (0.2 × the spread between athletes).",
+      "Download squad (CSV) gives the table as a spreadsheet - status, availability, sessions, load, readiness, main lifts with × bodyweight, and every test - for staff meetings and selection."
     ],
     how: [
       "Each athlete is analysed exactly as on their own page (last 8 weeks), then the group's numbers are counted and averaged.",

@@ -97,3 +97,37 @@ test("a coach with no team orgs sees no team switch", async () => {
   await screen.findByText("No athletes yet");
   assert.equal(screen.queryByText("My athletes"), null);
 });
+
+test("a gym owner who is also its head coach sees the gym's averages from their coaching workspace - never an athlete", async () => {
+  const paths: string[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    paths.push(path);
+    if (path === "/coach-workspace/analysis") return jsonResponse({ ok: true, weeks: 8, athletes: [] });
+    if (path === "/coach-workspace/org-memberships") {
+      return jsonResponse({ ok: true, memberships: [
+        { org_id: "org_gym", org_name: "City Gym", membership_status: "active", visibility_mode: "individual", is_head_coach: true },
+        { org_id: "org_other_gym", org_name: "Other Gym", membership_status: "active", visibility_mode: "individual", is_head_coach: false }
+      ] });
+    }
+    if (path === "/coach-workspace/organisations/org_gym/organisation-analysis") {
+      return jsonResponse({ ok: true, analysis: {
+        visibility_mode: "individual", org_name: "City Gym", min_cohort_size: 3,
+        summary: { ...summary, pain: undefined },
+        findings: [{ id: "group_adherence", section: "adherence", level: "good", text: "The gym is training as planned: 92% of planned sessions done last week on average.", action: "Keep the plan and schedule as they are." }],
+        by_coach: [{ coach_user_id: "c_me", label: "You", summary, findings: [] }, { coach_user_id: "c_two", label: "Robin", withheld: true }]
+      } });
+    }
+    return jsonResponse({ error: "unhandled" }, false, 404);
+  }) as typeof fetch;
+  render(<CoachAnalysisPanel />);
+  await screen.findByText("Gym: City Gym");
+  assert.equal(screen.queryByText("Gym: Other Gym"), null, "only where you're head coach");
+  await act(async () => { fireEvent.click(screen.getByText("Gym: City Gym")); });
+  const gym = await screen.findByTestId("gym-analysis");
+  assert.ok(gym.textContent?.includes("The gym is training as planned"));
+  assert.ok(gym.textContent?.includes("nothing here names an athlete"));
+  const byCoach = screen.getByTestId("gym-by-coach").textContent ?? "";
+  assert.ok(byCoach.includes("You") && byCoach.includes("Robin") && byCoach.includes("Too few athletes to show"));
+  assert.ok(paths.includes("/coach-workspace/organisations/org_gym/organisation-analysis"));
+});

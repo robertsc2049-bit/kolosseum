@@ -5,6 +5,7 @@ import { request, type JsonRecord } from "../../api/transport";
 import { TrendChart } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
+import { AvailabilityBadge, SquadTesting, downloadFile, squadCsv } from "./SquadTools";
 
 // A coach's team view on the Analysis page: every athlete in a team org
 // they coach in, summed up as a team, by position and by coach, then athlete
@@ -15,7 +16,9 @@ const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[])
 const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const show = (value: unknown, suffix = "") => (num(value) === null ? "–" : `${num(value)}${suffix}`);
 
-export type TeamOption = { org_id: string; org_name: string };
+// A team org (shared) the coach is in, or a gym org (individual) they're
+// the head coach of.
+export type TeamOption = { org_id: string; org_name: string; visibility_mode: "shared" | "individual"; head_coach: boolean };
 
 // The team orgs the coach is an active member of (shared visibility only -
 // a gym's coaches each keep their own athletes private).
@@ -27,8 +30,8 @@ export function useCoachTeams(): TeamOption[] {
       .then((memberships) => {
         if (cancelled) return;
         setTeams(memberships
-          .filter((m) => m.membership_status === "active" && m.visibility_mode === "shared")
-          .map((m) => ({ org_id: String(m.org_id), org_name: String(m.org_name ?? "Team") })));
+          .filter((m) => m.membership_status === "active" && (m.visibility_mode === "shared" || m.is_head_coach === true))
+          .map((m) => ({ org_id: String(m.org_id), org_name: String(m.org_name ?? "Team"), visibility_mode: m.visibility_mode === "shared" ? "shared" as const : "individual" as const, head_coach: m.is_head_coach === true })));
       })
       .catch(() => { if (!cancelled) setTeams([]); });
     return () => { cancelled = true; };
@@ -46,8 +49,8 @@ function statusLabel(row: JsonRecord): { label: string; level: string } {
 }
 
 // A position or coach group in one table row.
-function GroupTable({ title, groups, testId }: { title: string; groups: JsonRecord[]; testId: string }) {
-  if (groups.length < 2) return null;
+function GroupTable({ title, groups, testId, minGroups = 2 }: { title: string; groups: JsonRecord[]; testId: string; minGroups?: number }) {
+  if (groups.length < minGroups) return null;
   return (
     <section className="panel analysis-section" data-testid={testId}>
       <h3>{title}</h3>
@@ -103,6 +106,8 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
   const weekly = rows(summary.weekly);
   const weeks = weekly.map((week) => String(week.week_start));
   const athletes = rows(data.athletes);
+  const availability = (summary.availability ?? null) as JsonRecord | null;
+  const teamName = String((data.org as JsonRecord | undefined)?.org_name ?? team.org_name);
 
   return (
     <div className="analysis-team" data-testid="team-analysis">
@@ -120,6 +125,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show(readiness.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
         <div className="report-tile"><span className="report-tile-label">Recurring pain</span><strong>{show(pain.athletes_with_recurring_pain)}</strong><span className="report-tile-usual">details with their coach</span></div>
         <div className="report-tile"><span className="report-tile-label">Main lifts</span><strong>{`${show(lifts.rising)} ↑ · ${show(lifts.falling)} ↓`}</strong><span className="report-tile-usual">{`${show(lifts.plateau)} stalled`}</span></div>
+        {availability ? <div className="report-tile"><span className="report-tile-label">Available today</span><strong>{`${show(availability.available)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">{`${show(availability.modified)} modified · ${show(availability.unavailable)} unavailable`}</span></div> : null}
       </div>
 
       {weeks.length ? (
@@ -130,14 +136,18 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         </section>
       ) : null}
 
+      <SquadTesting testing={rows(data.testing)} />
       <GroupTable title="By position" groups={rows(data.by_position)} testId="team-by-position" />
       <GroupTable title="By coach" groups={rows(data.by_coach)} testId="team-by-coach" />
 
       <section className="panel" data-testid="team-athletes">
-        <h3>Every athlete</h3>
+        <div className="panel-header">
+          <h3>Every athlete</h3>
+          <button type="button" className="button secondary small-button" onClick={() => downloadFile(`${teamName.replace(/[^A-Za-z0-9]+/gu, "-")}-squad.csv`, squadCsv(athletes, rows(data.testing), (row) => statusLabel(row).label))}>Download squad (CSV)</button>
+        </div>
         <div className="analysis-table-wrap">
           <table className="analysis-table analysis-roster">
-            <thead><tr><th>Athlete</th><th>Status</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
+            <thead><tr><th>Athlete</th><th>Status</th><th>Available</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
             <tbody>
               {athletes.map((athlete) => {
                 const statusInfo = statusLabel(athlete);
@@ -145,10 +155,11 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
                 const ratio = num((athlete.load as JsonRecord | undefined)?.acute_chronic);
                 return (
                   <tr key={String(athlete.athlete_user_id)}>
-                    <td data-label="Athlete">{athlete.yours
+                    <td data-label="Athlete">{athlete.yours || athlete.openable
                       ? <button type="button" className="analysis-athlete-link" onClick={() => onOpenAthlete(String(athlete.athlete_user_id))}>{String(athlete.display_name)}</button>
                       : <span>{String(athlete.display_name)}</span>}</td>
                     <td data-label="Status"><span className={`analysis-status is-${statusInfo.level}`}>{statusInfo.label}</span></td>
+                    <td data-label="Available"><AvailabilityBadge availability={athlete.availability} /></td>
                     <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 2)} compact /> : <span className="muted small">{athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Position">{athlete.position ? String(athlete.position).replaceAll("_", " ") : "–"}</td>
                     <td data-label="Coach">{athlete.yours ? "You" : String(athlete.coach_name ?? "Coach")}</td>
@@ -160,8 +171,48 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
             </tbody>
           </table>
         </div>
-        <p className="muted small analysis-roster-key">Your own athletes open in full. A teammate's detail - and any pain - stays with their own coach.</p>
+        <p className="muted small analysis-roster-key">{data.head_coach
+          ? "As head coach you can open every athlete in the team in full."
+          : "Your own athletes open in full. A teammate's detail - and any pain - stays with their own coach."}</p>
       </section>
+    </div>
+  );
+}
+
+// A gym's head coach: the organisation's analysis on the owner's terms -
+// averages for groups of 3 or more athletes training, never an athlete, never
+// pain. Your own athletes are in full under "My athletes".
+export function GymAnalysis({ team }: { team: TeamOption }) {
+  const [data, setData] = useState<JsonRecord | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setData(null);
+    setError(null);
+    request("GET", `/coach-workspace/organisations/${encodeURIComponent(team.org_id)}/organisation-analysis`)
+      .then((result) => { if (!cancelled) setData((result.analysis ?? null) as JsonRecord | null); })
+      .catch(() => { if (!cancelled) setError("The organisation's analysis could not be loaded. Try again."); });
+    return () => { cancelled = true; };
+  }, [team.org_id]);
+  if (error) return <p className="field-error" role="alert">{error}</p>;
+  if (!data) return <p className="muted">Working out the organisation's patterns…</p>;
+  const summary = (data.summary ?? null) as JsonRecord | null;
+  return (
+    <div className="analysis-team" data-testid="gym-analysis">
+      <section className="analysis-summary panel">
+        <h3>{`${team.org_name}: what stands out`}</h3>
+        <p className="muted small">As head coach you see the gym's averages. Each coach's athletes stay private to them, so nothing here names an athlete, and any group with fewer than 3 athletes training isn't shown. Your own athletes are in full under My athletes.</p>
+        {summary ? <FindingList findings={rows(data.findings) as unknown as Finding[]} /> : <p className="muted small">Not enough athletes with logged training yet for a privacy-safe summary (fewer than 3).</p>}
+      </section>
+      {summary ? (
+        <div className="report-tiles" data-testid="gym-tiles">
+          <div className="report-tile"><span className="report-tile-label">Athletes</span><strong>{`${show(summary.trained)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">trained in the last 8 weeks</span></div>
+          <div className="report-tile"><span className="report-tile-label">Sessions done (avg)</span><strong>{show((summary.adherence as JsonRecord | undefined)?.average_pct, "%")}</strong><span className="report-tile-usual">On track: 90%+</span></div>
+          <div className="report-tile"><span className="report-tile-label">Load vs usual (avg)</span><strong>{num((summary.load as JsonRecord | undefined)?.average_ratio) === null ? "–" : `${(summary.load as JsonRecord).average_ratio}×`}</strong><span className="report-tile-usual">Normal 0.8-1.3×</span></div>
+          <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show((summary.readiness as JsonRecord | undefined)?.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
+        </div>
+      ) : null}
+      <GroupTable title="By coach" minGroups={1} groups={rows(data.by_coach).map((group) => ({ ...group, key: group.coach_user_id, athletes: group.withheld ? "–" : (group.summary as JsonRecord | undefined)?.athletes }))} testId="gym-by-coach" />
     </div>
   );
 }

@@ -211,6 +211,12 @@ export function summariseReport(analysis: Json): Json {
       timed_minutes: round(volume.reduce((sum, row) => sum + Number(row.timed_minutes ?? 0), 0), 1),
       distance_m: Math.round(volume.reduce((sum, row) => sum + Number(row.distance_m ?? 0), 0)),
       load_total: loads.length ? Math.round(loads.reduce((sum, value) => sum + value, 0)) : null,
+      load_gym: Math.round(values(loadRows, "gym_load").reduce((sum, value) => sum + value, 0)),
+      load_sport: Math.round(values(loadRows, "sport_load").reduce((sum, value) => sum + value, 0)),
+      matches: values(loadRows, "matches").reduce((sum, value) => sum + value, 0),
+      other_sessions: sessions.filter((row) => row.kind && row.kind !== "gym").length,
+      other_minutes: Math.round(values(sessions.filter((row) => row.kind && row.kind !== "gym"), "minutes").reduce((sum, value) => sum + value, 0)),
+      measured_pct: ((a.load as Json).quality as Json | undefined)?.measured_pct ?? null,
       load_weekly_average: loads.length ? Math.round(mean(loads)!) : null,
       peak_acute_chronic: peak ? { value: peak.acute_chronic, week_start: peak.week_start } : null,
       average_monotony: avg(values(loadRows, "monotony"), 2)
@@ -243,6 +249,14 @@ export function summariseReport(analysis: Json): Json {
     effort_rated_by: ((a.exercises ?? {}) as Json).rated_by ?? null,
     patterns: ((a.exercises ?? {}) as Json).patterns ?? [],
     session_log: sessions,
+    // Planned vs done across the period, and the tests taken in it.
+    plan: (() => {
+      const planRows = (((a.plan ?? {}) as Json).rows ?? []) as Json[];
+      const sum = (key: string) => planRows.reduce((total, row) => total + Number(row[key] ?? 0), 0);
+      const planned = sum("planned_tonnage_kg");
+      return { planned_sessions: sum("planned_sessions"), done_sessions: sum("done_sessions"), planned_sets: sum("planned_sets"), done_sets: sum("done_sets"), planned_tonnage_kg: planned, done_tonnage_kg: sum("done_tonnage_kg"), tonnage_pct: planned ? Math.round((sum("done_tonnage_kg") / planned) * 100) : null };
+    })(),
+    testing: ((((a.testing ?? {}) as Json).tests ?? []) as Json[]).filter((row) => String((row.latest as Json | undefined)?.date ?? "") >= String(((a.weeks ?? []) as unknown as string[])[0] ?? "")),
     // Their usual before the period: readiness range and weekly load.
     baseline: (a.baseline ?? null) as Json | null
   };
@@ -268,7 +282,7 @@ export function athleteReport(period: ReportPeriod, summary: Json, analysis: Jso
     coach: { name: coach.name, message: coach.message },
     sessions: { completed: sessions.completed, partial: sessions.partial, planned: sessions.planned, minutes: sessions.minutes },
     weeks: weeks.map((week, index) => ({ week_start: week, sessions: Number(adherence[index]?.completed ?? 0) + Number(adherence[index]?.partial ?? 0), planned: adherence[index]?.planned ?? null })),
-    training: { sets: training.sets, tonnage_kg: training.tonnage_kg, bodyweight_reps: training.bodyweight_reps, timed_minutes: training.timed_minutes, distance_m: training.distance_m },
+    training: { sets: training.sets, tonnage_kg: training.tonnage_kg, bodyweight_reps: training.bodyweight_reps, timed_minutes: training.timed_minutes, distance_m: training.distance_m, other_sessions: training.other_sessions, other_minutes: training.other_minutes, matches: training.matches },
     exercises: exercises.map((row) => ({
       name: row.name, sessions: row.sessions, sets: row.sets, reps: row.reps,
       best_set: row.top_set ?? null,
@@ -278,6 +292,7 @@ export function athleteReport(period: ReportPeriod, summary: Json, analysis: Jso
       average_effort: row.average_effort ?? null,
       effort_scale: row.effort_scale ?? null
     })),
+    tests: ((summary.testing ?? []) as Json[]).map((row) => ({ name: row.name, unit: row.unit, better: row.better, latest: row.latest, previous: row.previous, best: row.best })),
     wellbeing: { check_ins: wellbeing.check_ins, energy: wellbeing.energy, motivation: wellbeing.motivation, sleep: wellbeing.sleep },
     pain: { reports: pain.reports, areas: ((pain.areas ?? []) as Json[]).map((area) => ({ area: area.area, reports: area.reports })) }
   };

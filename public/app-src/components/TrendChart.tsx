@@ -13,7 +13,13 @@ export type TrendSeries = Readonly<{
   kind?: "line" | "bar";
 }>;
 
+// A date worth seeing on the chart: a competition, a match, a deload...
+export type TrendMarker = Readonly<{ week_start: string; kind: string; label: string }>;
+const MARKER_LETTER: Record<string, string> = { competition: "C", match: "M", deload: "D", peak: "P", season: "S" };
+const MARKER_NAME: Record<string, string> = { competition: "Competition", match: "Match", deload: "Deload", peak: "Peak block", season: "Season" };
+
 export type TrendChartProps = Readonly<{
+  markers?: readonly TrendMarker[];
   weeks: readonly string[];
   series: readonly TrendSeries[];
   unit?: string;
@@ -38,7 +44,7 @@ export function shortWeek(week: string): string {
 
 const tidy = (value: number) => (Math.abs(value) >= 100 ? Math.round(value).toLocaleString() : String(Math.round(value * 10) / 10));
 
-export function TrendChart({ weeks, series, unit = "", band, yMin, yMax, height = 160, title, emptyLabel = "Not enough data yet." }: TrendChartProps) {
+export function TrendChart({ weeks, series, unit = "", band, yMin, yMax, height = 160, title, emptyLabel = "Not enough data yet.", markers = [] }: TrendChartProps) {
   const holder = React.useRef<HTMLElement | null>(null);
   const [WIDTH, setWidth] = React.useState(DEFAULT_WIDTH);
   React.useEffect(() => {
@@ -75,6 +81,25 @@ export function TrendChart({ weeks, series, unit = "", band, yMin, yMax, height 
           <rect x={PAD.left} width={plotW} y={y(Math.min(band.to, high))} height={Math.max(0, y(Math.max(band.from, low)) - y(Math.min(band.to, high)))} className="trend-band" />
         ) : null}
         <line x1={PAD.left} x2={WIDTH - PAD.right} y1={PAD.top + plotH} y2={PAD.top + plotH} className="trend-axis" />
+        {(() => {
+          // One mark per week (several events in a week share it).
+          const byWeek = new Map<string, TrendMarker[]>();
+          for (const marker of markers) {
+            if (!weeks.includes(marker.week_start)) continue;
+            byWeek.set(marker.week_start, [...(byWeek.get(marker.week_start) ?? []), marker]);
+          }
+          return [...byWeek.entries()].map(([week, list]) => {
+            const mx = x(weeks.indexOf(week));
+            const letters = [...new Set(list.map((marker) => MARKER_LETTER[marker.kind] ?? "•"))].join("");
+            return (
+              <g key={`marker-${week}`} className="trend-marker">
+                <title>{`Week of ${shortWeek(week)}: ${list.map((marker) => marker.label).join(", ")}`}</title>
+                <line x1={mx} x2={mx} y1={PAD.top} y2={PAD.top + plotH} className="trend-marker-line" />
+                <text x={mx} y={PAD.top + 8} className="trend-marker-label" textAnchor="middle">{letters}</text>
+              </g>
+            );
+          });
+        })()}
         <text x={PAD.left - 6} y={PAD.top + 4} className="trend-label" textAnchor="end">{tidy(high)}</text>
         <text x={PAD.left - 6} y={PAD.top + plotH} className="trend-label" textAnchor="end">{tidy(low)}</text>
         <text x={x(0)} y={height - 6} className="trend-label" textAnchor="start">{shortWeek(weeks[0])}</text>
@@ -114,6 +139,9 @@ export function TrendChart({ weeks, series, unit = "", band, yMin, yMax, height 
           </span>
         ))}
         {band ? <span className="trend-legend-item"><span className="trend-swatch trend-swatch-band" />{band.label}</span> : null}
+        {[...new Set(markers.filter((marker) => weeks.includes(marker.week_start)).map((marker) => marker.kind))].map((kind) => (
+          <span key={`key-${kind}`} className="trend-legend-item trend-legend-marker"><strong>{MARKER_LETTER[kind] ?? "•"}</strong>{MARKER_NAME[kind] ?? kind}</span>
+        ))}
       </figcaption>
     </figure>
   );

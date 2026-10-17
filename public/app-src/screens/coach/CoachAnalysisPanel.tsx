@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { TrendChart, shortWeek } from "../../components/TrendChart";
+import { TrendChart, shortWeek, type TrendMarker } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
-import { TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
+import { GymAnalysis, TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
+import { TestingSection } from "./TestingSection";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -78,7 +79,7 @@ function Section({ id, title, headline, children }: { id: string; title: string;
 function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onBack: () => void }) {
   const [weeks, setWeeks] = useState(12);
   const [view, setView] = useState<"trends" | "reports">("trends");
-  const { data, error, loading } = useCoachAthleteAnalysis(athleteUserId, weeks);
+  const { data, error, loading, reload } = useCoachAthleteAnalysis(athleteUserId, weeks);
   const a = (data?.analysis ?? null) as JsonRecord | null;
   const findings = rows(data?.findings) as unknown as Finding[];
   const first = (section: string) => findings.find((finding) => finding.section === section) ?? null;
@@ -96,18 +97,23 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const mainLifts = lifts.filter((lift) => lift.main !== false);
   const otherLifts = lifts.filter((lift) => lift.main === false);
   const bodyweightLifts = rows(strength.bodyweight);
+  // Competitions, matches, deloads and peaks, on every chart.
+  const markers = rows(a?.markers) as unknown as TrendMarker[];
+  const quality = (load.quality ?? {}) as JsonRecord;
   const intensity = (execution.intensity ?? {}) as JsonRecord;
+  const plan = (a?.plan ?? {}) as JsonRecord;
+  const testing = (a?.testing ?? {}) as JsonRecord;
 
   return (
     <div className="analysis-athlete" data-testid="analysis-athlete">
       <div className="analysis-athlete-bar">
         <button type="button" className="button secondary small-button" onClick={onBack}>‹ All athletes</button>
         <h2>{String((data?.athlete as JsonRecord | undefined)?.display_name ?? "Athlete")}</h2>
-        <div className="analysis-weeks" role="group" aria-label="Analysis or reports">
+        {data?.viewed_as === "head_coach" ? null : <div className="analysis-weeks" role="group" aria-label="Analysis or reports">
           {(["trends", "reports"] as const).map((choice) => (
             <button key={choice} type="button" className={`button secondary small-button${choice === view ? " is-selected" : ""}`} aria-pressed={choice === view} onClick={() => setView(choice)}>{choice === "trends" ? "Trends" : "Reports"}</button>
           ))}
-        </div>
+        </div>}
         {view === "trends" ? (
           <div className="analysis-weeks" role="group" aria-label="Weeks shown">
             {WEEK_CHOICES.map((choice) => (
@@ -116,6 +122,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </div>
         ) : null}
       </div>
+      {data?.viewed_as === "head_coach" ? <p className="muted small analysis-head-coach-note" data-testid="viewed-as-head-coach">{`You're viewing this athlete as head coach of ${String((data.org as JsonRecord | undefined)?.org_name ?? "the team")} - they're coached by someone else, who keeps their reports.`}</p> : null}
       {view === "reports" ? <CoachReports athleteUserId={athleteUserId} /> : null}
       {view === "trends" && error ? <p className="field-error" role="alert">{error}</p> : null}
       {view === "trends" && loading && !a ? <p className="muted">Working out the patterns…</p> : null}
@@ -129,17 +136,17 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
 
           <div className="analysis-sections">
           <Section id="strength" title="Strength" headline={first("strength")}>
-            <TrendChart title="Estimated max per main lift (kg)" weeks={weekList} unit=" kg" series={mainLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.e1rm)) }))} emptyLabel="Log loaded sets of a main lift to see its estimated max." />
+            <TrendChart markers={markers} title="Estimated max per main lift (kg)" weeks={weekList} unit=" kg" series={mainLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.e1rm)) }))} emptyLabel="Log loaded sets of a main lift to see its estimated max." />
             {mainLifts.length ? (
               <ul className="analysis-lift-list">
                 {mainLifts.map((lift) => (
-                  <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` ${lift.latest} kg · ${lift.status}${num(lift.change_pct) !== null ? ` · ${Number(lift.change_pct) > 0 ? "+" : ""}${lift.change_pct}% since ${shortWeek(String(lift.change_from_week))}` : ""} · peak ${lift.peak} kg (${shortWeek(String(lift.peak_week))})`}</li>
+                  <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` ${lift.latest} kg${num(lift.relative_to_bodyweight) !== null ? ` (${lift.relative_to_bodyweight}× bodyweight)` : ""} · ${lift.status}${num(lift.change_pct) !== null ? ` · ${Number(lift.change_pct) > 0 ? "+" : ""}${lift.change_pct}% since ${shortWeek(String(lift.change_from_week))}` : ""} · peak ${lift.peak} kg (${shortWeek(String(lift.peak_week))})`}{lift.tested_max ? ` · tested max ${(lift.tested_max as JsonRecord).value_kg} kg (${shortWeek(String((lift.tested_max as JsonRecord).date))})` : ""}{num(lift.noise_pct) !== null ? <span className="muted small">{` · ±${lift.noise_pct}% is normal week-to-week variation for this lift`}</span> : null}</li>
                 ))}
               </ul>
             ) : null}
             {bodyweightLifts.length ? (
               <>
-                <TrendChart title="Best set on bodyweight exercises (reps)" weeks={weekList} unit=" reps" yMin={0} series={bodyweightLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.best_reps)) }))} />
+                <TrendChart markers={markers} title="Best set on bodyweight exercises (reps)" weeks={weekList} unit=" reps" yMin={0} series={bodyweightLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.best_reps)) }))} />
                 <ul className="analysis-lift-list" data-testid="analysis-bodyweight-lifts">
                   {bodyweightLifts.map((lift) => <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` best set ${lift.latest} reps (from ${lift.first}) · best of the period ${lift.best} reps`}</li>)}
                 </ul>
@@ -153,13 +160,20 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
               {otherLifts.length ? <p className="muted small">{`Accessory lifts are shown for reference; strength findings are only raised for main (primary) lifts.`}</p> : null}
               <Method>
                 <p>Each week's best estimated one-rep max (kg), from logged sets of 1-10 reps. Where the athlete rated the exercise (RPE 6-10), its heaviest set uses the RTS (Tuchscherer) RPE chart - load ÷ the chart's % for those reps at that RPE (marked ʳ); other sets use Epley, load × (1 + reps ÷ 30).</p>
-                <p>"Rising": up 2% or more against the best at least 4 weeks earlier. "Plateau": no new best for 6+ weeks while still training it. "Falling": the last 2 weeks are 5%+ below the peak, or the 4-week change is -5% or worse.</p>
+                <p>Real change: each lift's own week-to-week variation (typical error = the SD of its week-to-week % changes ÷ √2) sets the smallest change worth calling a change - 1.5× that, and never under 2%. "Rising" and "falling" need a change bigger than that; anything smaller is "steady", however it looks on the chart. × bodyweight uses the latest bodyweight you recorded; the tested max is the latest one in their strength profile.</p>
+                <p>"Rising": up by more than the smallest worthwhile change against the best at least 4 weeks earlier. "Plateau": no new best for 6+ weeks while still training it. "Falling": the last 2 weeks are 5%+ below the peak, or the 4-week change is -5% or worse.</p>
               </Method>
             </Numbers>
           </Section>
 
           <Section id="execution" title="Doing the plan" headline={first("execution")}>
-            <TrendChart title="Execution against the plan" weeks={weekList} unit="%" yMin={0} yMax={100} series={[
+            {rows(plan.rows).some((row) => num(row.planned_tonnage_kg)) ? (
+              <TrendChart markers={markers} title="Planned vs done (tonnage, kg)" weeks={weekList} unit=" kg" series={[
+                { id: "planned", label: "Planned", kind: "bar", values: col(rows(plan.rows), "planned_tonnage_kg") },
+                { id: "done", label: "Done", kind: "bar", values: col(rows(plan.rows), "done_tonnage_kg") }
+              ]} />
+            ) : null}
+            <TrendChart markers={markers} title="Execution against the plan" weeks={weekList} unit="%" yMin={0} yMax={100} series={[
               { id: "reps", label: "Sets with the prescribed reps", values: col(rows(execution.rows), "reps_hit_pct") },
               { id: "sets", label: "Prescribed sets logged", values: col(rows(execution.rows), "sets_logged_pct") }
             ]} />
@@ -173,7 +187,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Reps hit", cell: (i) => show(rows(execution.rows)[i]?.reps_hit_pct, "%") },
                 { label: "Sets logged", cell: (i) => show(rows(execution.rows)[i]?.sets_logged_pct, "%") },
                 { label: "Load vs plan", cell: (i) => show(rows(execution.rows)[i]?.load_vs_plan_pct, "%") },
-                { label: "Effort vs target", cell: (i) => <span title={show(rows(execution.rows)[i]?.effort_vs_plan)}>{effortWords(rows(execution.rows)[i]?.effort_vs_plan)}</span> }
+                { label: "Effort vs target", cell: (i) => <span title={show(rows(execution.rows)[i]?.effort_vs_plan)}>{effortWords(rows(execution.rows)[i]?.effort_vs_plan)}</span> },
+                { label: "Sessions (done/planned)", cell: (i) => `${show(rows(plan.rows)[i]?.done_sessions)}/${show(rows(plan.rows)[i]?.planned_sessions)}` },
+                { label: "Sets (done/planned)", cell: (i) => `${show(rows(plan.rows)[i]?.done_sets)}/${show(rows(plan.rows)[i]?.planned_sets)}` },
+                { label: "Tonnage vs plan", cell: (i) => show(rows(plan.rows)[i]?.tonnage_pct, "%") }
               ]} />
               {rows(execution.effort_targets).length ? (
                 <>
@@ -197,24 +214,33 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </Section>
 
           <Section id="load" title="Training load" headline={first("load")}>
-            <TrendChart title="Weekly training load (load points)" weeks={weekList} unit=" load points" series={[{ id: "load", label: "Weekly load", kind: "bar", values: col(rows(load.rows), "load") }]} />
-            <TrendChart title="Load against their 4-week normal" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3: in line with normal" }} yMin={0} series={[{ id: "acwr", label: "Acute:chronic ratio", values: col(rows(load.rows), "acute_chronic") }]} />
+            <TrendChart markers={markers} title="Weekly training load (load points): gym and sport" weeks={weekList} unit=" load points" series={[
+              { id: "gym", label: "Gym", kind: "bar", values: col(rows(load.rows), "gym_load") },
+              { id: "sport", label: "Practice, matches, conditioning", kind: "bar", values: col(rows(load.rows), "sport_load") }
+            ]} />
+            <p className="muted small" data-testid="analysis-load-quality">{num(quality.gym_sessions)
+              ? `${quality.measured} of ${quality.gym_sessions} gym sessions rated by the athlete when they finished (the rest estimated)${num(quality.other_sessions) ? ` · ${quality.other_sessions} practice, match or conditioning sessions logged` : ""}.`
+              : "No gym sessions in this period."}</p>
+            <TrendChart markers={markers} title="Load against their 4-week normal" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3: in line with normal" }} yMin={0} series={[{ id: "acwr", label: "Acute:chronic ratio", values: col(rows(load.rows), "acute_chronic") }]} />
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Load (points)", cell: (i) => show(rows(load.rows)[i]?.load) },
+                { label: "Gym", cell: (i) => show(rows(load.rows)[i]?.gym_load) },
+                { label: "Sport", cell: (i) => show(rows(load.rows)[i]?.sport_load) },
+                { label: "Matches", cell: (i) => show(rows(load.rows)[i]?.matches) },
                 { label: "Acute:chronic", cell: (i) => show(rows(load.rows)[i]?.acute_chronic) },
                 { label: "Monotony", cell: (i) => show(rows(load.rows)[i]?.monotony) },
                 { label: "Strain", cell: (i) => show(rows(load.rows)[i]?.strain) }
               ]} />
               <Method>
-                <p>Session load (Foster session-RPE): session effort × minutes, in load points (the research calls them arbitrary units, AU). Effort is the mean of the athlete's exercise ratings on a 0-10 scale (RPE and CR10 as they are; Borg 6-20 rescaled); minutes run from the session's start to its last logged event (capped at 240). Unrated sessions add no load.</p>
+                <p>Session load (Foster session-RPE): session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured when the athlete rates the whole session (0-10) and its minutes as they finish; otherwise estimated from the mean of their exercise ratings (RPE and CR10 as they are; Borg 6-20 rescaled) × the minutes from starting the session to its last logged event (capped at 240). Practice, matches and conditioning they log add their own effort × minutes. Unrated sessions add no load.</p>
                 <p>Acute:chronic: this week's load ÷ the mean of the 4 weeks before it ("uncoupled"). 0.8-1.3 is the widely quoted range; it is a heuristic and disputed as an injury predictor, so read it as context. Monotony: the week's mean daily load ÷ its standard deviation (rest days count as 0); above 2 is "very samey". Strain: weekly load × monotony (Foster, 1998).</p>
               </Method>
             </Numbers>
           </Section>
 
           <Section id="adherence" title="Turning up" headline={first("adherence")}>
-            <TrendChart title="Planned sessions done (%)" weeks={weekList} unit="%" yMin={0} yMax={100} series={[{ id: "adh", label: "Sessions done", kind: "bar", values: col(rows(adherence.rows), "adherence_pct") }]} emptyLabel="Adherence shows once their training days are set and a week has passed." />
+            <TrendChart markers={markers} title="Planned sessions done (%)" weeks={weekList} unit="%" yMin={0} yMax={100} series={[{ id: "adh", label: "Sessions done", kind: "bar", values: col(rows(adherence.rows), "adherence_pct") }]} emptyLabel="Adherence shows once their training days are set and a week has passed." />
             <div className="analysis-weekdays" aria-label="Sessions by day of the week">
               {rows(adherence.by_weekday).map((d) => {
                 const most = Math.max(1, ...rows(adherence.by_weekday).map((x) => Number(x.sessions)));
@@ -242,8 +268,8 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </Section>
 
           <Section id="readiness" title="Readiness and wellbeing" headline={first("readiness")}>
-            <TrendChart title="Daily readiness (weekly average, out of 15)" weeks={weekList} yMin={3} yMax={15} series={[{ id: "total", label: "Sleep + soreness + stress", values: col(rows(readiness.rows), "total") }]} emptyLabel="Shows once the athlete answers the readiness check before sessions." />
-            <TrendChart title="Weekly check-ins (out of 5)" weeks={weekList} yMin={1} yMax={5} series={[
+            <TrendChart markers={markers} title="Daily readiness (weekly average, out of 15)" weeks={weekList} yMin={3} yMax={15} series={[{ id: "total", label: "Sleep + soreness + stress", values: col(rows(readiness.rows), "total") }]} emptyLabel="Shows once the athlete answers the readiness check before sessions." />
+            <TrendChart markers={markers} title="Weekly check-ins (out of 5)" weeks={weekList} yMin={1} yMax={5} series={[
               { id: "energy", label: "Energy", values: col(rows(readiness.checkins), "energy") },
               { id: "sleep", label: "Sleep", values: col(rows(readiness.checkins), "sleep") },
               { id: "motivation", label: "Motivation", values: col(rows(readiness.checkins), "motivation") }
@@ -265,7 +291,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </Section>
 
           <Section id="pain" title="Pain" headline={first("pain")}>
-            <TrendChart title="Pain reports per week" weeks={weekList} yMin={0} series={[{ id: "pain", label: "Pain reports", kind: "bar", values: col(rows(pain.rows), "reports") }]} emptyLabel="No pain reported." />
+            <TrendChart markers={markers} title="Pain reports per week" weeks={weekList} yMin={0} series={[{ id: "pain", label: "Pain reports", kind: "bar", values: col(rows(pain.rows), "reports") }]} emptyLabel="No pain reported." />
             <Numbers>
               {rows(pain.areas).length ? (
                 <ul className="analysis-plain-list">{rows(pain.areas).map((area) => <li key={String(area.area)}>{`${String(area.area).replaceAll("_", " ")}: ${area.reports} reports in ${area.weeks} weeks${(area.exercises as string[]).length ? ` (${(area.exercises as string[]).join(", ")})` : ""}${num(area.first_week_acute_chronic) !== null ? `; first reported in a week at ${area.first_week_acute_chronic}× normal load` : ""}`}</li>)}</ul>
@@ -276,13 +302,17 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             </Numbers>
           </Section>
 
+          <Section id="testing" title="Testing" headline={first("testing")}>
+            <TestingSection athleteUserId={athleteUserId} tests={rows(testing.tests)} onChanged={reload} readOnly={data?.viewed_as === "head_coach"} />
+          </Section>
+
           <Section id="intensity" title="Intensity (% of max)" headline={null}>
             {num(intensity.sets) ? (
               <>
                 <ul className="analysis-weekdays report-bands" aria-label="Sets by % of max">
                   {rows(intensity.zones).map((zone) => <li key={String(zone.zone)} className="analysis-weekday"><span className="analysis-weekday-bar" style={{ height: `${Math.max(4, Number(zone.pct ?? 0))}%` }} /><strong>{show(zone.pct, "%")}</strong><span>{String(zone.zone)}</span></li>)}
                 </ul>
-                <TrendChart title="Average % of max lifted" weeks={weekList} unit="%" series={[{ id: "intensity", label: "% of max", values: col(rows(execution.rows), "intensity_pct") }]} />
+                <TrendChart markers={markers} title="Average % of max lifted" weeks={weekList} unit="%" series={[{ id: "intensity", label: "% of max", values: col(rows(execution.rows), "intensity_pct") }]} />
               </>
             ) : <div className="empty-state compact-empty trend-empty"><p>Shows when the programme sets weights as a % of the athlete's max.</p></div>}
             <Numbers>
@@ -292,7 +322,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </Section>
 
           <Section id="volume" title="Volume" headline={null}>
-            <TrendChart title="Logged sets and tonnage per week" weeks={weekList} series={[{ id: "sets", label: "Sets logged", kind: "bar", values: col(rows(volume.rows), "sets") }]} />
+            <TrendChart markers={markers} title="Logged sets and tonnage per week" weeks={weekList} series={[{ id: "sets", label: "Sets logged", kind: "bar", values: col(rows(volume.rows), "sets") }]} />
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Sets", cell: (i) => show(rows(volume.rows)[i]?.sets) },
@@ -335,11 +365,12 @@ export function CoachAnalysisPanel() {
         <div className="analysis-weeks analysis-scope" role="group" aria-label="Whose analysis">
           <button type="button" className={`button secondary small-button${scope === "mine" ? " is-selected" : ""}`} aria-pressed={scope === "mine"} onClick={() => setScope("mine")}>My athletes</button>
           {teams.map((entry) => (
-            <button key={entry.org_id} type="button" className={`button secondary small-button${scope === entry.org_id ? " is-selected" : ""}`} aria-pressed={scope === entry.org_id} onClick={() => setScope(entry.org_id)}>{`Team: ${entry.org_name}`}</button>
+            <button key={entry.org_id} type="button" className={`button secondary small-button${scope === entry.org_id ? " is-selected" : ""}`} aria-pressed={scope === entry.org_id} onClick={() => setScope(entry.org_id)}>{`${entry.visibility_mode === "shared" ? "Team" : "Gym"}: ${entry.org_name}`}</button>
           ))}
         </div>
       ) : null}
-      {team ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team && team.visibility_mode === "individual" ? <GymAnalysis team={team} /> : null}
       {team ? null : <>
       <Explain id="roster" />
       {error ? <p className="field-error" role="alert">{error}</p> : null}

@@ -72,6 +72,7 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         <div className="report-tile"><span className="report-tile-label">Training time</span><strong>{show(sessions.minutes, " min")}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Sets</span><strong>{show(training.sets)}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Total lifted</span><strong>{show(training.tonnage_kg, " kg")}</strong></div>
+        {num(training.other_sessions) ? <div className="report-tile"><span className="report-tile-label">Practice & matches</span><strong>{`${training.other_sessions} · ${show(training.other_minutes)} min`}</strong></div> : null}
         {num(training.timed_minutes) ? <div className="report-tile"><span className="report-tile-label">Timed work</span><strong>{show(training.timed_minutes, " min")}</strong></div> : null}
         {num(training.distance_m) ? <div className="report-tile"><span className="report-tile-label">Distance</span><strong>{show(training.distance_m, " m")}</strong></div> : null}
       </div>
@@ -112,6 +113,19 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
           </div>
         ) : <p className="muted small">No sets were logged in this period.</p>}
       </section>
+
+      {rows(report.tests).length ? (
+        <section className="report-section">
+          <h4>Your tests</h4>
+          <ul className="report-facts">
+            {rows(report.tests).map((test) => {
+              const latest = (test.latest ?? {}) as JsonRecord;
+              const previous = test.previous as JsonRecord | null;
+              return <li key={String(test.name)}>{`${String(test.name)}: ${String(latest.value)} ${String(test.unit)}${previous ? ` (last time ${String(previous.value)})` : ""}`}</li>;
+            })}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="report-section">
         <h4>How you felt</h4>

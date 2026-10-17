@@ -8,6 +8,7 @@
 // never a client-supplied id.
 
 import { analyseTeamForCoach } from "./team_analysis_service.js";
+import { OrgAnalysisAccessError, getOrgAnalysisForHeadCoach } from "./org_progress_rollup_service.js";
 import {
   Router,
   type NextFunction,
@@ -133,6 +134,23 @@ coachOrgMembershipRouter.get(
   asyncHandler(async (request, response) => {
     const coachUserId = await authenticatedCoach(request, false);
     return response.status(200).json(await analyseTeamForCoach(coachUserId, String(request.params.org_id)));
+  })
+);
+
+// The organisation's analysis for its head coach (org_progress_rollup_service.ts):
+// a gym's on the owner's terms (averages only), a team's with every athlete.
+coachOrgMembershipRouter.get(
+  "/organisations/:org_id/organisation-analysis",
+  teamAnalysisRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    try {
+      return response.status(200).json({ ok: true, analysis: await getOrgAnalysisForHeadCoach(coachUserId, String(request.params.org_id)) });
+    }
+    catch (error) {
+      if (error instanceof OrgAnalysisAccessError) return response.status(403).json({ ok: false, error: error.message });
+      throw error;
+    }
   })
 );
 

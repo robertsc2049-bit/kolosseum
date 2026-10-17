@@ -2883,4 +2883,34 @@ ALTER TABLE product_org_audit_records
       'athlete_position_overridden',
       'org_ownership_handed_over'
     )
+  ) NOT VALID;
+
+-- A head coach: one active coach of the organisation the owner names (an
+-- owner who also coaches names their own coach account). In a team
+-- ('shared') organisation they can open any of the team's athletes in full;
+-- in a gym ('individual') organisation they see the organisation's
+-- analysis on the owner's terms - averages for groups of 3 or more, never an
+-- athlete. NULL = none. Designating and clearing are audited.
+ALTER TABLE product_organisations
+  ADD COLUMN IF NOT EXISTS head_coach_user_id TEXT
+    REFERENCES product_accounts(user_id)
+    ON DELETE SET NULL;
+
+ALTER TABLE product_org_audit_records
+  DROP CONSTRAINT IF EXISTS product_org_audit_records_action_type_check;
+ALTER TABLE product_org_audit_records
+  ADD CONSTRAINT product_org_audit_records_action_type_check
+  CHECK (
+    action_type IN (
+      'org_created',
+      'coach_invited',
+      'coach_membership_activated',
+      'coach_membership_removed',
+      'coach_membership_left',
+      'seat_plan_changed',
+      'athlete_position_overridden',
+      'org_ownership_handed_over',
+      'head_coach_designated',
+      'head_coach_cleared'
+    )
   );

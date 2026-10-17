@@ -5133,3 +5133,35 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* Team analysis (TeamAnalysis.tsx): the scope switch above the page. */
 .analysis-scope { margin: 0 0 var(--k-space-3); }
 .analysis-team { display: grid; gap: var(--k-space-3); }
+
+/* Chart markers (TrendChart): competitions, matches, deloads, peaks, season. */
+.trend-marker-line { stroke: var(--k-warning); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.8; }
+.trend-marker-label { fill: var(--k-warning); font-size: 10px; font-weight: 700; }
+.trend-legend-marker strong { color: var(--k-warning); margin-right: 4px; }
+
+/* Session effort (SessionEffortCard.tsx) and other training (OtherTrainingPanel.tsx). */
+.session-effort { display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.session-effort h4, .session-effort p { margin: 0; }
+.session-effort-scale { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: var(--k-space-1); }
+.session-effort-option { min-height: 52px; display: grid; gap: 2px; justify-items: center; align-content: center; padding: 4px; border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.session-effort-option strong { font-size: 1.1rem; }
+.session-effort-option span { font-size: 0.68rem; color: var(--k-text-secondary); text-align: center; line-height: 1.15; }
+.session-effort-option.is-selected { border-color: var(--k-accent); background: var(--k-accent-deep); }
+.session-effort-minutes { max-width: 220px; }
+.other-training { display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.other-training p { margin: 0; }
+.other-training-form { display: flex; flex-wrap: wrap; gap: var(--k-space-2) var(--k-space-3); align-items: end; }
+.other-training-form .field { min-width: 130px; }
+.other-training-note { flex: 1 1 220px; }
+.other-training-form p { flex-basis: 100%; }
+.other-training-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--k-space-1); }
+.other-training-list li { display: flex; justify-content: space-between; gap: var(--k-space-2); align-items: center; min-height: 44px; border-bottom: 1px solid var(--k-border); }
+
+/* Testing (TestingSection.tsx). */
+.testing { display: grid; gap: var(--k-space-3); }
+.testing-form { display: flex; flex-wrap: wrap; gap: var(--k-space-2) var(--k-space-3); align-items: end; }
+.testing-form .field { min-width: 140px; }
+.testing-result { display: inline-flex; align-items: center; gap: 2px; margin-right: var(--k-space-2); white-space: nowrap; }
+.testing-result .text-button { min-width: 28px; min-height: 28px; }
+/* Testing's results table needs the full width of the analysis grid. */
+@media (min-width: 1100px) { #analysis-testing { grid-column: 1 / -1; } }

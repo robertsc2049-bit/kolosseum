@@ -13,6 +13,7 @@ import { trainingCycleSummary } from "../../utils/trainingPlan";
 import { programmePositionLine } from "./AthleteProgrammeCard";
 import { SetLogger } from "./SetLogger";
 import { currentExerciseId, currentStepExercise, useAthleteSessionExecution } from "./useAthleteSessionExecution";
+import { SessionEffortCard } from "./SessionEffortCard";
 
 // DEV NOTE: FULL-UI-15C session execution - ported from app.js's
 // renderAthleteSession()/renderExerciseFocus()/renderExerciseQueue()/
@@ -652,6 +653,7 @@ export function AthleteSessionExecutionPanel() {
             <div><span>Completed</span><strong>{counts.completed.length}</strong></div>
             <div><span>Dropped</span><strong>{counts.dropped.length}</strong></div>
           </div>
+          <SessionEffortCard sessionId={String(session.sessionId)} />
         </article>
       ) : null}
 

@@ -16,6 +16,9 @@ import { listConnectedCoachAthletes, requireCoachAthleteAccess } from "./beta19_
 import { listWeeklyCheckinsForCoach } from "./weekly_checkin_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { isE1rmExercise } from "./training_e1rm.js";
+import { blockMarkers, listOtherTraining, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
+import { programmeHistory } from "./programme_history.js";
+import { loadProfileHistory, loadTestResults } from "./athlete_tests_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -184,12 +187,19 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
   const since = addDays(weekStart(today), -7 * (weeks + 4));
-  const [sessions, readiness, checkins, plan, custom] = await Promise.all([
+  const [sessions, readiness, checkins, plan, custom, sessionReports, otherTraining, programmes] = await Promise.all([
     loadSessions(athleteUserId, since),
     loadReadiness(athleteUserId, since),
     listWeeklyCheckinsForCoach(coachUserId, athleteUserId).catch(() => []),
     getAthleteTrainingPlan(athleteUserId).catch(() => null),
-    getAthleteCustomExerciseNames(athleteUserId).catch(() => ({}))
+    getAthleteCustomExerciseNames(athleteUserId).catch(() => ({})),
+    loadSessionReports(athleteUserId, since).catch(() => ({})),
+    listOtherTraining(athleteUserId, since).catch(() => []),
+    programmeHistory(athleteUserId).catch(() => [])
+  ]);
+  const [tests, profile] = await Promise.all([
+    loadTestResults(athleteUserId).catch(() => []),
+    loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null }))
   ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
@@ -203,6 +213,12 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),
+    session_reports: sessionReports,
+    other_training: otherTraining,
+    markers: [...planMarkers(plan as Json | null), ...blockMarkers(programmes)],
+    tests,
+    tested_maxes: profile.maxes,
+    bodyweight_kg: profile.bodyweight_kg,
     planned_days_per_week: num(plan?.training_days_per_week),
     exercise_name: (id) => names[id] ?? id.replaceAll("_", " "),
     is_strength_lift: (id) => isE1rmExercise(id, patternOf)
@@ -241,7 +257,8 @@ export function rosterRowFor(athleteUserId: string, name: string, result: Json):
     adherence: { latest_pct: latest(adherenceRows, "adherence_pct"), series: adherenceRows.map((row) => row.adherence_pct), by_week: (analysis.adherence.rows as Json[]).map((row) => row.adherence_pct) },
     load: { acute_chronic: latest(complete(analysis.load.rows as Json[]), "acute_chronic"), series: (analysis.load.rows as Json[]).map((row) => row.load), ratio_by_week: (analysis.load.rows as Json[]).map((row) => (row.partial_week ? null : row.acute_chronic)) },
     readiness: { z: latest(analysis.readiness.rows as Json[], "z"), z_by_week: (analysis.readiness.rows as Json[]).map((row) => row.z) },
-    strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest })),
+    strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest, relative_to_bodyweight: lift.relative_to_bodyweight ?? null })),
+    tests_latest: Object.fromEntries((((analysis.testing ?? {}) as Json).tests as Json[] | undefined ?? []).map((test) => [String(test.test_id), test.latest])),
     execution: { reps_hit_pct: latest(complete(analysis.execution.rows as Json[]), "reps_hit_pct") },
     pain: { recurring_areas: painAreas.map((area) => area.area) },
     last_session: sessions.length ? sessions[sessions.length - 1].date : null
