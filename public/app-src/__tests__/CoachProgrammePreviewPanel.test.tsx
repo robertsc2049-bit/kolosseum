@@ -201,7 +201,7 @@ test("renders the real exercise name, role, sets, prescription, load and rest fo
 
   await screen.findByText("Back Squat");
   assert.ok(screen.getByText("Primary"));
-  assert.ok(screen.getByText(/3 sets · 8 reps · Bodyweight · 90s rest/u));
+  assert.ok(screen.getByText(/3 sets · 8 reps · Bodyweight · 1:30 rest/u));
 });
 
 test("shows a segment badge only when the segment is not 'working'", async () => {

@@ -16,7 +16,7 @@ test("a warm-up drill reads '1 set' with no '0s rest', and has no set logger or 
   assert.deepEqual(exerciseDetails(drill).slice(0, 2), ["1 set", "4 reps"]);
   assert.ok(!exerciseDetails(drill).some((d) => /rest/u.test(d)), "no '0s rest'");
   assert.ok(exerciseDetails({ ...drill, segment: "working", sets: 3, rest_seconds: 90 }).includes("3 sets"));
-  assert.ok(exerciseDetails({ ...drill, segment: "working", sets: 3, rest_seconds: 90 }).includes("90s rest"));
+  assert.ok(exerciseDetails({ ...drill, segment: "working", sets: 3, rest_seconds: 90 }).includes("1:30 rest"));
   const { container } = render(<div>
     <SetLogger exercise={drill} setLogs={[]} busy={false} logSet={async () => {}} />
     <PlateWarmupCalculator exercise={drill} />

@@ -2,7 +2,7 @@ import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
-import { borgAnchorLabel, cr10AnchorLabel, formatDate, reserveToRpe, rpeReserveLabel, rpeToReserve, titleCase } from "../../utils/format";
+import { borgAnchorLabel, cr10AnchorLabel, formatDate, parseRest, reserveToRpe, restDuration, rpeReserveLabel, rpeToReserve, titleCase, restLabel } from "../../utils/format";
 import { lookupPrilepinZones } from "../../../../shared/prilepin-reference/prilepinChartReference.mjs";
 import { ExerciseHowtoBody } from "../../components/ExerciseHowtoBody";
 import { MuscleGroupSelect } from "../../components/MuscleGroupSelect";
@@ -73,6 +73,45 @@ function workItemAttrs(blockIndex: number, weekIndex: number, sessionIndex: numb
     "data-work-item-index": workItemIndex,
     "data-field": field
   };
+}
+
+// Rest typed in minutes and seconds ("1:30"). The builder's state is still
+// kept in seconds: a hidden number input carries the data-field the legacy
+// builder reads, and is updated (with a bubbling input event) whenever the
+// coach's minutes:seconds parse to a valid rest. On leaving the box it shows
+// what it understood - "3" becomes "3:00", "90" becomes "1:30".
+function RestInput({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const hidden = React.useRef<HTMLInputElement>(null);
+  const [invalid, setInvalid] = React.useState(false);
+  const shown = (seconds: number) => restDuration(seconds) || "0:00";
+  const apply = (text: string) => {
+    const seconds = parseRest(text);
+    setInvalid(seconds === null);
+    if (seconds === null || !hidden.current || Number(hidden.current.value) === seconds) return seconds;
+    hidden.current.value = String(seconds);
+    hidden.current.dispatchEvent(new Event("input", { bubbles: true }));
+    return seconds;
+  };
+  return (
+    <label className="template-rest-field core-field" data-short="Rest">
+      <span>Rest (min:sec)</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        placeholder="m:ss"
+        defaultValue={shown(Number(workItem.rest_seconds))}
+        aria-invalid={invalid || undefined}
+        title="Minutes and seconds, e.g. 1:30 or 3:00"
+        onChange={(event) => { apply(event.currentTarget.value); }}
+        onBlur={(event) => {
+          const seconds = apply(event.currentTarget.value);
+          if (seconds !== null) event.currentTarget.value = shown(seconds);
+        }}
+      />
+      <input ref={hidden} type="number" hidden readOnly tabIndex={-1} min={0} max={900} defaultValue={workItem.rest_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rest_seconds")} />
+      {invalid ? <small className="field-error">Minutes:seconds, up to 15:00 - e.g. 1:30</small> : null}
+    </label>
+  );
 }
 
 type WorkItemControlProps = {
@@ -487,7 +526,7 @@ function ExerciseField({ workItem, blockIndex, weekIndex, sessionIndex, workItem
 }
 
 // One line a coach can scan on a phone: what, how much, how hard, how long
-// a rest - e.g. "4 × 5 @ 80% 1RM · 180s rest".
+// a rest - e.g. "4 × 5 @ 80% 1RM · 3:00 rest".
 const GROUP_LABELS: Record<string, string> = { superset: "Superset", circuit: "Circuit", complex: "Complex", amrap: "AMRAP", emom: "EMOM", for_time: "For time" };
 
 // Expand all / Collapse all reach every block, week and session.
@@ -545,7 +584,8 @@ export function workItemSummary(workItem: ProgrammeWorkItemDraft): string {
     cr10: `@ CR10 ${workItem.cr10_value}`
   }[workItem.load_mode] ?? "";
   const group = workItem.group_id && GROUP_LABELS[workItem.group_type] ? ` · ${GROUP_LABELS[workItem.group_type]}` : "";
-  return `${sets} ${dose} ${load} · ${workItem.rest_seconds}s rest${group}`.replace(/\s+/gu, " ").trim();
+  const rest = restLabel(workItem.rest_seconds);
+  return `${sets} ${dose} ${load}${rest ? ` · ${rest}` : ""}${group}`.replace(/\s+/gu, " ").trim();
 }
 
 function BuilderWorkItem({
@@ -637,10 +677,7 @@ function BuilderWorkItem({
         </label>
         <PrescriptionControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         <LoadControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
-        <label className="template-rest-field core-field" data-short="Rest s">
-          <span>Rest seconds</span>
-          <input type="number" min={0} max={900} step={5} defaultValue={workItem.rest_seconds} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "rest_seconds")} />
-        </label>
+        <RestInput workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
       </div>
       <div className="template-grouping-row">
         {grouped ? (

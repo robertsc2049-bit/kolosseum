@@ -14,6 +14,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { CoachProgrammeBuilderTree, workItemSummary } from "../screens/coach/CoachProgrammeBuilderTree";
+import { parseRest } from "../utils/format";
 import {
   newTemplateBlock,
   newTemplateSession,
@@ -652,13 +653,13 @@ test("shows a prompt to select an exercise first, with no fetch, when the work i
 
 // --- Phone summary rows: each exercise reads as one line until opened ---
 
-test("a coach scanning a session on a phone reads each exercise as one line: 4 × 5 @ 80% 1RM · 180s rest", () => {
+test("a coach scanning a session on a phone reads each exercise as one line: 4 × 5 @ 80% 1RM · 3:00 rest", () => {
   const base = storedWorkItemToDraft({ exercise_id: "back_squat" }, 0);
-  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "reps", rep_mode: "fixed", planned_reps: 5, load_mode: "percent_1rm", percent_1rm: 80, rest_seconds: 180 }), "4 × 5 @ 80% 1RM · 180s rest");
-  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "reps", rep_mode: "range", rep_min: 8, rep_max: 12, load_mode: "rpe", rpe_value: 8, rest_seconds: 90 }), "3 × 8–12 @ RPE 8 · 90s rest");
-  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 45, load_mode: "bodyweight", rest_seconds: 60 }), "3 × 45s bodyweight · 60s rest");
-  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "distance", distance_mode: "fixed", planned_distance_value: 20, distance_unit: "meters", load_mode: "fixed_weight", weight_value: 120, weight_unit: "kg", rest_seconds: 120 }), "4 × 20 m @ 120 kg · 120s rest");
-  assert.equal(workItemSummary({ ...base, planned_sets: 5, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 90, load_mode: "bodyweight", rest_seconds: 0, group_id: "g1", group_type: "emom" }), "5 × 1:30 bodyweight · 0s rest · EMOM");
+  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "reps", rep_mode: "fixed", planned_reps: 5, load_mode: "percent_1rm", percent_1rm: 80, rest_seconds: 180 }), "4 × 5 @ 80% 1RM · 3:00 rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "reps", rep_mode: "range", rep_min: 8, rep_max: 12, load_mode: "rpe", rpe_value: 8, rest_seconds: 90 }), "3 × 8–12 @ RPE 8 · 1:30 rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 3, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 45, load_mode: "bodyweight", rest_seconds: 60 }), "3 × 45s bodyweight · 1:00 rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 4, prescription_mode: "distance", distance_mode: "fixed", planned_distance_value: 20, distance_unit: "meters", load_mode: "fixed_weight", weight_value: 120, weight_unit: "kg", rest_seconds: 120 }), "4 × 20 m @ 120 kg · 2:00 rest");
+  assert.equal(workItemSummary({ ...base, planned_sets: 5, prescription_mode: "duration", duration_mode: "fixed", planned_duration_seconds: 90, load_mode: "bodyweight", rest_seconds: 0, group_id: "g1", group_type: "emom" }), "5 × 1:30 bodyweight · EMOM");
 });
 
 test("a chosen exercise starts as its summary line and opens on tap; one with nothing chosen yet starts open", async () => {
@@ -734,7 +735,7 @@ test("a closed exercise row keeps its own sets / reps / load / rest inputs edita
   const item = document.querySelector(".template-work-item") as HTMLElement;
   assert.equal(item.getAttribute("data-open"), "false");
   const core = [...item.querySelectorAll(".core-field")].map((label) => [label.getAttribute("data-short"), (label.querySelector("input") as HTMLInputElement).value]);
-  assert.deepEqual(core, [["Sets", "4"], ["Reps", "5"], ["% 1RM", "75"], ["Rest s", "240"]]);
+  assert.deepEqual(core, [["Sets", "4"], ["Reps", "5"], ["% 1RM", "75"], ["Rest", "4:00"]]);
   assert.equal(item.querySelectorAll('[data-field="planned_sets"]').length, 1, "one sets input per exercise");
 });
 
@@ -748,4 +749,38 @@ test("a day's warm-up and cool-down drills fold into one closed line each, aroun
   const bookends = [...document.querySelectorAll(".builder-bookend")] as HTMLDetailsElement[];
   assert.deepEqual(bookends.map((details) => [details.querySelector("summary")?.textContent, details.open, details.querySelectorAll(".template-work-item").length]), [["Warm-up · 2 drills", false, 2], ["Cool-down · 1 drill", false, 1]]);
   assert.equal(document.querySelectorAll(".template-work-item").length, 5, "every drill stays in the page");
+});
+
+test("a coach types rest in minutes and seconds; the programme still stores seconds", async () => {
+  installExerciseRegistryMock([{ exercise_id: "back_squat", display_name: "Back squat" }]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ rest_seconds: 120 }));
+  const label = document.querySelector(".template-rest-field") as HTMLElement;
+  const typed = label.querySelector('input[type="text"]') as HTMLInputElement;
+  const stored = label.querySelector('[data-field="rest_seconds"]') as HTMLInputElement;
+  assert.equal(typed.value, "2:00");
+  let seen = "";
+  document.addEventListener("input", (event) => { if ((event.target as HTMLElement).dataset?.field === "rest_seconds") seen = (event.target as HTMLInputElement).value; });
+  for (const [text, seconds, shown] of [["1:30", "90", "1:30"], ["3", "180", "3:00"], ["90", "90", "1:30"], ["0:45", "45", "0:45"]]) {
+    await act(async () => { fireEvent.change(typed, { target: { value: text } }); fireEvent.blur(typed); });
+    assert.equal(stored.value, seconds, text);
+    assert.equal(typed.value, shown, text);
+  }
+  assert.equal(seen, "45", "the legacy builder hears each change as an input on the seconds field");
+  await act(async () => { fireEvent.change(typed, { target: { value: "20:00" } }); fireEvent.blur(typed); });
+  assert.equal(stored.value, "45", "more than 15:00 is not taken");
+  assert.equal(typed.getAttribute("aria-invalid"), "true");
+});
+
+test("rest in minutes:seconds parses the way a coach types it", () => {
+  assert.equal(parseRest("1:30"), 90);
+  assert.equal(parseRest("3"), 180);
+  assert.equal(parseRest("2.5"), 150);
+  assert.equal(parseRest("90"), 90);
+  assert.equal(parseRest("45s"), 45);
+  assert.equal(parseRest("0:00"), 0);
+  assert.equal(parseRest("15:00"), 900);
+  assert.equal(parseRest("15:01"), null);
+  assert.equal(parseRest("1:75"), null);
+  assert.equal(parseRest("abc"), null);
 });

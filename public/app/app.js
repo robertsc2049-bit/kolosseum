@@ -946,8 +946,9 @@ function exerciseDetails(exercise) {
     details.push(`CR10 ${Number(intensity.value)}`);
   }
 
-  if (Number.isInteger(exercise?.rest_seconds)) {
-    details.push(`${exercise.rest_seconds}s rest`);
+  // Rest in minutes and seconds ("1:30 rest"), as on every other screen.
+  if (Number.isInteger(exercise?.rest_seconds) && exercise.rest_seconds > 0) {
+    details.push(`${Math.floor(exercise.rest_seconds / 60)}:${String(exercise.rest_seconds % 60).padStart(2, "0")} rest`);
   }
 
   return details;
