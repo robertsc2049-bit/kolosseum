@@ -350,8 +350,16 @@ orgOwnerRouter.get(
 // Name one of the organisation's active coaches its head coach (or clear
 // it) - an owner who also coaches names their own coach account
 // (org_head_coach_service.ts). Audited.
+const orgHeadCoachRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 orgOwnerRouter.post(
   "/organisations/:org_id/head-coach",
+  orgHeadCoachRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, true);
     try {
