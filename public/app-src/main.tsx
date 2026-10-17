@@ -63,7 +63,7 @@ import { CoachProgrammeDetailHeader, CoachProgrammeDetailPanel } from "./screens
 import { CoachProgrammeValidationPanel } from "./screens/coach/CoachProgrammeValidationPanel";
 import { CoachProgrammePreviewPanel } from "./screens/coach/CoachProgrammePreviewPanel";
 import { CoachProgrammeMarketplaceSharingPanel } from "./screens/coach/CoachProgrammeMarketplaceSharingPanel";
-import { CoachProgressOverviewPanel } from "./screens/coach/CoachProgressOverviewPanel";
+import { CoachAnalysisPanel } from "./screens/coach/CoachAnalysisPanel";
 import { AttendanceEventCreatePanel } from "./screens/coach/AttendanceEventCreatePanel";
 import { AttendanceEventDetailPanel } from "./screens/coach/AttendanceEventDetailPanel";
 import { AthleteAttendanceEventsPanel } from "./screens/athlete/AthleteAttendanceEventsPanel";
@@ -153,7 +153,9 @@ mount("coach-events-list-root", <CoachEventsListPanel />);
 mount("coach-event-create-root", <CoachEventCreatePanel />);
 mount("coach-event-detail-root", <CoachEventDetailPanel />);
 mount("coach-marketplace-root", <CoachMarketplacePanel />);
-mount("coach-progress-overview-root", <CoachProgressOverviewPanel />);
+// The coach's Analysis page (was the Progress roster): who needs a look,
+// and each athlete's pattern trends.
+mount("coach-progress-overview-root", <CoachAnalysisPanel />);
 mount("attendance-event-create-root", <AttendanceEventCreatePanel />);
 mount("attendance-event-detail-root", <AttendanceEventDetailPanel />);
 mount("athlete-attendance-events-root", <AthleteAttendanceEventsPanel />);
