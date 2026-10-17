@@ -38,9 +38,10 @@ function formatLogged(log: JsonRecord): string {
   return `${Number(log.reps)} reps${load}${log.is_pr === true ? " · PR" : ""}${log.pending === true ? " · saved on this phone" : ""}`;
 }
 
-function SetRow({ exerciseId, setIndex, defaults, logged, busy, logSet }: {
+function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy, logSet }: {
   exerciseId: string;
   setIndex: number;
+  optional?: boolean;
   defaults: { reps: number; load: string; unit: "kg" | "lb" };
   logged: JsonRecord | undefined;
   busy: boolean;
@@ -71,7 +72,7 @@ function SetRow({ exerciseId, setIndex, defaults, logged, busy, logSet }: {
   if (logged && !editing) {
     return (
       <li className="set-log-row logged" data-testid={`set-log-${setIndex}`}>
-        <span>{`Set ${setIndex}`}</span>
+        <span>{optional ? `Set ${setIndex} (optional)` : `Set ${setIndex}`}</span>
         <strong>{formatLogged(logged)}</strong>
         <button className="button secondary small-button" type="button" disabled={busy} onClick={() => setEditing(true)}>Edit</button>
       </li>
@@ -80,7 +81,7 @@ function SetRow({ exerciseId, setIndex, defaults, logged, busy, logSet }: {
 
   return (
     <li className="set-log-row" data-testid={`set-log-${setIndex}`}>
-      <span>{`Set ${setIndex}`}</span>
+      <span>{optional ? `Set ${setIndex} (optional)` : `Set ${setIndex}`}</span>
       <label className="set-log-field">
         <span className="visually-hidden">{`Set ${setIndex} reps`}</span>
         <input aria-label={`Set ${setIndex} reps`} type="number" inputMode="numeric" min={0} max={100} value={reps} onChange={(event) => setReps(event.target.value)} />
@@ -113,17 +114,21 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   const load = prescribedLoad(exercise);
   const defaults = { reps: prescribedReps(exercise), load: load.value, unit: load.unit };
   const bySet = new Map(setLogs.map((log) => [Number(log.set_index), log]));
-  const loggedCount = [...bySet.keys()].filter((index) => index <= sets).length;
+  // A set range ("3–4 sets"): the sets beyond the least are offered as optional.
+  const setRange = exercise.set_range && typeof exercise.set_range === "object" ? (exercise.set_range as JsonRecord) : null;
+  const mostSets = Number.isInteger(setRange?.maximum) && Number(setRange?.maximum) > sets ? Number(setRange?.maximum) : sets;
+  const loggedCount = [...bySet.keys()].filter((index) => index <= mostSets).length;
 
   return (
     <section className="set-logger" aria-label="Log your sets">
-      <p className="eyebrow">{`Sets logged: ${loggedCount} of ${sets}`}</p>
+      <p className="eyebrow">{mostSets > sets ? `Sets logged: ${loggedCount} of ${sets}–${mostSets}` : `Sets logged: ${loggedCount} of ${sets}`}</p>
       <ul className="set-log-list">
-        {Array.from({ length: sets }, (_, i) => i + 1).map((setIndex) => (
+        {Array.from({ length: mostSets }, (_, i) => i + 1).map((setIndex) => (
           <SetRow
             key={`${exerciseId}-${setIndex}-${bySet.has(setIndex) ? "logged" : "open"}`}
             exerciseId={exerciseId}
             setIndex={setIndex}
+            optional={setIndex > sets}
             defaults={defaults}
             logged={bySet.get(setIndex)}
             busy={busy}

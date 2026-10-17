@@ -69,7 +69,7 @@ test("coach builder exposes conditional rep and loading controls", () => {
   assert.match(builderTree, /function LoadControls/u);
   assert.match(builderTree, />Fixed reps</u);
   assert.match(builderTree, />Rep range</u);
-  assert.match(builderTree, />Weight</u);
+  assert.match(builderTree, /"Lightest" : "Weight"/u);
   assert.match(builderTree, />Bodyweight</u);
   assert.match(builderTree, />RPE</u);
   assert.match(builderTree, /weight_unit/u);
@@ -130,4 +130,37 @@ test("athlete session formatting distinguishes duration, distance and tempo", ()
   assert.match(js, /Hold \$\{durationRange\.minimum\}–\$\{durationRange\.maximum\}s/u);
   assert.match(js, /Hold \$\{exercise\.duration_seconds\}s/u);
   assert.match(js, /Tempo \$\{tempo\}/u);
+});
+
+test("template input supports set ranges and % / fixed-weight load ranges (the low end stays the single value)", () => {
+  assert.match(service, /setPrescriptionFromInput/u);
+  assert.match(service, /set_range_order_invalid/u);
+  assert.match(service, /percent_1rm_range_order_invalid/u);
+  assert.match(service, /weight_range_order_invalid/u);
+  assert.match(service, /maximum_value:\s*resolvedMaximum\.value/u);
+  assert.match(phase6, /setRangeFromItem/u);
+  assert.match(builderTree, /function SetControls/u);
+  assert.match(builderTree, /function LoadRangeSelect/u);
+  assert.match(js, /"set_mode", "load_range_mode"\]\.includes\(field\)/u);
+});
+
+test("engine phase 6 carries a set range, a load range and its resolved weight range to the session", async () => {
+  const { phase6ProduceSessionOutput } = await import("../engine/dist/src/phases/phase6.js");
+  const result = phase6ProduceSessionOutput({
+    planned_items: [{
+      exercise_id: "back_squat", block_id: "B1", item_id: "I1", sets: 3, set_range: { minimum: 3, maximum: 4 }, reps: 6, rep_range: { minimum: 6, maximum: 8 },
+      intensity: { type: "percent_1rm", value: 70, maximum: 75 },
+      resolved_load: { type: "resolved_load", value: 105, maximum_value: 112.5, unit: "kg", percentage: 70, one_rep_max: 150 }, rest_seconds: 150
+    }, {
+      exercise_id: "romanian_deadlift", block_id: "B1", item_id: "I2", sets: 4, reps: 8, rep_range: { minimum: 8, maximum: 10 },
+      intensity: { type: "load", value: 100, maximum: 110, unit: "kg" }, resolved_load: null, rest_seconds: 120
+    }]
+  }, {}, undefined);
+  assert.equal(result.ok, true);
+  const [squat, rdl] = result.session.exercises;
+  assert.deepEqual(squat.set_range, { minimum: 3, maximum: 4 });
+  assert.deepEqual(squat.intensity, { type: "percent_1rm", value: 70, maximum: 75 });
+  assert.equal(squat.resolved_load.maximum_value, 112.5);
+  assert.equal("set_range" in rdl, false, "no set range unless one was prescribed");
+  assert.deepEqual(rdl.intensity, { type: "load", value: 100, maximum: 110, unit: "kg" });
 });

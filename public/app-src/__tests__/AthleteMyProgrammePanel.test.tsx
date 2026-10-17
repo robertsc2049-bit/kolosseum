@@ -140,7 +140,7 @@ test("the overview is one page of the whole programme: a row per training day, a
   const rows = [...(overview?.querySelectorAll("tbody tr") ?? [])];
   assert.deepEqual(rows.map((row) => row.querySelector("th")?.textContent), ["Squat dayBack squat", "Bench dayBack squat"]);
   const firstCell = rows[0].querySelectorAll("td")[0];
-  assert.equal(firstCell.querySelector("b")?.textContent, "5×5");
+  assert.equal(firstCell.querySelector("b")?.textContent, "5 × 5");
   assert.equal(firstCell.querySelector("span")?.textContent, "115 kg");
   assert.equal(firstCell.querySelector("small"), null, "no percentage");
   assert.ok(firstCell.textContent?.includes("✓"), "week 1's Squat day was trained");

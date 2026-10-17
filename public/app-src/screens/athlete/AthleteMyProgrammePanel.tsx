@@ -10,7 +10,7 @@ import { PRINTING_CLASS, ProgrammePrintSheet, type ProgrammeCover } from "./Prog
 // builder), the chosen week's days side by side, and each day's exercises
 // with the dose. Done days are ticked; the next one is highlighted.
 
-type Exercise = { name: string; segment: string; sets: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
+type Exercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
 type Session = { session_index: number; title: string; state: string; date: string | null; exercises: Exercise[] };
 type Week = { week_number: number; sessions: Session[] };
 type Block = { name: string; block_type: string; weeks: Week[] };
@@ -29,8 +29,9 @@ export { restLabel } from "../../utils/format";
 
 export function doseLabel(exercise: Exercise): string {
   const reps = exercise.reps.trim();
-  if (!reps) return `${exercise.sets} sets`;
-  return exercise.sets > 1 ? `${exercise.sets} × ${reps}` : reps;
+  const sets = exercise.sets_max && exercise.sets_max > exercise.sets ? `${exercise.sets}–${exercise.sets_max}` : String(exercise.sets);
+  if (!reps) return `${sets} sets`;
+  return exercise.sets > 1 || exercise.sets_max ? `${sets} × ${reps}` : reps;
 }
 
 function weekState(week: Week): string {

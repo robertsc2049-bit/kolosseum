@@ -55,7 +55,12 @@ function item(exerciseId, index, percent) {
 const session = (title, items, order) => ({ session_id: "", order_index: order, title, coaching_notes: "", work_items: items });
 const blocks = [
   { block_id: "", order_index: 1, name: "Accumulation", description: "", block_type: "volume", week_count: 1,
-    weeks: [{ week_id: "", order_index: 1, sessions: [session("Squat day", [item("back_squat", 0, 72.5), item("barbell_row", 1)], 1), session("Bench day", [item("bench_press", 0, 70)], 2)] }] },
+    weeks: [{ week_id: "", order_index: 1, sessions: [
+      session("Squat day", [item("back_squat", 0, 72.5), item("barbell_row", 1),
+        // 3-4 sets at 100-110 kg: a set range and a fixed-weight range.
+        { ...item("romanian_deadlift", 2), set_mode: "range", planned_sets: 3, planned_sets_max: 4, load_mode: "fixed_weight", load_range_mode: "range", weight_value: 100, weight_value_max: 110 }], 1),
+      // 70-75% of a 100 kg max: a % range, worked out as 70-75 kg.
+      session("Bench day", [{ ...item("bench_press", 0, 70), load_range_mode: "range", percent_1rm_max: 75 }], 2)] }] },
   { block_id: "", order_index: 2, name: "Intensification", description: "", block_type: "strength", week_count: 1,
     weeks: [{ week_id: "", order_index: 1, sessions: [session("Heavy squat", [item("back_squat", 0, 85)], 1)] }] }
 ];
@@ -101,6 +106,14 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   ok(await coach.req("POST", `/templates/${templateId}/complete`, { coach_user_id: coachAccount.userId }), 200, "complete");
   ok(await coach.req("POST", `/templates/${templateId}/activate`, { coach_user_id: coachAccount.userId }), 200, "activate");
 
+  const backwards = await coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `Backwards ${nonce}`, description: "", activity_id: "powerlifting",
+    blocks: [{ ...blocks[0], weeks: [{ week_id: "", order_index: 1, sessions: [session("Day", [{ ...item("back_squat", 0, 70), set_mode: "range", planned_sets: 4, planned_sets_max: 3 }], 1)] }], week_count: 1 }],
+    updated_at_iso8601: new Date().toISOString()
+  });
+  assert.equal(backwards.status, 400);
+  assert.match(backwards.text, /set_range_order_invalid/u);
+
   const athlete = client(baseUrl);
   const athleteAccount = await register(athlete, "athlete", "lifter", { activity_id: "powerlifting" });
   const fields = {
@@ -138,6 +151,9 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   const squat = squatDay.exercises.find((e) => e.exercise_id === "back_squat");
   assert.deepEqual([squat.sets, squat.reps, squat.load, squat.rest_seconds, squat.notes], [5, "5", "115 kg", 240, "Belt on for the top sets."], "72.5% of a 160 kg max, to the nearest 2.5 kg - the weight only, never the %");
   assert.equal(squatDay.exercises.find((e) => e.exercise_id === "barbell_row").load, "RPE 7");
+  const rdl = squatDay.exercises.find((e) => e.exercise_id === "romanian_deadlift");
+  assert.deepEqual([rdl.sets, rdl.sets_max, rdl.load], [3, 4, "100–110 kg"], "a set range and a fixed-weight range");
+  assert.equal(benchDay.exercises.find((e) => e.exercise_id === "bench_press").load, "70–75 kg", "a % range is a weight range from her max");
   assert.equal(before.blocks[1].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").load, "135 kg");
 
   // Her cover: who it is for and from, when it started, her bodyweight -
@@ -153,6 +169,8 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   const coachCopy = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "coach copy").json;
   const coachSquat = coachCopy.blocks[0].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat");
   assert.deepEqual([coachSquat.load, coachSquat.percent], ["115 kg", 72.5]);
+  const coachBench = coachCopy.blocks[0].weeks[0].sessions[1].exercises.find((e) => e.exercise_id === "bench_press");
+  assert.deepEqual([coachBench.load, coachBench.percent, coachBench.percent_max], ["70–75 kg", 70, 75]);
   assert.deepEqual(coachCopy.cover.maxes.map((m) => [m.name, m.value, m.basis]), [["Back squat", 160, "Tested 1RM"], ["Bench press", 100, "Tested 1RM"]]);
   assert.deepEqual(coachCopy.cover.bodyweight_history.map((b) => b.value), [74]);
   assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`)).status, 403, "the athlete can't fetch the coach's copy");
@@ -164,6 +182,9 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   }), 201, "session").json;
   const sessionId = created.session_id;
   assert.equal(ok(await athlete.req("GET", `/sessions/${sessionId}/state`), 200, "state").json.session_title, "Squat day");
+  // The session carries the ranges: the sets to do and the most, the weight range.
+  const sessionRdl = created.planned_session.exercises.find((e) => e.exercise_id === "romanian_deadlift");
+  assert.deepEqual([sessionRdl.sets, sessionRdl.set_range, sessionRdl.intensity], [3, { minimum: 3, maximum: 4 }, { type: "load", value: 100, maximum: 110, unit: "kg" }]);
   ok(await athlete.req("POST", `/sessions/${sessionId}/start`, {}), 200, "start");
   for (const exercise of created.planned_session.exercises) {
     ok(await athlete.req("POST", `/sessions/${sessionId}/events`, { event: { type: "COMPLETE_EXERCISE", exercise_id: exercise.exercise_id } }), 201, `complete ${exercise.exercise_id}`);

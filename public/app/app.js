@@ -193,6 +193,11 @@ function normalisePersistedTemplateDraft(draft) {
       percent_1rm: Number(workItem?.percent_1rm ?? 75),
       weight_value: Number(workItem?.weight_value ?? 20),
       weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
+      set_mode: workItem?.set_mode === "range" ? "range" : "fixed",
+      planned_sets_max: Number(workItem?.planned_sets_max ?? Number(workItem?.planned_sets ?? 3) + 1),
+      load_range_mode: workItem?.load_range_mode === "range" ? "range" : "fixed",
+      percent_1rm_max: Number(workItem?.percent_1rm_max ?? Number(workItem?.percent_1rm ?? 75) + 5),
+      weight_value_max: Number(workItem?.weight_value_max ?? Number(workItem?.weight_value ?? 20) + 10),
       rpe_value: Number(workItem?.rpe_value ?? 8),
       borg_value: Number(workItem?.borg_value ?? 13),
       cr10_value: Number(workItem?.cr10_value ?? 5),
@@ -2859,6 +2864,11 @@ function newTemplateWorkItem(index) {
     percent_1rm: index === 0 ? 75 : 65,
     weight_value: index === 0 ? 100 : 20,
     weight_unit: "kg",
+    set_mode: "fixed",
+    planned_sets_max: 4,
+    load_range_mode: "fixed",
+    percent_1rm_max: index === 0 ? 80 : 70,
+    weight_value_max: index === 0 ? 110 : 30,
     rest_seconds: index === 0 ? 180 : 120,
     role: index === 0 ? "primary" : "accessory",
     coaching_notes: "",
@@ -2989,6 +2999,11 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
       ? Number(loadingReference.value ?? 20)
       : 20,
     weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
+    set_mode: workItem?.set_prescription?.type === "range" && Number(workItem.set_prescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    planned_sets_max: workItem?.set_prescription?.type === "range" ? Number(workItem.set_prescription.maximum) : Number(workItem?.planned_sets ?? 3) + 1,
+    load_range_mode: Number(loadingReference.maximum) > Number(loadingReference.value) ? "range" : "fixed",
+    percent_1rm_max: loadingReference.type === "percent_1rm" ? Number(loadingReference.maximum ?? Number(loadingReference.value ?? 75) + 5) : 80,
+    weight_value_max: loadingReference.type === "load" ? Number(loadingReference.maximum ?? Number(loadingReference.value ?? 20) + 10) : 30,
     rpe_value: loadingReference.type === "rpe"
       ? Number(loadingReference.value ?? 8)
       : 8,
@@ -4741,6 +4756,11 @@ function templateDraftValidationRecord() {
                       load_mode: String(workItem?.load_mode ?? ""),
                       percent_1rm: Number(workItem?.percent_1rm),
                       weight_value: Number(workItem?.weight_value),
+                      set_mode: workItem?.set_mode === "range" ? "range" : "fixed",
+                      planned_sets_max: Number(workItem?.planned_sets_max ?? workItem?.planned_sets),
+                      load_range_mode: workItem?.load_range_mode === "range" ? "range" : "fixed",
+                      percent_1rm_max: Number(workItem?.percent_1rm_max ?? workItem?.percent_1rm),
+                      weight_value_max: Number(workItem?.weight_value_max ?? workItem?.weight_value),
                       weight_unit: String(workItem?.weight_unit ?? ""),
                       rpe_value: Number(workItem?.rpe_value),
                       borg_value: Number(workItem?.borg_value),
@@ -4855,6 +4875,15 @@ function templateValidationSelector(issue) {
   }
   else if (code === "rep_range_min_invalid") {
     field = "rep_min";
+  }
+  else if (code === "set_range_max_invalid" || code === "set_range_order_invalid") {
+    field = "planned_sets_max";
+  }
+  else if (code === "percent_1rm_max_invalid" || code === "percent_1rm_range_order_invalid") {
+    field = "percent_1rm_max";
+  }
+  else if (code === "weight_value_max_invalid" || code === "weight_range_order_invalid") {
+    field = "weight_value_max";
   }
   else if (
     code === "rep_range_max_invalid" ||
@@ -5291,7 +5320,7 @@ function updateTemplateFieldFromControl(control) {
     state.templateDraft.event_compile_summary = null;
   }
 
-  if (kind === "work-item" && ["rep_mode", "load_mode", "prescription_mode", "duration_mode", "distance_mode"].includes(field)) {
+  if (kind === "work-item" && ["rep_mode", "load_mode", "prescription_mode", "duration_mode", "distance_mode", "set_mode", "load_range_mode"].includes(field)) {
     rerenderTemplateBuilder();
     return;
   }
@@ -5574,6 +5603,11 @@ function templatePayloadFromDraft() {
             load_mode: workItem.load_mode,
             percent_1rm: Number(workItem.percent_1rm),
             weight_value: Number(workItem.weight_value),
+            set_mode: workItem.set_mode === "range" ? "range" : "fixed",
+            planned_sets_max: Number(workItem.planned_sets_max ?? workItem.planned_sets),
+            load_range_mode: workItem.load_range_mode === "range" ? "range" : "fixed",
+            percent_1rm_max: Number(workItem.percent_1rm_max ?? workItem.percent_1rm),
+            weight_value_max: Number(workItem.weight_value_max ?? workItem.weight_value),
             weight_unit: workItem.weight_unit,
             rpe_value: Number(workItem.rpe_value),
             borg_value: Number(workItem.borg_value),
