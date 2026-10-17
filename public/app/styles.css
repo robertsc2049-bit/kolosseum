@@ -5033,3 +5033,53 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 }
 .analysis-section, .analysis-numbers[open] { grid-template-columns: minmax(0, 1fr); }
 .analysis-sections > * { min-width: 0; }
+
+/* Coach progress reports (CoachReports.tsx): a list per report type, one
+   report as tiles, tables and facts, and a paper copy. */
+.report-list { display: grid; gap: var(--k-space-3); }
+.report-list h3 { margin: 0; }
+.report-periods { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--k-space-2); }
+.report-period { width: 100%; min-height: 44px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--k-space-3); align-items: center; text-align: left; padding: var(--k-space-2) var(--k-space-3); border: 1px solid var(--k-border); border-radius: var(--k-radius-m); background: var(--k-surface-2, transparent); color: inherit; font: inherit; cursor: pointer; }
+.report-period:hover, .report-period:focus-visible { border-color: var(--k-accent); }
+.report-period strong { grid-column: 1; overflow-wrap: anywhere; }
+.report-period .muted { grid-column: 1; }
+.report-period .analysis-status { grid-column: 2; grid-row: 1 / span 2; }
+.report-view { display: grid; gap: var(--k-space-3); }
+.report-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); }
+.report-body { display: grid; gap: var(--k-space-4); min-width: 0; }
+.report-head h3 { margin: 2px 0; }
+.report-head p { margin: 0; }
+.report-section { display: grid; gap: var(--k-space-2); min-width: 0; align-content: start; }
+.report-body .analysis-table th, .report-body .analysis-table td { white-space: nowrap; }
+.report-section h4 { margin: 0; }
+.report-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--k-space-2); }
+.report-tile { display: grid; gap: 2px; padding: var(--k-space-2) var(--k-space-3); border: 1px solid var(--k-border); border-radius: var(--k-radius-m); min-width: 0; }
+.report-tile-label { font-size: 0.8rem; color: var(--k-text-secondary); }
+.report-tile strong { font-size: 1.25rem; overflow-wrap: anywhere; }
+.report-change { font-size: 0.8rem; color: var(--k-text-secondary); }
+.report-change.is-good { color: var(--k-accent-bright); }
+.report-change.is-watch { color: var(--k-warning); }
+.report-columns { display: grid; gap: var(--k-space-4); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .report-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.report-facts { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.report-method { margin: 0; }
+#report-print-root { display: none; }
+@media print {
+  html:has(body.printing-report) { color-scheme: light; background: #fff !important; }
+  body.printing-report { background: #fff !important; color: #000 !important; }
+  body.printing-report > *:not(#report-print-root) { display: none !important; }
+  body.printing-report #report-print-root { display: block; font: 9pt/1.3 Inter, "Segoe UI", Arial, sans-serif; color: #000; }
+  #report-print-root * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
+  #report-print-root .report-body { gap: 4mm; }
+  #report-print-root .small, #report-print-root .muted { font-size: 7.5pt; }
+  #report-print-root .report-tiles { grid-template-columns: repeat(4, 1fr); gap: 2mm; }
+  #report-print-root .report-tile { border: 0.5pt solid #666; border-radius: 0; padding: 1.5mm 2mm; }
+  #report-print-root .report-columns { grid-template-columns: 1fr 1fr; }
+  #report-print-root .analysis-table-wrap { overflow: visible; }
+  #report-print-root .analysis-table { width: 100%; border-collapse: collapse; }
+  #report-print-root .analysis-table th, #report-print-root .analysis-table td { border: 0.5pt solid #666; padding: 1mm 1.5mm; font-size: 8pt; }
+  #report-print-root .report-section, #report-print-root .report-tiles { break-inside: avoid; }
+  #report-print-root .trend-chart svg { max-height: 40mm; }
+  #report-print-root .trend-chart path { stroke: #000 !important; }
+  #report-print-root .trend-chart rect, #report-print-root .trend-chart circle { fill: #555 !important; }
+}

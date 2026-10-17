@@ -135,8 +135,14 @@ async function displayName(userId: string): Promise<string> {
 }
 
 export async function analyseAthleteForCoach(coachUserId: string, athleteUserId: string, weeksInput: unknown, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
-  await requireCoachAthleteAccess(coachUserId, athleteUserId);
   const weeks = ANALYSIS_WEEK_CHOICES.includes(Number(weeksInput)) ? Number(weeksInput) : 12;
+  return analyseWindowForCoach(coachUserId, athleteUserId, weeks, today);
+}
+
+// Any window of whole weeks up to `today` (a progress report's period);
+// `closed` when the period has ended, so its last week counts in full.
+export async function analyseWindowForCoach(coachUserId: string, athleteUserId: string, weeks: number, today: string, closed = false): Promise<Json> {
+  await requireCoachAthleteAccess(coachUserId, athleteUserId);
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
   const since = addDays(weekStart(today), -7 * (weeks + 4));
@@ -152,6 +158,7 @@ export async function analyseAthleteForCoach(coachUserId: string, athleteUserId:
   const analysis = analyseAthlete({
     today,
     weeks,
+    closed,
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),

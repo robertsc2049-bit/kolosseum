@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
+import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
 // The coach's Analysis page. Two layers on every section: a plain-English
@@ -80,6 +81,7 @@ function Section({ id, title, headline, children }: { id: string; title: string;
 
 function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onBack: () => void }) {
   const [weeks, setWeeks] = useState(12);
+  const [view, setView] = useState<"trends" | "reports">("trends");
   const { data, error, loading } = useCoachAthleteAnalysis(athleteUserId, weeks);
   const a = (data?.analysis ?? null) as JsonRecord | null;
   const findings = rows(data?.findings) as unknown as Finding[];
@@ -103,15 +105,23 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
       <div className="analysis-athlete-bar">
         <button type="button" className="button secondary small-button" onClick={onBack}>‹ All athletes</button>
         <h2>{String((data?.athlete as JsonRecord | undefined)?.display_name ?? "Athlete")}</h2>
-        <div className="analysis-weeks" role="group" aria-label="Weeks shown">
-          {WEEK_CHOICES.map((choice) => (
-            <button key={choice} type="button" className={`button secondary small-button${choice === weeks ? " is-selected" : ""}`} aria-pressed={choice === weeks} onClick={() => setWeeks(choice)}>{`${choice} wks`}</button>
+        <div className="analysis-weeks" role="group" aria-label="Analysis or reports">
+          {(["trends", "reports"] as const).map((choice) => (
+            <button key={choice} type="button" className={`button secondary small-button${choice === view ? " is-selected" : ""}`} aria-pressed={choice === view} onClick={() => setView(choice)}>{choice === "trends" ? "Trends" : "Reports"}</button>
           ))}
         </div>
+        {view === "trends" ? (
+          <div className="analysis-weeks" role="group" aria-label="Weeks shown">
+            {WEEK_CHOICES.map((choice) => (
+              <button key={choice} type="button" className={`button secondary small-button${choice === weeks ? " is-selected" : ""}`} aria-pressed={choice === weeks} onClick={() => setWeeks(choice)}>{`${choice} wks`}</button>
+            ))}
+          </div>
+        ) : null}
       </div>
-      {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {loading && !a ? <p className="muted">Working out the patterns…</p> : null}
-      {a ? (
+      {view === "reports" ? <CoachReports athleteUserId={athleteUserId} /> : null}
+      {view === "trends" && error ? <p className="field-error" role="alert">{error}</p> : null}
+      {view === "trends" && loading && !a ? <p className="muted">Working out the patterns…</p> : null}
+      {view === "trends" && a ? (
         <>
           <section className="analysis-summary panel" data-testid="analysis-summary">
             <h3>What stands out</h3>

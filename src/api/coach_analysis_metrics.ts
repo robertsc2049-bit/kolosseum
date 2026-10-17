@@ -60,6 +60,8 @@ export type CheckinFact = Readonly<{ week_start: string; energy: number | null; 
 export type AnalysisInput = Readonly<{
   today: string; // YYYY-MM-DD
   weeks: number;
+  // The period has ended (a report on it): no week is "this week".
+  closed?: boolean;
   sessions: readonly AnalysisSession[];
   readiness: readonly ReadinessFact[];
   checkins: readonly CheckinFact[];
@@ -164,6 +166,8 @@ const done = (session: AnalysisSession) => session.status === "completed" || ses
 
 export function analyseAthlete(input: AnalysisInput): Json {
   const weeks = weekStarts(input.today, input.weeks);
+  // A report on a period that has ended counts its last week in full.
+  const currentWeek = input.closed ? null : weekStart(input.today);
   const first = weeks[0];
   const inWindow = (date: string) => day(date) >= first && day(date) <= input.today;
   // Load needs 4 weeks of history before the first shown week.
@@ -194,7 +198,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const daily = Array.from({ length: 7 }, (_, offset) => dailyLoad.get(addDays(start, offset)) ?? 0);
     const weekly = weeklyLoadAll[index];
     const mono = weekly ? monotony(daily) : null;
-    return { week_start: start, partial_week: start === weekStart(input.today), load: weekly, acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null };
+    return { week_start: start, partial_week: start === currentWeek, load: weekly, acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null };
   });
 
   // --- volume ---
@@ -301,7 +305,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const t = executionByWeek.get(start);
     return {
       week_start: start,
-      partial_week: start === weekStart(input.today),
+      partial_week: start === currentWeek,
       sets_logged_pct: t && t.sets_planned ? round((t.sets_logged / t.sets_planned) * 100, 0) : null,
       reps_hit_pct: t && t.reps_checked ? round((t.reps_hit / t.reps_checked) * 100, 0) : null,
       load_vs_plan_pct: t && t.load_ratio.length ? round((mean(t.load_ratio) - 1) * 100, 1) : null
@@ -353,7 +357,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const completed = mine.filter((session) => session.status === "completed").length;
     const partial = mine.filter((session) => session.status === "partial").length;
     const abandoned = mine.filter((session) => !done(session) && sessionDay(session) < staleCutoff).length;
-    const isCurrent = start === weekStart(input.today);
+    const isCurrent = start === currentWeek;
     const started = startedWeek !== null && start >= startedWeek;
     const target = started ? expected ?? null : null;
     const pct = target && !isCurrent ? Math.min(100, round(((completed + partial * 0.5) / target) * 100, 0)) : null;
@@ -423,6 +427,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
 
   return {
     weeks,
+    ...(input.closed ? { closed: true } : {}),
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))) },
     volume: { rows: volumeRows },
     strength: { lifts },
@@ -447,8 +452,8 @@ const lastValue = <T,>(rows: readonly T[], pick: (row: T) => number | null | und
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // "this week", "last week" or "the week of 28 Sep".
 export function weekLabel(week: string, currentWeek: string): string {
-  if (week === currentWeek) return "this week";
-  if (week === addDays(currentWeek, -7)) return "last week";
+  if (currentWeek && week === currentWeek) return "this week";
+  if (currentWeek && week === addDays(currentWeek, -7)) return "last week";
   const d = new Date(`${week}T00:00:00Z`);
   return `the week of ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
@@ -457,22 +462,25 @@ export function findings(analysis: Json): Finding[] {
   const out: Finding[] = [];
   const a = analysis as Record<string, Json>;
   const weeksShown = a.weeks as unknown as string[];
-  const currentWeek = weeksShown[weeksShown.length - 1];
+  // An ended period names its weeks by date, not "this week".
+  const currentWeek = a.closed ? "" : weeksShown[weeksShown.length - 1];
 
   // Adherence: the last 2 complete weeks.
   const adherenceRows = (a.adherence.rows as Json[]).filter((row) => row.adherence_pct !== null);
   const lastTwo = adherenceRows.slice(-2);
   if (lastTwo.length) {
+    // A one-week report has one week to count; an ended period's are its last.
+    const span = lastTwo.length === 1 ? (a.closed ? "that week" : "last week") : a.closed ? "in its last 2 weeks" : "in the last 2 weeks";
     const done = lastTwo.reduce((sum, row) => sum + Number(row.completed) + Number(row.partial) * 0.5, 0);
     const planned = lastTwo.reduce((sum, row) => sum + Number(row.planned ?? 0), 0);
     const pct = planned ? Math.round((done / planned) * 100) : null;
     if (pct !== null) {
       const missed = Math.max(0, Math.round(planned - done));
       out.push(pct < 70
-        ? { id: "adherence", section: "adherence", level: "alert", text: `Missed ${missed} of ${planned} planned sessions in the last 2 weeks (${pct}% done).` }
+        ? { id: "adherence", section: "adherence", level: "alert", text: `Missed ${missed} of ${planned} planned sessions ${span} (${pct}% done).` }
         : pct < 90
-          ? { id: "adherence", section: "adherence", level: "watch", text: `${pct}% of planned sessions done in the last 2 weeks.` }
-          : { id: "adherence", section: "adherence", level: "good", text: `Training as planned: ${pct}% of sessions done in the last 2 weeks.` });
+          ? { id: "adherence", section: "adherence", level: "watch", text: `${pct}% of planned sessions done ${span}.` }
+          : { id: "adherence", section: "adherence", level: "good", text: `Training as planned: ${pct}% of sessions done ${span}.` });
     }
   }
 

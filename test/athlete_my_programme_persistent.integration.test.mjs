@@ -221,6 +221,19 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.equal(analysis.analysis.volume.rows.at(-1).sets >= 0, true);
   assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis`)).status >= 400, true, "coach-only");
 
+  // Progress reports: a weekly one for this week at least, and one for the programme.
+  const reports = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports`), 200, "report list").json;
+  assert.deepEqual(Object.keys(reports.reports).sort(), ["block", "cycle", "programme", "week", "year"]);
+  assert.ok(reports.reports.week.length >= 1);
+  const week = reports.reports.week[0];
+  const weekly = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports/week/${week.id}`), 200, "weekly report").json;
+  assert.equal(weekly.period.weeks, 1);
+  assert.equal(typeof weekly.summary.sessions.completed, "number");
+  assert.ok(Array.isArray(weekly.findings));
+  assert.equal((await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports/week/1999-01-04`)).status, 404);
+  assert.equal((await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports/decade/x`)).status, 404);
+  assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports`)).status >= 400, true, "coach-only");
+
   // It is hers alone: a coach gets nothing from it.
   assert.notEqual((await coach.req("GET", "/account/onboarding/my-programme")).status, 200);
 });
