@@ -9488,6 +9488,12 @@
     },
     {
       "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/programme-print",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
       "path": "/coach-workspace/exercise-demo-videos",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
