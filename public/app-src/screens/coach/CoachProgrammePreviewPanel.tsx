@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
-import { titleCase } from "../../utils/format";
+import { restLabel, titleCase } from "../../utils/format";
 import {
   exerciseDisplayName,
   programmePreviewLoad,
@@ -28,7 +28,7 @@ function WorkItemRow({ workItem, templateExercises }: { workItem: ProgrammeWorkI
         {workItem.group_id ? <span className="badge neutral">{titleCase(workItem.group_type)}</span> : null}
       </div>
       <span>
-        {workItem.planned_sets} sets · {programmePreviewPrescription(workItem)} · {programmePreviewLoad(workItem)} · {workItem.rest_seconds}s rest
+        {workItem.planned_sets} sets · {programmePreviewPrescription(workItem)} · {programmePreviewLoad(workItem)}{restLabel(Number(workItem.rest_seconds)) ? ` · ${restLabel(Number(workItem.rest_seconds))}` : ""}
         {workItem.tempo ? ` · Tempo ${workItem.tempo}` : ""}
       </span>
       {workItem.coaching_notes ? <p className="muted small programme-preview-notes">{workItem.coaching_notes}</p> : null}

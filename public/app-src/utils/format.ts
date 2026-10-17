@@ -185,13 +185,27 @@ export function strengthSourceLabel(sourceType: unknown): string {
 
 type JsonRecord = Record<string, unknown>;
 
-// Rest as a lifter says it: seconds under two minutes ("75s", "90s"), then
-// minutes ("3 min", "3.5 min"). The same on every athlete screen and sheet.
+// Rest in minutes and seconds, the way a rest timer shows it: "0:45",
+// "1:30", "3:00", "3:30". The same on every coach and athlete screen and
+// print sheet (only the coach's input box is in seconds).
 export function restDuration(seconds: number | null | undefined): string {
-  const value = Number(seconds);
+  const value = Math.round(Number(seconds));
   if (!Number.isFinite(value) || value <= 0) return "";
-  if (value < 120 || value % 30 !== 0) return `${value}s`;
-  return `${value / 60} min`;
+  return `${Math.floor(value / 60)}:${String(value % 60).padStart(2, "0")}`;
+}
+
+// What a coach types for a rest, in seconds: "1:30" (minutes:seconds),
+// "3" (a small bare number is minutes - 3:00) or "90" (a larger one is
+// seconds - 1:30). Null when it isn't a rest from 0:00 to 15:00.
+export const MAX_REST_SECONDS = 900;
+export function parseRest(input: string): number | null {
+  const text = input.trim().replace(/\s*(min|m|s|sec)$/iu, "");
+  let seconds: number;
+  const clock = /^(\d{1,2}):([0-5]\d)$/u.exec(text);
+  if (clock) seconds = Number(clock[1]) * 60 + Number(clock[2]);
+  else if (/^\d+(\.5)?$/u.test(text)) seconds = Number(text) <= 15 ? Math.round(Number(text) * 60) : Number(text);
+  else return null;
+  return seconds >= 0 && seconds <= MAX_REST_SECONDS ? seconds : null;
 }
 
 export function restLabel(seconds: number | null | undefined): string {

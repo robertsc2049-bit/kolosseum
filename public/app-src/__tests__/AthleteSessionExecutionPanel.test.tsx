@@ -201,7 +201,7 @@ test("loads the session and shows Start session before the session has started",
   assert.ok(screen.getByText("Start session"));
   assert.equal(screen.queryByText("Mark exercise complete"), null);
   assert.ok(screen.getByText("5–5 reps"));
-  assert.ok(screen.getByText("3 min rest"));
+  assert.ok(screen.getByText("3:00 rest"));
 });
 
 // Engine-planned carries, sleds, sprints and holds arrive as reps: 1 plus a
@@ -981,7 +981,7 @@ test("the session order shows a timed group's cap once, on its first member, and
   assert.equal(screen.getAllByText("5 reps · Bodyweight").length, 2);
   assert.ok(screen.getByText("15 reps · Bodyweight"));
   // Ungrouped work keeps its sets/rest.
-  assert.ok(screen.getAllByText("4 sets · 5–5 reps · 3 min rest").length >= 1);
+  assert.ok(screen.getAllByText("4 sets · 5–5 reps · 3:00 rest").length >= 1);
 });
 
 test("the session order labels EMOM and for-time groups with their rounds/cap", async () => {

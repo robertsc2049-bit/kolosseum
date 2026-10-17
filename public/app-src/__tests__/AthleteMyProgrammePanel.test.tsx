@@ -83,10 +83,10 @@ test("an athlete with no programme is told where it will come from", async () =>
 test("doses and rests read the way a lifter says them", () => {
   assert.equal(doseLabel({ name: "", segment: "working", sets: 5, reps: "5", load: "", rest_seconds: null }), "5 × 5");
   assert.equal(doseLabel({ name: "", segment: "working", sets: 1, reps: "400 m", load: "", rest_seconds: null }), "400 m");
-  assert.equal(restLabel(240), "4 min rest");
-  assert.equal(restLabel(210), "3.5 min rest");
-  assert.equal(restLabel(75), "75s rest");
-  assert.equal(restLabel(180), "3 min rest");
+  assert.equal(restLabel(240), "4:00 rest");
+  assert.equal(restLabel(210), "3:30 rest");
+  assert.equal(restLabel(75), "1:15 rest");
+  assert.equal(restLabel(180), "3:00 rest");
   assert.equal(restLabel(0), "");
 });
 
@@ -103,7 +103,7 @@ test("printing the whole programme puts every week on the paper sheet, then puts
   assert.equal(sheet?.parentElement, document.body, "the sheet sits outside the app so the app can be hidden when printing");
   assert.equal(sheet?.querySelectorAll(".print-week").length, 3);
   const squat = [...(sheet?.querySelectorAll(".print-week tr") ?? [])].find((row) => row.textContent?.includes("Back squat"));
-  assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg") && squat.textContent.includes("4 min"));
+  assert.ok(squat?.textContent?.includes("5 × 5") && squat.textContent.includes("115 kg") && squat.textContent.includes("4:00"));
   assert.equal(squat?.querySelectorAll(".print-box").length, 5, "a box to write in for each set");
   assert.ok(sheet?.textContent?.includes("Warm-up: Leg swings 10"), "the warm-up is on the sheet, on one line");
   await act(async () => { window.dispatchEvent(new window.Event("afterprint")); });
