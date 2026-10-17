@@ -52,7 +52,9 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     shows: "How strong the athlete is on each of their main lifts, week by week, as an estimated one-rep max worked out from the sets they logged - no max testing needed.",
     read: [
       "A rising line means they are getting stronger. Most athletes should see a slow rise across a training block, with small dips in heavy or deload weeks.",
-      "Rising: up 2% or more on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift - time to change something (rep range, exercise, volume). Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks - check fatigue, sleep, pain or life stress before pushing on.",
+      "Real change only: every lift wobbles week to week (a good day, a bad night's sleep). Each lift's own normal variation is measured, and Rising or Falling needs a change bigger than 1.5× that wobble (never under 2%). The lift list shows the wobble as '±x% is normal week-to-week variation'.",
+      "× bodyweight is the estimated max divided by their latest bodyweight - the number weight-class and team-sport coaches compare (e.g. a 1.8× bodyweight squat). The tested max is the latest max in their strength profile, next to the estimate: a big gap means it's time to retest or update it.",
+      "Rising: up by more than the smallest worthwhile change on their best from at least 4 weeks earlier. Steady: within that. Plateau: no new best for 6 weeks or more while still training the lift - time to change something (rep range, exercise, volume). Falling: their last 2 weeks are 5% or more below their peak, or down 5% or more in 4 weeks - check fatigue, sleep, pain or life stress before pushing on.",
       "Main lifts are the ones you marked as the primary lift in a session. Accessories are listed in the numbers for reference but are never flagged - an accessory kept at one weight on purpose isn't a plateau."
     ],
     how: [
@@ -86,6 +88,20 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "If the athlete doesn't rate exercises, the effort comparisons can't be made. Ask them to rate the hardest set of each exercise.",
       "Where the athlete chooses their own weights (no prescribed weight), there is no load to compare - reps and effort still are."
     ]
+  },
+  testing: {
+    title: "Testing",
+    shows: "The tests you record for the athlete - jumps, sprints, agility, conditioning, grip - with their latest result, the change since last time, their best, and whether the change is real.",
+    read: [
+      "Real improvement / Real decline: the change since the previous result is bigger than the test's smallest worthwhile change. Within normal variation: it isn't - the athlete may have improved, or it may be a good or bad day; retest before drawing conclusions.",
+      "Smallest worthwhile changes used: CMJ and squat jump 1.5 cm, broad jump 5 cm, 10 m sprint 0.03 s, 20 m 0.04 s, 40 m 0.06 s, 505 0.05 s, Yo-Yo IR1 40 m, Bronco 5 s, 2 km row 3 s, grip 2 kg, pull-ups 1 rep. Hover a verdict to see it.",
+      "Test in the same conditions each time - same warm-up, surface, time of day, and not the day after a hard session - or the change measures the conditions, not the athlete."
+    ],
+    how: [
+      "Record a result with the form below the table; remove a wrong one with ×. Results are kept on the athlete's record, with who recorded them.",
+      "Lower is better for times (sprints, 505, Bronco, 2 km row); higher for the rest."
+    ],
+    mind: ["The smallest worthwhile changes are typical values for trained athletes. With a squad of 10 or more, the team view works out your own squad's."]
   },
   intensity: {
     title: "Intensity (% of max)",

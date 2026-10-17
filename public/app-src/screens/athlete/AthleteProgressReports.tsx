@@ -114,6 +114,19 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         ) : <p className="muted small">No sets were logged in this period.</p>}
       </section>
 
+      {rows(report.tests).length ? (
+        <section className="report-section">
+          <h4>Your tests</h4>
+          <ul className="report-facts">
+            {rows(report.tests).map((test) => {
+              const latest = (test.latest ?? {}) as JsonRecord;
+              const previous = test.previous as JsonRecord | null;
+              return <li key={String(test.name)}>{`${String(test.name)}: ${String(latest.value)} ${String(test.unit)}${previous ? ` (last time ${String(previous.value)})` : ""}`}</li>;
+            })}
+          </ul>
+        </section>
+      ) : null}
+
       <section className="report-section">
         <h4>How you felt</h4>
         <ul className="report-facts">

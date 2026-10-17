@@ -51,6 +51,9 @@ export function useCoachAthleteAnalysis(athleteUserId: string | null, weeks: num
   const [data, setData] = useState<JsonRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Bumped after a change (a test recorded) to read the analysis again.
+  const [version, setVersion] = useState(0);
+  const reload = useCallback(() => setVersion((n) => n + 1), []);
   useEffect(() => {
     if (!athleteUserId) { setData(null); return; }
     let cancelled = false;
@@ -60,6 +63,6 @@ export function useCoachAthleteAnalysis(athleteUserId: string | null, weeks: num
       .then((result) => { if (!cancelled) { setData(result); setLoading(false); } })
       .catch(() => { if (!cancelled) { setError("This athlete's analysis could not be loaded. Try again."); setLoading(false); } });
     return () => { cancelled = true; };
-  }, [athleteUserId, weeks]);
-  return { data, error, loading };
+  }, [athleteUserId, weeks, version]);
+  return { data, error, loading, reload };
 }

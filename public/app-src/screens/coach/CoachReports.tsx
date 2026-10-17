@@ -199,6 +199,21 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         </section>
       ) : null}
 
+      {rows(summary.testing).length ? (
+        <section className="report-section" data-testid="report-testing">
+          <h4>Testing</h4>
+          <Explain id="testing" />
+          <ul className="report-facts">
+            {rows(summary.testing).map((test) => {
+              const latest = test.latest as JsonRecord;
+              const previous = test.previous as JsonRecord | null;
+              const verdict = test.verdict === "improved" ? "real improvement" : test.verdict === "declined" ? "real decline" : test.verdict === "within_noise" ? "within normal variation" : "first result";
+              return <li key={String(test.test_id)}>{`${String(test.name)}: ${latest.value} ${String(test.unit)} (${shortWeek(String(latest.date))})${previous ? `, from ${previous.value}` : ""} - ${verdict}`}</li>;
+            })}
+          </ul>
+        </section>
+      ) : null}
+
       <section className="report-section" data-testid="report-exercises">
         <h4>Every exercise</h4>
         <Explain id="report_exercises" />
@@ -292,6 +307,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
           <Explain id="report_plan" />
           <ul className="report-facts">
             <li>{`Sets logged: ${show(execution.sets_logged_pct, "%")} of those planned, in the sessions done`}</li>
+            {summary.plan && num((summary.plan as JsonRecord).planned_tonnage_kg) ? <li data-testid="report-plan-line">{`Planned vs done: ${show((summary.plan as JsonRecord).done_sessions)} of ${show((summary.plan as JsonRecord).planned_sessions)} sessions, ${show((summary.plan as JsonRecord).done_sets)} of ${show((summary.plan as JsonRecord).planned_sets)} sets, ${show((summary.plan as JsonRecord).tonnage_pct, "%")} of the planned tonnage`}</li> : null}
             <li>{`Reps hit: ${show(execution.reps_hit_pct, "%")} of logged sets reached the target`}</li>
             <li>{`Training time: ${show(sessions.minutes, " min")}, average effort ${show(sessions.average_effort, "/10")}`}</li>
             {peak ? <li>{`Highest load vs usual: ${show(peak.value)}× (week of ${shortWeek(String(peak.week_start))}; 0.8-1.3× is normal)`}</li> : null}

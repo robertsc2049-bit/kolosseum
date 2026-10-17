@@ -5156,3 +5156,10 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .other-training-form p { flex-basis: 100%; }
 .other-training-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--k-space-1); }
 .other-training-list li { display: flex; justify-content: space-between; gap: var(--k-space-2); align-items: center; min-height: 44px; border-bottom: 1px solid var(--k-border); }
+
+/* Testing (TestingSection.tsx). */
+.testing { display: grid; gap: var(--k-space-3); }
+.testing-form { display: flex; flex-wrap: wrap; gap: var(--k-space-2) var(--k-space-3); align-items: end; }
+.testing-form .field { min-width: 140px; }
+.testing-result { display: inline-flex; align-items: center; gap: 2px; margin-right: var(--k-space-2); white-space: nowrap; }
+.testing-result .text-button { min-width: 28px; min-height: 28px; }

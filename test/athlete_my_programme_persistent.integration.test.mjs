@@ -215,7 +215,7 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.ok(roster.athletes.some((entry) => entry.athlete_user_id === athleteAccount.userId));
   const analysis = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis?weeks=8`), 200, "athlete analysis").json;
   assert.equal(analysis.weeks, 8);
-  assert.deepEqual(Object.keys(analysis.analysis).sort(), ["adherence", "baseline", "execution", "exercises", "load", "markers", "pain", "readiness", "strength", "volume", "weeks"]);
+  assert.deepEqual(Object.keys(analysis.analysis).sort(), ["adherence", "baseline", "bodyweight_kg", "execution", "exercises", "load", "markers", "pain", "plan", "readiness", "strength", "testing", "volume", "weeks"]);
   assert.equal(analysis.analysis.weeks.length, 8);
   assert.ok(Array.isArray(analysis.findings));
   assert.equal(analysis.analysis.volume.rows.at(-1).sets >= 0, true);
@@ -243,6 +243,21 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   ok(await athlete.req("POST", "/account/onboarding/other-training/remove", { id: addedPractice.entry.id }), 200, "remove");
   assert.equal(ok(await athlete.req("GET", "/account/onboarding/other-training"), 200, "list after").json.entries.length, 0);
   assert.equal((await coach.req("GET", "/account/onboarding/other-training")).status >= 400, true, "athlete-only");
+
+  // Tests the coach records: two CMJs a few weeks apart - a real improvement.
+  const testBase = `/coach-workspace/athletes/${athleteAccount.userId}/tests`;
+  const earlier = new Date(Date.now() - 21 * 86_400_000).toISOString().slice(0, 10);
+  const first = ok(await coach.req("POST", testBase, { test_id: "cmj_cm", value: 41.5, date: earlier, client_request_id: "pt_integration_1" }), 200, "record CMJ").json;
+  assert.equal(first.added, true);
+  assert.equal(ok(await coach.req("POST", testBase, { test_id: "cmj_cm", value: 41.5, date: earlier, client_request_id: "pt_integration_1" }), 200, "again").json.added, false, "recorded once");
+  ok(await coach.req("POST", testBase, { test_id: "cmj_cm", value: 44.5, client_request_id: "pt_integration_2" }), 200, "record CMJ today");
+  assert.equal((await coach.req("POST", testBase, { test_id: "vibes", value: 1, client_request_id: "pt_integration_3" })).status, 400);
+  assert.equal((await athlete.req("POST", testBase, { test_id: "cmj_cm", value: 60, client_request_id: "pt_integration_4" })).status >= 400, true, "athletes don't record their own test results here");
+  const tested = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis?weeks=4`), 200, "analysis with tests").json.analysis;
+  const cmj = tested.testing.tests.find((row) => row.test_id === "cmj_cm");
+  assert.deepEqual([cmj.latest.value, cmj.change, cmj.verdict], [44.5, 3, "improved"]);
+  ok(await coach.req("POST", `${testBase}/remove`, { id: first.result.id }), 200, "remove");
+  assert.equal(ok(await coach.req("GET", testBase), 200, "list").json.results.length, 1);
 
   // Progress reports: a weekly one for this week at least, and one for the programme.
   const reports = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/reports`), 200, "report list").json;

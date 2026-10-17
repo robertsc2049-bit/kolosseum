@@ -18,6 +18,7 @@ import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseD
 import { isE1rmExercise } from "./training_e1rm.js";
 import { blockMarkers, listOtherTraining, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
 import { programmeHistory } from "./programme_history.js";
+import { loadProfileHistory, loadTestResults } from "./athlete_tests_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -196,6 +197,10 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     listOtherTraining(athleteUserId, since).catch(() => []),
     programmeHistory(athleteUserId).catch(() => [])
   ]);
+  const [tests, profile] = await Promise.all([
+    loadTestResults(athleteUserId).catch(() => []),
+    loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null }))
+  ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
   const analysis = analyseAthlete({
@@ -211,6 +216,9 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     session_reports: sessionReports,
     other_training: otherTraining,
     markers: [...planMarkers(plan as Json | null), ...blockMarkers(programmes)],
+    tests,
+    tested_maxes: profile.maxes,
+    bodyweight_kg: profile.bodyweight_kg,
     planned_days_per_week: num(plan?.training_days_per_week),
     exercise_name: (id) => names[id] ?? id.replaceAll("_", " "),
     is_strength_lift: (id) => isE1rmExercise(id, patternOf)

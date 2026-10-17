@@ -80,6 +80,11 @@ export type OtherTraining = Readonly<{ id: string; date: string; kind: string; m
 export type CalendarMarker = Readonly<{ date: string; kind: string; label: string }>;
 export const OTHER_TRAINING_KINDS: Readonly<Record<string, string>> = { practice: "Team practice", match: "Match", conditioning: "Conditioning", other_sport: "Other sport" };
 
+// A test result the coach recorded (jumps, sprints, conditioning...), in
+// the test's own unit; and a max they tested or set (kg) on a date.
+export type TestResult = Readonly<{ id: string; test_id: string; date: string; value: number }>;
+export type TestedMax = Readonly<{ exercise_id: string; date: string; value_kg: number }>;
+
 export type ReadinessFact = Readonly<{ date: string; sleep: number; soreness: number; stress: number }>;
 export type CheckinFact = Readonly<{ week_start: string; energy: number | null; motivation: number | null; sleep: number | null }>;
 
@@ -101,6 +106,10 @@ export type AnalysisInput = Readonly<{
   session_reports?: Readonly<Record<string, SessionLoadReport>>;
   other_training?: readonly OtherTraining[];
   markers?: readonly CalendarMarker[];
+  // Their latest bodyweight (kg), for strength relative to it.
+  bodyweight_kg?: number | null;
+  tests?: readonly TestResult[];
+  tested_maxes?: readonly TestedMax[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
   is_strength_lift: (exerciseId: string) => boolean;
@@ -129,6 +138,25 @@ export function ratingOf(event: AnalysisEvent): { scale: EffortScale; raw: numbe
   if (event.type === "BORG_REPORT" && finite(event.borg)) return { scale: "borg", raw: event.borg, value10: ((event.borg - 6) / 14) * 10 };
   return null;
 }
+// The tests a coach can record, each with its unit, which way is better,
+// and its smallest worthwhile change (about the test's typical error in
+// trained athletes): a change smaller than that is noise.
+export type PerformanceTest = Readonly<{ name: string; unit: string; better: "higher" | "lower"; swc: number; decimals: number; category: string }>;
+export const PERFORMANCE_TESTS: Readonly<Record<string, PerformanceTest>> = Object.freeze({
+  cmj_cm: { name: "Countermovement jump", unit: "cm", better: "higher", swc: 1.5, decimals: 1, category: "power" },
+  squat_jump_cm: { name: "Squat jump", unit: "cm", better: "higher", swc: 1.5, decimals: 1, category: "power" },
+  broad_jump_cm: { name: "Standing broad jump", unit: "cm", better: "higher", swc: 5, decimals: 0, category: "power" },
+  sprint_10m_s: { name: "10 m sprint", unit: "s", better: "lower", swc: 0.03, decimals: 2, category: "speed" },
+  sprint_20m_s: { name: "20 m sprint", unit: "s", better: "lower", swc: 0.04, decimals: 2, category: "speed" },
+  sprint_40m_s: { name: "40 m sprint", unit: "s", better: "lower", swc: 0.06, decimals: 2, category: "speed" },
+  agility_505_s: { name: "505 agility", unit: "s", better: "lower", swc: 0.05, decimals: 2, category: "speed" },
+  yoyo_ir1_m: { name: "Yo-Yo IR1", unit: "m", better: "higher", swc: 40, decimals: 0, category: "conditioning" },
+  bronco_s: { name: "Bronco", unit: "s", better: "lower", swc: 5, decimals: 0, category: "conditioning" },
+  row_2k_s: { name: "2 km row", unit: "s", better: "lower", swc: 3, decimals: 0, category: "conditioning" },
+  grip_kg: { name: "Grip strength", unit: "kg", better: "higher", swc: 2, decimals: 1, category: "strength" },
+  pull_ups_reps: { name: "Max pull-ups", unit: "reps", better: "higher", swc: 1, decimals: 0, category: "strength" }
+});
+
 // Sets by the % of max lifted (where the programme gives a % of max).
 export const INTENSITY_ZONES = Object.freeze([
   { label: "under 60%", below: 60 }, { label: "60-70%", below: 70 }, { label: "70-80%", below: 80 },
@@ -383,8 +411,23 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const recent = points.filter((point) => point.week_start >= addDays(weekStart(input.today), -7));
       const recentBest = recent.length ? Math.max(...recent.map((point) => point.e1rm)) : null;
       const offPeak = recentBest !== null ? round(((recentBest - peak.e1rm) / peak.e1rm) * 100, 1) : null;
-      const status = (offPeak !== null && offPeak <= -5) || (change !== null && change <= -5) ? "falling" : weeksSincePeak >= 6 && recent.length > 0 ? "plateau" : change !== null && change >= 2 ? "rising" : "steady";
-      return { exercise_id: lift, name: input.exercise_name(lift), main: isMain(lift, rank), series, latest: latest.e1rm, change_pct: change, change_from_week: baseline?.week_start ?? null, peak: peak.e1rm, peak_week: peak.week_start, weeks_since_peak: weeksSincePeak, recent_off_peak_pct: offPeak, status };
+      // A real change, not noise: the lift's own week-to-week variation
+      // (typical error = SD of week-to-week % changes / sqrt 2), and the
+      // smallest change worth calling a change - 1.5x that, at least 2%.
+      const weekly = points.slice(1).map((point, index) => ((point.e1rm - points[index].e1rm) / points[index].e1rm) * 100);
+      const noise = weekly.length >= 3 ? round(standardDeviation(weekly) / Math.SQRT2, 1) : null;
+      const swc = Math.max(2, noise !== null ? round(noise * 1.5, 1) : 2);
+      const fallLimit = Math.max(5, swc);
+      const status = (offPeak !== null && offPeak <= -fallLimit) || (change !== null && change <= -fallLimit) ? "falling" : weeksSincePeak >= 6 && recent.length > 0 ? "plateau" : change !== null && change >= swc ? "rising" : "steady";
+      const tested = [...(input.tested_maxes ?? [])].filter((entry) => entry.exercise_id === lift && finite(entry.value_kg)).sort((a, b) => a.date.localeCompare(b.date));
+      const bodyweight = finite(input.bodyweight_kg) && input.bodyweight_kg > 0 ? input.bodyweight_kg : null;
+      return {
+        exercise_id: lift, name: input.exercise_name(lift), main: isMain(lift, rank), series, latest: latest.e1rm, change_pct: change, change_from_week: baseline?.week_start ?? null,
+        peak: peak.e1rm, peak_week: peak.week_start, weeks_since_peak: weeksSincePeak, recent_off_peak_pct: offPeak, status,
+        noise_pct: noise, swc_pct: swc, real_change: change !== null && Math.abs(change) >= swc,
+        relative_to_bodyweight: bodyweight ? round(latest.e1rm / bodyweight, 2) : null,
+        tested_max: tested.length ? { value_kg: tested[tested.length - 1].value_kg, date: tested[tested.length - 1].date } : null
+      };
     });
 
   // --- execution vs the plan ---
@@ -716,6 +759,64 @@ export function analyseAthlete(input: AnalysisInput): Json {
     })
     .sort((a, b) => b.best - a.best);
 
+  // --- planned vs done, week by week ---
+  // From the sessions the plan put in front of them that week: sessions,
+  // working sets and (where the plan gave a weight) tonnage planned, against
+  // what they did.
+  const planRows = weeks.map((start) => {
+    const mine = sessions.filter((session) => weekStart(sessionDay(session)) === start);
+    let plannedSets = 0; let doneSets = 0; let plannedTonnage = 0; let doneTonnage = 0;
+    for (const session of mine) {
+      const finished = done(session);
+      const logs = session.events.filter((event) => event.type === "SET_LOG_REPORT");
+      const completedIds = new Set(session.events.filter((event) => event.type === "COMPLETE_EXERCISE").map((event) => event.exercise_id));
+      const skippedIds = new Set(session.events.filter((event) => event.type === "SKIP_EXERCISE").map((event) => event.exercise_id));
+      for (const planned of session.planned.filter((p) => p.segment === "working")) {
+        plannedSets += planned.sets;
+        const weighted = planned.load_kg && planned.load_kg > 0 && planned.reps_target !== null && planned.dose !== "time" && planned.dose !== "distance";
+        if (weighted) plannedTonnage += planned.sets * (planned.reps_target as number) * (planned.load_kg as number);
+        if (!finished) continue;
+        if (planned.dose === "time" || planned.dose === "distance") {
+          if (completedIds.has(planned.exercise_id) && !skippedIds.has(planned.exercise_id)) doneSets += planned.sets;
+          continue;
+        }
+        const mineLogs = logs.filter((log) => log.exercise_id === planned.exercise_id);
+        doneSets += Math.min(mineLogs.length, planned.sets_max ?? planned.sets);
+        if (weighted) doneTonnage += mineLogs.reduce((sum, log) => sum + (finite(log.load_kg) && finite(log.reps) ? log.load_kg * log.reps : 0), 0);
+      }
+    }
+    return {
+      week_start: start, partial_week: start === currentWeek,
+      planned_sessions: mine.length, done_sessions: mine.filter(done).length,
+      planned_sets: plannedSets, done_sets: doneSets,
+      planned_tonnage_kg: round(plannedTonnage, 0), done_tonnage_kg: round(doneTonnage, 0),
+      tonnage_pct: plannedTonnage > 0 ? round((doneTonnage / plannedTonnage) * 100, 0) : null
+    };
+  });
+
+  // --- tests the coach recorded ---
+  const testResults = [...(input.tests ?? [])].filter((result) => finite(result.value) && result.date <= input.today).sort((a, b) => a.date.localeCompare(b.date));
+  const testRows = [...new Set(testResults.map((result) => result.test_id))].map((testId) => {
+    const definition = PERFORMANCE_TESTS[testId];
+    const all = testResults.filter((result) => result.test_id === testId);
+    const latest = all[all.length - 1];
+    const previous = all.length > 1 ? all[all.length - 2] : null;
+    const better = definition?.better ?? "higher";
+    const best = all.reduce((top, result) => (better === "higher" ? (result.value > top.value ? result : top) : (result.value < top.value ? result : top)), all[0]);
+    const change = previous ? round(latest.value - previous.value, definition?.decimals ?? 1) : null;
+    const swc = definition?.swc ?? null;
+    const improved = change !== null && (better === "higher" ? change > 0 : change < 0);
+    return {
+      test_id: testId, name: definition?.name ?? testId.replaceAll("_", " "), unit: definition?.unit ?? "", better, category: definition?.category ?? "other",
+      results: all.map((result) => ({ id: result.id, date: result.date, value: result.value })),
+      latest: { date: latest.date, value: latest.value },
+      previous: previous ? { date: previous.date, value: previous.value } : null,
+      best: { date: best.date, value: best.value },
+      change, swc,
+      verdict: change === null ? "first" : swc !== null && Math.abs(change) < swc ? "within_noise" : improved ? "improved" : "declined"
+    };
+  }).sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+
   // --- their usual, from the 4 weeks before the period ---
   const priorLoads = weeklyLoadAll.slice(0, 4).filter((value): value is number => value !== null && value > 0);
   const priorReadiness = readinessDays.filter((entry) => entry.date < first && entry.date >= addDays(first, -28)).map((entry) => entry.total);
@@ -740,6 +841,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
+    plan: { rows: planRows },
+    testing: { tests: testRows },
+    bodyweight_kg: finite(input.bodyweight_kg) ? input.bodyweight_kg : null,
     exercises: { rows: exerciseRows, effort_bands: effortBands, rated: allEffort.length, rated_by: ratedBy, patterns: patternRows }
   };
 }
@@ -769,12 +873,15 @@ function actionFor(finding: Finding): string | undefined {
   if (id === "execution") return "The weights are probably too heavy: drop the load a little or widen the rep range.";
   if (id === "creep") return "Fatigue is building on this lift - consider a lighter week soon.";
   if (id.startsWith("effort_target_")) return level === "info" ? "Add weight next time - they have more in the tank." : "Lighten it to match the effort you meant, or check they understand the rating scale.";
+  if (id.startsWith("test_")) return level === "good" ? "The training is working for this quality - tell them, and keep it in the plan." : "Check fatigue and the test conditions (warm-up, surface, time of day) first; if it holds on a retest, look at what the training gives this quality.";
+  if (id === "plan_under") return "Find out what's being cut - whole sessions, the last exercises, or lighter weights - and adjust the plan to what they can do.";
+  if (id === "plan_over") return "They're adding extra on top of the plan - check it's intended, as it adds fatigue you didn't plan for.";
   if (id.startsWith("bodyweight_")) return "Progress it: more reps, a harder variation or a little added weight.";
   if (id.startsWith("pain_")) return "Check technique and load on the exercises involved and swap them if needed. If it continues, refer them to a medical professional.";
   return undefined;
 }
 
-const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, adherence: 4, execution: 5 };
+const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, adherence: 4, execution: 5, testing: 6 };
 
 // One story instead of two lines that look like they disagree.
 function mergeRelated(list: Finding[]): Finding[] {
@@ -909,6 +1016,20 @@ export function findings(analysis: Json): Finding[] {
   const targetText = (row: Json) => `${SCALE_LABEL[row.scale as EffortScale]} ${row.target}${row.target_max ? `-${row.target_max}` : ""}`;
   if (over) out.push({ id: `effort_target_${over.exercise_id}`, section: "execution", level: "watch", exercise_id: String(over.exercise_id), text: `${over.name} is rated harder than prescribed: ${targetText(over)} set, rated ${over.rated_average} on average.` });
   if (under) out.push({ id: `effort_target_${under.exercise_id}`, section: "execution", level: "info", text: `${under.name} is rated easier than prescribed: ${targetText(under)} set, rated ${under.rated_average} on average - room to add weight.` });
+  // Tests: a real change since last time (beyond the test's noise).
+  for (const testRow of ((a.testing as Json | undefined)?.tests ?? []) as Json[]) {
+    if (testRow.verdict === "improved") out.push({ id: `test_${testRow.test_id}`, section: "testing", level: "good", text: `${testRow.name} improved to ${(testRow.latest as Json).value} ${testRow.unit} (from ${(testRow.previous as Json).value}) - a real change.` });
+    if (testRow.verdict === "declined") out.push({ id: `test_${testRow.test_id}`, section: "testing", level: "watch", text: `${testRow.name} went back to ${(testRow.latest as Json).value} ${testRow.unit} (from ${(testRow.previous as Json).value}) - more than normal variation.` });
+  }
+  // Doing less (or more) than the plan, by tonnage, over the last 2 complete weeks.
+  const planWeeks = complete(((a.plan as Json | undefined)?.rows ?? []) as Json[]).filter((row) => Number(row.planned_tonnage_kg) > 0).slice(-2);
+  if (planWeeks.length) {
+    const planned = planWeeks.reduce((sum, row) => sum + Number(row.planned_tonnage_kg), 0);
+    const doneT = planWeeks.reduce((sum, row) => sum + Number(row.done_tonnage_kg), 0);
+    const pct = Math.round((doneT / planned) * 100);
+    if (pct < 75) out.push({ id: "plan_under", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage over the last ${planWeeks.length === 1 ? "week" : "2 weeks"}.` });
+    if (pct > 115) out.push({ id: "plan_over", section: "execution", level: "watch", text: `Did ${pct}% of the planned tonnage over the last ${planWeeks.length === 1 ? "week" : "2 weeks"} - more than the plan.` });
+  }
   // Bodyweight strength: more reps on their best set.
   for (const lift of ((a.strength.bodyweight ?? []) as Json[]).filter((row) => Number(row.change) >= 2).slice(0, 2)) {
     out.push({ id: `bodyweight_${lift.exercise_id}`, section: "strength", level: "good", text: `${lift.name} best set up from ${lift.first} to ${lift.latest} reps.` });

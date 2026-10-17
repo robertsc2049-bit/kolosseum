@@ -5,6 +5,7 @@ import { TrendChart, shortWeek, type TrendMarker } from "../../components/TrendC
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
 import { TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
+import { TestingSection } from "./TestingSection";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -78,7 +79,7 @@ function Section({ id, title, headline, children }: { id: string; title: string;
 function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onBack: () => void }) {
   const [weeks, setWeeks] = useState(12);
   const [view, setView] = useState<"trends" | "reports">("trends");
-  const { data, error, loading } = useCoachAthleteAnalysis(athleteUserId, weeks);
+  const { data, error, loading, reload } = useCoachAthleteAnalysis(athleteUserId, weeks);
   const a = (data?.analysis ?? null) as JsonRecord | null;
   const findings = rows(data?.findings) as unknown as Finding[];
   const first = (section: string) => findings.find((finding) => finding.section === section) ?? null;
@@ -100,6 +101,8 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const markers = rows(a?.markers) as unknown as TrendMarker[];
   const quality = (load.quality ?? {}) as JsonRecord;
   const intensity = (execution.intensity ?? {}) as JsonRecord;
+  const plan = (a?.plan ?? {}) as JsonRecord;
+  const testing = (a?.testing ?? {}) as JsonRecord;
 
   return (
     <div className="analysis-athlete" data-testid="analysis-athlete">
@@ -136,7 +139,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             {mainLifts.length ? (
               <ul className="analysis-lift-list">
                 {mainLifts.map((lift) => (
-                  <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` ${lift.latest} kg · ${lift.status}${num(lift.change_pct) !== null ? ` · ${Number(lift.change_pct) > 0 ? "+" : ""}${lift.change_pct}% since ${shortWeek(String(lift.change_from_week))}` : ""} · peak ${lift.peak} kg (${shortWeek(String(lift.peak_week))})`}</li>
+                  <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` ${lift.latest} kg${num(lift.relative_to_bodyweight) !== null ? ` (${lift.relative_to_bodyweight}× bodyweight)` : ""} · ${lift.status}${num(lift.change_pct) !== null ? ` · ${Number(lift.change_pct) > 0 ? "+" : ""}${lift.change_pct}% since ${shortWeek(String(lift.change_from_week))}` : ""} · peak ${lift.peak} kg (${shortWeek(String(lift.peak_week))})`}{lift.tested_max ? ` · tested max ${(lift.tested_max as JsonRecord).value_kg} kg (${shortWeek(String((lift.tested_max as JsonRecord).date))})` : ""}{num(lift.noise_pct) !== null ? <span className="muted small">{` · ±${lift.noise_pct}% is normal week-to-week variation for this lift`}</span> : null}</li>
                 ))}
               </ul>
             ) : null}
@@ -156,12 +159,19 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
               {otherLifts.length ? <p className="muted small">{`Accessory lifts are shown for reference; strength findings are only raised for main (primary) lifts.`}</p> : null}
               <Method>
                 <p>Each week's best estimated one-rep max (kg), from logged sets of 1-10 reps. Where the athlete rated the exercise (RPE 6-10), its heaviest set uses the RTS (Tuchscherer) RPE chart - load ÷ the chart's % for those reps at that RPE (marked ʳ); other sets use Epley, load × (1 + reps ÷ 30).</p>
-                <p>"Rising": up 2% or more against the best at least 4 weeks earlier. "Plateau": no new best for 6+ weeks while still training it. "Falling": the last 2 weeks are 5%+ below the peak, or the 4-week change is -5% or worse.</p>
+                <p>Real change: each lift's own week-to-week variation (typical error = the SD of its week-to-week % changes ÷ √2) sets the smallest change worth calling a change - 1.5× that, and never under 2%. "Rising" and "falling" need a change bigger than that; anything smaller is "steady", however it looks on the chart. × bodyweight uses the latest bodyweight you recorded; the tested max is the latest one in their strength profile.</p>
+                <p>"Rising": up by more than the smallest worthwhile change against the best at least 4 weeks earlier. "Plateau": no new best for 6+ weeks while still training it. "Falling": the last 2 weeks are 5%+ below the peak, or the 4-week change is -5% or worse.</p>
               </Method>
             </Numbers>
           </Section>
 
           <Section id="execution" title="Doing the plan" headline={first("execution")}>
+            {rows(plan.rows).some((row) => num(row.planned_tonnage_kg)) ? (
+              <TrendChart markers={markers} title="Planned vs done (tonnage, kg)" weeks={weekList} unit=" kg" series={[
+                { id: "planned", label: "Planned", kind: "bar", values: col(rows(plan.rows), "planned_tonnage_kg") },
+                { id: "done", label: "Done", kind: "bar", values: col(rows(plan.rows), "done_tonnage_kg") }
+              ]} />
+            ) : null}
             <TrendChart markers={markers} title="Execution against the plan" weeks={weekList} unit="%" yMin={0} yMax={100} series={[
               { id: "reps", label: "Sets with the prescribed reps", values: col(rows(execution.rows), "reps_hit_pct") },
               { id: "sets", label: "Prescribed sets logged", values: col(rows(execution.rows), "sets_logged_pct") }
@@ -176,7 +186,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Reps hit", cell: (i) => show(rows(execution.rows)[i]?.reps_hit_pct, "%") },
                 { label: "Sets logged", cell: (i) => show(rows(execution.rows)[i]?.sets_logged_pct, "%") },
                 { label: "Load vs plan", cell: (i) => show(rows(execution.rows)[i]?.load_vs_plan_pct, "%") },
-                { label: "Effort vs target", cell: (i) => <span title={show(rows(execution.rows)[i]?.effort_vs_plan)}>{effortWords(rows(execution.rows)[i]?.effort_vs_plan)}</span> }
+                { label: "Effort vs target", cell: (i) => <span title={show(rows(execution.rows)[i]?.effort_vs_plan)}>{effortWords(rows(execution.rows)[i]?.effort_vs_plan)}</span> },
+                { label: "Sessions (done/planned)", cell: (i) => `${show(rows(plan.rows)[i]?.done_sessions)}/${show(rows(plan.rows)[i]?.planned_sessions)}` },
+                { label: "Sets (done/planned)", cell: (i) => `${show(rows(plan.rows)[i]?.done_sets)}/${show(rows(plan.rows)[i]?.planned_sets)}` },
+                { label: "Tonnage vs plan", cell: (i) => show(rows(plan.rows)[i]?.tonnage_pct, "%") }
               ]} />
               {rows(execution.effort_targets).length ? (
                 <>
@@ -286,6 +299,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 <p>Pain reported during sessions, by body area. Pain in 2+ different weeks is flagged, and set against that week's load ratio. This records what the athlete reported - it is not a diagnosis.</p>
               </Method>
             </Numbers>
+          </Section>
+
+          <Section id="testing" title="Testing" headline={first("testing")}>
+            <TestingSection athleteUserId={athleteUserId} tests={rows(testing.tests)} onChanged={reload} />
           </Section>
 
           <Section id="intensity" title="Intensity (% of max)" headline={null}>
