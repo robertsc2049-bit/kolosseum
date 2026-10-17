@@ -272,14 +272,18 @@ type RepPrescription =
       maximum: number;
     }>;
 
+// A % or fixed-weight load may be a range: `value` is its low end (what
+// everything reading a single value uses) and `maximum` its high end.
 type LoadingReference =
   | Readonly<{
       type: "percent_1rm";
       value: number;
+      maximum?: number;
     }>
   | Readonly<{
       type: "load";
       value: number;
+      maximum?: number;
       unit: "kg" | "lb";
     }>
   | Readonly<{
@@ -459,6 +463,11 @@ function loadingReferenceFromInput(
     });
   }
 
+  const loadRange =
+    cleanString(
+      workItem.load_range_mode
+    ) === "range";
+
   if (loadMode === "fixed_weight") {
     const value =
       numberInSymmetricRange(
@@ -467,6 +476,22 @@ function loadingReferenceFromInput(
         1000,
         "weight_value_invalid"
       );
+
+    const maximum =
+      loadRange
+        ? numberInSymmetricRange(
+            workItem.weight_value_max,
+            0.25,
+            1000,
+            "weight_value_max_invalid"
+          )
+        : value;
+
+    if (maximum < value) {
+      throw new Beta18ProgrammeTemplateError(
+        "weight_range_order_invalid"
+      );
+    }
 
     const unit =
       cleanString(
@@ -483,21 +508,83 @@ function loadingReferenceFromInput(
     return deepFreeze({
       type: "load",
       value,
+      ...(maximum > value ? { maximum } : {}),
       unit:
         unit as "kg" | "lb"
     });
   }
 
+  const percent =
+    numberInRange(
+      workItem.percent_1rm,
+      1,
+      100,
+      "percent_1rm_invalid"
+    );
+
+  const percentMaximum =
+    loadRange
+      ? numberInRange(
+          workItem.percent_1rm_max,
+          1,
+          100,
+          "percent_1rm_max_invalid"
+        )
+      : percent;
+
+  if (percentMaximum < percent) {
+    throw new Beta18ProgrammeTemplateError(
+      "percent_1rm_range_order_invalid"
+    );
+  }
+
   return deepFreeze({
     type: "percent_1rm",
-    value:
-      numberInRange(
-        workItem.percent_1rm,
-        1,
-        100,
-        "percent_1rm_invalid"
-      )
+    value: percent,
+    ...(percentMaximum > percent ? { maximum: percentMaximum } : {})
   });
+}
+
+// Sets as a range ("3-4 sets"): planned_sets is the low end - the sets the
+// athlete must do - and the high end is stored beside it.
+function setPrescriptionFromInput(
+  workItem: JsonRecord,
+  plannedSets: number
+): Readonly<{ type: "range"; minimum: number; maximum: number }> | null {
+  if (cleanString(workItem.set_mode) !== "range") return null;
+  const maximum =
+    integerInRange(
+      workItem.planned_sets_max,
+      1,
+      20,
+      "set_range_max_invalid"
+    );
+  if (maximum < plannedSets) {
+    throw new Beta18ProgrammeTemplateError(
+      "set_range_order_invalid"
+    );
+  }
+  return maximum > plannedSets
+    ? deepFreeze({ type: "range", minimum: plannedSets, maximum })
+    : null;
+}
+
+function setPrescriptionFromStored(
+  workItem: JsonRecord
+): Readonly<{ type: "range"; minimum: number; maximum: number }> | null {
+  const raw = isRecord(workItem.set_prescription) ? workItem.set_prescription : null;
+  if (!raw || cleanString(raw.type) !== "range") return null;
+  const minimum = Number(workItem.planned_sets);
+  const maximum = Number(raw.maximum);
+  return Number.isInteger(maximum) && maximum > minimum && maximum <= 20
+    ? deepFreeze({ type: "range", minimum, maximum })
+    : null;
+}
+
+// The high end of a stored load range, if it is a valid one.
+function storedLoadMaximum(raw: JsonRecord, value: number): number | null {
+  const maximum = Number(raw.maximum);
+  return Number.isFinite(maximum) && maximum > value ? maximum : null;
 }
 
 function durationPrescriptionFromInput(
@@ -888,15 +975,21 @@ function loadingReferenceFromStored(
       );
     }
 
+    const value =
+      numberInSymmetricRange(
+        raw.value,
+        0.25,
+        1000,
+        "stored_weight_value_invalid"
+      );
+
+    const maximum =
+      storedLoadMaximum(raw, value);
+
     return deepFreeze({
       type: "load",
-      value:
-        numberInSymmetricRange(
-          raw.value,
-          0.25,
-          1000,
-          "stored_weight_value_invalid"
-        ),
+      value,
+      ...(maximum !== null && maximum <= 1000 ? { maximum } : {}),
       unit:
         unit as "kg" | "lb"
     });
@@ -945,15 +1038,21 @@ function loadingReferenceFromStored(
     );
   }
 
+  const percent =
+    numberInRange(
+      raw.value,
+      1,
+      100,
+      "stored_percent_1rm_invalid"
+    );
+
+  const percentMaximum =
+    storedLoadMaximum(raw, percent);
+
   return deepFreeze({
     type: "percent_1rm",
-    value:
-      numberInRange(
-        raw.value,
-        1,
-        100,
-        "stored_percent_1rm_invalid"
-      )
+    value: percent,
+    ...(percentMaximum !== null && percentMaximum <= 100 ? { maximum: percentMaximum } : {})
   });
 }
 
@@ -1852,7 +1951,12 @@ function normaliseTemplateStructure(
                               "group_type",
                               "group_time_cap_seconds",
                               "group_round_seconds",
-                              "group_total_rounds"
+                              "group_total_rounds",
+                              "set_mode",
+                              "planned_sets_max",
+                              "load_range_mode",
+                              "percent_1rm_max",
+                              "weight_value_max"
                             ],
                             "work_item"
                           );
@@ -2151,6 +2255,18 @@ function normaliseTemplateStructure(
                               exerciseId,
                             planned_sets:
                               plannedSets,
+                            ...(setPrescriptionFromInput(
+                              rawWorkItem,
+                              plannedSets
+                            )
+                              ? {
+                                  set_prescription:
+                                    setPrescriptionFromInput(
+                                      rawWorkItem,
+                                      plannedSets
+                                    )
+                                }
+                              : {}),
                             prescription_mode:
                               prescriptionMode,
                             tempo,
@@ -2647,6 +2763,38 @@ export function templateRecordInput(
                                         loading.value
                                       )
                                     : 75,
+                                load_range_mode:
+                                  Number.isFinite(Number(loading.maximum)) &&
+                                  Number(loading.maximum) > Number(loading.value)
+                                    ? "range"
+                                    : "fixed",
+                                percent_1rm_max:
+                                  cleanString(
+                                    loading.type
+                                  ) === "percent_1rm"
+                                    ? Number(
+                                        loading.maximum ??
+                                        loading.value
+                                      )
+                                    : 80,
+                                weight_value_max:
+                                  cleanString(
+                                    loading.type
+                                  ) === "load"
+                                    ? Number(
+                                        loading.maximum ??
+                                        loading.value
+                                      )
+                                    : 20,
+                                set_mode:
+                                  isRecord(workItem.set_prescription) &&
+                                  Number(workItem.set_prescription.maximum) > Number(workItem.planned_sets)
+                                    ? "range"
+                                    : "fixed",
+                                planned_sets_max:
+                                  isRecord(workItem.set_prescription)
+                                    ? Number(workItem.set_prescription.maximum)
+                                    : Number(workItem.planned_sets),
                                 weight_value:
                                   cleanString(
                                     loading.type
@@ -4757,6 +4905,24 @@ export async function materialiseNextCoachTemplateProgram(
           );
         }
 
+        // A % range ("70-75%") is a weight range from the same max: the
+        // low end is resolved_load.value, the high end maximum_value.
+        const resolvedMaximum =
+          resolvedLoad &&
+          loadingReference.type === "percent_1rm" &&
+          typeof loadingReference.maximum === "number"
+            ? resolvePercentageLoad(
+                athleteProfile,
+                exerciseId,
+                loadingReference.maximum
+              )
+            : null;
+
+        const setRange =
+          setPrescriptionFromStored(
+            workItem
+          );
+
         return deepFreeze({
           block_id:
             cleanString(
@@ -4821,6 +4987,15 @@ export async function materialiseNextCoachTemplateProgram(
               workItem
                 .planned_sets
             ),
+          ...(setRange
+            ? {
+                set_range:
+                  deepFreeze({
+                    minimum: setRange.minimum,
+                    maximum: setRange.maximum
+                  })
+              }
+            : {}),
           ...(repPrescription
             ? {
                 reps:
@@ -4889,7 +5064,13 @@ export async function materialiseNextCoachTemplateProgram(
           intensity:
             loadingReference,
           resolved_load:
-            resolvedLoad,
+            resolvedLoad && resolvedMaximum && Number(resolvedMaximum.value) > Number(resolvedLoad.value)
+              ? deepFreeze({
+                  ...resolvedLoad,
+                  maximum_value: resolvedMaximum.value,
+                  maximum_percentage: resolvedMaximum.percentage
+                })
+              : resolvedLoad,
           rest_seconds:
             Number(
               workItem

@@ -211,6 +211,47 @@ function DistanceControls({ workItem, blockIndex, weekIndex, sessionIndex, workI
   );
 }
 
+// Sets as a fixed count or a range: "3-4 sets" means the athlete does at
+// least 3 and may do a 4th. planned_sets is the low end.
+function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const rangeMode = workItem.set_mode === "range";
+  return (
+    <div className="template-sets-group">
+      <label className="template-set-mode-field">
+        <span>Sets as</span>
+        <select defaultValue={rangeMode ? "range" : "fixed"} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "set_mode")}>
+          <option value="fixed">Fixed sets</option>
+          <option value="range">Set range</option>
+        </select>
+      </label>
+      <label className="template-sets-field core-field" data-short={rangeMode ? "Min sets" : "Sets"}>
+        <span>{rangeMode ? "Least sets" : "Sets"}</span>
+        <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
+      </label>
+      {rangeMode ? (
+        <label className="template-sets-max-field core-field" data-short="Max sets">
+          <span>Most sets</span>
+          <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets_max")} />
+        </label>
+      ) : null}
+    </div>
+  );
+}
+
+// A % of 1RM or a fixed weight can be one value or a range ("70-75%",
+// "100-110 kg"): the athlete picks within it on the day.
+function LoadRangeSelect({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  return (
+    <label className="template-load-range-field">
+      <span>As</span>
+      <select defaultValue={workItem.load_range_mode === "range" ? "range" : "fixed"} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "load_range_mode")}>
+        <option value="fixed">One value</option>
+        <option value="range">Range</option>
+      </select>
+    </label>
+  );
+}
+
 function PrescriptionControls(props: WorkItemControlProps) {
   const { workItem, blockIndex, weekIndex, sessionIndex, workItemIndex } = props;
   const prescriptionMode = workItem.prescription_mode === "duration" || workItem.prescription_mode === "distance"
@@ -256,11 +297,17 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
             <option value="cr10">Modified Borg / CR10 (0-10)</option>
           </select>
         </label>
+        {loadMode === "percent_1rm" || loadMode === "fixed_weight" ? (
+          <LoadRangeSelect workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
+        ) : null}
         {loadMode === "percent_1rm" ? (
           <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
-            <label className="core-field" data-short="Weight"><span>Weight<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+            <label className="core-field" data-short={workItem.load_range_mode === "range" ? "Min weight" : "Weight"}><span>{workItem.load_range_mode === "range" ? "Lightest" : "Weight"}<InfoTooltip label="About negative weight values">A negative value records assisted reps, such as help from a resistance band or an assisted-exercise machine.</InfoTooltip></span><input type="number" min={-1000} max={1000} step={0.25} title="Use a negative value for assisted exercises" defaultValue={workItem.weight_value} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value")} /></label>
+            {workItem.load_range_mode === "range" ? (
+              <label className="core-field" data-short="Max weight"><span>Heaviest</span><input type="number" min={-1000} max={1000} step={0.25} defaultValue={workItem.weight_value_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_value_max")} /></label>
+            ) : null}
             <label>
               <span>Unit</span>
               <select defaultValue={workItem.weight_unit} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}>
@@ -300,8 +347,8 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
 
   return (
     <>
-      <label className="core-field" data-short="% 1RM">
-        <span>% 1RM<InfoTooltip label="About % 1RM">1RM means one-rep max - the heaviest weight the athlete could lift once. It's resolved from their own recorded strength reference.</InfoTooltip></span>
+      <label className="core-field" data-short={workItem.load_range_mode === "range" ? "Min %" : "% 1RM"}>
+        <span>{workItem.load_range_mode === "range" ? "Lowest % 1RM" : "% 1RM"}<InfoTooltip label="About % 1RM">1RM means one-rep max - the heaviest weight the athlete could lift once. It's resolved from their own recorded strength reference.</InfoTooltip></span>
         <input
           type="number"
           min={1}
@@ -312,6 +359,12 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
           {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "percent_1rm")}
         />
       </label>
+      {workItem.load_range_mode === "range" ? (
+        <label className="core-field" data-short="Max %">
+          <span>Highest % 1RM</span>
+          <input type="number" min={1} max={100} step={0.5} defaultValue={workItem.percent_1rm_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "percent_1rm_max")} />
+        </label>
+      ) : null}
       <div className="template-prilepin-reference muted small">
         {zones.length === 0 ? (
           <p>No Prilepin's chart reference zone for this percentage.</p>
@@ -568,7 +621,10 @@ function formatSeconds(total: number): string {
 }
 
 export function workItemSummary(workItem: ProgrammeWorkItemDraft): string {
-  const sets = `${workItem.planned_sets} ×`;
+  const sets = workItem.set_mode === "range" && workItem.planned_sets_max > workItem.planned_sets
+    ? `${workItem.planned_sets}–${workItem.planned_sets_max} ×`
+    : `${workItem.planned_sets} ×`;
+  const loadRange = workItem.load_range_mode === "range";
   const unit = workItem.distance_unit === "feet" ? "ft" : "m";
   const dose = workItem.prescription_mode === "duration"
     ? (workItem.duration_mode === "range" ? `${formatSeconds(workItem.duration_min_seconds)}–${formatSeconds(workItem.duration_max_seconds)}` : formatSeconds(workItem.planned_duration_seconds))
@@ -576,8 +632,8 @@ export function workItemSummary(workItem: ProgrammeWorkItemDraft): string {
       ? (workItem.distance_mode === "range" ? `${workItem.distance_min_value}–${workItem.distance_max_value} ${unit}` : `${workItem.planned_distance_value} ${unit}`)
       : (workItem.rep_mode === "range" ? `${workItem.rep_min}–${workItem.rep_max}` : String(workItem.planned_reps));
   const load = {
-    percent_1rm: `@ ${workItem.percent_1rm}% 1RM`,
-    fixed_weight: `@ ${workItem.weight_value} ${workItem.weight_unit}`,
+    percent_1rm: loadRange && workItem.percent_1rm_max > workItem.percent_1rm ? `@ ${workItem.percent_1rm}–${workItem.percent_1rm_max}% 1RM` : `@ ${workItem.percent_1rm}% 1RM`,
+    fixed_weight: loadRange && workItem.weight_value_max > workItem.weight_value ? `@ ${workItem.weight_value}–${workItem.weight_value_max} ${workItem.weight_unit}` : `@ ${workItem.weight_value} ${workItem.weight_unit}`,
     bodyweight: "bodyweight",
     rpe: `@ RPE ${workItem.rpe_value}`,
     borg: `@ Borg ${workItem.borg_value}`,
@@ -671,10 +727,7 @@ function BuilderWorkItem({
         ) : null}
       </div>
       <div className="template-prescription-grid">
-        <label className="template-sets-field core-field" data-short="Sets">
-          <span>Sets</span>
-          <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
-        </label>
+        <SetControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         <PrescriptionControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         <LoadControls workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         <RestInput workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />

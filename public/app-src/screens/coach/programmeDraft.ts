@@ -29,6 +29,9 @@ export type ProgrammeWorkItemDraft = {
   order_index: number;
   exercise_id: string;
   planned_sets: number;
+  // Sets as a range ("3-4"): planned_sets is the low end.
+  set_mode: "fixed" | "range";
+  planned_sets_max: number;
   prescription_mode: "reps" | "duration" | "distance";
   rep_mode: "fixed" | "range";
   planned_reps: number;
@@ -48,6 +51,11 @@ export type ProgrammeWorkItemDraft = {
   percent_1rm: number;
   weight_value: number;
   weight_unit: "kg" | "lb";
+  // A % or fixed weight as a range ("70-75%", "100-110 kg"): the fields
+  // above are the low end, these the high end.
+  load_range_mode: "fixed" | "range";
+  percent_1rm_max: number;
+  weight_value_max: number;
   rpe_value: number;
   borg_value: number;
   cr10_value: number;
@@ -228,6 +236,9 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
   const durationPrescription = (workItem?.duration_prescription && typeof workItem.duration_prescription === "object" ? workItem.duration_prescription : {}) as JsonRecord;
   const distancePrescription = (workItem?.distance_prescription && typeof workItem.distance_prescription === "object" ? workItem.distance_prescription : {}) as JsonRecord;
   const loadingReference = (workItem?.loading_reference && typeof workItem.loading_reference === "object" ? workItem.loading_reference : {}) as JsonRecord;
+  const setPrescription = (workItem?.set_prescription && typeof workItem.set_prescription === "object" ? workItem.set_prescription : {}) as JsonRecord;
+  const loadMaximum = Number(loadingReference.maximum);
+  const loadIsRange = Number.isFinite(loadMaximum) && loadMaximum > Number(loadingReference.value);
 
   const repMode = repPrescription.type === "range" ? "range" : "fixed";
   const durationMode = durationPrescription.type === "range" ? "range" : "fixed";
@@ -252,6 +263,8 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
     order_index: Number(workItem?.order_index ?? workItemIndex + 1),
     exercise_id: String(workItem?.exercise_id ?? ""),
     planned_sets: Number(workItem?.planned_sets ?? 3),
+    set_mode: setPrescription.type === "range" && Number(setPrescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    planned_sets_max: setPrescription.type === "range" ? Number(setPrescription.maximum) : Number(workItem?.planned_sets ?? 3) + 1,
     prescription_mode: ["duration", "distance"].includes(String(workItem?.prescription_mode ?? "")) ? (workItem!.prescription_mode as "duration" | "distance") : "reps",
     rep_mode: repMode,
     planned_reps: Number(repPrescription.value ?? fallbackReps),
@@ -271,6 +284,9 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
     percent_1rm: loadingReference.type === "percent_1rm" ? Number(loadingReference.value ?? 75) : 75,
     weight_value: loadingReference.type === "load" ? Number(loadingReference.value ?? 20) : 20,
     weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
+    load_range_mode: loadIsRange ? "range" : "fixed",
+    percent_1rm_max: loadingReference.type === "percent_1rm" ? Number(loadIsRange ? loadMaximum : Number(loadingReference.value ?? 75) + 5) : 80,
+    weight_value_max: loadingReference.type === "load" ? Number(loadIsRange ? loadMaximum : Number(loadingReference.value ?? 20) + 10) : 30,
     rpe_value: loadingReference.type === "rpe" ? Number(loadingReference.value ?? 8) : 8,
     borg_value: loadingReference.type === "borg" ? Number(loadingReference.value ?? 13) : 13,
     cr10_value: loadingReference.type === "cr10" ? Number(loadingReference.value ?? 5) : 5,
@@ -413,6 +429,9 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 order_index: workItemIndex + 1,
                 exercise_id: workItem.exercise_id,
                 planned_sets: workItem.planned_sets,
+                set_mode: workItem.set_mode,
+                planned_sets_max: workItem.planned_sets_max,
+                set_prescription: workItem.set_mode === "range" && workItem.planned_sets_max > workItem.planned_sets ? { type: "range", minimum: workItem.planned_sets, maximum: workItem.planned_sets_max } : undefined,
                 prescription_mode: workItem.prescription_mode,
                 rep_mode: workItem.rep_mode,
                 planned_reps: workItem.planned_reps,
@@ -432,6 +451,9 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 percent_1rm: workItem.percent_1rm,
                 weight_value: workItem.weight_value,
                 weight_unit: workItem.weight_unit,
+                load_range_mode: workItem.load_range_mode,
+                percent_1rm_max: workItem.percent_1rm_max,
+                weight_value_max: workItem.weight_value_max,
                 rpe_value: workItem.rpe_value,
                 borg_value: workItem.borg_value,
                 cr10_value: workItem.cr10_value,
@@ -443,12 +465,12 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 // load_mode to percent_1rm before any load-mode-dependent
                 // check (e.g. a complex's same-fixed-weight rule) ever runs.
                 loading_reference:
-                  workItem.load_mode === "fixed_weight" ? { type: "load", value: workItem.weight_value, unit: workItem.weight_unit }
+                  workItem.load_mode === "fixed_weight" ? { type: "load", value: workItem.weight_value, ...(workItem.load_range_mode === "range" && workItem.weight_value_max > workItem.weight_value ? { maximum: workItem.weight_value_max } : {}), unit: workItem.weight_unit }
                   : workItem.load_mode === "bodyweight" ? { type: "bodyweight" }
                   : workItem.load_mode === "rpe" ? { type: "rpe", value: workItem.rpe_value }
                   : workItem.load_mode === "borg" ? { type: "borg", value: workItem.borg_value }
                   : workItem.load_mode === "cr10" ? { type: "cr10", value: workItem.cr10_value }
-                  : { type: "percent_1rm", value: workItem.percent_1rm },
+                  : { type: "percent_1rm", value: workItem.percent_1rm, ...(workItem.load_range_mode === "range" && workItem.percent_1rm_max > workItem.percent_1rm ? { maximum: workItem.percent_1rm_max } : {}) },
                 rest_seconds: workItem.rest_seconds,
                 role: workItem.role,
                 coaching_notes: workItem.coaching_notes,
@@ -653,6 +675,15 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
             addIssue("planned_sets_invalid", `${itemPath} sets must be between one and 20.`, itemPath);
           }
+          if (workItem.set_mode === "range") {
+            const maxSets = workItem.planned_sets_max;
+            if (!Number.isInteger(maxSets) || maxSets < 1 || maxSets > 20) {
+              addIssue("set_range_max_invalid", `${itemPath} most sets must be between one and 20.`, itemPath);
+            }
+            else if (Number.isInteger(sets) && maxSets < sets) {
+              addIssue("set_range_order_invalid", `${itemPath} most sets can't be fewer than the least.`, itemPath);
+            }
+          }
 
           const prescriptionMode = workItem.prescription_mode;
 
@@ -747,6 +778,15 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
             if (!Number.isFinite(percentage) || percentage < 1 || percentage > 100) {
               addIssue("percent_1rm_invalid", `${itemPath} percentage must be between one and 100.`, itemPath);
             }
+            if (workItem.load_range_mode === "range") {
+              const top = workItem.percent_1rm_max;
+              if (!Number.isFinite(top) || top < 1 || top > 100) {
+                addIssue("percent_1rm_max_invalid", `${itemPath} top percentage must be between one and 100.`, itemPath);
+              }
+              else if (Number.isFinite(percentage) && top < percentage) {
+                addIssue("percent_1rm_range_order_invalid", `${itemPath} top percentage can't be below the bottom.`, itemPath);
+              }
+            }
           }
           else if (loadMode === "fixed_weight") {
             const weight = workItem.weight_value;
@@ -756,6 +796,15 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
             }
             if (!["kg", "lb"].includes(workItem.weight_unit)) {
               addIssue("weight_unit_invalid", `${itemPath} requires kilograms or pounds.`, itemPath);
+            }
+            if (workItem.load_range_mode === "range") {
+              const top = workItem.weight_value_max;
+              if (!Number.isFinite(top) || Math.abs(top) < 0.25 || Math.abs(top) > 1000) {
+                addIssue("weight_value_max_invalid", `${itemPath} top weight must be between 0.25 and 1,000.`, itemPath);
+              }
+              else if (Number.isFinite(weight) && top < weight) {
+                addIssue("weight_range_order_invalid", `${itemPath} top weight can't be below the bottom.`, itemPath);
+              }
             }
           }
           else if (loadMode === "rpe") {
@@ -821,7 +870,9 @@ export function programmePreviewLoad(workItem: ProgrammeWorkItemDraft): string {
   if (workItem.load_mode === "bodyweight") return "Bodyweight";
 
   if (workItem.load_mode === "fixed_weight") {
-    return `${workItem.weight_value} ${workItem.weight_unit}`;
+    return workItem.load_range_mode === "range" && workItem.weight_value_max > workItem.weight_value
+      ? `${workItem.weight_value}–${workItem.weight_value_max} ${workItem.weight_unit}`
+      : `${workItem.weight_value} ${workItem.weight_unit}`;
   }
 
   if (workItem.load_mode === "rpe") {
@@ -836,7 +887,16 @@ export function programmePreviewLoad(workItem: ProgrammeWorkItemDraft): string {
     return `CR10 ${workItem.cr10_value}`;
   }
 
-  return `${workItem.percent_1rm}% 1RM`;
+  return workItem.load_range_mode === "range" && workItem.percent_1rm_max > workItem.percent_1rm
+    ? `${workItem.percent_1rm}–${workItem.percent_1rm_max}% 1RM`
+    : `${workItem.percent_1rm}% 1RM`;
+}
+
+// "3 sets" or "3–4 sets".
+export function programmePreviewSets(workItem: ProgrammeWorkItemDraft): string {
+  return workItem.set_mode === "range" && workItem.planned_sets_max > workItem.planned_sets
+    ? `${workItem.planned_sets}–${workItem.planned_sets_max} sets`
+    : `${workItem.planned_sets} ${workItem.planned_sets === 1 ? "set" : "sets"}`;
 }
 
 export function exerciseDisplayName(exerciseId: string, templateExercises: JsonRecord[]): string {

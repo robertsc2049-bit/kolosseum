@@ -21,6 +21,11 @@ export type Phase6SessionExercise = {
     minimum: number;
     maximum: number;
   };
+  // Sets as a range: `sets` is the low end (the sets to do), this the high.
+  set_range?: {
+    minimum: number;
+    maximum: number;
+  };
   intensity?:
     | { type: "percent_1rm"; value: number }
     | { type: "rpe"; value: number }
@@ -194,6 +199,24 @@ function repRangeFromItem(item: any): { minimum: number; maximum: number } | und
   return { minimum, maximum };
 }
 
+function setRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
+  if (!isRecord(item?.set_range)) return undefined;
+
+  const minimum = Number(item.set_range.minimum);
+  const maximum = Number(item.set_range.maximum);
+
+  if (
+    !Number.isInteger(minimum) ||
+    !Number.isInteger(maximum) ||
+    minimum < 1 ||
+    maximum <= minimum
+  ) {
+    return undefined;
+  }
+
+  return { minimum, maximum };
+}
+
 function durationRangeFromItem(item: any): { minimum: number; maximum: number } | undefined {
   if (!isRecord(item?.duration_range)) return undefined;
 
@@ -291,6 +314,7 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
     seen.add(finalId);
 
     const repRange = repRangeFromItem(it);
+    const setRange = setRangeFromItem(it);
 
     const ex: Phase6SessionExercise = {
       exercise_id: finalId,
@@ -300,6 +324,7 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       sets: typeof it.sets === "number" ? it.sets : 0,
       reps: typeof it.reps === "number" ? it.reps : 0,
       ...(repRange ? { rep_range: repRange } : {}),
+      ...(setRange ? { set_range: setRange } : {}),
       intensity: it.intensity,
       resolved_load: isRecord(it.resolved_load)
         ? it.resolved_load as Phase6SessionExercise["resolved_load"]

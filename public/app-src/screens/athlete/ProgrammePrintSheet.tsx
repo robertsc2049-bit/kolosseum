@@ -8,7 +8,7 @@ import { restDuration } from "../../utils/format";
 // what was lifted. Rendered straight into <body> (outside the app shell) so
 // the print stylesheet can hide the whole app and show only this.
 
-export type PrintExercise = { name: string; segment: string; sets: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
+export type PrintExercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
 export type PrintSession = { session_index: number; title: string; state: string; date: string | null; exercises: PrintExercise[] };
 export type PrintWeek = { week_number: number; sessions: PrintSession[]; block: { name: string; block_type: string } };
 
@@ -22,8 +22,9 @@ const rest = restDuration;
 
 function dose(exercise: PrintExercise): string {
   const reps = exercise.reps.trim();
-  if (!reps) return `${exercise.sets} sets`;
-  return exercise.sets > 1 ? `${exercise.sets} × ${reps}` : reps;
+  const sets = exercise.sets_max && exercise.sets_max > exercise.sets ? `${exercise.sets}–${exercise.sets_max}` : String(exercise.sets);
+  if (!reps) return `${sets} sets`;
+  return exercise.sets > 1 || exercise.sets_max ? `${sets} × ${reps}` : reps;
 }
 
 // Warm-up and cool-down on one line each - the main work gets the rows.
@@ -50,7 +51,7 @@ function Rows({ exercises, logged }: { exercises: PrintExercise[]; logged: boole
           <td>{rest(exercise.rest_seconds)}</td>
           <td className="print-lifted">
             {logged
-              ? Array.from({ length: Math.min(Math.max(exercise.sets, 1), MAX_SET_BOXES) }, (_, set) => <span key={set} className="print-box" aria-hidden="true" />)
+              ? Array.from({ length: Math.min(Math.max(exercise.sets_max ?? exercise.sets, exercise.sets, 1), MAX_SET_BOXES) }, (_, set) => <span key={set} className={set < exercise.sets ? "print-box" : "print-box is-optional"} aria-hidden="true" />)
               : null}
           </td>
         </tr>
@@ -175,7 +176,7 @@ function OverviewPage({ programmeName, source, viewer, weeks, totals }: { progra
                       <>
                         {session.title !== row.title ? <em>{session.title}</em> : null}
                         {lift && lift.name !== row.lift ? <em>{lift.name}</em> : null}
-                        {lift ? <b>{lift.reps.trim() ? (lift.sets > 1 ? `${lift.sets}×${lift.reps}` : lift.reps) : `${lift.sets} sets`}</b> : null}
+                        {lift ? <b>{(() => { const sets = lift.sets_max && lift.sets_max > lift.sets ? `${lift.sets}–${lift.sets_max}` : String(lift.sets); return lift.reps.trim() ? (lift.sets > 1 || lift.sets_max ? `${sets} × ${lift.reps}` : lift.reps) : `${sets} sets`; })()}</b> : null}
                         {lift?.load ? <LoadLines load={lift.load} /> : null}
                         {done ? <i aria-label="done">✓</i> : null}
                       </>

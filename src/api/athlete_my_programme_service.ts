@@ -58,11 +58,11 @@ function range(prescription: unknown, unit: string): string {
   if (!isRecord(prescription)) return "";
   const suffix = unit === "s" ? "s" : unit ? ` ${unit}` : "";
   return prescription.type === "range"
-    ? `${num(prescription.minimum)}-${num(prescription.maximum)}${suffix}`
+    ? `${num(prescription.minimum)}–${num(prescription.maximum)}${suffix}`
     : num(prescription.value) === null ? "" : `${num(prescription.value)}${suffix}`;
 }
 
-function dose(item: Json, profile: Json | null): Json & { percent: number | null } {
+function dose(item: Json, profile: Json | null): Json & { percent: number | null; percent_max: number | null } {
   const mode = text(item.prescription_mode) || "reps";
   const distance = isRecord(item.distance_prescription) ? item.distance_prescription : {};
   const reps = mode === "duration"
@@ -72,16 +72,34 @@ function dose(item: Json, profile: Json | null): Json & { percent: number | null
       : range(item.rep_prescription, "") || String(num(item.planned_reps) ?? "");
   const loading = isRecord(item.loading_reference) ? item.loading_reference : {};
   const value = num(loading.value);
+  const top = num(loading.maximum);
+  const maximum = top !== null && value !== null && top > value ? top : null;
   let load = "";
   if (loading.type === "percent_1rm" && value !== null) {
     const resolved = profile ? resolvePercentageLoad(profile, text(item.exercise_id), value) : null;
-    load = resolved && num(resolved.value) !== null ? `${num(resolved.value)} ${text(resolved.unit) || "kg"}` : "";
+    const resolvedTop = profile && maximum !== null ? resolvePercentageLoad(profile, text(item.exercise_id), maximum) : null;
+    const unit = text(resolved?.unit) || "kg";
+    load = resolved && num(resolved.value) !== null
+      ? resolvedTop && num(resolvedTop.value)! > num(resolved.value)! ? `${num(resolved.value)}–${num(resolvedTop.value)} ${unit}` : `${num(resolved.value)} ${unit}`
+      : "";
   }
-  else if (loading.type === "load" && value !== null) load = `${value} ${text(loading.unit) || "kg"}`;
+  else if (loading.type === "load" && value !== null) load = maximum !== null ? `${value}–${maximum} ${text(loading.unit) || "kg"}` : `${value} ${text(loading.unit) || "kg"}`;
+  else if (loading.type === "bodyweight" && text(item.segment) !== "warm_up" && text(item.segment) !== "cool_down") load = "Bodyweight";
   else if (loading.type === "rpe" && value !== null) load = `RPE ${value}`;
   else if (loading.type === "borg" && value !== null) load = `Effort ${value}/20`;
   else if (loading.type === "cr10" && value !== null) load = `Effort ${value}/10`;
-  return { sets: num(item.planned_sets) ?? 1, reps, load, rest_seconds: num(item.rest_seconds), notes: text(item.coaching_notes), percent: loading.type === "percent_1rm" ? value : null };
+  const setRange = isRecord(item.set_prescription) && item.set_prescription.type === "range" ? num(item.set_prescription.maximum) : null;
+  const sets = num(item.planned_sets) ?? 1;
+  return {
+    sets,
+    ...(setRange !== null && setRange > sets ? { sets_max: setRange } : {}),
+    reps,
+    load,
+    rest_seconds: num(item.rest_seconds),
+    notes: text(item.coaching_notes),
+    percent: loading.type === "percent_1rm" ? value : null,
+    percent_max: loading.type === "percent_1rm" ? maximum : null
+  };
 }
 
 async function displayName(userId: string): Promise<string> {
@@ -171,13 +189,13 @@ async function buildProgramme(athleteUserId: string, viewer: Viewer, assignment:
       state,
       date: record?.date ?? null,
       exercises: (Array.isArray(session.work_items) ? session.work_items : []).filter(isRecord).map((item) => {
-        const { percent, ...prescribed } = dose(item, profile);
+        const { percent, percent_max: percentMax, ...prescribed } = dose(item, profile);
         return {
           exercise_id: text(item.exercise_id),
           name: names[text(item.exercise_id)] ?? text(item.exercise_id),
           segment: ["warm_up", "cool_down"].includes(text(item.segment)) ? text(item.segment) : "working",
           ...prescribed,
-          ...(viewer === "coach" ? { percent } : {})
+          ...(viewer === "coach" ? { percent, percent_max: percentMax } : {})
         };
       })
     });

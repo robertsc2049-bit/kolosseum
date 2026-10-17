@@ -4546,10 +4546,13 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .template-prescription-grid {
   grid-template-columns: repeat(6, minmax(0, 1fr));
   grid-template-areas:
-    "sets sets mode mode rest rest"
+    "sets sets sets sets rest rest"
+    "mode mode mode . . ."
     "dose dose dose load load load";
   align-items: start;
 }
+.template-prescription-grid > .template-sets-group { grid-area: sets; display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: var(--k-space-2); align-items: end; }
+.template-sets-group > label { margin: 0; }
 .template-prescription-grid > .template-sets-field { grid-area: sets; }
 .template-prescription-grid > .template-prescription-mode-field { grid-area: mode; margin-bottom: 0; }
 .template-prescription-grid > .template-rest-field { grid-area: rest; }
@@ -4562,8 +4565,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .template-prescription-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
-      "sets rest"
-      "mode mode"
+      "sets sets"
+      "rest mode"
       "dose dose"
       "load load";
   }
@@ -4772,7 +4775,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .template-work-item[data-open="false"] > .template-work-item-summary { flex: 1 1 100%; min-height: 34px; }
 .template-work-item[data-open="false"] .template-work-item-summary-text > span { display: none; }
 .template-work-item[data-open="false"] > .template-prescription-grid { display: flex; flex-wrap: wrap; align-items: end; gap: 4px var(--k-space-2); margin: 0; padding: 0; border: 0; background: none; }
-.template-work-item[data-open="false"] > .template-prescription-grid :is(fieldset, .template-prescription-fields, .template-prescription-mode-field) { display: contents; }
+.template-work-item[data-open="false"] > .template-prescription-grid :is(fieldset, .template-prescription-fields, .template-prescription-mode-field, .template-sets-group) { display: contents; }
 .template-work-item[data-open="false"] > .template-prescription-grid :is(legend, label:not(.core-field), p, .template-prilepin-reference, .template-bodyweight-note) { display: none; }
 .template-work-item[data-open="false"] .core-field { display: grid; gap: 2px; margin: 0; color: var(--stone-dim); font-size: 0.7rem; font-weight: 700; }
 .template-work-item[data-open="false"] .core-field::before { content: attr(data-short); }
@@ -4950,6 +4953,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .print-dose { font-weight: 700; white-space: nowrap; }
   .print-segment td { font-size: 7.5pt; }
   .print-box { display: inline-block; width: 10.5mm; height: 4.2mm; margin: 0.3mm 0.8mm 0.3mm 0; border: 0.5pt solid #000; vertical-align: middle; }
+  .print-box.is-optional { border-style: dashed; }
   .print-session-notes { margin: 0.8mm 0 0; padding-bottom: 3mm; border-bottom: 0.5pt dotted #000; font-size: 7.5pt; }
 }
 

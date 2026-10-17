@@ -262,7 +262,11 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   const details: string[] = [];
   const timedGroupMember = isTimedGroupMember(exercise);
 
-  if (Number.isInteger(exercise?.sets) && !timedGroupMember) {
+  const setRange = exercise?.set_range && typeof exercise.set_range === "object" ? exercise.set_range as JsonRecord : null;
+  if (Number.isInteger(setRange?.minimum) && Number.isInteger(setRange?.maximum) && !timedGroupMember) {
+    details.push(`${setRange?.minimum}–${setRange?.maximum} sets`);
+  }
+  else if (Number.isInteger(exercise?.sets) && !timedGroupMember) {
     details.push(`${exercise?.sets} ${exercise?.sets === 1 ? "set" : "sets"}`);
   }
 
@@ -307,7 +311,9 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
       const unit = resolved.unit === "lb" ? "lb" : "kg";
       // The weight only - not the % of max behind it (the coach's design),
       // nor the max itself, from which the % is one division away.
-      details.push(`${Number(resolved.value)} ${unit}`);
+      details.push(Number(resolved.maximum_value) > Number(resolved.value)
+        ? `${Number(resolved.value)}–${Number(resolved.maximum_value)} ${unit}`
+        : `${Number(resolved.value)} ${unit}`);
 
     }
     else if (exercise?.load_guidance && typeof exercise.load_guidance === "object" && Number.isFinite(Number((exercise.load_guidance as JsonRecord).value))) {
@@ -320,7 +326,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   }
   else if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) {
     const unit = intensity.unit === "lb" ? "lb" : "kg";
-    details.push(`${Number(intensity.value)} ${unit}`);
+    details.push(Number(intensity.maximum) > Number(intensity.value) ? `${Number(intensity.value)}–${Number(intensity.maximum)} ${unit}` : `${Number(intensity.value)} ${unit}`);
   }
   else if (intensity?.type === "bodyweight") {
     details.push("Bodyweight");

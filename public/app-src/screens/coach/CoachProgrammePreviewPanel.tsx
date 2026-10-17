@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { restLabel, titleCase } from "../../utils/format";
 import {
   exerciseDisplayName,
-  programmePreviewLoad,
+  programmePreviewLoad, programmePreviewSets,
   programmePreviewPrescription,
   templateRecordToDraft,
   type ProgrammeWorkItemDraft
@@ -28,7 +28,7 @@ function WorkItemRow({ workItem, templateExercises }: { workItem: ProgrammeWorkI
         {workItem.group_id ? <span className="badge neutral">{titleCase(workItem.group_type)}</span> : null}
       </div>
       <span>
-        {workItem.planned_sets} sets · {programmePreviewPrescription(workItem)} · {programmePreviewLoad(workItem)}{restLabel(Number(workItem.rest_seconds)) ? ` · ${restLabel(Number(workItem.rest_seconds))}` : ""}
+        {programmePreviewSets(workItem)} · {programmePreviewPrescription(workItem)} · {programmePreviewLoad(workItem)}{restLabel(Number(workItem.rest_seconds)) ? ` · ${restLabel(Number(workItem.rest_seconds))}` : ""}
         {workItem.tempo ? ` · Tempo ${workItem.tempo}` : ""}
       </span>
       {workItem.coaching_notes ? <p className="muted small programme-preview-notes">{workItem.coaching_notes}</p> : null}
