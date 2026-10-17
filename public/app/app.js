@@ -978,7 +978,7 @@ function viewTitle(view) {
     "coach-onboarding": "Coach setup",
     attendance: "Attendance",
     "coach-attendance": "Classes",
-    "coach-progress": "Progress",
+    "coach-progress": "Analysis",
     "coach-overview": "Overview",
     athletes: "Athletes",
     events: "Competitions",

@@ -209,6 +209,18 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.deepEqual([doneDay.state, nextDay.state, after.completed_sessions, after.current.session_index], ["done", "current", 1, 1]);
   assert.ok(doneDay.date, "the done day carries the date she trained it");
 
+  // The coach's Analysis: she is on the roster, her trends come back with
+  // findings and every section; the athlete cannot read it.
+  const roster = ok(await coach.req("GET", "/coach-workspace/analysis"), 200, "analysis roster").json;
+  assert.ok(roster.athletes.some((entry) => entry.athlete_user_id === athleteAccount.userId));
+  const analysis = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis?weeks=8`), 200, "athlete analysis").json;
+  assert.equal(analysis.weeks, 8);
+  assert.deepEqual(Object.keys(analysis.analysis).sort(), ["adherence", "execution", "load", "pain", "readiness", "strength", "volume", "weeks"]);
+  assert.equal(analysis.analysis.weeks.length, 8);
+  assert.ok(Array.isArray(analysis.findings));
+  assert.equal(analysis.analysis.volume.rows.at(-1).sets >= 0, true);
+  assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis`)).status >= 400, true, "coach-only");
+
   // It is hers alone: a coach gets nothing from it.
   assert.notEqual((await coach.req("GET", "/account/onboarding/my-programme")).status, 200);
 });

@@ -62,6 +62,7 @@ import {
   getCoachAthleteDetail
 } from "./coach_workspace.handlers.js";
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
+import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
 export const coachWorkspaceRouter = Router();
@@ -380,6 +381,39 @@ coachWorkspaceRouter.get(
     const coachUserId = await authenticatedCoach(req, false);
     try {
       return res.status(200).json(await loadCoachAthleteProgramme(coachUserId, String(req.params.athlete_id)));
+    }
+    catch (error) {
+      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
+
+// Coach Analysis (coach_analysis_service.ts): every connected athlete ranked
+// by how much needs a look, and one athlete's pattern trends over 4-26 weeks.
+const coachAnalysisRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 120,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachWorkspaceRouter.get(
+  "/analysis",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    return res.status(200).json(await analyseRosterForCoach(coachUserId));
+  })
+);
+
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/analysis",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try {
+      return res.status(200).json(await analyseAthleteForCoach(coachUserId, String(req.params.athlete_id), req.query.weeks));
     }
     catch (error) {
       if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });

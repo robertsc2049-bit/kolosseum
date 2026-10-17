@@ -4963,3 +4963,73 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* "That's a lot of sets" - a note, not an error: the coach may mean it. */
 .template-sets-warning { grid-column: 1 / -1; margin: 0; color: var(--k-warning); font-size: 0.82rem; }
 .template-work-item[data-open="false"] .template-sets-warning { flex: 1 1 100%; }
+
+/* Coach Analysis: plain headlines and charts for the coach; tables and
+   methods under "Show the numbers" for a sports scientist. */
+.analysis, .analysis-athlete { display: grid; gap: var(--k-space-4); min-width: 0; }
+.analysis-athlete-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--k-space-3); }
+.analysis-athlete-bar h2 { margin: 0; flex: 1 1 auto; }
+.analysis-weeks { display: flex; gap: var(--k-space-1); flex-wrap: wrap; }
+.analysis-weeks .is-selected { border-color: var(--k-accent); color: var(--k-accent-bright); }
+.analysis-summary h3, .analysis-section h3 { margin: 0 0 var(--k-space-2); }
+.analysis-section { display: grid; gap: var(--k-space-3); min-width: 0; }
+.analysis-section > header { display: grid; gap: 2px; }
+.analysis-headline { margin: 0; font-weight: 600; }
+.analysis-headline.is-alert { color: var(--k-danger-text); }
+.analysis-headline.is-watch { color: var(--k-warning); }
+.analysis-headline.is-good { color: var(--k-accent-bright); }
+.analysis-findings { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--k-space-2); }
+.analysis-finding { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--k-space-2); align-items: baseline; padding: var(--k-space-2) var(--k-space-3); border-left: 3px solid var(--k-border); border-radius: var(--k-radius-xs); background: var(--k-surface-1); }
+.analysis-finding.is-alert { border-left-color: var(--k-danger); }
+.analysis-finding.is-watch { border-left-color: var(--k-warning); }
+.analysis-finding.is-good { border-left-color: var(--k-accent); }
+.analysis-finding-level { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--k-text-secondary); white-space: nowrap; }
+.analysis-findings.is-compact .analysis-finding { grid-template-columns: minmax(0, 1fr); padding: 2px var(--k-space-2); font-size: 0.85rem; background: none; }
+.analysis-status { display: inline-block; padding: 2px 8px; border-radius: var(--k-radius-pill); font-size: 0.78rem; font-weight: 700; white-space: nowrap; background: var(--k-surface-3); }
+.analysis-status.is-alert { background: var(--k-danger-deep); color: var(--k-danger-text); }
+.analysis-status.is-watch { background: var(--k-warning-deep); color: var(--k-text); }
+.analysis-status.is-good { background: var(--k-accent-deep); color: var(--k-text); }
+.is-alert-text { color: var(--k-danger-text); font-weight: 700; }
+.is-watch-text { color: var(--k-warning); font-weight: 700; }
+.analysis-table-wrap { overflow-x: auto; max-width: 100%; }
+.analysis-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.analysis-table th, .analysis-table td { padding: 6px 8px; border-bottom: 1px solid var(--line-soft); text-align: left; vertical-align: top; }
+.analysis-table th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--k-text-secondary); white-space: nowrap; }
+.analysis-table td { font-variant-numeric: tabular-nums; }
+.analysis-roster td { vertical-align: middle; }
+.analysis-roster-findings { min-width: 260px; }
+.analysis-athlete-link { padding: 0; border: 0; background: none; color: var(--k-accent-bright); font: inherit; font-weight: 700; text-align: left; cursor: pointer; min-height: 44px; }
+.analysis-numbers > summary { cursor: pointer; color: var(--k-accent-bright); font-weight: 600; display: list-item; padding: 11px 0; line-height: 22px; }
+.analysis-numbers[open] { display: grid; gap: var(--k-space-3); }
+.analysis-method { padding: var(--k-space-3); border-radius: var(--k-radius-s); background: var(--k-surface-1); font-size: 0.86rem; color: var(--k-text-secondary); }
+.analysis-method p { margin: 0 0 var(--k-space-2); }
+.analysis-method p:last-child { margin-bottom: 0; }
+.analysis-lift-list, .analysis-plain-list { margin: 0; padding-left: var(--k-space-5); display: grid; gap: 4px; font-size: 0.9rem; }
+.analysis-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--k-space-2); align-items: end; height: 110px; }
+.analysis-weekday { display: grid; grid-template-rows: 1fr auto auto; justify-items: center; height: 100%; font-size: 0.78rem; color: var(--k-text-secondary); }
+.analysis-weekday-bar { align-self: end; width: 70%; min-height: 2px; border-radius: 3px 3px 0 0; background: var(--k-accent); }
+.trend-chart { margin: 0; min-width: 0; }
+.trend-band { fill: rgba(126, 184, 0, 0.12); }
+.trend-axis { stroke: var(--k-border); stroke-width: 1; }
+.trend-label { fill: var(--k-text-secondary); font-size: 11px; }
+.trend-legend { display: flex; flex-wrap: wrap; gap: 4px var(--k-space-3); margin-top: 4px; font-size: 0.8rem; color: var(--k-text-secondary); }
+.trend-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.trend-swatch { width: 12px; height: 3px; border-radius: 2px; }
+.trend-swatch-band { height: 10px; background: rgba(126, 184, 0, 0.25); }
+.trend-empty { padding: var(--k-space-4); }
+.analysis-sections { display: grid; gap: var(--k-space-4); min-width: 0; }
+@media (min-width: 1100px) { .analysis-sections { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.analysis-section > *, .analysis-numbers, .analysis-numbers > * { min-width: 0; }
+.analysis-method { overflow-wrap: anywhere; }
+/* On a phone the roster is one card per athlete. */
+@media (max-width: 759px) {
+  .analysis-roster, .analysis-roster tbody, .analysis-roster tr, .analysis-roster td { display: block; width: 100%; }
+  .analysis-roster thead { display: none; }
+  .analysis-roster tr { margin-bottom: var(--k-space-3); padding: var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: var(--k-surface-1); }
+  .analysis-roster td { border: 0; padding: 2px 0; }
+  .analysis-roster td:not(:first-child):not(.analysis-roster-findings)::before { content: attr(data-label) ": "; color: var(--k-text-secondary); font-size: 0.8rem; }
+  .analysis-roster-findings { min-width: 0; }
+  .analysis-roster td[data-label="Sessions"], .analysis-roster td[data-label="Load"], .analysis-roster td[data-label="Readiness"] { display: inline-block; width: auto; margin-right: var(--k-space-3); }
+}
+.analysis-section, .analysis-numbers[open] { grid-template-columns: minmax(0, 1fr); }
+.analysis-sections > * { min-width: 0; }
