@@ -25,7 +25,7 @@ test("a week that would confuse a session is refused: the same lift twice in a d
   assert.throws(() => validateTrainingWeek({ days: [{ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }, { exercise_id: "back_squat", sets: 3, reps: 5 }] }] }, "rugby_union"),
     (e) => e.fieldErrors.day_1_2 === "This exercise is already in this day.");
   assert.throws(() => validateTrainingWeek({ days: [{ items: [] }] }, "rugby_union"), (e) => Boolean(e.fieldErrors.day_1));
-  assert.throws(() => validateTrainingWeek({ days: [{ items: [{ exercise_id: "back_squat", sets: 12, reps: 0 }] }] }, "rugby_union"), (e) => Boolean(e.fieldErrors.day_1_1_sets && e.fieldErrors.day_1_1_reps));
+  assert.throws(() => validateTrainingWeek({ days: [{ items: [{ exercise_id: "back_squat", sets: 31, reps: 0 }] }] }, "rugby_union"), (e) => Boolean(e.fieldErrors.day_1_1_sets && e.fieldErrors.day_1_1_reps));
   assert.throws(() => validateTrainingWeek({ days: [{ items: [{ exercise_id: "not_an_exercise", sets: 3, reps: 5 }] }] }, "rugby_union"), (e) => Boolean(e.fieldErrors.day_1_1));
   assert.throws(() => validateTrainingWeek({ days: Array.from({ length: 7 }, () => ({ items: [{ exercise_id: "back_squat", sets: 3, reps: 5 }] })) }, "rugby_union"), (e) => Boolean(e.fieldErrors.days));
   assert.deepEqual(validateTrainingWeek({ days: threeDays.days, lighter_every_fourth: true }, "rugby_union"), { days: threeDays.days, lighter_every_fourth: true });
