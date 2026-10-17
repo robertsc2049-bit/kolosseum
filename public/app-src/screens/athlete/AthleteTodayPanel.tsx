@@ -275,9 +275,7 @@ export function AthleteTodaySessionCard() {
               <span>Today's working weight<InfoTooltip label="About today's working weight">This is calculated from your recorded strength reference and the programme's prescribed percentage for today's session.</InfoTooltip></span>
               <p className="today-resolved-load-value">{`${resolvedLoad.value} ${resolvedLoad.unit}`}</p>
               <p className="muted">
-                {resolvedLoadSource
-                  ? `From your ${resolvedLoadSource.source_type === "estimated_1rm" ? "estimated max" : resolvedLoadSource.source_type === "training_max" ? "training max" : "tested max"}${Number.isFinite(Number(resolvedLoadSource.source_value)) ? ` of ${Number(resolvedLoadSource.source_value)} ${resolvedLoadSource.source_unit === "lb" ? "lb" : "kg"}` : ""}`
-                  : ""}
+                {resolvedLoadSource ? "Worked out from your max" : ""}
               </p>
             </div>
           ) : null}

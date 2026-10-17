@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { useAthleteMyProgramme } from "./useAthleteMyProgramme";
+import { restLabel } from "../../utils/format";
 import { PRINTING_CLASS, ProgrammePrintSheet } from "./ProgrammePrintSheet";
 
 // "My programme": the whole programme at a glance. A strip of blocks sized
@@ -24,11 +25,7 @@ const STATE_LABEL: Record<string, string> = {
   upcoming: ""
 };
 
-export function restLabel(seconds: number | null): string {
-  if (!seconds) return "";
-  if (seconds < 120 || seconds % 30 !== 0) return `${seconds}s rest`;
-  return `${seconds / 60} min rest`;
-}
+export { restLabel } from "../../utils/format";
 
 export function doseLabel(exercise: Exercise): string {
   const reps = exercise.reps.trim();

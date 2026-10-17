@@ -109,6 +109,8 @@ test("a % of 1RM exercise with no max recorded shows an RPE target, and a resolv
   const resolved = exerciseDetails({ sets: 5, intensity: { type: "percent_1rm", value: 77.5 }, resolved_load: { value: 115, unit: "kg" } });
   assert.ok(resolved.includes("115 kg"), resolved.join(" | "));
   assert.ok(!resolved.some((line) => line.includes("%")), "the weight only - never the % of max behind it");
+  const withSource = exerciseDetails({ sets: 5, intensity: { type: "percent_1rm", value: 77.5 }, resolved_load: { value: 115, unit: "kg", source: { source_type: "tested_1rm", source_value: 150, source_unit: "kg", effective_date: "2026-10-01" } } });
+  assert.ok(!withSource.some((line) => /150|max/u.test(line)), `nor the max beside it: ${withSource.join(" | ")}`);
 });
 
 test("a beginner's session reads as a weight to lift and why - never an RPE", () => {

@@ -86,6 +86,7 @@ test("doses and rests read the way a lifter says them", () => {
   assert.equal(restLabel(240), "4 min rest");
   assert.equal(restLabel(210), "3.5 min rest");
   assert.equal(restLabel(75), "75s rest");
+  assert.equal(restLabel(180), "3 min rest");
   assert.equal(restLabel(0), "");
 });
 
