@@ -35,7 +35,8 @@ import {
 } from "./org_visibility_service.js";
 import { getProgressInsightsForCoach } from "./progress_insights_service.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
-import { analyseMembers, displayNames, type TeamMember } from "./team_analysis_service.js";
+import { analyseMembers, analyseTeamForCoach, displayNames, type TeamMember } from "./team_analysis_service.js";
+import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
 import { groupFindings, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -299,7 +300,27 @@ async function gymOrgAnalysis(orgId: string, visibility: OrgVisibilityAggregate,
 
 export async function getOrgAnalysis(ownerUserId: string, orgId: string, today = new Date().toISOString().slice(0, 10)): Promise<JsonRecord> {
   const visibility = await getOrgAthleteVisibility(ownerUserId, orgId);
-  return visibility.visibility_mode === "shared"
-    ? sharedOrgAnalysis(orgId, visibility, today)
-    : gymOrgAnalysis(orgId, visibility, today);
+  const analysis = visibility.visibility_mode === "shared"
+    ? await sharedOrgAnalysis(orgId, visibility, today)
+    : await gymOrgAnalysis(orgId, visibility, today);
+  return { ...analysis, head_coach_user_id: await headCoachOf(orgId) };
+}
+
+// The organisation's head coach, in their own coaching workspace: a team's
+// is the team view with every athlete open (team_analysis_service.ts); a
+// gym's is exactly the owner's gym view - averages for groups of 3 or more,
+// never an athlete. Not the head coach (or not active): refused.
+export class OrgAnalysisAccessError extends Error {}
+export async function getOrgAnalysisForHeadCoach(coachUserId: string, orgId: string, today = new Date().toISOString().slice(0, 10)): Promise<JsonRecord> {
+  const org = (await headCoachOrgs(coachUserId)).find((entry) => entry.org_id === orgId);
+  if (!org) throw new OrgAnalysisAccessError("org_analysis_head_coach_only");
+  if (org.visibility_mode === "shared") return { visibility_mode: "shared", team: await analyseTeamForCoach(coachUserId, orgId, today) };
+  const visibility = await getOrgAthleteVisibility(org.owner_user_id, orgId);
+  if (visibility.visibility_mode !== "individual") throw new OrgAnalysisAccessError("org_analysis_mode_changed");
+  const analysis = await gymOrgAnalysis(orgId, visibility, today);
+  const names = await displayNames(((analysis.by_coach ?? []) as JsonRecord[]).map((group) => cleanString(group.coach_user_id)));
+  return {
+    ...analysis, org_name: org.org_name, head_coach_user_id: coachUserId,
+    by_coach: ((analysis.by_coach ?? []) as JsonRecord[]).map((group) => ({ ...group, label: group.coach_user_id === coachUserId ? "You" : names.get(cleanString(group.coach_user_id)) || "Coach" }))
+  };
 }

@@ -9,6 +9,8 @@
 import { pool } from "../db/pool.js";
 import { analyseAthleteWindow, rosterRowFor } from "./coach_analysis_service.js";
 import { listOrgAthleteRosterForCoach } from "./coach_team_position_override_service.js";
+import { resolveOrgActiveCoachAcceptedAthletes } from "./attendance_event_org_invite_service.js";
+import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
 import { groupFindings, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 
 type Json = Record<string, unknown>;
@@ -45,18 +47,37 @@ export async function analyseTeamForCoach(coachUserId: string, orgId: string, to
   const org = await pool.query("SELECT org_name FROM product_organisations WHERE org_id = $1", [orgId]);
   const rows = await analyseMembers(roster, today);
   const coachNames = await displayNames(rows.map((row) => text(row.coach_user_id)));
-  // Your own athletes in full; a teammate's pain as a flag only.
-  const shown = rows.map((row): Json => (row.coach_user_id === coachUserId ? { ...row, yours: true } : { ...withoutPainDetail(row), yours: false }));
+  // Your own athletes in full; a teammate's pain as a flag only - unless
+  // you're the team's head coach, who sees and opens every athlete in full.
+  const head = (await headCoachOf(orgId)) === coachUserId;
+  const shown = rows.map((row): Json => (row.coach_user_id === coachUserId
+    ? { ...row, yours: true, openable: true }
+    : head ? { ...row, yours: false, openable: true } : { ...withoutPainDetail(row), yours: false, openable: false }));
   const summary = summariseGroup(rows);
   return {
     ok: true,
     today,
     weeks: 8,
     org: { org_id: orgId, org_name: text(org.rows[0]?.org_name) },
+    head_coach: head,
     summary,
     findings: groupFindings(summary, "the team"),
     by_position: summariseBy(rows, (row) => text(row.position), positionLabel),
     by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach"),
     athletes: shown.map((row): Json => ({ ...row, coach_name: coachNames.get(text(row.coach_user_id)) || "Coach" })).sort(byAttention)
   };
+}
+
+// A team's head coach opening one of the team's athletes who isn't theirs:
+// the athlete's own analysis, read as their own coach would see it. Only
+// for team ('shared') orgs where this coach is the active head coach and the
+// athlete is on the team; null otherwise.
+export async function analyseAthleteForHeadCoach(coachUserId: string, athleteUserId: string, weeks: number, today = new Date().toISOString().slice(0, 10)): Promise<Json | null> {
+  for (const org of (await headCoachOrgs(coachUserId)).filter((entry) => entry.visibility_mode === "shared")) {
+    const member = (await resolveOrgActiveCoachAcceptedAthletes(org.org_id)).find((entry) => entry.athlete_user_id === athleteUserId);
+    if (!member) continue;
+    const result = await analyseAthleteWindow(athleteUserId, member.coach_user_id, weeks, today);
+    return { ...result, viewed_as: "head_coach", org: { org_id: org.org_id, org_name: org.org_name } };
+  }
+  return null;
 }

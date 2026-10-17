@@ -905,15 +905,60 @@ function renderOrgAthletes(athletes) {
     </table></div>`;
 }
 
-function renderOrgAnalysis(analysis, coachNamesById) {
+// The head coach: one active coach the owner names. If you coach too, invite
+// your own coach account, accept it from that account, then name it here -
+// you'll see the organisation from your coaching workspace.
+function renderHeadCoach(analysis, activeCoaches, coachNamesById) {
+  const gym = analysis.visibility_mode === "individual";
+  const current = analysis.head_coach_user_id || "";
+  const options = activeCoaches.map((coach) => `<option value="${escapeHtml(coach.coach_user_id)}" ${coach.coach_user_id === current ? "selected" : ""}>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</option>`).join("");
+  return `<div class="org-head-coach" data-testid="org-head-coach">
+    <h3>Head coach</h3>
+    <p class="muted small">${gym
+      ? "The head coach sees this gym's analysis in their own coaching workspace - the same averages you see, never another coach's athletes."
+      : "The head coach can open every athlete in the team in full from their coaching workspace."} If you coach too: invite your own coach account, accept it from that account, then choose it here.</p>
+    <div class="button-row">
+      <select id="orgHeadCoachSelect" aria-label="Head coach"><option value="">No head coach</option>${options}</select>
+      <button id="orgHeadCoachSave" class="button secondary" type="button">Save</button>
+    </div>
+    <p id="orgHeadCoachStatus" class="muted small" role="status"></p>
+  </div>`;
+}
+
+function wireHeadCoach() {
+  const button = el("orgHeadCoachSave");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const status = el("orgHeadCoachStatus");
+    button.disabled = true;
+    try {
+      const coachUserId = el("orgHeadCoachSelect").value;
+      await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/head-coach`, { coach_user_id: coachUserId || null });
+      status.textContent = coachUserId ? "Head coach saved." : "Head coach cleared.";
+    }
+    catch (error) {
+      status.textContent = "The head coach couldn't be saved - they must be an active coach of this organisation.";
+      console.error(error);
+    }
+    finally {
+      button.disabled = false;
+    }
+  });
+}
+
+function renderOrgAnalysis(analysis, coachNamesById, activeCoaches = []) {
   const container = el("orgAnalysis");
   const gym = analysis.visibility_mode === "individual";
-  const coachName = (group) => coachLabel(group.coach_user_id || group.key, coachNamesById);
+  const coachName = (group) => {
+    const id = group.coach_user_id || group.key;
+    return `${coachLabel(id, coachNamesById)}${id && id === analysis.head_coach_user_id ? " (head coach)" : ""}`;
+  };
   const intro = gym
     ? `<p class="muted small">A gym's coaches keep their athletes private: this shows averages only, and nothing for a coach with fewer than 3 athletes training.</p>`
     : `<p class="muted small">The whole organisation over the last 8 weeks. Any athlete's pain detail stays with their own coach.</p>`;
   if (gym && !analysis.summary) {
-    container.innerHTML = `${intro}<div class="empty-state compact-empty"><p>Not enough athletes with logged training yet for a privacy-safe summary (fewer than 3).</p></div>`;
+    container.innerHTML = `${intro}<div class="empty-state compact-empty"><p>Not enough athletes with logged training yet for a privacy-safe summary (fewer than 3).</p></div>${renderHeadCoach(analysis, activeCoaches, coachNamesById)}`;
+    wireHeadCoach();
     return;
   }
   container.innerHTML = `
@@ -924,7 +969,9 @@ function renderOrgAnalysis(analysis, coachNamesById) {
     ${renderOrgGroups("By coach", analysis.by_coach || [], coachName)}
     ${gym ? "" : renderOrgGroups("By position", (analysis.by_position || []).length > 1 ? analysis.by_position : [], (group) => group.label)}
     ${gym ? "" : renderOrgAthletes(analysis.athletes || [])}
+    ${renderHeadCoach(analysis, activeCoaches, coachNamesById)}
   `;
+  wireHeadCoach();
 }
 
 async function refreshProgress() {
@@ -933,12 +980,13 @@ async function refreshProgress() {
   for (const membership of Array.isArray(rosterResult.roster) ? rosterResult.roster : []) {
     if (membership.coach_display_name) coachNamesById.set(membership.coach_user_id, membership.coach_display_name);
   }
+  const activeCoaches = (Array.isArray(rosterResult.roster) ? rosterResult.roster : []).filter((membership) => membership.membership_status === "active");
 
   const [result, analysis] = await Promise.all([
     api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/progress-rollup`),
     api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/analysis`).catch(() => null)
   ]);
-  if (analysis && analysis.analysis) renderOrgAnalysis(analysis.analysis, coachNamesById);
+  if (analysis && analysis.analysis) renderOrgAnalysis(analysis.analysis, coachNamesById, activeCoaches);
   else el("orgAnalysis").innerHTML = `<p class="muted small">The analysis could not be loaded.</p>`;
   renderProgress(result.rollup, coachNamesById);
 }

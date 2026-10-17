@@ -389,7 +389,8 @@ function mapMembershipRow(value: unknown): OrgMembershipRow | null {
     org_name: typeof value.org_name === "string" ? value.org_name : null,
     visibility_mode: visibilityMode === "individual" || visibilityMode === "shared" ? visibilityMode : null,
     coach_display_name: typeof value.coach_display_name === "string" ? value.coach_display_name : null,
-    coach_email: typeof value.coach_email === "string" ? value.coach_email : null
+    coach_email: typeof value.coach_email === "string" ? value.coach_email : null,
+    is_head_coach: value.is_head_coach === true
   });
 }
 
@@ -676,7 +677,7 @@ export async function listOrgMembershipsForCoach(
 ): Promise<readonly OrgMembershipRow[]> {
   const result = await pool.query(
     `
-    SELECT m.*, o.visibility_mode, o.org_name
+    SELECT m.*, o.visibility_mode, o.org_name, (o.head_coach_user_id = m.coach_user_id) AS is_head_coach
     FROM product_org_coach_memberships m
     JOIN product_organisations o ON o.org_id = m.org_id
     WHERE m.coach_user_id = $1

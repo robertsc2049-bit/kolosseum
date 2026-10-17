@@ -64,6 +64,7 @@ import {
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
+import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
 import { CoachReportInputError, CoachReportNotFoundError, listCoachReports, loadCoachReport, previewAthleteReport, sendAthleteReport } from "./coach_report_service.js";
 import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
@@ -418,7 +419,13 @@ coachWorkspaceRouter.get(
       return res.status(200).json(await analyseAthleteForCoach(coachUserId, String(req.params.athlete_id), req.query.weeks));
     }
     catch (error) {
-      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      if (error instanceof Beta19CoachWorkspaceError) {
+        // A team's head coach can open a teammate who isn't theirs.
+        const weeks = [4, 8, 12, 26].includes(Number(req.query.weeks)) ? Number(req.query.weeks) : 12;
+        const asHead = await analyseAthleteForHeadCoach(coachUserId, String(req.params.athlete_id), weeks);
+        if (asHead) return res.status(200).json(asHead);
+        return res.status(403).json({ ok: false, error: error.message });
+      }
       throw error;
     }
   })

@@ -53,6 +53,7 @@ import {
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
 import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
+import { OrgHeadCoachError, setHeadCoach } from "./org_head_coach_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -333,6 +334,23 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const analysis = await getOrgAnalysis(user_id, String(request.params.org_id));
     return response.status(200).json({ ok: true, analysis });
+  })
+);
+
+// Name one of the organisation's active coaches its head coach (or clear
+// it) - an owner who also coaches names their own coach account
+// (org_head_coach_service.ts). Audited.
+orgOwnerRouter.post(
+  "/organisations/:org_id/head-coach",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      return response.status(200).json(await setHeadCoach(user_id, String(request.params.org_id), request.body));
+    }
+    catch (error) {
+      if (error instanceof OrgHeadCoachError) return response.status(error.status).json({ ok: false, error: error.message });
+      throw error;
+    }
   })
 );
 

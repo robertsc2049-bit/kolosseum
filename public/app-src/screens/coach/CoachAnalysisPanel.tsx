@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek, type TrendMarker } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
-import { TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
+import { GymAnalysis, TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
 import { TestingSection } from "./TestingSection";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
@@ -109,11 +109,11 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
       <div className="analysis-athlete-bar">
         <button type="button" className="button secondary small-button" onClick={onBack}>‹ All athletes</button>
         <h2>{String((data?.athlete as JsonRecord | undefined)?.display_name ?? "Athlete")}</h2>
-        <div className="analysis-weeks" role="group" aria-label="Analysis or reports">
+        {data?.viewed_as === "head_coach" ? null : <div className="analysis-weeks" role="group" aria-label="Analysis or reports">
           {(["trends", "reports"] as const).map((choice) => (
             <button key={choice} type="button" className={`button secondary small-button${choice === view ? " is-selected" : ""}`} aria-pressed={choice === view} onClick={() => setView(choice)}>{choice === "trends" ? "Trends" : "Reports"}</button>
           ))}
-        </div>
+        </div>}
         {view === "trends" ? (
           <div className="analysis-weeks" role="group" aria-label="Weeks shown">
             {WEEK_CHOICES.map((choice) => (
@@ -122,6 +122,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </div>
         ) : null}
       </div>
+      {data?.viewed_as === "head_coach" ? <p className="muted small analysis-head-coach-note" data-testid="viewed-as-head-coach">{`You're viewing this athlete as head coach of ${String((data.org as JsonRecord | undefined)?.org_name ?? "the team")} - they're coached by someone else, who keeps their reports.`}</p> : null}
       {view === "reports" ? <CoachReports athleteUserId={athleteUserId} /> : null}
       {view === "trends" && error ? <p className="field-error" role="alert">{error}</p> : null}
       {view === "trends" && loading && !a ? <p className="muted">Working out the patterns…</p> : null}
@@ -302,7 +303,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
           </Section>
 
           <Section id="testing" title="Testing" headline={first("testing")}>
-            <TestingSection athleteUserId={athleteUserId} tests={rows(testing.tests)} onChanged={reload} />
+            <TestingSection athleteUserId={athleteUserId} tests={rows(testing.tests)} onChanged={reload} readOnly={data?.viewed_as === "head_coach"} />
           </Section>
 
           <Section id="intensity" title="Intensity (% of max)" headline={null}>
@@ -364,11 +365,12 @@ export function CoachAnalysisPanel() {
         <div className="analysis-weeks analysis-scope" role="group" aria-label="Whose analysis">
           <button type="button" className={`button secondary small-button${scope === "mine" ? " is-selected" : ""}`} aria-pressed={scope === "mine"} onClick={() => setScope("mine")}>My athletes</button>
           {teams.map((entry) => (
-            <button key={entry.org_id} type="button" className={`button secondary small-button${scope === entry.org_id ? " is-selected" : ""}`} aria-pressed={scope === entry.org_id} onClick={() => setScope(entry.org_id)}>{`Team: ${entry.org_name}`}</button>
+            <button key={entry.org_id} type="button" className={`button secondary small-button${scope === entry.org_id ? " is-selected" : ""}`} aria-pressed={scope === entry.org_id} onClick={() => setScope(entry.org_id)}>{`${entry.visibility_mode === "shared" ? "Team" : "Gym"}: ${entry.org_name}`}</button>
           ))}
         </div>
       ) : null}
-      {team ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team && team.visibility_mode === "individual" ? <GymAnalysis team={team} /> : null}
       {team ? null : <>
       <Explain id="roster" />
       {error ? <p className="field-error" role="alert">{error}</p> : null}

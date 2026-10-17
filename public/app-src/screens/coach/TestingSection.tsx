@@ -25,7 +25,7 @@ const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[])
 const todayIso = () => new Date().toISOString().slice(0, 10);
 const newRequestId = () => `pt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
 
-export function TestingSection({ athleteUserId, tests, onChanged }: { athleteUserId: string; tests: JsonRecord[]; onChanged: () => void }) {
+export function TestingSection({ athleteUserId, tests, onChanged, readOnly = false }: { athleteUserId: string; tests: JsonRecord[]; onChanged: () => void; readOnly?: boolean }) {
   const [form, setForm] = useState({ test_id: "cmj_cm", value: "", date: todayIso() });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +84,7 @@ export function TestingSection({ athleteUserId, tests, onChanged }: { athleteUse
                       {rows(test.results).map((result) => (
                         <span key={String(result.id)} className="testing-result">
                           {`${shortWeek(String(result.date))}: ${result.value}`}
-                          <button type="button" className="text-button" disabled={busy} aria-label={`Remove ${test.name} ${result.value} on ${result.date}`} onClick={() => void remove(String(result.id))}>×</button>
+                          {readOnly ? null : <button type="button" className="text-button" disabled={busy} aria-label={`Remove ${test.name} ${result.value} on ${result.date}`} onClick={() => void remove(String(result.id))}>×</button>}
                         </span>
                       ))}
                     </td>
@@ -95,7 +95,7 @@ export function TestingSection({ athleteUserId, tests, onChanged }: { athleteUse
           </table>
         </div>
       ) : <p className="muted small">No tests recorded yet.</p>}
-      <div className="testing-form" data-testid="testing-form">
+      {readOnly ? <p className="muted small">Their own coach records their tests.</p> : <div className="testing-form" data-testid="testing-form">
         <label className="field"><span>Test</span>
           <select value={form.test_id} onChange={(event) => setForm({ ...form, test_id: event.target.value })}>
             {TEST_OPTIONS.map(([id, name]) => <option key={id} value={id}>{name}</option>)}
@@ -104,7 +104,7 @@ export function TestingSection({ athleteUserId, tests, onChanged }: { athleteUse
         <label className="field"><span>{`Result (${unit})`}</span><input type="number" inputMode="decimal" min={0} step="any" value={form.value} onChange={(event) => setForm({ ...form, value: event.target.value })} /></label>
         <label className="field"><span>Date</span><input type="date" value={form.date} max={todayIso()} onChange={(event) => setForm({ ...form, date: event.target.value })} /></label>
         <button type="button" className="button small-button" disabled={!valid || busy} onClick={() => void record()}>{busy ? "Saving…" : "Record result"}</button>
-      </div>
+      </div>}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
     </div>
   );

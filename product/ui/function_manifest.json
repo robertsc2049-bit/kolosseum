@@ -6220,7 +6220,8 @@
           "route_id": null,
           "api_routes": [
             "/org/organisations/:org_id/progress-rollup",
-            "/org/organisations/:org_id/analysis"
+            "/org/organisations/:org_id/analysis",
+            "/org/organisations/:org_id/head-coach"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -6697,6 +6698,7 @@
           "api_routes": [
             "/coach-workspace/organisations/:org_id/athlete-roster",
             "/coach-workspace/organisations/:org_id/team-analysis",
+            "/coach-workspace/organisations/:org_id/organisation-analysis",
             "/coach-workspace/organisations/:org_id/team-athletes/:athlete_user_id/position-override"
           ],
           "persistence": "server_product_records",
