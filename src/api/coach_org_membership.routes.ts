@@ -7,6 +7,7 @@
 // derived only from the resolved coach session cookie (authenticatedCoach),
 // never a client-supplied id.
 
+import { analyseTeamForCoach } from "./team_analysis_service.js";
 import {
   Router,
   type NextFunction,
@@ -113,6 +114,25 @@ coachOrgMembershipRouter.get(
     const coachUserId = await authenticatedCoach(request, false);
     const roster = await listOrgAthleteRosterForCoach(coachUserId, request.params.org_id);
     return response.status(200).json({ ok: true, roster });
+  })
+);
+
+// Team analysis: every athlete in a shared ("team") org the coach is an
+// active member of, summed up as a team, by position and by coach
+// (team_analysis_service.ts - the same access as the team roster above).
+const teamAnalysisRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachOrgMembershipRouter.get(
+  "/organisations/:org_id/team-analysis",
+  teamAnalysisRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    return response.status(200).json(await analyseTeamForCoach(coachUserId, String(request.params.org_id)));
   })
 );
 

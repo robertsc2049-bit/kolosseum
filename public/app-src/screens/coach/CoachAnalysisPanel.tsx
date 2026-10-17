@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
+import { TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -312,18 +313,34 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
 
 export function CoachAnalysisPanel() {
   const { roster, error } = useCoachAnalysisRoster();
+  const teams = useCoachTeams();
   const [selected, setSelected] = useState<string | null>(null);
+  // "mine" (the coach's own athletes) or a team org's id.
+  const [scope, setScope] = useState("mine");
   if (selected) return <AthleteAnalysis athleteUserId={selected} onBack={() => setSelected(null)} />;
   const athletes = rows(roster?.athletes);
+  const team = teams.find((entry) => entry.org_id === scope) ?? null;
   return (
     <div className="analysis" data-testid="coach-analysis">
       <div className="page-heading">
         <div>
           <p className="eyebrow">Analysis</p>
-          <h2>Who needs a look</h2>
-          <p className="muted">Your athletes over the last 8 weeks, the ones needing attention first. Open an athlete for their trends and the numbers behind them.</p>
+          <h2>{team ? team.org_name : "Who needs a look"}</h2>
+          <p className="muted">{team
+            ? "The whole team over the last 8 weeks: how it's doing as a group, by position and by coach, then every athlete."
+            : "Your athletes over the last 8 weeks, the ones needing attention first. Open an athlete for their trends and the numbers behind them."}</p>
         </div>
       </div>
+      {teams.length ? (
+        <div className="analysis-weeks analysis-scope" role="group" aria-label="Whose analysis">
+          <button type="button" className={`button secondary small-button${scope === "mine" ? " is-selected" : ""}`} aria-pressed={scope === "mine"} onClick={() => setScope("mine")}>My athletes</button>
+          {teams.map((entry) => (
+            <button key={entry.org_id} type="button" className={`button secondary small-button${scope === entry.org_id ? " is-selected" : ""}`} aria-pressed={scope === entry.org_id} onClick={() => setScope(entry.org_id)}>{`Team: ${entry.org_name}`}</button>
+          ))}
+        </div>
+      ) : null}
+      {team ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team ? null : <>
       <Explain id="roster" />
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {!roster && !error ? <p className="muted">Working out the patterns…</p> : null}
@@ -357,6 +374,7 @@ export function CoachAnalysisPanel() {
           <p className="muted small analysis-roster-key">Sessions: planned sessions done last week (90%+ is on track). Load vs usual: last week against their own 4-week normal - 1.0× is a normal week, 0.8-1.3× is normal. Readiness: their pre-session check-ins against their own usual.</p>
         </div>
       ) : null}
+      </>}
     </div>
   );
 }

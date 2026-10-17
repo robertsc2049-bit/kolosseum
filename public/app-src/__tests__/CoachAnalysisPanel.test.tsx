@@ -145,7 +145,7 @@ test("effort against your target reads in words - on target, harder or easier th
     { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: 0.2 },
     { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: 1.8 },
     { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: -1.6 }
-  ] as typeof rowsBefore;
+  ] as unknown as typeof rowsBefore;
   try {
     render(<CoachAnalysisPanel />);
     await screen.findByText("Jordan");

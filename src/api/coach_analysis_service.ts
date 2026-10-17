@@ -171,6 +171,16 @@ export type AnalysisWindowOptions = Readonly<{ closed?: boolean; from?: string; 
 
 export async function analyseWindowForCoach(coachUserId: string, athleteUserId: string, weeks: number, today: string, options: AnalysisWindowOptions = {}): Promise<Json> {
   await requireCoachAthleteAccess(coachUserId, athleteUserId);
+  return analyseAthleteWindow(athleteUserId, coachUserId, weeks, today, options);
+}
+
+// The analysis itself, with NO access check: callers check first - a coach
+// for their own athlete (above), a team coach or an org owner for the
+// team's athletes (team_analysis_service.ts, org_progress_rollup_service.ts).
+// checkinCoachUserId is the athlete's own coach, whose weekly check-ins
+// with them are read.
+export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUserId: string, weeks: number, today: string, options: AnalysisWindowOptions = {}): Promise<Json> {
+  const coachUserId = checkinCoachUserId;
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
   const since = addDays(weekStart(today), -7 * (weeks + 4));
@@ -209,6 +219,35 @@ export async function analyseWindowForCoach(coachUserId: string, athleteUserId: 
   };
 }
 
+// One athlete's row for a roster: their findings and headline numbers, and
+// the weekly series a team view averages.
+export function rosterRowFor(athleteUserId: string, name: string, result: Json): Json {
+  const analysis = result.analysis as Record<string, Json>;
+  const complete = (rows: Json[]) => rows.filter((row) => row.partial_week !== true);
+  const latest = (rows: Json[], key: string) => {
+    for (let index = rows.length - 1; index >= 0; index -= 1) if (rows[index][key] !== null && rows[index][key] !== undefined) return rows[index][key];
+    return null;
+  };
+  const adherenceRows = complete(analysis.adherence.rows as Json[]);
+  const lifts = analysis.strength.lifts as Json[];
+  const painAreas = (analysis.pain.areas as Json[]).filter((area) => Number(area.weeks) >= 2);
+  const sessions = (analysis.load as Json).sessions as Json[];
+  return {
+    athlete_user_id: athleteUserId,
+    display_name: name,
+    attention: result.attention,
+    findings: result.findings,
+    weeks: analysis.weeks,
+    adherence: { latest_pct: latest(adherenceRows, "adherence_pct"), series: adherenceRows.map((row) => row.adherence_pct), by_week: (analysis.adherence.rows as Json[]).map((row) => row.adherence_pct) },
+    load: { acute_chronic: latest(complete(analysis.load.rows as Json[]), "acute_chronic"), series: (analysis.load.rows as Json[]).map((row) => row.load), ratio_by_week: (analysis.load.rows as Json[]).map((row) => (row.partial_week ? null : row.acute_chronic)) },
+    readiness: { z: latest(analysis.readiness.rows as Json[], "z"), z_by_week: (analysis.readiness.rows as Json[]).map((row) => row.z) },
+    strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest })),
+    execution: { reps_hit_pct: latest(complete(analysis.execution.rows as Json[]), "reps_hit_pct") },
+    pain: { recurring_areas: painAreas.map((area) => area.area) },
+    last_session: sessions.length ? sessions[sessions.length - 1].date : null
+  };
+}
+
 // Every connected athlete, most in need of a look first: their findings and
 // the headline numbers for the roster table.
 export async function analyseRosterForCoach(coachUserId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
@@ -217,32 +256,7 @@ export async function analyseRosterForCoach(coachUserId: string, today = new Dat
     const athleteUserId = text(athlete.athlete_user_id);
     const name = text(athlete.display_name) || athleteUserId;
     try {
-      const result = await analyseAthleteForCoach(coachUserId, athleteUserId, 8, today);
-      const analysis = result.analysis as Record<string, Json>;
-      const complete = (rows: Json[]) => rows.filter((row) => row.partial_week !== true);
-      const latest = (rows: Json[], key: string) => {
-        for (let index = rows.length - 1; index >= 0; index -= 1) if (rows[index][key] !== null && rows[index][key] !== undefined) return rows[index][key];
-        return null;
-      };
-      const adherenceRows = complete(analysis.adherence.rows as Json[]);
-      const lifts = analysis.strength.lifts as Json[];
-      const painAreas = (analysis.pain.areas as Json[]).filter((area) => Number(area.weeks) >= 2);
-      return {
-        athlete_user_id: athleteUserId,
-        display_name: name,
-        attention: result.attention,
-        findings: result.findings,
-        adherence: { latest_pct: latest(adherenceRows, "adherence_pct"), series: adherenceRows.map((row) => row.adherence_pct) },
-        load: { acute_chronic: latest(complete(analysis.load.rows as Json[]), "acute_chronic"), series: (analysis.load.rows as Json[]).map((row) => row.load) },
-        readiness: { z: latest(analysis.readiness.rows as Json[], "z") },
-        strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest })),
-        execution: { reps_hit_pct: latest(complete(analysis.execution.rows as Json[]), "reps_hit_pct") },
-        pain: { recurring_areas: painAreas.map((area) => area.area) },
-        last_session: (() => {
-          const sessions = (analysis.load as Json).sessions as Json[];
-          return sessions.length ? sessions[sessions.length - 1].date : null;
-        })()
-      };
+      return rosterRowFor(athleteUserId, name, await analyseAthleteForCoach(coachUserId, athleteUserId, 8, today));
     }
     catch {
       return { athlete_user_id: athleteUserId, display_name: name, attention: null, findings: [], unavailable: true };
