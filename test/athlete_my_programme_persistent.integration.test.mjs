@@ -113,6 +113,17 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   });
   assert.equal(backwards.status, 400);
   assert.match(backwards.text, /set_range_order_invalid/u);
+  // 1-30 sets: 20 x 400 m style interval work fits, 31 sets does not.
+  const setsTemplate = (name, sets) => coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `${name} ${nonce}`, description: "", activity_id: "powerlifting",
+    blocks: [{ ...blocks[0], weeks: [{ week_id: "", order_index: 1, sessions: [session("Day", [{ ...item("back_squat", 0, 60), planned_sets: sets }], 1)] }], week_count: 1 }],
+    updated_at_iso8601: new Date().toISOString()
+  });
+  const thirty = await setsTemplate("Thirty", 30);
+  assert.equal(thirty.status, 201, thirty.text);
+  const thirtyOne = await setsTemplate("Thirty-one", 31);
+  assert.equal(thirtyOne.status, 400);
+  assert.match(thirtyOne.text, /planned_sets_invalid/u);
 
   const athlete = client(baseUrl);
   const athleteAccount = await register(athlete, "athlete", "lifter", { activity_id: "powerlifting" });

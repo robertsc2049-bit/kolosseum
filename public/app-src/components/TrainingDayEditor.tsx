@@ -45,7 +45,8 @@ export function TrainingDayEditor({ label, items, options, onChange }: {
           </label>
           <label className="field">
             <span>Sets</span>
-            <input aria-label={`${label} exercise ${i + 1} sets`} type="number" inputMode="numeric" min={1} max={8} value={item.sets} onChange={(event) => update(i, { sets: Number(event.target.value) })} />
+            <input aria-label={`${label} exercise ${i + 1} sets`} type="number" inputMode="numeric" min={1} max={30} value={item.sets} onChange={(event) => update(i, { sets: Number(event.target.value) })} />
+            {item.sets > 12 && item.sets <= 30 ? <small className="template-sets-warning" role="status">{`${item.sets} sets is a lot for one exercise - check it's what you meant.`}</small> : null}
           </label>
           <label className="field">
             <span>Reps</span>

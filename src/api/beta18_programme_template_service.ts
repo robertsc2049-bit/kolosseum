@@ -545,6 +545,11 @@ function loadingReferenceFromInput(
   });
 }
 
+// The most sets one exercise may be given: Westside dynamic-effort work
+// runs 12 x 2, weightlifting singles 10-18 a session, and interval work
+// (20 x 400 m, 20-25 x 200 m, 20 x 100 m swims) up to the mid-20s.
+export const MAX_PLANNED_SETS = 30;
+
 // Sets as a range ("3-4 sets"): planned_sets is the low end - the sets the
 // athlete must do - and the high end is stored beside it.
 function setPrescriptionFromInput(
@@ -556,7 +561,7 @@ function setPrescriptionFromInput(
     integerInRange(
       workItem.planned_sets_max,
       1,
-      20,
+      MAX_PLANNED_SETS,
       "set_range_max_invalid"
     );
   if (maximum < plannedSets) {
@@ -576,7 +581,7 @@ function setPrescriptionFromStored(
   if (!raw || cleanString(raw.type) !== "range") return null;
   const minimum = Number(workItem.planned_sets);
   const maximum = Number(raw.maximum);
-  return Number.isInteger(maximum) && maximum > minimum && maximum <= 20
+  return Number.isInteger(maximum) && maximum > minimum && maximum <= MAX_PLANNED_SETS
     ? deepFreeze({ type: "range", minimum, maximum })
     : null;
 }
@@ -2034,12 +2039,14 @@ function normaliseTemplateStructure(
                             );
                           }
 
+                          // 1-30 sets: from a peaking single to interval
+                          // repeats (20 x 400 m) - see MAX_PLANNED_SETS.
                           const plannedSets =
                             integerInRange(
                               rawWorkItem
                                 .planned_sets,
                               1,
-                              20,
+                              MAX_PLANNED_SETS,
                               "planned_sets_invalid"
                             );
 
