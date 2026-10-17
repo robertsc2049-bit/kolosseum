@@ -242,7 +242,9 @@ export function summariseReport(analysis: Json): Json {
     effort_rated: ((a.exercises ?? {}) as Json).rated ?? 0,
     effort_rated_by: ((a.exercises ?? {}) as Json).rated_by ?? null,
     patterns: ((a.exercises ?? {}) as Json).patterns ?? [],
-    session_log: sessions
+    session_log: sessions,
+    // Their usual before the period: readiness range and weekly load.
+    baseline: (a.baseline ?? null) as Json | null
   };
 }
 

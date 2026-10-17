@@ -227,3 +227,17 @@ test("every loading type in a report: % of max zones, bodyweight bests, distance
   assert.ok(body.includes("Weight against the plan: +2.5%"));
   assert.ok(body.includes("RPE 12, CR10 8, Borg 4"));
 });
+
+test("each headline number says what usual looks like - the athlete's own normal, or the general guide", async () => {
+  installMocks();
+  const original = report.summary as Record<string, unknown>;
+  original.baseline = { weekly_load: 4800, readiness: { average: 12.4, low: 12, high: 13, check_ins: 20 } };
+  await openVolumeBlock();
+  const tiles = screen.getByTestId("report-tiles").textContent ?? "";
+  assert.ok(tiles.includes("Their usual: 12-13"), tiles);
+  assert.ok(tiles.includes("Their usual before this: 4,800"));
+  assert.ok(tiles.includes("On track: 90%+"));
+  assert.ok(tiles.includes("5,250 points"), "load points, not AU");
+  assert.equal(tiles.includes("AU"), false);
+  delete original.baseline;
+});

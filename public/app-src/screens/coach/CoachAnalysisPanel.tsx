@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
+import { FindingList, type Finding } from "./FindingList";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -11,8 +12,11 @@ import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnaly
 // table, how each figure is worked out and its caveats - for a sports
 // scientist. Coach-only; athletes never see it.
 
-type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string };
-const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
+// Effort against a target, in words: within half a point is on target.
+const effortWords = (value: unknown) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "–";
+  return Math.abs(value) < 0.5 ? "On target" : value > 0 ? "Harder than set" : "Easier than set";
+};
 const WEEK_CHOICES = [4, 8, 12, 26];
 const SCALE: Record<string, string> = { rpe: "RPE", cr10: "CR10", borg: "Borg" };
 
@@ -20,25 +24,13 @@ const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[])
 const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const show = (value: unknown, suffix = "") => (num(value) === null ? "–" : `${num(value)}${suffix}`);
 
-function statusOf(attention: number | null): { label: string; level: string } {
+// An athlete with no training logged in the period isn't "on track" - there's nothing to judge.
+function statusOf(attention: number | null, trained = true): { label: string; level: string } {
   if (attention === null) return { label: "No data", level: "info" };
+  if (!trained && attention === 0) return { label: "No training yet", level: "info" };
   if (attention >= 3) return { label: "Needs a look", level: "alert" };
   if (attention >= 1) return { label: "Keep an eye on", level: "watch" };
   return { label: "On track", level: "good" };
-}
-
-function FindingList({ findings, compact = false }: { findings: Finding[]; compact?: boolean }) {
-  if (!findings.length) return <p className="muted small">Nothing stands out yet - more logged sessions will show patterns.</p>;
-  return (
-    <ul className={`analysis-findings${compact ? " is-compact" : ""}`}>
-      {findings.map((finding) => (
-        <li key={finding.id} className={`analysis-finding is-${finding.level}`}>
-          {compact ? null : <span className="analysis-finding-level">{LEVEL_LABEL[finding.level]}</span>}
-          <span>{finding.text}</span>
-        </li>
-      ))}
-    </ul>
-  );
 }
 
 function Numbers({ children }: { children: React.ReactNode }) {
@@ -180,7 +172,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Reps hit", cell: (i) => show(rows(execution.rows)[i]?.reps_hit_pct, "%") },
                 { label: "Sets logged", cell: (i) => show(rows(execution.rows)[i]?.sets_logged_pct, "%") },
                 { label: "Load vs plan", cell: (i) => show(rows(execution.rows)[i]?.load_vs_plan_pct, "%") },
-                { label: "Effort vs target", cell: (i) => show(rows(execution.rows)[i]?.effort_vs_plan) }
+                { label: "Effort vs target", cell: (i) => <span title={show(rows(execution.rows)[i]?.effort_vs_plan)}>{effortWords(rows(execution.rows)[i]?.effort_vs_plan)}</span> }
               ]} />
               {rows(execution.effort_targets).length ? (
                 <>
@@ -197,24 +189,24 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
               <Method>
                 <p>Working sets of completed and partial sessions only. "Reps hit": logged sets with at least the prescribed reps (the bottom of a rep range). "Sets logged": prescribed sets logged; timed and distance work counts all its sets once completed, none if skipped.</p>
                 <p>"Load vs plan": the logged weight against the prescribed one - a fixed weight, a weight range, or a % of max made a weight. Inside a range is 0; above it is measured from the top, below from the bottom (+ is heavier than planned).</p>
-                <p>"Effort vs target": where you prescribed by RPE, Borg or CR10, the athlete's rating of that exercise minus your target, in that scale (on a 0-10 scale in the weekly column, Borg rescaled). Inside a target range is 0.</p>
+                <p>"Effort vs target": where you prescribed by RPE, Borg or CR10, the athlete's rating of that exercise against your target, in that scale. The weekly column says it in words - on target (within half a point on a 0-10 scale, Borg rescaled), harder than set or easier than set; hover it for the number. Inside a target range is on target.</p>
                 <p>"Feels harder at the same weight": the same exercise at a top weight within 2.5%, rated in the same scale in the first half of the period and again in the second; a rise of 1 point (0-10) or more is flagged - a common early sign of accumulated fatigue.</p>
               </Method>
             </Numbers>
           </Section>
 
           <Section id="load" title="Training load" headline={first("load")}>
-            <TrendChart title="Weekly training load (AU)" weeks={weekList} unit=" AU" series={[{ id: "load", label: "Weekly load", kind: "bar", values: col(rows(load.rows), "load") }]} />
+            <TrendChart title="Weekly training load (load points)" weeks={weekList} unit=" load points" series={[{ id: "load", label: "Weekly load", kind: "bar", values: col(rows(load.rows), "load") }]} />
             <TrendChart title="Load against their 4-week normal" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3: in line with normal" }} yMin={0} series={[{ id: "acwr", label: "Acute:chronic ratio", values: col(rows(load.rows), "acute_chronic") }]} />
             <Numbers>
               <WeekTable weeks={weekList} columns={[
-                { label: "Load (AU)", cell: (i) => show(rows(load.rows)[i]?.load) },
+                { label: "Load (points)", cell: (i) => show(rows(load.rows)[i]?.load) },
                 { label: "Acute:chronic", cell: (i) => show(rows(load.rows)[i]?.acute_chronic) },
                 { label: "Monotony", cell: (i) => show(rows(load.rows)[i]?.monotony) },
                 { label: "Strain", cell: (i) => show(rows(load.rows)[i]?.strain) }
               ]} />
               <Method>
-                <p>Session load (Foster session-RPE): session effort × minutes, in arbitrary units (AU). Effort is the mean of the athlete's exercise ratings on a 0-10 scale (RPE and CR10 as they are; Borg 6-20 rescaled); minutes run from the session's start to its last logged event (capped at 240). Unrated sessions add no load.</p>
+                <p>Session load (Foster session-RPE): session effort × minutes, in load points (the research calls them arbitrary units, AU). Effort is the mean of the athlete's exercise ratings on a 0-10 scale (RPE and CR10 as they are; Borg 6-20 rescaled); minutes run from the session's start to its last logged event (capped at 240). Unrated sessions add no load.</p>
                 <p>Acute:chronic: this week's load ÷ the mean of the 4 weeks before it ("uncoupled"). 0.8-1.3 is the widely quoted range; it is a heuristic and disputed as an injury predictor, so read it as context. Monotony: the week's mean daily load ÷ its standard deviation (rest days count as 0); above 2 is "very samey". Strain: weekly load × monotony (Foster, 1998).</p>
               </Method>
             </Numbers>
@@ -340,11 +332,11 @@ export function CoachAnalysisPanel() {
         <div className="analysis-table-wrap">
           <table className="analysis-table analysis-roster" data-testid="analysis-roster">
             <thead>
-              <tr><th>Athlete</th><th>Status</th><th>What stands out</th><th title="Planned sessions done, latest complete week">Sessions</th><th title="This week's load against their 4-week normal (0.8-1.3 is normal)">Load</th><th title="Readiness against their own normal (z)">Readiness</th><th>Main lifts</th></tr>
+              <tr><th>Athlete</th><th>Status</th><th>What stands out</th><th title="Planned sessions done, latest complete week">Sessions</th><th title="This week's load against their usual (1.0× = a normal week; 0.8-1.3× is normal)">Load vs usual</th><th title="Readiness against their own normal (z)">Readiness</th><th>Main lifts</th></tr>
             </thead>
             <tbody>
               {athletes.map((athlete) => {
-                const status = statusOf(num(athlete.attention));
+                const status = statusOf(num(athlete.attention), Boolean(athlete.last_session));
                 const findings = (rows(athlete.findings) as unknown as Finding[]).filter((f) => f.level === "alert" || f.level === "watch");
                 const ratio = num((athlete.load as JsonRecord | undefined)?.acute_chronic);
                 const z = num((athlete.readiness as JsonRecord | undefined)?.z);
@@ -352,9 +344,9 @@ export function CoachAnalysisPanel() {
                   <tr key={String(athlete.athlete_user_id)}>
                     <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => setSelected(String(athlete.athlete_user_id))}>{String(athlete.display_name)}</button></td>
                     <td data-label="Status"><span className={`analysis-status is-${status.level}`}>{status.label}</span></td>
-                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : "Nothing needs a look"}</span>}</td>
+                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>
-                    <td data-label="Load" className={ratio === null ? "" : ratio > 1.5 || ratio < 0.8 ? "is-alert-text" : ratio > 1.3 ? "is-watch-text" : ""}>{show(ratio)}</td>
+                    <td data-label="Load vs usual" className={ratio === null ? "" : ratio > 1.5 || ratio < 0.8 ? "is-alert-text" : ratio > 1.3 ? "is-watch-text" : ""}>{ratio === null ? "–" : `${ratio}×`}</td>
                     <td data-label="Readiness" className={z === null ? "" : z <= -1.5 ? "is-alert-text" : z <= -1 ? "is-watch-text" : ""}>{z === null ? "–" : z > -1 ? "Normal" : "Low"}</td>
                     <td data-label="Main lifts">{rows(athlete.strength).map((lift) => `${lift.name} ${lift.status === "rising" ? "↑" : lift.status === "falling" ? "↓" : lift.status === "plateau" ? "→" : "·"}`).join(" · ") || "–"}</td>
                   </tr>
@@ -362,6 +354,7 @@ export function CoachAnalysisPanel() {
               })}
             </tbody>
           </table>
+          <p className="muted small analysis-roster-key">Sessions: planned sessions done last week (90%+ is on track). Load vs usual: last week against their own 4-week normal - 1.0× is a normal week, 0.8-1.3× is normal. Readiness: their pre-session check-ins against their own usual.</p>
         </div>
       ) : null}
     </div>

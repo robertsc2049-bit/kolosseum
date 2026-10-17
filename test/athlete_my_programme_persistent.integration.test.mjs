@@ -215,7 +215,7 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.ok(roster.athletes.some((entry) => entry.athlete_user_id === athleteAccount.userId));
   const analysis = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/analysis?weeks=8`), 200, "athlete analysis").json;
   assert.equal(analysis.weeks, 8);
-  assert.deepEqual(Object.keys(analysis.analysis).sort(), ["adherence", "execution", "exercises", "load", "pain", "readiness", "strength", "volume", "weeks"]);
+  assert.deepEqual(Object.keys(analysis.analysis).sort(), ["adherence", "baseline", "execution", "exercises", "load", "pain", "readiness", "strength", "volume", "weeks"]);
   assert.equal(analysis.analysis.weeks.length, 8);
   assert.ok(Array.isArray(analysis.findings));
   assert.equal(analysis.analysis.volume.rows.at(-1).sets >= 0, true);

@@ -19,7 +19,8 @@ const finding = (id: string, section: string, level: string, text: string) => ({
 const roster = {
   ok: true, weeks: 8, athletes: [
     { athlete_user_id: "a1", display_name: "Jordan", attention: 7, findings: [finding("pain_knee", "pain", "alert", "Knee pain reported in 2 different weeks (Back squat)."), finding("load", "load", "watch", "Training load is 40% above their 4-week normal (ratio 1.4).")], adherence: { latest_pct: 100 }, load: { acute_chronic: 1.4 }, readiness: { z: -1.6 }, strength: [{ name: "Back squat", status: "rising" }] },
-    { athlete_user_id: "a2", display_name: "Casey", attention: 0, findings: [finding("adherence", "adherence", "good", "Training as planned.")], adherence: { latest_pct: 100 }, load: { acute_chronic: 1 }, readiness: { z: 0.2 }, strength: [] }
+    { athlete_user_id: "a2", display_name: "Casey", attention: 0, findings: [finding("adherence", "adherence", "good", "Training as planned.")], adherence: { latest_pct: 100 }, load: { acute_chronic: 1 }, readiness: { z: 0.2 }, strength: [], last_session: "2026-10-14" },
+    { athlete_user_id: "a3", display_name: "Alex", attention: 0, findings: [], adherence: { latest_pct: null }, load: { acute_chronic: null }, readiness: { z: null }, strength: [], last_session: null }
   ]
 };
 const athlete = {
@@ -62,6 +63,8 @@ test("the roster ranks athletes by what needs a look, with the reasons in plain 
   assert.ok(rowsShown[0].textContent?.includes("Knee pain reported in 2 different weeks"));
   assert.ok(rowsShown[1].textContent?.includes("On track"));
   assert.ok(rowsShown[1].textContent?.includes("Nothing needs a look"), "good news is not listed as a problem");
+  assert.ok(rowsShown[2].textContent?.includes("No training yet"), "no sessions is not 'on track'");
+  assert.ok(rowsShown[2].textContent?.includes("No sessions logged in the last 8 weeks"));
 });
 
 test("an athlete's analysis: findings first, each section a headline and a chart, the numbers and methods one click away", async () => {
@@ -133,4 +136,26 @@ test("every part of an athlete's analysis explains itself - what it shows, how t
     assert.ok(text.includes("How to read it") && text.includes("How it's worked out"), `${id}: full explanation`);
   }
   assert.ok(screen.getByTestId("explain-load").textContent?.includes("0.8-1.3 (the shaded band) is normal"));
+});
+
+test("effort against your target reads in words - on target, harder or easier than set - with the number on hover", async () => {
+  installMocks();
+  const rowsBefore = athlete.analysis.execution.rows;
+  athlete.analysis.execution.rows = [
+    { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: 0.2 },
+    { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: 1.8 },
+    { reps_hit_pct: 100, sets_logged_pct: 100, load_vs_plan_pct: 0, effort_vs_plan: -1.6 }
+  ] as typeof rowsBefore;
+  try {
+    render(<CoachAnalysisPanel />);
+    await screen.findByText("Jordan");
+    await act(async () => { fireEvent.click(screen.getByText("Jordan")); });
+    const execution = await screen.findByTestId("analysis-execution");
+    const text = execution.textContent ?? "";
+    assert.ok(text.includes("On target") && text.includes("Harder than set") && text.includes("Easier than set"), text);
+    assert.ok(execution.querySelector("span[title='1.8']"));
+  }
+  finally {
+    athlete.analysis.execution.rows = rowsBefore;
+  }
 });

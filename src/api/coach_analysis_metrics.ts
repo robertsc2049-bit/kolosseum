@@ -656,8 +656,20 @@ export function analyseAthlete(input: AnalysisInput): Json {
     })
     .sort((a, b) => b.best - a.best);
 
+  // --- their usual, from the 4 weeks before the period ---
+  const priorLoads = weeklyLoadAll.slice(0, 4).filter((value): value is number => value !== null && value > 0);
+  const priorReadiness = readinessDays.filter((entry) => entry.date < first && entry.date >= addDays(first, -28)).map((entry) => entry.total);
+  const priorSd = standardDeviation(priorReadiness);
+  const baseline = {
+    weekly_load: priorLoads.length >= 2 ? round(mean(priorLoads), 0) : null,
+    readiness: priorReadiness.length >= 5
+      ? { average: round(mean(priorReadiness), 1), low: round(mean(priorReadiness) - (Number.isFinite(priorSd) ? priorSd : 0), 0), high: round(mean(priorReadiness) + (Number.isFinite(priorSd) ? priorSd : 0), 0), check_ins: priorReadiness.length }
+      : null
+  };
+
   return {
     weeks,
+    baseline,
     ...(input.from || input.to ? { range: { from: input.from ?? null, to: input.to ?? null } } : {}),
     ...(input.closed ? { closed: true } : {}),
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))) },
@@ -672,7 +684,56 @@ export function analyseAthlete(input: AnalysisInput): Json {
 }
 
 // ---------- findings: plain-English headlines and flags ----------
-export type Finding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string }>;
+// text: what happened; action: a suggested next step (the coach decides).
+export type Finding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; action?: string; exercise_id?: string }>;
+
+// The suggested next step for each kind of finding.
+function actionFor(finding: Finding): string | undefined {
+  const { id, level } = finding;
+  if (id === "adherence") return level === "alert"
+    ? "Ask what's getting in the way - time, energy or the plan itself - before adding anything. Fewer or shorter sessions they will do beat a plan they won't."
+    : level === "watch" ? "Check in on their week, and consider moving or shortening the session they miss most." : "Keep the plan as it is.";
+  if (id === "load") return level === "alert" ? "Hold or reduce load next week instead of adding more, and let this jump settle before the next step up."
+    : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
+    : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
+  if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
+  if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
+  if (id === "monotony") return "Make the easy days easier: alternate hard and light sessions through the week.";
+  if (id === "readiness") return "Ask how they're sleeping and coping. Consider a lighter session, or moving the hardest session later in the week.";
+  if (id.startsWith("checkin_")) return "Have a conversation - a drop in energy, sleep or motivation often comes before missed sessions.";
+  if (id.startsWith("strength_fatigue_")) return "Signs of fatigue: plan a lighter week before pushing this lift again.";
+  if (id.startsWith("strength_")) return level === "alert" ? "Look at fatigue, sleep and pain first - a lighter week often brings it back. If it keeps falling, change the stimulus."
+    : level === "watch" ? "Change something: the rep range, an exercise variation, the volume or how often it's trained." : "Tell them - and keep the current plan going.";
+  if (id === "execution") return "The weights are probably too heavy: drop the load a little or widen the rep range.";
+  if (id === "creep") return "Fatigue is building on this lift - consider a lighter week soon.";
+  if (id.startsWith("effort_target_")) return level === "info" ? "Add weight next time - they have more in the tank." : "Lighten it to match the effort you meant, or check they understand the rating scale.";
+  if (id.startsWith("bodyweight_")) return "Progress it: more reps, a harder variation or a little added weight.";
+  if (id.startsWith("pain_")) return "Check technique and load on the exercises involved and swap them if needed. If it continues, refer them to a medical professional.";
+  return undefined;
+}
+
+const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, adherence: 4, execution: 5 };
+
+// One story instead of two lines that look like they disagree.
+function mergeRelated(list: Finding[]): Finding[] {
+  let out = [...list];
+  const load = out.find((f) => f.id === "load");
+  const spike = out.find((f) => f.id === "load_spike");
+  if (load && spike && load.text.includes("dropped")) {
+    const drop = load.text.replace(/^Training load dropped /u, "dropped ").replace(/\.$/u, "");
+    out = out.filter((f) => f !== load && f !== spike);
+    out.push({ id: "load_story", section: "load", level: "watch", text: `${spike.text.replace(/\.$/u, "")}, then ${drop}.` });
+  }
+  // A lift that's down or stuck and also feels harder: one fatigue finding.
+  for (const strength of out.filter((f) => f.id.startsWith("strength_") && f.level !== "good" && f.exercise_id)) {
+    const effort = out.find((f) => (f.id === "creep" || f.id.startsWith("effort_target_")) && f.level !== "info" && f.exercise_id === strength.exercise_id);
+    if (!effort) continue;
+    const detail = effort.text.replace(/^[^:]+: /u, "").replace(/\.$/u, "");
+    out = out.filter((f) => f !== strength && f !== effort);
+    out.push({ id: `strength_fatigue_${strength.exercise_id}`, section: "strength", level: strength.level, exercise_id: strength.exercise_id, text: `${strength.text.replace(/\.$/u, "")}, and it feels harder (${detail}).` });
+  }
+  return out;
+}
 
 const lastValue = <T,>(rows: readonly T[], pick: (row: T) => number | null | undefined) => {
   for (let index = rows.length - 1; index >= 0; index -= 1) {
@@ -764,8 +825,8 @@ export function findings(analysis: Json): Finding[] {
 
   // Strength.
   for (const lift of (a.strength.lifts as Json[]).filter((entry) => entry.main !== false)) {
-    if (lift.status === "falling") out.push({ id: `strength_${lift.exercise_id}`, section: "strength", level: "alert", text: `${lift.name} estimated max is ${Math.abs(Number(lift.recent_off_peak_pct))}% below its peak of ${lift.peak} kg.` });
-    else if (lift.status === "plateau") out.push({ id: `strength_${lift.exercise_id}`, section: "strength", level: "watch", text: `${lift.name} hasn't beaten ${lift.peak} kg for ${lift.weeks_since_peak} weeks.` });
+    if (lift.status === "falling") out.push({ id: `strength_${lift.exercise_id}`, section: "strength", level: "alert", exercise_id: String(lift.exercise_id), text: `${lift.name} estimated max is ${Math.abs(Number(lift.recent_off_peak_pct))}% below its peak of ${lift.peak} kg.` });
+    else if (lift.status === "plateau") out.push({ id: `strength_${lift.exercise_id}`, section: "strength", level: "watch", exercise_id: String(lift.exercise_id), text: `${lift.name} hasn't beaten ${lift.peak} kg for ${lift.weeks_since_peak} weeks.` });
     else if (lift.status === "rising" && lift.change_pct !== null) out.push({ id: `strength_${lift.exercise_id}`, section: "strength", level: "good", text: `${lift.name} estimated max up ${lift.change_pct}% to ${lift.latest} kg.` });
   }
 
@@ -773,13 +834,13 @@ export function findings(analysis: Json): Finding[] {
   const reps = lastValue(complete(a.execution.rows as Json[]), (row) => row.reps_hit_pct as number | null);
   if (reps && reps.value < 80) out.push({ id: "execution", section: "execution", level: reps.value < 65 ? "alert" : "watch", text: `Hit the prescribed reps on ${reps.value}% of sets in their latest training week.` });
   const creep = (a.execution.effort_creep as Json[])[0];
-  if (creep && Number(creep.effort_change) >= 1) out.push({ id: "creep", section: "execution", level: "watch", text: `${creep.name} feels harder at the same weight: ${creep.scale_label} ${creep.early} → ${creep.late} at about ${creep.load_kg} kg.` });
+  if (creep && Number(creep.effort_change) >= 1) out.push({ id: "creep", section: "execution", level: "watch", exercise_id: String(creep.exercise_id), text: `${creep.name} feels harder at the same weight: ${creep.scale_label} ${creep.early} → ${creep.late} at about ${creep.load_kg} kg.` });
   // Effort against an RPE, Borg or CR10 target (at least 3 ratings).
   const targets = ((a.execution.effort_targets ?? []) as Json[]).filter((row) => Number(row.ratings) >= 3);
   const over = targets.find((row) => Number(row.diff_10) >= 1);
   const under = targets.find((row) => Number(row.diff_10) <= -1.5);
   const targetText = (row: Json) => `${SCALE_LABEL[row.scale as EffortScale]} ${row.target}${row.target_max ? `-${row.target_max}` : ""}`;
-  if (over) out.push({ id: `effort_target_${over.exercise_id}`, section: "execution", level: "watch", text: `${over.name} is rated harder than prescribed: ${targetText(over)} set, rated ${over.rated_average} on average.` });
+  if (over) out.push({ id: `effort_target_${over.exercise_id}`, section: "execution", level: "watch", exercise_id: String(over.exercise_id), text: `${over.name} is rated harder than prescribed: ${targetText(over)} set, rated ${over.rated_average} on average.` });
   if (under) out.push({ id: `effort_target_${under.exercise_id}`, section: "execution", level: "info", text: `${under.name} is rated easier than prescribed: ${targetText(under)} set, rated ${under.rated_average} on average - room to add weight.` });
   // Bodyweight strength: more reps on their best set.
   for (const lift of ((a.strength.bodyweight ?? []) as Json[]).filter((row) => Number(row.change) >= 2).slice(0, 2)) {
@@ -796,7 +857,9 @@ export function findings(analysis: Json): Finding[] {
   }
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
-  return out.sort((x, y) => order[x.level] - order[y.level]);
+  return mergeRelated(out)
+    .map((finding) => { const action = actionFor(finding); return action ? { ...finding, action } : finding; })
+    .sort((x, y) => order[x.level] - order[y.level] || (SECTION_ORDER[x.section] ?? 9) - (SECTION_ORDER[y.section] ?? 9));
 }
 
 export function attentionScore(list: readonly Finding[]): number {

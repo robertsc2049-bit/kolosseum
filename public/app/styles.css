@@ -5119,3 +5119,13 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .analysis-explain-body ul { margin: 0 0 var(--k-space-2); padding-left: 1.1em; display: grid; gap: 4px; }
 .analysis-explain-body .eyebrow { margin: var(--k-space-2) 0 4px; }
 @media print { .analysis-explain { display: none !important; } }
+
+/* Findings with a suggested next step (FindingList.tsx), "their usual"
+   under report numbers, and the roster's one-line key. */
+.analysis-finding-body { display: grid; gap: 3px; min-width: 0; }
+.analysis-finding-action { font-size: 0.85rem; color: var(--k-text-secondary); }
+.analysis-finding-action strong { color: var(--k-text); font-weight: 600; }
+.analysis-findings-more { margin-top: var(--k-space-2); min-height: 44px; }
+.report-tile-usual { font-size: 0.78rem; color: var(--k-text-secondary); }
+.analysis-roster-key { margin: var(--k-space-2) 0 0; }
+@media print { .analysis-findings-more { display: none !important; } }

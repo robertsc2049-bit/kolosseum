@@ -36,6 +36,9 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     title: "What stands out",
     shows: "The most important things in this athlete's data, most urgent first, in one sentence each.",
     read: [
+      "The top 5 show first - the most serious first (pain, then strength, readiness, load, turning up, doing the plan). 'Show all' lists the rest.",
+      "Each comes with a suggested next step. It's a suggestion - you know the athlete and decide.",
+      "Related signals are joined into one line - for example a big week followed by a drop, or a lift that's stalling while it also feels harder.",
       "Red - needs a look: act on it or talk to the athlete soon.",
       "Amber - keep an eye on: a trend worth watching; it may sort itself out.",
       "Green - going well: progress worth telling the athlete about.",
@@ -108,7 +111,7 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Strain (in the numbers): weekly load × monotony. A high load and high monotony together is the combination to avoid."
     ],
     how: [
-      "Session load (Foster's session-RPE method) = session effort × minutes, in arbitrary units (AU). Effort is the average of the athlete's exercise ratings that session on a 0-10 scale (RPE and CR10 as given; Borg 6-20 rescaled). Minutes run from starting the session to the last thing they logged, capped at 4 hours.",
+      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Effort is the average of the athlete's exercise ratings that session on a 0-10 scale (RPE and CR10 as given; Borg 6-20 rescaled). Minutes run from starting the session to the last thing they logged, capped at 4 hours.",
       "Load ratio = this week's load ÷ the mean of the 4 previous weeks' loads. Monotony = the week's average daily load ÷ the standard deviation of its 7 daily loads (rest days count as 0). Strain = weekly load × monotony."
     ],
     mind: [
@@ -185,7 +188,8 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     title: "The headline numbers",
     shows: "The period at a glance, each with the change since the last report of the same kind.",
     read: [
-      "Sessions: sessions done (and part done), with how many were planned. Turned up: planned sessions done, as a percentage. Sets and Tonnage: total work. Weekly load: their average week's training load. Reps hit: logged sets that reached the prescribed reps. Readiness: their average daily check-in, out of 15. Pain reports: how many times they reported pain.",
+      "Sessions: sessions done (and part done), with how many were planned. Turned up: planned sessions done, as a percentage. Sets and Tonnage: total work. Weekly load: their average week's training load in load points. Reps hit: logged sets that reached the prescribed reps. Readiness: their average daily check-in, out of 15. Pain reports: how many times they reported pain.",
+      "Under a number, 'their usual' is the athlete's own normal from the 4 weeks before the period (readiness as the range they usually sit in); 'on track' and 'normal' are the general guide for that number.",
       "▲ and ▼ show the change since the last report. Green is a change in the right direction, amber in the wrong one - for example more load is amber because it adds fatigue, fewer pain reports is green.",
       "'pts' means percentage points - 90% to 95% is +5 pts."
     ],

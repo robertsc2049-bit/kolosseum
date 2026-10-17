@@ -5,6 +5,7 @@ import { loadAccountDetail } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
 import { AthleteReportBody } from "../athlete/AthleteProgressReports";
 import { Explain } from "./analysisGuide";
+import { FindingList, type Finding } from "./FindingList";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
 
 // The coach's progress reports for one athlete: one for every week, every
@@ -13,7 +14,6 @@ import { TrendChart, shortWeek } from "../../components/TrendChart";
 // one before it, and printable. Compiled from what the athlete logged, so
 // a new one is there as soon as a period ends; the current one shows so far.
 
-type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string };
 type Period = { type: string; id: string; label: string; start: string; end: string; complete: boolean; detail?: string; weeks?: number; from?: string; to?: string };
 
 const TYPES: Array<{ type: string; label: string; title: string; empty: string }> = [
@@ -24,7 +24,6 @@ const TYPES: Array<{ type: string; label: string; title: string; empty: string }
   { type: "year", label: "Yearly", title: "Yearly report", empty: "No training logged yet." },
   { type: "custom", label: "Custom dates", title: "Custom report", empty: "" }
 ];
-const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
 export const REPORT_PRINT_ROOT_ID = "report-print-root";
 export const REPORT_PRINTING_CLASS = "printing-report";
 
@@ -57,11 +56,13 @@ function Change({ value, suffix = "", upIsGood = true }: { value: unknown; suffi
   return <span className={`report-change${tone}`}>{`${n > 0 ? "▲ +" : n < 0 ? "▼ " : "= "}${n === 0 ? "no change" : `${n}${suffix}`}`}</span>;
 }
 
-function Tile({ label, value, change }: { label: string; value: string; change?: React.ReactNode }) {
+// A headline number, what usual looks like, and the change since the last report.
+function Tile({ label, value, change, usual }: { label: string; value: string; change?: React.ReactNode; usual?: string | null }) {
   return (
     <div className="report-tile">
       <span className="report-tile-label">{label}</span>
       <strong>{value}</strong>
+      {usual ? <span className="report-tile-usual">{usual}</span> : null}
       {change}
     </div>
   );
@@ -82,6 +83,9 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
   const intensity = (summary.intensity ?? null) as JsonRecord | null;
   const sessionLog = rows(summary.session_log);
   const findings = rows(report.findings) as unknown as Finding[];
+  const baseline = (summary.baseline ?? null) as JsonRecord | null;
+  const usualReadiness = (baseline?.readiness ?? null) as JsonRecord | null;
+  const readinessUsual = usualReadiness ? (usualReadiness.low === usualReadiness.high ? String(usualReadiness.average) : `${usualReadiness.low}-${usualReadiness.high}`) : null;
   const analysis = (report.analysis ?? {}) as JsonRecord;
   const weeks = (analysis.weeks ?? []) as string[];
   const loadRows = rows((analysis.load as JsonRecord | undefined)?.rows);
@@ -106,27 +110,18 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
 
       <section className="report-section">
         <h4>What stands out</h4>
-        {findings.length ? (
-          <ul className="analysis-findings">
-            {findings.map((finding) => (
-              <li key={finding.id} className={`analysis-finding is-${finding.level}`}>
-                <span className="analysis-finding-level">{LEVEL_LABEL[finding.level]}</span>
-                <span>{finding.text}</span>
-              </li>
-            ))}
-          </ul>
-        ) : <p className="muted small">Nothing stood out.</p>}
+        <FindingList findings={findings} showAll={printing} emptyText="Nothing stood out." />
       </section>
 
       <Explain id="summary" />
       <div className="report-tiles" data-testid="report-tiles">
         <Tile label={num(sessions.planned) ? `Sessions (${sessions.planned} planned)` : "Sessions"} value={`${show(sessions.completed)}${num(sessions.partial) ? ` + ${sessions.partial} part` : ""}`} change={<Change value={compared?.sessions_completed} />} />
-        <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
+        <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} usual="On track: 90%+" change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
         <Tile label="Sets" value={show(training.sets)} change={<Change value={compared?.sets_pct} suffix="%" />} />
         <Tile label="Tonnage" value={show(training.tonnage_kg, " kg")} change={<Change value={compared?.tonnage_pct} suffix="%" />} />
-        <Tile label="Weekly load (avg)" value={show(training.load_weekly_average, " AU")} change={<Change value={compared?.load_weekly_average_pct} suffix="%" upIsGood={false} />} />
-        <Tile label="Reps hit" value={show(execution.reps_hit_pct, "%")} change={<Change value={compared?.reps_hit_pct} suffix=" pts" />} />
-        <Tile label="Readiness (avg of 15)" value={show(wellbeing.readiness_average)} change={<Change value={compared?.readiness_average} />} />
+        <Tile label="Weekly load (avg)" value={show(training.load_weekly_average, " points")} usual={num(baseline?.weekly_load) ? `Their usual before this: ${Number(baseline!.weekly_load).toLocaleString()}` : null} change={<Change value={compared?.load_weekly_average_pct} suffix="%" upIsGood={false} />} />
+        <Tile label="Reps hit" value={show(execution.reps_hit_pct, "%")} usual="Normal: 90%+" change={<Change value={compared?.reps_hit_pct} suffix=" pts" />} />
+        <Tile label="Readiness (out of 15)" value={show(wellbeing.readiness_average)} usual={readinessUsual ? `Their usual: ${readinessUsual}` : null} change={<Change value={compared?.readiness_average} />} />
         {num(training.timed_minutes) ? <Tile label="Timed work" value={show(training.timed_minutes, " min")} /> : null}
         {num(training.distance_m) ? <Tile label="Distance" value={show(training.distance_m, " m")} /> : null}
         {num(training.bodyweight_reps) ? <Tile label="Bodyweight reps" value={show(training.bodyweight_reps)} /> : null}
@@ -168,10 +163,10 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <section className="report-section">
           <h4>Week by week</h4>
           <Explain id="report_weeks" />
-          <TrendChart title="Weekly training load (AU) and sets" weeks={weeks} series={[{ id: "load", label: "Load (AU)", kind: "bar", values: loadRows.map((row) => num(row.load)) }]} emptyLabel="No rated sessions in this period." height={140} />
+          <TrendChart title="Weekly training load (load points)" weeks={weeks} series={[{ id: "load", label: "Load (points)", kind: "bar", values: loadRows.map((row) => num(row.load)) }]} emptyLabel="No rated sessions in this period." height={140} />
           <div className="analysis-table-wrap">
             <table className="analysis-table">
-              <thead><tr><th>Week of</th><th>Sessions</th><th>Turned up</th><th>Sets</th><th>Tonnage</th><th>Load</th><th>Load ratio</th><th>Monotony</th></tr></thead>
+              <thead><tr><th>Week of</th><th>Sessions</th><th>Turned up</th><th>Sets</th><th>Tonnage</th><th>Load (points)</th><th>vs usual</th><th>Monotony</th></tr></thead>
               <tbody>
                 {weeks.map((week, index) => (
                   <tr key={week}>
@@ -297,7 +292,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
             <li>{`Sets logged: ${show(execution.sets_logged_pct, "%")} of those planned, in the sessions done`}</li>
             <li>{`Reps hit: ${show(execution.reps_hit_pct, "%")} of logged sets reached the target`}</li>
             <li>{`Training time: ${show(sessions.minutes, " min")}, average effort ${show(sessions.average_effort, "/10")}`}</li>
-            {peak ? <li>{`Highest load ratio: ${show(peak.value)} (week of ${shortWeek(String(peak.week_start))})`}</li> : null}
+            {peak ? <li>{`Highest load vs usual: ${show(peak.value)}× (week of ${shortWeek(String(peak.week_start))}; 0.8-1.3× is normal)`}</li> : null}
             {num(execution.load_vs_plan_pct) !== null ? <li>{`Weight against the plan: ${Number(execution.load_vs_plan_pct) > 0 ? "+" : ""}${execution.load_vs_plan_pct}% (inside a prescribed range counts as on plan)`}</li> : null}
             {rows(execution.effort_targets).map((t) => <li key={`target-${String(t.exercise_id)}-${String(t.scale)}-${String(t.target)}`}>{`${String(t.name)}: ${SCALE[String(t.scale)]} ${t.target}${t.target_max ? `-${t.target_max}` : ""} set, rated ${t.rated_average} on average (${Number(t.diff) === 0 ? "on target" : `${Number(t.diff) > 0 ? "+" : ""}${t.diff}`})`}</li>)}
             {rows(execution.effort_creep).filter((entry) => Math.abs(Number(entry.effort_change)) >= 0.5).map((entry) => <li key={`creep-${String(entry.exercise_id)}-${String(entry.scale)}`}>{`${String(entry.name)} at ${show(entry.load_kg, " kg")}: ${String(entry.scale_label)} ${show(entry.early)} → ${show(entry.late)}`}</li>)}
@@ -322,7 +317,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
           <p className="muted small">Pain reports are the athlete's own and are not a diagnosis.</p>
         </section>
       </div>
-      <p className="muted small report-method">Load is session effort (0-10) × minutes (Foster). Load ratio is a week's load against the 4 weeks before it (context only - disputed as an injury predictor). Readiness compares each check-in with the athlete's own previous 28 days.</p>
+      <p className="muted small report-method">Load is session effort (0-10) × minutes, in load points (Foster's session-RPE). Load vs usual is a week's load against the 4 weeks before it (context only - disputed as an injury predictor). Readiness compares each check-in with the athlete's own previous 28 days.</p>
     </article>
   );
 }
