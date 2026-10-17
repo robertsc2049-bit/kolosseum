@@ -68,6 +68,18 @@ export type AnalysisSession = Readonly<{
   events: readonly AnalysisEvent[];
 }>;
 
+// The athlete's own rating of a whole gym session when they finish it:
+// effort 0-10 (CR10) and how many minutes it took. With it, the session's
+// load is measured; without it, it's estimated from the app's timings.
+export type SessionLoadReport = Readonly<{ srpe: number; minutes: number }>;
+// Training outside the app's sessions: team practice, matches, conditioning,
+// another sport - logged with its minutes and effort (0-10).
+export type OtherTraining = Readonly<{ id: string; date: string; kind: string; minutes: number; srpe: number; note?: string }>;
+// A date worth seeing on the charts: a competition, the season, a match, a
+// deload or peak block.
+export type CalendarMarker = Readonly<{ date: string; kind: string; label: string }>;
+export const OTHER_TRAINING_KINDS: Readonly<Record<string, string>> = { practice: "Team practice", match: "Match", conditioning: "Conditioning", other_sport: "Other sport" };
+
 export type ReadinessFact = Readonly<{ date: string; sleep: number; soreness: number; stress: number }>;
 export type CheckinFact = Readonly<{ week_start: string; energy: number | null; motivation: number | null; sleep: number | null }>;
 
@@ -86,6 +98,9 @@ export type AnalysisInput = Readonly<{
   sessions: readonly AnalysisSession[];
   readiness: readonly ReadinessFact[];
   checkins: readonly CheckinFact[];
+  session_reports?: Readonly<Record<string, SessionLoadReport>>;
+  other_training?: readonly OtherTraining[];
+  markers?: readonly CalendarMarker[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
   is_strength_lift: (exerciseId: string) => boolean;
@@ -215,31 +230,76 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const sessions = allSessions.filter((session) => inRange(sessionDay(session)));
 
   // --- load ---
+  // Gym sessions: measured (the athlete's own effort x minutes when they
+  // finished) or estimated (their exercise ratings x the app's timings).
+  // Other training (practice, matches, conditioning) adds its own load.
   const dailyLoad = new Map<string, number>();
+  const dailyGym = new Map<string, number>();
+  const dailySport = new Map<string, number>();
+  const addLoad = (map: Map<string, number>, date: string, load: number) => map.set(date, (map.get(date) ?? 0) + load);
+  const reports = input.session_reports ?? {};
   const sessionRows: Json[] = [];
   for (const session of allSessions.filter(done)) {
-    const load = sessionLoad(session.events);
+    const report = reports[session.session_id];
+    const measured = Boolean(report && finite(report.srpe) && finite(report.minutes) && report.minutes > 0);
+    const load = measured ? round(report!.srpe * Math.min(report!.minutes, 300), 0) : sessionLoad(session.events);
     const date = sessionDay(session);
-    if (load !== null) dailyLoad.set(date, (dailyLoad.get(date) ?? 0) + load);
+    if (load !== null) { addLoad(dailyLoad, date, load); addLoad(dailyGym, date, load); }
     if (!inRange(date)) continue;
-    sessionRows.push({ session_id: session.session_id, date, title: session.title ?? null, status: session.status, effort: sessionEffort(session.events), minutes: sessionMinutes(session.events), load, sets: setLogs(session).length, pain: session.events.some((event) => event.type === "PAIN_REPORT"), skipped: session.events.filter((event) => event.type === "SKIP_EXERCISE").length });
+    sessionRows.push({
+      session_id: session.session_id, date, title: session.title ?? null, status: session.status, kind: "gym", measured,
+      effort: measured ? report!.srpe : sessionEffort(session.events), minutes: measured ? Math.min(report!.minutes, 300) : sessionMinutes(session.events),
+      load, sets: setLogs(session).length, pain: session.events.some((event) => event.type === "PAIN_REPORT"), skipped: session.events.filter((event) => event.type === "SKIP_EXERCISE").length
+    });
   }
-  const firstTrainedWeek = allSessions.some(done) ? weekStart(sessionDay(allSessions.filter(done)[0])) : null;
+  const other = [...(input.other_training ?? [])].filter((entry) => finite(entry.minutes) && entry.minutes > 0 && finite(entry.srpe)).sort((a, b) => a.date.localeCompare(b.date));
+  for (const entry of other) {
+    const load = round(entry.srpe * Math.min(entry.minutes, 300), 0);
+    addLoad(dailyLoad, entry.date, load);
+    addLoad(dailySport, entry.date, load);
+    if (!inRange(entry.date) || !inWindow(entry.date)) continue;
+    sessionRows.push({ session_id: entry.id, date: entry.date, title: OTHER_TRAINING_KINDS[entry.kind] ?? "Other training", status: "completed", kind: entry.kind, measured: true, effort: entry.srpe, minutes: Math.min(entry.minutes, 300), load, sets: 0, pain: false, skipped: 0, ...(entry.note ? { note: entry.note } : {}) });
+  }
+  sessionRows.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const trainedDates = [...allSessions.filter(done).map(sessionDay), ...other.map((entry) => entry.date)].sort();
+  const firstTrainedWeek = trainedDates.length ? weekStart(trainedDates[0]) : null;
   const weeklyLoadAll = loadWeeks.map((start) => {
     // Before their first session there is no load history: "no data", not 0.
     if (firstTrainedWeek === null || start < firstTrainedWeek) return null;
     const days = Array.from({ length: 7 }, (_, index) => addDays(start, index));
     const rated = days.some((date) => dailyLoad.has(date));
-    const trained = allSessions.some((session) => done(session) && weekStart(sessionDay(session)) === start);
+    const trained = trainedDates.some((date) => weekStart(date) === start);
     return rated ? days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0) : trained ? null : 0;
   });
+  const sumWeek = (map: Map<string, number>, start: string) => Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0);
   const loadRows = weeks.map((start) => {
     const index = loadWeeks.indexOf(start);
     const daily = Array.from({ length: 7 }, (_, offset) => dailyLoad.get(addDays(start, offset)) ?? 0);
     const weekly = weeklyLoadAll[index];
     const mono = weekly ? monotony(daily) : null;
-    return { week_start: start, partial_week: start === currentWeek, load: weekly, acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null };
+    return {
+      week_start: start, partial_week: start === currentWeek, load: weekly,
+      gym_load: weekly === null ? null : sumWeek(dailyGym, start), sport_load: weekly === null ? null : sumWeek(dailySport, start),
+      matches: other.filter((entry) => entry.kind === "match" && weekStart(entry.date) === start).length,
+      acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
+    };
   });
+  const gymRows = sessionRows.filter((row) => row.kind === "gym");
+  const loadQuality = {
+    gym_sessions: gymRows.length,
+    measured: gymRows.filter((row) => row.measured).length,
+    measured_pct: gymRows.length ? round((gymRows.filter((row) => row.measured).length / gymRows.length) * 100, 0) : null,
+    other_sessions: sessionRows.length - gymRows.length
+  };
+
+  // --- markers: competitions, the season, matches, deloads and peaks ---
+  const markerRows = [
+    ...(input.markers ?? []),
+    ...other.filter((entry) => entry.kind === "match").map((entry) => ({ date: entry.date, kind: "match", label: entry.note ? `Match: ${entry.note}` : "Match" }))
+  ]
+    .filter((marker) => weekStart(marker.date) >= first && marker.date <= input.today && inRange(marker.date))
+    .map((marker) => ({ ...marker, week_start: weekStart(marker.date) }))
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   // --- volume ---
   const volumeRows = weeks.map((start) => {
@@ -672,7 +732,8 @@ export function analyseAthlete(input: AnalysisInput): Json {
     baseline,
     ...(input.from || input.to ? { range: { from: input.from ?? null, to: input.to ?? null } } : {}),
     ...(input.closed ? { closed: true } : {}),
-    load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))) },
+    load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))), quality: loadQuality },
+    markers: markerRows,
     volume: { rows: volumeRows },
     strength: { lifts, bodyweight: bodyweightLifts },
     execution: { rows: executionRows, most_missed: mostMissed, effort_creep: effortCreep.slice(0, 5), effort_targets: effortTargetRows, intensity },
@@ -698,6 +759,7 @@ function actionFor(finding: Finding): string | undefined {
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
   if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
+  if (id === "load_estimated") return "Ask the athlete to rate each session (how hard, how long) when they finish, and to log practice and matches - the load figures then reflect their real week.";
   if (id === "monotony") return "Make the easy days easier: alternate hard and light sessions through the week.";
   if (id === "readiness") return "Ask how they're sleeping and coping. Consider a lighter session, or moving the hardest session later in the week.";
   if (id.startsWith("checkin_")) return "Have a conversation - a drop in energy, sleep or motivation often comes before missed sessions.";
@@ -796,6 +858,11 @@ export function findings(analysis: Json): Finding[] {
   const spike = recentRows.filter((row) => Number(row.acute_chronic) > 1.5).sort((x, y) => Number(y.acute_chronic) - Number(x.acute_chronic))[0];
   if (spike && (!acwr || spike !== complete(a.load.rows as Json[])[acwr.index])) {
     out.push({ id: "load_spike", section: "load", level: "watch", text: `Training load spiked to ${spike.acute_chronic}x their 4-week normal in ${weekLabel(String(spike.week_start), currentWeek)}.` });
+  }
+  // Most gym loads estimated: say so, and how to fix it.
+  const quality = (a.load as Json).quality as Json | undefined;
+  if (quality && Number(quality.gym_sessions) >= 3 && Number(quality.measured_pct) < 50) {
+    out.push({ id: "load_estimated", section: "load", level: "info", text: `${100 - Number(quality.measured_pct)}% of gym session loads are estimated from the app's timings - the athlete didn't rate them when they finished.` });
   }
   const mono = lastValue(complete(a.load.rows as Json[]), (row) => row.monotony as number | null);
   if (mono && mono.value > 2) out.push({ id: "monotony", section: "load", level: "watch", text: `Training has been very samey day to day (monotony ${mono.value}; above 2 is high).` });

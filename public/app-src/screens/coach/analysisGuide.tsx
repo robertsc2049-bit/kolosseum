@@ -105,17 +105,19 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     title: "Training load",
     shows: "How much total work the athlete did each week - combining how hard it felt with how long it took - and whether this week is a big jump from what they're used to.",
     read: [
-      "Weekly load: higher bars are harder weeks. Planned hard weeks and deloads should be visible as you wrote them.",
+      "Weekly load: higher bars are harder weeks, split into gym and sport (team practice, matches, conditioning the athlete logs). For a team-sport athlete the sport bar is usually the bigger one - a 'quiet' gym week can still be a heavy week.",
+      "Letters on the charts mark the weeks with a Competition (C), Match (M), Deload (D), Peak block (P) or Season start/end (S) - hover for the detail. Read the trend against them: load should drop in a deload and before a competition.",
       "Load ratio (acute:chronic): this week against their average of the 4 weeks before. 1.0 means the same as usual. 0.8-1.3 (the shaded band) is normal week-to-week variation. Above 1.3 is a big jump; above 1.5 is a spike - common before soreness, niggles and missed sessions. Below 0.8 is a drop - expected in a deload or a taper, worth asking about otherwise.",
       "Monotony (in the numbers): how similar the days of the week are. Above 2 means every day is about as hard as every other, with no easy days - a risk for staleness.",
       "Strain (in the numbers): weekly load × monotony. A high load and high monotony together is the combination to avoid."
     ],
     how: [
-      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Effort is the average of the athlete's exercise ratings that session on a 0-10 scale (RPE and CR10 as given; Borg 6-20 rescaled). Minutes run from starting the session to the last thing they logged, capped at 4 hours.",
+      "Session load (Foster's session-RPE method) = session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured: the athlete rates the whole session (0-10) and says how long it took when they finish it. Estimated, if they don't: the average of their exercise ratings × the minutes from starting the session to the last thing they logged (capped at 4 hours). The Load section says how many sessions were measured.",
+      "Practice, matches and conditioning the athlete logs add their own effort × minutes.",
       "Load ratio = this week's load ÷ the mean of the 4 previous weeks' loads. Monotony = the week's average daily load ÷ the standard deviation of its 7 daily loads (rest days count as 0). Strain = weekly load × monotony."
     ],
     mind: [
-      "Sessions with no effort ratings add no load, which makes a week look lighter than it was.",
+      "Sessions with no effort ratings add no load, and practice or matches the athlete doesn't log are missing - both make a week look lighter than it was.",
       "The load ratio is a guide, not a prediction: research disagrees on how well it predicts injury. Use it with what the athlete tells you."
     ]
   },

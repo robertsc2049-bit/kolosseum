@@ -72,6 +72,7 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         <div className="report-tile"><span className="report-tile-label">Training time</span><strong>{show(sessions.minutes, " min")}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Sets</span><strong>{show(training.sets)}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Total lifted</span><strong>{show(training.tonnage_kg, " kg")}</strong></div>
+        {num(training.other_sessions) ? <div className="report-tile"><span className="report-tile-label">Practice & matches</span><strong>{`${training.other_sessions} · ${show(training.other_minutes)} min`}</strong></div> : null}
         {num(training.timed_minutes) ? <div className="report-tile"><span className="report-tile-label">Timed work</span><strong>{show(training.timed_minutes, " min")}</strong></div> : null}
         {num(training.distance_m) ? <div className="report-tile"><span className="report-tile-label">Distance</span><strong>{show(training.distance_m, " m")}</strong></div> : null}
       </div>

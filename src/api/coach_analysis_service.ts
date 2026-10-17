@@ -16,6 +16,8 @@ import { listConnectedCoachAthletes, requireCoachAthleteAccess } from "./beta19_
 import { listWeeklyCheckinsForCoach } from "./weekly_checkin_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { isE1rmExercise } from "./training_e1rm.js";
+import { blockMarkers, listOtherTraining, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
+import { programmeHistory } from "./programme_history.js";
 
 type Json = Record<string, unknown>;
 
@@ -184,12 +186,15 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
   const since = addDays(weekStart(today), -7 * (weeks + 4));
-  const [sessions, readiness, checkins, plan, custom] = await Promise.all([
+  const [sessions, readiness, checkins, plan, custom, sessionReports, otherTraining, programmes] = await Promise.all([
     loadSessions(athleteUserId, since),
     loadReadiness(athleteUserId, since),
     listWeeklyCheckinsForCoach(coachUserId, athleteUserId).catch(() => []),
     getAthleteTrainingPlan(athleteUserId).catch(() => null),
-    getAthleteCustomExerciseNames(athleteUserId).catch(() => ({}))
+    getAthleteCustomExerciseNames(athleteUserId).catch(() => ({})),
+    loadSessionReports(athleteUserId, since).catch(() => ({})),
+    listOtherTraining(athleteUserId, since).catch(() => []),
+    programmeHistory(athleteUserId).catch(() => [])
   ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
@@ -203,6 +208,9 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),
+    session_reports: sessionReports,
+    other_training: otherTraining,
+    markers: [...planMarkers(plan as Json | null), ...blockMarkers(programmes)],
     planned_days_per_week: num(plan?.training_days_per_week),
     exercise_name: (id) => names[id] ?? id.replaceAll("_", " "),
     is_strength_lift: (id) => isE1rmExercise(id, patternOf)

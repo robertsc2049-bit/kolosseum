@@ -2,6 +2,7 @@
 // This route exposes factual declaration state only and cannot infer training decisions.
 
 import { listAthleteReports } from "./coach_report_service.js";
+import { TrainingLogInputError, addOtherTraining, getSessionLoadReport, listOtherTraining, recordSessionLoad, removeOtherTraining } from "./athlete_training_log_service.js";
 import {
   Router,
   type NextFunction,
@@ -351,6 +352,65 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await loadAthleteMyProgramme(session.account_row.user_id));
+  })
+);
+
+// Training load the athlete reports themselves (athlete_training_log_service.ts):
+// how hard a finished gym session was and how long it took, and training
+// outside the app's sessions - team practice, matches, conditioning.
+const trainingLogError = (response: Response, error: unknown) => {
+  if (error instanceof TrainingLogInputError) return response.status(error.status).json({ ok: false, error: error.message });
+  throw error;
+};
+
+athleteOnboardingRouter.post(
+  "/session-load",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try { return response.status(200).json(await recordSessionLoad(session.account_row.user_id, request.body)); }
+    catch (error) { return trainingLogError(response, error); }
+  })
+);
+
+athleteOnboardingRouter.get(
+  "/session-load/:session_id",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await getSessionLoadReport(session.account_row.user_id, String(request.params.session_id)));
+  })
+);
+
+athleteOnboardingRouter.get(
+  "/other-training",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json({ ok: true, entries: await listOtherTraining(session.account_row.user_id) });
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/other-training",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try { return response.status(200).json(await addOtherTraining(session.account_row.user_id, request.body)); }
+    catch (error) { return trainingLogError(response, error); }
+  })
+);
+
+athleteOnboardingRouter.post(
+  "/other-training/remove",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try { return response.status(200).json(await removeOtherTraining(session.account_row.user_id, request.body)); }
+    catch (error) { return trainingLogError(response, error); }
   })
 );
 
