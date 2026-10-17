@@ -33,8 +33,8 @@ test("index.html declares the History-page tab strip with both tabs", () => {
   assert.match(html, /<button type="button" role="tab" class="section-tab" aria-selected="false" data-tab-target="wellbeing">Wellbeing<\/button>/u);
 });
 
-test("index.html groups the session-history root under the record tab panel", () => {
-  const recordPanel = /<div data-tab-group="history" data-tab-panel="record">\s*<div id="athlete-history-root"><\/div>\s*<\/div>/u;
+test("index.html groups the session-history root (after the reports from their coach) under the record tab panel", () => {
+  const recordPanel = /<div data-tab-group="history" data-tab-panel="record">\s*<div id="athlete-progress-reports-root"><\/div>\s*<div id="athlete-history-root"><\/div>\s*<\/div>/u;
   assert.match(html, recordPanel);
 });
 
