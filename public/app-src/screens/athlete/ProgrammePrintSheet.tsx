@@ -12,6 +12,8 @@ export type PrintExercise = { name: string; segment: string; sets: number; reps:
 export type PrintSession = { session_index: number; title: string; state: string; date: string | null; exercises: PrintExercise[] };
 export type PrintWeek = { week_number: number; sessions: PrintSession[]; block: { name: string; block_type: string } };
 
+const eyebrow = (source: string, viewer: "athlete" | "coach") => viewer === "coach" ? "Coach's copy" : source === "coach" ? "From your coach" : "Kolosseum programme";
+
 export const PRINT_ROOT_ID = "programme-print-root";
 export const PRINTING_CLASS = "printing-programme";
 const MAX_SET_BOXES = 8;
@@ -120,7 +122,7 @@ function LoadLines({ load }: { load: string }) {
   return split ? <><span>{split[1]}</span><small>{split[2]}</small></> : <span>{load}</span>;
 }
 
-function OverviewPage({ programmeName, source, weeks, totals }: { programmeName: string; source: string; weeks: PrintWeek[]; totals: { weeks: number; sessions: number; done: number } }) {
+function OverviewPage({ programmeName, source, viewer, weeks, totals }: { programmeName: string; source: string; viewer: "athlete" | "coach"; weeks: PrintWeek[]; totals: { weeks: number; sessions: number; done: number } }) {
   const blocks: Array<{ name: string; block_type: string; first: number; last: number }> = [];
   for (const week of weeks) {
     const last = blocks[blocks.length - 1];
@@ -132,7 +134,7 @@ function OverviewPage({ programmeName, source, weeks, totals }: { programmeName:
     <article className="print-overview" data-testid="print-overview">
       <header className="print-week-header">
         <div>
-          <p>{`${source === "coach" ? "From your coach" : "Kolosseum programme"} · Overview`}</p>
+          <p>{`${eyebrow(source, viewer)} · Overview`}</p>
           <h1>{programmeName}</h1>
         </div>
         <h2>{`${totals.weeks} weeks · ${totals.sessions} sessions${totals.done ? ` · ${totals.done} done` : ""}`}</h2>
@@ -190,11 +192,136 @@ function OverviewPage({ programmeName, source, weeks, totals }: { programmeName:
   );
 }
 
-export function ProgrammePrintSheet({ programmeName, source, weeks, overview = null }: {
+// The cover: who the programme is for and from, when it started, what it
+// builds to, the athlete's bodyweight and weight class, the blocks with
+// their weeks (and planned dates, from the start date), and the coach's
+// notes. The athlete's copy then says how to use the sheets; the coach's
+// copy (viewer "coach") lists the maxes the weights come from and the
+// bodyweight history instead - never shown to the athlete.
+export type ProgrammeCover = {
+  athlete_name?: string;
+  coach_name?: string;
+  description?: string;
+  started_on?: string | null;
+  competition?: { name: string; date: string } | null;
+  bodyweight?: { value: number; unit: string; as_of: string | null } | null;
+  weight_class_kg?: number | null;
+  maxes?: Array<{ name: string; value: number | null; unit: string; basis: string; date: string | null }>;
+  bodyweight_history?: Array<{ value: number; unit: string; date: string | null }>;
+};
+
+const day = (iso: string | null | undefined) => {
+  if (!iso) return "";
+  const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+};
+const plusDays = (iso: string, days: number) => {
+  const date = new Date(`${iso.slice(0, 10)}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+
+function CoverPage({ programmeName, source, viewer, cover, weeks, totals }: {
+  programmeName: string;
+  source: string;
+  viewer: "athlete" | "coach";
+  cover: ProgrammeCover;
+  weeks: PrintWeek[];
+  totals: { weeks: number; sessions: number; done: number; current_week: number; current_block: string };
+}) {
+  const blocks: Array<{ name: string; block_type: string; first: number; last: number }> = [];
+  for (const week of weeks) {
+    const last = blocks[blocks.length - 1];
+    if (last && last.name === week.block.name && last.last === week.week_number - 1) last.last = week.week_number;
+    else blocks.push({ name: week.block.name, block_type: week.block.block_type, first: week.week_number, last: week.week_number });
+  }
+  const start = cover.started_on ?? null;
+  const facts: Array<[string, string]> = [
+    ["Athlete", cover.athlete_name || "-"],
+    [source === "coach" ? "Coach" : "Programme", source === "coach" ? (cover.coach_name || "Your coach") : "Kolosseum programme"],
+    ["Started", day(start) || "-"],
+    ["Length", `${totals.weeks} weeks · ${totals.sessions} sessions`],
+    [viewer === "coach" ? "Progress" : "Where you are", totals.done >= totals.sessions ? "Finished" : `Week ${totals.current_week}${totals.current_block ? ` · ${totals.current_block}` : ""} · ${totals.done} of ${totals.sessions} done`]
+  ];
+  if (cover.competition) facts.push(["Competition", `${cover.competition.name} · ${day(cover.competition.date)}`]);
+  if (cover.bodyweight) facts.push(["Bodyweight", `${cover.bodyweight.value} ${cover.bodyweight.unit}${cover.bodyweight.as_of ? ` (recorded ${day(cover.bodyweight.as_of)})` : ""}`]);
+  if (cover.weight_class_kg) facts.push(["Weight class", `${cover.weight_class_kg} kg`]);
+  return (
+    <article className="print-cover" data-testid="print-cover">
+      <header className="print-cover-title">
+        <p>{viewer === "coach" ? "Training programme · coach's copy" : "Training programme"}</p>
+        <h1>{programmeName}</h1>
+      </header>
+      <dl className="print-cover-facts">
+        {facts.map(([label, value]) => (
+          <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+        ))}
+      </dl>
+      <section className="print-cover-section">
+        <h2>Blocks</h2>
+        <table className="print-cover-table">
+          <thead><tr><th>Block</th><th>Weeks</th>{start ? <th>Planned dates</th> : null}</tr></thead>
+          <tbody>
+            {blocks.map((block) => (
+              <tr key={`${block.name}-${block.first}`}>
+                <td><strong>{block.name}</strong>{block.block_type === "deload" ? " (lighter)" : ""}</td>
+                <td>{block.first === block.last ? `Week ${block.first}` : `Weeks ${block.first}-${block.last}`}</td>
+                {start ? <td>{`${day(plusDays(start, (block.first - 1) * 7))} - ${day(plusDays(start, block.last * 7 - 1))}`}</td> : null}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+      {cover.description ? (
+        <section className="print-cover-section">
+          <h2>{viewer === "coach" ? "Programme notes" : source === "coach" ? "From your coach" : "About this programme"}</h2>
+          <p className="print-cover-notes">{cover.description}</p>
+        </section>
+      ) : null}
+      {viewer === "coach" ? (
+        <>
+          <section className="print-cover-section" data-testid="print-cover-maxes">
+            <h2>Maxes the weights are worked out from</h2>
+            {cover.maxes?.length ? (
+              <table className="print-cover-table">
+                <thead><tr><th>Lift</th><th>Max</th><th>Type</th><th>Recorded</th></tr></thead>
+                <tbody>
+                  {cover.maxes.map((max) => (
+                    <tr key={max.name}><td>{max.name}</td><td><strong>{max.value === null ? "-" : `${max.value} ${max.unit}`}</strong></td><td>{max.basis}</td><td>{day(max.date)}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : <p>No maxes recorded yet.</p>}
+          </section>
+          {cover.bodyweight_history?.length ? (
+            <section className="print-cover-section">
+              <h2>Bodyweight</h2>
+              <p>{cover.bodyweight_history.map((entry) => `${entry.value} ${entry.unit}${entry.date ? ` (${day(entry.date)})` : ""}`).join(" → ")}</p>
+            </section>
+          ) : null}
+        </>
+      ) : (
+        <section className="print-cover-section print-cover-howto">
+          <h2>Using these sheets</h2>
+          <ul>
+            <li>Each week has its own page. Write the weight and reps you actually did in the box for each set.</li>
+            <li>Note anything that hurt, felt off or felt easy on the session's notes line.</li>
+            <li>Bring the sheets to your check-ins, and log your sessions in the app so your coach sees them.</li>
+          </ul>
+        </section>
+      )}
+      <footer className="print-cover-footer">{`Printed ${day(new Date().toISOString())}`}</footer>
+    </article>
+  );
+}
+
+export function ProgrammePrintSheet({ programmeName, source, weeks, overview = null, cover = null, viewer = "athlete" }: {
   programmeName: string;
   source: string;
   weeks: PrintWeek[];
   overview?: { weeks: PrintWeek[]; totals: { weeks: number; sessions: number; done: number } } | null;
+  cover?: { cover: ProgrammeCover; weeks: PrintWeek[]; totals: { weeks: number; sessions: number; done: number; current_week: number; current_block: string } } | null;
+  viewer?: "athlete" | "coach";
 }) {
   if (typeof document === "undefined") return null;
   const overviewPages = overview
@@ -202,14 +329,15 @@ export function ProgrammePrintSheet({ programmeName, source, weeks, overview = n
     : [];
   const sheet = (
     <div id={PRINT_ROOT_ID} data-testid="programme-print">
+      {cover ? <CoverPage programmeName={programmeName} source={source} viewer={viewer} cover={cover.cover} weeks={cover.weeks} totals={cover.totals} /> : null}
       {overviewPages.map((pageWeeks, page) => (
-        <OverviewPage key={`overview-${page}`} programmeName={programmeName} source={source} weeks={pageWeeks} totals={overview!.totals} />
+        <OverviewPage key={`overview-${page}`} programmeName={programmeName} source={source} viewer={viewer} weeks={pageWeeks} totals={overview!.totals} />
       ))}
       {weeks.map((week) => (
         <article key={week.week_number} className="print-week">
           <header className="print-week-header">
             <div>
-              <p>{source === "coach" ? "From your coach" : "Kolosseum programme"}</p>
+              <p>{eyebrow(source, viewer)}</p>
               <h1>{programmeName}</h1>
             </div>
             <h2>{`Week ${week.week_number} · ${week.block.name}${week.block.block_type === "deload" ? " (lighter)" : ""}`}</h2>

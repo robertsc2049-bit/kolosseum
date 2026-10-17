@@ -4911,6 +4911,23 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .print-overview-grid td span { display: block; overflow-wrap: anywhere; }
   .print-overview-grid td i { position: absolute; top: 0.5mm; right: 1mm; font-style: normal; font-weight: 700; }
   .print-overview-key { margin: 2mm 0 0; font-size: 8pt; }
+  .print-cover { break-after: page; font-size: 10pt; }
+  .print-cover-title { border-bottom: 2pt solid #000; padding-bottom: 3mm; margin-bottom: 6mm; }
+  .print-cover-title p { margin: 0; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.1em; }
+  .print-cover-title h1 { margin: 1mm 0 0; font-size: 24pt; line-height: 1.1; }
+  .print-cover-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 8mm; margin: 0 0 7mm; }
+  .print-cover-facts div { border-bottom: 0.5pt solid #999; padding-bottom: 1.5mm; }
+  .print-cover-facts dt { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.06em; }
+  .print-cover-facts dd { margin: 0.5mm 0 0; font-size: 11pt; font-weight: 700; }
+  .print-cover-section { margin-bottom: 6mm; break-inside: avoid; }
+  .print-cover-section h2 { margin: 0 0 2mm; font-size: 11pt; text-transform: uppercase; letter-spacing: 0.05em; }
+  .print-cover-table { width: 100%; border-collapse: collapse; }
+  .print-cover-table th, .print-cover-table td { border: 0.5pt solid #666; padding: 1.2mm 2mm; text-align: left; font-size: 9.5pt; }
+  .print-cover-table th { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.04em; }
+  .print-cover-notes { white-space: pre-wrap; margin: 0; }
+  .print-cover-howto ul { margin: 0; padding-left: 5mm; }
+  .print-cover-howto li { margin-bottom: 1mm; }
+  .print-cover-footer { margin-top: 8mm; font-size: 8pt; }
   .print-week { break-after: page; }
   .print-week:last-child { break-after: auto; }
   .print-week-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; border-bottom: 1.5pt solid #000; padding-bottom: 1.5mm; margin-bottom: 3mm; }
@@ -4935,3 +4952,6 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .print-box { display: inline-block; width: 10.5mm; height: 4.2mm; margin: 0.3mm 0.8mm 0.3mm 0; border: 0.5pt solid #000; vertical-align: middle; }
   .print-session-notes { margin: 0.8mm 0 0; padding-bottom: 3mm; border-bottom: 0.5pt dotted #000; font-size: 7.5pt; }
 }
+
+/* A record card's buttons sit together and wrap on a narrow screen. */
+.record-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); align-items: center; }

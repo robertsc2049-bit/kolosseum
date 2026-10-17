@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { type JsonRecord } from "../../api/transport";
 import { useAthleteMyProgramme } from "./useAthleteMyProgramme";
 import { restLabel } from "../../utils/format";
-import { PRINTING_CLASS, ProgrammePrintSheet } from "./ProgrammePrintSheet";
+import { PRINTING_CLASS, ProgrammePrintSheet, type ProgrammeCover } from "./ProgrammePrintSheet";
 
 // "My programme": the whole programme at a glance. A strip of blocks sized
 // by their weeks (so a 12-week plan reads left to right, like the coach's
@@ -153,6 +153,7 @@ export function AthleteMyProgrammePanel() {
         source={String(data.source ?? "")}
         weeks={printScope === "all" ? weeks : printScope === "overview" ? [] : [week]}
         overview={printScope === "all" || printScope === "overview" ? { weeks, totals: { weeks: totalWeeks, sessions: total, done } } : null}
+        cover={printScope === "all" || printScope === "overview" ? { cover: (data.cover ?? {}) as ProgrammeCover, weeks, totals: { weeks: totalWeeks, sessions: total, done, current_week: currentWeek, current_block: String(current.block_name ?? "") } } : null}
       />
       <div className="my-programme-heading">
         <div>

@@ -61,6 +61,8 @@ import {
 import {
   getCoachAthleteDetail
 } from "./coach_workspace.handlers.js";
+import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
+import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
 export const coachWorkspaceRouter = Router();
 
@@ -360,3 +362,28 @@ coachWorkspaceRouter.post(
   })
 );
 
+
+// The coach's printable copy of an athlete's current programme - with the
+// % of max behind every weight, the athlete's maxes and bodyweight history
+// (athlete_my_programme_service.ts). Only for the coach who assigned it.
+const coachProgrammePrintRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/programme-print",
+  coachProgrammePrintRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try {
+      return res.status(200).json(await loadCoachAthleteProgramme(coachUserId, String(req.params.athlete_id)));
+    }
+    catch (error) {
+      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
