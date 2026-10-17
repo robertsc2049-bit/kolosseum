@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
-  compareReports, cyclePeriods, programmePeriods, summariseReport, weekPeriods, weeksIn, yearPeriods
+  athleteReport, compareReports, customPeriod, cyclePeriods, previousCustomPeriod, programmePeriods, summariseReport, weekPeriods, weeksIn, yearPeriods
 } from "../dist/src/api/coach_report_periods.js";
 import { analyseAthlete } from "../dist/src/api/coach_analysis_metrics.js";
 
@@ -126,4 +126,59 @@ test("compared with the report before: more tonnage, a stronger squat", () => {
   assert.equal(compared.adherence_pct, 0);
   assert.ok(compared.strength[0].change_pct > 0);
   assert.equal(compareReports(now, null), null, "the first report has nothing to compare with");
+});
+
+test("a coach compiles from a set date: Wednesday 23 Sep to Tuesday 6 Oct, compared with the 14 days before", () => {
+  const period = customPeriod("2026-09-23", "2026-10-06", TODAY);
+  assert.equal(period.type, "custom");
+  assert.equal(period.id, "2026-09-23_2026-10-06");
+  assert.equal(period.label, "23 Sep – 6 Oct 2026");
+  assert.equal(period.start, "2026-09-21");
+  assert.equal(period.end, "2026-10-11");
+  assert.equal(period.detail, "14 days");
+  assert.equal(period.complete, true);
+  const before = previousCustomPeriod(period, TODAY);
+  assert.equal(before.from, "2026-09-09");
+  assert.equal(before.to, "2026-09-22");
+  assert.equal(customPeriod("2026-09-01", "", TODAY).to, TODAY, "no end date runs to today");
+  assert.equal(customPeriod("2026-10-01", "2026-12-31", TODAY).to, TODAY, "not past today");
+  assert.equal(customPeriod("2026-10-06", "2026-09-23", TODAY), null, "from after to");
+  assert.equal(customPeriod("2026-02-30", "2026-03-01", TODAY), null, "not a date");
+  assert.equal(customPeriod("2023-01-01", TODAY, TODAY), null, "over 2 years");
+});
+
+test("only sessions between the set dates count, and a part week expects its share of sessions", () => {
+  const sessions = threeWeeks(140); // Mon/Wed/Fri, 21 Sep - 9 Oct
+  const analysis = analyseAthlete({
+    today: "2026-10-06", weeks: 3, closed: true, from: "2026-09-23", to: "2026-10-06", sessions, readiness: [], checkins: [], planned_days_per_week: 3,
+    exercise_name: (id) => id.replaceAll("_", " "), is_strength_lift: () => true, pattern_of: () => "squat"
+  });
+  const summary = summariseReport(analysis);
+  // 23 Sep (Wed), 25 Sep, 28 Sep, 30 Sep, 2 Oct, 5 Oct: 6 sessions; 21 Sep and 7 Oct are outside.
+  assert.equal(summary.sessions.completed, 6);
+  assert.equal(summary.sessions_log ?? summary.session_log.length, 6);
+  // Week of 21 Sep has 5 of its days in range (Wed-Sun): 2 of 3 expected; week of 5 Oct has 2 (Mon-Tue): 1.
+  assert.equal(summary.sessions.planned, 2 + 3 + 1);
+  assert.equal(summary.training.sets, 18);
+  assert.equal(summary.exercises[0].name, "back squat");
+  assert.equal(summary.exercises[0].sets, 18);
+  assert.deepEqual(summary.exercises[0].top_set, { load_kg: 150, reps: 5 });
+  assert.equal(summary.exercises[0].average_rpe, 8);
+  assert.deepEqual(summary.patterns, [{ pattern: "squat", sets: 18 }]);
+  assert.equal(summary.effort_bands.find((band) => band.band === "8").ratings, 6);
+});
+
+test("the athlete's copy: the weights they lifted and the coach's message - never an estimated max or a load ratio", () => {
+  const analysis = analyse(threeWeeks(140));
+  const summary = summariseReport(analysis);
+  const period = { type: "block", id: "a:0", label: "Volume - Meet prep", start: "2026-09-21", end: "2026-10-11", complete: true };
+  const copy = athleteReport(period, summary, analysis, { name: "Coach Sam", message: "Great block - squat is moving." });
+  assert.equal(copy.coach.message, "Great block - squat is moving.");
+  assert.equal(copy.sessions.completed, 9);
+  assert.deepEqual(copy.weeks.map((week) => week.sessions), [3, 3, 3]);
+  assert.deepEqual(copy.exercises[0].best_set, { load_kg: 150, reps: 5 });
+  const text = JSON.stringify(copy);
+  for (const banned of ["e1rm", "estimated", "acute_chronic", "monotony", "strain", "percent", "findings", "change_pct", "readiness_average", "\"z\""]) {
+    assert.equal(text.includes(banned), false, `athlete copy has no ${banned}`);
+  }
 });

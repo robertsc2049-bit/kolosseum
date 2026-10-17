@@ -1,6 +1,7 @@
 // DEV NOTE: FULL-UI-03C authenticated athlete onboarding HTTP boundary.
 // This route exposes factual declaration state only and cannot infer training decisions.
 
+import { listAthleteReports } from "./coach_report_service.js";
 import {
   Router,
   type NextFunction,
@@ -350,6 +351,16 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await loadAthleteMyProgramme(session.account_row.user_id));
+  })
+);
+
+// The progress reports the athlete's coaches have sent them (coach_report_service.ts).
+athleteOnboardingRouter.get(
+  "/progress-reports",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await listAthleteReports(session.account_row.user_id));
   })
 );
 

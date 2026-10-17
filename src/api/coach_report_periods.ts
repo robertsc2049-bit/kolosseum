@@ -10,7 +10,7 @@ import { addDays, weekStart } from "./coach_analysis_metrics.js";
 type Json = Record<string, unknown>;
 
 export const REPORT_TYPES = Object.freeze(["week", "block", "cycle", "programme", "year"] as const);
-export type ReportType = (typeof REPORT_TYPES)[number];
+export type ReportType = (typeof REPORT_TYPES)[number] | "custom";
 
 export type ReportPeriod = Readonly<{
   type: ReportType;
@@ -20,6 +20,9 @@ export type ReportPeriod = Readonly<{
   end: string; // a Sunday
   complete: boolean;
   detail?: string;
+  // A custom report's exact dates (the weeks around them hold its rows).
+  from?: string;
+  to?: string;
 }>;
 
 // A programme the athlete has run: its sessions' dates and the block each
@@ -122,6 +125,39 @@ export function programmePeriods(programmes: readonly ProgrammeHistory[], today:
   return out;
 }
 
+// A report from a set date to another (inclusive), up to 2 years. The
+// comparison is the same number of days just before it.
+export const CUSTOM_MAX_DAYS = 731;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/u;
+const validDate = (value: string) => ISO_DATE.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+const daysBetween = (from: string, to: string) => Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+
+export function customPeriod(fromInput: unknown, toInput: unknown, today: string): ReportPeriod | null {
+  const from = typeof fromInput === "string" ? fromInput.trim() : "";
+  const toRaw = typeof toInput === "string" && toInput.trim() ? toInput.trim() : today;
+  if (!validDate(from) || !validDate(toRaw)) return null;
+  const to = toRaw > today ? today : toRaw;
+  if (from > to || daysBetween(from, to) + 1 > CUSTOM_MAX_DAYS) return null;
+  const sameYear = from.slice(0, 4) === to.slice(0, 4);
+  return {
+    type: "custom", id: `${from}_${to}`,
+    label: `${shortDate(from)}${sameYear ? "" : ` ${from.slice(0, 4)}`} – ${shortDate(to)} ${to.slice(0, 4)}`,
+    start: weekStart(from), end: sundayOf(to), complete: to < today, from, to,
+    detail: `${daysBetween(from, to) + 1} days`
+  };
+}
+
+export function customPeriodFromId(id: string, today: string): ReportPeriod | null {
+  const [from, to] = id.split("_");
+  return customPeriod(from, to, today);
+}
+
+export function previousCustomPeriod(period: ReportPeriod, today: string): ReportPeriod | null {
+  if (!period.from || !period.to) return null;
+  const length = daysBetween(period.from, period.to) + 1;
+  return customPeriod(addDays(period.from, -length), addDays(period.from, -1), today);
+}
+
 // ---------- the report ----------
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const round = (value: number, places = 1) => Math.round(value * 10 ** places) / 10 ** places;
@@ -192,7 +228,39 @@ export function summariseReport(analysis: Json): Json {
       motivation: avg(values(checkins, "motivation")),
       sleep: avg(values(checkins, "sleep"))
     },
-    pain: { reports: values(pain.rows as Json[], "reports").reduce((sum, value) => sum + value, 0), areas: pain.areas }
+    pain: { reports: values(pain.rows as Json[], "reports").reduce((sum, value) => sum + value, 0), areas: pain.areas },
+    exercises: ((a.exercises ?? {}) as Json).rows ?? [],
+    effort_bands: ((a.exercises ?? {}) as Json).effort_bands ?? [],
+    effort_rated: ((a.exercises ?? {}) as Json).rated ?? 0,
+    patterns: ((a.exercises ?? {}) as Json).patterns ?? [],
+    session_log: sessions
+  };
+}
+
+// The athlete's copy a coach sends: what they did and how it went, in
+// plain words - sessions, weekly consistency, the best set they lifted on
+// each exercise (weight x reps they actually did), volume, how they felt,
+// and the coach's own message. Never an estimated max, a % of max, a load
+// ratio or the coach's flags: those are the coach's tools, not the
+// athlete's (and the athlete's numbers stay their lifted weights).
+export function athleteReport(period: ReportPeriod, summary: Json, analysis: Json, coach: Readonly<{ name: string; message: string }>): Json {
+  const a = analysis as Record<string, Json>;
+  const sessions = (summary.sessions ?? {}) as Json;
+  const training = (summary.training ?? {}) as Json;
+  const wellbeing = (summary.wellbeing ?? {}) as Json;
+  const pain = (summary.pain ?? {}) as Json;
+  const adherence = (a.adherence?.rows ?? []) as Json[];
+  const weeks = (a.weeks ?? []) as unknown as string[];
+  const exercises = (summary.exercises ?? []) as Json[];
+  return {
+    period: { type: period.type, label: period.label, start: period.from ?? period.start, end: period.to ?? period.end, complete: period.complete },
+    coach: { name: coach.name, message: coach.message },
+    sessions: { completed: sessions.completed, partial: sessions.partial, planned: sessions.planned, minutes: sessions.minutes },
+    weeks: weeks.map((week, index) => ({ week_start: week, sessions: Number(adherence[index]?.completed ?? 0) + Number(adherence[index]?.partial ?? 0), planned: adherence[index]?.planned ?? null })),
+    training: { sets: training.sets, tonnage_kg: training.tonnage_kg },
+    exercises: exercises.map((row) => ({ name: row.name, sessions: row.sessions, sets: row.sets, reps: row.reps, best_set: row.top_set ?? null, average_rpe: row.average_rpe ?? null })),
+    wellbeing: { check_ins: wellbeing.check_ins, energy: wellbeing.energy, motivation: wellbeing.motivation, sleep: wellbeing.sleep },
+    pain: { reports: pain.reports, areas: ((pain.areas ?? []) as Json[]).map((area) => ({ area: area.area, reports: area.reports })) }
   };
 }
 

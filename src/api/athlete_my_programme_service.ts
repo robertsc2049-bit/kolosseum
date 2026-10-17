@@ -111,7 +111,7 @@ async function displayName(userId: string): Promise<string> {
 const BASIS_LABEL: Record<string, string> = { tested_1rm: "Tested 1RM", estimated_1rm: "Estimated 1RM", training_max: "Training max" };
 
 // Every bodyweight the coach has recorded, oldest first, one line per change.
-async function bodyweightHistory(coachUserId: string, athleteUserId: string): Promise<Json[]> {
+export async function bodyweightHistory(coachUserId: string, athleteUserId: string): Promise<Json[]> {
   const result = await pool.query(
     `SELECT record_payload FROM beta_product_records
      WHERE record_type = 'beta19_athlete_strength_profile' AND actor_user_id = $1 AND subject_user_id = $2

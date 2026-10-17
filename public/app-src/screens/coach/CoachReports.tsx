@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { loadAccountDetail } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
+import { AthleteReportBody } from "../athlete/AthleteProgressReports";
 import { TrendChart, shortWeek } from "../../components/TrendChart";
 
 // The coach's progress reports for one athlete: one for every week, every
@@ -11,14 +13,15 @@ import { TrendChart, shortWeek } from "../../components/TrendChart";
 // a new one is there as soon as a period ends; the current one shows so far.
 
 type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string };
-type Period = { type: string; id: string; label: string; start: string; end: string; complete: boolean; detail?: string; weeks?: number };
+type Period = { type: string; id: string; label: string; start: string; end: string; complete: boolean; detail?: string; weeks?: number; from?: string; to?: string };
 
 const TYPES: Array<{ type: string; label: string; title: string; empty: string }> = [
   { type: "week", label: "Weekly", title: "Weekly report", empty: "No training logged yet." },
   { type: "block", label: "Block", title: "Block report", empty: "No sessions from a programme's blocks logged yet." },
   { type: "cycle", label: "Cycle", title: "Cycle report", empty: "Cycles follow the athlete's training plan (their season or competition date) - they have none set." },
   { type: "programme", label: "Programme", title: "Programme report", empty: "No sessions from a programme logged yet." },
-  { type: "year", label: "Yearly", title: "Yearly report", empty: "No training logged yet." }
+  { type: "year", label: "Yearly", title: "Yearly report", empty: "No training logged yet." },
+  { type: "custom", label: "Custom dates", title: "Custom report", empty: "" }
 ];
 const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
 export const REPORT_PRINT_ROOT_ID = "report-print-root";
@@ -28,7 +31,12 @@ const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[])
 const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const show = (value: unknown, suffix = "") => (num(value) === null ? "–" : `${Number(value).toLocaleString()}${suffix}`);
 const year = (date: string) => date.slice(0, 4);
-const dates = (period: Period) => `${shortWeek(period.start)}${year(period.start) !== year(period.end) ? ` ${year(period.start)}` : ""} – ${shortWeek(period.end)} ${year(period.end)}`;
+// A custom report shows its exact dates; the others their whole weeks.
+const dates = (period: Period) => {
+  const start = period.from ?? period.start;
+  const end = period.to ?? period.end;
+  return `${shortWeek(start)}${year(start) !== year(end) ? ` ${year(start)}` : ""} – ${shortWeek(end)} ${year(end)}`;
+};
 
 // "+5% vs the last report" / "-1 vs the last report", coloured by whether up is good.
 function Change({ value, suffix = "", upIsGood = true }: { value: unknown; suffix?: string; upIsGood?: boolean }) {
@@ -48,7 +56,7 @@ function Tile({ label, value, change }: { label: string; value: string; change?:
   );
 }
 
-export function ReportBody({ report, typeTitle }: { report: JsonRecord; typeTitle: string }) {
+export function ReportBody({ report, typeTitle, printing = false }: { report: JsonRecord; typeTitle: string; printing?: boolean }) {
   const period = report.period as Period;
   const summary = (report.summary ?? {}) as JsonRecord;
   const compared = (report.compared ?? null) as JsonRecord | null;
@@ -58,6 +66,8 @@ export function ReportBody({ report, typeTitle }: { report: JsonRecord; typeTitl
   const wellbeing = (summary.wellbeing ?? {}) as JsonRecord;
   const pain = (summary.pain ?? {}) as JsonRecord;
   const strength = rows(summary.strength);
+  const exercises = rows(summary.exercises);
+  const sessionLog = rows(summary.session_log);
   const findings = rows(report.findings) as unknown as Finding[];
   const analysis = (report.analysis ?? {}) as JsonRecord;
   const weeks = (analysis.weeks ?? []) as string[];
@@ -75,7 +85,7 @@ export function ReportBody({ report, typeTitle }: { report: JsonRecord; typeTitl
         <p className="eyebrow">{`${typeTitle}${athlete ? ` · ${athlete}` : ""}`}</p>
         <h3>{period.label}</h3>
         <p className="muted small">
-          {`${dates(period)} · ${period.weeks ?? 1} week${(period.weeks ?? 1) === 1 ? "" : "s"}`}
+          {`${dates(period) === period.label ? "" : `${dates(period)} · `}${period.type === "custom" ? period.detail ?? "" : `${period.weeks ?? 1} week${(period.weeks ?? 1) === 1 ? "" : "s"}`}`}
           {period.complete ? "" : " · still going - this report shows it so far"}
           {previous ? ` · compared with ${String(previous.label)}` : " · the first of its kind, nothing to compare with"}
         </p>
@@ -96,7 +106,7 @@ export function ReportBody({ report, typeTitle }: { report: JsonRecord; typeTitl
       </section>
 
       <div className="report-tiles" data-testid="report-tiles">
-        <Tile label="Sessions" value={`${show(sessions.completed)}${num(sessions.partial) ? ` + ${sessions.partial} part` : ""}${num(sessions.planned) ? ` of ${sessions.planned}` : ""}`} change={<Change value={compared?.sessions_completed} />} />
+        <Tile label={num(sessions.planned) ? `Sessions (${sessions.planned} planned)` : "Sessions"} value={`${show(sessions.completed)}${num(sessions.partial) ? ` + ${sessions.partial} part` : ""}`} change={<Change value={compared?.sessions_completed} />} />
         <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
         <Tile label="Sets" value={show(training.sets)} change={<Change value={compared?.sets_pct} suffix="%" />} />
         <Tile label="Tonnage" value={show(training.tonnage_kg, " kg")} change={<Change value={compared?.tonnage_pct} suffix="%" />} />
@@ -156,6 +166,87 @@ export function ReportBody({ report, typeTitle }: { report: JsonRecord; typeTitl
         </section>
       ) : null}
 
+      <section className="report-section" data-testid="report-exercises">
+        <h4>Every exercise</h4>
+        {exercises.length ? (
+          <div className="analysis-table-wrap">
+            <table className="analysis-table">
+              <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Tonnage</th><th>Top set</th><th>Avg RPE</th></tr></thead>
+              <tbody>
+                {exercises.map((row) => (
+                  <tr key={String(row.exercise_id)}>
+                    <td>{String(row.name)}</td>
+                    <td>{show(row.sessions)}</td>
+                    <td>{show(row.sets)}</td>
+                    <td>{show(row.reps)}</td>
+                    <td>{show(row.tonnage_kg, " kg")}</td>
+                    <td>{row.top_set ? `${(row.top_set as JsonRecord).load_kg} kg x ${(row.top_set as JsonRecord).reps}` : "–"}</td>
+                    <td>{show(row.average_rpe)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <p className="muted small">No sets logged.</p>}
+      </section>
+
+      <div className="report-columns">
+        <section className="report-section" data-testid="report-effort">
+          <h4>How hard it felt</h4>
+          {num(summary.effort_rated) ? (
+            <ul className="analysis-weekdays report-bands">
+              {rows(summary.effort_bands).map((band) => (
+                <li key={String(band.band)} className="analysis-weekday">
+                  <span className="analysis-weekday-bar" style={{ height: `${Math.max(4, Number(band.pct ?? 0))}%` }} />
+                  <strong>{show(band.pct, "%")}</strong>
+                  <span>{`RPE ${String(band.band)}`}</span>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="muted small">No exercises rated.</p>}
+          <p className="muted small">{`Share of ${show(summary.effort_rated)} exercise ratings (the athlete's hardest set) by RPE.`}</p>
+        </section>
+        <section className="report-section" data-testid="report-patterns">
+          <h4>Sets by movement</h4>
+          {rows(summary.patterns).length ? (
+            <ul className="report-facts">
+              {rows(summary.patterns).map((row) => <li key={String(row.pattern)}>{`${String(row.pattern).replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase())}: ${show(row.sets)} sets`}</li>)}
+            </ul>
+          ) : <p className="muted small">No sets logged.</p>}
+          <h4>Bodyweight</h4>
+          {rows(summary.bodyweight).length ? (
+            <ul className="report-facts">
+              {rows(summary.bodyweight).map((entry, index) => <li key={index}>{`${show(entry.value)} ${String(entry.unit ?? "kg")}${entry.date ? ` (${shortWeek(String(entry.date))} ${String(entry.date).slice(0, 4)})` : ""}`}</li>)}
+            </ul>
+          ) : <p className="muted small">No bodyweight recorded in this period.</p>}
+        </section>
+      </div>
+
+      <details className="analysis-numbers" open={printing || sessionLog.length <= 12} data-testid="report-sessions">
+        <summary>{`Every session (${sessionLog.length})`}</summary>
+        {sessionLog.length ? (
+          <div className="analysis-table-wrap">
+            <table className="analysis-table">
+              <thead><tr><th>Date</th><th>Session</th><th>Status</th><th>Sets</th><th>Minutes</th><th>Effort</th><th>Load</th><th>Notes</th></tr></thead>
+              <tbody>
+                {sessionLog.map((row) => (
+                  <tr key={String(row.session_id)}>
+                    <td>{`${shortWeek(String(row.date))}`}</td>
+                    <td>{String(row.title ?? "Session")}</td>
+                    <td>{row.status === "partial" ? "Part done" : "Done"}</td>
+                    <td>{show(row.sets)}</td>
+                    <td>{show(row.minutes)}</td>
+                    <td>{show(row.effort)}</td>
+                    <td>{show(row.load)}</td>
+                    <td>{[row.pain ? "Pain reported" : "", num(row.skipped) ? `${row.skipped} skipped` : ""].filter(Boolean).join(", ") || "–"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : <p className="muted small">No sessions in this period.</p>}
+      </details>
+
       <div className="report-columns">
         <section className="report-section">
           <h4>Doing the plan</h4>
@@ -194,6 +285,7 @@ function ReportView({ athleteUserId, type, id, onBack }: { athleteUserId: string
   const [report, setReport] = useState<JsonRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [printing, setPrinting] = useState(false);
+  const [sending, setSending] = useState(false);
   const typeTitle = TYPES.find((entry) => entry.type === type)?.title ?? "Report";
 
   useEffect(() => {
@@ -223,12 +315,89 @@ function ReportView({ athleteUserId, type, id, onBack }: { athleteUserId: string
       <div className="report-actions">
         <button type="button" className="button secondary small-button" onClick={onBack}>‹ All reports</button>
         {report ? <button type="button" className="button secondary small-button" onClick={() => setPrinting(true)}>Print</button> : null}
+        {report ? <button type="button" className="button small-button" aria-expanded={sending} onClick={() => setSending((open) => !open)}>Send to athlete</button> : null}
       </div>
+      {report && sending ? <SendToAthlete athleteUserId={athleteUserId} type={type} id={id} athleteName={String((report.athlete as JsonRecord | undefined)?.display_name ?? "the athlete")} onClose={() => setSending(false)} /> : null}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {!report && !error ? <p className="muted">Compiling the report…</p> : null}
       {report ? <section className="panel"><ReportBody report={report} typeTitle={typeTitle} /></section> : null}
-      {report && printing ? createPortal(<div id={REPORT_PRINT_ROOT_ID}><ReportBody report={report} typeTitle={typeTitle} /></div>, document.body) : null}
+      {report && printing ? createPortal(<div id={REPORT_PRINT_ROOT_ID}><ReportBody report={report} typeTitle={typeTitle} printing /></div>, document.body) : null}
     </div>
+  );
+}
+
+const newRequestId = () => `rpt_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+
+// The athlete's copy, previewed, with a message from the coach - then sent.
+function SendToAthlete({ athleteUserId, type, id, athleteName, onClose }: { athleteUserId: string; type: string; id: string; athleteName: string; onClose: () => void }) {
+  const [preview, setPreview] = useState<JsonRecord | null>(null);
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [requestId] = useState(newRequestId);
+  const base = `/coach-workspace/athletes/${encodeURIComponent(athleteUserId)}/reports/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+
+  useEffect(() => {
+    let cancelled = false;
+    request("GET", `${base}/athlete-copy`)
+      .then((result) => { if (!cancelled) setPreview(result.report as JsonRecord); })
+      .catch(() => { if (!cancelled) setStatus({ ok: false, text: "The athlete's copy could not be loaded. Try again." }); });
+    return () => { cancelled = true; };
+  }, [base]);
+
+  async function send() {
+    setBusy(true);
+    setStatus(null);
+    try {
+      const account = await loadAccountDetail();
+      const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
+      await request("POST", `${base}/send`, { message, client_request_id: requestId }, csrf);
+      setStatus({ ok: true, text: `Sent to ${athleteName}. They'll find it in History, and a message tells them it's there.` });
+    }
+    catch {
+      setStatus({ ok: false, text: "The report could not be sent. Check your connection and try again." });
+    }
+    finally {
+      setBusy(false);
+    }
+  }
+
+  const sent = status?.ok === true;
+  return (
+    <section className="panel report-send" data-testid="report-send">
+      <h3>{`Send to ${athleteName}`}</h3>
+      <p className="muted small">They get the sessions they did, the best set they lifted on each exercise, their volume and how they felt - no estimated maxes, load ratios or your flags.</p>
+      <label className="field">
+        <span>Your message (optional)</span>
+        <textarea rows={4} maxLength={2000} value={message} disabled={busy || sent} onChange={(event) => setMessage(event.target.value)} placeholder="What went well, and what's next." />
+      </label>
+      <div className="report-actions">
+        <button type="button" className="button small-button" disabled={busy || sent || !preview} onClick={() => void send()}>{busy ? "Sending…" : sent ? "Sent" : "Send report"}</button>
+        <button type="button" className="button secondary small-button" onClick={onClose}>{sent ? "Close" : "Cancel"}</button>
+      </div>
+      {status ? <p className={status.ok ? "dashboard-status" : "field-error"} role={status.ok ? "status" : "alert"}>{status.text}</p> : null}
+      {preview ? (
+        <details className="analysis-numbers">
+          <summary>What they'll see</summary>
+          <AthleteReportBody report={{ ...preview, coach: { ...(preview.coach as JsonRecord), message } }} />
+        </details>
+      ) : null}
+    </section>
+  );
+}
+
+// A report from a set date to another.
+function CustomDates({ today, onCompile }: { today: string; onCompile: (id: string) => void }) {
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState(today);
+  const valid = Boolean(from) && from <= (to || today);
+  return (
+    <form className="report-custom" onSubmit={(event) => { event.preventDefault(); if (valid) onCompile(`${from}_${to || today}`); }}>
+      <label className="field"><span>From</span><input type="date" value={from} max={today} onChange={(event) => setFrom(event.target.value)} required /></label>
+      <label className="field"><span>To</span><input type="date" value={to} max={today} min={from || undefined} onChange={(event) => setTo(event.target.value)} /></label>
+      <button type="submit" className="button small-button" disabled={!valid}>Compile report</button>
+      <p className="muted small">Any dates up to 2 years apart. Only sessions between them count, and it's compared with the same number of days just before.</p>
+    </form>
   );
 }
 
@@ -255,17 +424,18 @@ export function CoachReports({ athleteUserId }: { athleteUserId: string }) {
   return (
     <section className="panel report-list" data-testid="report-list">
       <h3>Progress reports</h3>
-      <p className="muted small">A report is compiled for every week, programme block, training cycle, programme and year - each compared with the one before it.</p>
+      <p className="muted small">A report is compiled for every week, programme block, training cycle, programme and year - each compared with the one before it - or pick your own dates.</p>
       <div className="analysis-weeks" role="group" aria-label="Report type">
         {TYPES.map((entry) => (
           <button key={entry.type} type="button" className={`button secondary small-button${entry.type === type ? " is-selected" : ""}`} aria-pressed={entry.type === type} onClick={() => setType(entry.type)}>
-            {`${entry.label}${list ? ` (${(reports[entry.type] ?? []).length})` : ""}`}
+            {`${entry.label}${list && entry.type !== "custom" ? ` (${(reports[entry.type] ?? []).length})` : ""}`}
           </button>
         ))}
       </div>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {!list && !error ? <p className="muted">Loading reports…</p> : null}
-      {list && !periods.length ? <p className="muted small">{current.empty}</p> : null}
+      {type === "custom" ? <CustomDates today={String(list?.today ?? new Date().toISOString().slice(0, 10))} onCompile={(id) => setOpen({ type: "custom", id })} /> : null}
+      {list && !periods.length && current.empty ? <p className="muted small">{current.empty}</p> : null}
       {periods.length ? (
         <ul className="report-periods">
           {periods.map((period) => (

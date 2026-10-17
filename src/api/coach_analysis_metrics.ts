@@ -50,6 +50,7 @@ export type AnalysisSession = Readonly<{
   session_id: string;
   status: string;
   created_at: string;
+  title?: string;
   planned: readonly AnalysisPlannedExercise[];
   events: readonly AnalysisEvent[];
 }>;
@@ -62,6 +63,13 @@ export type AnalysisInput = Readonly<{
   weeks: number;
   // The period has ended (a report on it): no week is "this week".
   closed?: boolean;
+  // A report from a set date (and/or to one): only sessions, check-ins and
+  // pain on those days count. Load still reads the weeks before, for its
+  // 4-week normal.
+  from?: string;
+  to?: string;
+  // Movement pattern per exercise (squat, hinge, push...), for sets by pattern.
+  pattern_of?: (exerciseId: string) => string | undefined;
   sessions: readonly AnalysisSession[];
   readiness: readonly ReadinessFact[];
   checkins: readonly CheckinFact[];
@@ -173,24 +181,27 @@ export function analyseAthlete(input: AnalysisInput): Json {
   // Load needs 4 weeks of history before the first shown week.
   const loadWeeks = weekStarts(input.today, input.weeks + 4);
   const sessionDay = (session: AnalysisSession) => day(session.events.find((event) => event.type === "START_SESSION")?.at ?? session.events[0]?.at ?? session.created_at);
-  const sessions = [...input.sessions].sort((a, b) => sessionDay(a).localeCompare(sessionDay(b)));
+  const inRange = (date: string) => (!input.from || date >= input.from) && (!input.to || date <= input.to);
+  const allSessions = [...input.sessions].sort((a, b) => sessionDay(a).localeCompare(sessionDay(b)));
+  const sessions = allSessions.filter((session) => inRange(sessionDay(session)));
 
   // --- load ---
   const dailyLoad = new Map<string, number>();
   const sessionRows: Json[] = [];
-  for (const session of sessions.filter(done)) {
+  for (const session of allSessions.filter(done)) {
     const load = sessionLoad(session.events);
     const date = sessionDay(session);
     if (load !== null) dailyLoad.set(date, (dailyLoad.get(date) ?? 0) + load);
-    sessionRows.push({ session_id: session.session_id, date, effort: sessionEffort(session.events), minutes: sessionMinutes(session.events), load });
+    if (!inRange(date)) continue;
+    sessionRows.push({ session_id: session.session_id, date, title: session.title ?? null, status: session.status, effort: sessionEffort(session.events), minutes: sessionMinutes(session.events), load, sets: setLogs(session).length, pain: session.events.some((event) => event.type === "PAIN_REPORT"), skipped: session.events.filter((event) => event.type === "SKIP_EXERCISE").length });
   }
-  const firstTrainedWeek = sessions.some(done) ? weekStart(sessionDay(sessions.filter(done)[0])) : null;
+  const firstTrainedWeek = allSessions.some(done) ? weekStart(sessionDay(allSessions.filter(done)[0])) : null;
   const weeklyLoadAll = loadWeeks.map((start) => {
     // Before their first session there is no load history: "no data", not 0.
     if (firstTrainedWeek === null || start < firstTrainedWeek) return null;
     const days = Array.from({ length: 7 }, (_, index) => addDays(start, index));
     const rated = days.some((date) => dailyLoad.has(date));
-    const trained = sessions.some((session) => done(session) && weekStart(sessionDay(session)) === start);
+    const trained = allSessions.some((session) => done(session) && weekStart(sessionDay(session)) === start);
     return rated ? days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0) : trained ? null : 0;
   });
   const loadRows = weeks.map((start) => {
@@ -359,7 +370,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const abandoned = mine.filter((session) => !done(session) && sessionDay(session) < staleCutoff).length;
     const isCurrent = start === currentWeek;
     const started = startedWeek !== null && start >= startedWeek;
-    const target = started ? expected ?? null : null;
+    // A week only partly inside a set date range expects its share of sessions.
+    const daysIn = Array.from({ length: 7 }, (_, offset) => addDays(start, offset)).filter(inRange).length;
+    const target = started && expected ? (daysIn === 7 ? expected : Math.round((expected * daysIn) / 7)) : null;
     const pct = target && !isCurrent ? Math.min(100, round(((completed + partial * 0.5) / target) * 100, 0)) : null;
     return { week_start: start, completed, partial, abandoned, planned: target, adherence_pct: pct };
   });
@@ -390,7 +403,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     return { ...check, total, z };
   });
   const readinessRows = weeks.map((start) => {
-    const mine = readinessDays.filter((entry) => weekStart(entry.date) === start);
+    const mine = readinessDays.filter((entry) => weekStart(entry.date) === start && inRange(entry.date));
     const zs = mine.map((entry) => entry.z).filter(finite);
     return {
       week_start: start,
@@ -425,16 +438,59 @@ export function analyseAthlete(input: AnalysisInput): Json {
   }).sort((a, b) => b.weeks - a.weeks || b.reports - a.reports);
   const painOnSpikes = painRows.filter((row) => row.reports > 0 && (row.acute_chronic ?? 0) > 1.3).length;
 
+  // --- per exercise, effort ratings and movement patterns ---
+  const counted = sessions.filter((s) => done(s) && inWindow(sessionDay(s)));
+  const perExercise = new Map<string, { sessions: Set<string>; sets: number; reps: number; tonnage: number; top: { load: number; reps: number } | null; rpes: number[] }>();
+  for (const session of counted) {
+    for (const log of setLogs(session)) {
+      if (!log.exercise_id) continue;
+      const lift = baseExercise(log.exercise_id);
+      const entry = perExercise.get(lift) ?? { sessions: new Set(), sets: 0, reps: 0, tonnage: 0, top: null, rpes: [] };
+      entry.sessions.add(session.session_id);
+      entry.sets += 1;
+      if (finite(log.reps)) entry.reps += log.reps;
+      if (finite(log.load_kg) && finite(log.reps)) {
+        entry.tonnage += log.load_kg * log.reps;
+        if (!entry.top || log.load_kg > entry.top.load || (log.load_kg === entry.top.load && log.reps > entry.top.reps)) entry.top = { load: log.load_kg, reps: log.reps };
+      }
+      perExercise.set(lift, entry);
+    }
+    for (const event of session.events.filter((e) => e.type === "RPE_REPORT" && e.exercise_id && finite(e.rpe))) {
+      const entry = perExercise.get(baseExercise(event.exercise_id!));
+      if (entry) entry.rpes.push(event.rpe!);
+    }
+  }
+  const exerciseRows = [...perExercise.entries()].map(([exerciseId, entry]) => ({
+    exercise_id: exerciseId,
+    name: input.exercise_name(exerciseId),
+    pattern: input.pattern_of?.(exerciseId) ?? null,
+    sessions: entry.sessions.size,
+    sets: entry.sets,
+    reps: entry.reps,
+    tonnage_kg: round(entry.tonnage, 0),
+    top_set: entry.top ? { load_kg: entry.top.load, reps: entry.top.reps } : null,
+    average_rpe: entry.rpes.length ? round(mean(entry.rpes), 1) : null
+  })).sort((a, b) => b.sets - a.sets || a.name.localeCompare(b.name));
+  // How hard the athlete rated each exercise (their hardest set), by band.
+  const bands = [{ band: "6 or less", test: (r: number) => r <= 6 }, { band: "7", test: (r: number) => r > 6 && r <= 7.5 }, { band: "8", test: (r: number) => r > 7.5 && r <= 8.5 }, { band: "9", test: (r: number) => r > 8.5 && r <= 9.5 }, { band: "10", test: (r: number) => r > 9.5 }];
+  const allRpes = counted.flatMap((session) => session.events.filter((e) => e.type === "RPE_REPORT" && finite(e.rpe)).map((e) => e.rpe as number));
+  const effortBands = bands.map(({ band, test }) => ({ band, ratings: allRpes.filter(test).length, pct: allRpes.length ? round((allRpes.filter(test).length / allRpes.length) * 100, 0) : null }));
+  const patternSets = new Map<string, number>();
+  for (const row of exerciseRows) patternSets.set(row.pattern ?? "other", (patternSets.get(row.pattern ?? "other") ?? 0) + row.sets);
+  const patternRows = [...patternSets.entries()].map(([pattern, sets]) => ({ pattern, sets })).sort((a, b) => b.sets - a.sets);
+
   return {
     weeks,
+    ...(input.from || input.to ? { range: { from: input.from ?? null, to: input.to ?? null } } : {}),
     ...(input.closed ? { closed: true } : {}),
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))) },
     volume: { rows: volumeRows },
     strength: { lifts },
     execution: { rows: executionRows, most_missed: mostMissed, effort_creep: effortCreep.slice(0, 5) },
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
-    readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date)), checkins: checkinRows },
-    pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes }
+    readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
+    pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
+    exercises: { rows: exerciseRows, effort_bands: effortBands, rated: allRpes.length, patterns: patternRows }
   };
 }
 
@@ -473,7 +529,8 @@ export function findings(analysis: Json): Finding[] {
     const span = lastTwo.length === 1 ? (a.closed ? "that week" : "last week") : a.closed ? "in its last 2 weeks" : "in the last 2 weeks";
     const done = lastTwo.reduce((sum, row) => sum + Number(row.completed) + Number(row.partial) * 0.5, 0);
     const planned = lastTwo.reduce((sum, row) => sum + Number(row.planned ?? 0), 0);
-    const pct = planned ? Math.round((done / planned) * 100) : null;
+    // Extra sessions don't make it over 100%.
+    const pct = planned ? Math.min(100, Math.round((done / planned) * 100)) : null;
     if (pct !== null) {
       const missed = Math.max(0, Math.round(planned - done));
       out.push(pct < 70

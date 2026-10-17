@@ -5,11 +5,13 @@
 // same kind before it. Computed on request from the athlete's logged
 // training, so a report is always "compiled" for every period that has
 // ended, and the current one shows so far. Coach-only, like Analysis.
+import crypto from "node:crypto";
+
 import { pool } from "../db/pool.js";
 import { addDays, findings, weekStart } from "./coach_analysis_metrics.js";
 import { analyseWindowForCoach } from "./coach_analysis_service.js";
 import {
-  REPORT_TYPES, compareReports, cyclePeriods, programmePeriods, summariseReport, weekPeriods, weeksIn, yearPeriods,
+  REPORT_TYPES, athleteReport, compareReports, customPeriodFromId, cyclePeriods, previousCustomPeriod, programmePeriods, summariseReport, weekPeriods, weeksIn, yearPeriods,
   type ProgrammeHistory, type ReportPeriod, type ReportType
 } from "./coach_report_periods.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
@@ -17,12 +19,15 @@ import { loadExecutableCoachTemplateById, orderedTemplateSessions } from "./beta
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
 import { getAthleteTrainingPlan } from "./athlete_onboarding_service.js";
 import { macroPhaseFor } from "./training_cycle.js";
+import { bodyweightHistory } from "./athlete_my_programme_service.js";
+import { sendCoachAthleteMessage } from "./coach_athlete_messaging_service.js";
 
 type Json = Record<string, unknown>;
 const isRecord = (value: unknown): value is Json => typeof value === "object" && value !== null && !Array.isArray(value);
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 export class CoachReportNotFoundError extends Error {}
+export class CoachReportInputError extends Error {}
 
 // The programmes behind the athlete's trained sessions, oldest first: a
 // coach's assignment or a Kolosseum programme run, with the block each
@@ -145,36 +150,126 @@ export async function listCoachReports(coachUserId: string, athleteUserId: strin
 }
 
 // The analysis window for a period: up to its last day (or today, for one
-// still going), its weeks closed when it has ended.
+// still going), its weeks closed when it has ended; a custom period counts
+// only the days between its dates.
 async function periodSummary(coachUserId: string, athleteUserId: string, period: ReportPeriod, today: string) {
-  const ended = period.end < today;
-  const asOf = ended ? period.end : today;
+  const lastDay = period.to ?? period.end;
+  const ended = lastDay < today;
+  const asOf = ended ? lastDay : today;
   const weeks = Math.max(1, Math.round((Date.parse(weekStart(asOf)) - Date.parse(period.start)) / (7 * 86_400_000)) + 1);
-  const result = await analyseWindowForCoach(coachUserId, athleteUserId, weeks, asOf, ended);
+  const result = await analyseWindowForCoach(coachUserId, athleteUserId, weeks, asOf, {
+    closed: ended,
+    ...(period.from ? { from: period.from } : {}),
+    ...(period.to ? { to: period.to } : {})
+  });
   return { analysis: result.analysis as Json, summary: summariseReport(result.analysis as Json) };
 }
 
-export async function loadCoachReport(coachUserId: string, athleteUserId: string, type: string, id: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
-  await requireCoachAthleteAccess(coachUserId, athleteUserId);
+async function displayName(userId: string): Promise<string> {
+  const result = await pool.query("SELECT display_name FROM product_accounts WHERE user_id = $1", [userId]).catch(() => null);
+  return text(result?.rows?.[0]?.display_name);
+}
+
+// The bodyweights the coach recorded during the period (and the last one
+// before it, as the starting point).
+async function bodyweightDuring(coachUserId: string, athleteUserId: string, period: ReportPeriod): Promise<Json[]> {
+  const history = await bodyweightHistory(coachUserId, athleteUserId).catch(() => [] as Json[]);
+  const from = period.from ?? period.start;
+  const to = period.to ?? period.end;
+  const before = history.filter((entry) => text(entry.date) && text(entry.date) < from).slice(-1);
+  return [...before, ...history.filter((entry) => text(entry.date) >= from && text(entry.date) <= to)];
+}
+
+// Which period a type and id name, and the one before it of the same kind.
+async function resolvePeriod(athleteUserId: string, type: string, id: string, today: string): Promise<{ period: ReportPeriod; previous: ReportPeriod | null }> {
+  if (type === "custom") {
+    const period = customPeriodFromId(id, today);
+    if (!period) throw new CoachReportNotFoundError("report_custom_dates_invalid");
+    return { period, previous: previousCustomPeriod(period, today) };
+  }
   if (!(REPORT_TYPES as readonly string[]).includes(type)) throw new CoachReportNotFoundError("report_type_unknown");
   const periods = (await allPeriods(athleteUserId, today)).filter((period) => period.type === (type as ReportType)).sort(newestFirst);
   const index = periods.findIndex((period) => period.id === id);
   if (index < 0) throw new CoachReportNotFoundError("report_not_found");
-  const period = periods[index];
-  const previous = periods[index + 1] ?? null;
-  const [current, before] = await Promise.all([
+  return { period: periods[index], previous: periods[index + 1] ?? null };
+}
+
+async function compileReport(coachUserId: string, athleteUserId: string, type: string, id: string, today: string) {
+  await requireCoachAthleteAccess(coachUserId, athleteUserId);
+  const { period, previous } = await resolvePeriod(athleteUserId, type, id, today);
+  const [current, before, bodyweight, name] = await Promise.all([
     periodSummary(coachUserId, athleteUserId, period, today),
-    previous ? periodSummary(coachUserId, athleteUserId, previous, today) : Promise.resolve(null)
+    previous ? periodSummary(coachUserId, athleteUserId, previous, today) : Promise.resolve(null),
+    bodyweightDuring(coachUserId, athleteUserId, period),
+    displayName(athleteUserId)
   ]);
-  const name = await pool.query("SELECT display_name FROM product_accounts WHERE user_id = $1", [athleteUserId]).catch(() => null);
+  return { period, previous, current, before, bodyweight, name };
+}
+
+export async function loadCoachReport(coachUserId: string, athleteUserId: string, type: string, id: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  const { period, previous, current, before, bodyweight, name } = await compileReport(coachUserId, athleteUserId, type, id, today);
   return {
     ok: true,
-    athlete: { user_id: athleteUserId, display_name: text(name?.rows?.[0]?.display_name) },
+    athlete: { user_id: athleteUserId, display_name: name },
     period: { ...period, weeks: weeksIn(period) },
-    previous: previous ? { type: previous.type, id: previous.id, label: previous.label, start: previous.start, end: previous.end } : null,
+    previous: previous ? { type: previous.type, id: previous.id, label: previous.label, start: previous.from ?? previous.start, end: previous.to ?? previous.end } : null,
     findings: findings(current.analysis),
-    summary: current.summary,
+    summary: { ...current.summary, bodyweight },
     compared: compareReports(current.summary, before?.summary ?? null),
     analysis: current.analysis
+  };
+}
+
+// ---------- the athlete's copy ----------
+const SENT_EVENT = "coach_progress_report_sent";
+export const REPORT_MESSAGE_MAX = 2000;
+
+// What the athlete would get - shown to the coach before sending.
+export async function previewAthleteReport(coachUserId: string, athleteUserId: string, type: string, id: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  const { period, current } = await compileReport(coachUserId, athleteUserId, type, id, today);
+  return { ok: true, report: athleteReport(period, current.summary, current.analysis, { name: await displayName(coachUserId), message: "" }) };
+}
+
+// Send the athlete their copy, with the coach's message: kept on the
+// athlete's account (History > Reports from your coach) and announced in
+// their messages with the coach. A repeat of the same client_request_id
+// sends nothing new.
+export async function sendAthleteReport(coachUserId: string, athleteUserId: string, type: string, id: string, body: unknown, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  const input = isRecord(body) ? body : {};
+  const message = text(input.message);
+  if (message.length > REPORT_MESSAGE_MAX) throw new CoachReportInputError("report_message_too_long");
+  const clientRequestId = text(input.client_request_id);
+  if (!/^[A-Za-z0-9_-]{8,80}$/u.test(clientRequestId)) throw new CoachReportInputError("report_client_request_id_invalid");
+
+  const { period, current } = await compileReport(coachUserId, athleteUserId, type, id, today);
+  const coachName = await displayName(coachUserId);
+  const report = athleteReport(period, current.summary, current.analysis, { name: coachName, message });
+  const reportId = `cpr_${crypto.createHash("sha256").update(`${coachUserId}|${athleteUserId}|${clientRequestId}`).digest("hex").slice(0, 32)}`;
+  const sentAt = new Date().toISOString();
+  const inserted = await pool.query(
+    `INSERT INTO product_account_events (event_id, user_id, event_type, event_payload) VALUES ($1, $2, $3, $4::jsonb)
+     ON CONFLICT (event_id) DO NOTHING`,
+    [reportId, athleteUserId, SENT_EVENT, JSON.stringify({ report_id: reportId, coach_user_id: coachUserId, sent_at: sentAt, report })]
+  );
+  if (inserted.rowCount) {
+    const note = `Your progress report is ready: ${period.label}.${message ? `\n\n${message}` : ""}\n\nOpen it in History > Reports from your coach.`;
+    await sendCoachAthleteMessage("coach", coachUserId, athleteUserId, note, `report_${reportId}`).catch(() => null);
+  }
+  return { ok: true, report_id: reportId, sent: inserted.rowCount === 1 };
+}
+
+// The reports the athlete's coaches have sent them, newest first.
+export async function listAthleteReports(athleteUserId: string): Promise<Json> {
+  const result = await pool.query(
+    `SELECT event_payload, occurred_at FROM product_account_events WHERE user_id = $1 AND event_type = $2 ORDER BY occurred_at DESC, event_id DESC LIMIT 200`,
+    [athleteUserId, SENT_EVENT]
+  );
+  return {
+    ok: true,
+    reports: result.rows.filter((row) => isRecord(row.event_payload)).map((row) => ({
+      report_id: text(row.event_payload.report_id),
+      sent_at: text(row.event_payload.sent_at) || new Date(String(row.occurred_at)).toISOString(),
+      report: row.event_payload.report
+    }))
   };
 }

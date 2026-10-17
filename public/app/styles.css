@@ -5083,3 +5083,29 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #report-print-root .trend-chart path { stroke: #000 !important; }
   #report-print-root .trend-chart rect, #report-print-root .trend-chart circle { fill: #555 !important; }
 }
+.report-bands { grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+.report-custom { display: flex; flex-wrap: wrap; align-items: end; gap: var(--k-space-2) var(--k-space-3); }
+.report-custom .field { min-width: 150px; }
+.report-custom p { flex-basis: 100%; margin: 0; }
+.report-send { display: grid; gap: var(--k-space-2); }
+.report-send h3, .report-send p { margin: 0; }
+.report-send textarea { width: 100%; }
+.athlete-report-message p { margin: 0; white-space: pre-wrap; }
+.athlete-report-message { border-left: 3px solid var(--k-accent); padding-left: var(--k-space-3); }
+.athlete-report-weeks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: var(--k-space-2); }
+.athlete-report-weeks li { display: grid; gap: 2px; padding: var(--k-space-2); border: 1px solid var(--k-border); border-radius: var(--k-radius-m); font-size: 0.85rem; color: var(--k-text-secondary); }
+.athlete-report-weeks strong { color: var(--k-text); font-size: 1rem; }
+#athlete-report-print-root { display: none; }
+@media print {
+  html:has(body.printing-athlete-report) { color-scheme: light; background: #fff !important; }
+  body.printing-athlete-report { background: #fff !important; color: #000 !important; }
+  body.printing-athlete-report > *:not(#athlete-report-print-root) { display: none !important; }
+  body.printing-athlete-report #athlete-report-print-root { display: block; font: 9.5pt/1.35 Inter, "Segoe UI", Arial, sans-serif; color: #000; }
+  #athlete-report-print-root * { color: #000 !important; background: transparent !important; box-shadow: none !important; }
+  #athlete-report-print-root .report-tiles { grid-template-columns: repeat(4, 1fr); gap: 2mm; }
+  #athlete-report-print-root .report-tile, #athlete-report-print-root .athlete-report-weeks li { border: 0.5pt solid #666; border-radius: 0; }
+  #athlete-report-print-root .analysis-table { width: 100%; border-collapse: collapse; }
+  #athlete-report-print-root .analysis-table th, #athlete-report-print-root .analysis-table td { border: 0.5pt solid #666; padding: 1mm 1.5mm; font-size: 8.5pt; }
+  #athlete-report-print-root .report-section { break-inside: avoid; }
+  #report-print-root details > summary { display: none; }
+}

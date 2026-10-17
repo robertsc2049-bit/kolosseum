@@ -102,6 +102,7 @@ async function loadSessions(athleteUserId: string, since: string): Promise<Analy
     session_id: String(row.session_id),
     status: text(row.status),
     created_at: new Date(row.created_at).toISOString(),
+    ...(isRecord(row.planned_session) && text(row.planned_session.title) ? { title: text(row.planned_session.title) } : {}),
     planned: plannedExercises(row.planned_session),
     events: bySession.get(String(row.session_id)) ?? []
   }));
@@ -141,7 +142,9 @@ export async function analyseAthleteForCoach(coachUserId: string, athleteUserId:
 
 // Any window of whole weeks up to `today` (a progress report's period);
 // `closed` when the period has ended, so its last week counts in full.
-export async function analyseWindowForCoach(coachUserId: string, athleteUserId: string, weeks: number, today: string, closed = false): Promise<Json> {
+export type AnalysisWindowOptions = Readonly<{ closed?: boolean; from?: string; to?: string }>;
+
+export async function analyseWindowForCoach(coachUserId: string, athleteUserId: string, weeks: number, today: string, options: AnalysisWindowOptions = {}): Promise<Json> {
   await requireCoachAthleteAccess(coachUserId, athleteUserId);
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
@@ -158,7 +161,10 @@ export async function analyseWindowForCoach(coachUserId: string, athleteUserId: 
   const analysis = analyseAthlete({
     today,
     weeks,
-    closed,
+    closed: options.closed ?? false,
+    ...(options.from ? { from: options.from } : {}),
+    ...(options.to ? { to: options.to } : {}),
+    pattern_of: patternOf,
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),
