@@ -16,7 +16,9 @@ import {
   type ProgrammeBlockDraft,
   type ProgrammeSessionDraft,
   type ProgrammeWeekDraft,
-  type ProgrammeWorkItemDraft
+  type ProgrammeWorkItemDraft,
+  MAX_PLANNED_SETS,
+  setsWarning
 } from "./programmeDraft";
 import { CoachDemoVideoEditor } from "./CoachDemoVideoEditor";
 import { useExerciseHowto } from "./useExerciseHowto";
@@ -215,6 +217,10 @@ function DistanceControls({ workItem, blockIndex, weekIndex, sessionIndex, workI
 // least 3 and may do a 4th. planned_sets is the low end.
 function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
   const rangeMode = workItem.set_mode === "range";
+  // The inputs stay uncontrolled (the legacy builder reads them); this only
+  // follows what the coach types, for the "that's a lot of sets" check.
+  const [typed, setTyped] = React.useState({ sets: workItem.planned_sets, most: workItem.planned_sets_max });
+  const warning = setsWarning(typed.sets, rangeMode ? typed.most : undefined);
   return (
     <div className="template-sets-group">
       <label className="template-set-mode-field">
@@ -226,14 +232,15 @@ function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIn
       </label>
       <label className="template-sets-field core-field" data-short={rangeMode ? "Min sets" : "Sets"}>
         <span>{rangeMode ? "Least sets" : "Sets"}</span>
-        <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
+        <input type="number" min={1} max={MAX_PLANNED_SETS} step={1} defaultValue={workItem.planned_sets} onChange={(event) => { const value = Number(event.target.value); setTyped((current) => ({ ...current, sets: value })); }} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
       </label>
       {rangeMode ? (
         <label className="template-sets-max-field core-field" data-short="Max sets">
           <span>Most sets</span>
-          <input type="number" min={1} max={20} step={1} defaultValue={workItem.planned_sets_max} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets_max")} />
+          <input type="number" min={1} max={MAX_PLANNED_SETS} step={1} defaultValue={workItem.planned_sets_max} onChange={(event) => { const value = Number(event.target.value); setTyped((current) => ({ ...current, most: value })); }} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets_max")} />
         </label>
       ) : null}
+      {warning ? <p className="template-sets-warning" role="status" data-testid="sets-warning">{warning}</p> : null}
     </div>
   );
 }

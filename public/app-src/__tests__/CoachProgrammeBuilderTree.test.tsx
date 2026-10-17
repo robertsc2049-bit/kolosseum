@@ -784,3 +784,16 @@ test("rest in minutes:seconds parses the way a coach types it", () => {
   assert.equal(parseRest("1:75"), null);
   assert.equal(parseRest("abc"), null);
 });
+
+test("typing more than 12 sets shows a check-it note as the coach types - and saving is never blocked", async () => {
+  installExerciseRegistryMock([{ exercise_id: "back_squat", display_name: "Back squat" }]);
+  render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem({ planned_sets: 4 }));
+  const sets = document.querySelector('[data-field="planned_sets"]') as HTMLInputElement;
+  assert.equal(document.querySelector("[data-testid='sets-warning']"), null);
+  await act(async () => { fireEvent.change(sets, { target: { value: "12" } }); });
+  assert.equal(document.querySelector("[data-testid='sets-warning']"), null, "12 x 2 speed work is normal");
+  await act(async () => { fireEvent.change(sets, { target: { value: "20" } }); });
+  assert.match(document.querySelector("[data-testid='sets-warning']")?.textContent ?? "", /20 sets is a lot for one exercise/u);
+  assert.equal(sets.max, "30");
+});

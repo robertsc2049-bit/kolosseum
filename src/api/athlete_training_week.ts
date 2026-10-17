@@ -75,7 +75,7 @@ export function validateTrainingWeek(input: unknown, activityId: string | undefi
         if (!allowed.has(id)) errors[where] = "Choose an exercise from the list.";
         else if (seen.has(id)) errors[where] = "This exercise is already in this day.";
         seen.add(id);
-        if (!Number.isInteger(sets) || sets < 1 || sets > 8) errors[`${where}_sets`] = "Choose 1 to 8 sets.";
+        if (!Number.isInteger(sets) || sets < 1 || sets > 30) errors[`${where}_sets`] = "Choose 1 to 30 sets.";
         if (!Number.isInteger(reps) || reps < 1 || reps > 30) errors[`${where}_reps`] = "Choose 1 to 30 reps.";
         return { exercise_id: id, sets, reps };
       })

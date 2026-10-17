@@ -619,7 +619,7 @@ function friendlyError(payload, status) {
     work_item_group_type_mismatch: "All exercises in a group must share the same grouping type.",
     exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
     duplicate_exercise_in_session: "Each exercise in a session must be unique.",
-    planned_sets_invalid: "Sets must be between 1 and 20.",
+    planned_sets_invalid: "Sets must be between 1 and 30.",
     planned_reps_invalid: "Fixed reps must be between 1 and 100.",
     rep_mode_invalid: "Choose fixed reps or a rep range.",
     rep_range_min_invalid: "The minimum reps must be between 1 and 100.",
@@ -3523,10 +3523,10 @@ function programmeActivationIssues(template) {
           }
 
           const sets = Number(workItem?.planned_sets);
-          if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
+          if (!Number.isInteger(sets) || sets < 1 || sets > 30) {
             addIssue(
               "planned_sets_invalid",
-              `${itemPath} sets must be between one and 20.`,
+              `${itemPath} sets must be between one and 30.`,
               itemPath
             );
           }

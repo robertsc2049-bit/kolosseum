@@ -672,13 +672,13 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
           }
 
           const sets = workItem.planned_sets;
-          if (!Number.isInteger(sets) || sets < 1 || sets > 20) {
-            addIssue("planned_sets_invalid", `${itemPath} sets must be between one and 20.`, itemPath);
+          if (!Number.isInteger(sets) || sets < 1 || sets > MAX_PLANNED_SETS) {
+            addIssue("planned_sets_invalid", `${itemPath} sets must be between one and ${MAX_PLANNED_SETS}.`, itemPath);
           }
           if (workItem.set_mode === "range") {
             const maxSets = workItem.planned_sets_max;
-            if (!Number.isInteger(maxSets) || maxSets < 1 || maxSets > 20) {
-              addIssue("set_range_max_invalid", `${itemPath} most sets must be between one and 20.`, itemPath);
+            if (!Number.isInteger(maxSets) || maxSets < 1 || maxSets > MAX_PLANNED_SETS) {
+              addIssue("set_range_max_invalid", `${itemPath} most sets must be between one and ${MAX_PLANNED_SETS}.`, itemPath);
             }
             else if (Number.isInteger(sets) && maxSets < sets) {
               addIssue("set_range_order_invalid", `${itemPath} most sets can't be fewer than the least.`, itemPath);
@@ -890,6 +890,19 @@ export function programmePreviewLoad(workItem: ProgrammeWorkItemDraft): string {
   return workItem.load_range_mode === "range" && workItem.percent_1rm_max > workItem.percent_1rm
     ? `${workItem.percent_1rm}–${workItem.percent_1rm_max}% 1RM`
     : `${workItem.percent_1rm}% 1RM`;
+}
+
+// Sets per exercise: 1 to 30 are allowed (interval repeats reach the
+// mid-20s); past 12 the builder asks the coach to check - a warning, not a
+// block (Westside speed work at 12 x 2 is the most in a common strength
+// method).
+export const MAX_PLANNED_SETS = 30;
+export const SETS_WARNING_ABOVE = 12;
+export function setsWarning(sets: number, mostSets?: number): string | null {
+  const top = Math.max(Number(sets) || 0, Number(mostSets) || 0);
+  return top > SETS_WARNING_ABOVE && top <= MAX_PLANNED_SETS
+    ? `${top} sets is a lot for one exercise - check it's what you meant.`
+    : null;
 }
 
 // "3 sets" or "3–4 sets".

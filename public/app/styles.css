@@ -4959,3 +4959,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 
 /* A record card's buttons sit together and wrap on a narrow screen. */
 .record-actions { display: flex; flex-wrap: wrap; gap: var(--k-space-2); align-items: center; }
+
+/* "That's a lot of sets" - a note, not an error: the coach may mean it. */
+.template-sets-warning { grid-column: 1 / -1; margin: 0; color: var(--k-warning); font-size: 0.82rem; }
+.template-work-item[data-open="false"] .template-sets-warning { flex: 1 1 100%; }

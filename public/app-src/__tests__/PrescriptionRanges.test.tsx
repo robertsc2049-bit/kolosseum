@@ -48,3 +48,20 @@ test("a set range offers the sets beyond the least as optional in the set logger
   assert.ok(screen.getByText("Set 4 (optional)"));
   assert.equal(screen.queryByText("Set 5 (optional)"), null);
 });
+
+test("1 to 30 sets are allowed; past 12 the coach is asked to check, never blocked", async () => {
+  const { draftToValidationRecord, programmeActivationIssues, newTemplateBlock, newTemplateSession, setsWarning } = await import("../screens/coach/programmeDraft");
+  const issuesFor = (overrides: Record<string, unknown>) => {
+    const item = { ...storedWorkItemToDraft({ exercise_id: "back_squat" }, 0), ...overrides };
+    const block = newTemplateBlock(1);
+    block.weeks[0] = { ...block.weeks[0], sessions: [{ ...newTemplateSession(1), work_items: [item] }] };
+    const draft = { template_id: "", template_name: "Intervals", template_version: 1, description: "", activity_id: "powerlifting", blocks: [block] } as never;
+    return programmeActivationIssues(draftToValidationRecord(draft), [{ exercise_id: "back_squat" }]).map((issue) => issue.code);
+  };
+  assert.equal(issuesFor({ planned_sets: 30 }).includes("planned_sets_invalid"), false, "30 sets is allowed (20 x 400 m intervals and the like)");
+  assert.ok(issuesFor({ planned_sets: 31 }).includes("planned_sets_invalid"), "31 is not");
+  assert.equal(setsWarning(12), null, "Westside's 12 x 2 needs no warning");
+  assert.match(setsWarning(13) ?? "", /13 sets is a lot/u);
+  assert.match(setsWarning(4, 15) ?? "", /15 sets/u, "the top of a set range counts");
+  assert.equal(setsWarning(31), null, "past 30 it is an error, not a warning");
+});
