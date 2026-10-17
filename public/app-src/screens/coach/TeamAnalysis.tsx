@@ -5,6 +5,7 @@ import { request, type JsonRecord } from "../../api/transport";
 import { TrendChart } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
+import { AvailabilityBadge, SquadTesting, downloadFile, squadCsv } from "./SquadTools";
 
 // A coach's team view on the Analysis page: every athlete in a team org
 // they coach in, summed up as a team, by position and by coach, then athlete
@@ -105,6 +106,8 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
   const weekly = rows(summary.weekly);
   const weeks = weekly.map((week) => String(week.week_start));
   const athletes = rows(data.athletes);
+  const availability = (summary.availability ?? null) as JsonRecord | null;
+  const teamName = String((data.org as JsonRecord | undefined)?.org_name ?? team.org_name);
 
   return (
     <div className="analysis-team" data-testid="team-analysis">
@@ -122,6 +125,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show(readiness.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
         <div className="report-tile"><span className="report-tile-label">Recurring pain</span><strong>{show(pain.athletes_with_recurring_pain)}</strong><span className="report-tile-usual">details with their coach</span></div>
         <div className="report-tile"><span className="report-tile-label">Main lifts</span><strong>{`${show(lifts.rising)} ↑ · ${show(lifts.falling)} ↓`}</strong><span className="report-tile-usual">{`${show(lifts.plateau)} stalled`}</span></div>
+        {availability ? <div className="report-tile"><span className="report-tile-label">Available today</span><strong>{`${show(availability.available)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">{`${show(availability.modified)} modified · ${show(availability.unavailable)} unavailable`}</span></div> : null}
       </div>
 
       {weeks.length ? (
@@ -132,14 +136,18 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         </section>
       ) : null}
 
+      <SquadTesting testing={rows(data.testing)} />
       <GroupTable title="By position" groups={rows(data.by_position)} testId="team-by-position" />
       <GroupTable title="By coach" groups={rows(data.by_coach)} testId="team-by-coach" />
 
       <section className="panel" data-testid="team-athletes">
-        <h3>Every athlete</h3>
+        <div className="panel-header">
+          <h3>Every athlete</h3>
+          <button type="button" className="button secondary small-button" onClick={() => downloadFile(`${teamName.replace(/[^A-Za-z0-9]+/gu, "-")}-squad.csv`, squadCsv(athletes, rows(data.testing), (row) => statusLabel(row).label))}>Download squad (CSV)</button>
+        </div>
         <div className="analysis-table-wrap">
           <table className="analysis-table analysis-roster">
-            <thead><tr><th>Athlete</th><th>Status</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
+            <thead><tr><th>Athlete</th><th>Status</th><th>Available</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
             <tbody>
               {athletes.map((athlete) => {
                 const statusInfo = statusLabel(athlete);
@@ -151,6 +159,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
                       ? <button type="button" className="analysis-athlete-link" onClick={() => onOpenAthlete(String(athlete.athlete_user_id))}>{String(athlete.display_name)}</button>
                       : <span>{String(athlete.display_name)}</span>}</td>
                     <td data-label="Status"><span className={`analysis-status is-${statusInfo.level}`}>{statusInfo.label}</span></td>
+                    <td data-label="Available"><AvailabilityBadge availability={athlete.availability} /></td>
                     <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 2)} compact /> : <span className="muted small">{athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Position">{athlete.position ? String(athlete.position).replaceAll("_", " ") : "–"}</td>
                     <td data-label="Coach">{athlete.yours ? "You" : String(athlete.coach_name ?? "Coach")}</td>

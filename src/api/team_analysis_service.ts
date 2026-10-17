@@ -11,26 +11,64 @@ import { analyseAthleteWindow, rosterRowFor } from "./coach_analysis_service.js"
 import { listOrgAthleteRosterForCoach } from "./coach_team_position_override_service.js";
 import { resolveOrgActiveCoachAcceptedAthletes } from "./attendance_event_org_invite_service.js";
 import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
-import { groupFindings, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
+import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
+import { activeStandDown } from "./medical_stand_down_service.js";
+import { getAthletePainFlags } from "./pain_flag_service.js";
 
 type Json = Record<string, unknown>;
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
 export type TeamMember = Readonly<{ athlete_user_id: string; display_name: string; coach_user_id: string; position?: string | null }>;
 
-// Each member's 8-week analysis row (the same row a coach's own roster uses).
+// Today's availability: unavailable (an active stand-down), modified (an
+// active pain flag) or available - with the reason, which only the
+// athlete's own coach or the head coach is shown (withoutPainDetail drops it).
+export async function availabilityOf(athleteUserId: string): Promise<Json> {
+  const [standDown, flags] = await Promise.all([
+    activeStandDown(athleteUserId).catch(() => null),
+    getAthletePainFlags(athleteUserId).catch(() => ({ flags: [] }))
+  ]);
+  if (standDown) return { status: "unavailable", reason: standDown.reason === "head_injury" ? "Head injury stand-down" : "Medical stand-down", until: standDown.until_date };
+  const list = (Array.isArray((flags as Json).flags) ? (flags as Json).flags : []) as Json[];
+  if (list.length) return { status: "modified", reason: `Pain flagged: ${list.map((flag) => String(flag.where ?? "")).filter(Boolean).join(", ")}` };
+  return { status: "available" };
+}
+
+// Run a few at a time: a 50-athlete squad is 50 analyses, each several reads.
+async function inBatches<T, R>(items: readonly T[], size: number, work: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = [];
+  for (let index = 0; index < items.length; index += size) out.push(...(await Promise.all(items.slice(index, index + size).map(work))));
+  return out;
+}
+
+// A recently worked-out team view is reused for a minute (switching tabs
+// shouldn't re-run 50 analyses).
+const recent = new Map<string, { at: number; value: Promise<Json> }>();
+export function cachedForAMinute(key: string, work: () => Promise<Json>): Promise<Json> {
+  const hit = recent.get(key);
+  if (hit && Date.now() - hit.at < 60_000) return hit.value;
+  const value = work();
+  recent.set(key, { at: Date.now(), value });
+  value.catch(() => recent.delete(key));
+  if (recent.size > 200) recent.delete(recent.keys().next().value as string);
+  return value;
+}
+export function __clearTeamCacheForTests(): void { recent.clear(); }
+
+// Each member's 8-week analysis row (the same row a coach's own roster uses),
+// with today's availability.
 export async function analyseMembers(members: readonly TeamMember[], today: string): Promise<Json[]> {
-  return Promise.all(members.map(async (member) => {
+  return inBatches(members, 6, async (member) => {
     const name = member.display_name || member.athlete_user_id;
     try {
-      const result = await analyseAthleteWindow(member.athlete_user_id, member.coach_user_id, 8, today);
+      const [result, availability] = await Promise.all([analyseAthleteWindow(member.athlete_user_id, member.coach_user_id, 8, today), availabilityOf(member.athlete_user_id)]);
       const findings = (result.findings ?? []) as Json[];
-      return { ...rosterRowFor(member.athlete_user_id, name, { ...result, findings, attention: result.attention }), coach_user_id: member.coach_user_id, position: member.position ?? null };
+      return { ...rosterRowFor(member.athlete_user_id, name, { ...result, findings, attention: result.attention }), coach_user_id: member.coach_user_id, position: member.position ?? null, availability };
     }
     catch {
       return { athlete_user_id: member.athlete_user_id, display_name: name, coach_user_id: member.coach_user_id, position: member.position ?? null, attention: null, findings: [], unavailable: true };
     }
-  }));
+  });
 }
 
 export async function displayNames(userIds: readonly string[]): Promise<Map<string, string>> {
@@ -43,7 +81,16 @@ const positionLabel = (position: string) => (position === "unknown" ? "No positi
 const byAttention = (a: Json, b: Json) => Number(b.attention ?? -1) - Number(a.attention ?? -1) || String(a.display_name).localeCompare(String(b.display_name));
 
 export async function analyseTeamForCoach(coachUserId: string, orgId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  // Access is checked every time; only the work is reused.
   const roster = await listOrgAthleteRosterForCoach(coachUserId, orgId);
+  // Who's head coach is part of the key: naming or clearing one shows at once...
+  const head = (await headCoachOf(orgId)) === coachUserId;
+  // ...and so is the roster: someone joining or leaving shows at once.
+  const members = roster.map((member) => `${member.athlete_user_id}:${member.coach_user_id}:${member.position ?? ""}`).sort().join(",");
+  return cachedForAMinute(`team|${orgId}|${coachUserId}|${head}|${today}|${members}`, () => buildTeamView(coachUserId, orgId, roster, today));
+}
+
+async function buildTeamView(coachUserId: string, orgId: string, roster: readonly TeamMember[], today: string): Promise<Json> {
   const org = await pool.query("SELECT org_name FROM product_organisations WHERE org_id = $1", [orgId]);
   const rows = await analyseMembers(roster, today);
   const coachNames = await displayNames(rows.map((row) => text(row.coach_user_id)));
@@ -64,6 +111,7 @@ export async function analyseTeamForCoach(coachUserId: string, orgId: string, to
     findings: groupFindings(summary, "the team"),
     by_position: summariseBy(rows, (row) => text(row.position), positionLabel),
     by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach"),
+    testing: squadTesting(rows),
     athletes: shown.map((row): Json => ({ ...row, coach_name: coachNames.get(text(row.coach_user_id)) || "Coach" })).sort(byAttention)
   };
 }

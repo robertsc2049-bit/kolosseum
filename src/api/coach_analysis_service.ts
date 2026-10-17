@@ -257,7 +257,8 @@ export function rosterRowFor(athleteUserId: string, name: string, result: Json):
     adherence: { latest_pct: latest(adherenceRows, "adherence_pct"), series: adherenceRows.map((row) => row.adherence_pct), by_week: (analysis.adherence.rows as Json[]).map((row) => row.adherence_pct) },
     load: { acute_chronic: latest(complete(analysis.load.rows as Json[]), "acute_chronic"), series: (analysis.load.rows as Json[]).map((row) => row.load), ratio_by_week: (analysis.load.rows as Json[]).map((row) => (row.partial_week ? null : row.acute_chronic)) },
     readiness: { z: latest(analysis.readiness.rows as Json[], "z"), z_by_week: (analysis.readiness.rows as Json[]).map((row) => row.z) },
-    strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest })),
+    strength: lifts.filter((lift) => lift.main !== false).slice(0, 3).map((lift) => ({ name: lift.name, status: lift.status, change_pct: lift.change_pct, latest: lift.latest, relative_to_bodyweight: lift.relative_to_bodyweight ?? null })),
+    tests_latest: Object.fromEntries((((analysis.testing ?? {}) as Json).tests as Json[] | undefined ?? []).map((test) => [String(test.test_id), test.latest])),
     execution: { reps_hit_pct: latest(complete(analysis.execution.rows as Json[]), "reps_hit_pct") },
     pain: { recurring_areas: painAreas.map((area) => area.area) },
     last_session: sessions.length ? sessions[sessions.length - 1].date : null

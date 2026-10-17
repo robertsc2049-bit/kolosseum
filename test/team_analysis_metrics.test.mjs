@@ -89,3 +89,37 @@ test("a teammate's row for someone who isn't their coach: pain is a flag, never 
   assert.equal(row.findings[0].text, "Recurring pain reported - the detail is with their coach.");
   assert.deepEqual(withoutPainDetail(squad[4]).pain, { recurring: false });
 });
+
+test("squad testing: everyone's CMJ side by side, ranked, against the squad and their position", async () => {
+  const { squadTesting } = await import("../dist/src/api/team_analysis_metrics.js");
+  const cmj = (name, position, value) => ({ athlete_user_id: `u_${name}`, display_name: name, position, tests_latest: { cmj_cm: { value, date: "2026-10-13" } } });
+  const rows = [cmj("Prop A", "prop", 38), cmj("Prop B", "prop", 40), cmj("Wing", "wing", 52), cmj("Centre", "centre", 47), { athlete_user_id: "u_x", display_name: "No test", position: "wing", tests_latest: {} }];
+  const [test1] = squadTesting(rows);
+  assert.equal(test1.test_id, "cmj_cm");
+  assert.equal(test1.athletes, 4);
+  assert.equal(test1.average, 44.3);
+  assert.equal(test1.swc_source, "typical", "under 10 athletes: the test's typical smallest worthwhile change");
+  assert.equal(test1.swc, 1.5);
+  assert.deepEqual(test1.best, { display_name: "Wing", value: 52 });
+  assert.deepEqual(test1.results.map((r) => [r.display_name, r.percentile]), [["Wing", 100], ["Centre", 67], ["Prop B", 33], ["Prop A", 0]]);
+  assert.equal(test1.results.find((r) => r.display_name === "Prop B").vs_position, 1, "1 cm above the props' average");
+  // 10+ athletes: the squad's own smallest worthwhile change (0.2 x SD).
+  const big = Array.from({ length: 12 }, (_, i) => cmj(`P${i}`, "back", 40 + i));
+  const [bigTest] = squadTesting(big);
+  assert.equal(bigTest.swc_source, "squad");
+  assert.equal(bigTest.swc, Math.round(0.2 * bigTest.sd * 10) / 10);
+});
+
+test("availability: counted for the team, the reason only for whoever may see it", () => {
+  const rows = [
+    { ...squad[0], availability: { status: "unavailable", reason: "Head injury stand-down", until: "2026-10-25" } },
+    { ...squad[1], availability: { status: "modified", reason: "Pain flagged: your knee" } },
+    { ...squad[4], availability: { status: "available" } }
+  ];
+  const summary = summariseGroup(rows);
+  assert.deepEqual(summary.availability, { unavailable: 1, modified: 1, available: 1 });
+  const finding = groupFindings(summary).find((f) => f.id === "group_availability");
+  assert.equal(finding.text, "1 athlete unavailable, 1 athlete on modified training today.");
+  assert.deepEqual(withoutPainDetail(rows[0]).availability, { status: "unavailable" }, "no reason for a teammate or the owner");
+  assert.equal(summariseGroup(rows, { includePain: false }).availability, undefined, "a gym owner gets no availability counts");
+});

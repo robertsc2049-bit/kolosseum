@@ -37,7 +37,7 @@ import { getProgressInsightsForCoach } from "./progress_insights_service.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 import { analyseMembers, analyseTeamForCoach, displayNames, type TeamMember } from "./team_analysis_service.js";
 import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
-import { groupFindings, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
+import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -266,6 +266,7 @@ async function sharedOrgAnalysis(orgId: string, visibility: OrgVisibilityRoster,
     findings: groupFindings(summary, "the organisation"),
     by_coach: summariseBy(rows, (row) => cleanString(row.coach_user_id), (key) => coachNames.get(key) || "Coach"),
     by_position: summariseBy(rows, (row) => cleanString(row.position), positionLabel),
+    testing: squadTesting(rows),
     athletes: rows
       .map((row): JsonRecord => ({ ...withoutPainDetail(row), coach_name: coachNames.get(cleanString(row.coach_user_id)) || "Coach" }))
       .sort((a, b) => Number(b.attention ?? -1) - Number(a.attention ?? -1) || String(a.display_name).localeCompare(String(b.display_name)))
