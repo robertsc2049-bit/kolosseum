@@ -5163,3 +5163,5 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .testing-form .field { min-width: 140px; }
 .testing-result { display: inline-flex; align-items: center; gap: 2px; margin-right: var(--k-space-2); white-space: nowrap; }
 .testing-result .text-button { min-width: 28px; min-height: 28px; }
+/* Testing's results table needs the full width of the analysis grid. */
+@media (min-width: 1100px) { #analysis-testing { grid-column: 1 / -1; } }
