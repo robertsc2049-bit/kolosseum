@@ -35,6 +35,8 @@ import {
 } from "./org_visibility_service.js";
 import { getProgressInsightsForCoach } from "./progress_insights_service.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
+import { analyseMembers, displayNames, type TeamMember } from "./team_analysis_service.js";
+import { groupFindings, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -231,4 +233,73 @@ export async function getOrgProgressRollup(
   return visibility.visibility_mode === "shared"
     ? rollupAcceptedAthletes(orgId, visibility)
     : aggregateAdherenceForOrg(orgId, visibility);
+}
+
+// ---------- Organisation analysis (coach Analysis, for the org owner) ----------
+// The same gate as the rollup above, one level richer:
+// - 'shared' ("team"): the whole organisation summed up (team_analysis_
+//   metrics.ts), by coach and by position, and athlete by athlete - with
+//   pain as a flag only (the detail stays with the athlete's own coach).
+// - 'individual' ("gym"): per-coach and organisation-wide AVERAGES and
+//   counts only, each withheld below MIN_COHORT_SIZE athletes with logged
+//   training, never pain (not even as a count), never a position, and
+//   never any athlete's identity - the athlete rows used to work the
+//   averages out are never returned.
+const positionLabel = (position: string) => (position === "unknown" ? "No position set" : position.replaceAll("_", " ").replace(/^./u, (c) => c.toUpperCase()));
+
+function memberOf(coachUserId: string, athlete: JsonRecord): TeamMember {
+  return { athlete_user_id: cleanString(athlete.athlete_user_id), display_name: cleanString(athlete.display_name), coach_user_id: coachUserId, position: cleanString(athlete.position) || null };
+}
+
+async function sharedOrgAnalysis(orgId: string, visibility: OrgVisibilityRoster, today: string): Promise<JsonRecord> {
+  const members = visibility.coaches
+    .filter((coach) => coach.membership_status === "active")
+    .flatMap((coach) => coach.athletes.filter((athlete) => athlete.relationship_state === "accepted").map((athlete) => memberOf(coach.coach_user_id, athlete as unknown as JsonRecord)));
+  const rows = await analyseMembers(members, today);
+  const coachNames = await displayNames(rows.map((row) => cleanString(row.coach_user_id)));
+  const summary = summariseGroup(rows);
+  return {
+    visibility_mode: "shared",
+    org_id: orgId,
+    summary,
+    findings: groupFindings(summary, "the organisation"),
+    by_coach: summariseBy(rows, (row) => cleanString(row.coach_user_id), (key) => coachNames.get(key) || "Coach"),
+    by_position: summariseBy(rows, (row) => cleanString(row.position), positionLabel),
+    athletes: rows
+      .map((row): JsonRecord => ({ ...withoutPainDetail(row), coach_name: coachNames.get(cleanString(row.coach_user_id)) || "Coach" }))
+      .sort((a, b) => Number(b.attention ?? -1) - Number(a.attention ?? -1) || String(a.display_name).localeCompare(String(b.display_name)))
+  };
+}
+
+async function gymOrgAnalysis(orgId: string, visibility: OrgVisibilityAggregate, today: string): Promise<JsonRecord> {
+  const coaches = visibility.coaches.filter((coach) => coach.membership_status === "active");
+  const perCoach = await Promise.all(coaches.map(async (coach) => {
+    // A coach with too few athletes is never even read.
+    if (coach.active_athlete_count < MIN_COHORT_SIZE) return { coach_user_id: coach.coach_user_id, rows: [] as JsonRecord[] };
+    const roster = await listConnectedCoachAthletes(coach.coach_user_id);
+    return { coach_user_id: coach.coach_user_id, rows: await analyseMembers(roster.map((athlete) => memberOf(coach.coach_user_id, athlete)), today) };
+  }));
+  const all = perCoach.flatMap((coach) => coach.rows);
+  const whole = summariseGroup(all, { includePain: false });
+  const enough = Number(whole.trained) >= MIN_COHORT_SIZE;
+  return {
+    visibility_mode: "individual",
+    org_id: orgId,
+    min_cohort_size: MIN_COHORT_SIZE,
+    summary: enough ? whole : null,
+    findings: enough ? groupFindings(whole, "the gym") : [],
+    by_coach: perCoach.map((coach) => {
+      const summary = summariseGroup(coach.rows, { includePain: false });
+      return Number(summary.trained) >= MIN_COHORT_SIZE
+        ? { coach_user_id: coach.coach_user_id, summary, findings: groupFindings(summary, "this coach's athletes") }
+        : { coach_user_id: coach.coach_user_id, withheld: true };
+    })
+  };
+}
+
+export async function getOrgAnalysis(ownerUserId: string, orgId: string, today = new Date().toISOString().slice(0, 10)): Promise<JsonRecord> {
+  const visibility = await getOrgAthleteVisibility(ownerUserId, orgId);
+  return visibility.visibility_mode === "shared"
+    ? sharedOrgAnalysis(orgId, visibility, today)
+    : gymOrgAnalysis(orgId, visibility, today);
 }

@@ -840,6 +840,93 @@ function renderProgress(rollup, coachNamesById) {
   renderRosterProgress(coaches, coachNamesById);
 }
 
+// Organisation analysis (getOrgAnalysis): the group summed up with next
+// steps, by coach (and by position for a team), and every athlete for a
+// team. A gym ('individual') shows averages only, withheld under 3 athletes
+// with logged training; pain is never shown beyond a team's count.
+const ORG_LEVEL_LABEL = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
+const orgShow = (value, suffix = "") => (typeof value === "number" && Number.isFinite(value) ? `${value}${suffix}` : "–");
+
+function renderOrgFindings(findings) {
+  if (!findings.length) return `<p class="muted small">Nothing stands out yet - more logged sessions will show patterns.</p>`;
+  return `<ul class="analysis-findings">${findings.map((finding) => `
+    <li class="analysis-finding is-${escapeHtml(finding.level)}">
+      <span class="analysis-finding-level">${escapeHtml(ORG_LEVEL_LABEL[finding.level] || "Note")}</span>
+      <span class="analysis-finding-body"><span>${escapeHtml(finding.text)}</span>${finding.action ? `<span class="analysis-finding-action"><strong>Next step: </strong>${escapeHtml(finding.action)}</span>` : ""}</span>
+    </li>`).join("")}</ul>`;
+}
+
+function renderOrgTiles(summary) {
+  const tile = (label, value, note) => `<div class="report-tile"><span class="report-tile-label">${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong>${note ? `<span class="report-tile-usual">${escapeHtml(note)}</span>` : ""}</div>`;
+  const status = summary.status || {};
+  const load = summary.load || {};
+  const lifts = summary.lifts || {};
+  return `<div class="report-tiles">
+    ${tile("Athletes", `${orgShow(summary.trained)} of ${orgShow(summary.athletes)}`, "trained in the last 8 weeks")}
+    ${tile("Need a look", orgShow(status.needs_a_look), `${orgShow(status.keep_an_eye_on)} to keep an eye on`)}
+    ${tile("Sessions done (avg)", orgShow((summary.adherence || {}).average_pct, "%"), "On track: 90%+")}
+    ${tile("Load vs usual (avg)", typeof load.average_ratio === "number" ? `${load.average_ratio}×` : "–", `Normal 0.8-1.3× · ${orgShow(load.high)} big jumps`)}
+    ${tile("Low readiness", orgShow((summary.readiness || {}).low), "well below their own normal")}
+    ${summary.pain ? tile("Recurring pain", orgShow(summary.pain.athletes_with_recurring_pain), "details with their coach") : ""}
+    ${tile("Main lifts", `${orgShow(lifts.rising)} ↑ · ${orgShow(lifts.falling)} ↓`, `${orgShow(lifts.plateau)} stalled`)}
+  </div>`;
+}
+
+function renderOrgGroups(title, groups, labelOf) {
+  if (!groups.length) return "";
+  return `<h3>${escapeHtml(title)}</h3>
+    <div class="analysis-table-wrap"><table class="analysis-table">
+      <thead><tr><th>Group</th><th>Need a look</th><th>Sessions done</th><th>Load vs usual</th><th>Low readiness</th><th>What stands out</th></tr></thead>
+      <tbody>${groups.map((group) => {
+        if (group.withheld) return `<tr><td>${escapeHtml(labelOf(group))}</td><td colspan="5" class="muted small">Fewer than 3 athletes with logged training - not shown, to keep athletes private.</td></tr>`;
+        const summary = group.summary || {};
+        const top = (group.findings || []).find((finding) => finding.level === "alert" || finding.level === "watch");
+        return `<tr><td>${escapeHtml(labelOf(group))}</td><td>${orgShow((summary.status || {}).needs_a_look)}</td><td>${orgShow((summary.adherence || {}).average_pct, "%")}</td><td>${typeof (summary.load || {}).average_ratio === "number" ? `${summary.load.average_ratio}×` : "–"}</td><td>${orgShow((summary.readiness || {}).low)}</td><td class="small">${escapeHtml(top ? top.text : "Nothing stands out")}</td></tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+}
+
+function renderOrgAthletes(athletes) {
+  if (!athletes.length) return "";
+  const status = (row) => {
+    const attention = Number(row.attention || 0);
+    if (!row.last_session && attention === 0) return ["No training yet", "info"];
+    return attention >= 3 ? ["Needs a look", "alert"] : attention >= 1 ? ["Keep an eye on", "watch"] : ["On track", "good"];
+  };
+  return `<h3>Every athlete</h3>
+    <div class="analysis-table-wrap"><table class="analysis-table analysis-roster">
+      <thead><tr><th>Athlete</th><th>Status</th><th>What stands out</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
+      <tbody>${athletes.map((row) => {
+        const [label, level] = status(row);
+        const top = (row.findings || []).find((finding) => finding.level === "alert" || finding.level === "watch");
+        const ratio = (row.load || {}).acute_chronic;
+        return `<tr><td>${escapeHtml(row.display_name)}</td><td><span class="analysis-status is-${level}">${label}</span></td><td class="small">${escapeHtml(top ? top.text : row.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks")}</td><td>${escapeHtml(row.coach_name || "Coach")}</td><td>${orgShow((row.adherence || {}).latest_pct, "%")}</td><td>${typeof ratio === "number" ? `${ratio}×` : "–"}</td></tr>`;
+      }).join("")}</tbody>
+    </table></div>`;
+}
+
+function renderOrgAnalysis(analysis, coachNamesById) {
+  const container = el("orgAnalysis");
+  const gym = analysis.visibility_mode === "individual";
+  const coachName = (group) => coachLabel(group.coach_user_id || group.key, coachNamesById);
+  const intro = gym
+    ? `<p class="muted small">A gym's coaches keep their athletes private: this shows averages only, and nothing for a coach with fewer than 3 athletes training.</p>`
+    : `<p class="muted small">The whole organisation over the last 8 weeks. Any athlete's pain detail stays with their own coach.</p>`;
+  if (gym && !analysis.summary) {
+    container.innerHTML = `${intro}<div class="empty-state compact-empty"><p>Not enough athletes with logged training yet for a privacy-safe summary (fewer than 3).</p></div>`;
+    return;
+  }
+  container.innerHTML = `
+    <h3>What stands out</h3>
+    ${intro}
+    ${renderOrgFindings(analysis.findings || [])}
+    ${renderOrgTiles(analysis.summary || {})}
+    ${renderOrgGroups("By coach", analysis.by_coach || [], coachName)}
+    ${gym ? "" : renderOrgGroups("By position", (analysis.by_position || []).length > 1 ? analysis.by_position : [], (group) => group.label)}
+    ${gym ? "" : renderOrgAthletes(analysis.athletes || [])}
+  `;
+}
+
 async function refreshProgress() {
   const rosterResult = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/roster`);
   const coachNamesById = new Map();
@@ -847,7 +934,12 @@ async function refreshProgress() {
     if (membership.coach_display_name) coachNamesById.set(membership.coach_user_id, membership.coach_display_name);
   }
 
-  const result = await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/progress-rollup`);
+  const [result, analysis] = await Promise.all([
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/progress-rollup`),
+    api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/analysis`).catch(() => null)
+  ]);
+  if (analysis && analysis.analysis) renderOrgAnalysis(analysis.analysis, coachNamesById);
+  else el("orgAnalysis").innerHTML = `<p class="muted small">The analysis could not be loaded.</p>`;
   renderProgress(result.rollup, coachNamesById);
 }
 
@@ -867,6 +959,7 @@ function showProgressSection(orgId, orgName) {
   el("orgProgressOrgName").textContent = orgName;
   el("orgProgressError").hidden = true;
   el("orgProgressList").innerHTML = "";
+  el("orgAnalysis").innerHTML = `<p class="muted">Working out the patterns…</p>`;
   refreshProgress().catch((error) => {
     el("orgProgressError").hidden = false;
     el("orgProgressError").textContent = "Could not load progress data.";

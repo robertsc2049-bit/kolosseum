@@ -118,7 +118,7 @@ test("every org-owner route resolves identity from authenticatedOrgOwner, and ev
   assert.ok(ownerAuthCalls >= 10, "every mutating/protected org owner route must resolve identity from authenticatedOrgOwner");
 
   const coachAuthCalls = [...coachRoutes.matchAll(/authenticatedCoach\(request,\s*(?:false|true)\)/gu)].length;
-  assert.equal(coachAuthCalls, 11, "all eleven coach org-membership/org-messaging routes (including the two D.3 attachment routes, O.7's fellow-coach roster route and Slice 3's two team-position-override routes) must resolve identity from authenticatedCoach");
+  assert.equal(coachAuthCalls, 12, "all twelve coach org-membership/org-messaging routes (including the two D.3 attachment routes, O.7's fellow-coach roster route, Slice 3's two team-position-override routes and the team-analysis route) must resolve identity from authenticatedCoach");
 
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, false\)/u);
   assert.match(ownerRoutes, /authenticatedOrgOwner\(request, true\)/u);

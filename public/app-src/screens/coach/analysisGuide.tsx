@@ -172,6 +172,22 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     mind: ["Tonnage favours heavy lower-body lifts, so compare weeks with each other rather than exercises with each other.", "Timed and distance work is counted as prescribed: the athlete marks it done rather than logging their actual time or distance."]
   },
 
+  team: {
+    title: "Team analysis",
+    shows: "Every athlete in the team over the last 8 weeks, summed up as a group - so you can see whether something is happening to one athlete or to the whole squad.",
+    read: [
+      "Group findings count athletes: '3 athletes of 7 had a big jump in training load' means the group, not one person. When several athletes show the same thing at once, look at what they have in common - the plan, the fixture list, exams, travel or an illness going round - before treating them one by one.",
+      "Sessions done and Load vs usual are averages across the athletes who trained. Big jumps count athletes over 1.3× their own usual load; Low readiness counts athletes well below their own normal.",
+      "By position and By coach show the same numbers per group - for example whether it's the forwards or the backs carrying the load.",
+      "Every athlete lists the whole team. Your own athletes open in full. A teammate's detail stays with their own coach: their pain shows only as 'recurring pain reported', never the area."
+    ],
+    how: [
+      "Each athlete is analysed exactly as on their own page (last 8 weeks), then the group's numbers are counted and averaged.",
+      "Only team organisations (shared visibility) have a team view, and only for their active coaches."
+    ],
+    mind: ["An average hides individuals: a team at 85% can include athletes at 50%. Check Every athlete for who's behind the number."]
+  },
+
   // ---------- progress reports ----------
   reports: {
     title: "Progress reports",

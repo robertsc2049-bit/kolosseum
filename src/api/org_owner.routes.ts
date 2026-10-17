@@ -52,7 +52,7 @@ import {
   buildOrgAthleteRosterCsv,
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
-import { getOrgProgressRollup } from "./org_progress_rollup_service.js";
+import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -320,6 +320,19 @@ orgOwnerRouter.get(
     const { user_id } = await authenticatedOrgOwner(request, false);
     const rollup = await getOrgProgressRollup(user_id, String(request.params.org_id));
     return response.status(200).json({ ok: true, rollup });
+  })
+);
+
+// Organisation analysis: the coach Analysis page's group view for the
+// owner - by coach and position with athletes for a 'shared' ("team") org,
+// averages only (and none under 3 athletes) for an 'individual' ("gym")
+// org - see org_progress_rollup_service.ts's getOrgAnalysis.
+orgOwnerRouter.get(
+  "/organisations/:org_id/analysis",
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    const analysis = await getOrgAnalysis(user_id, String(request.params.org_id));
+    return response.status(200).json({ ok: true, analysis });
   })
 );
 

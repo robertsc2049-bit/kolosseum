@@ -467,6 +467,33 @@ test(
       assert.equal(rawGymResponse.includes(athlete.displayName), false, `individual mode must never mention ${athlete.displayName}`);
     }
 
+    // The gym's analysis: averages only, withheld under 3 athletes with
+    // logged training (coachA has 1 athlete; coachB 3, of whom 2 trained),
+    // never an athlete's identity, never pain.
+    const gymAnalysis = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(gymOrgId)}/analysis`, undefined, { cookie: owner.cookie }
+    );
+    assertStatus(gymAnalysis, 200, "individual-mode org owner reads the analysis");
+    const gymAnalysisBody = gymAnalysis.json?.analysis;
+    assert.equal(gymAnalysisBody?.visibility_mode, "individual");
+    assert.equal(gymAnalysisBody?.min_cohort_size, 3);
+    assert.equal(gymAnalysisBody?.summary, null, "2 athletes with logged training across the gym: too few for a summary");
+    assert.deepEqual(gymAnalysisBody?.by_coach.map((group) => group.withheld).sort(), [true, true]);
+    assert.equal(gymAnalysisBody?.athletes, undefined, "a gym owner never gets an athlete list");
+    const rawGymAnalysis = gymAnalysis.text;
+    assert.equal(rawGymAnalysis.includes("athlete_user_id"), false);
+    assert.equal(/pain/iu.test(rawGymAnalysis), false, "a gym owner never sees pain, not even a count");
+    for (const athlete of [athlete1, cohort1, cohort2, cohort3]) {
+      assert.equal(rawGymAnalysis.includes(athlete.userId), false);
+      assert.equal(rawGymAnalysis.includes(athlete.email), false);
+      assert.equal(rawGymAnalysis.includes(athlete.displayName), false);
+    }
+    // A gym has no team view for its coaches either.
+    const gymTeamView = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(gymOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie }
+    );
+    assert.equal(gymTeamView.response.status, 403, "a gym's coaches keep their athletes private - no team view");
+
     // ============================================================
     // A "shared"-mode ("team") org: coachA has an accepted athlete with
     // real session data (athlete1, reused across both orgs - a coach can
@@ -531,6 +558,34 @@ test(
     assert.equal(withoutDataEntry.insights.session_adherence.total_sessions, 0);
     assert.equal(withoutDataEntry.insights.session_adherence.has_sufficient_data, false);
 
+    // The team's analysis, for the owner: every accepted athlete (never the
+    // revoked one), the group summed up, by coach.
+    const teamAnalysis = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: owner.cookie }
+    );
+    assertStatus(teamAnalysis, 200, "shared-mode org owner reads the analysis");
+    const teamAnalysisBody = teamAnalysis.json?.analysis;
+    assert.equal(teamAnalysisBody?.visibility_mode, "shared");
+    assert.deepEqual(teamAnalysisBody.athletes.map((row) => row.athlete_user_id).sort(), [athlete1.userId, athlete2.userId].sort());
+    assert.equal(teamAnalysisBody.summary.athletes, 2);
+    assert.equal(teamAnalysisBody.summary.trained, 1, "athlete1 has logged training, athlete2 hasn't");
+    assert.ok(Array.isArray(teamAnalysisBody.findings));
+    assert.ok(teamAnalysisBody.findings.every((finding) => typeof finding.action === "string"));
+    assert.equal(teamAnalysisBody.by_coach[0].key, coachA.userId);
+
+    // ...and for the team's coach, on the Analysis page: their own athletes.
+    const coachTeamView = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie }
+    );
+    assertStatus(coachTeamView, 200, "the team's coach reads the team analysis");
+    assert.equal(coachTeamView.json.org.org_name, "Org Prog Shared Team");
+    assert.equal(coachTeamView.json.athletes.length, 2);
+    assert.ok(coachTeamView.json.athletes.every((row) => row.yours === true), "coachA coaches both");
+    const outsiderCoach = await request(
+      baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachB.cookie }
+    );
+    assert.equal(outsiderCoach.response.status, 403, "a coach who isn't in the team can't see it");
+
     // ============================================================
     // Cross-org isolation: an unrelated org owner cannot read this org's
     // progress rollup.
@@ -541,6 +596,10 @@ test(
       baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/progress-rollup`, undefined, { cookie: otherOwner.cookie }
     );
     assertStatus(crossOrgRollup, 403, "an unrelated org owner cannot read another org's progress rollup");
+    const crossOrgAnalysis = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: otherOwner.cookie }
+    );
+    assertStatus(crossOrgAnalysis, 403, "an unrelated org owner cannot read another org's analysis");
 
     // ============================================================
     // An unauthenticated caller is rejected outright.
@@ -549,5 +608,9 @@ test(
       baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/progress-rollup`, undefined, {}
     );
     assertStatus(unauthenticatedRollup, 401, "an unauthenticated caller cannot read the progress rollup");
+    const unauthenticatedAnalysis = await request(
+      baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, {}
+    );
+    assertStatus(unauthenticatedAnalysis, 401, "an unauthenticated caller cannot read the analysis");
   }
 );

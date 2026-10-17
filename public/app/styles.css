@@ -5129,3 +5129,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .report-tile-usual { font-size: 0.78rem; color: var(--k-text-secondary); }
 .analysis-roster-key { margin: var(--k-space-2) 0 0; }
 @media print { .analysis-findings-more { display: none !important; } }
+
+/* Team analysis (TeamAnalysis.tsx): the scope switch above the page. */
+.analysis-scope { margin: 0 0 var(--k-space-3); }
+.analysis-team { display: grid; gap: var(--k-space-3); }
