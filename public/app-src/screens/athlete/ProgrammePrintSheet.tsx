@@ -1,6 +1,8 @@
 import React from "react";
 import { createPortal } from "react-dom";
 
+import { restDuration } from "../../utils/format";
+
 // The paper copy of "My programme": black on white, one week to a page,
 // every session a table with the prescription and empty boxes to write in
 // what was lifted. Rendered straight into <body> (outside the app shell) so
@@ -14,11 +16,7 @@ export const PRINT_ROOT_ID = "programme-print-root";
 export const PRINTING_CLASS = "printing-programme";
 const MAX_SET_BOXES = 8;
 
-function rest(seconds: number | null): string {
-  if (!seconds) return "";
-  if (seconds < 120 || seconds % 30 !== 0) return `${seconds}s`;
-  return `${seconds / 60} min`;
-}
+const rest = restDuration;
 
 function dose(exercise: PrintExercise): string {
   const reps = exercise.reps.trim();

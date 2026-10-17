@@ -185,6 +185,20 @@ export function strengthSourceLabel(sourceType: unknown): string {
 
 type JsonRecord = Record<string, unknown>;
 
+// Rest as a lifter says it: seconds under two minutes ("75s", "90s"), then
+// minutes ("3 min", "3.5 min"). The same on every athlete screen and sheet.
+export function restDuration(seconds: number | null | undefined): string {
+  const value = Number(seconds);
+  if (!Number.isFinite(value) || value <= 0) return "";
+  if (value < 120 || value % 30 !== 0) return `${value}s`;
+  return `${value / 60} min`;
+}
+
+export function restLabel(seconds: number | null | undefined): string {
+  const duration = restDuration(seconds);
+  return duration ? `${duration} rest` : "";
+}
+
 // DEV NOTE: ported verbatim from public/app/app.js's exerciseName()/
 // exerciseDetails() for FULL-UI-15C session execution
 // (AthleteSessionExecutionPanel.tsx) - the exact same prescription-display
@@ -277,13 +291,10 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
 
     if (resolved && Number.isFinite(Number(resolved.value))) {
       const unit = resolved.unit === "lb" ? "lb" : "kg";
-      // The weight only - the % of max behind it is the coach's design.
+      // The weight only - not the % of max behind it (the coach's design),
+      // nor the max itself, from which the % is one division away.
       details.push(`${Number(resolved.value)} ${unit}`);
 
-      const source = resolved?.source && typeof resolved.source === "object" ? resolved.source as JsonRecord : null;
-      if (source) {
-        details.push(`Your ${strengthSourceLabel(source.source_type).replace("1RM", "max").toLowerCase()}: ${Number(source.source_value)} ${source.source_unit === "lb" ? "lb" : "kg"}`);
-      }
     }
     else if (exercise?.load_guidance && typeof exercise.load_guidance === "object" && Number.isFinite(Number((exercise.load_guidance as JsonRecord).value))) {
       // No max recorded for this lift: an effort target instead of a bare percentage.
@@ -315,7 +326,7 @@ export function exerciseDetails(exercise: JsonRecord | null | undefined): string
   }
 
   if (Number.isInteger(exercise?.rest_seconds) && Number(exercise?.rest_seconds) > 0 && !timedGroupMember) {
-    details.push(`${exercise?.rest_seconds}s rest`);
+    details.push(restLabel(Number(exercise?.rest_seconds)));
   }
 
   return details;
