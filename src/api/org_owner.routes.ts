@@ -327,8 +327,18 @@ orgOwnerRouter.get(
 // owner - by coach and position with athletes for a 'shared' ("team") org,
 // averages only (and none under 3 athletes) for an 'individual' ("gym")
 // org - see org_progress_rollup_service.ts's getOrgAnalysis.
+// Each call works out every athlete's analysis, so it's limited like the
+// coach's own Analysis reads.
+const orgOwnerAnalysisRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 orgOwnerRouter.get(
   "/organisations/:org_id/analysis",
+  orgOwnerAnalysisRateLimit,
   asyncHandler(async (request, response) => {
     const { user_id } = await authenticatedOrgOwner(request, false);
     const analysis = await getOrgAnalysis(user_id, String(request.params.org_id));
