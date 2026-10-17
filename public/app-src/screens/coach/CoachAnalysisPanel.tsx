@@ -172,7 +172,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             ]} />
             {rows(execution.effort_creep).length ? (
               <ul className="analysis-lift-list">
-                {rows(execution.effort_creep).map((creep) => <li key={String(creep.exercise_id)}><strong>{String(creep.name)}</strong>{` at about ${creep.load_kg} kg: ${creep.scale_label} ${creep.early} (${shortWeek(String(creep.early_date))}) → ${creep.late} (${shortWeek(String(creep.late_date))})`}</li>)}
+                {rows(execution.effort_creep).filter((creep) => Math.abs(Number(creep.effort_change)) >= 0.5).map((creep) => <li key={`${String(creep.exercise_id)}-${String(creep.scale)}`}><strong>{String(creep.name)}</strong>{` at about ${creep.load_kg} kg: ${creep.scale_label} ${creep.early} (${shortWeek(String(creep.early_date))}) → ${creep.late} (${shortWeek(String(creep.late_date))})`}</li>)}
               </ul>
             ) : null}
             <Numbers>
@@ -195,8 +195,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 </>
               ) : null}
               <Method>
-                <p>Working sets of completed and partial sessions only. "Reps hit": logged sets with at least the prescribed reps (the bottom of a rep range). "Load vs plan": the mean logged load against the prescribed weight (+ is heavier than planned).</p>
-                <p>"Feels harder at the same weight": the same exercise at a top weight within 2.5%, rated in the first half of the period and again in the second; a rise of 1 RPE or more is flagged - a common early sign of accumulated fatigue.</p>
+                <p>Working sets of completed and partial sessions only. "Reps hit": logged sets with at least the prescribed reps (the bottom of a rep range). "Sets logged": prescribed sets logged; timed and distance work counts all its sets once completed, none if skipped.</p>
+                <p>"Load vs plan": the logged weight against the prescribed one - a fixed weight, a weight range, or a % of max made a weight. Inside a range is 0; above it is measured from the top, below from the bottom (+ is heavier than planned).</p>
+                <p>"Effort vs target": where you prescribed by RPE, Borg or CR10, the athlete's rating of that exercise minus your target, in that scale (on a 0-10 scale in the weekly column, Borg rescaled). Inside a target range is 0.</p>
+                <p>"Feels harder at the same weight": the same exercise at a top weight within 2.5%, rated in the same scale in the first half of the period and again in the second; a rise of 1 point (0-10) or more is flagged - a common early sign of accumulated fatigue.</p>
               </Method>
             </Numbers>
           </Section>

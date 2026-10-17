@@ -294,11 +294,14 @@ export function analyseAthlete(input: AnalysisInput): Json {
     }
   }
   const anyRoles = [...roleCount.values()].some((entry) => entry.primary > 0);
+  const primary = (lift: string) => { const roles = roleCount.get(lift); return Boolean(roles && roles.primary > 0 && roles.primary * 2 >= roles.total); };
+  // Main (primary) lifts first, so one is never pushed out by accessories
+  // trained more often; then the most-trained.
   const ranked = [...liftWeeks.entries()]
     .map(([lift, byWeek]) => ({ lift, inWindow: [...byWeek.keys()].filter((week) => week >= first) }))
     .filter((entry) => entry.inWindow.length >= 2)
-    .sort((a, b) => b.inWindow.length - a.inWindow.length || a.lift.localeCompare(b.lift))
-    .slice(0, 6);
+    .sort((a, b) => Number(primary(b.lift)) - Number(primary(a.lift)) || b.inWindow.length - a.inWindow.length || a.lift.localeCompare(b.lift))
+    .slice(0, 8);
   // Main lifts are the coach's primary lifts; findings are only raised for
   // them (an accessory kept at one weight "plateaus" by design).
   const isMain = (lift: string, rank: number) => {
@@ -475,7 +478,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const staleCutoff = addDays(input.today, -2);
   // Adherence counts from the week they started: no "missed sessions" for
   // weeks before their first one (a new athlete, or a new coach).
-  const firstSession = sessions.length ? sessionDay(sessions[0]) : null;
+  // (from their whole history, so a report from a set date still expects
+  // sessions in its first days)
+  const firstSession = allSessions.length ? sessionDay(allSessions[0]) : null;
   const startedWeek = firstSession ? weekStart(firstSession) : null;
   const adherenceRows = weeks.map((start) => {
     const mine = sessions.filter((session) => weekStart(sessionDay(session)) === start);

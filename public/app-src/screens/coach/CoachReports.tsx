@@ -216,7 +216,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
                     <td>{show(row.sessions)}</td>
                     <td>{show(row.sets)}</td>
                     <td>{show(row.reps)}</td>
-                    <td>{show(row.tonnage_kg, " kg")}</td>
+                    <td>{num(row.tonnage_kg) ? show(row.tonnage_kg, " kg") : "–"}</td>
                     <td>{bestOf(row)}</td>
                     <td>{show(row.intensity_pct, "%")}</td>
                     <td>{num(row.average_effort) === null ? "–" : `${SCALE[String(row.effort_scale)] ?? ""} ${row.average_effort}`}</td>

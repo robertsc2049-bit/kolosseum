@@ -24,6 +24,12 @@ function dates(start: string, end: string): string {
 }
 
 const SCALE: Record<string, string> = { rpe: "RPE", cr10: "CR10", borg: "Borg", mixed_0_10: "effort /10" };
+// Their average effort in the scale they rated in (reports sent before
+// Borg and CR10 were counted carry an RPE average only).
+const effortOf = (row: JsonRecord) => {
+  if (num(row.average_effort) !== null) return `${SCALE[String(row.effort_scale)] ?? ""} ${row.average_effort}`.trim();
+  return num(row.average_rpe) !== null ? `RPE ${row.average_rpe}` : "–";
+};
 // Their best in the form they did it: weight x reps, reps, minutes or metres.
 const bestOf = (row: JsonRecord) => {
   const set = row.best_set as JsonRecord | null;
@@ -98,7 +104,7 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
                     <td>{show(exercise.sets)}</td>
                     <td>{show(exercise.reps)}</td>
                     <td>{bestOf(exercise)}</td>
-                    <td>{num(exercise.average_effort) === null ? "–" : `${SCALE[String(exercise.effort_scale)] ?? ""} ${exercise.average_effort}`}</td>
+                    <td>{effortOf(exercise)}</td>
                   </tr>
                 ))}
               </tbody>
