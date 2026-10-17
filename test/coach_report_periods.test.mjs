@@ -163,7 +163,8 @@ test("only sessions between the set dates count, and a part week expects its sha
   assert.equal(summary.exercises[0].name, "back squat");
   assert.equal(summary.exercises[0].sets, 18);
   assert.deepEqual(summary.exercises[0].top_set, { load_kg: 150, reps: 5 });
-  assert.equal(summary.exercises[0].average_rpe, 8);
+  assert.equal(summary.exercises[0].average_effort, 8);
+  assert.equal(summary.exercises[0].effort_scale, "rpe");
   assert.deepEqual(summary.patterns, [{ pattern: "squat", sets: 18 }]);
   assert.equal(summary.effort_bands.find((band) => band.band === "8").ratings, 6);
 });

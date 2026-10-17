@@ -28,6 +28,16 @@ const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Kee
 export const REPORT_PRINT_ROOT_ID = "report-print-root";
 export const REPORT_PRINTING_CLASS = "printing-report";
 
+const SCALE: Record<string, string> = { rpe: "RPE", cr10: "CR10", borg: "Borg", mixed_0_10: "effort /10" };
+// The best of an exercise in the form it was done: weight x reps, bodyweight reps, minutes or metres.
+export const bestOf = (row: JsonRecord, times = "x") => {
+  const top = row.top_set ?? row.best_set;
+  if (top && typeof top === "object" && typeof (top as JsonRecord).load_kg === "number") return `${(top as JsonRecord).load_kg} kg ${times} ${(top as JsonRecord).reps}`;
+  if (typeof row.best_bodyweight_reps === "number") return `${row.best_bodyweight_reps} reps (bodyweight)`;
+  if (typeof row.minutes === "number") return `${row.minutes} min`;
+  if (typeof row.distance_m === "number") return `${Number(row.distance_m).toLocaleString()} m`;
+  return "–";
+};
 const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[]) : []);
 const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
 const show = (value: unknown, suffix = "") => (num(value) === null ? "–" : `${Number(value).toLocaleString()}${suffix}`);
@@ -68,6 +78,8 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
   const pain = (summary.pain ?? {}) as JsonRecord;
   const strength = rows(summary.strength);
   const exercises = rows(summary.exercises);
+  const bodyweightStrength = rows(summary.bodyweight_strength);
+  const intensity = (summary.intensity ?? null) as JsonRecord | null;
   const sessionLog = rows(summary.session_log);
   const findings = rows(report.findings) as unknown as Finding[];
   const analysis = (report.analysis ?? {}) as JsonRecord;
@@ -115,6 +127,9 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         <Tile label="Weekly load (avg)" value={show(training.load_weekly_average, " AU")} change={<Change value={compared?.load_weekly_average_pct} suffix="%" upIsGood={false} />} />
         <Tile label="Reps hit" value={show(execution.reps_hit_pct, "%")} change={<Change value={compared?.reps_hit_pct} suffix=" pts" />} />
         <Tile label="Readiness (avg of 15)" value={show(wellbeing.readiness_average)} change={<Change value={compared?.readiness_average} />} />
+        {num(training.timed_minutes) ? <Tile label="Timed work" value={show(training.timed_minutes, " min")} /> : null}
+        {num(training.distance_m) ? <Tile label="Distance" value={show(training.distance_m, " m")} /> : null}
+        {num(training.bodyweight_reps) ? <Tile label="Bodyweight reps" value={show(training.bodyweight_reps)} /> : null}
         <Tile label="Pain reports" value={show(pain.reports)} change={<Change value={compared?.pain_reports} upIsGood={false} />} />
       </div>
       <Explain id="report_overview" />
@@ -141,6 +156,11 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
           </div>
         ) : <p className="muted small">No lift was logged often enough with a weight to estimate a max.</p>}
         <p className="muted small">Estimated max from the best set each week (RTS RPE chart where the athlete rated it, else Epley). ★ main lift.</p>
+        {bodyweightStrength.length ? (
+          <ul className="report-facts" data-testid="report-bodyweight-strength">
+            {bodyweightStrength.map((lift) => <li key={String(lift.exercise_id)}>{`${String(lift.name)} (bodyweight): best set ${lift.first} → ${lift.latest} reps, best ${lift.best}`}</li>)}
+          </ul>
+        ) : null}
         <Explain id="report_strength" />
       </section>
 
@@ -171,13 +191,24 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
         </section>
       ) : null}
 
+      {intensity && num(intensity.sets) ? (
+        <section className="report-section" data-testid="report-intensity">
+          <h4>Intensity (% of max)</h4>
+          <Explain id="intensity" />
+          <ul className="analysis-weekdays report-bands">
+            {rows(intensity.zones).map((zone) => <li key={String(zone.zone)} className="analysis-weekday"><span className="analysis-weekday-bar" style={{ height: `${Math.max(4, Number(zone.pct ?? 0))}%` }} /><strong>{show(zone.pct, "%")}</strong><span>{String(zone.zone)}</span></li>)}
+          </ul>
+          <ul className="report-facts">{rows(intensity.by_exercise).map((row) => <li key={String(row.exercise_id)}>{`${String(row.name)}: ${row.sets} sets, ${row.average_pct}% of max on average, heaviest ${row.top_pct}%`}</li>)}</ul>
+        </section>
+      ) : null}
+
       <section className="report-section" data-testid="report-exercises">
         <h4>Every exercise</h4>
         <Explain id="report_exercises" />
         {exercises.length ? (
           <div className="analysis-table-wrap">
             <table className="analysis-table">
-              <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Tonnage</th><th>Top set</th><th>Avg RPE</th></tr></thead>
+              <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Tonnage</th><th>Best</th><th>% of max</th><th>Avg effort</th></tr></thead>
               <tbody>
                 {exercises.map((row) => (
                   <tr key={String(row.exercise_id)}>
@@ -186,8 +217,9 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
                     <td>{show(row.sets)}</td>
                     <td>{show(row.reps)}</td>
                     <td>{show(row.tonnage_kg, " kg")}</td>
-                    <td>{row.top_set ? `${(row.top_set as JsonRecord).load_kg} kg x ${(row.top_set as JsonRecord).reps}` : "–"}</td>
-                    <td>{show(row.average_rpe)}</td>
+                    <td>{bestOf(row)}</td>
+                    <td>{show(row.intensity_pct, "%")}</td>
+                    <td>{num(row.average_effort) === null ? "–" : `${SCALE[String(row.effort_scale)] ?? ""} ${row.average_effort}`}</td>
                   </tr>
                 ))}
               </tbody>
@@ -211,7 +243,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
               ))}
             </ul>
           ) : <p className="muted small">No exercises rated.</p>}
-          <p className="muted small">{`Share of ${show(summary.effort_rated)} exercise ratings (the athlete's hardest set) by RPE.`}</p>
+          <p className="muted small">{`Share of ${show(summary.effort_rated)} exercise ratings (the athlete's hardest set) on a 0-10 scale${summary.effort_rated_by ? ` - RPE ${show((summary.effort_rated_by as JsonRecord).rpe)}, CR10 ${show((summary.effort_rated_by as JsonRecord).cr10)}, Borg ${show((summary.effort_rated_by as JsonRecord).borg)} (Borg 6-20 converted)` : ""}.`}</p>
         </section>
         <section className="report-section" data-testid="report-patterns">
           <h4>Sets by movement</h4>
@@ -266,7 +298,9 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
             <li>{`Reps hit: ${show(execution.reps_hit_pct, "%")} of logged sets reached the target`}</li>
             <li>{`Training time: ${show(sessions.minutes, " min")}, average effort ${show(sessions.average_effort, "/10")}`}</li>
             {peak ? <li>{`Highest load ratio: ${show(peak.value)} (week of ${shortWeek(String(peak.week_start))})`}</li> : null}
-            {rows(execution.effort_creep).filter((entry) => Math.abs(Number(entry.rpe_change)) >= 0.5).map((entry) => <li key={`creep-${String(entry.exercise_id)}`}>{`${String(entry.name)} at ${show(entry.load_kg, " kg")}: RPE ${show(entry.early_rpe)} → ${show(entry.late_rpe)}`}</li>)}
+            {num(execution.load_vs_plan_pct) !== null ? <li>{`Weight against the plan: ${Number(execution.load_vs_plan_pct) > 0 ? "+" : ""}${execution.load_vs_plan_pct}% (inside a prescribed range counts as on plan)`}</li> : null}
+            {rows(execution.effort_targets).map((t) => <li key={`target-${String(t.exercise_id)}-${String(t.scale)}-${String(t.target)}`}>{`${String(t.name)}: ${SCALE[String(t.scale)]} ${t.target}${t.target_max ? `-${t.target_max}` : ""} set, rated ${t.rated_average} on average (${Number(t.diff) === 0 ? "on target" : `${Number(t.diff) > 0 ? "+" : ""}${t.diff}`})`}</li>)}
+            {rows(execution.effort_creep).filter((entry) => Math.abs(Number(entry.effort_change)) >= 0.5).map((entry) => <li key={`creep-${String(entry.exercise_id)}-${String(entry.scale)}`}>{`${String(entry.name)} at ${show(entry.load_kg, " kg")}: ${String(entry.scale_label)} ${show(entry.early)} → ${show(entry.late)}`}</li>)}
             {rows(execution.most_missed).slice(0, 3).map((entry) => <li key={`missed-${String(entry.exercise_id)}`}>{`Most missed: ${String(entry.name)} (${show(entry.missed_pct, "%")} of sets)`}</li>)}
             {rows(execution.most_skipped).slice(0, 3).map((entry) => <li key={`skipped-${String(entry.exercise_id)}`}>{`Skipped: ${String(entry.name)} ×${show(entry.skips)}`}</li>)}
           </ul>

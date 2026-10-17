@@ -126,7 +126,7 @@ test("every part of an athlete's analysis explains itself - what it shows, how t
   assert.ok(screen.getByTestId("explain-roster"), "the roster explains its statuses and columns");
   await act(async () => { fireEvent.click(screen.getByText("Jordan")); });
   await screen.findByTestId("analysis-summary");
-  for (const id of ["summary", "strength", "execution", "load", "adherence", "readiness", "pain", "volume"]) {
+  for (const id of ["summary", "strength", "execution", "load", "adherence", "readiness", "pain", "intensity", "volume"]) {
     const explain = screen.getByTestId(`explain-${id}`) as HTMLDetailsElement;
     assert.equal(explain.open, false, `${id}: folded away until asked for`);
     const text = explain.textContent ?? "";

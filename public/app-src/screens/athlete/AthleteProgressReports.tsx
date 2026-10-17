@@ -23,9 +23,15 @@ function dates(start: string, end: string): string {
   return `${shortWeek(start)}${year(start) !== year(end) ? ` ${year(start)}` : ""} – ${shortWeek(end)} ${year(end)}`;
 }
 
-const bestSet = (value: unknown) => {
-  const set = value as JsonRecord | null;
-  return set && num(set.load_kg) !== null ? `${set.load_kg} kg × ${set.reps}` : "–";
+const SCALE: Record<string, string> = { rpe: "RPE", cr10: "CR10", borg: "Borg", mixed_0_10: "effort /10" };
+// Their best in the form they did it: weight x reps, reps, minutes or metres.
+const bestOf = (row: JsonRecord) => {
+  const set = row.best_set as JsonRecord | null;
+  if (set && num(set.load_kg) !== null) return `${set.load_kg} kg × ${set.reps}`;
+  if (num(row.best_bodyweight_reps) !== null) return `${row.best_bodyweight_reps} reps`;
+  if (num(row.minutes) !== null) return `${row.minutes} min`;
+  if (num(row.distance_m) !== null) return `${Number(row.distance_m).toLocaleString()} m`;
+  return "–";
 };
 
 export function AthleteReportBody({ report }: { report: JsonRecord }) {
@@ -60,6 +66,8 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         <div className="report-tile"><span className="report-tile-label">Training time</span><strong>{show(sessions.minutes, " min")}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Sets</span><strong>{show(training.sets)}</strong></div>
         <div className="report-tile"><span className="report-tile-label">Total lifted</span><strong>{show(training.tonnage_kg, " kg")}</strong></div>
+        {num(training.timed_minutes) ? <div className="report-tile"><span className="report-tile-label">Timed work</span><strong>{show(training.timed_minutes, " min")}</strong></div> : null}
+        {num(training.distance_m) ? <div className="report-tile"><span className="report-tile-label">Distance</span><strong>{show(training.distance_m, " m")}</strong></div> : null}
       </div>
 
       {weeks.length > 1 ? (
@@ -81,7 +89,7 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
         {exercises.length ? (
           <div className="analysis-table-wrap">
             <table className="analysis-table">
-              <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Best set</th><th>Average RPE</th></tr></thead>
+              <thead><tr><th>Exercise</th><th>Sessions</th><th>Sets</th><th>Reps</th><th>Your best</th><th>Average effort</th></tr></thead>
               <tbody>
                 {exercises.map((exercise) => (
                   <tr key={String(exercise.name)}>
@@ -89,8 +97,8 @@ export function AthleteReportBody({ report }: { report: JsonRecord }) {
                     <td>{show(exercise.sessions)}</td>
                     <td>{show(exercise.sets)}</td>
                     <td>{show(exercise.reps)}</td>
-                    <td>{bestSet(exercise.best_set)}</td>
-                    <td>{show(exercise.average_rpe)}</td>
+                    <td>{bestOf(exercise)}</td>
+                    <td>{num(exercise.average_effort) === null ? "–" : `${SCALE[String(exercise.effort_scale)] ?? ""} ${exercise.average_effort}`}</td>
                   </tr>
                 ))}
               </tbody>

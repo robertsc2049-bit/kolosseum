@@ -14,6 +14,7 @@ import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnaly
 type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string };
 const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
 const WEEK_CHOICES = [4, 8, 12, 26];
+const SCALE: Record<string, string> = { rpe: "RPE", cr10: "CR10", borg: "Borg" };
 
 const rows = (value: unknown) => (Array.isArray(value) ? (value as JsonRecord[]) : []);
 const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
@@ -101,6 +102,8 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const lifts = rows(strength.lifts);
   const mainLifts = lifts.filter((lift) => lift.main !== false);
   const otherLifts = lifts.filter((lift) => lift.main === false);
+  const bodyweightLifts = rows(strength.bodyweight);
+  const intensity = (execution.intensity ?? {}) as JsonRecord;
 
   return (
     <div className="analysis-athlete" data-testid="analysis-athlete">
@@ -141,6 +144,14 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 ))}
               </ul>
             ) : null}
+            {bodyweightLifts.length ? (
+              <>
+                <TrendChart title="Best set on bodyweight exercises (reps)" weeks={weekList} unit=" reps" yMin={0} series={bodyweightLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.best_reps)) }))} />
+                <ul className="analysis-lift-list" data-testid="analysis-bodyweight-lifts">
+                  {bodyweightLifts.map((lift) => <li key={String(lift.exercise_id)}><strong>{String(lift.name)}</strong>{` best set ${lift.latest} reps (from ${lift.first}) · best of the period ${lift.best} reps`}</li>)}
+                </ul>
+              </>
+            ) : null}
             <Numbers>
               <WeekTable weeks={weekList} columns={lifts.map((lift) => ({ label: `${lift.name}${lift.main === false ? " (accessory)" : ""}`, cell: (index: number) => {
                 const point = rows(lift.series)[index];
@@ -161,15 +172,22 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             ]} />
             {rows(execution.effort_creep).length ? (
               <ul className="analysis-lift-list">
-                {rows(execution.effort_creep).map((creep) => <li key={String(creep.exercise_id)}><strong>{String(creep.name)}</strong>{` at about ${creep.load_kg} kg: RPE ${creep.early_rpe} (${shortWeek(String(creep.early_date))}) → ${creep.late_rpe} (${shortWeek(String(creep.late_date))})`}</li>)}
+                {rows(execution.effort_creep).map((creep) => <li key={String(creep.exercise_id)}><strong>{String(creep.name)}</strong>{` at about ${creep.load_kg} kg: ${creep.scale_label} ${creep.early} (${shortWeek(String(creep.early_date))}) → ${creep.late} (${shortWeek(String(creep.late_date))})`}</li>)}
               </ul>
             ) : null}
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Reps hit", cell: (i) => show(rows(execution.rows)[i]?.reps_hit_pct, "%") },
                 { label: "Sets logged", cell: (i) => show(rows(execution.rows)[i]?.sets_logged_pct, "%") },
-                { label: "Load vs plan", cell: (i) => show(rows(execution.rows)[i]?.load_vs_plan_pct, "%") }
+                { label: "Load vs plan", cell: (i) => show(rows(execution.rows)[i]?.load_vs_plan_pct, "%") },
+                { label: "Effort vs target", cell: (i) => show(rows(execution.rows)[i]?.effort_vs_plan) }
               ]} />
+              {rows(execution.effort_targets).length ? (
+                <>
+                  <p className="eyebrow">Effort against the target you set</p>
+                  <ul className="analysis-plain-list" data-testid="analysis-effort-targets">{rows(execution.effort_targets).map((t) => <li key={`${t.exercise_id}-${t.scale}-${t.target}`}>{`${t.name}: ${SCALE[String(t.scale)]} ${t.target}${t.target_max ? `-${t.target_max}` : ""} set, rated ${t.rated_average} on average over ${t.ratings} rating${Number(t.ratings) === 1 ? "" : "s"} (${Number(t.diff) === 0 ? "on target" : `${Number(t.diff) > 0 ? "+" : ""}${t.diff}`})`}</li>)}</ul>
+                </>
+              ) : null}
               {rows(execution.most_missed).length ? (
                 <>
                   <p className="eyebrow">Most often short of the plan</p>
@@ -263,14 +281,32 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             </Numbers>
           </Section>
 
+          <Section id="intensity" title="Intensity (% of max)" headline={null}>
+            {num(intensity.sets) ? (
+              <>
+                <ul className="analysis-weekdays report-bands" aria-label="Sets by % of max">
+                  {rows(intensity.zones).map((zone) => <li key={String(zone.zone)} className="analysis-weekday"><span className="analysis-weekday-bar" style={{ height: `${Math.max(4, Number(zone.pct ?? 0))}%` }} /><strong>{show(zone.pct, "%")}</strong><span>{String(zone.zone)}</span></li>)}
+                </ul>
+                <TrendChart title="Average % of max lifted" weeks={weekList} unit="%" series={[{ id: "intensity", label: "% of max", values: col(rows(execution.rows), "intensity_pct") }]} />
+              </>
+            ) : <div className="empty-state compact-empty trend-empty"><p>Shows when the programme sets weights as a % of the athlete's max.</p></div>}
+            <Numbers>
+              {rows(intensity.by_exercise).length ? <ul className="analysis-plain-list">{rows(intensity.by_exercise).map((row) => <li key={String(row.exercise_id)}>{`${row.name}: ${row.sets} sets, ${row.average_pct}% of max on average, heaviest ${row.top_pct}%`}</li>)}</ul> : <p className="muted small">No sets against a % of max in this period.</p>}
+              <Method><p>Each logged set's weight ÷ the max the programme's % was worked out from. Zones count sets.</p></Method>
+            </Numbers>
+          </Section>
+
           <Section id="volume" title="Volume" headline={null}>
             <TrendChart title="Logged sets and tonnage per week" weeks={weekList} series={[{ id: "sets", label: "Sets logged", kind: "bar", values: col(rows(volume.rows), "sets") }]} />
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Sets", cell: (i) => show(rows(volume.rows)[i]?.sets) },
-                { label: "Tonnage (kg)", cell: (i) => show(rows(volume.rows)[i]?.tonnage_kg) }
+                { label: "Tonnage (kg)", cell: (i) => show(rows(volume.rows)[i]?.tonnage_kg) },
+                { label: "Bodyweight reps", cell: (i) => show(rows(volume.rows)[i]?.bodyweight_reps) },
+                { label: "Timed (min)", cell: (i) => show(rows(volume.rows)[i]?.timed_minutes) },
+                { label: "Distance (m)", cell: (i) => show(rows(volume.rows)[i]?.distance_m) }
               ]} />
-              <Method><p>Every logged set (prescribed and extra); tonnage is reps × load summed.</p></Method>
+              <Method><p>Every logged set (prescribed and extra); tonnage is reps × load summed. Bodyweight reps: reps of sets logged with no weight added. Timed and distance work counts as prescribed (sets × time or distance) once the athlete completes it.</p></Method>
             </Numbers>
           </Section>
           </div>

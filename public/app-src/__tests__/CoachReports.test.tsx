@@ -36,10 +36,17 @@ const report = {
     sessions: { completed: 11, partial: 1, not_finished: 0, planned: 12, adherence_pct: 96, minutes: 720, average_effort: 7.4 },
     training: { sets: 210, tonnage_kg: 48210, load_total: 21000, load_weekly_average: 5250, peak_acute_chronic: { value: 1.2, week_start: "2026-09-28" }, average_monotony: 1.1 },
     strength: [{ exercise_id: "back_squat", name: "Back squat", main: true, start: 175, end: 185, best: 185, best_from: "160 kg x 5", change_pct: 5.7 }],
-    execution: { reps_hit_pct: 94, sets_logged_pct: 98, effort_creep: [], most_missed: [], most_skipped: [] },
+    execution: { reps_hit_pct: 94, sets_logged_pct: 98, load_vs_plan_pct: 2.5, effort_creep: [{ exercise_id: "back_squat", name: "Back squat", scale: "cr10", scale_label: "CR10", load_kg: 150, early: 6, late: 8, effort_change: 2 }], effort_targets: [{ exercise_id: "sled_push", name: "Sled push", scale: "borg", target: 13, target_max: null, rated_average: 15, ratings: 4, diff: 2 }], most_missed: [], most_skipped: [] },
     wellbeing: { check_ins: 20, readiness_average: 11.2, low_weeks: 0, energy: 4, motivation: 4, sleep: 3.5 },
     pain: { reports: 0, areas: [] },
-    exercises: [{ exercise_id: "back_squat", name: "Back squat", pattern: "squat", sessions: 12, sets: 48, reps: 220, tonnage_kg: 31000, top_set: { load_kg: 160, reps: 5 }, average_rpe: 8.1 }],
+    exercises: [
+      { exercise_id: "back_squat", name: "Back squat", pattern: "squat", sessions: 12, sets: 48, reps: 220, tonnage_kg: 31000, top_set: { load_kg: 160, reps: 5 }, average_effort: 8.1, effort_scale: "rpe", intensity_pct: 76 },
+      { exercise_id: "pull_up", name: "Pull-up", pattern: "vertical_pull", sessions: 8, sets: 24, reps: 230, tonnage_kg: 0, top_set: null, best_bodyweight_reps: 12, average_effort: 6, effort_scale: "cr10", intensity_pct: null },
+      { exercise_id: "sled_push", name: "Sled push", pattern: null, sessions: 4, sets: 16, reps: 0, tonnage_kg: 0, top_set: null, distance_m: 320, average_effort: 15, effort_scale: "borg", intensity_pct: null }
+    ],
+    bodyweight_strength: [{ exercise_id: "pull_up", name: "Pull-up", first: 9, latest: 12, best: 12, change: 3 }],
+    intensity: { sets: 40, zones: [{ zone: "under 60%", sets: 0, pct: 0 }, { zone: "60-70%", sets: 8, pct: 20 }, { zone: "70-80%", sets: 24, pct: 60 }, { zone: "80-90%", sets: 8, pct: 20 }, { zone: "90% +", sets: 0, pct: 0 }], by_exercise: [{ exercise_id: "back_squat", name: "Back squat", sets: 40, average_pct: 76, top_pct: 85 }] },
+    effort_rated_by: { rpe: 12, cr10: 8, borg: 4 },
     effort_bands: [{ band: "6 or less", ratings: 1, pct: 5 }, { band: "7", ratings: 4, pct: 20 }, { band: "8", ratings: 10, pct: 50 }, { band: "9", ratings: 5, pct: 25 }, { band: "10", ratings: 0, pct: 0 }],
     effort_rated: 20,
     patterns: [{ pattern: "squat", sets: 48 }, { pattern: "hinge", sets: 30 }],
@@ -55,7 +62,7 @@ const athleteCopy = {
   sessions: { completed: 11, partial: 1, planned: 12, minutes: 720 },
   weeks: [{ week_start: "2026-09-07", sessions: 3, planned: 3 }, { week_start: "2026-09-14", sessions: 3, planned: 3 }],
   training: { sets: 210, tonnage_kg: 48210 },
-  exercises: [{ name: "Back squat", sessions: 12, sets: 48, reps: 220, best_set: { load_kg: 160, reps: 5 }, average_rpe: 8.1 }],
+  exercises: [{ name: "Back squat", sessions: 12, sets: 48, reps: 220, best_set: { load_kg: 160, reps: 5 }, average_effort: 8.1, effort_scale: "rpe" }],
   wellbeing: { check_ins: 20, energy: 4, motivation: 4, sleep: 3.5 },
   pain: { reports: 1, areas: [{ area: "knee", reports: 1 }] }
 };
@@ -200,4 +207,23 @@ test("every part of a report, and sending it, explains itself", async () => {
   }
   await act(async () => { fireEvent.click(screen.getByText("Send to athlete")); });
   assert.ok(screen.getByTestId("explain-report_send").textContent?.includes("never shows estimated maxes"));
+});
+
+test("every loading type in a report: % of max zones, bodyweight bests, distance, effort in RPE, CR10 and Borg, targets met or missed", async () => {
+  installMocks();
+  await openVolumeBlock();
+  const intensity = screen.getByTestId("report-intensity").textContent ?? "";
+  assert.ok(intensity.includes("60%") && intensity.includes("70-80%"));
+  assert.ok(intensity.includes("Back squat: 40 sets, 76% of max on average, heaviest 85%"));
+  const exercises = screen.getByTestId("report-exercises").textContent ?? "";
+  assert.ok(exercises.includes("160 kg x 5"));
+  assert.ok(exercises.includes("12 reps (bodyweight)"));
+  assert.ok(exercises.includes("320 m"));
+  assert.ok(exercises.includes("CR10 6") && exercises.includes("Borg 15") && exercises.includes("RPE 8.1"));
+  assert.ok(screen.getByTestId("report-bodyweight-strength").textContent?.includes("Pull-up (bodyweight): best set 9 → 12 reps"));
+  const body = screen.getByTestId("report-body").textContent ?? "";
+  assert.ok(body.includes("Sled push: Borg 13 set, rated 15 on average (+2)"));
+  assert.ok(body.includes("Back squat at 150 kg: CR10 6 → 8"));
+  assert.ok(body.includes("Weight against the plan: +2.5%"));
+  assert.ok(body.includes("RPE 12, CR10 8, Borg 4"));
 });

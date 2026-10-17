@@ -58,7 +58,8 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     ],
     mind: [
       "An estimate, not a tested max. It is most accurate from sets of 1-5 reps and honest RPE ratings; sets of 8-10 reps tend to over- or under-estimate.",
-      "Bodyweight exercises with no added weight are not included."
+      "Only an RPE rating feeds the RTS chart (it is built on reps in reserve). Borg and CR10 ratings still count for effort and load, but those sets use Epley.",
+      "Bodyweight exercises (pull-ups, dips, push-ups) have no estimated max from unweighted sets - their own chart shows the best set in reps each week instead. A weighted set (for example a pull-up with 20 kg) counts the added weight only."
     ]
   },
   execution: {
@@ -67,15 +68,35 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     read: [
       "Reps hit: of the sets they logged, how many reached at least the prescribed reps (the bottom of a rep range). 90% or more is normal. A drop usually means the weights are too heavy, or the athlete is tired.",
       "Sets logged: of the sets you prescribed, how many they logged. Below about 85% often means sessions are too long or they are skipping the end of the session.",
-      "Load vs plan (in the numbers): their average weight against the weight you prescribed. + means heavier than planned.",
+      "Load vs plan (in the numbers): their weight against the weight you prescribed - a fixed weight, a weight range, or a % of max made a weight. Anywhere inside a range is on plan (0); above it is measured from the top, below it from the bottom. + means heavier than planned.",
+      "Effort against the target you set (in the numbers): where you prescribed by RPE, Borg or CR10, their rating of that exercise against your target, in the same scale. Rated 1 RPE (or 1.4 Borg) or more above target over several sessions means the work is harder than you meant - lighten it. 1.5 or more below means there is room to add weight.",
+      "Timed and distance work (planks, carries, sprints, rows, sled pushes) is done by completing it rather than set by set: completing it counts all its prescribed sets as done, skipping it counts them as missed.",
       "Feels harder at the same weight: the same exercise at about the same top weight, rated in the first half of the period and again in the second. A rise of 1 RPE or more is an early sign of accumulated fatigue - often worth a lighter week.",
       "Most often short of the plan: the exercises where they most often fall short on sets or reps - a candidate to adjust."
     ],
     how: [
       "Only working sets (not warm-ups or cool-downs) of sessions marked done or part done.",
-      "Effort comparison: top weights within 2.5% of each other count as 'the same weight'."
+      "Effort comparison: top weights within 2.5% of each other count as 'the same weight', rated in the same scale (RPE, Borg or CR10).",
+      "Reps hit only applies where reps were prescribed; bodyweight sets are checked on reps like any other."
     ],
-    mind: ["If the athlete doesn't rate exercises, the effort comparison can't be made. Ask them to rate the hardest set of each exercise."]
+    mind: [
+      "If the athlete doesn't rate exercises, the effort comparisons can't be made. Ask them to rate the hardest set of each exercise.",
+      "Where the athlete chooses their own weights (no prescribed weight), there is no load to compare - reps and effort still are."
+    ]
+  },
+  intensity: {
+    title: "Intensity (% of max)",
+    shows: "How heavy the athlete's lifting was relative to their max, where your programme sets weights as a % of max: the share of sets in each zone, and the average % they lifted each week.",
+    read: [
+      "Under 60%: technique, speed and warm-up work. 60-70%: volume and hypertrophy. 70-80%: the core of most strength work. 80-90%: heavy strength. 90% and over: near-maximal - singles, doubles and peaking.",
+      "A volume block should sit mostly in 60-80%, a peaking block shift towards 80-90%+. Lots of 90%+ sets for weeks on end is hard to recover from.",
+      "If the average % is well above what you prescribed, the athlete is going heavier than planned - check Doing the plan."
+    ],
+    how: [
+      "Each logged set's weight ÷ the max your % was worked out from (the max recorded in the athlete's strength profile when the session was made). Zones count sets.",
+      "Only sets prescribed as a % of max are included - fixed weights, RPE targets and bodyweight work have no max to compare against."
+    ],
+    mind: ["The % is against the recorded max. If the athlete has got stronger since it was recorded, the real % is lower - update their max."]
   },
   load: {
     title: "Training load",
@@ -141,8 +162,11 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Volume should follow your plan: higher in volume blocks, lower in peaking blocks and deloads.",
       "A sudden fall in sets with no planned deload often goes with missed sessions or skipped exercises - check Turning up."
     ],
-    how: ["Every logged set, planned and extra. Tonnage = reps × weight, added up across every set."],
-    mind: ["Tonnage favours heavy lower-body lifts, so compare weeks with each other rather than exercises with each other."]
+    how: [
+      "Every logged set, planned and extra. Tonnage = reps × weight, added up across every set.",
+      "Bodyweight reps: the reps of sets logged with no weight added (they add nothing to tonnage). Timed and distance work: sets × the prescribed time or distance, counted once the athlete completes it."
+    ],
+    mind: ["Tonnage favours heavy lower-body lifts, so compare weeks with each other rather than exercises with each other.", "Timed and distance work is counted as prescribed: the athlete marks it done rather than logging their actual time or distance."]
   },
 
   // ---------- progress reports ----------
@@ -191,7 +215,9 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     title: "Every exercise",
     shows: "Every exercise the athlete logged in the period: how often, how many sets and reps, total weight lifted, their heaviest set and how hard they rated it.",
     read: [
-      "Top set: their heaviest set (most reps at that weight). Avg RPE: their average rating of the exercise's hardest set - 7-8 is typical working effort, 9-10 is close to their limit.",
+      "Best: their heaviest set (most reps at that weight); for bodyweight work their most reps in a set; for timed or distance work the total minutes or metres.",
+      "% of max: the average weight they lifted as a % of their max, where you prescribed a % of max.",
+      "Avg effort: their average rating of the exercise's hardest set in the scale they used - RPE (7-8 is typical working effort, 9-10 is close to their limit), CR10 (0-10, similar to RPE) or Borg (6-20; 13 is 'somewhat hard', 17 'very hard').",
       "Use it to check the programme was done as written - the right exercises, the right amount."
     ],
     how: ["Every logged set, planned and extra, from sessions done or part done. Repeats of an exercise in one session count as the same exercise."]
@@ -201,9 +227,9 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     shows: "How the athlete rated their exercises across the period, grouped by RPE.",
     read: [
       "Most strength work should sit around RPE 7-8. A lot of 9-10 ratings means they are training close to their limit often - fine in a peaking block, a fatigue risk the rest of the time. A lot of 6 or less means the work may be too easy to drive progress.",
-      "RPE: 10 = nothing left, 9 = one more rep possible, 8 = two more, 7 = three more, 6 or less = easy."
+      "RPE: 10 = nothing left, 9 = one more rep possible, 8 = two more, 7 = three more, 6 or less = easy. CR10 reads the same way (10 = maximal). Borg 6-20 is converted: 13 'somewhat hard' is about 5, 17 'very hard' about 8, 20 = 10."
     ],
-    how: ["Each bar is the share of the athlete's exercise ratings in that band. The athlete rates the hardest set of each exercise."]
+    how: ["Each bar is the share of the athlete's exercise ratings in that band, whichever scale they rated in (RPE and CR10 as they are, Borg rescaled to 0-10). The athlete rates the hardest set of each exercise."]
   },
   report_patterns: {
     title: "Sets by movement",
@@ -235,7 +261,8 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     read: [
       "Sets logged and reps hit: as in the Analysis page - 85-90% or more is normal.",
       "Average effort: their average session rating out of 10. Highest load ratio: the period's biggest jump against their normal.",
-      "Lines like 'Bench press at 90 kg: RPE 8 → 9' mean the same weight felt harder later in the period - a sign of fatigue."
+      "Lines like 'Bench press at 90 kg: RPE 8 → 9' (or CR10 / Borg) mean the same weight felt harder later in the period - a sign of fatigue.",
+      "Weight against the plan and effort against your RPE, Borg or CR10 targets are explained under Doing the plan on the Analysis page."
     ],
     how: ["Working sets of sessions done or part done in the period."]
   },
@@ -251,7 +278,7 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
   },
   report_send: {
     title: "What the athlete gets",
-    shows: "Their own copy of the report, with your message: the sessions they did week by week, the best set they lifted on each exercise, their total volume and how they felt.",
+    shows: "Their own copy of the report, with your message: the sessions they did week by week, their best on each exercise (weight × reps, bodyweight reps, minutes or metres), their total volume and how they felt.",
     read: ["They find it in History under 'Reports from your coach', can print it, and get a message from you saying it's there."],
     how: ["It is a copy of the report as it stands when you send it - later training doesn't change what they were sent."],
     mind: ["It never shows estimated maxes, percentages of max, load ratios or your flags. Those are your coaching tools, and athletes are shown only the weights and reps they actually lifted."]

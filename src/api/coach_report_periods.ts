@@ -207,16 +207,24 @@ export function summariseReport(analysis: Json): Json {
     training: {
       sets: volume.reduce((sum, row) => sum + Number(row.sets ?? 0), 0),
       tonnage_kg: volume.reduce((sum, row) => sum + Number(row.tonnage_kg ?? 0), 0),
+      bodyweight_reps: volume.reduce((sum, row) => sum + Number(row.bodyweight_reps ?? 0), 0),
+      timed_minutes: round(volume.reduce((sum, row) => sum + Number(row.timed_minutes ?? 0), 0), 1),
+      distance_m: Math.round(volume.reduce((sum, row) => sum + Number(row.distance_m ?? 0), 0)),
       load_total: loads.length ? Math.round(loads.reduce((sum, value) => sum + value, 0)) : null,
       load_weekly_average: loads.length ? Math.round(mean(loads)!) : null,
       peak_acute_chronic: peak ? { value: peak.acute_chronic, week_start: peak.week_start } : null,
       average_monotony: avg(values(loadRows, "monotony"), 2)
     },
     strength: lifts,
+    bodyweight_strength: ((a.strength as Json).bodyweight ?? []) as Json[],
+    intensity: (execution.intensity ?? null) as Json | null,
     execution: {
       reps_hit_pct: avg(values(execution.rows as Json[], "reps_hit_pct"), 0),
       sets_logged_pct: avg(values(execution.rows as Json[], "sets_logged_pct"), 0),
       effort_creep: execution.effort_creep,
+      effort_targets: execution.effort_targets ?? [],
+      load_vs_plan_pct: avg(values(execution.rows as Json[], "load_vs_plan_pct")),
+      effort_vs_plan: avg(values(execution.rows as Json[], "effort_vs_plan")),
       most_missed: execution.most_missed,
       most_skipped: (a.adherence as Json).most_skipped
     },
@@ -232,6 +240,7 @@ export function summariseReport(analysis: Json): Json {
     exercises: ((a.exercises ?? {}) as Json).rows ?? [],
     effort_bands: ((a.exercises ?? {}) as Json).effort_bands ?? [],
     effort_rated: ((a.exercises ?? {}) as Json).rated ?? 0,
+    effort_rated_by: ((a.exercises ?? {}) as Json).rated_by ?? null,
     patterns: ((a.exercises ?? {}) as Json).patterns ?? [],
     session_log: sessions
   };
@@ -257,8 +266,16 @@ export function athleteReport(period: ReportPeriod, summary: Json, analysis: Jso
     coach: { name: coach.name, message: coach.message },
     sessions: { completed: sessions.completed, partial: sessions.partial, planned: sessions.planned, minutes: sessions.minutes },
     weeks: weeks.map((week, index) => ({ week_start: week, sessions: Number(adherence[index]?.completed ?? 0) + Number(adherence[index]?.partial ?? 0), planned: adherence[index]?.planned ?? null })),
-    training: { sets: training.sets, tonnage_kg: training.tonnage_kg },
-    exercises: exercises.map((row) => ({ name: row.name, sessions: row.sessions, sets: row.sets, reps: row.reps, best_set: row.top_set ?? null, average_rpe: row.average_rpe ?? null })),
+    training: { sets: training.sets, tonnage_kg: training.tonnage_kg, bodyweight_reps: training.bodyweight_reps, timed_minutes: training.timed_minutes, distance_m: training.distance_m },
+    exercises: exercises.map((row) => ({
+      name: row.name, sessions: row.sessions, sets: row.sets, reps: row.reps,
+      best_set: row.top_set ?? null,
+      best_bodyweight_reps: row.best_bodyweight_reps ?? null,
+      minutes: row.minutes ?? null,
+      distance_m: row.distance_m ?? null,
+      average_effort: row.average_effort ?? null,
+      effort_scale: row.effort_scale ?? null
+    })),
     wellbeing: { check_ins: wellbeing.check_ins, energy: wellbeing.energy, motivation: wellbeing.motivation, sleep: wellbeing.sleep },
     pain: { reports: pain.reports, areas: ((pain.areas ?? []) as Json[]).map((area) => ({ area: area.area, reports: area.reports })) }
   };

@@ -113,7 +113,7 @@ test("the powerlifter: squat rising, bench stuck and feeling harder, knee pain r
   assert.equal(analysis.execution.rows.at(-1).partial_week, true);
   assert.equal(analysis.execution.most_missed[0].name, "Bench press");
   const creep = analysis.execution.effort_creep.find((c) => c.exercise_id === "bench_press");
-  assert.deepEqual([creep.early_rpe, creep.late_rpe, creep.rpe_change], [7.5, 9, 1.5]);
+  assert.deepEqual([creep.scale_label, creep.early, creep.late, creep.effort_change], ["RPE", 7.5, 9, 1.5]);
 
   assert.deepEqual([analysis.pain.areas[0].area, analysis.pain.areas[0].reports, analysis.pain.areas[0].weeks, analysis.pain.areas[0].exercises], ["knee", 2, 2, ["Back squat"]]);
   assert.ok(analysis.readiness.rows.at(-1).z <= -1.5, "a 6/15 week against a ~12/15 normal");

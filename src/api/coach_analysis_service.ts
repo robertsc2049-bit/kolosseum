@@ -44,18 +44,43 @@ function plannedExercises(plannedSession: unknown): AnalysisPlannedExercise[] {
     const repRange = isRecord(exercise.rep_range) ? exercise.rep_range : null;
     const setRange = isRecord(exercise.set_range) ? exercise.set_range : null;
     const intensity = isRecord(exercise.intensity) ? exercise.intensity : {};
+    const intensityType = text(intensity.type);
     const resolved = isRecord(exercise.resolved_load) ? exercise.resolved_load : null;
-    const load = resolved && num(resolved.value) !== null
-      ? toKg(num(resolved.value), resolved.unit)
-      : intensity.type === "load" ? toKg(num(intensity.value), intensity.unit) : null;
+    // The weight: a % of max made a weight (and its range's top, and the max
+    // it came from), or a fixed weight (and its range's top).
+    const fromPercent = resolved && num(resolved.value) !== null;
+    const load = fromPercent
+      ? toKg(num(resolved!.value), resolved!.unit)
+      : intensityType === "load" ? toKg(num(intensity.value), intensity.unit) : null;
+    const loadMax = fromPercent
+      ? toKg(num(resolved!.maximum_value), resolved!.unit)
+      : intensityType === "load" ? toKg(num(intensity.maximum), intensity.unit) : null;
+    const oneRepMax = fromPercent ? toKg(num(resolved!.one_rep_max), resolved!.unit) : null;
+    const effortTarget = ["rpe", "borg", "cr10"].includes(intensityType) ? num(intensity.value) : null;
+    const effortTargetMax = effortTarget !== null ? num(intensity.maximum) : null;
+    // Reps, or time / distance (done by completing it).
+    const durationRange = isRecord(exercise.duration_range) ? exercise.duration_range : null;
+    const distanceRange = isRecord(exercise.distance_range) ? exercise.distance_range : null;
+    const duration = durationRange ? num(durationRange.minimum) : num(exercise.duration_seconds);
+    const distanceRaw = distanceRange ? num(distanceRange.minimum) : num(exercise.distance_value);
+    const distance = distanceRaw !== null ? (text(exercise.distance_unit) === "feet" ? Math.round(distanceRaw * 0.3048 * 10) / 10 : distanceRaw) : null;
+    const dose: "reps" | "time" | "distance" = duration !== null ? "time" : distance !== null ? "distance" : "reps";
     return {
       exercise_id: text(exercise.exercise_id),
       segment: ["warm_up", "cool_down"].includes(text(exercise.segment)) ? text(exercise.segment) : "working",
       ...(text(exercise.role) ? { role: text(exercise.role) } : {}),
       sets: num(exercise.sets) ?? 0,
       ...(setRange && num(setRange.maximum) !== null ? { sets_max: num(setRange.maximum)! } : {}),
-      reps_target: repRange ? num(repRange.minimum) : num(exercise.reps),
-      load_kg: load && load > 0 ? load : null
+      reps_target: dose === "reps" ? (repRange ? num(repRange.minimum) : num(exercise.reps)) : null,
+      load_kg: load && load > 0 ? load : null,
+      load_kg_max: loadMax && load && loadMax > load ? loadMax : null,
+      one_rep_max_kg: oneRepMax && oneRepMax > 0 ? oneRepMax : null,
+      ...(intensityType ? { intensity_type: intensityType } : {}),
+      target_effort: effortTarget,
+      target_effort_max: effortTargetMax !== null && effortTarget !== null && effortTargetMax > effortTarget ? effortTargetMax : null,
+      dose,
+      duration_s: dose === "time" ? duration : null,
+      distance_m: dose === "distance" ? distance : null
     };
   });
 }
