@@ -63,6 +63,7 @@ import {
 } from "./coach_workspace.handlers.js";
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
+import { CoachReportInputError, CoachReportNotFoundError, listCoachReports, loadCoachReport, previewAthleteReport, sendAthleteReport } from "./coach_report_service.js";
 import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
 export const coachWorkspaceRouter = Router();
@@ -417,6 +418,76 @@ coachWorkspaceRouter.get(
     }
     catch (error) {
       if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
+
+// Progress reports: every week, programme block, training cycle, programme
+// and year the athlete has trained in, and one of them compiled.
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/reports",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try {
+      return res.status(200).json(await listCoachReports(coachUserId, String(req.params.athlete_id)));
+    }
+    catch (error) {
+      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
+
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/reports/:report_type/:report_id",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try {
+      return res.status(200).json(await loadCoachReport(coachUserId, String(req.params.athlete_id), String(req.params.report_type), String(req.params.report_id)));
+    }
+    catch (error) {
+      if (error instanceof Beta19CoachWorkspaceError) return res.status(403).json({ ok: false, error: error.message });
+      if (error instanceof CoachReportNotFoundError) return res.status(404).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
+
+const reportErrorStatus = (error: unknown) =>
+  error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof CoachReportNotFoundError ? 404 : error instanceof CoachReportInputError ? 400 : null;
+
+// The athlete's copy of a report, as they would get it (no estimated maxes,
+// load ratios or flags), and sending it to them with the coach's message.
+coachWorkspaceRouter.get(
+  "/athletes/:athlete_id/reports/:report_type/:report_id/athlete-copy",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    try {
+      return res.status(200).json(await previewAthleteReport(coachUserId, String(req.params.athlete_id), String(req.params.report_type), String(req.params.report_id)));
+    }
+    catch (error) {
+      const status = reportErrorStatus(error);
+      if (status) return res.status(status).json({ ok: false, error: (error as Error).message });
+      throw error;
+    }
+  })
+);
+
+coachWorkspaceRouter.post(
+  "/athletes/:athlete_id/reports/:report_type/:report_id/send",
+  coachAnalysisRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try {
+      return res.status(200).json(await sendAthleteReport(coachUserId, String(req.params.athlete_id), String(req.params.report_type), String(req.params.report_id), req.body));
+    }
+    catch (error) {
+      const status = reportErrorStatus(error);
+      if (status) return res.status(status).json({ ok: false, error: (error as Error).message });
       throw error;
     }
   })

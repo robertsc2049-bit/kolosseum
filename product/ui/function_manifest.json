@@ -9500,6 +9500,30 @@
     },
     {
       "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/reports",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/reports/:report_type/:report_id",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/reports/:report_type/:report_id/athlete-copy",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athletes/:athlete_id/reports/:report_type/:report_id/send",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
       "path": "/coach-workspace/athletes/:athlete_id/programme-print",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"

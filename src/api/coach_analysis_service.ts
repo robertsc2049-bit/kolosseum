@@ -44,18 +44,43 @@ function plannedExercises(plannedSession: unknown): AnalysisPlannedExercise[] {
     const repRange = isRecord(exercise.rep_range) ? exercise.rep_range : null;
     const setRange = isRecord(exercise.set_range) ? exercise.set_range : null;
     const intensity = isRecord(exercise.intensity) ? exercise.intensity : {};
+    const intensityType = text(intensity.type);
     const resolved = isRecord(exercise.resolved_load) ? exercise.resolved_load : null;
-    const load = resolved && num(resolved.value) !== null
-      ? toKg(num(resolved.value), resolved.unit)
-      : intensity.type === "load" ? toKg(num(intensity.value), intensity.unit) : null;
+    // The weight: a % of max made a weight (and its range's top, and the max
+    // it came from), or a fixed weight (and its range's top).
+    const fromPercent = resolved && num(resolved.value) !== null;
+    const load = fromPercent
+      ? toKg(num(resolved!.value), resolved!.unit)
+      : intensityType === "load" ? toKg(num(intensity.value), intensity.unit) : null;
+    const loadMax = fromPercent
+      ? toKg(num(resolved!.maximum_value), resolved!.unit)
+      : intensityType === "load" ? toKg(num(intensity.maximum), intensity.unit) : null;
+    const oneRepMax = fromPercent ? toKg(num(resolved!.one_rep_max), resolved!.unit) : null;
+    const effortTarget = ["rpe", "borg", "cr10"].includes(intensityType) ? num(intensity.value) : null;
+    const effortTargetMax = effortTarget !== null ? num(intensity.maximum) : null;
+    // Reps, or time / distance (done by completing it).
+    const durationRange = isRecord(exercise.duration_range) ? exercise.duration_range : null;
+    const distanceRange = isRecord(exercise.distance_range) ? exercise.distance_range : null;
+    const duration = durationRange ? num(durationRange.minimum) : num(exercise.duration_seconds);
+    const distanceRaw = distanceRange ? num(distanceRange.minimum) : num(exercise.distance_value);
+    const distance = distanceRaw !== null ? (text(exercise.distance_unit) === "feet" ? Math.round(distanceRaw * 0.3048 * 10) / 10 : distanceRaw) : null;
+    const dose: "reps" | "time" | "distance" = duration !== null ? "time" : distance !== null ? "distance" : "reps";
     return {
       exercise_id: text(exercise.exercise_id),
       segment: ["warm_up", "cool_down"].includes(text(exercise.segment)) ? text(exercise.segment) : "working",
       ...(text(exercise.role) ? { role: text(exercise.role) } : {}),
       sets: num(exercise.sets) ?? 0,
       ...(setRange && num(setRange.maximum) !== null ? { sets_max: num(setRange.maximum)! } : {}),
-      reps_target: repRange ? num(repRange.minimum) : num(exercise.reps),
-      load_kg: load && load > 0 ? load : null
+      reps_target: dose === "reps" ? (repRange ? num(repRange.minimum) : num(exercise.reps)) : null,
+      load_kg: load && load > 0 ? load : null,
+      load_kg_max: loadMax && load && loadMax > load ? loadMax : null,
+      one_rep_max_kg: oneRepMax && oneRepMax > 0 ? oneRepMax : null,
+      ...(intensityType ? { intensity_type: intensityType } : {}),
+      target_effort: effortTarget,
+      target_effort_max: effortTargetMax !== null && effortTarget !== null && effortTargetMax > effortTarget ? effortTargetMax : null,
+      dose,
+      duration_s: dose === "time" ? duration : null,
+      distance_m: dose === "distance" ? distance : null
     };
   });
 }
@@ -102,6 +127,7 @@ async function loadSessions(athleteUserId: string, since: string): Promise<Analy
     session_id: String(row.session_id),
     status: text(row.status),
     created_at: new Date(row.created_at).toISOString(),
+    ...(isRecord(row.planned_session) && text(row.planned_session.title) ? { title: text(row.planned_session.title) } : {}),
     planned: plannedExercises(row.planned_session),
     events: bySession.get(String(row.session_id)) ?? []
   }));
@@ -135,8 +161,16 @@ async function displayName(userId: string): Promise<string> {
 }
 
 export async function analyseAthleteForCoach(coachUserId: string, athleteUserId: string, weeksInput: unknown, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
-  await requireCoachAthleteAccess(coachUserId, athleteUserId);
   const weeks = ANALYSIS_WEEK_CHOICES.includes(Number(weeksInput)) ? Number(weeksInput) : 12;
+  return analyseWindowForCoach(coachUserId, athleteUserId, weeks, today);
+}
+
+// Any window of whole weeks up to `today` (a progress report's period);
+// `closed` when the period has ended, so its last week counts in full.
+export type AnalysisWindowOptions = Readonly<{ closed?: boolean; from?: string; to?: string }>;
+
+export async function analyseWindowForCoach(coachUserId: string, athleteUserId: string, weeks: number, today: string, options: AnalysisWindowOptions = {}): Promise<Json> {
+  await requireCoachAthleteAccess(coachUserId, athleteUserId);
   // 4 extra weeks so the first shown week has a chronic load to compare with,
   // and 28 days of readiness before it for each athlete's own normal.
   const since = addDays(weekStart(today), -7 * (weeks + 4));
@@ -152,6 +186,10 @@ export async function analyseAthleteForCoach(coachUserId: string, athleteUserId:
   const analysis = analyseAthlete({
     today,
     weeks,
+    closed: options.closed ?? false,
+    ...(options.from ? { from: options.from } : {}),
+    ...(options.to ? { to: options.to } : {}),
+    pattern_of: patternOf,
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),

@@ -113,7 +113,7 @@ test("the powerlifter: squat rising, bench stuck and feeling harder, knee pain r
   assert.equal(analysis.execution.rows.at(-1).partial_week, true);
   assert.equal(analysis.execution.most_missed[0].name, "Bench press");
   const creep = analysis.execution.effort_creep.find((c) => c.exercise_id === "bench_press");
-  assert.deepEqual([creep.early_rpe, creep.late_rpe, creep.rpe_change], [7.5, 9, 1.5]);
+  assert.deepEqual([creep.scale_label, creep.early, creep.late, creep.effort_change], ["RPE", 7.5, 9, 1.5]);
 
   assert.deepEqual([analysis.pain.areas[0].area, analysis.pain.areas[0].reports, analysis.pain.areas[0].weeks, analysis.pain.areas[0].exercises], ["knee", 2, 2, ["Back squat"]]);
   assert.ok(analysis.readiness.rows.at(-1).z <= -1.5, "a 6/15 week against a ~12/15 normal");
@@ -121,7 +121,14 @@ test("the powerlifter: squat rising, bench stuck and feeling harder, knee pain r
   const list = findings(analysis);
   const texts = list.map((f) => f.text);
   assert.ok(texts.some((t) => /Bench press estimated max is \d+(\.\d)?% below its peak/u.test(t)), texts.join("\n"));
-  assert.ok(texts.includes("Bench press feels harder at the same weight: RPE 7.5 → 9 at about 90 kg."));
+  // Falling and feeling harder on the same lift: one fatigue finding, not two.
+  const benchFinding = list.find((f) => f.id === "strength_fatigue_bench_press");
+  assert.ok(benchFinding, texts.join("\n"));
+  assert.match(benchFinding.text, /, and it feels harder \(RPE 7\.5 → 9 at about 90 kg\)\.$/u);
+  assert.equal(texts.some((t) => t.startsWith("Bench press feels harder")), false, "not listed twice");
+  // Every finding comes with a suggested next step.
+  assert.ok(list.every((f) => typeof f.action === "string" && f.action.length > 10), list.filter((f) => !f.action).map((f) => f.id).join(", "));
+  assert.match(list.find((f) => f.id.startsWith("pain_")).action, /refer them to a medical professional/u);
   assert.ok(texts.some((t) => /^Knee pain reported in 2 different weeks \(Back squat\)/u.test(t)), texts.join("\n"));
   assert.ok(texts.some((t) => /^Readiness well below their normal/u.test(t)));
   assert.ok(texts.some((t) => /^Back squat estimated max up/u.test(t)));
@@ -147,4 +154,25 @@ test("adherence counts only from the week they started - a new athlete has no mi
   const analysis = analyseAthlete({ today, weeks: 6, sessions, readiness: [], checkins: [], planned_days_per_week: 3, exercise_name: (id) => id, is_strength_lift: () => false });
   assert.ok(analysis.adherence.rows.every((row) => row.planned === null || row.week_start >= "2026-10-12"));
   assert.equal(findings(analysis).some((f) => f.id === "adherence"), false, "the current week is still under way");
+});
+
+test("a big week then a drop is one story, not two lines that look like they disagree", () => {
+  const analysis = {
+    weeks: ["2026-09-21", "2026-09-28", "2026-10-05", "2026-10-12"],
+    closed: true,
+    adherence: { rows: [] },
+    load: { rows: [
+      { week_start: "2026-09-21", acute_chronic: 1.0 }, { week_start: "2026-09-28", acute_chronic: 2.3 },
+      { week_start: "2026-10-05", acute_chronic: 1.1 }, { week_start: "2026-10-12", acute_chronic: 0.4 }
+    ] },
+    readiness: { rows: [], checkins: [] },
+    strength: { lifts: [], bodyweight: [] },
+    execution: { rows: [], effort_creep: [], effort_targets: [] },
+    pain: { areas: [] }
+  };
+  const list = findings(analysis);
+  const story = list.find((f) => f.id === "load_story");
+  assert.equal(story.text, "Training load spiked to 2.3x their 4-week normal in the week of 28 Sep, then dropped 60% below their 4-week normal (ratio 0.4).");
+  assert.equal(list.some((f) => f.id === "load" || f.id === "load_spike"), false);
+  assert.match(story.action, /planned recovery/u);
 });
