@@ -23,6 +23,7 @@
 type Json = Record<string, unknown>;
 
 import { analyseInjuries, injuryActionFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
+import { ewmaRatios, forwardActionFor, forwardFindings, forwardRows, type PlannedWeek } from "./forward_load.js";
 
 export type AnalysisEvent = Readonly<{
   type: string;
@@ -118,6 +119,8 @@ export type AnalysisInput = Readonly<{
   external_load?: readonly ExternalLoad[];
   // The injury log (injury_log_service.ts): every injury still standing.
   injuries?: readonly InjuryRecord[];
+  // The programme's weeks still to come (athlete_my_programme_service plannedWeeksAhead).
+  planned_ahead?: readonly PlannedWeek[];
   tested_maxes?: readonly TestedMax[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
@@ -315,7 +318,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
     return rated ? days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0) : trained ? null : 0;
   });
   const sumWeek = (map: Map<string, number>, start: string) => Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0);
-  const loadRows = weeks.map((start) => {
+  // EWMA acute:chronic at each week's end (or today), from the first training day.
+  const ewma = ewmaRatios(dailyLoad, trainedDates[0] ?? null, weeks.map((start) => (addDays(start, 6) > input.today ? input.today : addDays(start, 6))));
+  const loadRows = weeks.map((start, weekIndex) => {
     const index = loadWeeks.indexOf(start);
     const daily = Array.from({ length: 7 }, (_, offset) => dailyLoad.get(addDays(start, offset)) ?? 0);
     const weekly = weeklyLoadAll[index];
@@ -324,7 +329,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       week_start: start, partial_week: start === currentWeek, load: weekly,
       gym_load: weekly === null ? null : sumWeek(dailyGym, start), sport_load: weekly === null ? null : sumWeek(dailySport, start),
       matches: other.filter((entry) => entry.kind === "match" && weekStart(entry.date) === start).length,
-      acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
+      acute_chronic: acuteChronic(weeklyLoadAll, index), ewma_ratio: ewma[weekIndex], monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
     };
   });
   const gymRows = sessionRows.filter((row) => row.kind === "gym");
@@ -891,7 +896,12 @@ export function analyseAthlete(input: AnalysisInput): Json {
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
-    plan: { rows: planRows },
+    plan: { rows: planRows, ahead: (() => {
+      // What they've actually done lately: the mean of their last 4 complete weeks.
+      const recent = planRows.filter((row) => !row.partial_week).slice(-4);
+      const avg = (pick: (row: (typeof planRows)[number]) => number) => (recent.length ? round(recent.reduce((sum, row) => sum + pick(row), 0) / recent.length, 0) : null);
+      return { recent: { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }, rows: forwardRows(input.planned_ahead ?? [], { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }) };
+    })() },
     external: { rows: externalRows, sessions: external.filter((entry) => inWindow(entry.date)) },
     injuries: { ...analyseInjuries(input.injuries ?? [], input.today, first, painAreas.map((area) => String(area.area))), as_of: input.today },
     testing: { tests: testRows },
@@ -914,7 +924,7 @@ function actionFor(finding: Finding): string | undefined {
     : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
-  const injury = injuryActionFor(id);
+  const injury = injuryActionFor(id) ?? forwardActionFor(id);
   if (injury) return injury;
   if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
   if (id === "hrv_low" || id === "rhr_high") return "A sign the body is under strain - illness, poor sleep or accumulated fatigue. Ask how they are, and consider a lighter session until it settles.";
@@ -1116,6 +1126,7 @@ export function findings(analysis: Json): Finding[] {
   }
 
   if (a.injuries) out.push(...(injuryFindings(a.injuries, String((a.injuries as Json).as_of)) as Finding[]));
+  if (!a.closed) out.push(...(forwardFindings((((a.plan as Json)?.ahead as Json | undefined)?.rows ?? []) as Json[]) as Finding[]));
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
   return mergeRelated(out)

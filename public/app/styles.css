@@ -5197,3 +5197,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .injury-table td[data-label="Injury"] { font-weight: 600; }
   .injury-table td[data-label]:not([data-label="Injury"])::before { content: attr(data-label) ": "; color: var(--k-text-secondary); font-size: 0.8rem; }
 }
+
+/* The next weeks of the plan (CoachAnalysisPanel.tsx). */
+.analysis-ahead { display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.analysis-ahead h4 { margin: 0; }
