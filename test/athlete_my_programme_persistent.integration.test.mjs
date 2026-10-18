@@ -186,12 +186,27 @@ test("a coached powerlifter sees her whole programme with her weights, and it mo
   assert.deepEqual(coachCopy.cover.bodyweight_history.map((b) => b.value), [74]);
   assert.equal((await athlete.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`)).status, 403, "the athlete can't fetch the coach's copy");
 
+  // Her coach adjusts Squat day for her alone: 3 sets of squats with a note,
+  // and the row left out. The programme itself is untouched.
+  const overrideBase = `/coach-workspace/athletes/${athleteAccount.userId}/programme-overrides`;
+  ok(await coach.req("POST", overrideBase, { session_index: 0, exercise_id: "back_squat", sets: 3, note: "Keep it pain-free", client_request_id: "po_integration_1" }), 200, "fewer squat sets for her");
+  ok(await coach.req("POST", overrideBase, { session_index: 0, exercise_id: "barbell_row", remove: true, client_request_id: "po_integration_2" }), 200, "row left out");
+  assert.equal((await coach.req("POST", overrideBase, { session_index: 1, exercise_id: "bench_press", load_kg: 70, rpe: 7, client_request_id: "po_integration_3" })).status, 400, "a weight or an RPE, not both");
+  assert.equal((await athlete.req("POST", overrideBase, { session_index: 0, exercise_id: "back_squat", sets: 9, client_request_id: "po_integration_4" })).status >= 400, true, "only her coach adjusts her programme");
+  const adjusted = ok(await coach.req("GET", `/coach-workspace/athletes/${athleteAccount.userId}/programme-print`), 200, "coach copy with her changes").json;
+  assert.deepEqual(adjusted.blocks[0].weeks[0].sessions[0].exercises.find((e) => e.exercise_id === "back_squat").override.sets, 3);
+
   // She trains Squat day: the session screen and her history call it that.
   const detail = await athlete.refresh();
   const created = ok(await athlete.req("POST", "/blocks/compile?create_session=true&beta_path=true", {
     phase1_input: detail.bootstrap.declaration_record.engine_phase1_input, beta_user_id: athleteAccount.userId, beta_coach_user_id: coachAccount.userId
   }), 201, "session").json;
   const sessionId = created.session_id;
+  const adjustedSquat = created.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+  assert.equal(adjustedSquat.sets, 3, "her coach's change for her");
+  assert.match(adjustedSquat.coaching_notes, /Your coach: Keep it pain-free/u);
+  assert.equal(created.planned_session.exercises.some((e) => e.exercise_id === "barbell_row"), false, "the row is left out for her");
+  assert.equal(created.planned_session.coach_overrides.applied, 2);
   assert.equal(ok(await athlete.req("GET", `/sessions/${sessionId}/state`), 200, "state").json.session_title, "Squat day");
   // The session carries the ranges: the sets to do and the most, the weight range.
   const sessionRdl = created.planned_session.exercises.find((e) => e.exercise_id === "romanian_deadlift");
