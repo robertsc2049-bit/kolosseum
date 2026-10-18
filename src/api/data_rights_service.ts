@@ -175,6 +175,26 @@ async function loadCommercialRecords(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+// Everything kept as the person's own account events: readiness check-ins,
+// performance tests, other training and its jumps and balls, GPS / heart-rate
+// imports, session effort reports, medical stand-downs, the injury log,
+// progress reports sent to them... - each with when it was recorded.
+async function loadAccountEvents(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT event_id, event_type, event_payload, occurred_at
+     FROM product_account_events
+     WHERE user_id = $1
+     ORDER BY occurred_at ASC, event_id ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    event_id: row.event_id,
+    event_type: row.event_type,
+    occurred_at_iso8601: isoString(row.occurred_at),
+    payload: isRecord(row.event_payload) ? row.event_payload : {}
+  }));
+}
+
 async function loadRuntimeEventRecords(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT re.session_id, re.seq, re.event, re.created_at
@@ -216,7 +236,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     deviceMetricEntries,
     athleteGoals,
     coachOrgMemberships,
-    coachOrgMessagesSent
+    coachOrgMessagesSent,
+    accountEvents
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -234,7 +255,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadBetaProductRecordsByType(userId, "device_metric_entry"),
     loadBetaProductRecordsByType(userId, "athlete_goal"),
     loadCoachOrgMemberships(userId),
-    loadCoachOrgMessagesSent(userId)
+    loadCoachOrgMessagesSent(userId),
+    loadAccountEvents(userId)
   ]);
 
   const account = [tagOwnedRecord({
@@ -267,7 +289,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     device_metric_entries: deviceMetricEntries.map((r) => tagOwnedRecord(r, userId)),
     athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId)),
     org_coach_memberships: coachOrgMemberships.map((r) => tagOwnedRecord(r, userId)),
-    org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId))
+    org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId)),
+    account_events: accountEvents.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(
