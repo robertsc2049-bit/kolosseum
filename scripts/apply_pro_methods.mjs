@@ -30,6 +30,9 @@ const DONE_FILE = "scripts/apply_pro_methods.done.json";
 const doneKeys = new Set(fs.existsSync(DONE_FILE) ? JSON.parse(fs.readFileSync(DONE_FILE, "utf8")) : []);
 
 const STRENGTH = new Set(["powerlifting", "olympic_weightlifting", "strongman", "street_lifting"]);
+// Endurance athletes keep their minimum-effective-dose volume: the pro
+// version changes what the sets are, never how many.
+const ENDURANCE = new Set(["athletics", "swimming", "cycling", "rowing", "kayaking", "triathlon"]);
 const PRO_SWAPS = {
   countermovement_jump: "depth_jump", box_jump: "depth_jump", broad_jump_to_stick: "repeated_broad_jump",
   drop_to_stick: "hurdle_hop", pogo_jump: "hurdle_hop", lateral_lunge: "lateral_bound"
@@ -80,13 +83,13 @@ function swapItems(ids, items, activity, role = null) {
     const q = structuredClone(p);
     const dose = REACTIVE_DOSE[target];
     if (dose) {
-      q.sets = dose[0]; q.reps = dose[1]; q.intensity = { type: "bodyweight" };
+      q.sets = ENDURANCE.has(activity) ? p.sets : dose[0]; q.reps = dose[1]; q.intensity = { type: "bodyweight" };
       delete q.distance_m; delete q.duration_seconds;
       q.rest_seconds = Math.max(q.rest_seconds ?? 0, 90);
     }
     const own = SWAP_DOSE[target];
     if (own) {
-      q.sets = own[0]; q.intensity = { type: "rpe", value: own[2] };
+      q.sets = ENDURANCE.has(activity) ? p.sets : own[0]; q.intensity = { type: "rpe", value: own[2] };
       delete q.distance_m; delete q.duration_seconds;
       if (own[3]) { q.reps = 1; q.duration_seconds = own[1]; } else q.reps = own[1];
       q.rest_seconds = Math.max(q.rest_seconds ?? 0, 120);
@@ -120,7 +123,7 @@ function contrast(ids, items, dayId, activity) {
   const at = outIds.indexOf(ids[lift]);
   const group = { group_id: `contrast_${dayId}`, group_type: "superset", time_cap_seconds: 0 };
   const heavy = { ...structuredClone(outItems[at]), group, rest_seconds: 30 };
-  const pop = { ...structuredClone(jumpItem), group, sets: heavy.sets, reps: Math.min(jumpItem.reps, 3), rest_seconds: Math.max(outItems[at].rest_seconds ?? 0, 180) };
+  const pop = { ...structuredClone(jumpItem), group, sets: ENDURANCE.has(activity) ? jumpItem.sets : heavy.sets, reps: Math.min(jumpItem.reps, 3), rest_seconds: Math.max(outItems[at].rest_seconds ?? 0, 180) };
   outItems[at] = heavy;
   outIds.splice(at + 1, 0, jumpId);
   outItems.splice(at + 1, 0, pop);
