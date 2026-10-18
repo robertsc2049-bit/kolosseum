@@ -70630,7 +70630,7 @@
                   "distance_m": 20
                 },
                 {
-                  "sets": 4,
+                  "sets": 3,
                   "reps": 5,
                   "intensity": {
                     "type": "bodyweight"
@@ -71820,7 +71820,7 @@
                       "rest_seconds": 90
                     },
                     {
-                      "sets": 4,
+                      "sets": 2,
                       "reps": 5,
                       "intensity": {
                         "type": "bodyweight"
@@ -71865,7 +71865,7 @@
                           }
                         },
                         {
-                          "sets": 3,
+                          "sets": 2,
                           "reps": 3,
                           "intensity": {
                             "type": "bodyweight"
@@ -72481,7 +72481,7 @@
                           }
                         },
                         {
-                          "sets": 4,
+                          "sets": 3,
                           "reps": 3,
                           "intensity": {
                             "type": "bodyweight"
@@ -72533,7 +72533,7 @@
                       ],
                       "item_prescriptions": [
                         {
-                          "sets": 4,
+                          "sets": 3,
                           "reps": 5,
                           "intensity": {
                             "type": "bodyweight"
@@ -73087,7 +73087,7 @@
               ],
               "item_prescriptions": [
                 {
-                  "sets": 4,
+                  "sets": 3,
                   "reps": 3,
                   "intensity": {
                     "type": "bodyweight"
@@ -73709,7 +73709,7 @@
                       ],
                       "item_prescriptions": [
                         {
-                          "sets": 4,
+                          "sets": 3,
                           "reps": 3,
                           "intensity": {
                             "type": "bodyweight"
@@ -74221,7 +74221,7 @@
                       "rest_seconds": 90
                     },
                     {
-                      "sets": 4,
+                      "sets": 3,
                       "reps": 8,
                       "intensity": {
                         "type": "rpe",
@@ -74289,7 +74289,7 @@
                           "rest_seconds": 90
                         },
                         {
-                          "sets": 4,
+                          "sets": 3,
                           "reps": 8,
                           "intensity": {
                             "type": "rpe",
@@ -75489,7 +75489,7 @@
                       }
                     },
                     {
-                      "sets": 4,
+                      "sets": 3,
                       "reps": 3,
                       "intensity": {
                         "type": "bodyweight"
@@ -76029,7 +76029,7 @@
                           }
                         },
                         {
-                          "sets": 5,
+                          "sets": 4,
                           "reps": 3,
                           "intensity": {
                             "type": "bodyweight"
@@ -85310,7 +85310,7 @@
               ],
               "item_prescriptions": [
                 {
-                  "sets": 4,
+                  "sets": 3,
                   "reps": 3,
                   "intensity": {
                     "type": "bodyweight"
@@ -85390,7 +85390,7 @@
                       }
                     },
                     {
-                      "sets": 3,
+                      "sets": 2,
                       "reps": 3,
                       "intensity": {
                         "type": "bodyweight"
@@ -85904,7 +85904,7 @@
                       "rest_seconds": 90
                     },
                     {
-                      "sets": 4,
+                      "sets": 3,
                       "reps": 8,
                       "intensity": {
                         "type": "rpe",
@@ -86022,7 +86022,7 @@
                           "rest_seconds": 90
                         },
                         {
-                          "sets": 4,
+                          "sets": 3,
                           "reps": 8,
                           "intensity": {
                             "type": "rpe",
