@@ -32,8 +32,22 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
     { id: "midfielder", label: "Midfielder" },
     { id: "forward", label: "Forward" }
   ],
-  netball: [{ id: "athlete", label: "Athlete" }],
-  basketball: [{ id: "athlete", label: "Athlete" }],
+  netball: [
+    { id: "athlete", label: "Not specified" },
+    { id: "goal_shooter", label: "Goal shooter" },
+    { id: "goal_attack", label: "Goal attack" },
+    { id: "wing_attack", label: "Wing attack" },
+    { id: "centre", label: "Centre" },
+    { id: "wing_defence", label: "Wing defence" },
+    { id: "goal_defence", label: "Goal defence" },
+    { id: "goal_keeper", label: "Goal keeper" }
+  ],
+  basketball: [
+    { id: "athlete", label: "Not specified" },
+    { id: "guard", label: "Guard" },
+    { id: "forward", label: "Forward" },
+    { id: "centre", label: "Centre" }
+  ],
   rugby_sevens: [{ id: "athlete", label: "Athlete" }],
   field_hockey: [
     { id: "athlete", label: "Not specified" },
@@ -48,7 +62,14 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
     { id: "defence", label: "Defence" },
     { id: "forward", label: "Forward" }
   ],
-  volleyball: [{ id: "athlete", label: "Athlete" }],
+  volleyball: [
+    { id: "athlete", label: "Not specified" },
+    { id: "outside_hitter", label: "Outside hitter" },
+    { id: "opposite", label: "Opposite" },
+    { id: "middle_blocker", label: "Middle blocker" },
+    { id: "setter", label: "Setter" },
+    { id: "libero", label: "Libero" }
+  ],
   cricket: [
     { id: "athlete", label: "Not specified" },
     { id: "fast_bowler", label: "Fast bowler" },
@@ -79,11 +100,28 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
     { id: "middle_distance", label: "Middle distance" },
     { id: "long_distance", label: "Long distance" }
   ],
-  swimming: [{ id: "athlete", label: "Athlete" }],
+  swimming: [
+    { id: "athlete", label: "Not specified" },
+    { id: "sprint", label: "Sprint (50-100 m)" },
+    { id: "distance", label: "Distance (400 m+)" }
+  ],
   olympic_weightlifting: [{ id: "athlete", label: "Athlete" }],
-  cycling: [{ id: "athlete", label: "Athlete" }],
-  rowing: [{ id: "athlete", label: "Athlete" }],
-  kayaking: [{ id: "athlete", label: "Athlete" }],
+  cycling: [
+    { id: "athlete", label: "Not specified" },
+    { id: "track_sprint", label: "Track sprint" },
+    { id: "road", label: "Road / endurance" }
+  ],
+  rowing: [
+    { id: "athlete", label: "Not specified" },
+    { id: "sweep", label: "Sweep" },
+    { id: "sculler", label: "Sculling" },
+    { id: "lightweight", label: "Lightweight" }
+  ],
+  kayaking: [
+    { id: "athlete", label: "Not specified" },
+    { id: "sprint", label: "Sprint" },
+    { id: "marathon", label: "Marathon" }
+  ],
   boxing: [{ id: "athlete", label: "Athlete" }],
   wrestling: [{ id: "athlete", label: "Athlete" }],
   judo: [{ id: "athlete", label: "Athlete" }],
@@ -91,7 +129,11 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   muay_thai: [{ id: "athlete", label: "Athlete" }],
   mma: [{ id: "athlete", label: "Athlete" }],
   tennis: [{ id: "athlete", label: "Athlete" }],
-  triathlon: [{ id: "athlete", label: "Athlete" }],
+  triathlon: [
+    { id: "athlete", label: "Not specified" },
+    { id: "short_course", label: "Sprint / Olympic distance" },
+    { id: "long_course", label: "70.3 / Ironman" }
+  ],
   rugby_league: [
     { id: "athlete", label: "Not specified" },
     { id: "prop", label: "Prop" },
@@ -111,7 +153,8 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
 // Sports where a position (or event group) selects its own programme
 // (the engine's role variants) - "Not specified" trains the sport's general week.
 export const POSITION_PROGRAMME_SPORTS: ReadonlySet<string> = new Set([
-  "rugby_union", "rugby_league", "american_football", "football_soccer", "field_hockey", "ice_hockey", "cricket", "athletics"
+  "rugby_union", "rugby_league", "american_football", "football_soccer", "field_hockey", "ice_hockey", "cricket", "athletics",
+  "netball", "basketball", "volleyball", "swimming", "cycling", "rowing", "kayaking", "triathlon"
 ]);
 export const POSITION_PROMPT = "Positions train differently in this sport - choose yours so your programme fits it.";
 
