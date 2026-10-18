@@ -6,6 +6,7 @@
 // position or per coach. Pain is only ever a count here: the detail stays
 // with the athlete's own coach.
 import { PERFORMANCE_TESTS } from "./coach_analysis_metrics.js";
+import { injuryRates } from "./injury_metrics.js";
 
 type Json = Record<string, unknown>;
 
@@ -24,9 +25,11 @@ const statusOf = (row: Json) => {
 };
 
 // One group's numbers. includePain: false leaves pain out altogether (a gym
-// owner never sees it, even as a count).
-export function summariseGroup(rows: readonly Json[], options: { includePain?: boolean } = {}): Json {
+// owner never sees it, even as a count). includeInjuries: the injury log's
+// numbers - only for a team's head coach, never an owner.
+export function summariseGroup(rows: readonly Json[], options: { includePain?: boolean; includeInjuries?: boolean } = {}): Json {
   const includePain = options.includePain !== false;
+  const injuryRows = rows.map((row) => row.injuries as Json | undefined).filter((entry): entry is Json => Boolean(entry));
   const trained = rows.filter((row) => row.last_session);
   const statuses = rows.map(statusOf);
   const count = (status: string) => statuses.filter((s) => s === status).length;
@@ -55,6 +58,11 @@ export function summariseGroup(rows: readonly Json[], options: { includePain?: b
       unavailable: rows.filter((row) => (row.availability as Json | undefined)?.status === "unavailable").length,
       modified: rows.filter((row) => (row.availability as Json | undefined)?.status === "modified").length,
       available: rows.filter((row) => (row.availability as Json | undefined)?.status === "available").length
+    } } : {}),
+    ...(includePain && options.includeInjuries ? { injuries: {
+      out: injuryRows.filter((entry) => (entry.current as Json | null)?.status === "out").length,
+      modified: injuryRows.filter((entry) => (entry.current as Json | null)?.status === "modified").length,
+      ...injuryRates(injuryRows.reduce((sum, entry) => sum + Number(entry.in_window ?? 0), 0), injuryRows.reduce((sum, entry) => sum + Number(entry.days_lost_window ?? 0), 0), injuryRows.reduce((sum, entry) => sum + Number(entry.exposure_hours ?? 0), 0))
     } } : {}),
     ...(includePain ? { pain: { athletes_with_recurring_pain: trained.filter((row) => (((row.pain as Json | undefined)?.recurring_areas ?? []) as unknown[]).length > 0).length } } : {}),
     lifts: { counted: lifts.length, rising: liftCount("rising"), steady: liftCount("steady"), plateau: liftCount("plateau"), falling: liftCount("falling") },
@@ -108,11 +116,15 @@ export function groupFindings(summary: Json, noun = "the team"): GroupFinding[] 
     if (falling / Number(lifts.counted) >= 0.25 && falling >= 2) out.push({ id: "group_lifts_falling", section: "strength", level: "watch", text: `${falling} of ${lifts.counted} main lifts across ${noun} are going backwards.`, action: "Several athletes losing strength at once points at accumulated fatigue - consider a lighter week for the group." });
     else if (rising / Number(lifts.counted) >= 0.5) out.push({ id: "group_lifts_rising", section: "strength", level: "good", text: `${rising} of ${lifts.counted} main lifts across ${noun} are rising.`, action: "The plan is working - keep progressing it." });
   }
+  const injuries = summary.injuries as Json | undefined;
+  if (injuries && Number(injuries.injuries) > 0) {
+    out.push({ id: "group_injuries", section: "pain", level: Number(injuries.out) >= 3 ? "alert" : "info", text: `${plural(Number(injuries.injuries), "injury", "injuries")} in the last 8 weeks, ${plural(Number(injuries.days_lost), "day")} lost${finite(injuries.burden_per_1000h) ? ` (${injuries.burden_per_1000h} days lost per 1000 training hours)` : ""}.`, action: "Look for a pattern in the injury log - the same body area, the same week of the plan, or after load spikes - and plan returns in stages." });
+  }
   const availability = summary.availability as Json | undefined;
   if (availability && Number(availability.unavailable) + Number(availability.modified) > 0) {
     const out_ = Number(availability.unavailable);
     const modified = Number(availability.modified);
-    out.push({ id: "group_availability", section: "pain", level: out_ > 0 ? "watch" : "info", text: `${[out_ ? `${plural(out_, "athlete")} unavailable` : "", modified ? `${plural(modified, "athlete")} on modified training` : ""].filter(Boolean).join(", ")} today.`, action: "Plan the week around who's available. Modified athletes follow their pain plan; unavailable ones return only when their stand-down ends." });
+    out.push({ id: "group_availability", section: "pain", level: out_ > 0 ? "watch" : "info", text: `${[out_ ? `${plural(out_, "athlete")} unavailable` : "", modified ? `${plural(modified, "athlete")} on modified training` : ""].filter(Boolean).join(", ")} today.`, action: "Plan the week around who's available. Modified athletes follow their pain or injury plan; unavailable ones return only when their stand-down ends or their medical team clears them." });
   }
   if (Number(status.no_training) > 0) {
     out.push({ id: "group_no_training", section: "adherence", level: "info", text: `${plural(Number(status.no_training), "athlete")} ${Number(status.no_training) === 1 ? "has" : "have"} no sessions logged in the last 8 weeks.`, action: "Check they have a programme and know how to log their sessions." });
@@ -125,7 +137,7 @@ export function groupFindings(summary: Json, noun = "the team"): GroupFinding[] 
 // The same numbers per position or per coach. Groups under minSize are
 // withheld (a gym owner's per-coach view needs at least 3 athletes so no
 // average points at one person).
-export function summariseBy(rows: readonly Json[], keyOf: (row: Json) => string, labelOf: (key: string) => string, options: { includePain?: boolean; minSize?: number } = {}): Json[] {
+export function summariseBy(rows: readonly Json[], keyOf: (row: Json) => string, labelOf: (key: string) => string, options: { includePain?: boolean; includeInjuries?: boolean; minSize?: number } = {}): Json[] {
   const groups = new Map<string, Json[]>();
   for (const row of rows) {
     const key = keyOf(row) || "unknown";
@@ -184,10 +196,11 @@ export function squadTesting(rows: readonly Json[]): Json[] {
 // or the org owner): pain stays a flag, never the area or the detail.
 export function withoutPainDetail(row: Json): Json {
   const areas = (((row.pain as Json | undefined)?.recurring_areas ?? []) as unknown[]).length;
-  const findings = ((row.findings ?? []) as Json[]).filter((finding) => !String(finding.id).startsWith("pain_"));
+  const findings = ((row.findings ?? []) as Json[]).filter((finding) => !String(finding.id).startsWith("pain_") && !String(finding.id).startsWith("injury_"));
   const availability = row.availability as Json | undefined;
+  const { injuries: _injuries, ...rest } = row;
   return {
-    ...row,
+    ...rest,
     ...(availability ? { availability: { status: availability.status } } : {}),
     pain: { recurring: areas > 0 },
     findings: areas > 0
