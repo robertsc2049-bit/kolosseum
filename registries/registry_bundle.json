@@ -51582,12 +51582,12 @@
                     },
                     {
                       "sets": 4,
-                      "reps": 10,
+                      "reps": 8,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 3,
@@ -89143,12 +89143,12 @@
                     },
                     {
                       "sets": 4,
-                      "reps": 10,
+                      "reps": 3,
                       "intensity": {
                         "type": "rpe",
-                        "value": 9
+                        "value": 8
                       },
-                      "rest_seconds": 60,
+                      "rest_seconds": 120,
                       "fixed": true
                     },
                     {
@@ -89263,12 +89263,12 @@
                     },
                     {
                       "sets": 4,
-                      "reps": 10,
+                      "reps": 5,
                       "intensity": {
                         "type": "rpe",
-                        "value": 9
+                        "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     }
                   ]
                 }
@@ -89742,12 +89742,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 8,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 6
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 30
                     }
                   ]
                 }
@@ -89805,12 +89806,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 10,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 8
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 120,
+                  "duration_seconds": 30
                 },
                 {
                   "sets": 3,
@@ -89865,12 +89867,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 10,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 120,
+                      "duration_seconds": 30
                     },
                     {
                       "sets": 3,
@@ -89925,13 +89928,13 @@
                       "fixed": true
                     },
                     {
-                      "sets": 3,
-                      "reps": 8,
+                      "sets": 4,
+                      "reps": 2,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 3,
@@ -89995,12 +89998,13 @@
                     },
                     {
                       "sets": 3,
-                      "reps": 8,
+                      "reps": 1,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 60
+                      "rest_seconds": 60,
+                      "duration_seconds": 30
                     }
                   ]
                 }
@@ -90180,12 +90184,13 @@
                 },
                 {
                   "sets": 3,
-                  "reps": 8,
+                  "reps": 1,
                   "intensity": {
                     "type": "rpe",
                     "value": 7
                   },
-                  "rest_seconds": 60
+                  "rest_seconds": 60,
+                  "duration_seconds": 30
                 }
               ]
             }
