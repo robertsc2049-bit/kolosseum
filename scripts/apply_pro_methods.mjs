@@ -53,6 +53,12 @@ const PRO_SWAPS_BY_ACTIVITY = {
 const FIXED_AFTER_SWAP = new Set(["clean", "split_jerk", "muscle_up"]);
 // Swapped-in reactive work: low, high-quality contacts.
 const REACTIVE_DOSE = { depth_jump: [4, 3], hurdle_hop: [4, 5], repeated_broad_jump: [4, 3], lateral_bound: [4, 4] };
+// Other swaps take their own dose, never the dose of what they replace (a
+// curl's 5x10 is not a muscle-up's): [sets, reps or seconds, RPE, timed].
+const SWAP_DOSE = {
+  muscle_up: [4, 3, 8], archer_pull_up: [4, 5, 8], pull_up: [4, 8, 8],
+  hercules_hold: [3, 30, 8, true], rope_climb: [4, 2, 8]
+};
 const LOWER_STRENGTH = new Set(["squat", "hinge", "single_leg_squat", "single_leg_hinge"]);
 
 function swapItems(ids, items, activity) {
@@ -70,6 +76,13 @@ function swapItems(ids, items, activity) {
       q.sets = dose[0]; q.reps = dose[1]; q.intensity = { type: "bodyweight" };
       delete q.distance_m; delete q.duration_seconds;
       q.rest_seconds = Math.max(q.rest_seconds ?? 0, 90);
+    }
+    const own = SWAP_DOSE[target];
+    if (own) {
+      q.sets = own[0]; q.intensity = { type: "rpe", value: own[2] };
+      delete q.distance_m; delete q.duration_seconds;
+      if (own[3]) { q.reps = 1; q.duration_seconds = own[1]; } else q.reps = own[1];
+      q.rest_seconds = Math.max(q.rest_seconds ?? 0, 120);
     }
     if (FIXED_AFTER_SWAP.has(target)) q.fixed = true;
     outIds.push(target);
