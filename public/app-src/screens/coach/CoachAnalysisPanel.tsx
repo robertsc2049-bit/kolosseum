@@ -275,12 +275,15 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Matches", cell: (i) => show(rows(load.rows)[i]?.matches) },
                 { label: "Acute:chronic", cell: (i) => show(rows(load.rows)[i]?.acute_chronic) },
                 { label: "EWMA", cell: (i) => show(rows(load.rows)[i]?.ewma_ratio) },
+                ...(rows(load.rows).some((row) => num(row.jumps) !== null) ? [{ label: "Jumps", cell: (i: number) => show(rows(load.rows)[i]?.jumps) }, { label: "Jumps vs usual", cell: (i: number) => show(rows(load.rows)[i]?.jumps_ratio) }] : []),
+                ...(rows(load.rows).some((row) => num(row.balls_bowled) !== null) ? [{ label: "Balls bowled", cell: (i: number) => show(rows(load.rows)[i]?.balls_bowled) }, { label: "Balls vs usual", cell: (i: number) => show(rows(load.rows)[i]?.balls_ratio) }] : []),
                 { label: "Monotony", cell: (i) => show(rows(load.rows)[i]?.monotony) },
                 { label: "Strain", cell: (i) => show(rows(load.rows)[i]?.strain) }
               ]} />
               <Method>
                 <p>Session load (Foster session-RPE): session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured when the athlete rates the whole session (0-10) and its minutes as they finish; otherwise estimated from the mean of their exercise ratings (RPE and CR10 as they are; Borg 6-20 rescaled) × the minutes from starting the session to its last logged event (capped at 240). Practice, matches and conditioning they log add their own effort × minutes. Unrated sessions add no load.</p>
                 <p>Acute:chronic: this week's load ÷ the mean of the 4 weeks before it ("uncoupled"). 0.8-1.3 is the widely quoted range; it is a heuristic and disputed as an injury predictor, so read it as context. Monotony: the week's mean daily load ÷ its standard deviation (rest days count as 0); above 2 is "very samey". Strain: weekly load × monotony (Foster, 1998).</p>
+                <p>Jumps and balls bowled, when logged with practice and matches: the week's total against the mean of the 4 weeks before. A week over 1.5x is flagged - jump load for the patellar and Achilles tendons, bowling workload for a fast bowler's lower back.</p>
                 <p>EWMA acute:chronic (Williams et al., 2017): exponentially weighted daily load, acute over about 7 days (λ = 0.25) and chronic over about 28 (λ ≈ 0.069); a week shows the average of its daily ratios, as a single day swings with the weekday. It weights recent days more and isn't thrown by one big week dropping out of the 4-week window. Needs 28 days of history.</p>
                 <p>The next weeks of the plan: the programme's sessions still to come, week by week - working sets, tonnage from the weights it sets (from the maxes you recorded, or fixed weights) and sets at 80%+ / 90%+ of max - against what they've actually done on average over their last 4 complete weeks. Over 1.3× is a jump, over 1.5× a spike; a 30%+ rise in sets on the plan's week before is a step up.</p>
               </Method>

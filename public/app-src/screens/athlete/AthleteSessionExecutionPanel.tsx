@@ -422,6 +422,9 @@ export function AthleteSessionExecutionPanel() {
                 {String(exercise?.coaching_notes ?? "").trim() ? (
                   <p className="muted exercise-coaching-note">{String(exercise?.coaching_notes).trim()}</p>
                 ) : null}
+                {String(exercise?.sport_load_note ?? "").trim() ? (
+                  <p className="inline-result" data-tone="info" data-testid="sport-load-note">{String(exercise?.sport_load_note).trim()}</p>
+                ) : null}
                 {String(exercise?.race_standard ?? "").trim() ? (
                   <p className="muted exercise-race-standard" data-testid="race-standard">{String(exercise?.race_standard).trim()}</p>
                 ) : null}
