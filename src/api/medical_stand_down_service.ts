@@ -16,6 +16,7 @@ import path from "node:path";
 
 import { pool } from "../db/pool.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
+import { medicalLeadTeamMemberCoach } from "./team_analysis_service.js";
 import { headInjuryReturnFor, type HeadInjuryReturn } from "./head_injury_return.js";
 
 type Json = Record<string, unknown>;
@@ -134,9 +135,13 @@ export async function endStandDown(athleteUserId: string, input: unknown, endedB
   return describeStandDown(athleteUserId);
 }
 
+// The athlete's own coach, or the medical lead of a team they're on.
 async function requireCoach(coachUserId: string, athleteUserId: string) {
   try { await requireCoachAthleteAccess(coachUserId, athleteUserId); }
-  catch { throw new StandDownError("relationship_access_denied", 403); }
+  catch {
+    if ((await medicalLeadTeamMemberCoach(coachUserId, athleteUserId).catch(() => null)) !== null) return;
+    throw new StandDownError("relationship_access_denied", 403);
+  }
 }
 
 export async function describeStandDownForCoach(coachUserId: string, athleteUserId: string) {

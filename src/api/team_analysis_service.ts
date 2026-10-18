@@ -10,7 +10,7 @@ import { pool } from "../db/pool.js";
 import { analyseAthleteWindow, rosterRowFor } from "./coach_analysis_service.js";
 import { listOrgAthleteRosterForCoach } from "./coach_team_position_override_service.js";
 import { resolveOrgActiveCoachAcceptedAthletes } from "./attendance_event_org_invite_service.js";
-import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
+import { headCoachOf, headCoachOrgs, medicalLeadOf, medicalLeadOrgs } from "./org_head_coach_service.js";
 import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 import { analyseInjuries } from "./injury_metrics.js";
 import { loadInjuries } from "./injury_log_service.js";
@@ -103,9 +103,10 @@ export async function analyseTeamForCoach(coachUserId: string, orgId: string, to
   const roster = await listOrgAthleteRosterForCoach(coachUserId, orgId);
   // Who's head coach is part of the key: naming or clearing one shows at once...
   const head = (await headCoachOf(orgId)) === coachUserId;
+  const medical = (await medicalLeadOf(orgId)) === coachUserId;
   // ...and so is the roster: someone joining or leaving shows at once.
   const members = roster.map((member) => `${member.athlete_user_id}:${member.coach_user_id}:${member.position ?? ""}`).sort().join(",");
-  return cachedForAMinute(`team|${orgId}|${coachUserId}|${head}|${today}|${members}`, () => buildTeamView(coachUserId, orgId, roster, today));
+  return cachedForAMinute(`team|${orgId}|${coachUserId}|${head}|${medical}|${today}|${members}`, async () => ({ ...(await buildTeamView(coachUserId, orgId, roster, today)), medical_lead: medical }));
 }
 
 async function buildTeamView(coachUserId: string, orgId: string, roster: readonly TeamMember[], today: string): Promise<Json> {
@@ -143,6 +144,16 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
 // athlete is on the team; null otherwise.
 // The athlete's own coach, when this coach is head coach of a team
 // ('shared') org the athlete is in; null otherwise.
+// The athlete's own coach, when this coach is medical lead of a team the
+// athlete is on; null otherwise.
+export async function medicalLeadTeamMemberCoach(coachUserId: string, athleteUserId: string): Promise<string | null> {
+  for (const orgId of await medicalLeadOrgs(coachUserId)) {
+    const member = (await resolveOrgActiveCoachAcceptedAthletes(orgId)).find((entry) => entry.athlete_user_id === athleteUserId);
+    if (member) return member.coach_user_id;
+  }
+  return null;
+}
+
 export async function headCoachTeamMemberCoach(coachUserId: string, athleteUserId: string): Promise<string | null> {
   for (const org of (await headCoachOrgs(coachUserId)).filter((entry) => entry.visibility_mode === "shared")) {
     const member = (await resolveOrgActiveCoachAcceptedAthletes(org.org_id)).find((entry) => entry.athlete_user_id === athleteUserId);

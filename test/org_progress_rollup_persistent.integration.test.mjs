@@ -729,6 +729,28 @@ test(
     ), 200, "owner clears the head coach");
     assert.equal((await openTeammate()).response.status, 403, "cleared: closed again");
     assert.equal((await request(baseUrl, "POST", `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/injuries`, { area: "knee", type: "ligament", client_request_id: `inj_${nonce}_after` }, { cookie: coachA.cookie, csrf: coachA.csrf })).response.status, 403, "no longer head coach: can't record an injury");
+
+    // The team's medical lead: coachB, the physio, keeps athlete1's injury log
+    // and stand-downs (athlete1 is coachA's) - and sees nothing else of theirs.
+    const medicalLead = (body, cookie = owner.cookie, csrf = owner.csrf) => request(baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/medical-lead`, body, { cookie, csrf });
+    const physioInjuries = `/coach-workspace/athletes/${encodeURIComponent(athlete1.userId)}/injuries`;
+    assert.equal((await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie })).response.status, 403, "not yet the medical lead");
+    assertStatus(await medicalLead({ coach_user_id: coachB.userId }), 200, "owner names coachB medical lead");
+    const audited = await pool.query("SELECT 1 FROM product_org_audit_records WHERE org_id = $1 AND action_type = 'medical_lead_designated'", [teamOrgId]);
+    assert.equal(audited.rowCount, 1, "designating the medical lead is audited");
+    assertStatus(await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie }), 200, "the medical lead reads a teammate's injury log");
+    assertStatus(await request(baseUrl, "POST", physioInjuries, { area: "ankle", side: "right", type: "ligament", status: "out", client_request_id: `inj_${nonce}_physio` }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and records an injury");
+    const until = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+    assertStatus(await request(baseUrl, "POST", `/stand-down/coach/${encodeURIComponent(athlete1.userId)}`, { reason: "medical", until_date: until }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and a medical stand-down");
+    assertStatus(await request(baseUrl, "POST", `/stand-down/coach/${encodeURIComponent(athlete1.userId)}/end`, { cleared_by_medical_professional: true }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and clears it");
+    assert.equal((await request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(athlete1.userId)}/analysis?weeks=8`, undefined, { cookie: coachB.cookie })).response.status, 403, "nothing else of theirs: no analysis");
+    const physioTeam = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachB.cookie });
+    assert.equal(physioTeam.json.medical_lead, true);
+    const ownerSees = await request(baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: owner.cookie });
+    assert.equal(ownerSees.json.analysis.medical_lead_user_id, coachB.userId);
+    assert.equal((await request(baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/medical-lead`, { coach_user_id: coachB.userId }, { cookie: owner.cookie, csrf: owner.csrf })).response.status, 409, "a gym has no medical lead");
+    assertStatus(await medicalLead({ coach_user_id: null }), 200, "owner clears the medical lead");
+    assert.equal((await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie })).response.status, 403, "cleared: closed again");
     const crossOwnerHead = await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: owner.cookie }
     );
