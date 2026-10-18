@@ -422,6 +422,9 @@ export function AthleteSessionExecutionPanel() {
                 {String(exercise?.coaching_notes ?? "").trim() ? (
                   <p className="muted exercise-coaching-note">{String(exercise?.coaching_notes).trim()}</p>
                 ) : null}
+                {String(exercise?.race_standard ?? "").trim() ? (
+                  <p className="muted exercise-race-standard" data-testid="race-standard">{String(exercise?.race_standard).trim()}</p>
+                ) : null}
                 {currentId ? (
                   <ExerciseHowto exerciseId={currentId} howto={session.howto} onOpen={session.loadHowto} />
                 ) : null}
@@ -684,6 +687,7 @@ export function AthleteSessionExecutionPanel() {
                   {firstInGroup ? <span className="badge neutral group-timing-badge">{groupTimingLabel(row)}</span> : null}
                   <small>{exerciseDetails(row).join(" · ") || "Recorded exercise"}</small>
                   {String(row?.coaching_notes ?? "").trim() ? <small className="exercise-coaching-note">{String(row?.coaching_notes).trim()}</small> : null}
+                  {String(row?.race_standard ?? "").trim() ? <small className="exercise-race-standard">{String(row?.race_standard).trim()}</small> : null}
                   {canAddExtraSet && !extraSetPanelOpen ? (
                     <button
                       className="button secondary small"

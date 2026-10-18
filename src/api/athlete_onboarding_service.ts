@@ -62,7 +62,10 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   powerlifting: Object.freeze(["athlete"]),
   general_strength: Object.freeze(["athlete"]),
   strongman: Object.freeze(["athlete"]),
-  hyrox: Object.freeze(["athlete"]),
+  // HYROX: the division decides the race weights (hyrox_race_standards.ts).
+  hyrox: Object.freeze([
+    "athlete", "women_open", "men_open", "women_pro", "men_pro"
+  ]),
   crossfit: Object.freeze(["athlete"]),
   football_soccer: Object.freeze([
     "athlete", "goalkeeper", "defender", "midfielder", "forward"
