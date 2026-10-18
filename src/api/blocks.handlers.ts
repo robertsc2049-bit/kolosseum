@@ -25,6 +25,7 @@ import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { applyHyroxRaceStandards, isHyroxDivision } from "./hyrox_race_standards.js";
 import { applySportLoad, sportLoadNote, sportLoadToday } from "./sport_load_session.js";
+import { rescaleResolvedLoads } from "./session_load_rescale.js";
 import { applyProgrammeOverrides, loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 import { listOtherTraining } from "./athlete_training_log_service.js";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
@@ -766,28 +767,35 @@ export async function compileBlock(req: Request, res: Response) {
     const { exercises, applied } = applyProgrammeOverrides(planned_session_from_engine.exercises as any, overrides, template_position.template_session_index);
     if (applied) planned_session_from_engine = { ...planned_session_from_engine, exercises: exercises as any, coach_overrides: { applied } } as any;
   }
-  // Around a self-directed athlete's matches: a primer on match day and the
-  // day before (no heavy lower-body work), recovery the day after
-  // (match_week.ts). Coach-assigned sessions follow the coach's own plan.
-  if (create_session && beta_individual_subject_user_id) {
-    const matchWeek = await applyAthleteMatchWeek(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+  // Around the athlete's matches: a primer on match day and the day before
+  // (no heavy lower-body work), recovery the day after (match_week.ts). On a
+  // coach's programme too: a coach writes "MD-4 strength", but the athlete
+  // takes the next session whenever they train, so the fixture list decides
+  // what is safe today. Stamped for the coach's review.
+  if (create_session && pain_subject_user_id) {
+    const matchWeek = await applyAthleteMatchWeek(pain_subject_user_id, planned_session_from_engine.exercises as any);
     if (!matchWeek.ok) {
       throw badRequest("Match day rest", { failure_token: matchWeek.failure_token, details: matchWeek.details });
     }
-    planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: rescaleResolvedLoads(matchWeek.exercises as any) as any,
+      ...(matchWeek.context ? { match_week: matchWeek.context } : {})
+    } as any;
   }
-  // After yesterday's match, a big sport day or a lot of jumps, a
-  // self-directed athlete's session drops its jumps and lightens the heavy leg
-  // work (sport_load_session.ts) - stamped for the coach.
-  if (create_session && beta_individual_subject_user_id) {
-    const entries = await listOtherTraining(beta_individual_subject_user_id, new Date(Date.now() - 31 * 86_400_000).toISOString().slice(0, 10)).catch(() => []);
+  // After yesterday's match, a big sport day or a lot of jumps, the session
+  // drops its jumps and lightens the heavy leg work (sport_load_session.ts) -
+  // on a coach's programme too (the squad's match the head coach entered
+  // counts) - stamped for the coach.
+  if (create_session && pain_subject_user_id) {
+    const entries = await listOtherTraining(pain_subject_user_id, new Date(Date.now() - 31 * 86_400_000).toISOString().slice(0, 10)).catch(() => []);
     const today = sportLoadToday(entries, new Date().toISOString().slice(0, 10));
     const { exercises, adjustment } = applySportLoad(planned_session_from_engine.exercises as any, today, sportLoadPatternOf);
     if (adjustment) {
       const note = sportLoadNote(adjustment);
       planned_session_from_engine = {
         ...planned_session_from_engine,
-        exercises: exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise)) as any,
+        exercises: rescaleResolvedLoads(exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise))) as any,
         sport_load_adjustment: { ...adjustment, note }
       } as any;
     }
