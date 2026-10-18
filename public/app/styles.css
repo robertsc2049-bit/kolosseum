@@ -5165,3 +5165,18 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .testing-result .text-button { min-width: 28px; min-height: 28px; }
 /* Testing's results table needs the full width of the analysis grid. */
 @media (min-width: 1100px) { #analysis-testing { grid-column: 1 / -1; } }
+
+/* Squad entry (SquadEntry.tsx): one screen for the whole squad. */
+.squad-entry { display: grid; gap: var(--k-space-3); }
+.squad-entry-body { display: grid; gap: var(--k-space-2); }
+.squad-entry-body p { margin: 0; }
+.squad-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--k-space-1) var(--k-space-3); }
+.squad-grid li { display: flex; align-items: center; justify-content: space-between; gap: var(--k-space-2); min-height: 44px; border-bottom: 1px solid var(--k-border); }
+.squad-grid input { width: 90px; }
+.gps-mapping { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--k-space-2); }
+
+/* Readiness extras (ReadinessCard.tsx). */
+.readiness-more { margin-top: var(--k-space-2); min-height: 44px; }
+.readiness-extras { display: grid; gap: var(--k-space-2); }
+.readiness-readings { display: flex; flex-wrap: wrap; gap: var(--k-space-3); }
+.readiness-readings .field { max-width: 200px; }

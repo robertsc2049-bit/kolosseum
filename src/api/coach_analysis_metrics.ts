@@ -85,7 +85,11 @@ export const OTHER_TRAINING_KINDS: Readonly<Record<string, string>> = { practice
 export type TestResult = Readonly<{ id: string; test_id: string; date: string; value: number }>;
 export type TestedMax = Readonly<{ exercise_id: string; date: string; value_kg: number }>;
 
-export type ReadinessFact = Readonly<{ date: string; sleep: number; soreness: number; stress: number }>;
+// The daily check-in: sleep, soreness and stress (1-5) always; fatigue and
+// mood (1-5), resting heart rate (bpm) and HRV (ms) when the athlete adds them.
+export type ReadinessFact = Readonly<{ date: string; sleep: number; soreness: number; stress: number; fatigue?: number | null; mood?: number | null; resting_hr?: number | null; hrv_ms?: number | null }>;
+// A session from a GPS or heart-rate system (imported from its export).
+export type ExternalLoad = Readonly<{ id: string; date: string; duration_min?: number | null; total_distance_m?: number | null; hsr_m?: number | null; sprint_m?: number | null; player_load?: number | null; avg_hr?: number | null; max_hr?: number | null }>;
 export type CheckinFact = Readonly<{ week_start: string; energy: number | null; motivation: number | null; sleep: number | null }>;
 
 export type AnalysisInput = Readonly<{
@@ -109,6 +113,7 @@ export type AnalysisInput = Readonly<{
   // Their latest bodyweight (kg), for strength relative to it.
   bodyweight_kg?: number | null;
   tests?: readonly TestResult[];
+  external_load?: readonly ExternalLoad[];
   tested_maxes?: readonly TestedMax[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
@@ -237,6 +242,12 @@ export function monotony(dailyLoads: readonly number[]): number | null {
   const sd = standardDeviation(dailyLoads);
   return sd > 0 ? round(mean(dailyLoads) / sd, 2) : null;
 }
+
+// The mean of the numbers given, or null when there are none.
+const averageOf = (values: ReadonlyArray<number | null | undefined>, places = 1) => {
+  const numbers = values.filter(finite);
+  return numbers.length ? round(mean(numbers), places) : null;
+};
 
 // ---------- the analysis ----------
 type WeekRow = Json & { week_start: string };
@@ -622,7 +633,14 @@ export function analyseAthlete(input: AnalysisInput): Json {
     const prior = readiness.slice(0, index).filter((other) => other.date >= addDays(check.date, -28)).map((other) => other.sleep + other.soreness + other.stress);
     const sd = standardDeviation(prior);
     const z = prior.length >= 5 && sd > 0 ? round((total - mean(prior)) / sd, 2) : null;
-    return { ...check, total, z };
+    // Resting HR and HRV against the athlete's own previous 28 days: HRV on a
+    // log scale (it's skewed), resting HR in beats above their normal.
+    const priorHrv = readiness.slice(0, index).filter((other) => other.date >= addDays(check.date, -28) && finite(other.hrv_ms) && other.hrv_ms > 0).map((other) => Math.log(other.hrv_ms as number));
+    const hrvSd = standardDeviation(priorHrv);
+    const hrvZ = finite(check.hrv_ms) && check.hrv_ms > 0 && priorHrv.length >= 5 && hrvSd > 0 ? round((Math.log(check.hrv_ms) - mean(priorHrv)) / hrvSd, 2) : null;
+    const priorRhr = readiness.slice(0, index).filter((other) => other.date >= addDays(check.date, -28) && finite(other.resting_hr)).map((other) => other.resting_hr as number);
+    const rhrDelta = finite(check.resting_hr) && priorRhr.length >= 5 ? round(check.resting_hr - mean(priorRhr), 1) : null;
+    return { ...check, total, z, hrv_z: hrvZ, resting_hr_delta: rhrDelta };
   });
   const readinessRows = weeks.map((start) => {
     const mine = readinessDays.filter((entry) => weekStart(entry.date) === start && inRange(entry.date));
@@ -634,7 +652,13 @@ export function analyseAthlete(input: AnalysisInput): Json {
       soreness: mine.length ? round(mean(mine.map((m) => m.soreness)), 1) : null,
       stress: mine.length ? round(mean(mine.map((m) => m.stress)), 1) : null,
       total: mine.length ? round(mean(mine.map((m) => m.total)), 1) : null,
-      z: zs.length ? round(mean(zs), 2) : null
+      z: zs.length ? round(mean(zs), 2) : null,
+      fatigue: averageOf(mine.map((m) => m.fatigue)),
+      mood: averageOf(mine.map((m) => m.mood)),
+      resting_hr: averageOf(mine.map((m) => m.resting_hr)),
+      hrv_ms: averageOf(mine.map((m) => m.hrv_ms), 0),
+      hrv_z: averageOf(mine.map((m) => m.hrv_z), 2),
+      resting_hr_delta: averageOf(mine.map((m) => m.resting_hr_delta))
     };
   });
   const checkinRows = weeks.map((start) => {
@@ -817,6 +841,28 @@ export function analyseAthlete(input: AnalysisInput): Json {
     };
   }).sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 
+  // --- running load from GPS / heart-rate imports ---
+  // Distance, high-speed running and sprint distance each week, and HSR
+  // against their own previous 4 weeks (the same uncoupled ratio as load).
+  const external = [...(input.external_load ?? [])].filter((entry) => inRange(entry.date)).sort((a, b) => a.date.localeCompare(b.date));
+  const externalWeekly = (start: string, key: keyof ExternalLoad) => {
+    const mine = external.filter((entry) => weekStart(entry.date) === start && finite(entry[key]));
+    return mine.length ? round(mine.reduce((sum, entry) => sum + Number(entry[key]), 0), 0) : null;
+  };
+  const hsrAll = loadWeeks.map((start) => (external.some((entry) => weekStart(entry.date) <= start) ? externalWeekly(start, "hsr_m") ?? 0 : null));
+  const distanceAll = loadWeeks.map((start) => (external.some((entry) => weekStart(entry.date) <= start) ? externalWeekly(start, "total_distance_m") ?? 0 : null));
+  const externalRows = weeks.map((start) => {
+    const index = loadWeeks.indexOf(start);
+    const mine = external.filter((entry) => weekStart(entry.date) === start);
+    return {
+      week_start: start, partial_week: start === currentWeek, sessions: mine.length,
+      total_distance_m: externalWeekly(start, "total_distance_m"), hsr_m: externalWeekly(start, "hsr_m"), sprint_m: externalWeekly(start, "sprint_m"),
+      player_load: externalWeekly(start, "player_load"),
+      avg_hr: averageOf(mine.map((entry) => entry.avg_hr), 0), max_hr: mine.length ? Math.max(...mine.map((entry) => Number(entry.max_hr ?? 0))) || null : null,
+      hsr_ratio: acuteChronic(hsrAll, index), distance_ratio: acuteChronic(distanceAll, index)
+    };
+  });
+
   // --- their usual, from the 4 weeks before the period ---
   const priorLoads = weeklyLoadAll.slice(0, 4).filter((value): value is number => value !== null && value > 0);
   const priorReadiness = readinessDays.filter((entry) => entry.date < first && entry.date >= addDays(first, -28)).map((entry) => entry.total);
@@ -842,6 +888,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
     plan: { rows: planRows },
+    external: { rows: externalRows, sessions: external.filter((entry) => inWindow(entry.date)) },
     testing: { tests: testRows },
     bodyweight_kg: finite(input.bodyweight_kg) ? input.bodyweight_kg : null,
     exercises: { rows: exerciseRows, effort_bands: effortBands, rated: allEffort.length, rated_by: ratedBy, patterns: patternRows }
@@ -863,6 +910,8 @@ function actionFor(finding: Finding): string | undefined {
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
   if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
+  if (id === "hrv_low" || id === "rhr_high") return "A sign the body is under strain - illness, poor sleep or accumulated fatigue. Ask how they are, and consider a lighter session until it settles.";
+  if (id === "hsr_spike") return "Big jumps in high-speed running are the ones most linked to hamstring and calf niggles - build exposure up in smaller steps.";
   if (id === "load_estimated") return "Ask the athlete to rate each session (how hard, how long) when they finish, and to log practice and matches - the load figures then reflect their real week.";
   if (id === "monotony") return "Make the easy days easier: alternate hard and light sessions through the week.";
   if (id === "readiness") return "Ask how they're sleeping and coping. Consider a lighter session, or moving the hardest session later in the week.";
@@ -881,7 +930,7 @@ function actionFor(finding: Finding): string | undefined {
   return undefined;
 }
 
-const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, adherence: 4, execution: 5, testing: 6 };
+const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, gps: 3.5, adherence: 4, execution: 5, testing: 6 };
 
 // One story instead of two lines that look like they disagree.
 function mergeRelated(list: Finding[]): Finding[] {
@@ -981,6 +1030,21 @@ export function findings(analysis: Json): Finding[] {
     const when = weekLabel(String(row.week_start), currentWeek);
     out.push({ id: "readiness", section: "readiness", level: readiness.value <= -1.5 ? "alert" : "watch", text: `Readiness well below their normal ${when} (sleep ${row.sleep}, soreness ${row.soreness}, stress ${row.stress} out of 5).` });
   }
+
+  // HRV well below, or resting HR well above, their own normal.
+  const physiology = lastValue(a.readiness.rows as Json[], (row) => row.hrv_z as number | null);
+  if (physiology && physiology.value <= -1.5) {
+    const row = (a.readiness.rows as Json[])[physiology.index];
+    out.push({ id: "hrv_low", section: "readiness", level: "watch", text: `HRV well below their normal ${weekLabel(String(row.week_start), currentWeek)} (${row.hrv_ms} ms on average).` });
+  }
+  const rhr = lastValue(a.readiness.rows as Json[], (row) => row.resting_hr_delta as number | null);
+  if (rhr && rhr.value >= 5) {
+    const row = (a.readiness.rows as Json[])[rhr.index];
+    out.push({ id: "rhr_high", section: "readiness", level: "watch", text: `Resting heart rate ${rhr.value} bpm above their normal ${weekLabel(String(row.week_start), currentWeek)}.` });
+  }
+  // High-speed running jumping against their usual (GPS).
+  const hsr = lastValue(complete(((a.external as Json | undefined)?.rows ?? []) as Json[]), (row) => row.hsr_ratio as number | null);
+  if (hsr && hsr.value > 1.5) out.push({ id: "hsr_spike", section: "gps", level: "watch", text: `High-speed running jumped to ${hsr.value}× their usual last week.` });
 
   // Weekly check-ins: energy or sleep in the last 2 against the weeks before.
   const checkins = (a.readiness.checkins as Json[]);

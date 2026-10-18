@@ -6,6 +6,7 @@ import { TrendChart } from "../../components/TrendChart";
 import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
 import { AvailabilityBadge, SquadTesting, downloadFile, squadCsv } from "./SquadTools";
+import { SquadEntry } from "./SquadEntry";
 
 // A coach's team view on the Analysis page: every athlete in a team org
 // they coach in, summed up as a team, by position and by coach, then athlete
@@ -136,6 +137,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         </section>
       ) : null}
 
+      <SquadEntry testsAllowed={false} athletes={athletes.filter((athlete) => athlete.yours || data.head_coach).map((athlete) => ({ athlete_user_id: String(athlete.athlete_user_id), display_name: String(athlete.display_name), email: typeof athlete.email === "string" ? athlete.email : null }))} />
       <SquadTesting testing={rows(data.testing)} />
       <GroupTable title="By position" groups={rows(data.by_position)} testId="team-by-position" />
       <GroupTable title="By coach" groups={rows(data.by_coach)} testId="team-by-coach" />

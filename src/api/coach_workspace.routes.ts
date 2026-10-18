@@ -65,6 +65,7 @@ import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
 import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
+import { SquadEntryError, importExternalLoad, recordSquadSession, recordTestDay } from "./squad_entry_service.js";
 import { CoachReportInputError, CoachReportNotFoundError, listCoachReports, loadCoachReport, previewAthleteReport, sendAthleteReport } from "./coach_report_service.js";
 import { Beta19CoachWorkspaceError } from "./beta19_coach_workspace_service.js";
 
@@ -497,6 +498,22 @@ coachWorkspaceRouter.post(
     catch (error) { const status = testErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
   })
 );
+
+// Getting a squad's data in at once (squad_entry_service.ts): a squad
+// session's effort, a test day, a GPS / heart-rate import.
+const squadEntryRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+const squadRoute = (path: string, work: (coachUserId: string, body: unknown) => Promise<unknown>) => coachWorkspaceRouter.post(
+  path,
+  squadEntryRateLimit,
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try { return res.status(200).json(await work(coachUserId, req.body)); }
+    catch (error) { if (error instanceof SquadEntryError) return res.status(error.status).json({ ok: false, error: error.message }); throw error; }
+  })
+);
+squadRoute("/squad/sessions", recordSquadSession);
+squadRoute("/squad/test-day", recordTestDay);
+squadRoute("/squad/external-load", importExternalLoad);
 
 const reportErrorStatus = (error: unknown) =>
   error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof CoachReportNotFoundError ? 404 : error instanceof CoachReportInputError ? 400 : null;

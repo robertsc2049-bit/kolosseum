@@ -53,3 +53,22 @@ test("a saved good day says to train as planned", async () => {
   await screen.findByText("Saved - train as planned.");
   assert.equal((screen.getByLabelText("How did you sleep? 4") as HTMLInputElement).checked, true);
 });
+
+test("a pro winger adds tiredness, mood, resting HR and HRV from her strap", async () => {
+  const saves = installMocks();
+  render(<ReadinessCard />);
+  await screen.findByText("How are you today? (optional)");
+  fireEvent.click(screen.getByLabelText("How did you sleep? 4"));
+  fireEvent.click(screen.getByLabelText("How fresh do your muscles feel? 4"));
+  fireEvent.click(screen.getByLabelText("How are stress and energy? 4"));
+  fireEvent.click(screen.getByText("Add more (optional): tiredness, mood, heart rate, HRV"));
+  fireEvent.click(screen.getByLabelText("How tired do you feel? 2"));
+  fireEvent.click(screen.getByLabelText("How's your mood? 4"));
+  fireEvent.change(screen.getByLabelText("Resting heart rate (bpm)"), { target: { value: "52" } });
+  fireEvent.change(screen.getByLabelText("HRV (ms)"), { target: { value: "61" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Save check-in"));
+  });
+  await waitFor(() => assert.equal(saves.length, 1));
+  assert.deepEqual(saves[0], { sleep: 4, soreness: 4, stress: 4, fatigue: 2, mood: 4, resting_hr: 52, hrv_ms: 61 });
+});
