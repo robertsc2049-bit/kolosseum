@@ -49,6 +49,13 @@ const PRO_SWAPS_BY_ACTIVITY = {
   // HYROX pros train the race implement, not a stand-in.
   hyrox: { walking_lunge: "sandbag_lunge" }
 };
+// Position groups with no jump to make reactive get their own pro step up.
+const PRO_SWAPS_BY_ROLE = {
+  "athletics/throws": { bulgarian_split_squat: "pin_squat", chest_supported_row: "pendlay_row" },
+  "swimming/distance": { split_squat: "bulgarian_split_squat", chin_up: "pull_up" },
+  "rowing/sweep": { cable_woodchop: "medicine_ball_rotational_throw" },
+  "triathlon/long_course": { split_squat: "bulgarian_split_squat", chin_up: "pull_up" }
+};
 // The competition movements stay named (fixed), as the level generator does.
 const FIXED_AFTER_SWAP = new Set(["clean", "split_jerk", "muscle_up"]);
 // Swapped-in reactive work: low, high-quality contacts.
@@ -61,13 +68,13 @@ const SWAP_DOSE = {
 };
 const LOWER_STRENGTH = new Set(["squat", "hinge", "single_leg_squat", "single_leg_hinge"]);
 
-function swapItems(ids, items, activity) {
+function swapItems(ids, items, activity, role = null) {
   const used = new Set(ids);
   const outIds = [];
   const outItems = [];
   ids.forEach((id, i) => {
     const p = items[i];
-    const target = PRO_SWAPS_BY_ACTIVITY[activity]?.[id] ?? (STRENGTH.has(activity) || activity === "general_strength" ? undefined : PRO_SWAPS[id]);
+    const target = (role ? PRO_SWAPS_BY_ROLE[`${activity}/${role}`]?.[id] : undefined) ?? PRO_SWAPS_BY_ACTIVITY[activity]?.[id] ?? (STRENGTH.has(activity) || activity === "general_strength" ? undefined : PRO_SWAPS[id]);
     if (!target || used.has(target) || !allowed(target, activity) || !ex[target] || p.group) { outIds.push(id); outItems.push(p); return; }
     used.add(target);
     const q = structuredClone(p);
@@ -120,9 +127,9 @@ function contrast(ids, items, dayId, activity) {
   return [outIds, outItems];
 }
 
-function upgrade(target, activity, dayId) {
+function upgrade(target, activity, dayId, role = null) {
   if (!target?.exercise_eligibility || !target.item_prescriptions) return;
-  let [ids, items] = swapItems(target.exercise_eligibility, target.item_prescriptions, activity);
+  let [ids, items] = swapItems(target.exercise_eligibility, target.item_prescriptions, activity, role);
   items = heavier(ids, items, activity);
   if (dayId) [ids, items] = contrast(ids, items, dayId, activity);
   if (new Set(ids).size !== ids.length) throw new Error(`${activity}/${dayId ?? "session"}: duplicate exercise after pro methods`);
@@ -131,10 +138,10 @@ function upgrade(target, activity, dayId) {
 }
 
 let done = 0;
-function upgradeVariant(pro, activity, key) {
+function upgradeVariant(pro, activity, key, role = null) {
   if (!pro || doneKeys.has(key)) return;
-  upgrade(pro, activity, null);
-  for (const day of pro.microcycle ?? []) upgrade(day, activity, day.day_id);
+  upgrade(pro, activity, null, role);
+  for (const day of pro.microcycle ?? []) upgrade(day, activity, day.day_id, role);
   doneKeys.add(key);
   done += 1;
 }
@@ -143,7 +150,7 @@ for (const entry of prog.entries) {
   const activity = entry.activity_id;
   upgradeVariant(entry.level_variants?.pro, activity, activity);
   for (const [name, event] of Object.entries(entry.event_variants ?? {})) upgradeVariant(event.level_variants?.pro, activity, `${activity}/event:${name}`);
-  for (const [name, role] of Object.entries(entry.role_variants ?? {})) upgradeVariant(role.level_variants?.pro, activity, `${activity}/role:${name}`);
+  for (const [name, variant] of Object.entries(entry.role_variants ?? {})) upgradeVariant(variant.level_variants?.pro, activity, `${activity}/role:${name}`, name);
 }
 fs.writeFileSync(FILE, JSON.stringify(prog, null, 2) + "\n");
 fs.writeFileSync(DONE_FILE, JSON.stringify([...doneKeys].sort(), null, 1) + "\n");
