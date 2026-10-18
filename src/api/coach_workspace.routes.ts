@@ -502,18 +502,15 @@ coachWorkspaceRouter.post(
 // Getting a squad's data in at once (squad_entry_service.ts): a squad
 // session's effort, a test day, a GPS / heart-rate import.
 const squadEntryRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
-const squadRoute = (path: string, work: (coachUserId: string, body: unknown) => Promise<unknown>) => coachWorkspaceRouter.post(
-  path,
-  squadEntryRateLimit,
-  asyncHandler(async (req, res) => {
-    const coachUserId = await authenticatedCoach(req, true);
-    try { return res.status(200).json(await work(coachUserId, req.body)); }
-    catch (error) { if (error instanceof SquadEntryError) return res.status(error.status).json({ ok: false, error: error.message }); throw error; }
-  })
-);
-squadRoute("/squad/sessions", recordSquadSession);
-squadRoute("/squad/test-day", recordTestDay);
-squadRoute("/squad/external-load", importExternalLoad);
+// Each route is written out (not generated) so the route catalog guard sees it.
+const squadHandler = (work: (coachUserId: string, body: unknown) => Promise<unknown>) => asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, true);
+  try { return res.status(200).json(await work(coachUserId, req.body)); }
+  catch (error) { if (error instanceof SquadEntryError) return res.status(error.status).json({ ok: false, error: error.message }); throw error; }
+});
+coachWorkspaceRouter.post("/squad/sessions", squadEntryRateLimit, squadHandler(recordSquadSession));
+coachWorkspaceRouter.post("/squad/test-day", squadEntryRateLimit, squadHandler(recordTestDay));
+coachWorkspaceRouter.post("/squad/external-load", squadEntryRateLimit, squadHandler(importExternalLoad));
 
 const reportErrorStatus = (error: unknown) =>
   error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof CoachReportNotFoundError ? 404 : error instanceof CoachReportInputError ? 400 : null;
