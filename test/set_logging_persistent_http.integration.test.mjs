@@ -291,7 +291,7 @@ test(
     const first = await log({ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg" });
     assertStatus(first, 201, "log set 1");
     assert.equal(first.json.is_pr, false);
-    assertStatus(await log({ exercise_id: "back_squat", set_index: 2, reps: 5, load_value: 140, load_unit: "kg" }), 201, "log set 2");
+    assertStatus(await log({ exercise_id: "back_squat", set_index: 2, reps: 5, load_value: 140, load_unit: "kg", velocity_mps: 0.62 }), 201, "log set 2 with bar speed from her VBT device");
     assertStatus(await log({ exercise_id: "back_squat", set_index: 3, reps: 3, load_value: 140, load_unit: "kg" }), 201, "set 3: missed the last two reps");
     assertStatus(await log({ exercise_id: "back_squat", set_index: 4, reps: 0, load_value: 145, load_unit: "kg" }), 201, "set 4: failed the first rep");
     const corrected = await log({ exercise_id: "back_squat", set_index: 2, reps: 4, load_value: 142.5, load_unit: "kg" });
@@ -306,6 +306,8 @@ test(
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140 }, "phase6_runtime_set_log_report_invalid_shape", "load without unit"],
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "stone" }, "phase6_runtime_set_log_report_invalid_shape", "unknown unit"],
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, rpe_value: 8 }, "phase6_runtime_set_log_report_invalid_shape", "extra key"],
+      [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg", velocity_mps: 4 }, "phase6_runtime_set_log_report_invalid_shape", "bar speed of 4 m/s"],
+      [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg", velocity_mps: "fast" }, "phase6_runtime_set_log_report_invalid_shape", "bar speed not a number"],
       [{ exercise_id: "snatch", set_index: 1, reps: 1 }, "phase6_runtime_set_log_report_unknown_exercise", "not in this session"]
     ];
     for (const [bad, token, label] of refusals) {
@@ -317,6 +319,7 @@ test(
     const state = await requestJson(server.baseUrl, "GET", `/sessions/${sid}/state`, { cookie });
     assert.deepEqual(state.json.set_logs.back_squat.map((x) => [x.set_index, x.reps, x.load_value]),
       [[1, 5, 140], [2, 4, 142.5], [3, 3, 140], [4, 0, 145]], "latest entry per set, in set order");
+    assert.equal(state.json.set_logs.back_squat[0].velocity_mps, undefined, "no bar speed unless logged");
 
     // Skip the second exercise; it can no longer take set logs.
     const second = exercises[1].exercise_id;
@@ -418,11 +421,11 @@ test(
     assertStatus(await requestJson(server.baseUrl, "POST", `/sessions/${sid}/start`, { cookie, csrf, body: {} }), 200, "start");
 
     const log = (body) => requestJson(server.baseUrl, "POST", `/sessions/${sid}/events`, { cookie, csrf, body: { type: "SET_LOG_REPORT", client_request_id: crypto.randomUUID(), ...body } });
-    assertStatus(await log({ exercise_id: "back_squat", set_index: 1, reps: 3, load_value: 160, load_unit: "kg" }), 201, "top set");
+    assertStatus(await log({ exercise_id: "back_squat", set_index: 1, reps: 3, load_value: 160, load_unit: "kg", velocity_mps: 0.41 }), 201, "top set, with bar speed");
     assertStatus(await log({ exercise_id: "back_squat__r2", set_index: 1, reps: 6, load_value: 130, load_unit: "kg" }), 201, "back-off set");
     assertStatus(await log({ exercise_id: "custom_zercher_squat", set_index: 1, reps: 8, load_value: 90, load_unit: "kg" }), 201, "her own exercise");
     const state = await requestJson(server.baseUrl, "GET", `/sessions/${sid}/state`, { cookie });
-    assert.deepEqual(state.json.set_logs.back_squat.map((x) => [x.reps, x.load_value]), [[3, 160]], "the top set stays on the back squat");
+    assert.deepEqual(state.json.set_logs.back_squat.map((x) => [x.reps, x.load_value, x.velocity_mps]), [[3, 160, 0.41]], "the top set stays on the back squat, with its bar speed");
     assert.deepEqual(state.json.set_logs.back_squat__r2.map((x) => [x.reps, x.load_value]), [[6, 130]], "the back-off set is its own entry");
     assert.deepEqual(state.json.set_logs.custom_zercher_squat.map((x) => [x.reps, x.load_value]), [[8, 90]]);
 
