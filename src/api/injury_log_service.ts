@@ -45,6 +45,14 @@ export async function requireInjuryAccess(coachUserId: string, athleteUserId: st
   }
 }
 
+// The athlete's current injury (out or modified), or null. No access check:
+// session creation and the athlete's own card call it for themselves.
+export async function currentInjury(athleteUserId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json | null> {
+  const analysed = analyseInjuries(await loadInjuries(athleteUserId), today, today);
+  const current = analysed.current as Json | null;
+  return current ? { name: current.name, status: current.status, occurred_on: current.occurred_on, expected_return: current.expected_return ?? null } : null;
+}
+
 // The athlete's injury log worked out (the last 8 weeks for the window), for
 // anyone who keeps it - the medical lead reads it here.
 export async function listInjuriesForCoach(coachUserId: string, athleteUserId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {

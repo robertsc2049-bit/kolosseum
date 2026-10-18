@@ -26,6 +26,7 @@ import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { applyHyroxRaceStandards, isHyroxDivision } from "./hyrox_race_standards.js";
 import { applySportLoad, sportLoadNote, sportLoadToday } from "./sport_load_session.js";
 import { rescaleResolvedLoads } from "./session_load_rescale.js";
+import { currentInjury } from "./injury_log_service.js";
 import { applyProgrammeOverrides, loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 import { listOtherTraining } from "./athlete_training_log_service.js";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
@@ -703,6 +704,17 @@ export async function compileBlock(req: Request, res: Response) {
       throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
     }
   }
+  // An injury their physio or coach has them "out" with means no training
+  // session until it's moved on (to modified, or back to full training); a
+  // "modified" one trains with a reminder to follow the physio's plan.
+  let injury_modified: Record<string, unknown> | null = null;
+  if (create_session && pain_subject_user_id) {
+    const injury = await currentInjury(pain_subject_user_id).catch(() => null);
+    if (injury?.status === "out") {
+      throw badRequest("Injured - out of training", { failure_token: "injury_out", details: { injury: injury.name, expected_return: injury.expected_return } });
+    }
+    if (injury?.status === "modified") injury_modified = { injury: injury.name };
+  }
   if (create_session && pain_subject_user_id) {
     const pain = await applyPainCarryForward(
       pain_subject_user_id,
@@ -758,6 +770,7 @@ export async function compileBlock(req: Request, res: Response) {
       )) as any
     };
   }
+  if (injury_modified) planned_session_from_engine = { ...planned_session_from_engine, injury_modified } as any;
   // A coach's changes to this athlete's session of their programme (fewer
   // sets, another weight, an exercise left out, a note) - for this athlete
   // only; the programme itself is untouched (athlete_programme_override_service.ts).

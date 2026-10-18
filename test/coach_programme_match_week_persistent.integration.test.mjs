@@ -132,4 +132,19 @@ test("a coach's Squat day the day before a match leaves the heavy legs out; the 
   assert.deepEqual([squat.sets, squat.intensity.value], [2, 60], "half the sets, 15 points lighter");
   assert.equal(squat.resolved_load.value, 95, "and the weight follows: 60% of 160 kg, not the 120 kg of 75%");
   assert.equal(dayAfter.match_week.role, "day_after");
+
+  // Will: his coach logs a hamstring strain, out of training. No session until
+  // it's moved on; on modified training he trains with a reminder.
+  const will = await lifter("will");
+  const injuries = `/coach-workspace/athletes/${will.account.userId}/injuries`;
+  const logged = ok(await coach.req("POST", injuries, { area: "thigh_back", side: "left", type: "muscle", mechanism: "non_contact", context: "training", status: "out", expected_return: day(14), client_request_id: `inj_${nonce}_will` }), 200, "hamstring logged").json;
+  const refused = await session(will);
+  assert.equal(refused.status, 400);
+  assert.equal(refused.json.details.failure_token, "injury_out", "out of training means no session");
+  assert.equal(refused.json.details.details.injury, "left hamstring (muscle strain)");
+  const status = ok(await will.athlete.req("GET", "/account/onboarding/injury-status"), 200, "his own injury status").json;
+  assert.deepEqual([status.injury.status, status.injury.name], ["out", "left hamstring (muscle strain)"]);
+  ok(await coach.req("POST", `${injuries}/${logged.injury.id}/status`, { status: "modified", client_request_id: `inj_${nonce}_will_mod` }), 200, "moved on to modified");
+  const modified = ok(await session(will), 201, "a session on modified training").json.planned_session;
+  assert.equal(modified.injury_modified.injury, "left hamstring (muscle strain)");
 });
