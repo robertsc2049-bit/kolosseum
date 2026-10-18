@@ -71256,7 +71256,7 @@
                         "backward_overhead_medicine_ball_throw",
                         "back_squat",
                         "trap_bar_deadlift",
-                        "bulgarian_split_squat",
+                        "pin_squat",
                         "nordic_curl",
                         "side_plank"
                       ],
@@ -71324,7 +71324,7 @@
                         "bench_press",
                         "chin_up",
                         "landmine_press",
-                        "chest_supported_row",
+                        "pendlay_row",
                         "pallof_press"
                       ],
                       "item_prescriptions": [
@@ -74195,8 +74195,8 @@
                 "pro": {
                   "exercise_eligibility": [
                     "trap_bar_deadlift",
-                    "split_squat",
-                    "chin_up",
+                    "bulgarian_split_squat",
+                    "pull_up",
                     "cable_external_rotation",
                     "face_pull",
                     "side_plank"
@@ -74221,13 +74221,13 @@
                       "rest_seconds": 90
                     },
                     {
-                      "sets": 3,
+                      "sets": 4,
                       "reps": 8,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 3,
@@ -74264,8 +74264,8 @@
                       "focus": "strength",
                       "exercise_eligibility": [
                         "trap_bar_deadlift",
-                        "split_squat",
-                        "chin_up",
+                        "bulgarian_split_squat",
+                        "pull_up",
                         "cable_external_rotation",
                         "dead_bug"
                       ],
@@ -74289,13 +74289,13 @@
                           "rest_seconds": 90
                         },
                         {
-                          "sets": 3,
+                          "sets": 4,
                           "reps": 8,
                           "intensity": {
                             "type": "rpe",
                             "value": 8
                           },
-                          "rest_seconds": 90
+                          "rest_seconds": 120
                         },
                         {
                           "sets": 3,
@@ -77195,7 +77195,7 @@
                         "front_squat",
                         "single_leg_rdl",
                         "pull_up",
-                        "cable_woodchop",
+                        "medicine_ball_rotational_throw",
                         "side_plank"
                       ],
                       "item_prescriptions": [
@@ -85870,8 +85870,8 @@
                   "exercise_eligibility": [
                     "trap_bar_deadlift",
                     "single_leg_calf_raise",
-                    "split_squat",
-                    "chin_up",
+                    "bulgarian_split_squat",
+                    "pull_up",
                     "side_plank",
                     "copenhagen_plank"
                   ],
@@ -85904,13 +85904,13 @@
                       "rest_seconds": 90
                     },
                     {
-                      "sets": 3,
-                      "reps": 6,
+                      "sets": 4,
+                      "reps": 8,
                       "intensity": {
                         "type": "rpe",
                         "value": 8
                       },
-                      "rest_seconds": 90
+                      "rest_seconds": 120
                     },
                     {
                       "sets": 3,
@@ -85940,7 +85940,7 @@
                       "exercise_eligibility": [
                         "trap_bar_deadlift",
                         "single_leg_calf_raise",
-                        "split_squat",
+                        "bulgarian_split_squat",
                         "cable_external_rotation",
                         "dead_bug"
                       ],
@@ -85998,7 +85998,7 @@
                       "exercise_eligibility": [
                         "single_leg_rdl",
                         "box_step_up",
-                        "chin_up",
+                        "pull_up",
                         "copenhagen_plank",
                         "side_plank"
                       ],
@@ -86022,13 +86022,13 @@
                           "rest_seconds": 90
                         },
                         {
-                          "sets": 3,
-                          "reps": 6,
+                          "sets": 4,
+                          "reps": 8,
                           "intensity": {
                             "type": "rpe",
                             "value": 8
                           },
-                          "rest_seconds": 90
+                          "rest_seconds": 120
                         },
                         {
                           "sets": 3,
