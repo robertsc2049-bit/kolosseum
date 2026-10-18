@@ -233,3 +233,19 @@ export async function listBodyMetricHistoryForCoach(
   await requireCoachAthleteAccess(coach, athlete);
   return queryBodyMetricHistory(athlete);
 }
+
+// The athlete's latest bodyweight (kg) from their body metrics, or null.
+export async function latestBodyweightKg(athleteUserId: string): Promise<number | null> {
+  const result = await pool.query(
+    `SELECT record_payload FROM beta_product_records
+     WHERE subject_user_id = $1 AND record_type = 'body_metric_entry' AND record_payload->>'metric_type' = 'body_weight_kg'
+     ORDER BY record_payload->>'effective_date' DESC, effective_at DESC, created_at DESC LIMIT 1`,
+    [athleteUserId]
+  ).catch(() => null);
+  const payload = result?.rows?.[0]?.record_payload;
+  if (!isRecord(payload)) return null;
+  const value = Number(payload.value);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  return cleanString(payload.unit) === "lb" ? Math.round((value / 2.2046226218) * 10) / 10 : value;
+}
+

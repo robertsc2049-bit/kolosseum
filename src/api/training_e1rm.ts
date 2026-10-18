@@ -11,6 +11,10 @@ export type LoggedSet = Readonly<{
   load_value: number;
   load_unit: "kg" | "lb";
   date: string; // YYYY-MM-DD (the day the set was logged, UTC)
+  // A bodyweight lift (pull-up, dip...): its max is bodyweight + added, when
+  // the athlete's bodyweight is known.
+  bodyweight_lift?: boolean;
+  bodyweight_kg?: number | null;
 }>;
 
 const LB_PER_KG = 2.2046226218;
@@ -44,11 +48,13 @@ export function epleyE1rm(load: number, reps: number): number {
 }
 
 // The e1RM of one set in kg, or null when the set cannot estimate a max
-// (a failed set, more than 10 reps, or no load). A bodyweight exercise's load
-// is only what was added on top, so an unweighted pull-up has no e1RM.
+// (a failed set, more than 10 reps, or no load). A bodyweight lift moves
+// bodyweight + what was added, so with a known bodyweight even an unweighted
+// pull-up has a max; without it, only the added weight is known.
 export function setE1rmKg(set: LoggedSet): number | null {
   if (!Number.isInteger(set.reps) || set.reps < 1 || set.reps > E1RM_MAX_REPS) return null;
-  const loadKg = toKg(set.load_value, set.load_unit);
+  const added = toKg(set.load_value, set.load_unit);
+  const loadKg = set.bodyweight_lift && set.bodyweight_kg && set.bodyweight_kg > 0 ? set.bodyweight_kg + (Number.isFinite(added) ? added : 0) : added;
   if (!(loadKg > 0)) return null;
   return epleyE1rm(loadKg, set.reps);
 }
@@ -88,6 +94,7 @@ export function computeTrainingE1rmTrends(
       exercise_id: exerciseId,
       unit: displayUnit,
       method: "epley",
+      includes_bodyweight: sets.some((logged) => logged.exercise_id.replace(/__r[0-9]+$/, "") === exerciseId && logged.bodyweight_lift === true && Boolean(logged.bodyweight_kg)),
       current_e1rm: current,
       current_date: latestDate,
       has_prior_value: prior !== null,

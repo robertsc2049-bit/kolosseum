@@ -26,6 +26,8 @@ import {
   queryHabitCompletions
 } from "./habit_tracking_service.js";
 import { computeTrainingE1rmTrends, type LoggedSet } from "./training_e1rm.js";
+import { isBodyweightLift } from "./bodyweight_lifts.js";
+import { latestBodyweightKg } from "./body_metrics_service.js";
 import { MUSCLE_GROUPS, SPORT_FOCUS_GROUPS, exerciseMuscleFields } from "./exercise_muscles.js";
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
@@ -201,12 +203,16 @@ async function loadLoggedSetRows(athleteUserId: string): Promise<LoggedSetRow[]>
   return rows;
 }
 
-// The loaded sets, for estimated maxes. A bodyweight exercise's load is only
-// what was added on top, so unweighted pull-ups and dips are left out.
-function loadedSets(rows: readonly LoggedSetRow[]): LoggedSet[] {
+// The sets for estimated maxes. A bodyweight lift moves bodyweight + what was
+// added: with the athlete's bodyweight known, unweighted pull-ups and dips
+// count too; without it they're left out (only the added weight is known).
+function loadedSets(rows: readonly LoggedSetRow[], bodyweightKg: number | null): LoggedSet[] {
   return rows
-    .filter((row) => row.load_value !== null)
-    .map((row) => ({ exercise_id: row.exercise_id, reps: row.reps, load_value: row.load_value as number, load_unit: row.load_unit, date: row.date }));
+    .filter((row) => row.load_value !== null || (bodyweightKg !== null && isBodyweightLift(row.exercise_id)))
+    .map((row) => ({
+      exercise_id: row.exercise_id, reps: row.reps, load_value: row.load_value ?? 0, load_unit: row.load_unit, date: row.date,
+      ...(isBodyweightLift(row.exercise_id) ? { bodyweight_lift: true, bodyweight_kg: bodyweightKg } : {})
+    }));
 }
 
 // Hard sets per muscle group over the last 7 days, counted the way the coach
@@ -497,6 +503,11 @@ async function assembleProgressInsightsSummary(
     getAthleteTrainingProfile(athleteUserId).catch(() => ({} as { activity_id?: string; experience_level?: string }))
   ]);
   const displayUnit = cleanString(profilePayload?.preferred_weight_unit) === "lb" ? "lb" : "kg";
+  // Their bodyweight: the latest body metric, else the coach's profile.
+  const profileBodyweight = Number(profilePayload?.bodyweight);
+  const bodyweightKg = (await latestBodyweightKg(athleteUserId)) ?? (Number.isFinite(profileBodyweight) && profileBodyweight > 0
+    ? (cleanString(profilePayload?.bodyweight_unit) === "lb" ? Math.round((profileBodyweight / 2.2046226218) * 10) / 10 : profileBodyweight)
+    : null);
 
   return Object.freeze({
     athlete_user_id: athleteUserId,
@@ -505,7 +516,7 @@ async function assembleProgressInsightsSummary(
     session_adherence: computeSessionAdherence(sessions),
     strength_trends: computeStrengthTrends(profilePayload),
     // Estimated maxes from what the athlete actually lifted in training.
-    training_e1rm_trends: computeTrainingE1rmTrends(loadedSets(loggedSetRows), displayUnit, WINDOW_DAYS, exercisePatternOf),
+    training_e1rm_trends: computeTrainingE1rmTrends(loadedSets(loggedSetRows, bodyweightKg), displayUnit, WINDOW_DAYS, exercisePatternOf),
     // What the athlete actually did: hard sets per muscle group, last 7 days.
     weekly_muscle_volume: weeklyMuscleVolume(loggedSetRows, new Date(), trainingProfile.activity_id, trainingProfile.experience_level),
     // AMRAP / EMOM / for-time scores per workout, Rx and scaled kept apart.
