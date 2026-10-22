@@ -530,6 +530,10 @@ export function projectSessionStatePayload(
     ...(planned?.own_training && typeof planned.own_training === "object"
       ? { own_training: planned.own_training }
       : {}),
+    // Training modified for an injury: the session screen reminds them.
+    ...(planned?.injury_modified && typeof planned.injury_modified === "object"
+      ? { injury_modified: planned.injury_modified }
+      : {}),
     // The programme's own name for it ("Squat day"), when it has one.
     ...(plannedSessionTitle(planned) !== "Training session"
       ? { session_title: plannedSessionTitle(planned) }

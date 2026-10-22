@@ -38,6 +38,8 @@ export function programmeAdjustments(plannedSession: unknown): string[] {
     const held = Array.isArray(headInjury.held_back_exercise_ids) ? headInjury.held_back_exercise_ids.length : 0;
     out.push(`Back after a head injury: ${held ? `${plural(held, "exercise")} held back` : "contact and heavy work held back"}${headInjury.lighter === true ? ", the rest lighter" : ""}`);
   }
+  const injured = isRecord(plannedSession.injury_modified) ? plannedSession.injury_modified : null;
+  if (injured) out.push(`Training modified for an injury (${String(injured.injury ?? "")}): the athlete was reminded to follow their physio's plan`);
   const match = isRecord(plannedSession.match_week) ? plannedSession.match_week : null;
   if (match) {
     const label = typeof match.label === "string" && match.label ? match.label : "the match";
