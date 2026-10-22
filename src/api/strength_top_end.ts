@@ -105,6 +105,6 @@ export function attemptPlan(activityId: string, lifts: ReadonlyArray<{ exercise_
     // The projected max: the recent estimate, or a tested max if it's higher and recent enough to trust.
     const projected = Math.max(lift.latest, lift.tested_max && lift.tested_max.date >= new Date(Date.parse(`${today}T00:00:00Z`) - 120 * 86_400_000).toISOString().slice(0, 10) ? lift.tested_max.value_kg : 0);
     return { exercise_id: lift.exercise_id, name: lift.name, projected_max: round(projected, 1), opener: down(projected * 0.91), second: down(projected * 0.96), third: down(projected * 1.0), third_good_day: down(projected * 1.02) };
-  });
+  }).filter((row) => row.projected_max > 0);
   return rows.length ? { competition_date: competitionDate, days_out: days, step_kg: step, ...(street ? { added_weight: true, bodyweight_kg: bodyweightKg } : {}), rows } : null;
 }

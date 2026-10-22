@@ -140,7 +140,11 @@ export function injuryActionFor(id: string): string | null {
 }
 
 // For a team: injuries per 1000 hours and days lost per 1000 hours (burden).
+// Under 100 hours a rate per 1000 is noise (one injury in 7 hours reads as
+// 143), so only the counts are given.
+export const MIN_RATE_EXPOSURE_HOURS = 100;
 export function injuryRates(injuries: number, daysLost: number, exposureHours: number): Json {
-  const per = (value: number) => (exposureHours > 0 ? Math.round((value / exposureHours) * 1000 * 10) / 10 : null);
-  return { injuries, days_lost: daysLost, exposure_hours: Math.round(exposureHours), incidence_per_1000h: per(injuries), burden_per_1000h: per(daysLost) };
+  const enough = exposureHours >= MIN_RATE_EXPOSURE_HOURS;
+  const per = (value: number) => (enough ? Math.round((value / exposureHours) * 1000 * 10) / 10 : null);
+  return { injuries, days_lost: daysLost, exposure_hours: Math.round(exposureHours), incidence_per_1000h: per(injuries), burden_per_1000h: per(daysLost), ...(enough ? {} : { rates_need_hours: MIN_RATE_EXPOSURE_HOURS }) };
 }

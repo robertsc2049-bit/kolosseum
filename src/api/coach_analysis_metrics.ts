@@ -492,6 +492,20 @@ export function analyseAthlete(input: AnalysisInput): Json {
       };
     });
 
+  // Reps missed on a main lift at RPE 9.5-10: the weight was past what they
+  // had that day.
+  const grinds = sessions.filter((session) => done(session) && inWindow(sessionDay(session))).flatMap((session) => {
+    const rating = new Map<string, number>();
+    for (const event of session.events) if (event.type === "RPE_REPORT" && event.exercise_id && finite(event.rpe)) rating.set(baseExercise(event.exercise_id), event.rpe);
+    return session.planned.filter((planned) => (planned.segment || "working") === "working" && (planned.dose ?? "reps") === "reps" && finite(planned.reps_target)).flatMap((planned) => {
+      const lift = baseExercise(planned.exercise_id);
+      const rpe = rating.get(lift);
+      if (rpe === undefined || rpe < 9.5 || !(primary(lift) || (!anyRoles && input.is_strength_lift(lift)))) return [];
+      const missed = session.events.filter((event) => event.type === "SET_LOG_REPORT" && event.exercise_id === planned.exercise_id && finite(event.reps) && Number(event.reps) < Number(planned.reps_target));
+      return missed.length ? [{ date: sessionDay(session), exercise_id: lift, name: input.exercise_name(lift), rpe, missed_sets: missed.length, reps_target: planned.reps_target, fewest_reps: Math.min(...missed.map((event) => Number(event.reps))) }] : [];
+    });
+  });
+
   // --- execution vs the plan ---
   // Every loading type: reps against the reps prescribed; the weight against
   // a fixed weight, a weight range or a % of max (inside a range is on plan);
@@ -946,7 +960,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))), quality: loadQuality },
     markers: markerRows,
     volume: { rows: volumeRows },
-    strength: { lifts, bodyweight: bodyweightLifts },
+    strength: { lifts, bodyweight: bodyweightLifts, grinds },
     execution: { rows: executionRows, most_missed: mostMissed, effort_creep: effortCreep.slice(0, 5), effort_targets: effortTargetRows, intensity },
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
@@ -956,7 +970,14 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const misses = sessions.filter((session) => done(session) && inWindow(sessionDay(session))).flatMap((session) => setLogs(session)).filter((log) => log.missed_part === "clean" || log.missed_part === "jerk");
       return misses.length ? { clean: misses.filter((log) => log.missed_part === "clean").length, jerk: misses.filter((log) => log.missed_part === "jerk").length } : null;
     })(),
-    attempts: attemptPlan(String(input.activity_id ?? ""), lifts.map((lift) => ({ exercise_id: String(lift.exercise_id), name: String(lift.name), latest: Number(lift.latest), tested_max: lift.tested_max })), input.competition_date ?? null, input.today, finite(input.bodyweight_kg) ? input.bodyweight_kg : null),
+    attempts: attemptPlan(String(input.activity_id ?? ""), [
+      ...lifts.map((lift) => ({ exercise_id: String(lift.exercise_id), name: String(lift.name), latest: Number(lift.latest), tested_max: lift.tested_max })),
+      // A lift with a tested max but too few logged weeks for an estimate.
+      ...[...new Set((input.tested_maxes ?? []).map((entry) => entry.exercise_id))].filter((id) => !lifts.some((lift) => lift.exercise_id === id)).map((id) => {
+        const latest = [...(input.tested_maxes ?? [])].filter((entry) => entry.exercise_id === id && finite(entry.value_kg)).sort((a, b) => a.date.localeCompare(b.date)).at(-1);
+        return { exercise_id: id, name: input.exercise_name(id), latest: 0, tested_max: latest ? { value_kg: latest.value_kg, date: latest.date } : null };
+      })
+    ], input.competition_date ?? null, input.today, finite(input.bodyweight_kg) ? input.bodyweight_kg : null),
     plan: { rows: planRows, ahead: (() => {
       // What they've actually done lately: the mean of their last 4 complete weeks.
       const recent = planRows.filter((row) => !row.partial_week).slice(-4);
@@ -998,6 +1019,8 @@ function actionFor(finding: Finding): string | undefined {
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
   if (id === "jumps_spike") return "Big jumps in jump count load the patellar and Achilles tendons - hold plyometrics in the gym this week and build jump volume back in smaller steps.";
   if (id === "bowling_spike") return "Sharp rises in bowling workload are linked to lumbar stress injuries in fast bowlers - agree the next weeks' overs with their coach and keep heavy spinal loading light meanwhile.";
+  if (id.startsWith("grind_")) return "The weight is above what they have right now: take 5-10% off the top sets next session (or set them by RPE 8) and build back up - grinding out missed reps adds fatigue, not strength.";
+  if (id.startsWith("vloss_")) return "Stop the sets at about a 20-25% speed loss (or cut a set) for strength and power work; past 30% fatigue builds fast for little extra gain.";
   if (id.startsWith("velocity_")) return finding.level === "good" ? "Faster at the same weight usually means stronger - an estimated max may be behind; consider retesting." : "Slower at the same weight is an early sign of fatigue - check sleep and recent load, and consider a lighter few days before the next heavy session.";
   if (id === "prilepin_high") return "Prilepin's table is a guide built on weightlifters, not a rule - but if heavy sessions keep running long, watch bar speed and recovery between them.";
   const injury = injuryActionFor(id) ?? forwardActionFor(id);
@@ -1213,6 +1236,17 @@ export function findings(analysis: Json): Finding[] {
     const change = Number(lift.speed_change);
     if (finite(lift.speed_change) && change <= -0.06) out.push({ id: `velocity_${lift.exercise_id}`, section: "strength", level: "watch", exercise_id: String(lift.exercise_id), text: `${lift.name}: bar speed at ${lift.common_load_kg} kg is down ${Math.abs(change).toFixed(2)} m/s (${lift.speed_before} to ${lift.speed_after}).` });
     else if (finite(lift.speed_change) && change >= 0.06) out.push({ id: `velocity_${lift.exercise_id}`, section: "strength", level: "good", exercise_id: String(lift.exercise_id), text: `${lift.name}: bar speed at ${lift.common_load_kg} kg is up ${change.toFixed(2)} m/s (${lift.speed_before} to ${lift.speed_after}).` });
+  }
+  for (const lift of (((a.velocity as Json | undefined)?.lifts ?? []) as Json[])) {
+    const loss = Number(lift.velocity_loss_pct);
+    if (finite(lift.velocity_loss_pct) && loss > 30) out.push({ id: `vloss_${lift.exercise_id}`, section: "strength", level: "watch", exercise_id: String(lift.exercise_id), text: `${lift.name}: bar speed drops ${loss}% from the fastest set to the last - over 30%, the sets are close to failure.` });
+  }
+  const grindList = (((a.strength as Json | undefined)?.grinds ?? []) as Json[]);
+  for (const id of [...new Set(grindList.map((entry) => String(entry.exercise_id)))]) {
+    const list = grindList.filter((entry) => String(entry.exercise_id) === id);
+    const last = list[list.length - 1];
+    const on = (() => { const d = new Date(`${String(last.date)}T00:00:00Z`); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`; })();
+    out.push({ id: `grind_${id}`, section: "strength", level: list.length >= 2 ? "alert" : "watch", exercise_id: id, text: `${last.name}: reps missed at RPE ${last.rpe} (${last.fewest_reps} of ${last.reps_target})${list.length >= 2 ? ` in ${list.length} sessions, the last on ${on}` : ` on ${on}`}.` });
   }
   const overPrilepin = ((((a.execution as Json)?.intensity as Json | undefined)?.prilepin ?? []) as Json[]).filter((entry) => ((entry.zones ?? []) as Json[]).some((zone) => zone.verdict === "above" && String(zone.zone) !== "55-69%"));
   if (overPrilepin.length >= 2) out.push({ id: "prilepin_high", section: "strength", level: "info", text: `${overPrilepin.length} recent heavy sessions went past Prilepin's range for reps at 70%+ (${[...new Set(overPrilepin.map((entry) => String(entry.name)))].slice(0, 2).join(", ")}).` });
