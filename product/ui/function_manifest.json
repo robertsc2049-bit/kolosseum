@@ -9337,6 +9337,24 @@
     },
     {
       "method": "POST",
+      "path": "/templates/:template_id/programme-grants",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "GET",
+      "path": "/templates/programme-grants",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/programme-grants/:grant_id/revoke",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
       "path": "/templates/:template_id/activate",
       "source": "src/api/templates.routes.ts",
       "tracked_by_area": "programme_library"
