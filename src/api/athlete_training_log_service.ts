@@ -38,6 +38,14 @@ function effort(value: unknown): number {
   if (n === null || n < 0 || n > 10 || Math.round(n * 2) !== n * 2) throw new TrainingLogInputError("training_log_effort_invalid");
   return n;
 }
+// Optional counts a coach manages load with: jumps (volleyball, basketball,
+// netball, jumpers) and balls bowled (fast bowlers).
+function optionalCount(value: unknown, max: number, error: string): number | null {
+  if (value === undefined || value === null || value === "") return null;
+  const n = num(value);
+  if (n === null || !Number.isInteger(n) || n < 0 || n > max) throw new TrainingLogInputError(error);
+  return n;
+}
 function minutes(value: unknown): number {
   const n = num(value);
   if (n === null || !Number.isInteger(n) || n < 1 || n > 300) throw new TrainingLogInputError("training_log_minutes_invalid");
@@ -107,6 +115,9 @@ export async function addOtherTraining(athleteUserId: string, input: unknown, re
     id: `ot_${crypto.createHash("sha256").update(`${athleteUserId}|${clientRequestId}`).digest("hex").slice(0, 32)}`,
     date, kind, minutes: minutes(body.minutes), srpe: effort(body.srpe), ...(note ? { note } : {}), ...(recordedBy ? { recorded_by: recordedBy } : {})
   };
+  const jumps = optionalCount(body.jumps, 2000, "training_log_jumps_invalid");
+  const balls = optionalCount(body.balls_bowled, 600, "training_log_balls_bowled_invalid");
+  Object.assign(entry, jumps !== null ? { jumps } : {}, balls !== null ? { balls_bowled: balls } : {});
   // The same request twice adds it once.
   const inserted = await pool.query(
     "INSERT INTO product_account_events (event_id, user_id, event_type, event_payload) VALUES ($1, $2, $3, $4::jsonb) ON CONFLICT (event_id) DO NOTHING",
@@ -138,7 +149,7 @@ export async function listOtherTraining(athleteUserId: string, since = daysAgo(t
     .filter((row) => row.event_type === OTHER_TRAINING_EVENT && isRecord(row.event_payload))
     .map((row) => row.event_payload as Json)
     .filter((entry) => !removed.has(text(entry.id)) && text(entry.date) >= since)
-    .map((entry) => ({ id: text(entry.id), date: text(entry.date), kind: text(entry.kind), minutes: num(entry.minutes) ?? 0, srpe: num(entry.srpe) ?? 0, ...(text(entry.note) ? { note: text(entry.note) } : {}) }))
+    .map((entry) => ({ id: text(entry.id), date: text(entry.date), kind: text(entry.kind), minutes: num(entry.minutes) ?? 0, srpe: num(entry.srpe) ?? 0, ...(text(entry.note) ? { note: text(entry.note) } : {}), ...(num(entry.jumps) !== null ? { jumps: num(entry.jumps)! } : {}), ...(num(entry.balls_bowled) !== null ? { balls_bowled: num(entry.balls_bowled)! } : {}) }))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
