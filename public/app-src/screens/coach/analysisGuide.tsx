@@ -158,13 +158,41 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     read: [
       "Daily readiness is out of 15 (each of sleep, soreness and stress from 1 poor to 5 great). What matters is the drop from their own normal, not the number itself - some athletes always score 9, some always 13.",
       "Low: a week clearly below their own usual. Well below (needs a look): a big drop - consider a lighter session and a conversation.",
-      "Weekly check-ins: a fall of 1.5 points or more in energy, motivation or sleep is flagged."
+      "Weekly check-ins: a fall of 1.5 points or more in energy, motivation or sleep is flagged.",
+      "Optional extras the athlete can add: tiredness and mood (1-5), resting heart rate and HRV from a watch or strap. HRV falling and resting heart rate rising together, against their own normal, is a classic sign of fatigue or illness coming on."
     ],
     how: [
       "Each check-in is compared with the same athlete's previous 28 days as a z-score: how many 'normal swings' away from their average it is. Low = a week averaging -1 or lower; well below = -1.5 or lower. It needs 5 earlier check-ins before it can tell.",
-      "Weekly check-ins: the last 2 weeks against their earlier weeks in the period."
+      "Weekly check-ins: the last 2 weeks against their earlier weeks in the period.",
+      "HRV: the natural log of the reading (HRV is skewed) against their previous 28 days as a z-score; a week averaging -1.5 or lower is flagged. Resting heart rate: 5+ bpm above their 28-day average is flagged. Both need 5 earlier readings."
     ],
-    mind: ["Readiness is only as good as the check-ins. Encourage honest answers - a low score is useful information, not a failure."]
+    mind: ["HRV and resting heart rate only compare well when taken the same way each time - first thing in the morning, same device.", "Readiness is only as good as the check-ins. Encourage honest answers - a low score is useful information, not a failure."]
+  },
+  gps: {
+    title: "Running load (GPS / HR)",
+    shows: "What the athlete did on the pitch or court, from your GPS or heart-rate system's exports: distance, high-speed running (HSR), sprint distance, player load and heart rate, week by week.",
+    read: [
+      "High-speed running is the number to watch most: big week-to-week jumps in HSR are closely linked to hamstring and calf strains.",
+      "HSR vs usual: this week against the average of the 4 weeks before. 0.8-1.3× is a normal range; above 1.5× is flagged.",
+      "Low HSR for weeks can matter too - an athlete who never runs fast in training isn't ready to in a match."
+    ],
+    how: [
+      "Import a CSV from Catapult, STATSports, Polar, Garmin or similar under Squad entry > Import GPS / HR. Match the columns once (they are guessed for you), check the preview, then import.",
+      "Rows are matched to athletes by email first, then by name. The same session imported twice is only kept once.",
+      "Weekly totals are summed; average heart rate is averaged."
+    ],
+    mind: ["Speed thresholds for 'high speed' and 'sprint' differ between systems and settings - keep yours the same across the season so weeks compare.", "This is kept separate from effort-based load (minutes × effort), so a session isn't counted twice."]
+  },
+  squad_entry: {
+    title: "Squad entry",
+    shows: "Getting a whole squad's data in at once: a team session's effort for everyone, a test day's results, or a GPS / heart-rate export.",
+    read: [
+      "Squad session: set the date, what it was and how long, then each athlete's effort (0-10). Leave someone blank if they didn't train. Each one is added to that athlete's own record as other training.",
+      "Test day: pick the test, then type each athlete's result. Only your own athletes.",
+      "Import GPS / HR: choose the export file, check the column matching and the preview, then import."
+    ],
+    how: ["Each athlete's entry is saved on their own record and feeds their load, testing and analysis exactly as if they'd logged it. Sending the same thing twice doesn't double it."],
+    mind: ["As a team's head coach you can record sessions and GPS for the whole team; test results stay with each athlete's own coach."]
   },
   pain: {
     title: "Pain",

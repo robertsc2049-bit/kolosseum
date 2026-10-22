@@ -6,6 +6,7 @@ import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
 import { GymAnalysis, TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
 import { TestingSection } from "./TestingSection";
+import { SquadEntry } from "./SquadEntry";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
 
@@ -102,6 +103,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const quality = (load.quality ?? {}) as JsonRecord;
   const intensity = (execution.intensity ?? {}) as JsonRecord;
   const plan = (a?.plan ?? {}) as JsonRecord;
+  const external = (a?.external ?? {}) as JsonRecord;
   const testing = (a?.testing ?? {}) as JsonRecord;
 
   return (
@@ -239,6 +241,32 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             </Numbers>
           </Section>
 
+          {rows(external.rows).some((row) => Number(row.sessions) > 0) ? (
+            <Section id="gps" title="Running load (GPS / HR)" headline={first("gps")}>
+              <TrendChart markers={markers} title="Weekly total distance (m)" weeks={weekList} unit=" m" series={[
+                { id: "distance", label: "Total distance", kind: "bar", values: col(rows(external.rows), "total_distance_m") }
+              ]} />
+              <TrendChart markers={markers} title="Weekly high-speed running and sprint distance (m)" weeks={weekList} unit=" m" series={[
+                { id: "hsr", label: "High-speed running", kind: "bar", values: col(rows(external.rows), "hsr_m") },
+                { id: "sprint", label: "Sprint", kind: "bar", values: col(rows(external.rows), "sprint_m") }
+              ]} />
+              <TrendChart markers={markers} title="High-speed running against their usual" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3×: normal" }} yMin={0} series={[{ id: "hsr_ratio", label: "HSR vs usual", values: col(rows(external.rows), "hsr_ratio") }]} />
+              <Numbers>
+                <WeekTable weeks={weekList} columns={[
+                  { label: "Sessions", cell: (i) => show(rows(external.rows)[i]?.sessions) },
+                  { label: "Distance (m)", cell: (i) => show(rows(external.rows)[i]?.total_distance_m) },
+                  { label: "HSR (m)", cell: (i) => show(rows(external.rows)[i]?.hsr_m) },
+                  { label: "Sprint (m)", cell: (i) => show(rows(external.rows)[i]?.sprint_m) },
+                  { label: "Player load", cell: (i) => show(rows(external.rows)[i]?.player_load) },
+                  { label: "Avg HR", cell: (i) => show(rows(external.rows)[i]?.avg_hr) },
+                  { label: "HSR vs usual", cell: (i) => show(rows(external.rows)[i]?.hsr_ratio) },
+                  { label: "Distance vs usual", cell: (i) => show(rows(external.rows)[i]?.distance_ratio) }
+                ]} />
+                <Method><p>From the GPS / heart-rate exports you import. Weekly totals; "vs usual" is that week against the mean of the 4 before it (the same uncoupled ratio as training load). This is kept apart from the effort-based load, so the same session isn't counted twice.</p></Method>
+              </Numbers>
+            </Section>
+          ) : null}
+
           <Section id="adherence" title="Turning up" headline={first("adherence")}>
             <TrendChart markers={markers} title="Planned sessions done (%)" weeks={weekList} unit="%" yMin={0} yMax={100} series={[{ id: "adh", label: "Sessions done", kind: "bar", values: col(rows(adherence.rows), "adherence_pct") }]} emptyLabel="Adherence shows once their training days are set and a week has passed." />
             <div className="analysis-weekdays" aria-label="Sessions by day of the week">
@@ -274,9 +302,21 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
               { id: "sleep", label: "Sleep", values: col(rows(readiness.checkins), "sleep") },
               { id: "motivation", label: "Motivation", values: col(rows(readiness.checkins), "motivation") }
             ]} emptyLabel="Shows once the athlete fills in weekly check-ins." />
+            {rows(readiness.rows).some((row) => num(row.hrv_ms) !== null || num(row.resting_hr) !== null) ? (
+              <TrendChart markers={markers} title="Resting heart rate (bpm) and HRV (ms), weekly average" weeks={weekList} series={[
+                { id: "rhr", label: "Resting HR (bpm)", values: col(rows(readiness.rows), "resting_hr") },
+                { id: "hrv", label: "HRV (ms)", values: col(rows(readiness.rows), "hrv_ms") }
+              ]} />
+            ) : null}
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Check-ins", cell: (i) => show(rows(readiness.rows)[i]?.check_ins) },
+                { label: "Fatigue", cell: (i) => show(rows(readiness.rows)[i]?.fatigue) },
+                { label: "Mood", cell: (i) => show(rows(readiness.rows)[i]?.mood) },
+                { label: "Resting HR", cell: (i) => show(rows(readiness.rows)[i]?.resting_hr) },
+                { label: "vs normal (bpm)", cell: (i) => show(rows(readiness.rows)[i]?.resting_hr_delta) },
+                { label: "HRV (ms)", cell: (i) => show(rows(readiness.rows)[i]?.hrv_ms) },
+                { label: "HRV vs normal (z)", cell: (i) => show(rows(readiness.rows)[i]?.hrv_z) },
                 { label: "Sleep", cell: (i) => show(rows(readiness.rows)[i]?.sleep) },
                 { label: "Soreness", cell: (i) => show(rows(readiness.rows)[i]?.soreness) },
                 { label: "Stress", cell: (i) => show(rows(readiness.rows)[i]?.stress) },
@@ -285,6 +325,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Motivation", cell: (i) => show(rows(readiness.checkins)[i]?.motivation) }
               ]} />
               <Method>
+                <p>Fatigue and mood (1-5), resting heart rate and HRV are optional extras the athlete adds to the check-in. HRV is compared with their own previous 28 days on a log scale (it's skewed) - a week averaging z -1.5 or lower is flagged; resting heart rate 5+ bpm above their 28-day average is flagged. Both need 5+ earlier readings.</p>
                 <p>Readiness: sleep, soreness and stress (each 1 poor to 5 great) before a session. Each day is compared with that athlete's own previous 28 days (z-score: how many standard deviations from their normal, after 5+ check-ins); a week averaging -1 or lower is flagged, -1.5 or lower as needing a look. Weekly check-in drops of 1.5 points against their earlier weeks are flagged.</p>
               </Method>
             </Numbers>
@@ -402,6 +443,7 @@ export function CoachAnalysisPanel() {
               })}
             </tbody>
           </table>
+          <SquadEntry athletes={athletes.filter((athlete) => !athlete.unavailable).map((athlete) => ({ athlete_user_id: String(athlete.athlete_user_id), display_name: String(athlete.display_name), email: typeof athlete.email === "string" ? athlete.email : null }))} />
           <p className="muted small analysis-roster-key">Sessions: planned sessions done last week (90%+ is on track). Load vs usual: last week against their own 4-week normal - 1.0× is a normal week, 0.8-1.3× is normal. Readiness: their pre-session check-ins against their own usual.</p>
         </div>
       ) : null}

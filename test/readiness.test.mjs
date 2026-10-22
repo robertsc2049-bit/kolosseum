@@ -33,5 +33,15 @@ test("readiness: answers must be whole numbers 1 to 5", () => {
   assert.equal(validateReadiness({ sleep: 3, soreness: 4, stress: 5 }, "2026-09-27").ok, true);
   assert.equal(validateReadiness({ sleep: 0, soreness: 4, stress: 5 }, "2026-09-27").ok, false);
   assert.equal(validateReadiness({ sleep: 3, soreness: 4 }, "2026-09-27").ok, false);
-  assert.equal(validateReadiness({ sleep: 3, soreness: 4, stress: 5, mood: 2 }, "2026-09-27").ok, false);
+  assert.equal(validateReadiness({ sleep: 3, soreness: 4, stress: 5, vibes: 2 }, "2026-09-27").ok, false, "unknown answers are refused");
+});
+
+test("readiness: fatigue, mood, resting heart rate and HRV are optional extras - checked, kept, and never change the session", () => {
+  const full = validateReadiness({ sleep: 4, soreness: 4, stress: 4, fatigue: 2, mood: 3, resting_hr: 52, hrv_ms: 68 }, "2026-09-27");
+  assert.equal(full.ok, true);
+  assert.deepEqual(full.check, { date: "2026-09-27", sleep: 4, soreness: 4, stress: 4, fatigue: 2, mood: 3, resting_hr: 52, hrv_ms: 68 });
+  assert.equal(isLowReadiness(full.check), false, "a low fatigue score alone doesn't trim the session");
+  assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, mood: 6 }, "2026-09-27").ok, false);
+  assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, resting_hr: 250 }, "2026-09-27").ok, false);
+  assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, hrv_ms: "" }, "2026-09-27").ok, true, "a blank extra is just left out");
 });

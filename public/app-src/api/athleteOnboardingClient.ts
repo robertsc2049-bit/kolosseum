@@ -70,7 +70,7 @@ export function loadReadiness(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/readiness");
 }
 
-export function saveReadiness(input: { sleep: number; soreness: number; stress: number }, csrfToken: string): Promise<JsonRecord> {
+export function saveReadiness(input: { sleep: number; soreness: number; stress: number; fatigue?: number; mood?: number; resting_hr?: number; hrv_ms?: number }, csrfToken: string): Promise<JsonRecord> {
   return request("PUT", "/account/onboarding/readiness", input, csrfToken);
 }
 
