@@ -636,6 +636,8 @@ test(
     assert.equal((await openTeammate()).response.status, 403, "a teammate's athlete is closed to a plain team coach");
     const plainTeamView = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
     assert.equal(plainTeamView.json.athletes.find((row) => row.athlete_user_id === cohort1.userId)?.openable, false);
+    assert.equal(plainTeamView.json.athletes.find((row) => row.athlete_user_id === cohort1.userId)?.email, undefined, "no email for a teammate you can't open");
+    assert.equal(plainTeamView.json.athletes.find((row) => row.athlete_user_id === athlete1.userId)?.email, athlete1.email);
     assertStatus(await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: owner.cookie, csrf: owner.csrf }
     ), 200, "owner names coachA head coach of the team");
@@ -646,6 +648,42 @@ test(
     const headTeamView = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
     assert.equal(headTeamView.json.head_coach, true);
     assert.ok(headTeamView.json.athletes.every((row) => row.openable === true));
+    assert.equal(headTeamView.json.athletes.find((row) => row.athlete_user_id === cohort1.userId)?.email, cohort1.email, "the head coach can match every athlete by email");
+
+    // Squad entry as head coach: a team session for their own athlete and a
+    // teammate's (both kept), a test day (own athletes only), and a GPS
+    // import that's only kept once however often it's sent.
+    const squadPost = (route, body, cookie = coachA.cookie, csrf = coachA.csrf) => request(baseUrl, "POST", `/coach-workspace/squad/${route}`, body, { cookie, csrf });
+    const sessionDay = daysAgoDateOnly(2);
+    const squadSession = { date: sessionDay, kind: "practice", minutes: 80, client_request_id: `sq_${nonce}_tue`, entries: [{ athlete_user_id: athlete1.userId, srpe: 7 }, { athlete_user_id: cohort1.userId, srpe: 6 }] };
+    const squadSaved = await squadPost("sessions", squadSession);
+    assertStatus(squadSaved, 200, "head coach records a squad session");
+    assert.equal(squadSaved.json.added, 2, "their own athlete and a teammate's");
+    assert.equal((await squadPost("sessions", squadSession)).json.added, 0, "sending it again doesn't double it");
+    const loggedForTeammate = await pool.query("SELECT event_payload FROM product_account_events WHERE user_id = $1 AND event_type = 'other_training_session'", [cohort1.userId]);
+    assert.ok(loggedForTeammate.rows.some((row) => row.event_payload.recorded_by === coachA.userId && row.event_payload.srpe === 6), "on the teammate's record, marked as recorded by the head coach");
+    const testDay = await squadPost("test-day", { test_id: "cmj_cm", date: sessionDay, client_request_id: `td_${nonce}_cmj`, entries: [{ athlete_user_id: athlete1.userId, value: 44.5 }, { athlete_user_id: cohort1.userId, value: 39 }] });
+    assertStatus(testDay, 200, "test day");
+    assert.equal(testDay.json.added, 1, "test results stay with each athlete's own coach");
+    assert.deepEqual(testDay.json.skipped.map((row) => row.athlete_user_id), [cohort1.userId]);
+    const gps = { source: "match_v_northside", client_request_id: `xl_${nonce}_match`, rows: [
+      { athlete_user_id: cohort1.userId, date: sessionDay, total_distance_m: 6210, hsr_m: 512, sprint_m: 140 },
+      { athlete_user_id: athlete1.userId, date: sessionDay, total_distance_m: 99999 },
+      { athlete_user_id: athlete1.userId, date: "2099-01-01", total_distance_m: 5000 },
+      { athlete_user_id: owner.userId, date: sessionDay, total_distance_m: 5000 }
+    ] };
+    const imported = await squadPost("external-load", gps);
+    assertStatus(imported, 200, "GPS import");
+    assert.equal(imported.json.added, 1);
+    assert.deepEqual(imported.json.skipped.map((row) => row.reason), ["values_invalid", "date_invalid", "not_your_athlete"]);
+    assert.equal((await squadPost("external-load", { ...gps, client_request_id: `xl_${nonce}_again` })).json.added, 0, "the same session from the same source is kept once");
+    const teammateAnalysis = await openTeammate();
+    const gpsWeek = teammateAnalysis.json.analysis.external.rows.find((row) => row.sessions > 0);
+    assert.deepEqual([gpsWeek?.total_distance_m, gpsWeek?.hsr_m], [6210, 512], "the import shows in the teammate's analysis");
+    assert.equal((await squadPost("sessions", { ...squadSession, client_request_id: "bad" })).response.status, 400, "a request id is required");
+    assert.equal((await squadPost("sessions", squadSession, coachA.cookie, null)).response.status >= 400, true, "a change needs the CSRF token");
+    const outsiderSquad = await squadPost("sessions", { ...squadSession, client_request_id: `sq_${nonce}_out` }, coachB.cookie, coachB.csrf);
+    assert.deepEqual(outsiderSquad.json.skipped.map((row) => row.athlete_user_id), [athlete1.userId], "coachB isn't head coach: only their own athlete is recorded");
     assertStatus(await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: null }, { cookie: owner.cookie, csrf: owner.csrf }
     ), 200, "owner clears the head coach");

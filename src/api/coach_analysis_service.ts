@@ -16,7 +16,7 @@ import { listConnectedCoachAthletes, requireCoachAthleteAccess } from "./beta19_
 import { listWeeklyCheckinsForCoach } from "./weekly_checkin_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { isE1rmExercise } from "./training_e1rm.js";
-import { blockMarkers, listOtherTraining, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
+import { blockMarkers, listOtherTraining, loadExternalLoad, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
 import { programmeHistory } from "./programme_history.js";
 import { loadProfileHistory, loadTestResults } from "./athlete_tests_service.js";
 
@@ -146,7 +146,7 @@ async function loadReadiness(athleteUserId: string, since: string): Promise<Read
   return result.rows
     .map((row) => (isRecord(row.event_payload) ? row.event_payload : {}))
     .filter((payload) => text(payload.date) && num(payload.sleep) !== null && num(payload.soreness) !== null && num(payload.stress) !== null)
-    .map((payload) => ({ date: text(payload.date), sleep: num(payload.sleep)!, soreness: num(payload.soreness)!, stress: num(payload.stress)! }));
+    .map((payload) => ({ date: text(payload.date), sleep: num(payload.sleep)!, soreness: num(payload.soreness)!, stress: num(payload.stress)!, fatigue: num(payload.fatigue), mood: num(payload.mood), resting_hr: num(payload.resting_hr), hrv_ms: num(payload.hrv_ms) }));
 }
 
 function checkinFacts(checkins: readonly Json[]): CheckinFact[] {
@@ -197,9 +197,10 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     listOtherTraining(athleteUserId, since).catch(() => []),
     programmeHistory(athleteUserId).catch(() => [])
   ]);
-  const [tests, profile] = await Promise.all([
+  const [tests, profile, externalLoad] = await Promise.all([
     loadTestResults(athleteUserId).catch(() => []),
-    loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null }))
+    loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null })),
+    loadExternalLoad(athleteUserId, since).catch(() => [])
   ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
@@ -217,6 +218,7 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     other_training: otherTraining,
     markers: [...planMarkers(plan as Json | null), ...blockMarkers(programmes)],
     tests,
+    external_load: externalLoad,
     tested_maxes: profile.maxes,
     bodyweight_kg: profile.bodyweight_kg,
     planned_days_per_week: num(plan?.training_days_per_week),
@@ -273,7 +275,8 @@ export async function analyseRosterForCoach(coachUserId: string, today = new Dat
     const athleteUserId = text(athlete.athlete_user_id);
     const name = text(athlete.display_name) || athleteUserId;
     try {
-      return rosterRowFor(athleteUserId, name, await analyseAthleteForCoach(coachUserId, athleteUserId, 8, today));
+      // Their email too - the coach matches GPS exports to athletes by it.
+      return { ...rosterRowFor(athleteUserId, name, await analyseAthleteForCoach(coachUserId, athleteUserId, 8, today)), email: text(athlete.email) || null };
     }
     catch {
       return { athlete_user_id: athleteUserId, display_name: name, attention: null, findings: [], unavailable: true };

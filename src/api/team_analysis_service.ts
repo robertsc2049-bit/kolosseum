@@ -77,6 +77,14 @@ export async function displayNames(userIds: readonly string[]): Promise<Map<stri
   return new Map((result?.rows ?? []).map((row) => [String(row.user_id), text(row.display_name)]));
 }
 
+// Emails, so a coach entering a GPS export can match rows to the athletes
+// they can open (two athletes can share a name).
+async function emailsOf(userIds: readonly string[]): Promise<Map<string, string>> {
+  if (!userIds.length) return new Map();
+  const result = await pool.query("SELECT user_id, email_canonical FROM product_accounts WHERE user_id = ANY($1::text[])", [[...new Set(userIds)]]);
+  return new Map((result?.rows ?? []).map((row) => [String(row.user_id), text(row.email_canonical)]));
+}
+
 const positionLabel = (position: string) => (position === "unknown" ? "No position set" : position.replaceAll("_", " ").replace(/^./u, (c) => c.toUpperCase()));
 const byAttention = (a: Json, b: Json) => Number(b.attention ?? -1) - Number(a.attention ?? -1) || String(a.display_name).localeCompare(String(b.display_name));
 
@@ -97,9 +105,11 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
   // Your own athletes in full; a teammate's pain as a flag only - unless
   // you're the team's head coach, who sees and opens every athlete in full.
   const head = (await headCoachOf(orgId)) === coachUserId;
+  const emails = await emailsOf(rows.filter((row) => head || row.coach_user_id === coachUserId).map((row) => text(row.athlete_user_id)));
+  const email = (row: Json) => emails.get(text(row.athlete_user_id)) || null;
   const shown = rows.map((row): Json => (row.coach_user_id === coachUserId
-    ? { ...row, yours: true, openable: true }
-    : head ? { ...row, yours: false, openable: true } : { ...withoutPainDetail(row), yours: false, openable: false }));
+    ? { ...row, email: email(row), yours: true, openable: true }
+    : head ? { ...row, email: email(row), yours: false, openable: true } : { ...withoutPainDetail(row), yours: false, openable: false }));
   const summary = summariseGroup(rows);
   return {
     ok: true,
@@ -120,6 +130,16 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
 // the athlete's own analysis, read as their own coach would see it. Only
 // for team ('shared') orgs where this coach is the active head coach and the
 // athlete is on the team; null otherwise.
+// The athlete's own coach, when this coach is head coach of a team
+// ('shared') org the athlete is in; null otherwise.
+export async function headCoachTeamMemberCoach(coachUserId: string, athleteUserId: string): Promise<string | null> {
+  for (const org of (await headCoachOrgs(coachUserId)).filter((entry) => entry.visibility_mode === "shared")) {
+    const member = (await resolveOrgActiveCoachAcceptedAthletes(org.org_id)).find((entry) => entry.athlete_user_id === athleteUserId);
+    if (member) return member.coach_user_id;
+  }
+  return null;
+}
+
 export async function analyseAthleteForHeadCoach(coachUserId: string, athleteUserId: string, weeks: number, today = new Date().toISOString().slice(0, 10)): Promise<Json | null> {
   for (const org of (await headCoachOrgs(coachUserId)).filter((entry) => entry.visibility_mode === "shared")) {
     const member = (await resolveOrgActiveCoachAcceptedAthletes(org.org_id)).find((entry) => entry.athlete_user_id === athleteUserId);

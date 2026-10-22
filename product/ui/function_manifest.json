@@ -9503,6 +9503,24 @@
       "tracked_by_area": "coach_workspace"
     },
     {
+      "method": "POST",
+      "path": "/coach-workspace/squad/sessions",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/squad/test-day",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/squad/external-load",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
       "method": "GET",
       "path": "/coach-workspace/athletes/:athlete_id/tests",
       "source": "src/api/coach_workspace.routes.ts",

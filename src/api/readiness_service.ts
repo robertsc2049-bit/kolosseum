@@ -27,7 +27,9 @@ export async function todaysReadiness(userId: string, date = today()): Promise<R
     [userId, READINESS_EVENT, date]
   );
   const payload = result.rows?.[0]?.event_payload as Json | undefined;
-  return payload ? { date, sleep: Number(payload.sleep), soreness: Number(payload.soreness), stress: Number(payload.stress) } : null;
+  if (!payload) return null;
+  const extra = (key: string) => (typeof payload[key] === "number" ? { [key]: payload[key] as number } : {});
+  return { date, sleep: Number(payload.sleep), soreness: Number(payload.soreness), stress: Number(payload.stress), ...extra("fatigue"), ...extra("mood"), ...extra("resting_hr"), ...extra("hrv_ms") };
 }
 
 export async function describeReadiness(userId: string): Promise<Readonly<Json>> {

@@ -9,7 +9,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
-import { OTHER_TRAINING_KINDS, type CalendarMarker, type OtherTraining, type SessionLoadReport } from "./coach_analysis_metrics.js";
+import { OTHER_TRAINING_KINDS, type CalendarMarker, type ExternalLoad, type OtherTraining, type SessionLoadReport } from "./coach_analysis_metrics.js";
 
 type Json = Record<string, unknown>;
 const isRecord = (value: unknown): value is Json => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -91,7 +91,8 @@ export async function getSessionLoadReport(athleteUserId: string, sessionId: str
 }
 
 // ---------- training outside the app's sessions ----------
-export async function addOtherTraining(athleteUserId: string, input: unknown): Promise<Json> {
+// recordedBy: the coach, when a coach logs it for them (a squad session).
+export async function addOtherTraining(athleteUserId: string, input: unknown, recordedBy: string | null = null): Promise<Json> {
   const body = isRecord(input) ? input : {};
   const date = text(body.date);
   const now = today();
@@ -104,7 +105,7 @@ export async function addOtherTraining(athleteUserId: string, input: unknown): P
   if (!/^[A-Za-z0-9_-]{8,80}$/u.test(clientRequestId)) throw new TrainingLogInputError("training_log_client_request_id_invalid");
   const entry = {
     id: `ot_${crypto.createHash("sha256").update(`${athleteUserId}|${clientRequestId}`).digest("hex").slice(0, 32)}`,
-    date, kind, minutes: minutes(body.minutes), srpe: effort(body.srpe), ...(note ? { note } : {})
+    date, kind, minutes: minutes(body.minutes), srpe: effort(body.srpe), ...(note ? { note } : {}), ...(recordedBy ? { recorded_by: recordedBy } : {})
   };
   // The same request twice adds it once.
   const inserted = await pool.query(
@@ -165,4 +166,20 @@ export function blockMarkers(programmes: ReadonlyArray<{ sessions: ReadonlyArray
     }
   }
   return out;
+}
+
+// GPS / heart-rate sessions imported for the athlete (squad_entry_service.ts).
+const EXTERNAL_EVENT = "external_load_session";
+export async function loadExternalLoad(athleteUserId: string, since: string): Promise<ExternalLoad[]> {
+  const result = await pool.query(
+    `SELECT event_payload FROM product_account_events WHERE user_id = $1 AND event_type = $2 AND event_payload->>'date' >= $3 ORDER BY event_payload->>'date'`,
+    [athleteUserId, EXTERNAL_EVENT, since]
+  );
+  return result.rows.filter((row) => isRecord(row.event_payload)).map((row) => {
+    const payload = row.event_payload as Json;
+    return {
+      id: text(payload.id), date: text(payload.date), duration_min: num(payload.duration_min), total_distance_m: num(payload.total_distance_m),
+      hsr_m: num(payload.hsr_m), sprint_m: num(payload.sprint_m), player_load: num(payload.player_load), avg_hr: num(payload.avg_hr), max_hr: num(payload.max_hr)
+    };
+  });
 }
