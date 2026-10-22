@@ -165,3 +165,192 @@ export const ROLE_MICROCYCLES = {
     }
   }
 };
+
+// Position and event groups added after the first set (applied to the
+// registry by scripts/apply_role_programmes.mjs, which only adds groups the
+// registry doesn't have yet). Each is what that group's S&C coach would
+// change about the sport's own week.
+export const MORE_ROLE_MICROCYCLES = {
+  // Jumpers: reactive strength and very high landing loads - fewer, better
+  // contacts, heavy single-leg strength, calves and tendons.
+  athletics: {
+    jumps: {
+      session: ["hurdle_hop 3x5 @bw r120", "back_squat 4x3 @82% r210", "bulgarian_split_squat 3x5 @rpe8 r120",
+        "nordic_curl 3x4 @bw r120", "single_leg_calf_raise 3x8 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "reactive_and_strength", ["hurdle_hop 3x5 @bw r120", "back_squat 4x3 @82% r210", "nordic_curl 3x4 @bw r120",
+          "single_leg_calf_raise 3x8 @rpe8 r60", "dead_bug 3x8 @rpe7 r60"]],
+        ["b", "single_leg_and_landing", ["drop_to_stick 3x4 @bw r90", "bulgarian_split_squat 4x5 @rpe8 r120", "single_leg_rdl 3x6 @rpe7 r90",
+          "box_step_up 3x6 @rpe7 r90", "copenhagen_plank 3x20s @rpe7 r60"]],
+        ["c", "speed_and_power", ["ten_metre_acceleration 5x10m @bw r120", "repeated_broad_jump 3x3 @bw r150", "trap_bar_deadlift 3x3 @80% r180",
+          "barbell_hip_thrust 3x6 @rpe8 r90", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Sprint swimmers (50/100): power for starts and turns, heavier strength.
+  // Distance swimmers: strength-endurance and shoulder care, legs kept light.
+  swimming: {
+    sprint: {
+      session: ["countermovement_jump 4x3 @bw r90", "trap_bar_deadlift 4x3 @82% r180", "pull_up 4x5 @rpe8 r120",
+        "dumbbell_bench_press 3x6 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"],
+      week: [
+        ["a", "power_and_starts", ["countermovement_jump 4x3 @bw r90", "broad_jump_to_stick 3x3 @bw r90", "trap_bar_deadlift 4x3 @82% r180",
+          "split_squat 3x6 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60"]],
+        ["b", "upper_pull_and_press", ["pull_up 4x5 @rpe8 r120", "dumbbell_bench_press 3x6 @rpe8 r90", "chest_supported_row 3x8 @rpe8 r90",
+          "overhead_medicine_ball_slam 3x5 @bw r60", "face_pull 3x15 @rpe7 r60"]]
+      ]
+    },
+    distance: {
+      session: ["trap_bar_deadlift 3x5 @75% r150", "split_squat 3x8 @rpe7 r90", "chin_up 3x8 @rpe7 r90",
+        "cable_external_rotation 3x15 @rpe7 r60", "face_pull 3x15 @rpe7 r60", "side_plank 3x30s @rpe7 r60"],
+      week: [
+        ["a", "strength", ["trap_bar_deadlift 3x5 @75% r150", "split_squat 3x8 @rpe7 r90", "chin_up 3x8 @rpe7 r90",
+          "cable_external_rotation 3x15 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
+        ["b", "shoulder_and_trunk", ["single_leg_rdl 3x8 @rpe7 r90", "chest_supported_row 3x10 @rpe7 r90", "face_pull 3x15 @rpe7 r60",
+          "pallof_press 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Track sprint: maximal leg strength and power, and the upper body for the
+  // standing start. Road riders keep the sport's own programme.
+  cycling: {
+    track_sprint: {
+      session: ["countermovement_jump 4x3 @bw r90", "back_squat 4x3 @85% r210", "romanian_deadlift 3x5 @rpe8 r150",
+        "bench_press 3x5 @rpe8 r120", "pull_up 3x5 @rpe8 r120", "pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "max_strength", ["countermovement_jump 4x3 @bw r90", "back_squat 5x3 @85% r210", "romanian_deadlift 3x5 @rpe8 r150",
+          "single_leg_calf_raise 3x10 @rpe8 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "power_and_upper", ["broad_jump_to_stick 4x3 @bw r90", "trap_bar_deadlift 4x3 @82% r180", "bulgarian_split_squat 3x5 @rpe8 r120",
+          "bench_press 3x5 @rpe8 r120", "pull_up 3x5 @rpe8 r120"]]
+      ]
+    }
+  },
+  // Sweep rowers pull on one side: unilateral and anti-rotation work to
+  // balance it. Lightweights: strength without mass - heavy, low reps.
+  rowing: {
+    sweep: {
+      session: ["trap_bar_deadlift 4x4 @80% r180", "single_arm_dumbbell_row 3x8 @rpe8 r90", "bulgarian_split_squat 3x6 @rpe8 r90",
+        "half_kneeling_pallof_press 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60", "back_extension 3x10 @rpe7 r60"],
+      week: [
+        ["a", "strength", ["backward_overhead_medicine_ball_throw 4x3 @bw r90", "trap_bar_deadlift 4x3 @82% r180", "single_arm_dumbbell_row 3x8 @rpe8 r90",
+          "bulgarian_split_squat 3x6 @rpe8 r90", "half_kneeling_pallof_press 3x10 @rpe7 r60"]],
+        ["b", "strength_endurance_resilience", ["front_squat 3x4 @77% r150", "single_leg_rdl 3x6 @rpe7 r90", "pull_up 3x6 @rpe8 r120",
+          "cable_woodchop 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    },
+    lightweight: {
+      session: ["trap_bar_deadlift 4x3 @85% r180", "front_squat 3x3 @80% r180", "pull_up 3x4 @rpe8 r120",
+        "chest_supported_row 3x6 @rpe8 r90", "pallof_press 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"],
+      week: [
+        ["a", "strength", ["backward_overhead_medicine_ball_throw 4x3 @bw r90", "trap_bar_deadlift 4x3 @85% r180", "pull_up 3x4 @rpe8 r120",
+          "split_squat 3x5 @rpe8 r90", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "strength_endurance_resilience", ["front_squat 3x3 @80% r180", "romanian_deadlift 3x5 @rpe8 r120", "chest_supported_row 3x6 @rpe8 r90",
+          "back_extension 3x8 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Sprint kayak: pulling and pushing power for the stroke, trunk rotation.
+  kayaking: {
+    sprint: {
+      session: ["rotational_medicine_ball_throw 4x4 @bw r90", "pull_up 4x4 @rpe8 r150", "bench_press 4x4 @80% r150",
+        "pendlay_row 3x5 @80% r150", "trap_bar_deadlift 3x4 @80% r150", "half_kneeling_pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "strength", ["rotational_medicine_ball_throw 4x4 @bw r90", "pull_up 4x4 @rpe8 r150", "bench_press 4x4 @80% r150",
+          "pendlay_row 3x5 @80% r150", "half_kneeling_pallof_press 3x10 @rpe7 r60"]],
+        ["b", "strength_endurance_resilience", ["chin_up 3x5 @rpe8 r120", "dumbbell_bench_press 3x6 @rpe8 r90", "trap_bar_deadlift 3x4 @80% r150",
+          "cable_external_rotation 3x12 @rpe7 r60", "cable_woodchop 3x10 @rpe7 r60"]]
+      ]
+    }
+  },
+  // Long-course triathletes (70.3, Ironman): the least gym time that keeps
+  // them resilient - calves, Achilles and hips for the run, posture for the bike.
+  triathlon: {
+    long_course: {
+      session: ["trap_bar_deadlift 3x5 @75% r150", "single_leg_calf_raise 3x12 @rpe7 r60", "split_squat 3x8 @rpe7 r90",
+        "chin_up 3x6 @rpe7 r90", "side_plank 3x30s @rpe7 r60", "copenhagen_plank 3x20s @rpe7 r60"],
+      week: [
+        ["a", "strength", ["trap_bar_deadlift 3x5 @75% r150", "single_leg_calf_raise 3x12 @rpe7 r60", "split_squat 3x8 @rpe7 r90",
+          "cable_external_rotation 3x12 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
+        ["b", "strength_endurance_resilience", ["single_leg_rdl 3x8 @rpe7 r90", "box_step_up 3x8 @rpe7 r90", "chin_up 3x6 @rpe7 r90",
+          "copenhagen_plank 3x20s @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Liberos don't attack or block: lateral defence, low positions and trunk,
+  // with far fewer jumps than hitters.
+  volleyball: {
+    libero: {
+      session: ["lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "lateral_lunge 3x8 @rpe7 r90",
+        "chin_up 3x8 @rpe8 r90", "cable_external_rotation 3x12 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "lateral_and_lower", ["lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "lateral_lunge 3x8 @rpe7 r90",
+          "single_leg_rdl 3x8 @rpe7 r90", "copenhagen_plank 3x20s @rpe7 r60"]],
+        ["b", "upper_body_and_trunk", ["chin_up 4x6 @rpe8 r120", "half_kneeling_dumbbell_angled_press 3x8 @rpe7 r90", "chest_supported_row 3x8 @rpe8 r90",
+          "cable_external_rotation 3x12 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["c", "landing_and_single_leg", ["drop_to_stick 3x3 @bw r90", "front_squat 3x5 @75% r150", "box_step_up 3x8 @rpe7 r90",
+          "cable_hip_adduction 3x10 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Centres play in the post: contact strength and mass matter more than for
+  // guards, with jumping kept but at lower volume.
+  basketball: {
+    centre: {
+      session: ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 4x4 @82% r180", "bench_press 4x5 @78% r150",
+        "chin_up 3x6 @rpe8 r120", "split_squat 3x6 @rpe8 r90", "pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "lower_body_strength_and_jump", ["countermovement_jump 3x3 @bw r90", "trap_bar_deadlift 4x4 @82% r180", "split_squat 3x6 @rpe8 r90",
+          "single_leg_calf_raise 3x10 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "contact_upper_body_strength", ["bench_press 4x5 @78% r150", "chin_up 4x6 @rpe8 r120", "landmine_press 3x6 @rpe8 r90",
+          "chest_supported_row 3x8 @rpe8 r90", "face_pull 3x12 @rpe7 r60"]],
+        ["c", "landing_and_hips", ["drop_to_stick 3x4 @bw r90", "front_squat 3x5 @75% r150", "single_leg_rdl 3x6 @rpe7 r90",
+          "cable_hip_abduction 3x12 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Centre court (C, WA, WD) covers the most ground: repeated accelerations,
+  // deceleration and change of direction ahead of jump volume.
+  netball: {
+    midcourt: {
+      session: ["ten_metre_acceleration 5x10m @bw r90", "lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 3x5 @78% r150",
+        "single_leg_rdl 3x8 @rpe7 r90", "single_leg_calf_raise 3x12 @rpe7 r60", "copenhagen_plank 3x20s @rpe7 r60"],
+      week: [
+        ["a", "acceleration_and_lower", ["ten_metre_acceleration 5x10m @bw r90", "trap_bar_deadlift 3x5 @78% r150", "split_squat 3x8 @rpe7 r90",
+          "single_leg_calf_raise 3x12 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "deceleration_and_change_of_direction", ["lateral_deceleration 4x3 @bw r90", "drop_to_stick 3x4 @bw r90", "single_leg_rdl 3x8 @rpe7 r90",
+          "lateral_lunge 3x8 @rpe7 r90", "copenhagen_plank 3x20s @rpe7 r60"]],
+        ["c", "upper_body_and_hips", ["chin_up 3x8 @rpe7 r90", "dumbbell_bench_press 3x8 @rpe7 r90", "box_step_up 3x8 @rpe7 r90",
+          "cable_hip_abduction 3x12 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  },
+  // Batters: rotational power and forearms for bat speed, acceleration
+  // between the wickets. Wicketkeepers: hours in a squat - squat endurance,
+  // adductors and lateral movement.
+  cricket: {
+    batter: {
+      session: ["medicine_ball_rotational_throw 4x5 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90",
+        "landmine_press 3x6 @rpe8 r90", "cable_woodchop 3x8 @rpe7 r60", "barbell_reverse_wrist_curl 3x12 @rpe7 r60"],
+      week: [
+        ["a", "rotation_and_lower", ["medicine_ball_rotational_throw 4x5 @bw r90", "trap_bar_deadlift 4x4 @80% r180", "split_squat 3x6 @rpe8 r90",
+          "cable_woodchop 3x8 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "upper_body_and_forearm", ["landmine_press 3x6 @rpe8 r90", "single_arm_dumbbell_row 3x8 @rpe8 r90", "barbell_reverse_wrist_curl 3x12 @rpe7 r60",
+          "cable_external_rotation 3x12 @rpe7 r60", "face_pull 3x15 @rpe7 r60"]],
+        ["c", "acceleration_and_single_leg", ["ten_metre_acceleration 5x10m @bw r90", "single_leg_rdl 3x6 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90",
+          "nordic_curl 3x4 @bw r120", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    },
+    wicketkeeper: {
+      session: ["lateral_deceleration 4x3 @bw r90", "goblet_squat 3x10 @rpe7 r90", "lateral_lunge 3x8 @rpe7 r90",
+        "trap_bar_deadlift 3x5 @78% r150", "cable_hip_adduction 3x10 @rpe7 r60", "pallof_press 3x10 @rpe7 r60"],
+      week: [
+        ["a", "squat_endurance_and_lower", ["lateral_deceleration 4x3 @bw r90", "trap_bar_deadlift 3x5 @78% r150", "goblet_squat 3x10 @rpe7 r90",
+          "copenhagen_plank 3x20s @rpe7 r60", "pallof_press 3x10 @rpe7 r60"]],
+        ["b", "hips_and_upper_body", ["lateral_lunge 3x8 @rpe7 r90", "single_leg_rdl 3x6 @rpe7 r90", "cable_hip_adduction 3x10 @rpe7 r60",
+          "single_arm_dumbbell_row 3x8 @rpe7 r90", "barbell_reverse_wrist_curl 3x12 @rpe7 r60"]],
+        ["c", "acceleration_and_trunk", ["ten_metre_acceleration 4x10m @bw r90", "front_squat 3x5 @72% r150", "box_step_up 3x8 @rpe7 r90",
+          "cable_external_rotation 3x12 @rpe7 r60", "side_plank 3x30s @rpe7 r60"]]
+      ]
+    }
+  }
+};

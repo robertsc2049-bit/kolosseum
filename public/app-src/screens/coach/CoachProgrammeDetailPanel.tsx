@@ -11,6 +11,7 @@ import {
 } from "./useCoachProgrammeLibrary";
 import { GroupAssignSection } from "./GroupAssignSection";
 import { ProgrammeCatalogueListingSection } from "./ProgrammeCatalogueListingSection";
+import { ProgrammeGrantsSection } from "./ProgrammeGrantsSection";
 import { useCoachProgrammeDetail } from "./useCoachProgrammeDetail";
 
 // DEV NOTE: FULL-UI-05A programme detail (read-only) - ported field-for-
@@ -209,6 +210,8 @@ export function CoachProgrammeDetailPanel() {
           onAssigned={() => document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"))}
         />
       ) : null}
+
+      <ProgrammeGrantsSection template={template} />
 
       <ProgrammeCatalogueListingSection template={template} />
 

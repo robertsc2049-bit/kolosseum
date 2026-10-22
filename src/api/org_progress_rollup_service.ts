@@ -36,7 +36,7 @@ import {
 import { getProgressInsightsForCoach } from "./progress_insights_service.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 import { analyseMembers, analyseTeamForCoach, displayNames, type TeamMember } from "./team_analysis_service.js";
-import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
+import { headCoachOf, headCoachOrgs, medicalLeadOf } from "./org_head_coach_service.js";
 import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -304,7 +304,7 @@ export async function getOrgAnalysis(ownerUserId: string, orgId: string, today =
   const analysis = visibility.visibility_mode === "shared"
     ? await sharedOrgAnalysis(orgId, visibility, today)
     : await gymOrgAnalysis(orgId, visibility, today);
-  return { ...analysis, head_coach_user_id: await headCoachOf(orgId) };
+  return { ...analysis, head_coach_user_id: await headCoachOf(orgId), medical_lead_user_id: await medicalLeadOf(orgId) };
 }
 
 // The organisation's head coach, in their own coaching workspace: a team's

@@ -4,6 +4,8 @@
 // deterministic engine behaviour.
 
 // src/api/blocks.handlers.ts
+import fs from "node:fs";
+import path from "node:path";
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
 import { selectCanonicalHash } from "./canonical_hash.js";
@@ -21,6 +23,13 @@ import { holdBackAfterHeadInjury, lighterAfterHeadInjury } from "./head_injury_r
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
+import { applyHyroxRaceStandards, isHyroxDivision } from "./hyrox_race_standards.js";
+import { applySportLoad, sportLoadNote, sportLoadToday } from "./sport_load_session.js";
+import { rescaleResolvedLoads } from "./session_load_rescale.js";
+import { currentInjury } from "./injury_log_service.js";
+import { applyProgrammeOverrides, loadProgrammeOverrides } from "./athlete_programme_override_service.js";
+import { listOtherTraining } from "./athlete_training_log_service.js";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
@@ -107,6 +116,18 @@ function queryHasTruthyFlag(req: Request, ...names: string[]): boolean {
   }
 
   return false;
+}
+
+
+// Movement pattern per exercise, for the sport-load step (read once).
+let sportLoadPatterns: Map<string, string> | null = null;
+function sportLoadPatternOf(exerciseId: string): string | undefined {
+  if (!sportLoadPatterns) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+    const entries = doc && typeof doc.entries === "object" ? Object.values(doc.entries) as Array<Record<string, unknown>> : [];
+    sportLoadPatterns = new Map(entries.map((entry) => [String(entry.exercise_id ?? ""), String(entry.movement_pattern_id ?? "")]));
+  }
+  return sportLoadPatterns.get(exerciseId) || undefined;
 }
 
 // The competition a taper-ending programme is timed to: the event the coach
@@ -642,7 +663,7 @@ export async function compileBlock(req: Request, res: Response) {
     beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
   const executionStamp = isRecord(programForSession?.coach_template_execution) ? programForSession.coach_template_execution : null;
   const template_position = executionStamp && Number.isInteger(executionStamp.template_session_index)
-    ? { template_session_index: Number(executionStamp.template_session_index), ...(isRecord(executionStamp.peak_timing) ? { peak_timing: executionStamp.peak_timing } : {}) }
+    ? { template_session_index: Number(executionStamp.template_session_index), ...(isRecord(executionStamp.peak_timing) ? { peak_timing: executionStamp.peak_timing } : {}), ...(Array.isArray(executionStamp.max_fallbacks) ? { max_fallbacks: executionStamp.max_fallbacks } : {}) }
     : null;
   const p6_session = programme_run_session || own_training_session
     ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput
@@ -682,6 +703,17 @@ export async function compileBlock(req: Request, res: Response) {
     if (standDown) {
       throw badRequest("Medical stand-down", { failure_token: "medical_stand_down", details: { until_date: standDown.until_date, reason: standDown.reason } });
     }
+  }
+  // An injury their physio or coach has them "out" with means no training
+  // session until it's moved on (to modified, or back to full training); a
+  // "modified" one trains with a reminder to follow the physio's plan.
+  let injury_modified: Record<string, unknown> | null = null;
+  if (create_session && pain_subject_user_id) {
+    const injury = await currentInjury(pain_subject_user_id).catch(() => null);
+    if (injury?.status === "out") {
+      throw badRequest("Injured - out of training", { failure_token: "injury_out", details: { injury: injury.name, expected_return: injury.expected_return } });
+    }
+    if (injury?.status === "modified") injury_modified = { injury: injury.name };
   }
   if (create_session && pain_subject_user_id) {
     const pain = await applyPainCarryForward(
@@ -738,15 +770,53 @@ export async function compileBlock(req: Request, res: Response) {
       )) as any
     };
   }
-  // Around a self-directed athlete's matches: a primer on match day and the
-  // day before (no heavy lower-body work), recovery the day after
-  // (match_week.ts). Coach-assigned sessions follow the coach's own plan.
-  if (create_session && beta_individual_subject_user_id) {
-    const matchWeek = await applyAthleteMatchWeek(beta_individual_subject_user_id, planned_session_from_engine.exercises as any);
+  if (injury_modified) planned_session_from_engine = { ...planned_session_from_engine, injury_modified } as any;
+  // A coach's changes to this athlete's session of their programme (fewer
+  // sets, another weight, an exercise left out, a note) - for this athlete
+  // only; the programme itself is untouched (athlete_programme_override_service.ts).
+  // After the pain step, which rebuilds the session from named_session.
+  if (create_session && beta_session_binding && template_position) {
+    const overrides = await loadProgrammeOverrides(beta_session_binding.subject_user_id, beta_session_binding.assignment_id).catch(() => []);
+    const { exercises, applied } = applyProgrammeOverrides(planned_session_from_engine.exercises as any, overrides, template_position.template_session_index);
+    if (applied) planned_session_from_engine = { ...planned_session_from_engine, exercises: exercises as any, coach_overrides: { applied } } as any;
+  }
+  // Around the athlete's matches: a primer on match day and the day before
+  // (no heavy lower-body work), recovery the day after (match_week.ts). On a
+  // coach's programme too: a coach writes "MD-4 strength", but the athlete
+  // takes the next session whenever they train, so the fixture list decides
+  // what is safe today. Stamped for the coach's review.
+  if (create_session && pain_subject_user_id) {
+    const matchWeek = await applyAthleteMatchWeek(pain_subject_user_id, planned_session_from_engine.exercises as any);
     if (!matchWeek.ok) {
       throw badRequest("Match day rest", { failure_token: matchWeek.failure_token, details: matchWeek.details });
     }
-    planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
+    planned_session_from_engine = {
+      ...planned_session_from_engine,
+      exercises: rescaleResolvedLoads(matchWeek.exercises as any) as any,
+      ...(matchWeek.context ? { match_week: matchWeek.context } : {})
+    } as any;
+  }
+  // After yesterday's match, a big sport day or a lot of jumps, the session
+  // drops its jumps and lightens the heavy leg work (sport_load_session.ts) -
+  // on a coach's programme too (the squad's match the head coach entered
+  // counts) - stamped for the coach.
+  if (create_session && pain_subject_user_id) {
+    const entries = await listOtherTraining(pain_subject_user_id, new Date(Date.now() - 31 * 86_400_000).toISOString().slice(0, 10)).catch(() => []);
+    const today = sportLoadToday(entries, new Date().toISOString().slice(0, 10));
+    const { exercises, adjustment } = applySportLoad(planned_session_from_engine.exercises as any, today, sportLoadPatternOf);
+    if (adjustment) {
+      const note = sportLoadNote(adjustment);
+      // Nothing left to train (a power day taken the day after a match and
+      // the day before the next): rest, rather than an empty session.
+      if (!exercises.some((exercise) => !["warm_up", "cool_down"].includes(String(exercise.segment ?? "working")))) {
+        throw badRequest("Rest today", { failure_token: "sport_load_rest", details: { note, reason: adjustment.reason } });
+      }
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: rescaleResolvedLoads(exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise))) as any,
+        sport_load_adjustment: { ...adjustment, note }
+      } as any;
+    }
   }
   // A fighter who competes at a weight class keeps strength without building
   // mass in the 4 weeks before a fight (weight_class.ts) - on a coach's
@@ -754,6 +824,14 @@ export async function compileBlock(req: Request, res: Response) {
   if (create_session && pain_subject_user_id) {
     const camp = await applyAthleteFightCamp(pain_subject_user_id, planned_session_from_engine.exercises as any);
     planned_session_from_engine = { ...planned_session_from_engine, exercises: camp.exercises as any };
+  }
+  // A HYROX athlete's station work shows the race weight for their division
+  // (on a coach's programme too - it follows the athlete's own declaration).
+  if (create_session && pain_subject_user_id) {
+    const declared = await getAthleteDeclaredActivityAndPosition(pain_subject_user_id).catch(() => null);
+    if (declared?.activity_id === "hyrox" && isHyroxDivision(declared.position)) {
+      planned_session_from_engine = { ...planned_session_from_engine, exercises: applyHyroxRaceStandards(planned_session_from_engine.exercises as any, declared.position) as any };
+    }
   }
   // What a self-directed athlete actually did last time holds an exercise
   // back (missed reps, RPE 9.5+) - never adds load (autoregulation_service.ts).

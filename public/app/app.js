@@ -1427,6 +1427,15 @@ async function createSession(options = {}) {
         showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
         return;
       }
+      if (phase4Token === "injury_out") {
+        const details = error?.payload?.details?.details ?? {};
+        showNotice(`You're out of training with your ${details.injury || "injury"}${details.expected_return ? ` (expected back around ${details.expected_return})` : ""}. Follow your physio's plan - your sessions start again when they move you on.`, "error");
+        return;
+      }
+      if (phase4Token === "sport_load_rest") {
+        showNotice("After your match, everything in this session is jumps or heavy leg work - rest today and pick it up tomorrow.", "error");
+        return;
+      }
       if (phase4Token === "match_day_rest") {
         showNotice("Your match is today or tomorrow and this session is all heavy leg work - rest it, or train on another day.", "error");
         return;

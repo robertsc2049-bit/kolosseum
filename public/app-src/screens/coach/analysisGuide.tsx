@@ -168,6 +168,16 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     ],
     mind: ["HRV and resting heart rate only compare well when taken the same way each time - first thing in the morning, same device.", "Readiness is only as good as the check-ins. Encourage honest answers - a low score is useful information, not a failure."]
   },
+  velocity: {
+    title: "Bar speed",
+    shows: "How fast the bar moves, for athletes who log it from a velocity (VBT) device: speed at the same weight over time and how much speed they lose across their sets.",
+    read: [
+      "Faster at the same weight usually means stronger; slower is often the first sign of fatigue, before the estimated max moves.",
+      "Speed lost across sets: 20-30% is normal for hard work; a lot more means a very fatiguing session."
+    ],
+    how: ["Athletes switch on \"Log bar speed\" on their set logger and type the mean velocity their device shows for each set."],
+    mind: ["Different devices read differently - compare an athlete with themselves on the same device, not with others."]
+  },
   injuries: {
     title: "Injuries",
     shows: "The athlete's injury log: each injury, how it happened, whether it stopped them training, days lost and how they're coming back.",

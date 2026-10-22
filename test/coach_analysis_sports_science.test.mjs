@@ -72,3 +72,37 @@ test("planned vs done: two weeks of 2 sets of the planned 3 is 67% of the planne
   assert.ok(under, "doing two-thirds of the plan is flagged");
   assert.match(under.text, /Did 67% of the planned tonnage over the last 2 weeks/u);
 });
+
+test("a forward who misses reps on his top squat sets at RPE 10 twice gets an alert; at RPE 8 a missed rep is no grind", () => {
+  const grind = (date, rpe, reps) => ({
+    ...week(date, 150),
+    events: [
+      { type: "START_SESSION", at: at(date) },
+      ...[5, 5, reps].map((r, i) => ({ type: "SET_LOG_REPORT", at: at(date, 5 * (i + 1)), exercise_id: "back_squat", set_index: i + 1, reps: r, load_kg: 150 })),
+      { type: "RPE_REPORT", at: at(date, 16), exercise_id: "back_squat", rpe }
+    ]
+  });
+  const twice = findings(analyse([week("2026-09-21", 140), grind("2026-10-05", 10, 3), grind("2026-10-12", 10, 2)])).find((f) => f.id === "grind_back_squat");
+  assert.equal(twice.level, "alert");
+  assert.equal(twice.text, "back squat: reps missed at RPE 10 (2 of 5) in 2 sessions, the last on 12 Oct.");
+  assert.match(twice.action, /take 5-10% off/u);
+  assert.equal(findings(analyse([week("2026-09-21", 140), grind("2026-10-12", 8, 4)])).find((f) => f.id === "grind_back_squat"), undefined);
+});
+
+test("bar speed lost 36% across a session's sets is flagged; 18% is not", () => {
+  const vbt = (date, speeds) => ({
+    ...week(date, 140),
+    events: [{ type: "START_SESSION", at: at(date) }, ...speeds.map((velocity, i) => ({ type: "SET_LOG_REPORT", at: at(date, 5 * (i + 1)), exercise_id: "back_squat", set_index: i + 1, reps: 5, load_kg: 140, velocity }))]
+  });
+  const heavy = findings(analyse([vbt("2026-10-05", [0.7, 0.6, 0.45]), vbt("2026-10-12", [0.7, 0.58, 0.45])])).find((f) => f.id === "vloss_back_squat");
+  assert.equal(heavy.text, "back squat: bar speed drops 36% from the fastest set to the last - over 30%, the sets are close to failure.");
+  assert.equal(findings(analyse([vbt("2026-10-05", [0.62, 0.58, 0.5]), vbt("2026-10-12", [0.71, 0.67, 0.6])])).find((f) => f.id === "vloss_back_squat"), undefined);
+});
+
+test("a powerlifter with tested maxes but few logged sessions still gets meet attempts", () => {
+  const a = analyse([week("2026-10-12", 140)], {
+    activity_id: "powerlifting", competition_date: "2026-11-22",
+    tested_maxes: [{ exercise_id: "back_squat", date: "2026-09-20", value_kg: 180 }, { exercise_id: "bench_press", date: "2026-09-20", value_kg: 120 }, { exercise_id: "deadlift", date: "2025-01-10", value_kg: 220 }]
+  });
+  assert.deepEqual(a.attempts.rows.map((row) => [row.exercise_id, row.opener, row.second, row.third]), [["back_squat", 162.5, 172.5, 180], ["bench_press", 107.5, 115, 120]], "the deadlift's year-old max isn't used");
+});

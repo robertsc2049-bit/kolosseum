@@ -1693,6 +1693,55 @@ ALTER TABLE product_notifications
         'owner_message_received_from_athlete',
         'athlete_pain_reported'
       )
+    ) NOT VALID;
+
+-- product_notifications_strength_reference_missing_type_migration
+-- Additive athlete_strength_reference_missing - alerts a coach when an
+-- athlete can't start their programme's next session for want of a max.
+-- Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.
@@ -2912,5 +2961,36 @@ ALTER TABLE product_org_audit_records
       'org_ownership_handed_over',
       'head_coach_designated',
       'head_coach_cleared'
+    )
+  ) NOT VALID;
+
+-- A medical lead: one active coach of a team ('shared') organisation the
+-- owner names - the team's physio or doctor with a Kolosseum coach account.
+-- They see and keep the injury log and medical stand-downs for every athlete
+-- on the team, and nothing else of theirs (no programmes, no analysis).
+-- NULL = none. Designating and clearing are audited.
+ALTER TABLE product_organisations
+  ADD COLUMN IF NOT EXISTS medical_lead_user_id TEXT
+    REFERENCES product_accounts(user_id)
+    ON DELETE SET NULL;
+
+ALTER TABLE product_org_audit_records
+  DROP CONSTRAINT IF EXISTS product_org_audit_records_action_type_check;
+ALTER TABLE product_org_audit_records
+  ADD CONSTRAINT product_org_audit_records_action_type_check
+  CHECK (
+    action_type IN (
+      'org_created',
+      'coach_invited',
+      'coach_membership_activated',
+      'coach_membership_removed',
+      'coach_membership_left',
+      'seat_plan_changed',
+      'athlete_position_overridden',
+      'org_ownership_handed_over',
+      'head_coach_designated',
+      'head_coach_cleared',
+      'medical_lead_designated',
+      'medical_lead_cleared'
     )
   );

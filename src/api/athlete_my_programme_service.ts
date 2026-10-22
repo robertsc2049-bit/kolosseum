@@ -12,6 +12,8 @@ import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
 import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { loadTodayEventStatus } from "./athlete_today_service.js";
 import { getWeightClass } from "./weight_class_service.js";
+import type { PlannedWeek } from "./forward_load.js";
+import { loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -260,5 +262,88 @@ export async function loadCoachAthleteProgramme(coachUserId: string, athleteUser
   await requireCoachAthleteAccess(coachUserId, athleteUserId);
   const assignment = await currentAssignment(athleteUserId);
   if (!assignment || text(assignment.assigned_by_coach_id) !== coachUserId) return { ok: true, status: "none" };
-  return buildProgramme(athleteUserId, "coach", assignment, null);
+  const programme = await buildProgramme(athleteUserId, "coach", assignment, null);
+  // This athlete's own changes to the programme, beside each exercise.
+  const overrides = await loadProgrammeOverrides(athleteUserId, text(assignment.assignment_id)).catch(() => []);
+  if (!overrides.length || !Array.isArray(programme.blocks)) return programme;
+  const withOverrides = (programme.blocks as Json[]).map((block) => ({
+    ...block,
+    weeks: (block.weeks as Json[]).map((week) => ({
+      ...week,
+      sessions: (week.sessions as Json[]).map((session) => ({
+        ...session,
+        exercises: (session.exercises as Json[]).map((exercise) => {
+          const override = overrides.find((entry) => entry.session_index === session.session_index && entry.exercise_id === exercise.exercise_id);
+          return override ? { ...exercise, override } : exercise;
+        })
+      }))
+    }))
+  }));
+  return { ...programme, blocks: withOverrides };
+}
+
+// The programme's weeks still to come, as numbers for the coach's Analysis
+// (forward_load.ts): from the current week on, each week's sessions left,
+// working sets, tonnage from the weights the plan gives (from the coach's
+// maxes, or fixed loads), sets at 80%+ / 90%+ of max and the average target
+// RPE. Coach-side only.
+const LB_PER_KG = 2.2046226218;
+const toKg = (value: number, unit: string) => (unit === "lb" ? value / LB_PER_KG : value);
+function repsOf(item: Json): number | null {
+  if ((text(item.prescription_mode) || "reps") !== "reps") return null;
+  const prescription = isRecord(item.rep_prescription) ? item.rep_prescription : {};
+  if (prescription.type === "range" && num(prescription.minimum) !== null && num(prescription.maximum) !== null) return (num(prescription.minimum)! + num(prescription.maximum)!) / 2;
+  return num(prescription.value) ?? num(item.planned_reps);
+}
+export async function plannedWeeksAhead(athleteUserId: string, weeksAhead = 4): Promise<PlannedWeek[]> {
+  const assignment = await currentAssignment(athleteUserId);
+  const run = assignment ? null : await getCurrentProgrammeRun(athleteUserId);
+  if (!assignment && !run) return [];
+  const ownerId = assignment ? text(assignment.assigned_by_coach_id) : run!.author_user_id;
+  const template = await loadExecutableCoachTemplateById(ownerId, assignment ? text(assignment.template_id) : run!.template_id);
+  if (!template) return [];
+  const ordered = orderedTemplateSessions(template);
+  const done = await sessionsByIndex(assignment ? text(assignment.assignment_id) : run!.run_id);
+  const indexes = [...done.keys()];
+  const open = indexes.filter((index) => ["created", "in_progress"].includes(text(done.get(index)?.status))).sort((a, b) => b - a)[0];
+  const current = open ?? Math.min((indexes.length ? Math.max(...indexes) : -1) + 1, ordered.length);
+  if (current >= ordered.length) return [];
+  const profile = assignment ? await loadAthleteStrengthProfile(ownerId, athleteUserId).catch(() => null) : null;
+
+  const weeks: Array<{ -readonly [K in keyof PlannedWeek]: PlannedWeek[K] } & { key: string; rpe: number[] }> = [];
+  let weekNumber = 0;
+  let lastKey = "";
+  const weekKey = (session: Json) => `${text(session.template_block_id)}|${num(session.template_block_order)}|${text(session.template_week_id)}|${num(session.template_week_order)}`;
+  const currentKey = weekKey(ordered[current]);
+  ordered.forEach((session, index) => {
+    const key = weekKey(session);
+    if (key !== lastKey) { weekNumber += 1; lastKey = key; }
+    if (index < current && key !== currentKey) return;
+    let week = weeks.find((entry) => entry.key === key);
+    if (!week) {
+      if (weeks.length >= weeksAhead) return;
+      week = { key, week_number: weekNumber, block_name: text(session.template_block_name) || "Block", block_type: text(session.template_block_type) || "general", current: weeks.length === 0, sessions: 0, working_sets: 0, tonnage_kg: null, sets_80: 0, sets_90: 0, avg_rpe: null, rpe: [] };
+      weeks.push(week);
+    }
+    week.sessions += 1;
+    for (const item of (Array.isArray(session.work_items) ? session.work_items : []).filter(isRecord)) {
+      if (["warm_up", "cool_down"].includes(text(item.segment))) continue;
+      const sets = num(item.planned_sets) ?? 1;
+      week.working_sets += sets;
+      const loading = isRecord(item.loading_reference) ? item.loading_reference : {};
+      const value = num(loading.value);
+      const reps = repsOf(item);
+      let kg: number | null = null;
+      if (loading.type === "percent_1rm" && value !== null) {
+        if (value >= 80) week.sets_80 += sets;
+        if (value >= 90) week.sets_90 += sets;
+        const resolved = profile ? resolvePercentageLoad(profile, text(item.exercise_id), value) : null;
+        if (resolved && num(resolved.value) !== null) kg = toKg(num(resolved.value)!, text(resolved.unit) || "kg");
+      }
+      else if (loading.type === "load" && value !== null) kg = toKg(value, text(loading.unit) || "kg");
+      else if (loading.type === "rpe" && value !== null) week.rpe.push(value);
+      if (kg !== null && reps !== null) week.tonnage_kg = Math.round((week.tonnage_kg ?? 0) + sets * reps * kg);
+    }
+  });
+  return weeks.map(({ key: _key, rpe, ...week }) => ({ ...week, avg_rpe: rpe.length ? Math.round((rpe.reduce((sum, value) => sum + value, 0) / rpe.length) * 10) / 10 : null }));
 }

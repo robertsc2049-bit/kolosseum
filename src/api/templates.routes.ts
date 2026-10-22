@@ -1,7 +1,8 @@
 // DEV NOTE: BETA-18 coach programme template product routes.
 
 import {
-  Router
+  Router,
+  type Response
 } from "express";
 
 import {
@@ -22,6 +23,7 @@ import {
 import { rateLimit } from "express-rate-limit";
 import { authenticatedCoach } from "./coach_session_auth.js";
 import { StarterTemplateError, createKolosseumStarterTemplate } from "./kolosseum_starter_template_service.js";
+import { ProgrammeGrantError, giveProgrammeGrant, listCoachProgrammeGrants, revokeProgrammeGrant } from "./programme_grant_service.js";
 import { ProgrammeCatalogueError, copyProgrammeForCoach, getProgrammeListingForTemplate, listProgrammesForCoaches, saveProgrammeListing } from "./programme_catalogue_service.js";
 
 export const templatesRouter =
@@ -73,6 +75,41 @@ templatesRouter.post(
       if (error instanceof ProgrammeCatalogueError) return response.status(error.status).json({ error: error.code });
       throw error;
     }
+  })
+);
+
+// Programmes a coach sells outside the app and gives in it
+// (programme_grant_service.ts): their grants and allowance, give one of their
+// active programmes to an athlete by email, take back one not yet accepted.
+const programmeGrantRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const programmeGrantError = (response: Response, error: unknown) => {
+  if (error instanceof ProgrammeGrantError) return response.status(error.status).json({ ok: false, error: error.code });
+  throw error;
+};
+templatesRouter.get(
+  "/programme-grants",
+  programmeGrantRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    return response.status(200).json(await listCoachProgrammeGrants(coachUserId));
+  })
+);
+templatesRouter.post(
+  "/:template_id/programme-grants",
+  programmeGrantRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    try { return response.status(201).json(await giveProgrammeGrant(coachUserId, request.params.template_id, request.body)); }
+    catch (error) { return programmeGrantError(response, error); }
+  })
+);
+templatesRouter.post(
+  "/programme-grants/:grant_id/revoke",
+  programmeGrantRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    try { return response.status(200).json(await revokeProgrammeGrant(coachUserId, request.params.grant_id)); }
+    catch (error) { return programmeGrantError(response, error); }
   })
 );
 

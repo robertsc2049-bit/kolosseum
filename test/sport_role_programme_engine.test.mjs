@@ -1,7 +1,10 @@
 // DEV NOTE: Human-maintained repo surface. Position-group programmes: a declared
 // position whose group trains differently (rugby forwards/backs, American
 // football linemen/skill, football and hockey goalkeepers, an ice hockey
-// goaltender, a cricket fast bowler, athletics throws and endurance) selects
+// goaltender, cricket fast bowlers, batters and wicketkeepers, athletics
+// throws, endurance and jumps, sprint and distance swimmers, track sprinters,
+// sweep and lightweight rowers, sprint kayakers, long-course triathletes,
+// volleyball liberos, basketball centres, netball midcourt) selects
 // that group's programme through phase1 sport_role_id.
 
 import test from "node:test";
@@ -22,8 +25,16 @@ const ROLES = {
   football_soccer: ["goalkeeper"],
   field_hockey: ["goalkeeper"],
   ice_hockey: ["goaltender"],
-  cricket: ["fast_bowler"],
-  athletics: ["throws", "endurance"]
+  cricket: ["fast_bowler", "batter", "wicketkeeper"],
+  athletics: ["throws", "endurance", "jumps"],
+  swimming: ["sprint", "distance"],
+  cycling: ["track_sprint"],
+  rowing: ["sweep", "lightweight"],
+  kayaking: ["sprint"],
+  triathlon: ["long_course"],
+  volleyball: ["libero"],
+  basketball: ["centre"],
+  netball: ["midcourt"]
 };
 
 const session = (activity, role, level = "amateur", cycle) => {

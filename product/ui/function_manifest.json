@@ -6221,7 +6221,8 @@
           "api_routes": [
             "/org/organisations/:org_id/progress-rollup",
             "/org/organisations/:org_id/analysis",
-            "/org/organisations/:org_id/head-coach"
+            "/org/organisations/:org_id/head-coach",
+            "/org/organisations/:org_id/medical-lead"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -9336,6 +9337,24 @@
     },
     {
       "method": "POST",
+      "path": "/templates/:template_id/programme-grants",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "GET",
+      "path": "/templates/programme-grants",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/programme-grants/:grant_id/revoke",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
       "path": "/templates/:template_id/activate",
       "source": "src/api/templates.routes.ts",
       "tracked_by_area": "programme_library"
@@ -9521,6 +9540,12 @@
       "tracked_by_area": "coach_workspace"
     },
     {
+      "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/injuries",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
       "method": "POST",
       "path": "/coach-workspace/athletes/:athlete_id/injuries",
       "source": "src/api/coach_workspace.routes.ts",
@@ -9535,6 +9560,18 @@
     {
       "method": "POST",
       "path": "/coach-workspace/athletes/:athlete_id/injuries/:injury_id/remove",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athletes/:athlete_id/programme-overrides",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athletes/:athlete_id/programme-overrides/clear",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },

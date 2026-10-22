@@ -52,7 +52,13 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   powerlifting: [["athlete", "Athlete"]],
   general_strength: [["athlete", "Athlete"]],
   strongman: [["athlete", "Athlete"]],
-  hyrox: [["athlete", "Athlete"]],
+  hyrox: [
+    ["athlete", "Not specified"],
+    ["women_open", "Women's Open (and women's Doubles)"],
+    ["men_open", "Men's Open (and men's or mixed Doubles)"],
+    ["women_pro", "Women's Pro"],
+    ["men_pro", "Men's Pro"]
+  ],
   crossfit: [["athlete", "Athlete"]],
   football_soccer: [
     ["athlete", "Not specified"],
@@ -61,8 +67,22 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["midfielder", "Midfielder"],
     ["forward", "Forward"]
   ],
-  netball: [["athlete", "Athlete"]],
-  basketball: [["athlete", "Athlete"]],
+  netball: [
+    ["athlete", "Not specified"],
+    ["goal_shooter", "Goal shooter"],
+    ["goal_attack", "Goal attack"],
+    ["wing_attack", "Wing attack"],
+    ["centre", "Centre"],
+    ["wing_defence", "Wing defence"],
+    ["goal_defence", "Goal defence"],
+    ["goal_keeper", "Goal keeper"]
+  ],
+  basketball: [
+    ["athlete", "Not specified"],
+    ["guard", "Guard"],
+    ["forward", "Forward"],
+    ["centre", "Centre"]
+  ],
   rugby_sevens: [["athlete", "Athlete"]],
   field_hockey: [
     ["athlete", "Not specified"],
@@ -77,7 +97,14 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["defence", "Defence"],
     ["forward", "Forward"]
   ],
-  volleyball: [["athlete", "Athlete"]],
+  volleyball: [
+    ["athlete", "Not specified"],
+    ["outside_hitter", "Outside hitter"],
+    ["opposite", "Opposite"],
+    ["middle_blocker", "Middle blocker"],
+    ["setter", "Setter"],
+    ["libero", "Libero"]
+  ],
   cricket: [
     ["athlete", "Not specified"],
     ["fast_bowler", "Fast bowler"],
@@ -108,11 +135,28 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["middle_distance", "Middle distance"],
     ["long_distance", "Long distance"]
   ],
-  swimming: [["athlete", "Athlete"]],
+  swimming: [
+    ["athlete", "Not specified"],
+    ["sprint", "Sprint (50-100 m)"],
+    ["distance", "Distance (400 m+)"]
+  ],
   olympic_weightlifting: [["athlete", "Athlete"]],
-  cycling: [["athlete", "Athlete"]],
-  rowing: [["athlete", "Athlete"]],
-  kayaking: [["athlete", "Athlete"]],
+  cycling: [
+    ["athlete", "Not specified"],
+    ["track_sprint", "Track sprint"],
+    ["road", "Road / endurance"]
+  ],
+  rowing: [
+    ["athlete", "Not specified"],
+    ["sweep", "Sweep"],
+    ["sculler", "Sculling"],
+    ["lightweight", "Lightweight"]
+  ],
+  kayaking: [
+    ["athlete", "Not specified"],
+    ["sprint", "Sprint"],
+    ["marathon", "Marathon"]
+  ],
   boxing: [["athlete", "Athlete"]],
   wrestling: [["athlete", "Athlete"]],
   judo: [["athlete", "Athlete"]],
@@ -120,7 +164,11 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   muay_thai: [["athlete", "Athlete"]],
   mma: [["athlete", "Athlete"]],
   tennis: [["athlete", "Athlete"]],
-  triathlon: [["athlete", "Athlete"]],
+  triathlon: [
+    ["athlete", "Not specified"],
+    ["short_course", "Sprint / Olympic distance"],
+    ["long_course", "70.3 / Ironman"]
+  ],
   rugby_league: [
     ["athlete", "Not specified"],
     ["prop", "Prop"],
@@ -946,6 +994,45 @@ function wireHeadCoach() {
   });
 }
 
+// The medical lead: the team's physio or doctor, with a coach account in the
+// organisation. They keep the team's injury log and stand-downs and see
+// nothing else of the athletes'. Team organisations only.
+function renderMedicalLead(analysis, activeCoaches, coachNamesById) {
+  if (analysis.visibility_mode !== "shared") return "";
+  const current = analysis.medical_lead_user_id || "";
+  const options = activeCoaches.map((coach) => `<option value="${escapeHtml(coach.coach_user_id)}" ${coach.coach_user_id === current ? "selected" : ""}>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</option>`).join("");
+  return `<div class="org-head-coach" data-testid="org-medical-lead">
+    <h3>Medical lead</h3>
+    <p class="muted small">Your physio or doctor, with a coach account in this team. They keep every athlete's injury log and medical stand-downs from their coaching workspace, and see nothing else of the athletes'. You only ever see whether an athlete is available.</p>
+    <div class="button-row">
+      <select id="orgMedicalLeadSelect" aria-label="Medical lead"><option value="">No medical lead</option>${options}</select>
+      <button id="orgMedicalLeadSave" class="button secondary" type="button">Save</button>
+    </div>
+    <p id="orgMedicalLeadStatus" class="muted small" role="status"></p>
+  </div>`;
+}
+
+function wireMedicalLead() {
+  const button = el("orgMedicalLeadSave");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const status = el("orgMedicalLeadStatus");
+    button.disabled = true;
+    try {
+      const coachUserId = el("orgMedicalLeadSelect").value;
+      await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/medical-lead`, { coach_user_id: coachUserId || null });
+      status.textContent = coachUserId ? "Medical lead saved." : "Medical lead cleared.";
+    }
+    catch (error) {
+      status.textContent = "The medical lead couldn't be saved - they must be an active coach of this team.";
+      console.error(error);
+    }
+    finally {
+      button.disabled = false;
+    }
+  });
+}
+
 function renderOrgAnalysis(analysis, coachNamesById, activeCoaches = []) {
   const container = el("orgAnalysis");
   const gym = analysis.visibility_mode === "individual";
@@ -970,8 +1057,10 @@ function renderOrgAnalysis(analysis, coachNamesById, activeCoaches = []) {
     ${gym ? "" : renderOrgGroups("By position", (analysis.by_position || []).length > 1 ? analysis.by_position : [], (group) => group.label)}
     ${gym ? "" : renderOrgAthletes(analysis.athletes || [])}
     ${renderHeadCoach(analysis, activeCoaches, coachNamesById)}
+    ${renderMedicalLead(analysis, activeCoaches, coachNamesById)}
   `;
   wireHeadCoach();
+  wireMedicalLead();
 }
 
 async function refreshProgress() {
