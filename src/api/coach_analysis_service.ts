@@ -104,6 +104,7 @@ function analysisEvent(raw: unknown, at: string): AnalysisEvent | null {
     ...(num(raw.rpe_value) !== null ? { rpe: num(raw.rpe_value)! } : {}),
     ...(num(raw.borg_value) !== null ? { borg: num(raw.borg_value)! } : {}),
     ...(num(raw.cr10_value) !== null ? { cr10: num(raw.cr10_value)! } : {}),
+    ...(num(raw.velocity_mps) !== null ? { velocity: num(raw.velocity_mps)! } : {}),
     ...(type === "PAIN_REPORT" ? { pain_area: text(raw.pain_area) || null } : {}),
     ...(text(raw.reason_code) ? { reason_code: text(raw.reason_code) } : {})
   };
@@ -225,6 +226,8 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     external_load: externalLoad,
     injuries,
     planned_ahead: plannedAhead,
+    activity_id: text(plan?.activity_id) || null,
+    competition_date: text(plan?.competition_date) || null,
     tested_maxes: profile.maxes,
     bodyweight_kg: profile.bodyweight_kg,
     planned_days_per_week: num(plan?.training_days_per_week),
