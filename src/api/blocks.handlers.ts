@@ -4,6 +4,8 @@
 // deterministic engine behaviour.
 
 // src/api/blocks.handlers.ts
+import fs from "node:fs";
+import path from "node:path";
 import type { Request, Response } from "express";
 import crypto from "node:crypto";
 import { selectCanonicalHash } from "./canonical_hash.js";
@@ -21,6 +23,10 @@ import { holdBackAfterHeadInjury, lighterAfterHeadInjury } from "./head_injury_r
 import { applyAthleteEquipment } from "./athlete_equipment_service.js";
 import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
+import { applyHyroxRaceStandards, isHyroxDivision } from "./hyrox_race_standards.js";
+import { applySportLoad, sportLoadNote, sportLoadToday } from "./sport_load_session.js";
+import { listOtherTraining } from "./athlete_training_log_service.js";
+import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
 import { resolveAthleteSessionLoads } from "./athlete_maxes_service.js";
 import { lighterForReentry } from "./programme_reentry.js";
@@ -107,6 +113,18 @@ function queryHasTruthyFlag(req: Request, ...names: string[]): boolean {
   }
 
   return false;
+}
+
+
+// Movement pattern per exercise, for the sport-load step (read once).
+let sportLoadPatterns: Map<string, string> | null = null;
+function sportLoadPatternOf(exerciseId: string): string | undefined {
+  if (!sportLoadPatterns) {
+    const doc = JSON.parse(fs.readFileSync(path.join(process.cwd(), "registries", "exercise", "exercise.registry.json"), "utf8"));
+    const entries = doc && typeof doc.entries === "object" ? Object.values(doc.entries) as Array<Record<string, unknown>> : [];
+    sportLoadPatterns = new Map(entries.map((entry) => [String(entry.exercise_id ?? ""), String(entry.movement_pattern_id ?? "")]));
+  }
+  return sportLoadPatterns.get(exerciseId) || undefined;
 }
 
 // The competition a taper-ending programme is timed to: the event the coach
@@ -748,12 +766,36 @@ export async function compileBlock(req: Request, res: Response) {
     }
     planned_session_from_engine = { ...planned_session_from_engine, exercises: matchWeek.exercises as any };
   }
+  // After yesterday's match, a big sport day or a lot of jumps, a
+  // self-directed athlete's session drops its jumps and lightens the heavy leg
+  // work (sport_load_session.ts) - stamped for the coach.
+  if (create_session && beta_individual_subject_user_id) {
+    const entries = await listOtherTraining(beta_individual_subject_user_id, new Date(Date.now() - 31 * 86_400_000).toISOString().slice(0, 10)).catch(() => []);
+    const today = sportLoadToday(entries, new Date().toISOString().slice(0, 10));
+    const { exercises, adjustment } = applySportLoad(planned_session_from_engine.exercises as any, today, sportLoadPatternOf);
+    if (adjustment) {
+      const note = sportLoadNote(adjustment);
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise)) as any,
+        sport_load_adjustment: { ...adjustment, note }
+      } as any;
+    }
+  }
   // A fighter who competes at a weight class keeps strength without building
   // mass in the 4 weeks before a fight (weight_class.ts) - on a coach's
   // programme too, since it follows the fighter's own declaration.
   if (create_session && pain_subject_user_id) {
     const camp = await applyAthleteFightCamp(pain_subject_user_id, planned_session_from_engine.exercises as any);
     planned_session_from_engine = { ...planned_session_from_engine, exercises: camp.exercises as any };
+  }
+  // A HYROX athlete's station work shows the race weight for their division
+  // (on a coach's programme too - it follows the athlete's own declaration).
+  if (create_session && pain_subject_user_id) {
+    const declared = await getAthleteDeclaredActivityAndPosition(pain_subject_user_id).catch(() => null);
+    if (declared?.activity_id === "hyrox" && isHyroxDivision(declared.position)) {
+      planned_session_from_engine = { ...planned_session_from_engine, exercises: applyHyroxRaceStandards(planned_session_from_engine.exercises as any, declared.position) as any };
+    }
   }
   // What a self-directed athlete actually did last time holds an exercise
   // back (missed reps, RPE 9.5+) - never adds load (autoregulation_service.ts).

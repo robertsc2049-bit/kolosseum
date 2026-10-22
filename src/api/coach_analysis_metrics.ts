@@ -82,7 +82,7 @@ export type AnalysisSession = Readonly<{
 export type SessionLoadReport = Readonly<{ srpe: number; minutes: number }>;
 // Training outside the app's sessions: team practice, matches, conditioning,
 // another sport - logged with its minutes and effort (0-10).
-export type OtherTraining = Readonly<{ id: string; date: string; kind: string; minutes: number; srpe: number; note?: string }>;
+export type OtherTraining = Readonly<{ id: string; date: string; kind: string; minutes: number; srpe: number; note?: string; jumps?: number; balls_bowled?: number }>;
 // A date worth seeing on the charts: a competition, the season, a match, a
 // deload or peak block.
 export type CalendarMarker = Readonly<{ date: string; kind: string; label: string }>;
@@ -330,6 +330,24 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const sumWeek = (map: Map<string, number>, start: string) => Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0);
   // EWMA acute:chronic at each week's end (or today), from the first training day.
   const ewma = ewmaRatios(dailyLoad, trainedDates[0] ?? null, weeks.map((start) => (addDays(start, 6) > input.today ? input.today : addDays(start, 6))));
+  // Jumps and balls bowled logged with sport sessions, weekly, against the
+  // mean of the 4 weeks before (the same uncoupled ratio as load).
+  const countWeeks = (key: "jumps" | "balls_bowled") => loadWeeks.map((start) => {
+    const list = other.filter((entry) => weekStart(entry.date) === start && finite(entry[key]));
+    return list.length ? list.reduce((sum, entry) => sum + Number(entry[key]), 0) : null;
+  });
+  const jumpsAll = countWeeks("jumps");
+  const ballsAll = countWeeks("balls_bowled");
+  const countRatio = (all: Array<number | null>, index: number) => {
+    const current = all[index];
+    const previous = all.slice(Math.max(0, index - 4), index).map((value) => value ?? 0);
+    if (current === null || previous.length < 4) return null;
+    const usual = mean(previous);
+    return usual > 0 ? round(current / usual, 2) : null;
+  };
+  const countsFor = (start: string, index: number) => (jumpsAll.some((value) => value !== null) || ballsAll.some((value) => value !== null)
+    ? { jumps: jumpsAll[index], jumps_ratio: countRatio(jumpsAll, index), balls_bowled: ballsAll[index], balls_ratio: countRatio(ballsAll, index) }
+    : {});
   const loadRows = weeks.map((start, weekIndex) => {
     const index = loadWeeks.indexOf(start);
     const daily = Array.from({ length: 7 }, (_, offset) => dailyLoad.get(addDays(start, offset)) ?? 0);
@@ -339,6 +357,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       week_start: start, partial_week: start === currentWeek, load: weekly,
       gym_load: weekly === null ? null : sumWeek(dailyGym, start), sport_load: weekly === null ? null : sumWeek(dailySport, start),
       matches: other.filter((entry) => entry.kind === "match" && weekStart(entry.date) === start).length,
+      ...countsFor(start, index),
       acute_chronic: acuteChronic(weeklyLoadAll, index), ewma_ratio: ewma[weekIndex], monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
     };
   });
@@ -963,6 +982,8 @@ function actionFor(finding: Finding): string | undefined {
     : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
+  if (id === "jumps_spike") return "Big jumps in jump count load the patellar and Achilles tendons - hold plyometrics in the gym this week and build jump volume back in smaller steps.";
+  if (id === "bowling_spike") return "Sharp rises in bowling workload are linked to lumbar stress injuries in fast bowlers - agree the next weeks' overs with their coach and keep heavy spinal loading light meanwhile.";
   if (id.startsWith("velocity_")) return finding.level === "good" ? "Faster at the same weight usually means stronger - an estimated max may be behind; consider retesting." : "Slower at the same weight is an early sign of fatigue - check sleep and recent load, and consider a lighter few days before the next heavy session.";
   if (id === "prilepin_high") return "Prilepin's table is a guide built on weightlifters, not a rule - but if heavy sessions keep running long, watch bar speed and recovery between them.";
   const injury = injuryActionFor(id) ?? forwardActionFor(id);
@@ -1166,6 +1187,12 @@ export function findings(analysis: Json): Finding[] {
     out.push({ id: `pain_${area.area}`, section: "pain", level: "alert", text: `${label} pain reported in ${area.weeks} different weeks${(area.exercises as string[]).length ? ` (${(area.exercises as string[]).slice(0, 2).join(", ")})` : ""}${onSpike}.` });
   }
 
+  {
+    const done = (a.load.rows as Json[]).filter((row) => row.partial_week !== true);
+    const last = done[done.length - 1];
+    if (last && Number(last.jumps_ratio) > 1.5 && Number(last.jumps) >= 100) out.push({ id: "jumps_spike", section: "load", level: "watch", text: `Jumps jumped to ${last.jumps_ratio}x their usual in ${weekLabel(String(last.week_start), currentWeek)} (${last.jumps} jumps).` });
+    if (last && Number(last.balls_ratio) > 1.5 && Number(last.balls_bowled) >= 60) out.push({ id: "bowling_spike", section: "load", level: "alert", text: `Balls bowled jumped to ${last.balls_ratio}x their usual in ${weekLabel(String(last.week_start), currentWeek)} (${last.balls_bowled} balls).` });
+  }
   if (a.injuries) out.push(...(injuryFindings(a.injuries, String((a.injuries as Json).as_of)) as Finding[]));
   for (const lift of (((a.velocity as Json | undefined)?.lifts ?? []) as Json[])) {
     const change = Number(lift.speed_change);

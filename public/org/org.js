@@ -52,7 +52,13 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   powerlifting: [["athlete", "Athlete"]],
   general_strength: [["athlete", "Athlete"]],
   strongman: [["athlete", "Athlete"]],
-  hyrox: [["athlete", "Athlete"]],
+  hyrox: [
+    ["athlete", "Not specified"],
+    ["women_open", "Women's Open (and women's Doubles)"],
+    ["men_open", "Men's Open (and men's or mixed Doubles)"],
+    ["women_pro", "Women's Pro"],
+    ["men_pro", "Men's Pro"]
+  ],
   crossfit: [["athlete", "Athlete"]],
   football_soccer: [
     ["athlete", "Not specified"],

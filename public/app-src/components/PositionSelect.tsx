@@ -23,7 +23,13 @@ export const POSITION_OPTIONS_BY_ACTIVITY: Record<string, readonly { id: string;
   powerlifting: [{ id: "athlete", label: "Athlete" }],
   general_strength: [{ id: "athlete", label: "Athlete" }],
   strongman: [{ id: "athlete", label: "Athlete" }],
-  hyrox: [{ id: "athlete", label: "Athlete" }],
+  hyrox: [
+    { id: "athlete", label: "Not specified" },
+    { id: "women_open", label: "Women's Open (and women's Doubles)" },
+    { id: "men_open", label: "Men's Open (and men's or mixed Doubles)" },
+    { id: "women_pro", label: "Women's Pro" },
+    { id: "men_pro", label: "Men's Pro" }
+  ],
   crossfit: [{ id: "athlete", label: "Athlete" }],
   football_soccer: [
     { id: "athlete", label: "Not specified" },
