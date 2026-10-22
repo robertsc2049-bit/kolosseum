@@ -28,3 +28,10 @@ test("an ordinary session shows nothing", () => {
   assert.deepEqual(programmeAdjustments({ template_position: { template_session_index: 3 }, exercises: [] }), []);
   assert.deepEqual(programmeAdjustments(null), []);
 });
+
+test("a coach sees which lifts had no max: worked by feel for a beginner, or by the RPE or weight they set", () => {
+  assert.deepEqual(programmeAdjustments({ template_position: { template_session_index: 0, max_fallbacks: [{ exercise_id: "back_squat", fallback: "beginner_rpe" }, { exercise_id: "paused_bench_press", fallback: "beginner_rpe" }] } }),
+    ["No max for back squat, paused bench press: worked by feel (RPE 6) - a beginner; add a max or keep them on RPE"]);
+  assert.deepEqual(programmeAdjustments({ template_position: { template_session_index: 2, max_fallbacks: [{ exercise_id: "deadlift", fallback: "coach_weight" }] } }),
+    ["No max for deadlift: your weight for this athlete was used"]);
+});

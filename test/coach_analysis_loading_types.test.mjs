@@ -125,3 +125,15 @@ test("the athlete's copy shows what they did in every form - weight x reps, body
   assert.equal(JSON.stringify(copy).includes("intensity"), false, "no % of max");
   assert.equal(JSON.stringify(copy).includes("one_rep_max"), false);
 });
+
+test("a beginner given RPE 8 bench and squat at 70-75% is flagged for the bench; an amateur on the same plan is not", () => {
+  const sessions = hybridAthlete();
+  const flag = (level) => findings(analyseAthlete({
+    today: TODAY, weeks: 3, closed: true, sessions, readiness: [], checkins: [], planned_days_per_week: 2, experience_level: level,
+    exercise_name: (id) => id.replaceAll("_", " "), is_strength_lift: () => false
+  })).find((finding) => finding.id === "beginner_heavy");
+  const beginner = flag("beginner");
+  assert.equal(beginner.text, "A beginner on heavy work: 6 sessions in this period set RPE 8+ or 80%+ of max (bench press).");
+  assert.match(beginner.action, /moderate weights/u);
+  assert.equal(flag("amateur"), undefined);
+});
