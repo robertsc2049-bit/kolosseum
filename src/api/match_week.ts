@@ -60,6 +60,11 @@ function lighter(intensity: Json | undefined, percentStep: number, rpeStep: numb
   if (!Number.isFinite(value)) return intensity;
   if (intensity.type === "percent_1rm") return { ...intensity, value: Math.max(40, Number((value - percentStep).toFixed(1))) };
   if (intensity.type === "rpe") return { ...intensity, value: Math.min(rpeCap, Math.max(5, value - rpeStep)) };
+  // A set weight: the same step off it, to the nearest 2.5 kg.
+  if (intensity.type === "load") {
+    const off = (kg: number) => Math.max(2.5, Math.floor((kg * (1 - percentStep / 100)) / 2.5) * 2.5);
+    return { ...intensity, value: off(value), ...(Number.isFinite(Number(intensity.maximum)) ? { maximum: off(Number(intensity.maximum)) } : {}) };
+  }
   return intensity;
 }
 
