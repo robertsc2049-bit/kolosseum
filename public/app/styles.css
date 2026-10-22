@@ -5197,3 +5197,15 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .injury-table td[data-label="Injury"] { font-weight: 600; }
   .injury-table td[data-label]:not([data-label="Injury"])::before { content: attr(data-label) ": "; color: var(--k-text-secondary); font-size: 0.8rem; }
 }
+
+/* The next weeks of the plan (CoachAnalysisPanel.tsx). */
+.analysis-ahead { display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.analysis-ahead h4 { margin: 0; }
+
+/* Bar speed on the set logger (SetLogger.tsx). */
+.set-log-speed input { max-width: 5.5rem; }
+.set-log-speed-toggle { display: flex; align-items: center; gap: var(--k-space-2); min-height: 44px; font-size: 0.85rem; color: var(--k-text-secondary); }
+
+/* Meet attempts (CoachAnalysisPanel.tsx). */
+.analysis-attempts { display: grid; gap: var(--k-space-2); margin-bottom: var(--k-space-3); }
+.analysis-attempts h4 { margin: 0; }

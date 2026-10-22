@@ -104,7 +104,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const markers = rows(a?.markers) as unknown as TrendMarker[];
   const quality = (load.quality ?? {}) as JsonRecord;
   const intensity = (execution.intensity ?? {}) as JsonRecord;
+  const velocityLifts = rows((a?.velocity as JsonRecord | undefined)?.lifts);
+  const attempts = (a?.attempts ?? null) as JsonRecord | null;
   const plan = (a?.plan ?? {}) as JsonRecord;
+  const ahead = (plan.ahead ?? {}) as JsonRecord;
   const external = (a?.external ?? {}) as JsonRecord;
   const testing = (a?.testing ?? {}) as JsonRecord;
 
@@ -140,6 +143,18 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
 
           <div className="analysis-sections">
           <Section id="strength" title="Strength" headline={first("strength")}>
+            {attempts ? (
+              <div className="analysis-attempts" data-testid="analysis-attempts">
+                <h4>{`Meet attempts - ${attempts.days_out} days out`}</h4>
+                <div className="analysis-table-wrap">
+                  <table className="analysis-table">
+                    <thead><tr><th>Lift</th><th>Projected max</th><th>Opener</th><th>Second</th><th>Third</th></tr></thead>
+                    <tbody>{rows(attempts.rows).map((row) => <tr key={String(row.exercise_id)}><td>{String(row.name)}</td><td>{`${row.projected_max} kg`}</td><td>{`${row.opener} kg`}</td><td>{`${row.second} kg`}</td><td>{`${row.third}-${row.third_good_day} kg`}</td></tr>)}</tbody>
+                  </table>
+                </div>
+                <p className="muted small">{`A starting point from their projected max (the latest estimate, or a tested max from the last 4 months if higher): opener about 91% - a weight they'd triple on a bad day - second about 96%, third 100-102% depending on how the day goes. Rounded down to ${attempts.step_kg} kg. Only you see this.`}</p>
+              </div>
+            ) : null}
             <TrendChart markers={markers} title="Estimated max per main lift (kg)" weeks={weekList} unit=" kg" series={mainLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.e1rm)) }))} emptyLabel="Log loaded sets of a main lift to see its estimated max." />
             {mainLifts.length ? (
               <ul className="analysis-lift-list">
@@ -225,7 +240,31 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             <p className="muted small" data-testid="analysis-load-quality">{num(quality.gym_sessions)
               ? `${quality.measured} of ${quality.gym_sessions} gym sessions rated by the athlete when they finished (the rest estimated)${num(quality.other_sessions) ? ` · ${quality.other_sessions} practice, match or conditioning sessions logged` : ""}.`
               : "No gym sessions in this period."}</p>
-            <TrendChart markers={markers} title="Load against their 4-week normal" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3: in line with normal" }} yMin={0} series={[{ id: "acwr", label: "Acute:chronic ratio", values: col(rows(load.rows), "acute_chronic") }]} />
+            <TrendChart markers={markers} title="Load against their 4-week normal" weeks={weekList} band={{ from: 0.8, to: 1.3, label: "0.8-1.3: in line with normal" }} yMin={0} series={[
+              { id: "acwr", label: "Acute:chronic (rolling)", values: col(rows(load.rows), "acute_chronic") },
+              { id: "ewma", label: "Acute:chronic (EWMA)", values: col(rows(load.rows), "ewma_ratio") }
+            ]} />
+            {rows(ahead.rows).length ? (
+              <div className="analysis-ahead" data-testid="analysis-ahead">
+                <h4>The next weeks of the plan</h4>
+                <div className="analysis-table-wrap">
+                  <table className="analysis-table">
+                    <thead><tr><th>Week</th><th>Working sets</th><th>Tonnage (kg)</th><th>vs lately</th></tr></thead>
+                    <tbody>
+                      {rows(ahead.rows).map((week) => (
+                        <tr key={String(week.week_number)}>
+                          <td>{`Week ${week.week_number}${week.current ? " (now)" : ""} · ${week.block_name}`}</td>
+                          <td>{`${show(week.working_sets)} in ${show(week.sessions)} sessions${Number(week.sets_80) ? ` · ${week.sets_80} at 80%+${Number(week.sets_90) ? `, ${week.sets_90} at 90%+` : ""}` : ""}`}</td>
+                          <td>{show(week.tonnage_kg)}</td>
+                          <td>{num(week.sets_vs_recent) === null ? "–" : `${week.sets_vs_recent}× sets${num(week.tonnage_vs_recent) === null ? "" : `, ${week.tonnage_vs_recent}× tonnage`}`}{week.flag === "spike" ? <span className="analysis-headline is-watch"> Spike</span> : week.flag === "jump" ? <span className="analysis-headline is-info"> Jump</span> : week.flag === "step_up" ? <span className="analysis-headline is-info"> Step up</span> : week.flag === "deload" ? <span className="muted"> Deload</span> : null}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="muted small">{`Lately: ${show((ahead.recent as JsonRecord | undefined)?.sets)} working sets and ${show((ahead.recent as JsonRecord | undefined)?.tonnage_kg)} kg a week (their last 4 complete weeks). "Now" counts the sessions left this week.`}</p>
+              </div>
+            ) : null}
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Load (points)", cell: (i) => show(rows(load.rows)[i]?.load) },
@@ -233,12 +272,15 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 { label: "Sport", cell: (i) => show(rows(load.rows)[i]?.sport_load) },
                 { label: "Matches", cell: (i) => show(rows(load.rows)[i]?.matches) },
                 { label: "Acute:chronic", cell: (i) => show(rows(load.rows)[i]?.acute_chronic) },
+                { label: "EWMA", cell: (i) => show(rows(load.rows)[i]?.ewma_ratio) },
                 { label: "Monotony", cell: (i) => show(rows(load.rows)[i]?.monotony) },
                 { label: "Strain", cell: (i) => show(rows(load.rows)[i]?.strain) }
               ]} />
               <Method>
                 <p>Session load (Foster session-RPE): session effort × minutes, in load points (the research calls them arbitrary units, AU). Measured when the athlete rates the whole session (0-10) and its minutes as they finish; otherwise estimated from the mean of their exercise ratings (RPE and CR10 as they are; Borg 6-20 rescaled) × the minutes from starting the session to its last logged event (capped at 240). Practice, matches and conditioning they log add their own effort × minutes. Unrated sessions add no load.</p>
                 <p>Acute:chronic: this week's load ÷ the mean of the 4 weeks before it ("uncoupled"). 0.8-1.3 is the widely quoted range; it is a heuristic and disputed as an injury predictor, so read it as context. Monotony: the week's mean daily load ÷ its standard deviation (rest days count as 0); above 2 is "very samey". Strain: weekly load × monotony (Foster, 1998).</p>
+                <p>EWMA acute:chronic (Williams et al., 2017): exponentially weighted daily load, acute over about 7 days (λ = 0.25) and chronic over about 28 (λ ≈ 0.069); a week shows the average of its daily ratios, as a single day swings with the weekday. It weights recent days more and isn't thrown by one big week dropping out of the 4-week window. Needs 28 days of history.</p>
+                <p>The next weeks of the plan: the programme's sessions still to come, week by week - working sets, tonnage from the weights it sets (from the maxes you recorded, or fixed weights) and sets at 80%+ / 90%+ of max - against what they've actually done on average over their last 4 complete weeks. Over 1.3× is a jump, over 1.5× a spike; a 30%+ rise in sets on the plan's week before is a step up.</p>
               </Method>
             </Numbers>
           </Section>
@@ -364,9 +406,47 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
             ) : <div className="empty-state compact-empty trend-empty"><p>Shows when the programme sets weights as a % of the athlete's max.</p></div>}
             <Numbers>
               {rows(intensity.by_exercise).length ? <ul className="analysis-plain-list">{rows(intensity.by_exercise).map((row) => <li key={String(row.exercise_id)}>{`${row.name}: ${row.sets} sets, ${row.average_pct}% of max on average, heaviest ${row.top_pct}%`}</li>)}</ul> : <p className="muted small">No sets against a % of max in this period.</p>}
-              <Method><p>Each logged set's weight ÷ the max the programme's % was worked out from. Zones count sets.</p></Method>
+              {rows(intensity.by_exercise).some((row) => rows(row.zones).length) ? (
+                <div className="analysis-table-wrap">
+                  <table className="analysis-table" data-testid="analysis-lift-zones">
+                    <thead><tr><th>Lift</th>{rows(rows(intensity.by_exercise)[0]?.zones).map((zone) => <th key={String(zone.zone)}>{String(zone.zone)}</th>)}</tr></thead>
+                    <tbody>{rows(intensity.by_exercise).map((row) => <tr key={String(row.exercise_id)}><td>{String(row.name)}</td>{rows(row.zones).map((zone) => <td key={String(zone.zone)}>{show(zone.sets)}</td>)}</tr>)}</tbody>
+                  </table>
+                </div>
+              ) : null}
+              {rows(intensity.prilepin).length ? (
+                <div className="analysis-table-wrap">
+                  <table className="analysis-table" data-testid="analysis-prilepin">
+                    <thead><tr><th>Session</th><th>Lift</th><th>Reps by zone (Prilepin range)</th></tr></thead>
+                    <tbody>{rows(intensity.prilepin).map((entry, index) => <tr key={`${entry.date}-${entry.exercise_id}-${index}`}><td>{String(entry.date)}</td><td>{String(entry.name)}</td><td>{rows(entry.zones).map((zone) => `${zone.zone}: ${zone.reps} (${zone.range})${zone.verdict === "above" ? " - above" : zone.verdict === "below" ? " - below" : ""}`).join(" · ")}</td></tr>)}</tbody>
+                  </table>
+                </div>
+              ) : null}
+              <Method>
+                <p>Each logged set's weight ÷ the max the programme's % was worked out from. Zones count sets, for all lifts together and per lift.</p>
+                <p>Prilepin's table (from weightlifters, 1974): reps per lift per session - 55-69%: 18-30 (best about 24); 70-79%: 12-24 (18); 80-89%: 10-20 (15); 90%+: up to 10 (4). Sessions with work at 70%+ are checked. A guide to how much heavy work a session holds, not a rule; it was built on the Olympic lifts.</p>
+              </Method>
             </Numbers>
           </Section>
+
+          {velocityLifts.length ? (
+            <Section id="velocity" title="Bar speed" headline={null}>
+              <div className="analysis-table-wrap">
+                <table className="analysis-table" data-testid="analysis-velocity">
+                  <thead><tr><th>Lift</th><th>At</th><th>Earlier</th><th>Lately</th><th>Change</th><th>Speed lost across sets</th><th>Latest</th></tr></thead>
+                  <tbody>{velocityLifts.map((lift) => {
+                    const latest = (lift.latest ?? {}) as JsonRecord;
+                    return <tr key={String(lift.exercise_id)}><td>{String(lift.name)}</td><td>{`${lift.common_load_kg} kg`}</td><td>{num(lift.speed_before) === null ? "–" : `${lift.speed_before} m/s`}</td><td>{num(lift.speed_after) === null ? "–" : `${lift.speed_after} m/s`}</td><td>{num(lift.speed_change) === null ? "–" : `${Number(lift.speed_change) > 0 ? "+" : ""}${lift.speed_change}`}</td><td>{show(lift.velocity_loss_pct, "%")}</td><td>{`${latest.velocity} m/s at ${latest.load_kg} kg`}</td></tr>;
+                  })}</tbody>
+                </table>
+              </div>
+              <Numbers>
+                <Method>
+                  <p>The mean bar speed athletes log from a VBT device. Speed at the same weight (the one they log most, to 2.5 kg), the first half of the period against the second: a change of 0.06 m/s or more is flagged - about the smallest change these devices reliably pick up. Speed lost across sets: in each session, the fastest set at the top weight against the last one; 20-30% is typical of hard work, more is a lot of fatigue.</p>
+                </Method>
+              </Numbers>
+            </Section>
+          ) : null}
 
           <Section id="volume" title="Volume" headline={null}>
             <TrendChart markers={markers} title="Logged sets and tonnage per week" weeks={weekList} series={[{ id: "sets", label: "Sets logged", kind: "bar", values: col(rows(volume.rows), "sets") }]} />

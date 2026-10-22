@@ -66,7 +66,7 @@ test("% of max: the % lifted and the sets by intensity zone", () => {
   const zones = Object.fromEntries(a.execution.intensity.zones.map((zone) => [zone.zone, zone.sets]));
   assert.equal(zones["70-80%"], 18, "6 sessions x 3 squat sets");
   assert.equal(a.execution.intensity.sets, 18);
-  assert.deepEqual(a.execution.intensity.by_exercise[0], { exercise_id: "back_squat", name: "back squat", sets: 18, average_pct: 75, top_pct: 75 });
+  assert.deepEqual(a.execution.intensity.by_exercise[0], { exercise_id: "back_squat", name: "back squat", sets: 18, average_pct: 75, top_pct: 75, zones: [{ zone: "under 60%", sets: 0 }, { zone: "60-70%", sets: 0 }, { zone: "70-80%", sets: 18 }, { zone: "80-90%", sets: 0 }, { zone: "90% +", sets: 0 }] });
 });
 
 test("an RPE target and a Borg target: the athlete's ratings against them, each in its own scale", () => {

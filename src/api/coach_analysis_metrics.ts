@@ -23,6 +23,8 @@
 type Json = Record<string, unknown>;
 
 import { analyseInjuries, injuryActionFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
+import { ewmaRatios, forwardActionFor, forwardFindings, forwardRows, type PlannedWeek } from "./forward_load.js";
+import { attemptPlan, prilepinCheck, velocitySummary, type HeavySet, type VelocitySet } from "./strength_top_end.js";
 
 export type AnalysisEvent = Readonly<{
   type: string;
@@ -34,6 +36,8 @@ export type AnalysisEvent = Readonly<{
   rpe?: number;
   borg?: number;
   cr10?: number;
+  // Bar speed from a VBT device (m/s), on a set log.
+  velocity?: number;
   pain_area?: string | null;
   reason_code?: string;
 }>;
@@ -118,6 +122,11 @@ export type AnalysisInput = Readonly<{
   external_load?: readonly ExternalLoad[];
   // The injury log (injury_log_service.ts): every injury still standing.
   injuries?: readonly InjuryRecord[];
+  // The programme's weeks still to come (athlete_my_programme_service plannedWeeksAhead).
+  planned_ahead?: readonly PlannedWeek[];
+  // For meet attempts: their sport and competition date.
+  activity_id?: string | null;
+  competition_date?: string | null;
   tested_maxes?: readonly TestedMax[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
@@ -315,7 +324,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
     return rated ? days.reduce((sum, date) => sum + (dailyLoad.get(date) ?? 0), 0) : trained ? null : 0;
   });
   const sumWeek = (map: Map<string, number>, start: string) => Array.from({ length: 7 }, (_, offset) => map.get(addDays(start, offset)) ?? 0).reduce((sum, value) => sum + value, 0);
-  const loadRows = weeks.map((start) => {
+  // EWMA acute:chronic at each week's end (or today), from the first training day.
+  const ewma = ewmaRatios(dailyLoad, trainedDates[0] ?? null, weeks.map((start) => (addDays(start, 6) > input.today ? input.today : addDays(start, 6))));
+  const loadRows = weeks.map((start, weekIndex) => {
     const index = loadWeeks.indexOf(start);
     const daily = Array.from({ length: 7 }, (_, offset) => dailyLoad.get(addDays(start, offset)) ?? 0);
     const weekly = weeklyLoadAll[index];
@@ -324,7 +335,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       week_start: start, partial_week: start === currentWeek, load: weekly,
       gym_load: weekly === null ? null : sumWeek(dailyGym, start), sport_load: weekly === null ? null : sumWeek(dailySport, start),
       matches: other.filter((entry) => entry.kind === "match" && weekStart(entry.date) === start).length,
-      acute_chronic: acuteChronic(weeklyLoadAll, index), monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
+      acute_chronic: acuteChronic(weeklyLoadAll, index), ewma_ratio: ewma[weekIndex], monotony: mono, strain: weekly && mono ? round(weekly * mono, 0) : null
     };
   });
   const gymRows = sessionRows.filter((row) => row.kind === "gym");
@@ -456,6 +467,9 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const missedByExercise = new Map<string, { missed_sets: number; sets: number }>();
   const effortTargets = new Map<string, { exercise_id: string; scale: EffortScale; target: number; target_max: number | null; ratings: number[]; dates: string[] }>();
   const intensityByExercise = new Map<string, number[]>();
+  const zonesByExercise = new Map<string, number[]>();
+  const heavySets: HeavySet[] = [];
+  const velocitySets: VelocitySet[] = [];
   const zoneCounts = INTENSITY_ZONES.map(() => 0);
   for (const session of sessions.filter((s) => done(s) && inWindow(sessionDay(s)))) {
     const week = weekStart(sessionDay(session));
@@ -476,6 +490,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       else {
         const mine = logs.filter((log) => log.exercise_id === planned.exercise_id);
         t.sets_logged += Math.min(mine.length, planned.sets_max ?? planned.sets);
+        for (const log of mine) if (finite(log.velocity) && finite(log.load_kg) && log.load_kg > 0) velocitySets.push({ session_id: session.session_id, date: sessionDay(session), exercise_id: baseExercise(planned.exercise_id), load_kg: log.load_kg, velocity: log.velocity, set_index: log.set_index ?? 0 });
         if (planned.reps_target !== null) {
           for (const log of mine) {
             t.reps_checked += 1;
@@ -503,6 +518,10 @@ export function analyseAthlete(input: AnalysisInput): Json {
             list.push(pct);
             intensityByExercise.set(baseExercise(planned.exercise_id), list);
             zoneCounts[INTENSITY_ZONES.findIndex((zone) => pct < zone.below)] += 1;
+            const liftZones = zonesByExercise.get(baseExercise(planned.exercise_id)) ?? INTENSITY_ZONES.map(() => 0);
+            liftZones[INTENSITY_ZONES.findIndex((zone) => pct < zone.below)] += 1;
+            zonesByExercise.set(baseExercise(planned.exercise_id), liftZones);
+            if (finite(log.reps)) heavySets.push({ session_id: session.session_id, date: sessionDay(session), exercise_id: baseExercise(planned.exercise_id), pct, reps: log.reps });
           }
         }
       }
@@ -553,8 +572,13 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const intensity = {
     sets: zoneTotal,
     zones: INTENSITY_ZONES.map((zone, index) => ({ zone: zone.label, sets: zoneCounts[index], pct: zoneTotal ? round((zoneCounts[index] / zoneTotal) * 100, 0) : null })),
-    by_exercise: [...intensityByExercise.entries()].map(([exerciseId, list]) => ({ exercise_id: exerciseId, name: input.exercise_name(exerciseId), sets: list.length, average_pct: round(mean(list), 0), top_pct: round(Math.max(...list), 0) })).sort((a, b) => b.sets - a.sets)
+    by_exercise: [...intensityByExercise.entries()].map(([exerciseId, list]) => ({
+      exercise_id: exerciseId, name: input.exercise_name(exerciseId), sets: list.length, average_pct: round(mean(list), 0), top_pct: round(Math.max(...list), 0),
+      zones: INTENSITY_ZONES.map((zone, index) => ({ zone: zone.label, sets: zonesByExercise.get(exerciseId)?.[index] ?? 0 }))
+    })).sort((a, b) => b.sets - a.sets),
+    prilepin: prilepinCheck(heavySets, input.exercise_name).slice(0, 12)
   };
+  const velocity = velocitySummary(velocitySets, input.exercise_name, addDays(first, Math.round((Date.parse(`${input.today}T00:00:00Z`) - Date.parse(`${first}T00:00:00Z`)) / DAY_MS / 2)));
 
   // Effort creep: the same exercise at about the same top weight (within
   // 2.5%), rated in the first half of the window and again in the second, in
@@ -891,7 +915,14 @@ export function analyseAthlete(input: AnalysisInput): Json {
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
-    plan: { rows: planRows },
+    velocity: { lifts: velocity },
+    attempts: attemptPlan(String(input.activity_id ?? ""), lifts.map((lift) => ({ exercise_id: String(lift.exercise_id), name: String(lift.name), latest: Number(lift.latest), tested_max: lift.tested_max })), input.competition_date ?? null, input.today),
+    plan: { rows: planRows, ahead: (() => {
+      // What they've actually done lately: the mean of their last 4 complete weeks.
+      const recent = planRows.filter((row) => !row.partial_week).slice(-4);
+      const avg = (pick: (row: (typeof planRows)[number]) => number) => (recent.length ? round(recent.reduce((sum, row) => sum + pick(row), 0) / recent.length, 0) : null);
+      return { recent: { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }, rows: forwardRows(input.planned_ahead ?? [], { sets: avg((row) => row.done_sets), tonnage_kg: avg((row) => row.done_tonnage_kg) }) };
+    })() },
     external: { rows: externalRows, sessions: external.filter((entry) => inWindow(entry.date)) },
     injuries: { ...analyseInjuries(input.injuries ?? [], input.today, first, painAreas.map((area) => String(area.area))), as_of: input.today },
     testing: { tests: testRows },
@@ -914,7 +945,9 @@ function actionFor(finding: Finding): string | undefined {
     : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
-  const injury = injuryActionFor(id);
+  if (id.startsWith("velocity_")) return finding.level === "good" ? "Faster at the same weight usually means stronger - an estimated max may be behind; consider retesting." : "Slower at the same weight is an early sign of fatigue - check sleep and recent load, and consider a lighter few days before the next heavy session.";
+  if (id === "prilepin_high") return "Prilepin's table is a guide built on weightlifters, not a rule - but if heavy sessions keep running long, watch bar speed and recovery between them.";
+  const injury = injuryActionFor(id) ?? forwardActionFor(id);
   if (injury) return injury;
   if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
   if (id === "hrv_low" || id === "rhr_high") return "A sign the body is under strain - illness, poor sleep or accumulated fatigue. Ask how they are, and consider a lighter session until it settles.";
@@ -1116,6 +1149,14 @@ export function findings(analysis: Json): Finding[] {
   }
 
   if (a.injuries) out.push(...(injuryFindings(a.injuries, String((a.injuries as Json).as_of)) as Finding[]));
+  for (const lift of (((a.velocity as Json | undefined)?.lifts ?? []) as Json[])) {
+    const change = Number(lift.speed_change);
+    if (finite(lift.speed_change) && change <= -0.06) out.push({ id: `velocity_${lift.exercise_id}`, section: "strength", level: "watch", exercise_id: String(lift.exercise_id), text: `${lift.name}: bar speed at ${lift.common_load_kg} kg is down ${Math.abs(change).toFixed(2)} m/s (${lift.speed_before} to ${lift.speed_after}).` });
+    else if (finite(lift.speed_change) && change >= 0.06) out.push({ id: `velocity_${lift.exercise_id}`, section: "strength", level: "good", exercise_id: String(lift.exercise_id), text: `${lift.name}: bar speed at ${lift.common_load_kg} kg is up ${change.toFixed(2)} m/s (${lift.speed_before} to ${lift.speed_after}).` });
+  }
+  const overPrilepin = ((((a.execution as Json)?.intensity as Json | undefined)?.prilepin ?? []) as Json[]).filter((entry) => ((entry.zones ?? []) as Json[]).some((zone) => zone.verdict === "above" && String(zone.zone) !== "55-69%"));
+  if (overPrilepin.length >= 2) out.push({ id: "prilepin_high", section: "strength", level: "info", text: `${overPrilepin.length} recent heavy sessions went past Prilepin's range for reps at 70%+ (${[...new Set(overPrilepin.map((entry) => String(entry.name)))].slice(0, 2).join(", ")}).` });
+  if (!a.closed) out.push(...(forwardFindings((((a.plan as Json)?.ahead as Json | undefined)?.rows ?? []) as Json[]) as Finding[]));
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
   return mergeRelated(out)

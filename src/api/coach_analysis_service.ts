@@ -18,6 +18,7 @@ import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseD
 import { isE1rmExercise } from "./training_e1rm.js";
 import { blockMarkers, listOtherTraining, loadExternalLoad, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
 import { loadInjuries } from "./injury_log_service.js";
+import { plannedWeeksAhead } from "./athlete_my_programme_service.js";
 import { programmeHistory } from "./programme_history.js";
 import { loadProfileHistory, loadTestResults } from "./athlete_tests_service.js";
 
@@ -103,6 +104,7 @@ function analysisEvent(raw: unknown, at: string): AnalysisEvent | null {
     ...(num(raw.rpe_value) !== null ? { rpe: num(raw.rpe_value)! } : {}),
     ...(num(raw.borg_value) !== null ? { borg: num(raw.borg_value)! } : {}),
     ...(num(raw.cr10_value) !== null ? { cr10: num(raw.cr10_value)! } : {}),
+    ...(num(raw.velocity_mps) !== null ? { velocity: num(raw.velocity_mps)! } : {}),
     ...(type === "PAIN_REPORT" ? { pain_area: text(raw.pain_area) || null } : {}),
     ...(text(raw.reason_code) ? { reason_code: text(raw.reason_code) } : {})
   };
@@ -198,11 +200,12 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     listOtherTraining(athleteUserId, since).catch(() => []),
     programmeHistory(athleteUserId).catch(() => [])
   ]);
-  const [tests, profile, externalLoad, injuries] = await Promise.all([
+  const [tests, profile, externalLoad, injuries, plannedAhead] = await Promise.all([
     loadTestResults(athleteUserId).catch(() => []),
     loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null })),
     loadExternalLoad(athleteUserId, since).catch(() => []),
-    loadInjuries(athleteUserId).catch(() => [])
+    loadInjuries(athleteUserId).catch(() => []),
+    options.closed || options.to ? Promise.resolve([]) : plannedWeeksAhead(athleteUserId).catch(() => [])
   ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
@@ -222,6 +225,9 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     tests,
     external_load: externalLoad,
     injuries,
+    planned_ahead: plannedAhead,
+    activity_id: text(plan?.activity_id) || null,
+    competition_date: text(plan?.competition_date) || null,
     tested_maxes: profile.maxes,
     bodyweight_kg: profile.bodyweight_kg,
     planned_days_per_week: num(plan?.training_days_per_week),
