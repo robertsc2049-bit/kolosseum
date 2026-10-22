@@ -135,6 +135,9 @@ export type AnalysisInput = Readonly<{
   is_strength_lift: (exerciseId: string) => boolean;
   // Pull-ups, dips...: their max is bodyweight + added (bodyweight_kg needed).
   is_bodyweight_lift?: (exerciseId: string) => boolean;
+  // beginner | amateur | pro, as the athlete declared it: heavy work for a
+  // beginner is flagged.
+  experience_level?: string | null;
 }>;
 
 // ---------- small helpers ----------
@@ -963,6 +966,17 @@ export function analyseAthlete(input: AnalysisInput): Json {
     external: { rows: externalRows, sessions: external.filter((entry) => inWindow(entry.date)) },
     injuries: { ...analyseInjuries(input.injuries ?? [], input.today, first, painAreas.map((area) => String(area.area))), as_of: input.today },
     testing: { tests: testRows },
+    level: (() => {
+      // Sessions in the period whose working sets were prescribed heavy:
+      // RPE 8+ or 80%+ of the max the weight came from.
+      if (!input.experience_level) return null;
+      const heavy = (planned: AnalysisPlannedExercise) => (planned.segment || "working") === "working" && (
+        (planned.intensity_type === "rpe" && finite(planned.target_effort) && Number(planned.target_effort) >= 8) ||
+        (finite(planned.load_kg) && finite(planned.one_rep_max_kg) && Number(planned.one_rep_max_kg) > 0 && Number(planned.load_kg) / Number(planned.one_rep_max_kg) >= 0.8));
+      const heavySessions = sessions.filter((session) => inWindow(sessionDay(session)) && session.planned.some(heavy));
+      const lifts = [...new Set(heavySessions.flatMap((session) => session.planned.filter(heavy).map((planned) => input.exercise_name(planned.exercise_id.replace(/__r[0-9]+$/u, "")))))];
+      return { experience_level: input.experience_level, heavy_sessions: heavySessions.length, heavy_lifts: lifts.slice(0, 3) };
+    })(),
     bodyweight_kg: finite(input.bodyweight_kg) ? input.bodyweight_kg : null,
     exercises: { rows: exerciseRows, effort_bands: effortBands, rated: allEffort.length, rated_by: ratedBy, patterns: patternRows }
   };
@@ -998,6 +1012,7 @@ function actionFor(finding: Finding): string | undefined {
   if (id.startsWith("strength_fatigue_")) return "Signs of fatigue: plan a lighter week before pushing this lift again.";
   if (id.startsWith("strength_")) return level === "alert" ? "Look at fatigue, sleep and pain first - a lighter week often brings it back. If it keeps falling, change the stimulus."
     : level === "watch" ? "Change something: the rep range, an exercise variation, the volume or how often it's trained." : "Tell them - and keep the current plan going.";
+  if (id === "beginner_heavy") return "In their first months a beginner gains most from moderate weights (about RPE 6-7, 60-75%) and practising technique - keep the heavy sets for when their form holds under load.";
   if (id === "execution") return "The weights are probably too heavy: drop the load a little or widen the rep range.";
   if (id === "creep") return "Fatigue is building on this lift - consider a lighter week soon.";
   if (id.startsWith("effort_target_")) return level === "info" ? "Add weight next time - they have more in the tank." : "Lighten it to match the effort you meant, or check they understand the rating scale.";
@@ -1201,6 +1216,11 @@ export function findings(analysis: Json): Finding[] {
   }
   const overPrilepin = ((((a.execution as Json)?.intensity as Json | undefined)?.prilepin ?? []) as Json[]).filter((entry) => ((entry.zones ?? []) as Json[]).some((zone) => zone.verdict === "above" && String(zone.zone) !== "55-69%"));
   if (overPrilepin.length >= 2) out.push({ id: "prilepin_high", section: "strength", level: "info", text: `${overPrilepin.length} recent heavy sessions went past Prilepin's range for reps at 70%+ (${[...new Set(overPrilepin.map((entry) => String(entry.name)))].slice(0, 2).join(", ")}).` });
+  const level = a.level as Json | null | undefined;
+  if (level && level.experience_level === "beginner" && Number(level.heavy_sessions) > 0) {
+    const n = Number(level.heavy_sessions);
+    out.push({ id: "beginner_heavy", section: "execution", level: "watch", text: `A beginner on heavy work: ${n} session${n === 1 ? "" : "s"} in this period set RPE 8+ or 80%+ of max (${((level.heavy_lifts ?? []) as string[]).join(", ")}).` });
+  }
   if (!a.closed) out.push(...(forwardFindings((((a.plan as Json)?.ahead as Json | undefined)?.rows ?? []) as Json[]) as Finding[]));
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
