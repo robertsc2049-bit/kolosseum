@@ -994,6 +994,45 @@ function wireHeadCoach() {
   });
 }
 
+// The medical lead: the team's physio or doctor, with a coach account in the
+// organisation. They keep the team's injury log and stand-downs and see
+// nothing else of the athletes'. Team organisations only.
+function renderMedicalLead(analysis, activeCoaches, coachNamesById) {
+  if (analysis.visibility_mode !== "shared") return "";
+  const current = analysis.medical_lead_user_id || "";
+  const options = activeCoaches.map((coach) => `<option value="${escapeHtml(coach.coach_user_id)}" ${coach.coach_user_id === current ? "selected" : ""}>${escapeHtml(coachLabel(coach.coach_user_id, coachNamesById))}</option>`).join("");
+  return `<div class="org-head-coach" data-testid="org-medical-lead">
+    <h3>Medical lead</h3>
+    <p class="muted small">Your physio or doctor, with a coach account in this team. They keep every athlete's injury log and medical stand-downs from their coaching workspace, and see nothing else of the athletes'. You only ever see whether an athlete is available.</p>
+    <div class="button-row">
+      <select id="orgMedicalLeadSelect" aria-label="Medical lead"><option value="">No medical lead</option>${options}</select>
+      <button id="orgMedicalLeadSave" class="button secondary" type="button">Save</button>
+    </div>
+    <p id="orgMedicalLeadStatus" class="muted small" role="status"></p>
+  </div>`;
+}
+
+function wireMedicalLead() {
+  const button = el("orgMedicalLeadSave");
+  if (!button) return;
+  button.addEventListener("click", async () => {
+    const status = el("orgMedicalLeadStatus");
+    button.disabled = true;
+    try {
+      const coachUserId = el("orgMedicalLeadSelect").value;
+      await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/medical-lead`, { coach_user_id: coachUserId || null });
+      status.textContent = coachUserId ? "Medical lead saved." : "Medical lead cleared.";
+    }
+    catch (error) {
+      status.textContent = "The medical lead couldn't be saved - they must be an active coach of this team.";
+      console.error(error);
+    }
+    finally {
+      button.disabled = false;
+    }
+  });
+}
+
 function renderOrgAnalysis(analysis, coachNamesById, activeCoaches = []) {
   const container = el("orgAnalysis");
   const gym = analysis.visibility_mode === "individual";
@@ -1018,8 +1057,10 @@ function renderOrgAnalysis(analysis, coachNamesById, activeCoaches = []) {
     ${gym ? "" : renderOrgGroups("By position", (analysis.by_position || []).length > 1 ? analysis.by_position : [], (group) => group.label)}
     ${gym ? "" : renderOrgAthletes(analysis.athletes || [])}
     ${renderHeadCoach(analysis, activeCoaches, coachNamesById)}
+    ${renderMedicalLead(analysis, activeCoaches, coachNamesById)}
   `;
   wireHeadCoach();
+  wireMedicalLead();
 }
 
 async function refreshProgress() {

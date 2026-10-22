@@ -53,7 +53,7 @@ import {
   getOrgAthleteVisibility
 } from "./org_visibility_service.js";
 import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
-import { OrgHeadCoachError, setHeadCoach } from "./org_head_coach_service.js";
+import { OrgHeadCoachError, setHeadCoach, setMedicalLead } from "./org_head_coach_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -364,6 +364,21 @@ orgOwnerRouter.post(
     const { user_id } = await authenticatedOrgOwner(request, true);
     try {
       return response.status(200).json(await setHeadCoach(user_id, String(request.params.org_id), request.body));
+    }
+    catch (error) {
+      if (error instanceof OrgHeadCoachError) return response.status(error.status).json({ ok: false, error: error.message });
+      throw error;
+    }
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/medical-lead",
+  orgHeadCoachRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      return response.status(200).json(await setMedicalLead(user_id, String(request.params.org_id), request.body));
     }
     catch (error) {
       if (error instanceof OrgHeadCoachError) return response.status(error.status).json({ ok: false, error: error.message });
