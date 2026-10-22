@@ -17,6 +17,7 @@ import {
   duplicateCoachProgrammeTemplate,
   listActiveExerciseOptions,
   listCoachProgrammeTemplates,
+  sentTemplateIds,
   loadTemplateEventBindingStatus,
   saveCoachProgrammeTemplate
 } from "./beta18_programme_template_service.js";
@@ -82,10 +83,18 @@ export async function getCoachTemplates(
         req.query.coach_user_id
       );
 
-    const templates =
+    const listed =
       await listCoachProgrammeTemplates(
         coachUserId
       );
+    // Each version says whether it's been sent: until then a finished
+    // programme can still be edited.
+    const sent =
+      await sentTemplateIds(
+        listed.map((template) => String(template.template_id ?? ""))
+      );
+    const templates =
+      listed.map((template) => ({ ...template, sent: sent.has(String(template.template_id ?? "")) }));
 
     return res
       .status(200)

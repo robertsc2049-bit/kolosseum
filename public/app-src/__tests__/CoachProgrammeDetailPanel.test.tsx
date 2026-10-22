@@ -122,27 +122,34 @@ test("shows a factual placeholder description when none was recorded", async () 
   await screen.findByText("No programme description was recorded.");
 });
 
-test("draft programmes show Edit draft, Save complete template and Archive, but not Activate or Duplicate", async () => {
+test("draft programmes show Edit draft, Check it's ready and Archive, but not Ready to send or Duplicate", async () => {
   installMocks({ templates: [template({ template_status: "draft" })] });
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v1");
 
   await screen.findByText("Edit draft");
-  assert.ok(screen.getByText("Save complete template"));
+  assert.ok(screen.getByText("Check it's ready"));
   assert.ok(screen.getByText("Archive programme"));
-  assert.equal(screen.queryByText("Activate programme"), null);
+  assert.equal(screen.queryByText("Ready to send"), null);
   assert.equal(screen.queryByText("Duplicate version"), null);
 });
 
-test("complete programmes show Activate and Duplicate, not Edit or Save complete", async () => {
+test("a complete programme nobody has yet shows Ready to send, Edit and Duplicate; sent, Edit makes a new version", async () => {
   installMocks({ templates: [template({ template_status: "complete" })] });
   render(<CoachProgrammeDetailPanel />);
   await openDetail("tmpl_1_v1");
 
-  await screen.findByText("Activate programme");
+  await screen.findByText("Ready to send");
   assert.ok(screen.getByText("Duplicate version"));
+  assert.ok(screen.getByText("Edit"));
   assert.equal(screen.queryByText("Edit draft"), null);
-  assert.equal(screen.queryByText("Save complete template"), null);
+  assert.equal(screen.queryByText("Check it's ready"), null);
+  cleanup();
+
+  installMocks({ templates: [template({ template_status: "active", sent: true })] });
+  render(<CoachProgrammeDetailPanel />);
+  await openDetail("tmpl_1_v1");
+  await screen.findByText("Edit as a new version");
 });
 
 test("archived programmes do not show an Archive action", async () => {
@@ -231,7 +238,7 @@ test("action buttons dispatch bridge events with the template id, without portin
   }) as typeof document.dispatchEvent;
 
   try {
-    fireEvent.click(screen.getByText("Save complete template"));
+    fireEvent.click(screen.getByText("Check it's ready"));
   }
   finally {
     document.dispatchEvent = original;

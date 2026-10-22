@@ -3172,6 +3172,42 @@ export function listActiveExerciseOptions(): Readonly<{
   });
 }
 
+// Whether this exact version has reached an athlete or another coach: a
+// coach's assignment, a Kolosseum listing or run of it, or a programme a
+// coach gave someone (programme_grant_service.ts).
+export async function templateHasBeenSent(templateId: string): Promise<boolean> {
+  const result = await pool.query(
+    `
+    SELECT 1 FROM beta_product_records
+    WHERE record_type = 'beta17_assignment_trigger' AND record_payload->>'template_id' = $1
+    UNION ALL
+    SELECT 1 FROM product_account_events
+    WHERE event_type IN ('kolosseum_programme_listing', 'athlete_programme_run_started', 'programme_grant_given')
+      AND event_payload->>'template_id' = $1
+    LIMIT 1
+    `,
+    [templateId]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+// Of these versions, the ones that have been sent (above).
+export async function sentTemplateIds(templateIds: readonly string[]): Promise<Set<string>> {
+  if (!templateIds.length) return new Set();
+  const result = await pool.query(
+    `
+    SELECT DISTINCT record_payload->>'template_id' AS template_id FROM beta_product_records
+    WHERE record_type = 'beta17_assignment_trigger' AND record_payload->>'template_id' = ANY($1::text[])
+    UNION
+    SELECT DISTINCT event_payload->>'template_id' FROM product_account_events
+    WHERE event_type IN ('kolosseum_programme_listing', 'athlete_programme_run_started', 'programme_grant_given')
+      AND event_payload->>'template_id' = ANY($1::text[])
+    `,
+    [templateIds]
+  );
+  return new Set(result.rows.map((row: JsonRecord) => String(row.template_id)));
+}
+
 export async function saveCoachProgrammeTemplate(
   input: unknown,
   // DEV NOTE: internal-only escape hatch. `allowEventBindingChange` must never be
@@ -3319,14 +3355,25 @@ export async function saveCoachProgrammeTemplate(
       templateId
     );
 
+  // A finished (complete or active) programme stays editable until it has
+  // been sent - assigned, given, listed or run by anyone - and saving it
+  // makes it a draft again. Once sent, an athlete's programme never changes
+  // under them: the coach edits a new version.
   if (
     existing &&
     existing.template_status !==
       "draft"
   ) {
-    throw new Beta18ProgrammeTemplateError(
-      "active_or_archived_template_is_immutable"
-    );
+    if (existing.template_status === "archived") {
+      throw new Beta18ProgrammeTemplateError(
+        "active_or_archived_template_is_immutable"
+      );
+    }
+    if (await templateHasBeenSent(templateId)) {
+      throw new Beta18ProgrammeTemplateError(
+        "template_sent_edit_new_version"
+      );
+    }
   }
 
   if (
