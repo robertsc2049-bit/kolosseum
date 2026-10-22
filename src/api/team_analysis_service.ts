@@ -12,6 +12,8 @@ import { listOrgAthleteRosterForCoach } from "./coach_team_position_override_ser
 import { resolveOrgActiveCoachAcceptedAthletes } from "./attendance_event_org_invite_service.js";
 import { headCoachOf, headCoachOrgs } from "./org_head_coach_service.js";
 import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
+import { analyseInjuries } from "./injury_metrics.js";
+import { loadInjuries } from "./injury_log_service.js";
 import { activeStandDown } from "./medical_stand_down_service.js";
 import { getAthletePainFlags } from "./pain_flag_service.js";
 
@@ -23,13 +25,18 @@ export type TeamMember = Readonly<{ athlete_user_id: string; display_name: strin
 // Today's availability: unavailable (an active stand-down), modified (an
 // active pain flag) or available - with the reason, which only the
 // athlete's own coach or the head coach is shown (withoutPainDetail drops it).
-export async function availabilityOf(athleteUserId: string): Promise<Json> {
-  const [standDown, flags] = await Promise.all([
+export async function availabilityOf(athleteUserId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  const [standDown, flags, injuries] = await Promise.all([
     activeStandDown(athleteUserId).catch(() => null),
-    getAthletePainFlags(athleteUserId).catch(() => ({ flags: [] }))
+    getAthletePainFlags(athleteUserId).catch(() => ({ flags: [] })),
+    loadInjuries(athleteUserId).catch(() => [])
   ]);
   if (standDown) return { status: "unavailable", reason: standDown.reason === "head_injury" ? "Head injury stand-down" : "Medical stand-down", until: standDown.until_date };
+  // An injury the coach logged: out is unavailable, modified is modified.
+  const injury = analyseInjuries(injuries, today, today).availability as Json | null;
+  if (injury?.status === "unavailable") return injury;
   const list = (Array.isArray((flags as Json).flags) ? (flags as Json).flags : []) as Json[];
+  if (injury) return injury;
   if (list.length) return { status: "modified", reason: `Pain flagged: ${list.map((flag) => String(flag.where ?? "")).filter(Boolean).join(", ")}` };
   return { status: "available" };
 }
@@ -54,6 +61,9 @@ export function cachedForAMinute(key: string, work: () => Promise<Json>): Promis
   return value;
 }
 export function __clearTeamCacheForTests(): void { recent.clear(); }
+// A coach just changed an athlete's data (an injury, a squad entry): the
+// next team view is worked out fresh, not reused.
+export function forgetRecentTeamViews(): void { recent.clear(); }
 
 // Each member's 8-week analysis row (the same row a coach's own roster uses),
 // with today's availability.
@@ -61,7 +71,7 @@ export async function analyseMembers(members: readonly TeamMember[], today: stri
   return inBatches(members, 6, async (member) => {
     const name = member.display_name || member.athlete_user_id;
     try {
-      const [result, availability] = await Promise.all([analyseAthleteWindow(member.athlete_user_id, member.coach_user_id, 8, today), availabilityOf(member.athlete_user_id)]);
+      const [result, availability] = await Promise.all([analyseAthleteWindow(member.athlete_user_id, member.coach_user_id, 8, today), availabilityOf(member.athlete_user_id, today)]);
       const findings = (result.findings ?? []) as Json[];
       return { ...rosterRowFor(member.athlete_user_id, name, { ...result, findings, attention: result.attention }), coach_user_id: member.coach_user_id, position: member.position ?? null, availability };
     }
@@ -110,7 +120,8 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
   const shown = rows.map((row): Json => (row.coach_user_id === coachUserId
     ? { ...row, email: email(row), yours: true, openable: true }
     : head ? { ...row, email: email(row), yours: false, openable: true } : { ...withoutPainDetail(row), yours: false, openable: false }));
-  const summary = summariseGroup(rows);
+  // Injury numbers for the group: the head coach only (they see every athlete in full).
+  const summary = summariseGroup(rows, { includeInjuries: head });
   return {
     ok: true,
     today,
@@ -119,8 +130,8 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
     head_coach: head,
     summary,
     findings: groupFindings(summary, "the team"),
-    by_position: summariseBy(rows, (row) => text(row.position), positionLabel),
-    by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach"),
+    by_position: summariseBy(rows, (row) => text(row.position), positionLabel, { includeInjuries: head }),
+    by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach", { includeInjuries: head }),
     testing: squadTesting(rows),
     athletes: shown.map((row): Json => ({ ...row, coach_name: coachNames.get(text(row.coach_user_id)) || "Coach" })).sort(byAttention)
   };

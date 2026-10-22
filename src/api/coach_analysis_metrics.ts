@@ -22,6 +22,8 @@
 
 type Json = Record<string, unknown>;
 
+import { analyseInjuries, injuryActionFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
+
 export type AnalysisEvent = Readonly<{
   type: string;
   at: string; // ISO timestamp
@@ -114,6 +116,8 @@ export type AnalysisInput = Readonly<{
   bodyweight_kg?: number | null;
   tests?: readonly TestResult[];
   external_load?: readonly ExternalLoad[];
+  // The injury log (injury_log_service.ts): every injury still standing.
+  injuries?: readonly InjuryRecord[];
   tested_maxes?: readonly TestedMax[];
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
@@ -889,6 +893,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
     plan: { rows: planRows },
     external: { rows: externalRows, sessions: external.filter((entry) => inWindow(entry.date)) },
+    injuries: { ...analyseInjuries(input.injuries ?? [], input.today, first, painAreas.map((area) => String(area.area))), as_of: input.today },
     testing: { tests: testRows },
     bodyweight_kg: finite(input.bodyweight_kg) ? input.bodyweight_kg : null,
     exercises: { rows: exerciseRows, effort_bands: effortBands, rated: allEffort.length, rated_by: ratedBy, patterns: patternRows }
@@ -909,6 +914,8 @@ function actionFor(finding: Finding): string | undefined {
     : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
     : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
   if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
+  const injury = injuryActionFor(id);
+  if (injury) return injury;
   if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
   if (id === "hrv_low" || id === "rhr_high") return "A sign the body is under strain - illness, poor sleep or accumulated fatigue. Ask how they are, and consider a lighter session until it settles.";
   if (id === "hsr_spike") return "Big jumps in high-speed running are the ones most linked to hamstring and calf niggles - build exposure up in smaller steps.";
@@ -930,7 +937,7 @@ function actionFor(finding: Finding): string | undefined {
   return undefined;
 }
 
-const SECTION_ORDER: Record<string, number> = { pain: 0, strength: 1, readiness: 2, load: 3, gps: 3.5, adherence: 4, execution: 5, testing: 6 };
+const SECTION_ORDER: Record<string, number> = { injuries: -1, pain: 0, strength: 1, readiness: 2, load: 3, gps: 3.5, adherence: 4, execution: 5, testing: 6 };
 
 // One story instead of two lines that look like they disagree.
 function mergeRelated(list: Finding[]): Finding[] {
@@ -1107,6 +1114,8 @@ export function findings(analysis: Json): Finding[] {
     const onSpike = Number(area.first_week_acute_chronic) > 1.3 ? `, first in ${weekLabel(String(area.first_week), currentWeek)} when load was ${area.first_week_acute_chronic}x normal` : "";
     out.push({ id: `pain_${area.area}`, section: "pain", level: "alert", text: `${label} pain reported in ${area.weeks} different weeks${(area.exercises as string[]).length ? ` (${(area.exercises as string[]).slice(0, 2).join(", ")})` : ""}${onSpike}.` });
   }
+
+  if (a.injuries) out.push(...(injuryFindings(a.injuries, String((a.injuries as Json).as_of)) as Finding[]));
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
   return mergeRelated(out)

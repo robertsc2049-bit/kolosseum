@@ -6,6 +6,7 @@ import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
 import { GymAnalysis, TeamAnalysis, useCoachTeams } from "./TeamAnalysis";
 import { TestingSection } from "./TestingSection";
+import { InjuryLog } from "./InjuryLog";
 import { SquadEntry } from "./SquadEntry";
 import { CoachReports } from "./CoachReports";
 import { useCoachAnalysisRoster, useCoachAthleteAnalysis } from "./useCoachAnalysis";
@@ -92,6 +93,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const adherence = (a?.adherence ?? {}) as JsonRecord;
   const readiness = (a?.readiness ?? {}) as JsonRecord;
   const pain = (a?.pain ?? {}) as JsonRecord;
+  const injuries = (a?.injuries ?? {}) as JsonRecord;
   const volume = (a?.volume ?? {}) as JsonRecord;
   const col = (list: JsonRecord[], key: string) => list.map((row) => num(row[key]));
   const lifts = rows(strength.lifts);
@@ -329,6 +331,10 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 <p>Readiness: sleep, soreness and stress (each 1 poor to 5 great) before a session. Each day is compared with that athlete's own previous 28 days (z-score: how many standard deviations from their normal, after 5+ check-ins); a week averaging -1 or lower is flagged, -1.5 or lower as needing a look. Weekly check-in drops of 1.5 points against their earlier weeks are flagged.</p>
               </Method>
             </Numbers>
+          </Section>
+
+          <Section id="injuries" title="Injuries" headline={first("injuries")}>
+            <InjuryLog athleteUserId={athleteUserId} injuries={injuries} onChanged={reload} />
           </Section>
 
           <Section id="pain" title="Pain" headline={first("pain")}>

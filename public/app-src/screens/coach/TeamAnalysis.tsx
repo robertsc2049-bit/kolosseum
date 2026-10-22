@@ -108,6 +108,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
   const weeks = weekly.map((week) => String(week.week_start));
   const athletes = rows(data.athletes);
   const availability = (summary.availability ?? null) as JsonRecord | null;
+  const injuries = (summary.injuries ?? null) as JsonRecord | null;
   const teamName = String((data.org as JsonRecord | undefined)?.org_name ?? team.org_name);
 
   return (
@@ -126,6 +127,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show(readiness.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
         <div className="report-tile"><span className="report-tile-label">Recurring pain</span><strong>{show(pain.athletes_with_recurring_pain)}</strong><span className="report-tile-usual">details with their coach</span></div>
         <div className="report-tile"><span className="report-tile-label">Main lifts</span><strong>{`${show(lifts.rising)} ↑ · ${show(lifts.falling)} ↓`}</strong><span className="report-tile-usual">{`${show(lifts.plateau)} stalled`}</span></div>
+        {injuries ? <div className="report-tile" data-testid="team-injuries"><span className="report-tile-label">Injuries (8 weeks)</span><strong>{`${show(injuries.injuries)} · ${show(injuries.days_lost)} days lost`}</strong><span className="report-tile-usual">{num(injuries.burden_per_1000h) === null ? `${show(injuries.out)} out now` : `${injuries.burden_per_1000h} days lost per 1000 h · ${show(injuries.out)} out now`}</span></div> : null}
         {availability ? <div className="report-tile"><span className="report-tile-label">Available today</span><strong>{`${show(availability.available)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">{`${show(availability.modified)} modified · ${show(availability.unavailable)} unavailable`}</span></div> : null}
       </div>
 
