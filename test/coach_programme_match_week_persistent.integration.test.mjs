@@ -89,7 +89,7 @@ test("a coach's Squat day the day before a match leaves the heavy legs out; the 
   ok(await coach.req("POST", `/templates/${templateId}/complete`, { coach_user_id: coachAccount.userId }), 200, "complete");
   ok(await coach.req("POST", `/templates/${templateId}/activate`, { coach_user_id: coachAccount.userId }), 200, "activate");
 
-  const lifter = async (name) => {
+  const lifter = async (name, tpl = templateId) => {
     const athlete = client(baseUrl);
     const account = await register(athlete, "athlete", name, { activity_id: "powerlifting" });
     const fields = { activity_id: "powerlifting", experience_level: "amateur", execution_scope: "coach_managed", product_acknowledged: true, jurisdiction_code: "england_wales", jurisdiction_acknowledged: true, training_days_per_week: 3, no_fixed_date: true, accessibility_preferences: { larger_text: false, high_contrast: false, reduced_motion: false, screen_reader_optimised: false }, instruction_density: "standard" };
@@ -102,7 +102,7 @@ test("a coach's Squat day the day before a match leaves the heavy legs out; the 
     ok(await athlete.req("POST", `/coach-workspace/relationship-invitations/${encodeURIComponent(relationshipId)}/accept`, {}), 201, `${name} accepts`);
     ok(await coach.req("POST", "/coach-workspace/athlete-assignment", {
       request_id: `match_week_${name}_${nonce}`, requested_at_iso8601: new Date().toISOString(), coach_user_id: coachAccount.userId,
-      athlete_user_id: account.userId, template_id: templateId, activity_id: "powerlifting", event_id: ""
+      athlete_user_id: account.userId, template_id: tpl, activity_id: "powerlifting", event_id: ""
     }), 201, `${name} assigned`);
     await coach.refresh();
     ok(await coach.req("POST", "/coach-workspace/athlete-strength-profile", {
@@ -147,4 +147,23 @@ test("a coach's Squat day the day before a match leaves the heavy legs out; the 
   ok(await coach.req("POST", `${injuries}/${logged.injury.id}/status`, { status: "modified", client_request_id: `inj_${nonce}_will_mod` }), 200, "moved on to modified");
   const modified = ok(await session(will), 201, "a session on modified training").json.planned_session;
   assert.equal(modified.injury_modified.injury, "left hamstring (muscle strain)");
+
+  // Ollie played yesterday and plays again tomorrow, and his next session is
+  // the coach's power day (jumps, front squats): the day before the match
+  // drops the heavy legs, the day after drops the jumps - nothing is left,
+  // so he's told to rest rather than given an empty session.
+  const power = ok(await coach.req("POST", "/templates", {
+    coach_user_id: coachAccount.userId, template_version: 1, template_name: `MD-2 power ${nonce}`, description: "", activity_id: "powerlifting",
+    blocks: [{ block_id: "", order_index: 1, name: "In-season", description: "", block_type: "strength", week_count: 1,
+      weeks: [{ week_id: "", order_index: 1, sessions: [{ session_id: "", order_index: 1, title: "Power day", coaching_notes: "", work_items: [item("front_squat", 0), item("countermovement_jump", 1)] }] }] }],
+    updated_at_iso8601: new Date().toISOString()
+  }), 201, "power programme").json.template.template_id;
+  ok(await coach.req("POST", `/templates/${power}/complete`, { coach_user_id: coachAccount.userId }), 200, "complete power");
+  ok(await coach.req("POST", `/templates/${power}/activate`, { coach_user_id: coachAccount.userId }), 200, "activate power");
+  const ollie = await lifter("ollie", power);
+  ok(await ollie.athlete.req("PUT", "/account/onboarding/match-week", { match_days: [], fixtures: [{ date: day(1), label: "v Eastside" }] }), 200, "fixture tomorrow");
+  ok(await ollie.athlete.req("POST", "/account/onboarding/other-training", { date: day(0), kind: "match", minutes: 80, srpe: 8, note: "v Northside", client_request_id: `ot_${nonce}_ollie` }), 200, "today's match logged");
+  const rest = await session(ollie);
+  assert.equal(rest.status, 400, rest.text);
+  assert.equal(rest.json.details.failure_token, "sport_load_rest", "rest, not an empty session");
 });
