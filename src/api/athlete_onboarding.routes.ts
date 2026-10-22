@@ -43,6 +43,7 @@ const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, sta
 
 import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
+import { currentInjury } from "./injury_log_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
@@ -312,6 +313,16 @@ athleteOnboardingRouter.put(
     const { token, session } = await athleteSession(request);
     assertMutation(request, token);
     return response.status(200).json(await saveWeightClass(session.account_row.user_id, request.body));
+  })
+);
+
+// The athlete's own current injury (logged by their coach or physio), read-only.
+athleteOnboardingRouter.get(
+  "/injury-status",
+  standDownRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json({ ok: true, injury: await currentInjury(session.account_row.user_id) });
   })
 );
 

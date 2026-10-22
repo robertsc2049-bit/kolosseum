@@ -51,6 +51,7 @@ export function applySportLoad(exercises: readonly Json[], today: Json, patternO
       const intensity = (exercise.intensity ?? {}) as Json;
       const lighter = intensity.type === "percent_1rm" && Number.isFinite(Number(intensity.value)) ? { ...intensity, value: Math.max(50, Number(intensity.value) - 5) }
         : intensity.type === "rpe" && Number.isFinite(Number(intensity.value)) ? { ...intensity, value: Math.max(5, Number(intensity.value) - 1) }
+        : intensity.type === "load" && Number.isFinite(Number(intensity.value)) ? { ...intensity, value: Math.max(2.5, Math.floor((Number(intensity.value) * 0.95) / 2.5) * 2.5) }
         : intensity;
       out.push({ ...exercise, sets: Math.max(1, Number(exercise.sets) - 1), intensity: lighter });
       lightened.push(id);

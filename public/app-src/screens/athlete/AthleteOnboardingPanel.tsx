@@ -30,6 +30,7 @@ import { MyTrainingCard } from "./MyTrainingCard";
 import { PainCheckInCard } from "./PainCheckInCard";
 import { ReadinessCard } from "./ReadinessCard";
 import { StandDownCard } from "./StandDownCard";
+import { InjuryStatusCard } from "./InjuryStatusCard";
 import { ProgrammeExercisesCard } from "./ProgrammeExercisesCard";
 
 // DEV NOTE: FULL-UI-03C athlete onboarding wizard/completed-declaration
@@ -705,6 +706,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
       <ReadinessCard />
       <StandDownCard />
+      <InjuryStatusCard />
       <PainCheckInCard />
       <AthleteEquipmentCard />
       {/* Self-coached athletes choose their exercises in My training, or on
