@@ -1149,6 +1149,15 @@ export function currentBenchmarkForExercise(
   });
 }
 
+// A competition-lift variation a coach loads from the competition lift's max
+// (paused bench at 70% means 70% of their bench) when the athlete has no max
+// for the variation itself.
+export const PARENT_LIFT: Readonly<Record<string, string>> = Object.freeze({
+  paused_bench_press: "bench_press", spoto_press: "bench_press", close_grip_bench_press: "bench_press", pin_press: "bench_press",
+  paused_back_squat: "back_squat", pin_squat: "back_squat", box_squat: "back_squat", tempo_back_squat: "back_squat",
+  deficit_deadlift: "deadlift", block_pull: "deadlift", paused_deadlift: "deadlift", rack_pull: "deadlift"
+});
+
 export function resolvePercentageLoad(
   profile: Readonly<JsonRecord> | null,
   exerciseIdInput: string,
@@ -1163,10 +1172,10 @@ export function resolvePercentageLoad(
   }
 
   try {
-    const resolved =
+    const resolveFor = (exerciseId: string) =>
       resolveStrengthReferenceLoad(
         profile,
-        exerciseIdInput,
+        exerciseId,
         percentageInput,
         {
           target_unit:
@@ -1181,6 +1190,10 @@ export function resolvePercentageLoad(
             asOfDateInput
         }
       );
+    const baseId = cleanString(exerciseIdInput).replace(/__r[0-9]+$/u, "");
+    const own = resolveFor(exerciseIdInput);
+    const parentId = !own ? PARENT_LIFT[baseId] : undefined;
+    const resolved = own ?? (parentId ? resolveFor(parentId) : null);
 
     if (!resolved) {
       return null;
@@ -1270,7 +1283,8 @@ export function resolvePercentageLoad(
       athlete_profile_record_sha256:
         cleanString(
           profile.record_sha256
-        )
+        ),
+      ...(parentId ? { max_from_exercise_id: parentId } : {})
     });
   }
   catch (error) {

@@ -663,7 +663,7 @@ export async function compileBlock(req: Request, res: Response) {
     beta_individual_subject_user_id ? await getAthleteCustomExerciseNames(beta_individual_subject_user_id) : {});
   const executionStamp = isRecord(programForSession?.coach_template_execution) ? programForSession.coach_template_execution : null;
   const template_position = executionStamp && Number.isInteger(executionStamp.template_session_index)
-    ? { template_session_index: Number(executionStamp.template_session_index), ...(isRecord(executionStamp.peak_timing) ? { peak_timing: executionStamp.peak_timing } : {}) }
+    ? { template_session_index: Number(executionStamp.template_session_index), ...(isRecord(executionStamp.peak_timing) ? { peak_timing: executionStamp.peak_timing } : {}), ...(Array.isArray(executionStamp.max_fallbacks) ? { max_fallbacks: executionStamp.max_fallbacks } : {}) }
     : null;
   const p6_session = programme_run_session || own_training_session
     ? (({ training_cycle: _cycle, ...rest }) => rest)(p6.session as any) as Phase6SessionOutput

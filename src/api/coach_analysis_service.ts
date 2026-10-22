@@ -14,7 +14,7 @@ import {
 } from "./coach_analysis_metrics.js";
 import { listConnectedCoachAthletes, requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
 import { listWeeklyCheckinsForCoach } from "./weekly_checkin_service.js";
-import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
+import { getAthleteCustomExerciseNames, getAthleteExperienceLevel, getAthleteTrainingPlan, sessionExerciseDisplayNames } from "./athlete_onboarding_service.js";
 import { isE1rmExercise } from "./training_e1rm.js";
 import { blockMarkers, listOtherTraining, loadExternalLoad, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
 import { loadInjuries } from "./injury_log_service.js";
@@ -203,12 +203,13 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     listOtherTraining(athleteUserId, since).catch(() => []),
     programmeHistory(athleteUserId).catch(() => [])
   ]);
-  const [tests, profile, externalLoad, injuries, plannedAhead] = await Promise.all([
+  const [tests, profile, externalLoad, injuries, plannedAhead, experienceLevel] = await Promise.all([
     loadTestResults(athleteUserId).catch(() => []),
     loadProfileHistory(coachUserId, athleteUserId).catch(() => ({ maxes: [], bodyweight_kg: null })),
     loadExternalLoad(athleteUserId, since).catch(() => []),
     loadInjuries(athleteUserId).catch(() => []),
-    options.closed || options.to ? Promise.resolve([]) : plannedWeeksAhead(athleteUserId).catch(() => [])
+    options.closed || options.to ? Promise.resolve([]) : plannedWeeksAhead(athleteUserId).catch(() => []),
+    getAthleteExperienceLevel(athleteUserId).catch(() => undefined)
   ]);
   const ids = [...new Set(sessions.flatMap((session) => [...session.planned.map((p) => p.exercise_id), ...session.events.map((e) => e.exercise_id ?? "")]).filter(Boolean).map((id) => id.replace(/__r[0-9]+$/u, "")))];
   const names = sessionExerciseDisplayNames(ids, custom);
@@ -237,7 +238,8 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     planned_days_per_week: num(plan?.training_days_per_week),
     exercise_name: (id) => names[id] ?? id.replaceAll("_", " "),
     is_strength_lift: (id) => isE1rmExercise(id, patternOf),
-    is_bodyweight_lift: isBodyweightLift
+    is_bodyweight_lift: isBodyweightLift,
+    experience_level: experienceLevel ?? null
   });
   const list = findings(analysis);
   return {
