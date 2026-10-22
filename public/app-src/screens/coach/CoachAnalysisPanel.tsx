@@ -106,6 +106,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
   const intensity = (execution.intensity ?? {}) as JsonRecord;
   const velocityLifts = rows((a?.velocity as JsonRecord | undefined)?.lifts);
   const attempts = (a?.attempts ?? null) as JsonRecord | null;
+  const cleanJerkMisses = (a?.clean_jerk_misses ?? null) as JsonRecord | null;
   const plan = (a?.plan ?? {}) as JsonRecord;
   const ahead = (plan.ahead ?? {}) as JsonRecord;
   const external = (a?.external ?? {}) as JsonRecord;
@@ -143,16 +144,17 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
 
           <div className="analysis-sections">
           <Section id="strength" title="Strength" headline={first("strength")}>
+            {cleanJerkMisses ? <p className="muted small" data-testid="analysis-cj-misses">{`Missed clean & jerks this period: ${cleanJerkMisses.clean} on the clean, ${cleanJerkMisses.jerk} on the jerk.`}</p> : null}
             {attempts ? (
               <div className="analysis-attempts" data-testid="analysis-attempts">
                 <h4>{`Meet attempts - ${attempts.days_out} days out`}</h4>
                 <div className="analysis-table-wrap">
                   <table className="analysis-table">
                     <thead><tr><th>Lift</th><th>Projected max</th><th>Opener</th><th>Second</th><th>Third</th></tr></thead>
-                    <tbody>{rows(attempts.rows).map((row) => <tr key={String(row.exercise_id)}><td>{String(row.name)}</td><td>{`${row.projected_max} kg`}</td><td>{`${row.opener} kg`}</td><td>{`${row.second} kg`}</td><td>{`${row.third}-${row.third_good_day} kg`}</td></tr>)}</tbody>
+                    <tbody>{rows(attempts.rows).map((row) => { const kg = (value: unknown) => (attempts.added_weight ? `+${value} kg` : `${value} kg`); return <tr key={String(row.exercise_id)}><td>{String(row.name)}</td><td>{`${row.projected_max} kg`}</td><td>{kg(row.opener)}</td><td>{kg(row.second)}</td><td>{`${kg(row.third)} to ${kg(row.third_good_day)}`}</td></tr>; })}</tbody>
                   </table>
                 </div>
-                <p className="muted small">{`A starting point from their projected max (the latest estimate, or a tested max from the last 4 months if higher): opener about 91% - a weight they'd triple on a bad day - second about 96%, third 100-102% depending on how the day goes. Rounded down to ${attempts.step_kg} kg. Only you see this.`}</p>
+                <p className="muted small">{`A starting point from their projected max (the latest estimate, or a tested max from the last 4 months if higher): opener about 91% - a weight they'd triple on a bad day - second about 96%, third 100-102% depending on how the day goes. Rounded down to ${attempts.step_kg} kg.${attempts.added_weight ? ` Street lifting: the max is bodyweight (${attempts.bodyweight_kg} kg) + added, and attempts are the weight to add.` : ""} Only you see this.`}</p>
               </div>
             ) : null}
             <TrendChart markers={markers} title="Estimated max per main lift (kg)" weeks={weekList} unit=" kg" series={mainLifts.map((lift) => ({ id: String(lift.exercise_id), label: String(lift.name), values: rows(lift.series).map((p) => num(p.e1rm)) }))} emptyLabel="Log loaded sets of a main lift to see its estimated max." />
@@ -418,7 +420,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
                 <div className="analysis-table-wrap">
                   <table className="analysis-table" data-testid="analysis-prilepin">
                     <thead><tr><th>Session</th><th>Lift</th><th>Reps by zone (Prilepin range)</th></tr></thead>
-                    <tbody>{rows(intensity.prilepin).map((entry, index) => <tr key={`${entry.date}-${entry.exercise_id}-${index}`}><td>{String(entry.date)}</td><td>{String(entry.name)}</td><td>{rows(entry.zones).map((zone) => `${zone.zone}: ${zone.reps} (${zone.range})${zone.verdict === "above" ? " - above" : zone.verdict === "below" ? " - below" : ""}`).join(" · ")}</td></tr>)}</tbody>
+                    <tbody>{rows(intensity.prilepin).map((entry, index) => <tr key={`${entry.date}-${entry.exercise_id}-${index}`}><td>{new Date(`${String(entry.date)}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}</td><td>{String(entry.name)}</td><td>{rows(entry.zones).map((zone) => `${zone.zone}: ${zone.reps} (${zone.range})${zone.verdict === "above" ? " - above" : zone.verdict === "below" ? " - below" : ""}`).join(" · ")}</td></tr>)}</tbody>
                   </table>
                 </div>
               ) : null}
