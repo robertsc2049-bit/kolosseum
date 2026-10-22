@@ -800,6 +800,22 @@ export async function compileBlock(req: Request, res: Response) {
       } as any;
     }
   }
+  // After yesterday's match, a big sport day or a lot of jumps, a
+  // self-directed athlete's session drops its jumps and lightens the heavy leg
+  // work (sport_load_session.ts) - stamped for the coach.
+  if (create_session && beta_individual_subject_user_id) {
+    const entries = await listOtherTraining(beta_individual_subject_user_id, new Date(Date.now() - 31 * 86_400_000).toISOString().slice(0, 10)).catch(() => []);
+    const today = sportLoadToday(entries, new Date().toISOString().slice(0, 10));
+    const { exercises, adjustment } = applySportLoad(planned_session_from_engine.exercises as any, today, sportLoadPatternOf);
+    if (adjustment) {
+      const note = sportLoadNote(adjustment);
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise)) as any,
+        sport_load_adjustment: { ...adjustment, note }
+      } as any;
+    }
+  }
   // A fighter who competes at a weight class keeps strength without building
   // mass in the 4 weeks before a fight (weight_class.ts) - on a coach's
   // programme too, since it follows the fighter's own declaration.
