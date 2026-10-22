@@ -38,12 +38,13 @@ test("Today exposes the coach's session-level note for the upcoming session", ()
   );
 });
 
-test("Today exposes the resolved load and its exact source reference", () => {
+test("Today shows the resolved weight and that it came from their max - never the max itself (#1298)", () => {
   assert.match(todayPanel, /className="today-resolved-load"/u);
   assert.match(todayPanel, /className="today-resolved-load-value"/u);
   assert.match(todayPanel, /resolvedLoad\.value/u);
-  assert.match(todayPanel, /resolvedLoadSource\.source_type/u);
-  assert.match(todayPanel, /formatDate\(resolvedLoadSource\.effective_date\)/u);
+  assert.match(todayPanel, /Worked out from your max/u);
+  assert.doesNotMatch(todayPanel, /resolvedLoadSource\.(source_type|source_value|effective_date)/u);
+  assert.doesNotMatch(todayPanel, /resolvedLoad\.(percentage|one_rep_max)/u);
 
   assert.match(todayService, /planned_items:\s*Array\.isArray\(materialised\.planned_items\)/u);
   assert.match(todayService, /resolvePercentageLoad|materialiseNextCoachTemplateProgram/u);
