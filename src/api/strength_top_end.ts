@@ -84,22 +84,27 @@ export function velocitySummary(sets: readonly VelocitySet[], name: (id: string)
 
 // Meet attempts from the projected max: opener ~91% (a weight they could
 // triple on a bad day), second ~96%, third 100-102%. Powerlifting attempts
-// go up in 2.5 kg, weightlifting in 1 kg.
+// go up in 2.5 kg, weightlifting in 1 kg. Street lifting attempts are the
+// weight added (in 1.25 kg), from the bodyweight + added max.
 const COMPETITION_LIFTS: Readonly<Record<string, readonly string[]>> = {
   powerlifting: ["back_squat", "bench_press", "deadlift", "sumo_deadlift"],
-  olympic_weightlifting: ["snatch", "clean_and_jerk"]
+  olympic_weightlifting: ["snatch", "clean_and_jerk"],
+  street_lifting: ["pull_up", "dip"]
 };
-export function attemptPlan(activityId: string, lifts: ReadonlyArray<{ exercise_id: string; name: string; latest: number; tested_max?: { value_kg: number; date: string } | null }>, competitionDate: string | null, today: string): Json | null {
+export function attemptPlan(activityId: string, lifts: ReadonlyArray<{ exercise_id: string; name: string; latest: number; tested_max?: { value_kg: number; date: string } | null }>, competitionDate: string | null, today: string, bodyweightKg: number | null = null): Json | null {
   const ids = COMPETITION_LIFTS[activityId];
   if (!ids || !competitionDate || competitionDate < today) return null;
   const days = Math.round((Date.parse(`${competitionDate}T00:00:00Z`) - Date.parse(`${today}T00:00:00Z`)) / 86_400_000);
   if (days > 16 * 7) return null;
-  const step = activityId === "powerlifting" ? 2.5 : 1;
-  const down = (kg: number) => Math.floor(kg / step) * step;
+  const street = activityId === "street_lifting";
+  // Street lifting needs the bodyweight to turn a max into added weight.
+  if (street && !(bodyweightKg && bodyweightKg > 0)) return null;
+  const step = activityId === "powerlifting" ? 2.5 : street ? 1.25 : 1;
+  const down = (kg: number) => Math.floor((street ? kg - bodyweightKg! : kg) / step) * step;
   const rows = ids.map((id) => lifts.find((lift) => lift.exercise_id === id)).filter((lift): lift is NonNullable<typeof lift> => Boolean(lift)).map((lift) => {
     // The projected max: the recent estimate, or a tested max if it's higher and recent enough to trust.
     const projected = Math.max(lift.latest, lift.tested_max && lift.tested_max.date >= new Date(Date.parse(`${today}T00:00:00Z`) - 120 * 86_400_000).toISOString().slice(0, 10) ? lift.tested_max.value_kg : 0);
     return { exercise_id: lift.exercise_id, name: lift.name, projected_max: round(projected, 1), opener: down(projected * 0.91), second: down(projected * 0.96), third: down(projected * 1.0), third_good_day: down(projected * 1.02) };
   });
-  return rows.length ? { competition_date: competitionDate, days_out: days, step_kg: step, rows } : null;
+  return rows.length ? { competition_date: competitionDate, days_out: days, step_kg: step, ...(street ? { added_weight: true, bodyweight_kg: bodyweightKg } : {}), rows } : null;
 }

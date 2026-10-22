@@ -308,6 +308,7 @@ test(
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, rpe_value: 8 }, "phase6_runtime_set_log_report_invalid_shape", "extra key"],
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg", velocity_mps: 4 }, "phase6_runtime_set_log_report_invalid_shape", "bar speed of 4 m/s"],
       [{ exercise_id: "back_squat", set_index: 1, reps: 5, load_value: 140, load_unit: "kg", velocity_mps: "fast" }, "phase6_runtime_set_log_report_invalid_shape", "bar speed not a number"],
+      [{ exercise_id: "back_squat", set_index: 1, reps: 0, load_value: 140, load_unit: "kg", missed_part: "jerk" }, "phase6_runtime_set_log_report_invalid_shape", "a missed jerk on a squat"],
       [{ exercise_id: "snatch", set_index: 1, reps: 1 }, "phase6_runtime_set_log_report_unknown_exercise", "not in this session"]
     ];
     for (const [bad, token, label] of refusals) {

@@ -38,6 +38,8 @@ export type AnalysisEvent = Readonly<{
   cr10?: number;
   // Bar speed from a VBT device (m/s), on a set log.
   velocity?: number;
+  // A missed clean & jerk: "clean" or "jerk".
+  missed_part?: string;
   pain_area?: string | null;
   reason_code?: string;
 }>;
@@ -131,6 +133,8 @@ export type AnalysisInput = Readonly<{
   planned_days_per_week: number | null;
   exercise_name: (exerciseId: string) => string;
   is_strength_lift: (exerciseId: string) => boolean;
+  // Pull-ups, dips...: their max is bodyweight + added (bodyweight_kg needed).
+  is_bodyweight_lift?: (exerciseId: string) => boolean;
 }>;
 
 // ---------- small helpers ----------
@@ -382,13 +386,21 @@ export function analyseAthlete(input: AnalysisInput): Json {
     for (const event of session.events) {
       if (event.type === "RPE_REPORT" && event.exercise_id && finite(event.rpe)) ratingFor.set(baseExercise(event.exercise_id), event.rpe);
     }
-    for (const log of setLogs(session)) {
-      if (!log.exercise_id || !finite(log.load_kg) || !finite(log.reps)) continue;
-      const lift = baseExercise(log.exercise_id);
+    const bodyweightKg = finite(input.bodyweight_kg) && input.bodyweight_kg > 0 ? input.bodyweight_kg : null;
+    const moved = (log: AnalysisEvent): number | null => {
+      const lift = log.exercise_id ? baseExercise(log.exercise_id) : "";
+      if (bodyweightKg !== null && input.is_bodyweight_lift?.(lift)) return round(bodyweightKg + (finite(log.load_kg) ? log.load_kg : 0), 1);
+      return finite(log.load_kg) ? log.load_kg : null;
+    };
+    for (const raw of setLogs(session)) {
+      const movedKg = moved(raw);
+      if (!raw.exercise_id || movedKg === null || movedKg <= 0 || !finite(raw.reps)) continue;
+      const log = { ...raw, load_kg: movedKg, reps: Number(raw.reps) };
+      const lift = baseExercise(log.exercise_id!);
       if (!input.is_strength_lift(lift)) continue;
       // The athlete's rating describes the exercise's hardest set: use it
       // for the heaviest set only, Epley for the rest.
-      const heaviest = Math.max(...setLogs(session).filter((other) => other.exercise_id && baseExercise(other.exercise_id) === lift).map((other) => Number(other.load_kg) || 0));
+      const heaviest = Math.max(...setLogs(session).filter((other) => other.exercise_id && baseExercise(other.exercise_id) === lift).map((other) => moved(other) ?? 0));
       const estimate = estimatedMax(log.load_kg, log.reps, log.load_kg === heaviest ? ratingFor.get(lift) ?? null : null);
       if (!estimate) continue;
       const week = weekStart(sessionDay(session));
@@ -425,7 +437,8 @@ export function analyseAthlete(input: AnalysisInput): Json {
   const lifts = ranked
     .map(({ lift }, rank) => {
       const byWeek = liftWeeks.get(lift)!;
-      const series = weeks.map((start) => ({ week_start: start, e1rm: byWeek.get(start)?.value ?? null, method: byWeek.get(start)?.method ?? null, from: byWeek.has(start) ? `${byWeek.get(start)!.load} kg x ${byWeek.get(start)!.reps}` : null }));
+      const bodyweightLift = Boolean(input.is_bodyweight_lift?.(lift) && finite(input.bodyweight_kg) && input.bodyweight_kg > 0);
+      const series = weeks.map((start) => ({ week_start: start, e1rm: byWeek.get(start)?.value ?? null, method: byWeek.get(start)?.method ?? null, from: byWeek.has(start) ? `${byWeek.get(start)!.load} kg x ${byWeek.get(start)!.reps}${bodyweightLift ? " (bodyweight + added)" : ""}` : null }));
       const points = series.filter((point) => point.e1rm !== null) as Array<{ week_start: string; e1rm: number }>;
       const latest = points[points.length - 1];
       const earlier = points.filter((point) => point.week_start <= addDays(latest.week_start, -28));
@@ -452,7 +465,8 @@ export function analyseAthlete(input: AnalysisInput): Json {
         peak: peak.e1rm, peak_week: peak.week_start, weeks_since_peak: weeksSincePeak, recent_off_peak_pct: offPeak, status,
         noise_pct: noise, swc_pct: swc, real_change: change !== null && Math.abs(change) >= swc,
         relative_to_bodyweight: bodyweight ? round(latest.e1rm / bodyweight, 2) : null,
-        tested_max: tested.length ? { value_kg: tested[tested.length - 1].value_kg, date: tested[tested.length - 1].date } : null
+        tested_max: tested.length ? { value_kg: tested[tested.length - 1].value_kg, date: tested[tested.length - 1].date } : null,
+        ...(bodyweightLift ? { includes_bodyweight: true } : {})
       };
     });
 
@@ -916,7 +930,11 @@ export function analyseAthlete(input: AnalysisInput): Json {
     readiness: { rows: readinessRows, days: readinessDays.filter((entry) => inWindow(entry.date) && inRange(entry.date)), checkins: checkinRows },
     pain: { rows: painRows, areas: painAreas, weeks_with_pain_on_load_spike: painOnSpikes },
     velocity: { lifts: velocity },
-    attempts: attemptPlan(String(input.activity_id ?? ""), lifts.map((lift) => ({ exercise_id: String(lift.exercise_id), name: String(lift.name), latest: Number(lift.latest), tested_max: lift.tested_max })), input.competition_date ?? null, input.today),
+    clean_jerk_misses: (() => {
+      const misses = sessions.filter((session) => done(session) && inWindow(sessionDay(session))).flatMap((session) => setLogs(session)).filter((log) => log.missed_part === "clean" || log.missed_part === "jerk");
+      return misses.length ? { clean: misses.filter((log) => log.missed_part === "clean").length, jerk: misses.filter((log) => log.missed_part === "jerk").length } : null;
+    })(),
+    attempts: attemptPlan(String(input.activity_id ?? ""), lifts.map((lift) => ({ exercise_id: String(lift.exercise_id), name: String(lift.name), latest: Number(lift.latest), tested_max: lift.tested_max })), input.competition_date ?? null, input.today, finite(input.bodyweight_kg) ? input.bodyweight_kg : null),
     plan: { rows: planRows, ahead: (() => {
       // What they've actually done lately: the mean of their last 4 complete weeks.
       const recent = planRows.filter((row) => !row.partial_week).slice(-4);

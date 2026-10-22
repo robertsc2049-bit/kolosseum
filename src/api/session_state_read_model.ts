@@ -51,7 +51,7 @@ export async function loadSessionSetLogs(client: any, session_id: string): Promi
     `SELECT DISTINCT ON (event->>'exercise_id', (event->>'set_index')::int)
        event->>'exercise_id' AS exercise_id, (event->>'set_index')::int AS set_index,
        (event->>'reps')::int AS reps, (event->>'load_value')::numeric AS load_value,
-       event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr, (event->>'velocity_mps')::numeric AS velocity_mps
+       event->>'load_unit' AS load_unit, (event->>'is_pr')::boolean AS is_pr, (event->>'velocity_mps')::numeric AS velocity_mps, event->>'missed_part' AS missed_part
      FROM runtime_events
      WHERE session_id = $1 AND event->>'type' = 'SET_LOG_REPORT'
      ORDER BY event->>'exercise_id', (event->>'set_index')::int, seq DESC`,
@@ -65,6 +65,7 @@ export async function loadSessionSetLogs(client: any, session_id: string): Promi
       load_value: row.load_value === null ? null : Number(row.load_value),
       load_unit: row.load_unit ?? null,
       ...(row.velocity_mps === null || row.velocity_mps === undefined ? {} : { velocity_mps: Number(row.velocity_mps) }),
+      ...(row.missed_part ? { missed_part: row.missed_part } : {}),
       is_pr: row.is_pr === true
     });
   }

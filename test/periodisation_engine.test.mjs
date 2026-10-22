@@ -189,7 +189,7 @@ test("periodisation: level ceilings, timed groups and distance/time doses hold i
             if (it.distance_value !== undefined || it.duration_seconds !== undefined) assert.equal(it.reps, 1, `${activity} ${it.exercise_id} keeps 1 rep per length/hold`);
             assert.ok(it.sets >= 1);
           }
-          const groups = (items) => items.filter((x) => x.group_id).map((x) => [x.exercise_id, x.sets, x.reps, x.group_time_cap_seconds]);
+          const groups = (items) => items.filter((x) => x.group_id && x.group_type !== "superset").map((x) => [x.exercise_id, x.sets, x.reps, x.group_time_cap_seconds]);
           assert.deepEqual(groups(program.planned_items), groups(base[level]), `${activity}/${level}/${phase}/w${week}: timed groups untouched`);
           checked++;
         }
@@ -290,8 +290,9 @@ test("content: strength sports train each competition lift on its own day", () =
   const leads = (activity, level, extra = {}) => weekOf(activity, level, 3, MACRO_PHASES_BY_MODEL.meet[1], extra).map((p) => p.planned_exercise_ids[0]);
   for (const level of LEVELS) {
     assert.deepEqual(leads("powerlifting", level), ["back_squat", "paused_bench_press", "deadlift"], `powerlifting/${level}`);
-    // A beginner learns the lifts top-down, from the hang and caught high.
-    assert.deepEqual(leads("olympic_weightlifting", level).slice(0, 2), level === "beginner" ? ["hang_power_snatch", "hang_power_clean"] : ["snatch", "power_clean"], `weightlifting/${level}`);
+    // A beginner learns the lifts top-down, from the hang and caught high; a
+    // pro trains the full clean.
+    assert.deepEqual(leads("olympic_weightlifting", level).slice(0, 2), level === "beginner" ? ["hang_power_snatch", "hang_power_clean"] : level === "pro" ? ["snatch", "clean"] : ["snatch", "power_clean"], `weightlifting/${level}`);
     assert.equal(leads("powerlifting", level, { competition_event: "bench_only" })[0], "paused_bench_press");
     assert.equal(leads("powerlifting", level, { competition_event: "deadlift_only" })[0], "deadlift");
     assert.equal(leads("powerlifting", level, { competition_event: "squat_only" })[0], "back_squat");
@@ -328,4 +329,14 @@ test("a beginner never does more than 3 reps of an Olympic lift, in any sport, p
     }
   }
   assert.ok(checked > 20, `checked ${checked} beginner Olympic lifts`);
+});
+
+test("periodisation: a pro's contrast pair (heavy lift + jump superset) still deloads in week 4 and tapers", () => {
+  const pair = (items) => items.filter((x) => x.group_type === "superset");
+  const build = pair(run("rugby_union", "pro", cycle(MACRO_PHASES_BY_MODEL[cycleModelFor("rugby_union")][1], 2)).planned_items);
+  const deload = pair(run("rugby_union", "pro", cycle(MACRO_PHASES_BY_MODEL[cycleModelFor("rugby_union")][1], 4)).planned_items);
+  assert.ok(build.length >= 2, "the pro power day has its contrast pair");
+  const heavy = (items) => items.find((x) => x.intensity.type === "percent_1rm");
+  assert.ok(heavy(deload).sets < heavy(build).sets, "fewer sets in the deload week");
+  assert.ok(heavy(deload).intensity.value < heavy(build).intensity.value, "lighter in the deload week");
 });

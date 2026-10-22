@@ -61,8 +61,22 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["midfielder", "Midfielder"],
     ["forward", "Forward"]
   ],
-  netball: [["athlete", "Athlete"]],
-  basketball: [["athlete", "Athlete"]],
+  netball: [
+    ["athlete", "Not specified"],
+    ["goal_shooter", "Goal shooter"],
+    ["goal_attack", "Goal attack"],
+    ["wing_attack", "Wing attack"],
+    ["centre", "Centre"],
+    ["wing_defence", "Wing defence"],
+    ["goal_defence", "Goal defence"],
+    ["goal_keeper", "Goal keeper"]
+  ],
+  basketball: [
+    ["athlete", "Not specified"],
+    ["guard", "Guard"],
+    ["forward", "Forward"],
+    ["centre", "Centre"]
+  ],
   rugby_sevens: [["athlete", "Athlete"]],
   field_hockey: [
     ["athlete", "Not specified"],
@@ -77,7 +91,14 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["defence", "Defence"],
     ["forward", "Forward"]
   ],
-  volleyball: [["athlete", "Athlete"]],
+  volleyball: [
+    ["athlete", "Not specified"],
+    ["outside_hitter", "Outside hitter"],
+    ["opposite", "Opposite"],
+    ["middle_blocker", "Middle blocker"],
+    ["setter", "Setter"],
+    ["libero", "Libero"]
+  ],
   cricket: [
     ["athlete", "Not specified"],
     ["fast_bowler", "Fast bowler"],
@@ -108,11 +129,28 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
     ["middle_distance", "Middle distance"],
     ["long_distance", "Long distance"]
   ],
-  swimming: [["athlete", "Athlete"]],
+  swimming: [
+    ["athlete", "Not specified"],
+    ["sprint", "Sprint (50-100 m)"],
+    ["distance", "Distance (400 m+)"]
+  ],
   olympic_weightlifting: [["athlete", "Athlete"]],
-  cycling: [["athlete", "Athlete"]],
-  rowing: [["athlete", "Athlete"]],
-  kayaking: [["athlete", "Athlete"]],
+  cycling: [
+    ["athlete", "Not specified"],
+    ["track_sprint", "Track sprint"],
+    ["road", "Road / endurance"]
+  ],
+  rowing: [
+    ["athlete", "Not specified"],
+    ["sweep", "Sweep"],
+    ["sculler", "Sculling"],
+    ["lightweight", "Lightweight"]
+  ],
+  kayaking: [
+    ["athlete", "Not specified"],
+    ["sprint", "Sprint"],
+    ["marathon", "Marathon"]
+  ],
   boxing: [["athlete", "Athlete"]],
   wrestling: [["athlete", "Athlete"]],
   judo: [["athlete", "Athlete"]],
@@ -120,7 +158,11 @@ const POSITION_OPTIONS_BY_ACTIVITY = {
   muay_thai: [["athlete", "Athlete"]],
   mma: [["athlete", "Athlete"]],
   tennis: [["athlete", "Athlete"]],
-  triathlon: [["athlete", "Athlete"]],
+  triathlon: [
+    ["athlete", "Not specified"],
+    ["short_course", "Sprint / Olympic distance"],
+    ["long_course", "70.3 / Ironman"]
+  ],
   rugby_league: [
     ["athlete", "Not specified"],
     ["prop", "Prop"],

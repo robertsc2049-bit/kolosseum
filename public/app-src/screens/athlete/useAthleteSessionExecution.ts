@@ -672,7 +672,7 @@ export function useAthleteSessionExecution() {
   // Log what was actually done on one prescribed set (re-logging a set
   // replaces it). Resolves to whether the load was a personal record, or
   // null when the log was not recorded.
-  const logSet = useCallback(async (exerciseId: string, setIndex: number, reps: number, load: { value: number; unit: "kg" | "lb" } | null, velocity: number | null = null) => {
+  const logSet = useCallback(async (exerciseId: string, setIndex: number, reps: number, load: { value: number; unit: "kg" | "lb" } | null, velocity: number | null = null, missedPart: "clean" | "jerk" | null = null) => {
     if (!exerciseId || !Number.isInteger(setIndex) || setIndex < 1 || !Number.isInteger(reps) || reps < 0) return null;
     const event: JsonRecord = { type: "SET_LOG_REPORT", exercise_id: exerciseId, set_index: setIndex, reps };
     if (load) {
@@ -680,6 +680,7 @@ export function useAthleteSessionExecution() {
       event.load_unit = load.unit;
     }
     if (velocity !== null) event.velocity_mps = velocity;
+    if (missedPart) event.missed_part = missedPart;
     let isPr = false;
     const ok = await runMutation(async (sessionId, csrfToken) => {
       const response = await postOrQueue(sessionId, event, csrfToken);
