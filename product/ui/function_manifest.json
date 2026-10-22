@@ -9557,6 +9557,18 @@
       "tracked_by_area": "coach_workspace"
     },
     {
+      "method": "POST",
+      "path": "/coach-workspace/athletes/:athlete_id/programme-overrides",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/athletes/:athlete_id/programme-overrides/clear",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
       "method": "GET",
       "path": "/coach-workspace/athletes/:athlete_id/tests",
       "source": "src/api/coach_workspace.routes.ts",
