@@ -498,3 +498,17 @@ export async function uploadMyExerciseDemoVideo(exerciseId: string, file: File, 
   }
   return payload;
 }
+
+// Programmes the coach sells outside the app and gives in it
+// (src/api/programme_grant_service.ts).
+export function loadProgrammeGrants(): Promise<JsonRecord> {
+  return request("GET", "/templates/programme-grants");
+}
+
+export function giveProgrammeGrant(templateId: string, input: { athlete_email: string; client_request_id: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/templates/${encodeURIComponent(templateId)}/programme-grants`, input, csrfToken);
+}
+
+export function revokeProgrammeGrant(grantId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/templates/programme-grants/${encodeURIComponent(grantId)}/revoke`, {}, csrfToken);
+}

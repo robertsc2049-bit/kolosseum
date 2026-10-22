@@ -110,6 +110,19 @@ export async function eraseUserData(client: PoolClient, userId: string): Promise
     [userId, ALWAYS_KEPT_RECORD_TYPES, AUTHORED_CONTENT_RECORD_TYPES, RELATIONSHIP_RECORD_TYPES]
   );
 
+  // Programmes coaches gave them (programme_grant_service.ts) are the coach's
+  // records: their email comes off them.
+  counts.programme_grants_to_them = await count(
+    client,
+    `
+    UPDATE product_account_events
+    SET event_payload = (event_payload - 'athlete_email') || '{"athlete_erased": true}'::jsonb
+    WHERE event_type = 'programme_grant_given'
+      AND event_payload->>'athlete_email' = (SELECT email_canonical FROM product_accounts WHERE user_id = $1)
+    `,
+    [userId]
+  );
+
   // The tombstone: nothing left that identifies them, and no way to sign in.
   counts.account_scrubbed = await count(
     client,
