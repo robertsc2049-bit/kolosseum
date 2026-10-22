@@ -806,6 +806,11 @@ export async function compileBlock(req: Request, res: Response) {
     const { exercises, adjustment } = applySportLoad(planned_session_from_engine.exercises as any, today, sportLoadPatternOf);
     if (adjustment) {
       const note = sportLoadNote(adjustment);
+      // Nothing left to train (a power day taken the day after a match and
+      // the day before the next): rest, rather than an empty session.
+      if (!exercises.some((exercise) => !["warm_up", "cool_down"].includes(String(exercise.segment ?? "working")))) {
+        throw badRequest("Rest today", { failure_token: "sport_load_rest", details: { note, reason: adjustment.reason } });
+      }
       planned_session_from_engine = {
         ...planned_session_from_engine,
         exercises: rescaleResolvedLoads(exercises.map((exercise) => ((adjustment.lightened as string[]).includes(String(exercise.exercise_id ?? "").replace(/__r[0-9]+$/u, "")) ? { ...exercise, sport_load_note: note } : exercise))) as any,
