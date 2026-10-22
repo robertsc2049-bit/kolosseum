@@ -67,3 +67,8 @@ test("in the athlete's analysis: injuries come first, with a next step", () => {
   assert.equal(list[0].id, "injury_out");
   assert.match(list[0].action, /medical team's plan/u);
 });
+
+test("injury rates per 1000 hours need 100 hours: one injury in 7 hours is a count, not a rate of 143", () => {
+  assert.deepEqual(injuryRates(1, 5, 7), { injuries: 1, days_lost: 5, exposure_hours: 7, incidence_per_1000h: null, burden_per_1000h: null, rates_need_hours: 100 });
+  assert.equal(injuryRates(1, 5, 100).incidence_per_1000h, 10);
+});

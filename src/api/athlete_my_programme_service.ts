@@ -313,10 +313,12 @@ export async function plannedWeeksAhead(athleteUserId: string, weeksAhead = 4): 
   const weeks: Array<{ -readonly [K in keyof PlannedWeek]: PlannedWeek[K] } & { key: string; rpe: number[] }> = [];
   let weekNumber = 0;
   let lastKey = "";
+  const weekKey = (session: Json) => `${text(session.template_block_id)}|${num(session.template_block_order)}|${text(session.template_week_id)}|${num(session.template_week_order)}`;
+  const currentKey = weekKey(ordered[current]);
   ordered.forEach((session, index) => {
-    const key = `${text(session.template_block_id)}|${num(session.template_block_order)}|${text(session.template_week_id)}|${num(session.template_week_order)}`;
+    const key = weekKey(session);
     if (key !== lastKey) { weekNumber += 1; lastKey = key; }
-    if (index < current) return;
+    if (index < current && key !== currentKey) return;
     let week = weeks.find((entry) => entry.key === key);
     if (!week) {
       if (weeks.length >= weeksAhead) return;
