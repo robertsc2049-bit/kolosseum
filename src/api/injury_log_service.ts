@@ -10,7 +10,8 @@ import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
-import { forgetRecentTeamViews, headCoachTeamMemberCoach } from "./team_analysis_service.js";
+import { forgetRecentTeamViews, headCoachTeamMemberCoach, medicalLeadTeamMemberCoach } from "./team_analysis_service.js";
+import { analyseInjuries } from "./injury_metrics.js";
 import { INJURY_AREAS, INJURY_CONTEXTS, INJURY_MECHANISMS, INJURY_SIDES, INJURY_STATUSES, INJURY_TYPES, type InjuryRecord } from "./injury_metrics.js";
 
 type Json = Record<string, unknown>;
@@ -31,14 +32,25 @@ export class InjuryInputError extends Error {
   }
 }
 
-// The athlete's own coach, or the head coach of a team they're in.
+// The athlete's own coach, the head coach of a team they're in, or that
+// team's medical lead.
 export async function requireInjuryAccess(coachUserId: string, athleteUserId: string): Promise<void> {
   try {
     await requireCoachAthleteAccess(coachUserId, athleteUserId);
   }
   catch (error) {
-    if ((await headCoachTeamMemberCoach(coachUserId, athleteUserId)) === null) throw error;
+    if ((await headCoachTeamMemberCoach(coachUserId, athleteUserId)) !== null) return;
+    if ((await medicalLeadTeamMemberCoach(coachUserId, athleteUserId)) !== null) return;
+    throw error;
   }
+}
+
+// The athlete's injury log worked out (the last 8 weeks for the window), for
+// anyone who keeps it - the medical lead reads it here.
+export async function listInjuriesForCoach(coachUserId: string, athleteUserId: string, today = new Date().toISOString().slice(0, 10)): Promise<Json> {
+  await requireInjuryAccess(coachUserId, athleteUserId);
+  const windowStart = shift(today, -56);
+  return { ok: true, injuries: analyseInjuries(await loadInjuries(athleteUserId), today, windowStart) };
 }
 
 const isDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/u.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));

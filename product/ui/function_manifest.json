@@ -6221,7 +6221,8 @@
           "api_routes": [
             "/org/organisations/:org_id/progress-rollup",
             "/org/organisations/:org_id/analysis",
-            "/org/organisations/:org_id/head-coach"
+            "/org/organisations/:org_id/head-coach",
+            "/org/organisations/:org_id/medical-lead"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -9535,6 +9536,12 @@
     {
       "method": "POST",
       "path": "/coach-workspace/squad/external-load",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/injuries",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
     },

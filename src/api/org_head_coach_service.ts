@@ -77,3 +77,57 @@ export async function headCoachOf(orgId: string): Promise<string | null> {
   const result = await pool.query("SELECT head_coach_user_id FROM product_organisations WHERE org_id = $1", [orgId]);
   return text(result.rows[0]?.head_coach_user_id) || null;
 }
+
+// The medical lead: one active coach of a team ('shared') organisation the
+// owner names - the team's physio or doctor with a Kolosseum coach account.
+// What it grants (the team's injury log and medical stand-downs, nothing else)
+// is decided where it's read (injury_log_service.ts, medical_stand_down_
+// service.ts). A gym's athletes each belong to their own coach, so a gym has
+// no medical lead.
+export async function setMedicalLead(ownerUserId: string, orgId: string, input: unknown): Promise<Json> {
+  const body = input && typeof input === "object" ? (input as Json) : {};
+  const coachUserId = text(body.coach_user_id) || null;
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const org = await client.query("SELECT owner_user_id, visibility_mode, medical_lead_user_id FROM product_organisations WHERE org_id = $1 FOR UPDATE", [orgId]);
+    if (!org.rows.length) throw new OrgHeadCoachError("org_medical_lead_organisation_not_found", 404);
+    if (String(org.rows[0].owner_user_id) !== ownerUserId) throw new OrgHeadCoachError("org_medical_lead_access_denied", 403);
+    if (text(org.rows[0].visibility_mode) !== "shared") throw new OrgHeadCoachError("org_medical_lead_team_only", 409);
+    if (coachUserId && !(await activeCoachIds(orgId)).includes(coachUserId)) throw new OrgHeadCoachError("org_medical_lead_not_an_active_coach", 409);
+    const before = text(org.rows[0].medical_lead_user_id) || null;
+    if (before !== coachUserId) {
+      await client.query("UPDATE product_organisations SET medical_lead_user_id = $2, updated_at = now() WHERE org_id = $1", [orgId, coachUserId]);
+      await writeAuditRecord(client, {
+        orgId, actorUserId: ownerUserId, actorRole: "org_owner", correlationId: `medical_lead_${crypto.randomUUID()}`,
+        actionType: coachUserId ? "medical_lead_designated" : "medical_lead_cleared",
+        beforeState: { medical_lead_user_id: before }, afterState: { medical_lead_user_id: coachUserId }
+      });
+    }
+    await client.query("COMMIT");
+    return { ok: true, org_id: orgId, medical_lead_user_id: coachUserId };
+  }
+  catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  }
+  finally {
+    client.release();
+  }
+}
+
+export async function medicalLeadOf(orgId: string): Promise<string | null> {
+  const result = await pool.query("SELECT medical_lead_user_id FROM product_organisations WHERE org_id = $1", [orgId]);
+  return text(result.rows[0]?.medical_lead_user_id) || null;
+}
+
+// The team organisations this coach is currently medical lead of (active member only).
+export async function medicalLeadOrgs(coachUserId: string): Promise<string[]> {
+  const result = await pool.query(
+    `SELECT o.org_id FROM product_organisations o
+     JOIN product_org_coach_memberships m ON m.org_id = o.org_id AND m.coach_user_id = $1 AND m.membership_status = 'active'
+     WHERE o.medical_lead_user_id = $1 AND o.visibility_mode = 'shared'`,
+    [coachUserId]
+  );
+  return result.rows.map((row) => String(row.org_id));
+}

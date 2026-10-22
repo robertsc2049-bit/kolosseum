@@ -2913,4 +2913,35 @@ ALTER TABLE product_org_audit_records
       'head_coach_designated',
       'head_coach_cleared'
     )
+  ) NOT VALID;
+
+-- A medical lead: one active coach of a team ('shared') organisation the
+-- owner names - the team's physio or doctor with a Kolosseum coach account.
+-- They see and keep the injury log and medical stand-downs for every athlete
+-- on the team, and nothing else of theirs (no programmes, no analysis).
+-- NULL = none. Designating and clearing are audited.
+ALTER TABLE product_organisations
+  ADD COLUMN IF NOT EXISTS medical_lead_user_id TEXT
+    REFERENCES product_accounts(user_id)
+    ON DELETE SET NULL;
+
+ALTER TABLE product_org_audit_records
+  DROP CONSTRAINT IF EXISTS product_org_audit_records_action_type_check;
+ALTER TABLE product_org_audit_records
+  ADD CONSTRAINT product_org_audit_records_action_type_check
+  CHECK (
+    action_type IN (
+      'org_created',
+      'coach_invited',
+      'coach_membership_activated',
+      'coach_membership_removed',
+      'coach_membership_left',
+      'seat_plan_changed',
+      'athlete_position_overridden',
+      'org_ownership_handed_over',
+      'head_coach_designated',
+      'head_coach_cleared',
+      'medical_lead_designated',
+      'medical_lead_cleared'
+    )
   );

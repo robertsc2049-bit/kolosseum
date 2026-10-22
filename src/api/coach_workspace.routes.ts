@@ -64,7 +64,7 @@ import {
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
-import { InjuryInputError, recordInjury, removeInjury, updateInjury } from "./injury_log_service.js";
+import { InjuryInputError, listInjuriesForCoach, recordInjury, removeInjury, updateInjury } from "./injury_log_service.js";
 import { ProgrammeOverrideError, clearProgrammeOverride, setProgrammeOverride } from "./athlete_programme_override_service.js";
 import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
 import { SquadEntryError, importExternalLoad, recordSquadSession, recordTestDay } from "./squad_entry_service.js";
@@ -521,6 +521,11 @@ const injuryHandler = (work: (coachUserId: string, req: Request) => Promise<unkn
   try { return res.status(200).json(await work(coachUserId, req)); }
   catch (error) { const status = injuryErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
 });
+coachWorkspaceRouter.get("/athletes/:athlete_id/injuries", coachAnalysisRateLimit, asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, false);
+  try { return res.status(200).json(await listInjuriesForCoach(coachUserId, String(req.params.athlete_id))); }
+  catch (error) { const status = injuryErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+}));
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => recordInjury(coachUserId, String(req.params.athlete_id), req.body)));
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/status", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => updateInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id), req.body)));
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/remove", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => removeInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id))));

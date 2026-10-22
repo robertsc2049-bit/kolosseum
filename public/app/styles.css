@@ -5218,3 +5218,7 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .programme-adjust-form .programme-adjust-note { max-width: 280px; }
 .programme-adjust-change { color: var(--k-accent); }
 .programme-adjust .text-button { min-height: 44px; margin-left: var(--k-space-2); }
+
+/* The team's medical lead (TeamMedicalPanel.tsx). */
+.team-medical { display: grid; gap: var(--k-space-3); margin-top: var(--k-space-3); padding-top: var(--k-space-3); border-top: 1px solid var(--line-soft); }
+.team-medical h4 { margin: 0; }
