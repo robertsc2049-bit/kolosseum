@@ -38,6 +38,8 @@ export function programmeAdjustments(plannedSession: unknown): string[] {
     const held = Array.isArray(headInjury.held_back_exercise_ids) ? headInjury.held_back_exercise_ids.length : 0;
     out.push(`Back after a head injury: ${held ? `${plural(held, "exercise")} held back` : "contact and heavy work held back"}${headInjury.lighter === true ? ", the rest lighter" : ""}`);
   }
+  const overrides = isRecord(plannedSession.coach_overrides) ? plannedSession.coach_overrides : null;
+  if (overrides && Number(overrides.applied) > 0) out.push(`Adjusted for this athlete: ${plural(Number(overrides.applied), "exercise")} changed from the programme`);
   const sport = isRecord(plannedSession.sport_load_adjustment) ? plannedSession.sport_load_adjustment : null;
   if (sport && typeof sport.note === "string") out.push(sport.note.replace(/^Lighter today/u, "Lighter"));
   return out;

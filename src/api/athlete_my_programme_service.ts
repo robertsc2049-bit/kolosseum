@@ -13,6 +13,7 @@ import { getAthleteCustomExerciseNames, getAthleteTrainingPlan, sessionExerciseD
 import { loadTodayEventStatus } from "./athlete_today_service.js";
 import { getWeightClass } from "./weight_class_service.js";
 import type { PlannedWeek } from "./forward_load.js";
+import { loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 
 type Json = Record<string, unknown>;
 
@@ -261,7 +262,24 @@ export async function loadCoachAthleteProgramme(coachUserId: string, athleteUser
   await requireCoachAthleteAccess(coachUserId, athleteUserId);
   const assignment = await currentAssignment(athleteUserId);
   if (!assignment || text(assignment.assigned_by_coach_id) !== coachUserId) return { ok: true, status: "none" };
-  return buildProgramme(athleteUserId, "coach", assignment, null);
+  const programme = await buildProgramme(athleteUserId, "coach", assignment, null);
+  // This athlete's own changes to the programme, beside each exercise.
+  const overrides = await loadProgrammeOverrides(athleteUserId, text(assignment.assignment_id)).catch(() => []);
+  if (!overrides.length || !Array.isArray(programme.blocks)) return programme;
+  const withOverrides = (programme.blocks as Json[]).map((block) => ({
+    ...block,
+    weeks: (block.weeks as Json[]).map((week) => ({
+      ...week,
+      sessions: (week.sessions as Json[]).map((session) => ({
+        ...session,
+        exercises: (session.exercises as Json[]).map((exercise) => {
+          const override = overrides.find((entry) => entry.session_index === session.session_index && entry.exercise_id === exercise.exercise_id);
+          return override ? { ...exercise, override } : exercise;
+        })
+      }))
+    }))
+  }));
+  return { ...programme, blocks: withOverrides };
 }
 
 // The programme's weeks still to come, as numbers for the coach's Analysis

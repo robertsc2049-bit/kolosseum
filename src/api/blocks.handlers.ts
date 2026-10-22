@@ -25,6 +25,7 @@ import { applyAthleteMatchWeek } from "./match_week_service.js";
 import { applyAthleteFightCamp } from "./weight_class_service.js";
 import { applyHyroxRaceStandards, isHyroxDivision } from "./hyrox_race_standards.js";
 import { applySportLoad, sportLoadNote, sportLoadToday } from "./sport_load_session.js";
+import { applyProgrammeOverrides, loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 import { listOtherTraining } from "./athlete_training_log_service.js";
 import { getAthleteDeclaredActivityAndPosition } from "./athlete_onboarding_service.js";
 import { autoregulateSession } from "./autoregulation_service.js";
@@ -755,6 +756,15 @@ export async function compileBlock(req: Request, res: Response) {
         planned_session_from_engine.exercises as any
       )) as any
     };
+  }
+  // A coach's changes to this athlete's session of their programme (fewer
+  // sets, another weight, an exercise left out, a note) - for this athlete
+  // only; the programme itself is untouched (athlete_programme_override_service.ts).
+  // After the pain step, which rebuilds the session from named_session.
+  if (create_session && beta_session_binding && template_position) {
+    const overrides = await loadProgrammeOverrides(beta_session_binding.subject_user_id, beta_session_binding.assignment_id).catch(() => []);
+    const { exercises, applied } = applyProgrammeOverrides(planned_session_from_engine.exercises as any, overrides, template_position.template_session_index);
+    if (applied) planned_session_from_engine = { ...planned_session_from_engine, exercises: exercises as any, coach_overrides: { applied } } as any;
   }
   // Around a self-directed athlete's matches: a primer on match day and the
   // day before (no heavy lower-body work), recovery the day after

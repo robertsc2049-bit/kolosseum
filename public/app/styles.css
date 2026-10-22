@@ -5209,3 +5209,12 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* Meet attempts (CoachAnalysisPanel.tsx). */
 .analysis-attempts { display: grid; gap: var(--k-space-2); margin-bottom: var(--k-space-3); }
 .analysis-attempts h4 { margin: 0; }
+
+/* Adjusting a programme for one athlete (AthleteProgrammeAdjust.tsx). */
+.programme-adjust { grid-column: 1 / -1; display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.programme-adjust .panel-header h4, .programme-adjust-session h5 { margin: 0; }
+.programme-adjust-form { display: flex; flex-wrap: wrap; gap: var(--k-space-2); align-items: flex-end; margin: var(--k-space-2) 0; }
+.programme-adjust-form .field { max-width: 120px; }
+.programme-adjust-form .programme-adjust-note { max-width: 280px; }
+.programme-adjust-change { color: var(--k-accent); }
+.programme-adjust .text-button { min-height: 44px; margin-left: var(--k-space-2); }
