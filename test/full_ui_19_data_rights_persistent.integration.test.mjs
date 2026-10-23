@@ -275,6 +275,14 @@ test(
       );
       assertStatus(athleteGoal, 201, "seed athlete goal");
 
+      // Account events - here a readiness check-in and a logged injury (health
+      // data) - must reach the export too.
+      await pool.query(
+        "INSERT INTO product_account_events (event_id, user_id, event_type, event_payload) VALUES ($1, $2, 'athlete_readiness_check_in', $3::jsonb), ($4, $2, 'athlete_injury_recorded', $5::jsonb)",
+        [`f19_ready_${nonce}`, athlete.userId, JSON.stringify({ date: "2026-10-01", sleep: 4, soreness: 3, stress: 4, hrv_ms: 61 }),
+          `f19_inj_${nonce}`, JSON.stringify({ id: "inj_f19", occurred_on: "2026-09-20", area: "thigh_back", side: "left", type: "muscle", status: "out" })]
+      );
+
       // --- Export request: creates a ready artefact with a lawful expiry. ---
       const exportReq = await request(baseUrl, "POST", "/account/data-rights/export", {}, { cookie: athlete.cookie, csrf: athlete.csrf });
       assertStatus(exportReq, 202, "export request");
@@ -339,6 +347,10 @@ test(
       assert.equal(download.json.subject_data.device_connections[0].provider, "garmin");
       assert.equal(download.json.subject_data.device_metric_entries[0].metric_type, "resting_heart_rate_bpm");
       assert.equal(download.json.subject_data.athlete_goals[0].goal_label, "Run a 5k without stopping");
+      const accountEventTypes = download.json.subject_data.account_events.map((row) => row.event_type);
+      assert.ok(accountEventTypes.includes("athlete_readiness_check_in"), "readiness check-ins are exported");
+      assert.ok(accountEventTypes.includes("athlete_injury_recorded"), "the injury log is exported");
+      assert.equal(download.json.subject_data.account_events.find((row) => row.event_type === "athlete_readiness_check_in").payload.hrv_ms, 61);
 
       const statusAfterDownload = await request(baseUrl, "GET", "/account/data-rights/export", undefined, { cookie: athlete.cookie });
       assert.ok(statusAfterDownload.json.exports[0].downloaded_at_iso8601, "expected downloaded_at to be recorded");

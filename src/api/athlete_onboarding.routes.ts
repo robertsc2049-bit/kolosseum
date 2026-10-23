@@ -43,11 +43,13 @@ const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, sta
 
 import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
+import { currentInjury } from "./injury_log_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
 import { ProgrammeCatalogueError, getAthleteProgrammes, setAthleteProgramme } from "./programme_catalogue_service.js";
+import { ProgrammeGrantError, declineProgrammeGrant, listAthleteProgrammeGrants, startProgrammeGrant } from "./programme_grant_service.js";
 import { TrainingWeekError, getAthleteTrainingWeek, saveAthleteTrainingWeek } from "./athlete_training_week_service.js";
 import { loadAthleteMyProgramme } from "./athlete_my_programme_service.js";
 
@@ -314,6 +316,16 @@ athleteOnboardingRouter.put(
   })
 );
 
+// The athlete's own current injury (logged by their coach or physio), read-only.
+athleteOnboardingRouter.get(
+  "/injury-status",
+  standDownRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json({ ok: true, injury: await currentInjury(session.account_row.user_id) });
+  })
+);
+
 // The athlete's match week: usual match/race/key-session days and fixtures.
 athleteOnboardingRouter.get(
   "/match-week",
@@ -341,6 +353,41 @@ athleteOnboardingRouter.get(
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
     return response.status(200).json(await getAthleteProgrammes(session.account_row.user_id));
+  })
+);
+
+// Programmes coaches have given the athlete (programme_grant_service.ts):
+// accept and start one, start an owned one again, or decline.
+const programmeGrantError = (response: Response, error: unknown) => {
+  if (error instanceof ProgrammeGrantError) return response.status(error.status).json({ ok: false, error: error.code });
+  throw error;
+};
+athleteOnboardingRouter.get(
+  "/programme-grants",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await listAthleteProgrammeGrants(session.account_row.user_id));
+  })
+);
+athleteOnboardingRouter.post(
+  "/programme-grants/:grant_id/start",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try { return response.status(200).json(await startProgrammeGrant(session.account_row.user_id, request.params.grant_id)); }
+    catch (error) { return programmeGrantError(response, error); }
+  })
+);
+athleteOnboardingRouter.post(
+  "/programme-grants/:grant_id/decline",
+  athleteProgrammeRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try { return response.status(200).json(await declineProgrammeGrant(session.account_row.user_id, request.params.grant_id)); }
+    catch (error) { return programmeGrantError(response, error); }
   })
 );
 

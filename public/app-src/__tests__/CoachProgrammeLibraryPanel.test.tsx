@@ -157,27 +157,33 @@ test("clear filters resets search, state, activity and sort", async () => {
   assert.equal((screen.getByPlaceholderText("Name, activity, event or version") as HTMLInputElement).value, "");
 });
 
-test("draft cards show Edit and Mark complete but not Activate; only draft cards show View detail plus Duplicate/Archive by state", async () => {
+test("draft cards show Edit and Check it's ready but not Ready to send; only draft cards show View detail plus Duplicate/Archive by state", async () => {
   installMocks([template({ template_status: "draft" })]);
   render(<CoachProgrammeLibraryPanel />);
   await screen.findByText("View detail");
 
   assert.ok(screen.getByText("Edit"));
-  assert.ok(screen.getByText("Mark complete"));
+  assert.ok(screen.getByText("Check it's ready"));
   assert.ok(screen.getByText("Archive"));
-  assert.equal(screen.queryByText("Activate"), null);
+  assert.equal(screen.queryByText("Ready to send"), null);
   assert.equal(screen.queryByText("Duplicate version"), null);
 });
 
-test("complete cards show Activate and Duplicate but not Edit or Mark complete", async () => {
+test("a complete card nobody has yet can still be edited; once sent, Edit makes a new version", async () => {
   installMocks([template({ template_status: "complete" })]);
   render(<CoachProgrammeLibraryPanel />);
   await screen.findByText("View detail");
 
-  assert.ok(screen.getByText("Activate"));
+  assert.ok(screen.getByText("Ready to send"));
   assert.ok(screen.getByText("Duplicate version"));
-  assert.equal(screen.queryByText("Edit"), null);
-  assert.equal(screen.queryByText("Mark complete"), null);
+  assert.ok(screen.getByText("Edit"));
+  assert.equal(screen.queryByText("Check it's ready"), null);
+  cleanup();
+
+  installMocks([template({ template_status: "active", sent: true })]);
+  render(<CoachProgrammeLibraryPanel />);
+  await screen.findByText("View detail");
+  assert.ok(screen.getByText("Edit as a new version"));
 });
 
 test("archived cards do not show an Archive action", async () => {

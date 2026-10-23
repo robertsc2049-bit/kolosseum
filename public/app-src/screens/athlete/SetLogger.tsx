@@ -9,7 +9,21 @@ import { type JsonRecord } from "../../api/transport";
 // (carries, sleds, sprints, holds) is logged by completing the exercise.
 
 type Load = { value: number; unit: "kg" | "lb" } | null;
-type LogSet = (exerciseId: string, setIndex: number, reps: number, load: Load) => Promise<boolean | null>;
+type LogSet = (exerciseId: string, setIndex: number, reps: number, load: Load, velocity?: number | null, missedPart?: "clean" | "jerk" | null) => Promise<boolean | null>;
+// A clean & jerk can be missed on the clean or the jerk: worth knowing which.
+const isCleanAndJerk = (exerciseId: string) => /^clean_and_jerk(__r[0-9]+)?$/u.test(exerciseId);
+
+// Bar speed from a VBT device: shown only for athletes who switch it on
+// (remembered on this phone).
+const SPEED_KEY = "kolosseum.logBarSpeed";
+function readSpeedSetting(): boolean {
+  try { return window.localStorage.getItem(SPEED_KEY) === "1"; }
+  catch { return false; }
+}
+function writeSpeedSetting(on: boolean): void {
+  try { window.localStorage.setItem(SPEED_KEY, on ? "1" : "0"); }
+  catch { /* not remembered: fine */ }
+}
 
 function prescribedReps(exercise: JsonRecord): number {
   const range = exercise.rep_range as JsonRecord | undefined;
@@ -35,10 +49,13 @@ function prescribedLoad(exercise: JsonRecord): { value: string; unit: "kg" | "lb
 
 function formatLogged(log: JsonRecord): string {
   const load = log.load_value !== null && log.load_value !== undefined ? ` × ${Number(log.load_value)} ${String(log.load_unit ?? "kg")}` : "";
-  return `${Number(log.reps)} reps${load}${log.is_pr === true ? " · PR" : ""}${log.pending === true ? " · saved on this phone" : ""}`;
+  const speed = log.velocity_mps !== null && log.velocity_mps !== undefined ? ` · ${Number(log.velocity_mps).toFixed(2)} m/s` : "";
+  const missed = log.missed_part === "clean" || log.missed_part === "jerk" ? ` · missed the ${String(log.missed_part)}` : "";
+  return `${Number(log.reps)} reps${load}${speed}${missed}${log.is_pr === true ? " · PR" : ""}${log.pending === true ? " · saved on this phone" : ""}`;
 }
 
-function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy, logSet }: {
+function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy, logSet, speedOn = false }: {
+  speedOn?: boolean;
   exerciseId: string;
   setIndex: number;
   optional?: boolean;
@@ -51,6 +68,8 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
   const [reps, setReps] = useState(String(logged ? logged.reps : defaults.reps));
   const [load, setLoad] = useState(logged && logged.load_value !== null && logged.load_value !== undefined ? String(logged.load_value) : defaults.load);
   const [error, setError] = useState<string | null>(null);
+  const [speed, setSpeed] = useState(logged && logged.velocity_mps !== null && logged.velocity_mps !== undefined ? String(logged.velocity_mps) : "");
+  const [missed, setMissed] = useState<"" | "clean" | "jerk">(logged?.missed_part === "clean" || logged?.missed_part === "jerk" ? logged.missed_part as "clean" | "jerk" : "");
 
   async function submit() {
     const repsNumber = Number(reps);
@@ -64,8 +83,14 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
       setError("Enter the load, or leave it blank for bodyweight.");
       return;
     }
+    const speedText = speed.trim();
+    const speedNumber = Number(speedText);
+    if (speedOn && speedText && (!Number.isFinite(speedNumber) || speedNumber < 0.05 || speedNumber > 3)) {
+      setError("Bar speed is in m/s, between 0.05 and 3 - or leave it blank.");
+      return;
+    }
     setError(null);
-    const result = await logSet(exerciseId, setIndex, repsNumber, trimmed ? { value: loadNumber, unit: defaults.unit } : null);
+    const result = await logSet(exerciseId, setIndex, repsNumber, trimmed ? { value: loadNumber, unit: defaults.unit } : null, speedOn && speedText ? speedNumber : null, isCleanAndJerk(exerciseId) && missed ? missed : null);
     if (result !== null) setEditing(false);
   }
 
@@ -92,6 +117,22 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
         <input aria-label={`Set ${setIndex} load (${defaults.unit})`} type="number" inputMode="decimal" step="0.5" placeholder="BW" value={load} onChange={(event) => setLoad(event.target.value)} />
       </label>
       <span>{defaults.unit}</span>
+      {speedOn ? (
+        <label className="set-log-field set-log-speed">
+          <span className="visually-hidden">{`Set ${setIndex} bar speed (m/s)`}</span>
+          <input aria-label={`Set ${setIndex} bar speed (m/s)`} type="number" inputMode="decimal" step="0.01" min={0.05} max={3} placeholder="m/s" value={speed} onChange={(event) => setSpeed(event.target.value)} />
+        </label>
+      ) : null}
+      {isCleanAndJerk(exerciseId) ? (
+        <label className="set-log-field">
+          <span className="visually-hidden">{`Set ${setIndex} missed`}</span>
+          <select aria-label={`Set ${setIndex} missed`} value={missed} onChange={(event) => setMissed(event.target.value as "" | "clean" | "jerk")}>
+            <option value="">Made it</option>
+            <option value="clean">Missed the clean</option>
+            <option value="jerk">Missed the jerk</option>
+          </select>
+        </label>
+      ) : null}
       <button className="button primary small-button" type="button" disabled={busy} onClick={submit}>{`Log set ${setIndex}`}</button>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
     </li>
@@ -111,6 +152,7 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   if (exercise.segment === "warm_up" || exercise.segment === "cool_down") return null;
   if (exercise.distance_value !== undefined || exercise.duration_seconds !== undefined || exercise.distance_range || exercise.duration_range) return null;
 
+  const [speedOn, setSpeedOn] = useState(readSpeedSetting);
   const load = prescribedLoad(exercise);
   const defaults = { reps: prescribedReps(exercise), load: load.value, unit: load.unit };
   const bySet = new Map(setLogs.map((log) => [Number(log.set_index), log]));
@@ -133,9 +175,15 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
             logged={bySet.get(setIndex)}
             busy={busy}
             logSet={logSet}
+            speedOn={speedOn}
           />
         ))}
       </ul>
+      {!defaults.load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
+      <label className="set-log-speed-toggle">
+        <input type="checkbox" checked={speedOn} onChange={(event) => { setSpeedOn(event.target.checked); writeSpeedSetting(event.target.checked); }} />
+        <span>Log bar speed (from a VBT device)</span>
+      </label>
     </section>
   );
 }

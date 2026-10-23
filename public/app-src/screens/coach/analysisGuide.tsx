@@ -168,6 +168,35 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     ],
     mind: ["HRV and resting heart rate only compare well when taken the same way each time - first thing in the morning, same device.", "Readiness is only as good as the check-ins. Encourage honest answers - a low score is useful information, not a failure."]
   },
+  velocity: {
+    title: "Bar speed",
+    shows: "How fast the bar moves, for athletes who log it from a velocity (VBT) device: speed at the same weight over time and how much speed they lose across their sets.",
+    read: [
+      "Faster at the same weight usually means stronger; slower is often the first sign of fatigue, before the estimated max moves.",
+      "Speed lost across sets: 20-30% is normal for hard work; a lot more means a very fatiguing session."
+    ],
+    how: ["Athletes switch on \"Log bar speed\" on their set logger and type the mean velocity their device shows for each set."],
+    mind: ["Different devices read differently - compare an athlete with themselves on the same device, not with others."]
+  },
+  injuries: {
+    title: "Injuries",
+    shows: "The athlete's injury log: each injury, how it happened, whether it stopped them training, days lost and how they're coming back.",
+    read: [
+      "Days lost: days out of training, from the injury to their return. Days on modified training are shown separately.",
+      "Severity uses the bands sports medicine uses: minimal 1-3 days lost, mild 4-7, moderate 8-28, severe over 28.",
+      "A re-injury - the same place, same side, within 2 months of coming back - is flagged: it usually means the return was too quick.",
+      "Pain reported in the same place as an injury they've come back from in the last 8 weeks is flagged too."
+    ],
+    how: [
+      "Record an injury with where, which side, what type, how and where it happened, and whether they're out or on modified training. Move it on (out -> modified -> back to full training) as they come back.",
+      "For a team, the head coach sees injuries per 1000 training hours and days lost per 1000 hours (injury burden) - training hours are the sessions and other training they logged."
+    ],
+    mind: [
+      "Record what their physio or doctor has said - this log never gives medical advice, and stores no diagnosis or notes.",
+      "Only the athlete's own coach and a team's head coach see it. Other coaches and the organisation see only whether they're available.",
+      "Logging an injury doesn't stop sessions being set. For that - and always for a head injury - record a stand-down."
+    ]
+  },
   gps: {
     title: "Running load (GPS / HR)",
     shows: "What the athlete did on the pitch or court, from your GPS or heart-rate system's exports: distance, high-speed running (HSR), sprint distance, player load and heart rate, week by week.",

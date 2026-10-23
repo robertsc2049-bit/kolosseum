@@ -255,6 +255,8 @@ export function groupTimingLabel(source: JsonRecord | null | undefined): string 
     if (totalRounds > 0 && roundSeconds > 0) return `EMOM ${totalRounds} × ${roundSeconds}s`;
     return "EMOM";
   }
+  // A pro's contrast pair: the heavy set, a short rest, then the jump.
+  if (groupType === "superset" && String(source?.group_id ?? "").startsWith("contrast_")) return "Contrast pair: heavy set, rest 30 s, then the jumps";
   return titleCase(groupType);
 }
 

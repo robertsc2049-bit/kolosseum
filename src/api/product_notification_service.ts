@@ -63,7 +63,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "org_owner_message_received",
   "owner_message_received_from_coach",
   "owner_message_received_from_athlete",
-  "athlete_pain_reported"
+  "athlete_pain_reported",
+  "athlete_strength_reference_missing"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -645,6 +646,45 @@ async function deriveAthletePainReportedNotifications(
         pain_area: cleanString(event.pain_area) || null
       },
       occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
+// --- Athlete held for want of a max -----------------------------------------
+// One per programme and lift: the athlete can't start their next session of
+// this coach's programme until the coach adds a max (or an RPE or weight for
+// them in that session).
+
+async function deriveAthleteStrengthReferenceMissingNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT event_id, user_id, event_payload, occurred_at
+    FROM product_account_events
+    WHERE event_type = 'strength_reference_missing'
+      AND event_payload->>'coach_user_id' = $1
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const athleteId = cleanString(row.user_id);
+    const payload = isRecord(row.event_payload) ? row.event_payload : {};
+    if (!athleteId) continue;
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_strength_reference_missing",
+      sourceRecordType: "product_account_events",
+      sourceRecordId: cleanString(row.event_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteId },
+      notificationPayload: {
+        athlete_user_id: athleteId,
+        exercise_id: cleanString(payload.exercise_id)
+      },
+      occurredAtIso8601: toIso(row.occurred_at)
     });
   }
 }
@@ -1346,6 +1386,7 @@ async function deriveNotificationsForRecipient(
   await deriveAttendanceEventOccurrenceChangedNotifications(client, recipientUserId);
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthletePainReportedNotifications(client, recipientUserId);
+  await deriveAthleteStrengthReferenceMissingNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);

@@ -16,7 +16,7 @@ import { pool } from "../db/pool.js";
 import { requireCoachAthleteAccess } from "./beta19_coach_workspace_service.js";
 import { addOtherTraining, TrainingLogInputError } from "./athlete_training_log_service.js";
 import { recordTestResult, AthleteTestInputError } from "./athlete_tests_service.js";
-import { headCoachTeamMemberCoach } from "./team_analysis_service.js";
+import { forgetRecentTeamViews, headCoachTeamMemberCoach } from "./team_analysis_service.js";
 
 type Json = Record<string, unknown>;
 const isRecord = (value: unknown): value is Json => typeof value === "object" && value !== null && !Array.isArray(value);
@@ -77,6 +77,7 @@ export async function recordSquadSession(coachUserId: string, input: unknown): P
       throw error;
     }
   }
+  forgetRecentTeamViews();
   return { ok: true, added: added.length, skipped };
 }
 
@@ -100,6 +101,7 @@ export async function recordTestDay(coachUserId: string, input: unknown): Promis
       skipped.push({ athlete_user_id: athleteUserId, reason: "not_your_athlete" });
     }
   }
+  forgetRecentTeamViews();
   return { ok: true, added, skipped };
 }
 
@@ -142,6 +144,7 @@ export async function importExternalLoad(coachUserId: string, input: unknown, to
     );
     if (inserted.rowCount) added += 1;
   }
+  forgetRecentTeamViews();
   return { ok: true, added, skipped, rows: rows.length };
 }
 

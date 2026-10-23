@@ -684,10 +684,73 @@ test(
     assert.equal((await squadPost("sessions", squadSession, coachA.cookie, null)).response.status >= 400, true, "a change needs the CSRF token");
     const outsiderSquad = await squadPost("sessions", { ...squadSession, client_request_id: `sq_${nonce}_out` }, coachB.cookie, coachB.csrf);
     assert.deepEqual(outsiderSquad.json.skipped.map((row) => row.athlete_user_id), [athlete1.userId], "coachB isn't head coach: only their own athlete is recorded");
+
+    // The injury log: the head coach records a teammate's hamstring strain;
+    // the athlete's own coach sees it in full, the team view shows them out
+    // straight away, and the owner sees only that they're unavailable.
+    const injuryBase = `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/injuries`;
+    const strain = { area: "thigh_back", side: "left", type: "muscle", mechanism: "non_contact", context: "match", status: "out", occurred_on: daysAgoDateOnly(3), client_request_id: `inj_${nonce}_ham` };
+    const recorded = await request(baseUrl, "POST", injuryBase, strain, { cookie: coachA.cookie, csrf: coachA.csrf });
+    assertStatus(recorded, 200, "head coach records an injury");
+    assert.equal(recorded.json.added, true);
+    assert.equal((await request(baseUrl, "POST", injuryBase, strain, { cookie: coachA.cookie, csrf: coachA.csrf })).json.added, false, "the same request twice is one injury");
+    assert.equal((await request(baseUrl, "POST", injuryBase, { ...strain, area: "spleen", client_request_id: `inj_${nonce}_bad` }, { cookie: coachA.cookie, csrf: coachA.csrf })).response.status, 400);
+    const injuryId = recorded.json.injury.id;
+    const ownCoachView = await request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/analysis?weeks=8`, undefined, { cookie: coachB.cookie });
+    assertStatus(ownCoachView, 200, "own coach reads the analysis");
+    assert.equal(ownCoachView.json.analysis.injuries.current.name, "left hamstring (muscle strain)");
+    assert.equal(ownCoachView.json.findings[0].id, "injury_out");
+    const teamNow = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
+    const injuredRow = teamNow.json.athletes.find((row) => row.athlete_user_id === cohort1.userId);
+    assert.deepEqual(injuredRow.availability, { status: "unavailable", reason: "Injury: left hamstring (muscle strain)", until: null }, "the team view shows it at once (no stale cache)");
+    assert.equal(teamNow.json.summary.injuries.out, 1, "the head coach sees the team's injury numbers");
+    const plainCoachTeam = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachB.cookie });
+    const asTeammate = plainCoachTeam.json.athletes.find((row) => row.athlete_user_id === athlete1.userId);
+    assert.equal(asTeammate.injuries, undefined, "a plain team coach never sees a teammate's injury log");
+    assert.equal(plainCoachTeam.json.summary.injuries, undefined);
+    const ownerNow = await request(baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: owner.cookie });
+    const ownerRow = ownerNow.json.analysis.athletes.find((row) => row.athlete_user_id === cohort1.userId);
+    assert.deepEqual(ownerRow.availability, { status: "unavailable" }, "the owner sees availability only");
+    assert.equal(ownerRow.injuries, undefined);
+    assert.ok(!ownerRow.findings.some((finding) => String(finding.id).startsWith("injury_")));
+    assert.equal(ownerNow.json.analysis.summary.injuries, undefined);
+    assert.ok(!JSON.stringify(ownerNow.json).includes("hamstring"), "nothing about the injury reaches the owner");
+    const modified = await request(baseUrl, "POST", `${injuryBase}/${injuryId}/status`, { status: "modified", on: daysAgoDateOnly(1), client_request_id: `inj_${nonce}_mod` }, { cookie: coachB.cookie, csrf: coachB.csrf });
+    assertStatus(modified, 200, "own coach moves it to modified");
+    const back = await request(baseUrl, "POST", `${injuryBase}/${injuryId}/status`, { status: "returned", on: daysAgoDateOnly(0), client_request_id: `inj_${nonce}_back` }, { cookie: coachB.cookie, csrf: coachB.csrf });
+    assertStatus(back, 200, "back to full training");
+    const afterReturn = await request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/analysis?weeks=8`, undefined, { cookie: coachB.cookie });
+    const row = afterReturn.json.analysis.injuries.rows[0];
+    assert.deepEqual([row.status, row.days_lost, row.days_modified, row.severity], ["returned", 2, 1, "minimal"]);
+    assert.equal((await request(baseUrl, "POST", `${injuryBase}/${injuryId}/status`, { status: "out", client_request_id: `inj_${nonce}_again` }, { cookie: coachB.cookie, csrf: coachB.csrf })).response.status, 409, "a returned injury is closed - a new one is recorded instead");
+    assert.equal((await request(baseUrl, "POST", injuryBase, { ...strain, client_request_id: `inj_${nonce}_nocsrf` }, { cookie: coachA.cookie })).response.status >= 400, true, "a change needs the CSRF token");
     assertStatus(await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: null }, { cookie: owner.cookie, csrf: owner.csrf }
     ), 200, "owner clears the head coach");
     assert.equal((await openTeammate()).response.status, 403, "cleared: closed again");
+    assert.equal((await request(baseUrl, "POST", `/coach-workspace/athletes/${encodeURIComponent(cohort1.userId)}/injuries`, { area: "knee", type: "ligament", client_request_id: `inj_${nonce}_after` }, { cookie: coachA.cookie, csrf: coachA.csrf })).response.status, 403, "no longer head coach: can't record an injury");
+
+    // The team's medical lead: coachB, the physio, keeps athlete1's injury log
+    // and stand-downs (athlete1 is coachA's) - and sees nothing else of theirs.
+    const medicalLead = (body, cookie = owner.cookie, csrf = owner.csrf) => request(baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/medical-lead`, body, { cookie, csrf });
+    const physioInjuries = `/coach-workspace/athletes/${encodeURIComponent(athlete1.userId)}/injuries`;
+    assert.equal((await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie })).response.status, 403, "not yet the medical lead");
+    assertStatus(await medicalLead({ coach_user_id: coachB.userId }), 200, "owner names coachB medical lead");
+    const audited = await pool.query("SELECT 1 FROM product_org_audit_records WHERE org_id = $1 AND action_type = 'medical_lead_designated'", [teamOrgId]);
+    assert.equal(audited.rowCount, 1, "designating the medical lead is audited");
+    assertStatus(await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie }), 200, "the medical lead reads a teammate's injury log");
+    assertStatus(await request(baseUrl, "POST", physioInjuries, { area: "ankle", side: "right", type: "ligament", status: "out", client_request_id: `inj_${nonce}_physio` }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and records an injury");
+    const until = new Date(Date.now() + 10 * 86_400_000).toISOString().slice(0, 10);
+    assertStatus(await request(baseUrl, "POST", `/stand-down/coach/${encodeURIComponent(athlete1.userId)}`, { reason: "medical", until_date: until }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and a medical stand-down");
+    assertStatus(await request(baseUrl, "POST", `/stand-down/coach/${encodeURIComponent(athlete1.userId)}/end`, { cleared_by_medical_professional: true }, { cookie: coachB.cookie, csrf: coachB.csrf }), 200, "and clears it");
+    assert.equal((await request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(athlete1.userId)}/analysis?weeks=8`, undefined, { cookie: coachB.cookie })).response.status, 403, "nothing else of theirs: no analysis");
+    const physioTeam = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachB.cookie });
+    assert.equal(physioTeam.json.medical_lead, true);
+    const ownerSees = await request(baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: owner.cookie });
+    assert.equal(ownerSees.json.analysis.medical_lead_user_id, coachB.userId);
+    assert.equal((await request(baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/medical-lead`, { coach_user_id: coachB.userId }, { cookie: owner.cookie, csrf: owner.csrf })).response.status, 409, "a gym has no medical lead");
+    assertStatus(await medicalLead({ coach_user_id: null }), 200, "owner clears the medical lead");
+    assert.equal((await request(baseUrl, "GET", physioInjuries, undefined, { cookie: coachB.cookie })).response.status, 403, "cleared: closed again");
     const crossOwnerHead = await request(
       baseUrl, "POST", `/org/organisations/${encodeURIComponent(teamOrgId)}/head-coach`, { coach_user_id: coachA.userId }, { cookie: owner.cookie }
     );

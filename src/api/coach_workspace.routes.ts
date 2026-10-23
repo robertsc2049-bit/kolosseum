@@ -64,6 +64,8 @@ import {
 import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
+import { InjuryInputError, listInjuriesForCoach, recordInjury, removeInjury, updateInjury } from "./injury_log_service.js";
+import { ProgrammeOverrideError, clearProgrammeOverride, setProgrammeOverride } from "./athlete_programme_override_service.js";
 import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
 import { SquadEntryError, importExternalLoad, recordSquadSession, recordTestDay } from "./squad_entry_service.js";
 import { CoachReportInputError, CoachReportNotFoundError, listCoachReports, loadCoachReport, previewAthleteReport, sendAthleteReport } from "./coach_report_service.js";
@@ -498,6 +500,35 @@ coachWorkspaceRouter.post(
     catch (error) { const status = testErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
   })
 );
+
+// Adjusting the coach's programme for one athlete (athlete_programme_override_service.ts).
+const overrideErrorStatus = (error: unknown) =>
+  error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof ProgrammeOverrideError ? error.status : null;
+const overrideHandler = (work: (coachUserId: string, req: Request) => Promise<unknown>) => asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, true);
+  try { return res.status(200).json(await work(coachUserId, req)); }
+  catch (error) { const status = overrideErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+});
+coachWorkspaceRouter.post("/athletes/:athlete_id/programme-overrides", coachAnalysisRateLimit, overrideHandler((coachUserId, req) => setProgrammeOverride(coachUserId, String(req.params.athlete_id), req.body)));
+coachWorkspaceRouter.post("/athletes/:athlete_id/programme-overrides/clear", coachAnalysisRateLimit, overrideHandler((coachUserId, req) => clearProgrammeOverride(coachUserId, String(req.params.athlete_id), req.body)));
+
+// The injury log (injury_log_service.ts): the athlete's own coach or a
+// team's head coach records an injury, moves it on, or removes a mistake.
+const injuryErrorStatus = (error: unknown) =>
+  error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof InjuryInputError ? error.status : null;
+const injuryHandler = (work: (coachUserId: string, req: Request) => Promise<unknown>) => asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, true);
+  try { return res.status(200).json(await work(coachUserId, req)); }
+  catch (error) { const status = injuryErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+});
+coachWorkspaceRouter.get("/athletes/:athlete_id/injuries", coachAnalysisRateLimit, asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, false);
+  try { return res.status(200).json(await listInjuriesForCoach(coachUserId, String(req.params.athlete_id))); }
+  catch (error) { const status = injuryErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message }); throw error; }
+}));
+coachWorkspaceRouter.post("/athletes/:athlete_id/injuries", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => recordInjury(coachUserId, String(req.params.athlete_id), req.body)));
+coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/status", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => updateInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id), req.body)));
+coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/remove", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => removeInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id))));
 
 // Getting a squad's data in at once (squad_entry_service.ts): a squad
 // session's effort, a test day, a GPS / heart-rate import.

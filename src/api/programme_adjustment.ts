@@ -38,5 +38,27 @@ export function programmeAdjustments(plannedSession: unknown): string[] {
     const held = Array.isArray(headInjury.held_back_exercise_ids) ? headInjury.held_back_exercise_ids.length : 0;
     out.push(`Back after a head injury: ${held ? `${plural(held, "exercise")} held back` : "contact and heavy work held back"}${headInjury.lighter === true ? ", the rest lighter" : ""}`);
   }
+  // A % of max with no max to take it from (beta18_programme_template_service.ts).
+  const fallbacks = position && Array.isArray(position.max_fallbacks) ? position.max_fallbacks.filter(isRecord) : [];
+  for (const kind of ["coach_weight", "coach_rpe", "beginner_rpe"]) {
+    const lifts = fallbacks.filter((entry) => entry.fallback === kind).map((entry) => String(entry.exercise_id ?? "").replaceAll("_", " "));
+    if (!lifts.length) continue;
+    out.push(kind === "beginner_rpe"
+      ? `No max for ${lifts.join(", ")}: worked by feel (RPE 6) - a beginner; add a max or keep them on RPE`
+      : `No max for ${lifts.join(", ")}: your ${kind === "coach_weight" ? "weight" : "RPE"} for this athlete was used`);
+  }
+  const injured = isRecord(plannedSession.injury_modified) ? plannedSession.injury_modified : null;
+  if (injured) out.push(`Training modified for an injury (${String(injured.injury ?? "")}): the athlete was reminded to follow their physio's plan`);
+  const match = isRecord(plannedSession.match_week) ? plannedSession.match_week : null;
+  if (match) {
+    const label = typeof match.label === "string" && match.label ? match.label : "the match";
+    out.push(match.role === "day_after" ? `The day after ${label}: recovery - fast work left out, the rest lighter`
+      : match.role === "day_before" ? `The day before ${label}: a primer - heavy leg work left out`
+      : `Match day (${label}): a primer only`);
+  }
+  const overrides = isRecord(plannedSession.coach_overrides) ? plannedSession.coach_overrides : null;
+  if (overrides && Number(overrides.applied) > 0) out.push(`Adjusted for this athlete: ${plural(Number(overrides.applied), "exercise")} changed from the programme`);
+  const sport = isRecord(plannedSession.sport_load_adjustment) ? plannedSession.sport_load_adjustment : null;
+  if (sport && typeof sport.note === "string") out.push(sport.note.replace(/^Lighter today/u, "Lighter"));
   return out;
 }

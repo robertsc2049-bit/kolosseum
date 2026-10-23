@@ -7,6 +7,7 @@ import { Explain } from "./analysisGuide";
 import { FindingList, type Finding } from "./FindingList";
 import { AvailabilityBadge, SquadTesting, downloadFile, squadCsv } from "./SquadTools";
 import { SquadEntry } from "./SquadEntry";
+import { TeamMedicalPanel } from "./TeamMedicalPanel";
 
 // A coach's team view on the Analysis page: every athlete in a team org
 // they coach in, summed up as a team, by position and by coach, then athlete
@@ -83,6 +84,7 @@ function GroupTable({ title, groups, testId, minGroups = 2 }: { title: string; g
 
 export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpenAthlete: (athleteUserId: string) => void }) {
   const [data, setData] = useState<JsonRecord | null>(null);
+  const [medicalFor, setMedicalFor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
   const weeks = weekly.map((week) => String(week.week_start));
   const athletes = rows(data.athletes);
   const availability = (summary.availability ?? null) as JsonRecord | null;
+  const injuries = (summary.injuries ?? null) as JsonRecord | null;
   const teamName = String((data.org as JsonRecord | undefined)?.org_name ?? team.org_name);
 
   return (
@@ -126,6 +129,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show(readiness.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
         <div className="report-tile"><span className="report-tile-label">Recurring pain</span><strong>{show(pain.athletes_with_recurring_pain)}</strong><span className="report-tile-usual">details with their coach</span></div>
         <div className="report-tile"><span className="report-tile-label">Main lifts</span><strong>{`${show(lifts.rising)} ↑ · ${show(lifts.falling)} ↓`}</strong><span className="report-tile-usual">{`${show(lifts.plateau)} stalled`}</span></div>
+        {injuries ? <div className="report-tile" data-testid="team-injuries"><span className="report-tile-label">Injuries (8 weeks)</span><strong>{`${show(injuries.injuries)} · ${show(injuries.days_lost)} days lost`}</strong><span className="report-tile-usual">{num(injuries.burden_per_1000h) === null ? `${show(injuries.out)} out now` : `${injuries.burden_per_1000h} days lost per 1000 h · ${show(injuries.out)} out now`}</span></div> : null}
         {availability ? <div className="report-tile"><span className="report-tile-label">Available today</span><strong>{`${show(availability.available)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">{`${show(availability.modified)} modified · ${show(availability.unavailable)} unavailable`}</span></div> : null}
       </div>
 
@@ -149,7 +153,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
         </div>
         <div className="analysis-table-wrap">
           <table className="analysis-table analysis-roster">
-            <thead><tr><th>Athlete</th><th>Status</th><th>Available</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th></tr></thead>
+            <thead><tr><th>Athlete</th><th>Status</th><th>Available</th><th>What stands out</th><th>Position</th><th>Coach</th><th>Sessions</th><th>Load vs usual</th>{data.medical_lead ? <th>Medical</th> : null}</tr></thead>
             <tbody>
               {athletes.map((athlete) => {
                 const statusInfo = statusLabel(athlete);
@@ -167,12 +171,15 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
                     <td data-label="Coach">{athlete.yours ? "You" : String(athlete.coach_name ?? "Coach")}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>
                     <td data-label="Load vs usual">{ratio === null ? "–" : `${ratio}×`}</td>
+                    {data.medical_lead ? <td data-label="Medical"><button type="button" className="text-button" aria-expanded={medicalFor === athlete.athlete_user_id} onClick={() => setMedicalFor(medicalFor === athlete.athlete_user_id ? null : String(athlete.athlete_user_id))}>Injuries</button></td> : null}
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+        {data.medical_lead && medicalFor ? <TeamMedicalPanel athleteUserId={medicalFor} name={String(athletes.find((athlete) => athlete.athlete_user_id === medicalFor)?.display_name ?? "Athlete")} /> : null}
+        {data.medical_lead ? <p className="muted small" data-testid="medical-lead-note">As the team's medical lead you keep every athlete's injury log and stand-downs - their training stays with their coach.</p> : null}
         <p className="muted small analysis-roster-key">{data.head_coach
           ? "As head coach you can open every athlete in the team in full."
           : "Your own athletes open in full. A teammate's detail - and any pain - stays with their own coach."}</p>

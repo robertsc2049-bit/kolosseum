@@ -23,7 +23,7 @@ export function OtherTrainingPanel() {
   const [entries, setEntries] = useState<JsonRecord[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ date: todayIso(), kind: "practice", minutes: "", srpe: "", note: "" });
+  const [form, setForm] = useState({ date: todayIso(), kind: "practice", minutes: "", srpe: "", note: "", jumps: "", balls_bowled: "" });
   const [busy, setBusy] = useState(false);
   const [requestId, setRequestId] = useState(newRequestId);
 
@@ -47,8 +47,12 @@ export function OtherTrainingPanel() {
     setBusy(true);
     setError(null);
     try {
-      await request("POST", "/account/onboarding/other-training", { date: form.date, kind: form.kind, minutes, srpe, note: form.note.trim(), client_request_id: requestId }, await csrf());
-      setForm({ date: todayIso(), kind: form.kind, minutes: "", srpe: "", note: "" });
+      const count = (value: string) => (value.trim() !== "" && Number.isInteger(Number(value)) ? Number(value) : undefined);
+      await request("POST", "/account/onboarding/other-training", {
+        date: form.date, kind: form.kind, minutes, srpe, note: form.note.trim(), client_request_id: requestId,
+        ...(count(form.jumps) !== undefined ? { jumps: count(form.jumps) } : {}), ...(count(form.balls_bowled) !== undefined ? { balls_bowled: count(form.balls_bowled) } : {})
+      }, await csrf());
+      setForm({ date: todayIso(), kind: form.kind, minutes: "", srpe: "", note: "", jumps: "", balls_bowled: "" });
       setRequestId(newRequestId());
       setOpen(false);
       load();
@@ -96,6 +100,8 @@ export function OtherTrainingPanel() {
           </label>
           <label className="field"><span>Minutes</span><input type="number" inputMode="numeric" min={1} max={300} value={form.minutes} onChange={(event) => setForm({ ...form, minutes: event.target.value })} /></label>
           <label className="field"><span>How hard (0-10)</span><input type="number" inputMode="decimal" min={0} max={10} step={0.5} value={form.srpe} onChange={(event) => setForm({ ...form, srpe: event.target.value })} placeholder="e.g. 7" /></label>
+          <label className="field"><span>Jumps (optional)</span><input type="number" inputMode="numeric" min={0} max={2000} value={form.jumps} onChange={(event) => setForm({ ...form, jumps: event.target.value })} placeholder="if counted" /></label>
+          <label className="field"><span>Balls bowled (optional)</span><input type="number" inputMode="numeric" min={0} max={600} value={form.balls_bowled} onChange={(event) => setForm({ ...form, balls_bowled: event.target.value })} placeholder="cricket" /></label>
           <label className="field other-training-note"><span>Note (optional)</span><input type="text" maxLength={120} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} placeholder="e.g. v Northside" /></label>
           <div className="report-actions">
             <button type="button" className="button small-button" disabled={!valid || busy} onClick={() => void add()}>{busy ? "Saving…" : "Save"}</button>
@@ -109,7 +115,7 @@ export function OtherTrainingPanel() {
         <ul className="other-training-list">
           {recent.map((entry) => (
             <li key={String(entry.id)}>
-              <span><strong>{kindLabel(entry.kind)}</strong>{` · ${String(entry.date)} · ${entry.minutes} min · ${entry.srpe}/10${entry.note ? ` · ${String(entry.note)}` : ""}`}</span>
+              <span><strong>{kindLabel(entry.kind)}</strong>{` · ${String(entry.date)} · ${entry.minutes} min · ${entry.srpe}/10${typeof entry.jumps === "number" ? ` · ${entry.jumps} jumps` : ""}${typeof entry.balls_bowled === "number" ? ` · ${entry.balls_bowled} balls` : ""}${entry.note ? ` · ${String(entry.note)}` : ""}`}</span>
               <button type="button" className="text-button" disabled={busy} onClick={() => void remove(String(entry.id))}>Remove</button>
             </li>
           ))}

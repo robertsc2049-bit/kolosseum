@@ -27,6 +27,8 @@ import {
 } from "./event_programme_compiler_service.js";
 import { V1_ACTIVITY_IDS } from "../../shared/v1-boundary/v1ActivityRegistry.mjs";
 import { peakTimedIndex } from "./peak_timing.js";
+import { getAthleteExperienceLevel } from "./athlete_onboarding_service.js";
+import { loadProgrammeOverrides } from "./athlete_programme_override_service.js";
 import { exerciseMuscleFields } from "./exercise_muscles.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -3172,6 +3174,42 @@ export function listActiveExerciseOptions(): Readonly<{
   });
 }
 
+// Whether this exact version has reached an athlete or another coach: a
+// coach's assignment, a Kolosseum listing or run of it, or a programme a
+// coach gave someone (programme_grant_service.ts).
+export async function templateHasBeenSent(templateId: string): Promise<boolean> {
+  const result = await pool.query(
+    `
+    SELECT 1 FROM beta_product_records
+    WHERE record_type = 'beta17_assignment_trigger' AND record_payload->>'template_id' = $1
+    UNION ALL
+    SELECT 1 FROM product_account_events
+    WHERE event_type IN ('kolosseum_programme_listing', 'athlete_programme_run_started', 'programme_grant_given')
+      AND event_payload->>'template_id' = $1
+    LIMIT 1
+    `,
+    [templateId]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
+// Of these versions, the ones that have been sent (above).
+export async function sentTemplateIds(templateIds: readonly string[]): Promise<Set<string>> {
+  if (!templateIds.length) return new Set();
+  const result = await pool.query(
+    `
+    SELECT DISTINCT record_payload->>'template_id' AS template_id FROM beta_product_records
+    WHERE record_type = 'beta17_assignment_trigger' AND record_payload->>'template_id' = ANY($1::text[])
+    UNION
+    SELECT DISTINCT event_payload->>'template_id' FROM product_account_events
+    WHERE event_type IN ('kolosseum_programme_listing', 'athlete_programme_run_started', 'programme_grant_given')
+      AND event_payload->>'template_id' = ANY($1::text[])
+    `,
+    [templateIds]
+  );
+  return new Set(result.rows.map((row: JsonRecord) => String(row.template_id)));
+}
+
 export async function saveCoachProgrammeTemplate(
   input: unknown,
   // DEV NOTE: internal-only escape hatch. `allowEventBindingChange` must never be
@@ -3319,14 +3357,25 @@ export async function saveCoachProgrammeTemplate(
       templateId
     );
 
+  // A finished (complete or active) programme stays editable until it has
+  // been sent - assigned, given, listed or run by anyone - and saving it
+  // makes it a draft again. Once sent, an athlete's programme never changes
+  // under them: the coach edits a new version.
   if (
     existing &&
     existing.template_status !==
       "draft"
   ) {
-    throw new Beta18ProgrammeTemplateError(
-      "active_or_archived_template_is_immutable"
-    );
+    if (existing.template_status === "archived") {
+      throw new Beta18ProgrammeTemplateError(
+        "active_or_archived_template_is_immutable"
+      );
+    }
+    if (await templateHasBeenSent(templateId)) {
+      throw new Beta18ProgrammeTemplateError(
+        "template_sent_edit_new_version"
+      );
+    }
   }
 
   if (
@@ -4669,6 +4718,20 @@ export async function nextTemplateSessionIndex(assignmentId: string): Promise<nu
   return Number(result.rows?.[0]?.session_count ?? 0);
 }
 
+// An athlete held on a coach's programme for want of a max: recorded once per
+// programme and lift (their account event; GDPR export and erasure cover it),
+// so their coach is notified (product_notification_service.ts).
+async function recordStrengthReferenceMissing(coachUserId: string, athleteUserId: string, assignmentId: string, exerciseIds: readonly string[]): Promise<void> {
+  if (!coachUserId || !athleteUserId || !assignmentId) return;
+  for (const exerciseId of exerciseIds) {
+    const id = `srm_${crypto.createHash("sha256").update(`${assignmentId}|${exerciseId}`).digest("hex").slice(0, 32)}`;
+    await pool.query(
+      "INSERT INTO product_account_events (event_id, user_id, event_type, event_payload) VALUES ($1, $2, 'strength_reference_missing', $3::jsonb) ON CONFLICT (event_id) DO NOTHING",
+      [id, athleteUserId, JSON.stringify({ coach_user_id: coachUserId, assignment_id: assignmentId, exercise_id: exerciseId })]
+    );
+  }
+}
+
 export async function materialiseNextCoachTemplateProgram(
   input: Readonly<{
     coach_user_id: string;
@@ -4838,6 +4901,26 @@ export async function materialiseNextCoachTemplateProgram(
         )
       : null;
 
+  // Only when a % item has no max: the coach's override for this athlete,
+  // and their level.
+  const needsFallback =
+    percentageProfileRequired &&
+    rawWorkItems.some(
+      (workItem) =>
+        loadingReferenceFromStored(workItem).type === "percent_1rm" &&
+        !resolvePercentageLoad(athleteProfile, cleanString(workItem.exercise_id), Number((loadingReferenceFromStored(workItem) as { value?: number }).value))
+    );
+  const fallbackOverrides =
+    needsFallback && assignmentId
+      ? (await loadProgrammeOverrides(athleteUserId, assignmentId).catch(() => [])).filter((entry) => entry.session_index === nextIndex)
+      : [];
+  const fallbackLevel =
+    needsFallback
+      ? await getAthleteExperienceLevel(athleteUserId).catch(() => undefined)
+      : undefined;
+  const missingMax: string[] = [];
+  const maxFallbacks: Array<{ exercise_id: string; fallback: string }> = [];
+
   const plannedItems =
     rawWorkItems.map(
       (
@@ -4870,7 +4953,7 @@ export async function materialiseNextCoachTemplateProgram(
               )
             : null;
 
-        const loadingReference =
+        let loadingReference: LoadingReference =
           loadingReferenceFromStored(
             workItem
           );
@@ -4879,6 +4962,7 @@ export async function materialiseNextCoachTemplateProgram(
           cleanString(
             workItem.exercise_id
           );
+        let maxMissingFallback: string | null = null;
 
         if (
           !registry.entries[
@@ -4890,7 +4974,7 @@ export async function materialiseNextCoachTemplateProgram(
           );
         }
 
-        const resolvedLoad =
+        let resolvedLoad =
           loadingReference.type ===
             "percent_1rm" &&
           !input.athlete_sets_loads
@@ -4907,9 +4991,27 @@ export async function materialiseNextCoachTemplateProgram(
           !resolvedLoad &&
           !input.athlete_sets_loads
         ) {
-          throw new Beta18ProgrammeTemplateError(
-            "athlete_one_rep_max_missing"
-          );
+          // No max for this lift: the coach's weight or RPE for this athlete
+          // in this session; a beginner (who shouldn't be on % of a max
+          // yet) by RPE 6; otherwise the session waits for a max.
+          const override = fallbackOverrides.find((entry) => entry.exercise_id === exerciseId);
+          if (override?.load_kg !== undefined) {
+            loadingReference = { type: "load", value: override.load_kg, unit: "kg" };
+            resolvedLoad = deepFreeze({ value: override.load_kg, unit: "kg" });
+            maxMissingFallback = "coach_weight";
+          }
+          else if (override?.rpe !== undefined) {
+            loadingReference = { type: "rpe", value: override.rpe };
+            maxMissingFallback = "coach_rpe";
+          }
+          else if (fallbackLevel === "beginner") {
+            loadingReference = { type: "rpe", value: 6 };
+            maxMissingFallback = "beginner_rpe";
+          }
+          else {
+            missingMax.push(exerciseId);
+          }
+          if (maxMissingFallback) maxFallbacks.push({ exercise_id: exerciseId, fallback: maxMissingFallback });
         }
 
         // A % range ("70-75%") is a weight range from the same max: the
@@ -5087,6 +5189,13 @@ export async function materialiseNextCoachTemplateProgram(
       }
     );
 
+  if (missingMax.length) {
+    await recordStrengthReferenceMissing(coachUserId, athleteUserId, assignmentId, missingMax).catch(() => undefined);
+    throw new Beta18ProgrammeTemplateError(
+      "athlete_one_rep_max_missing"
+    );
+  }
+
   const exerciseIds =
     plannedItems.map(
       (item) =>
@@ -5169,6 +5278,9 @@ export async function materialiseNextCoachTemplateProgram(
             .session_id,
         template_session_index:
           nextIndex,
+        ...(maxFallbacks.length
+          ? { max_fallbacks: deepFreeze(maxFallbacks) }
+          : {}),
         ...(peakTiming
           ? { peak_timing: deepFreeze({ adjustment: peakTiming.adjustment, weeks: peakTiming.weeks, competition_date: peakTiming.competition_date }) }
           : {}),

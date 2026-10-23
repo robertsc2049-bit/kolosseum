@@ -66,7 +66,7 @@ test("% of max: the % lifted and the sets by intensity zone", () => {
   const zones = Object.fromEntries(a.execution.intensity.zones.map((zone) => [zone.zone, zone.sets]));
   assert.equal(zones["70-80%"], 18, "6 sessions x 3 squat sets");
   assert.equal(a.execution.intensity.sets, 18);
-  assert.deepEqual(a.execution.intensity.by_exercise[0], { exercise_id: "back_squat", name: "back squat", sets: 18, average_pct: 75, top_pct: 75 });
+  assert.deepEqual(a.execution.intensity.by_exercise[0], { exercise_id: "back_squat", name: "back squat", sets: 18, average_pct: 75, top_pct: 75, zones: [{ zone: "under 60%", sets: 0 }, { zone: "60-70%", sets: 0 }, { zone: "70-80%", sets: 18 }, { zone: "80-90%", sets: 0 }, { zone: "90% +", sets: 0 }] });
 });
 
 test("an RPE target and a Borg target: the athlete's ratings against them, each in its own scale", () => {
@@ -124,4 +124,16 @@ test("the athlete's copy shows what they did in every form - weight x reps, body
   assert.equal(byName["sled push"].distance_m, 400);
   assert.equal(JSON.stringify(copy).includes("intensity"), false, "no % of max");
   assert.equal(JSON.stringify(copy).includes("one_rep_max"), false);
+});
+
+test("a beginner given RPE 8 bench and squat at 70-75% is flagged for the bench; an amateur on the same plan is not", () => {
+  const sessions = hybridAthlete();
+  const flag = (level) => findings(analyseAthlete({
+    today: TODAY, weeks: 3, closed: true, sessions, readiness: [], checkins: [], planned_days_per_week: 2, experience_level: level,
+    exercise_name: (id) => id.replaceAll("_", " "), is_strength_lift: () => false
+  })).find((finding) => finding.id === "beginner_heavy");
+  const beginner = flag("beginner");
+  assert.equal(beginner.text, "A beginner on heavy work: 6 sessions in this period set RPE 8+ or 80%+ of max (bench press).");
+  assert.match(beginner.action, /moderate weights/u);
+  assert.equal(flag("amateur"), undefined);
 });

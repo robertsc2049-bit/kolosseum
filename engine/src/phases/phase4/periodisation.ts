@@ -94,6 +94,11 @@ export function sessionsPerWeek(macroPhase: string, daysPerWeek: number): number
 }
 
 const PRIMARY_COUNT = 4;
+// A timed group (AMRAP, EMOM, for time, a complex, a circuit) is the workout
+// itself and is never altered. A superset is just two exercises done
+// back-to-back (a contrast pair: heavy lift then jump) - it periodises like
+// any other sets, so its heavy lift still deloads and tapers.
+const isTimedGroup = (p: Phase4ItemPrescription) => Boolean(p.group) && p.group!.group_type !== "superset";
 const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
 const round1 = (x: number) => Math.round(x * 10) / 10;
 
@@ -108,7 +113,7 @@ const repsLocked = (p: Phase4ItemPrescription) => p.distance_m !== undefined || 
 
 // Macrocycle phase: turns the authored (build/pre-season/intensification)
 // session into that phase's version. Timed groups are never altered - their
-// structure is the workout.
+// structure is the workout (supersets periodise as normal sets).
 // Power work (jumps, sprints, throws, Olympic lifts, conditioning) and
 // eccentric overload (Nordics) keep their authored sets and reps in general
 // preparation: power is low-volume, full-recovery quality work, and doubling
@@ -116,7 +121,7 @@ const repsLocked = (p: Phase4ItemPrescription) => p.distance_m !== undefined || 
 // A beginner's volume isn't raised either: their programme's sets and reps
 // are already a novice dose, and they progress by adding weight, not sets.
 function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWork: boolean, beginner: boolean): Phase4ItemPrescription {
-  if (p.group) return p;
+  if (isTimedGroup(p)) return p;
   const q: Phase4ItemPrescription = { ...p, intensity: { ...p.intensity } as PlannedItemIntensity };
   const primary = i < PRIMARY_COUNT;
   switch (phase) {
@@ -160,7 +165,7 @@ function applyPhase(p: Phase4ItemPrescription, i: number, phase: string, powerWo
 // Mesocycle week: 3 loading weeks (introduce, build, overreach) then a deload.
 // Not applied in taper or transition, which already set their own load.
 function applyMesoWeek(p: Phase4ItemPrescription, week: number): Phase4ItemPrescription {
-  if (p.group) return p;
+  if (isTimedGroup(p)) return p;
   const q: Phase4ItemPrescription = { ...p, intensity: { ...p.intensity } as PlannedItemIntensity };
   if (week === 1) q.intensity = shiftIntensity(q.intensity, -5, -1);
   else if (week === 3) q.intensity = shiftIntensity(q.intensity, 2.5, 1);

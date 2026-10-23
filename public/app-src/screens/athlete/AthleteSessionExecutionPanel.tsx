@@ -314,6 +314,7 @@ export function AthleteSessionExecutionPanel() {
     ? [String(programmeRun.title ?? ""), programmePositionLine(programmeRun), `Session ${Number(programmeRun.session_number)}${Number(programmeRun.sessions_total) > 0 ? ` of ${Number(programmeRun.sessions_total)}` : ""}${programmeRun.session_title ? `: ${String(programmeRun.session_title)}` : ""}`].filter(Boolean).join(" · ")
     : trainingCycleSummary(cycle);
   const deload = cycle?.deload === true;
+  const injuryModified = isRecord(sessionState.injury_modified) ? (sessionState.injury_modified as JsonRecord) : null;
   // Back after a break: a lighter re-entry week, then blocks restart at week 1
   // - or, on a Kolosseum programme, the programme carries on where it left off.
   const runReentry = isRecord(programmeRun?.reentry) ? (programmeRun?.reentry as JsonRecord) : isRecord(ownTraining?.reentry) ? (ownTraining?.reentry as JsonRecord) : null;
@@ -350,7 +351,8 @@ export function AthleteSessionExecutionPanel() {
           <h2>{typeof sessionState.session_title === "string" && sessionState.session_title ? sessionState.session_title : `${activity} session`}</h2>
           <p className="muted">{total ? `${total} ${total === 1 ? "exercise" : "exercises"} in this session.` : ""}</p>
           {cycleSummary ? <p className="session-cycle" data-testid="session-cycle">{cycleSummary}</p> : null}
-          {reentryNote ? <p className="inline-result" data-tone="warning" data-testid="session-reentry">{reentryNote}</p> : null}
+          {injuryModified ? <p className="inline-result" data-tone="warning" data-testid="injury-modified-note">{`Training modified for your ${String(injuryModified.injury ?? "injury")}: follow your physio's plan, and stop anything that hurts.`}</p> : null}
+            {reentryNote ? <p className="inline-result" data-tone="warning" data-testid="session-reentry">{reentryNote}</p> : null}
         </div>
         {deload && !reentryNote ? <span className="badge" title="A lighter week to absorb the last three weeks of training">Deload week</span> : null}
         {reentryNote ? <span className="badge" title="A lighter week to ease back in after a break">Re-entry week</span> : null}
@@ -421,6 +423,12 @@ export function AthleteSessionExecutionPanel() {
                 ) : null}
                 {String(exercise?.coaching_notes ?? "").trim() ? (
                   <p className="muted exercise-coaching-note">{String(exercise?.coaching_notes).trim()}</p>
+                ) : null}
+                {String(exercise?.sport_load_note ?? "").trim() ? (
+                  <p className="inline-result" data-tone="info" data-testid="sport-load-note">{String(exercise?.sport_load_note).trim()}</p>
+                ) : null}
+                {String(exercise?.race_standard ?? "").trim() ? (
+                  <p className="muted exercise-race-standard" data-testid="race-standard">{String(exercise?.race_standard).trim()}</p>
                 ) : null}
                 {currentId ? (
                   <ExerciseHowto exerciseId={currentId} howto={session.howto} onOpen={session.loadHowto} />
@@ -684,6 +692,7 @@ export function AthleteSessionExecutionPanel() {
                   {firstInGroup ? <span className="badge neutral group-timing-badge">{groupTimingLabel(row)}</span> : null}
                   <small>{exerciseDetails(row).join(" · ") || "Recorded exercise"}</small>
                   {String(row?.coaching_notes ?? "").trim() ? <small className="exercise-coaching-note">{String(row?.coaching_notes).trim()}</small> : null}
+                  {String(row?.race_standard ?? "").trim() ? <small className="exercise-race-standard">{String(row?.race_standard).trim()}</small> : null}
                   {canAddExtraSet && !extraSetPanelOpen ? (
                     <button
                       className="button secondary small"

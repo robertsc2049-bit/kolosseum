@@ -145,3 +145,17 @@ export function saveTrainingWeek(input: { days: { items: { exercise_id: string; 
 export function loadAthleteMyProgramme(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/my-programme");
 }
+
+// Programmes coaches have given the athlete (src/api/programme_grant_service.ts).
+export function loadProgrammeGrants(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/programme-grants");
+}
+
+// Accept and start a given programme, or start an owned one again.
+export function startProgrammeGrant(grantId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/account/onboarding/programme-grants/${encodeURIComponent(grantId)}/start`, {}, csrfToken);
+}
+
+export function declineProgrammeGrant(grantId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/account/onboarding/programme-grants/${encodeURIComponent(grantId)}/decline`, {}, csrfToken);
+}

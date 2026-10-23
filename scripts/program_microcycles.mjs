@@ -47,6 +47,13 @@ export const MICROCYCLES = {
     ["dip", "dip_day", ["dip 6x2 @rpe8 r210", "close_grip_bench_press 4x5 @75% r150", "romanian_deadlift 3x6 @rpe7 r120", "overhead_cable_triceps_extension 3x12 @rpe8 r60", "dead_bug 3x8 @rpe7 r60"]],
     ["squat", "squat_and_volume", ["back_squat 5x3 @80% r180", "pull_up 4x5 @rpe7 r150", "dip 4x5 @rpe7 r150", "single_arm_dumbbell_row 3x10 @rpe8 r90"]]
   ],
+  // Grip sport: crush (grippers), pinch and support (static holds), wrist and
+  // lever work on separate days, so the forearms recover between them.
+  grip_sport: [
+    ["crush", "crush_and_pull", ["gripper_close 5x5 @rpe8 r120", "axle_deadlift 5x3 @rpe8 r180", "pull_up 3x6 @rpe8 r120", "hammer_curl 3x10 @rpe7 r60", "dead_bug 3x8 @rpe7 r60"]],
+    ["pinch", "pinch_and_support", ["pinch_block_hold 5x3 @rpe8 r150", "inch_dumbbell_deadlift 4x3 @rpe8 r150", "blob_lift 3x3 @rpe8 r150", "barbell_row 3x8 @rpe7 r90", "face_pull 3x15 @rpe7 r60"]],
+    ["wrist", "wrist_and_lever", ["rolling_handle_lift 5x3 @rpe8 r150", "levering 4x5 @rpe8 r90", "wrist_roller_roll 3x3 @rpe7 r90", "overhead_press 3x6 @rpe7 r120", "side_plank 3x30s @rpe7 r60"]]
+  ],
   general_strength: [
     ["lower", "lower_body", ["goblet_squat 4x8 @rpe7 r120", "romanian_deadlift 3x8 @rpe7 r120", "reverse_lunge 3x8 @rpe7 r90", "glute_bridge 3x12 @rpe7 r60", "dead_bug 3x8 @rpe6 r60"]],
     ["upper", "upper_body", ["dumbbell_bench_press 3x8 @rpe7 r120", "single_arm_dumbbell_row 3x10 @rpe7 r90", "dumbbell_overhead_press 3x8 @rpe7 r90", "lat_pulldown 3x10 @rpe7 r90", "face_pull 3x12 @rpe7 r60"]],

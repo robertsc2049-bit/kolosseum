@@ -49,7 +49,8 @@ export const ATHLETE_TRAINING_FOCUS_OPTIONS = Object.freeze([
 ] as const);
 // Every activity gets a position field. Sports whose positions or event
 // groups train differently get a real list (rugby, American football,
-// football and field hockey, ice hockey, cricket, athletics); the others
+// football and field hockey, ice hockey, cricket, athletics, netball,
+// basketball, volleyball, swimming, cycling, rowing, kayaking, triathlon); the others
 // get a single generic "Athlete" option, which the listed sports keep too
 // ("not specified"). Position is driven entirely by the athlete's own
 // declared activity_id, independent of any team/org.
@@ -61,13 +62,20 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   powerlifting: Object.freeze(["athlete"]),
   general_strength: Object.freeze(["athlete"]),
   strongman: Object.freeze(["athlete"]),
-  hyrox: Object.freeze(["athlete"]),
+  // HYROX: the division decides the race weights (hyrox_race_standards.ts).
+  hyrox: Object.freeze([
+    "athlete", "women_open", "men_open", "women_pro", "men_pro"
+  ]),
   crossfit: Object.freeze(["athlete"]),
   football_soccer: Object.freeze([
     "athlete", "goalkeeper", "defender", "midfielder", "forward"
   ]),
-  netball: Object.freeze(["athlete"]),
-  basketball: Object.freeze(["athlete"]),
+  netball: Object.freeze([
+    "athlete", "goal_shooter", "goal_attack", "wing_attack", "centre", "wing_defence", "goal_defence", "goal_keeper"
+  ]),
+  basketball: Object.freeze([
+    "athlete", "guard", "forward", "centre"
+  ]),
   rugby_sevens: Object.freeze(["athlete"]),
   field_hockey: Object.freeze([
     "athlete", "goalkeeper", "defender", "midfielder", "forward"
@@ -75,7 +83,9 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   ice_hockey: Object.freeze([
     "athlete", "goaltender", "defence", "forward"
   ]),
-  volleyball: Object.freeze(["athlete"]),
+  volleyball: Object.freeze([
+    "athlete", "outside_hitter", "opposite", "middle_blocker", "setter", "libero"
+  ]),
   cricket: Object.freeze([
     "athlete", "fast_bowler", "spin_bowler", "batter", "wicketkeeper", "all_rounder"
   ]),
@@ -85,11 +95,19 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   athletics: Object.freeze([
     "athlete", "sprints", "hurdles", "jumps", "combined_events", "throws", "middle_distance", "long_distance"
   ]),
-  swimming: Object.freeze(["athlete"]),
+  swimming: Object.freeze([
+    "athlete", "sprint", "distance"
+  ]),
   olympic_weightlifting: Object.freeze(["athlete"]),
-  cycling: Object.freeze(["athlete"]),
-  rowing: Object.freeze(["athlete"]),
-  kayaking: Object.freeze(["athlete"]),
+  cycling: Object.freeze([
+    "athlete", "track_sprint", "road"
+  ]),
+  rowing: Object.freeze([
+    "athlete", "sweep", "sculler", "lightweight"
+  ]),
+  kayaking: Object.freeze([
+    "athlete", "sprint", "marathon"
+  ]),
   boxing: Object.freeze(["athlete"]),
   wrestling: Object.freeze(["athlete"]),
   judo: Object.freeze(["athlete"]),
@@ -97,7 +115,9 @@ export const ATHLETE_POSITIONS_BY_ACTIVITY: Readonly<Record<string, readonly str
   muay_thai: Object.freeze(["athlete"]),
   mma: Object.freeze(["athlete"]),
   tennis: Object.freeze(["athlete"]),
-  triathlon: Object.freeze(["athlete"]),
+  triathlon: Object.freeze([
+    "athlete", "short_course", "long_course"
+  ]),
   rugby_league: Object.freeze([
     "athlete", "prop", "hooker", "second_row", "loose_forward", "halfback", "stand_off", "centre", "wing", "fullback"
   ]),
@@ -123,8 +143,16 @@ export const SPORT_ROLE_GROUP_BY_POSITION: Readonly<Record<string, Readonly<Reco
   football_soccer: Object.freeze({ goalkeeper: "goalkeeper" }),
   field_hockey: Object.freeze({ goalkeeper: "goalkeeper" }),
   ice_hockey: Object.freeze({ goaltender: "goaltender" }),
-  cricket: Object.freeze({ fast_bowler: "fast_bowler" }),
-  athletics: Object.freeze({ throws: "throws", middle_distance: "endurance", long_distance: "endurance" })
+  cricket: Object.freeze({ fast_bowler: "fast_bowler", batter: "batter", wicketkeeper: "wicketkeeper" }),
+  athletics: Object.freeze({ throws: "throws", middle_distance: "endurance", long_distance: "endurance", jumps: "jumps" }),
+  netball: Object.freeze({ wing_attack: "midcourt", centre: "midcourt", wing_defence: "midcourt" }),
+  basketball: Object.freeze({ centre: "centre" }),
+  volleyball: Object.freeze({ libero: "libero" }),
+  swimming: Object.freeze({ sprint: "sprint", distance: "distance" }),
+  cycling: Object.freeze({ track_sprint: "track_sprint" }),
+  rowing: Object.freeze({ sweep: "sweep", lightweight: "lightweight" }),
+  kayaking: Object.freeze({ sprint: "sprint" }),
+  triathlon: Object.freeze({ long_course: "long_course" })
 });
 
 // The engine sport_role_id for a declared position, or undefined when the

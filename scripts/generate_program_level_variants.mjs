@@ -2,6 +2,7 @@
 // The base entry is the amateur session. Strength sports are hand-tuned; the
 // other activities use explicit coaching rules (documented below). Run from repo root.
 import fs from "node:fs";
+import { pathToFileURL } from "node:url";
 import { EVENT_MICROCYCLES, MICROCYCLES } from "./program_microcycles.mjs";
 import { ROLE_MICROCYCLES } from "./program_role_microcycles.mjs";
 
@@ -20,7 +21,7 @@ const P = (sets, reps, intensity, rest_seconds) => ({ sets, reps, intensity, res
 // Distance-prescribed work (carries, sleds): one rep is one length of distance_m.
 const D = (sets, distance_m, intensity, rest_seconds) => ({ ...P(sets, 1, intensity, rest_seconds), distance_m });
 // Reactive plyometrics need landing competence first (skill: athlete-levels, beginner).
-const REACTIVE = new Set(["pogo_jump", "depth_jump", "repeated_broad_jump", "lateral_bound", "box_jump"]);
+const REACTIVE = new Set(["pogo_jump", "depth_jump", "repeated_broad_jump", "lateral_bound", "box_jump", "hurdle_hop"]);
 const REACTIVE_REGRESSION = "drop_to_stick";
 // Beginner swaps a coach would make regardless of the tier label, each with the
 // dose that suits the regression (isolation and assisted work need more reps).
@@ -268,6 +269,20 @@ function attachWeek(label, activity, target, levelTargets, days) {
   levelTargets.pro.microcycle = week.pro.map(dayOut);
   weekReport.push({ label, days: week.amateur.map((d) => d.focus), beginner: week.beginner.map((d) => d.items.map(([id]) => id).join(" ")) });
 }
+// Run directly, this rewrites the program registry's level variants. NOTE: the
+// registry has since been hand-fixed in places this script doesn't reproduce
+// (timed neck holds, beginner weightlifting hang variations, CrossFit scaling),
+// so it is imported for its rules (scripts/apply_role_programmes.mjs) rather
+// than re-run wholesale.
+const FIXED_EXERCISES = {
+  powerlifting: ["back_squat", "bench_press", "paused_bench_press", "deadlift"],
+  olympic_weightlifting: ["snatch", "power_clean", "push_jerk"],
+  strongman: ["yoke_walk", "farmers_carry", "sandbag_carry", "strongman_log_press", "axle_bar_press", "deadlift", "atlas_stone_carry", "tire_flip"],
+  street_lifting: ["pull_up", "band_assisted_pull_up", "dip", "back_squat", "muscle_up"],
+  hyrox: ["tempo_run", "sled_push", "sled_drag", "wall_ball", "burpee_broad_jump", "sandbag_lunge", "farmers_carry", "rowing_ergometer", "ski_erg"]
+};
+export { allowed, ex, STRENGTH, parseItem, weekForLevels, checkWeek, dayOut, variant, asEntry, beginnerOf, proOf, strengthBeginner, strengthPro, FIXED_EXERCISES };
+function main() {
 const report = [];
 for (const entry of prog.entries) {
   const h = HAND[entry.activity_id];
@@ -317,15 +332,9 @@ for (const entry of prog.entries) {
 // Fixed exercises: a sport's competition lifts (and HYROX's race stations and
 // strongman's event implements) are named; every other item outside a timed
 // group is an open slot the athlete or coach fills with their own choice.
-const FIXED = {
-  powerlifting: ["back_squat", "bench_press", "paused_bench_press", "deadlift"],
-  olympic_weightlifting: ["snatch", "power_clean", "push_jerk"],
-  strongman: ["yoke_walk", "farmers_carry", "sandbag_carry", "strongman_log_press", "axle_bar_press", "deadlift", "atlas_stone_carry", "tire_flip"],
-  street_lifting: ["pull_up", "band_assisted_pull_up", "dip", "back_squat", "muscle_up"],
-  hyrox: ["tempo_run", "sled_push", "sled_drag", "wall_ball", "burpee_broad_jump", "sandbag_lunge", "farmers_carry", "rowing_ergometer", "ski_erg"]
-};
+
 const markFixed = (target, activity) => {
-  const fixed = new Set(FIXED[activity] ?? []);
+  const fixed = new Set(FIXED_EXERCISES[activity] ?? []);
   if (!target?.exercise_eligibility || !target.item_prescriptions) return;
   target.item_prescriptions = target.item_prescriptions.map((pr, i) => {
     const { fixed: _drop, ...rest } = pr;
@@ -345,3 +354,5 @@ fs.writeFileSync("registries/program/program.registry.json", JSON.stringify(prog
 if (process.env.WEEK_REPORT) fs.writeFileSync(process.env.WEEK_REPORT, JSON.stringify(weekReport, null, 1));
 if (process.env.REPORT) fs.writeFileSync(process.env.REPORT, JSON.stringify(report, null, 1));
 console.log("variants written for", prog.entries.length, "activities");
+}
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

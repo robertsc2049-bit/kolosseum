@@ -650,7 +650,8 @@ function friendlyError(payload, status) {
     cr10_value_invalid: "CR10 must be between 0 and 10 in half-point steps.",
     stored_cr10_value_invalid: "CR10 must be between 0 and 10 in half-point steps.",
     rest_seconds_invalid: "Rest must be between 0 and 900 seconds.",
-    active_or_archived_template_is_immutable: "Active and archived templates cannot be edited. Duplicate the template to create a new version.",
+    active_or_archived_template_is_immutable: "An archived programme can't be edited. Duplicate it to make a new version.",
+    template_sent_edit_new_version: "This version has already been sent to athletes, so it can't change under them. Edit a new version instead.",
     only_draft_can_complete: "Only a draft template can be marked complete.",
     only_complete_can_activate: "Only a complete template can be activated.",
     template_not_found: "The template could not be found.",
@@ -1424,6 +1425,15 @@ async function createSession(options = {}) {
       if (phase4Token === "medical_stand_down") {
         const until = error?.payload?.details?.details?.until_date ?? "";
         showNotice(`You are stood down from training${until ? ` until ${until}` : ""}. Follow your medical professional's return-to-play plan.`, "error");
+        return;
+      }
+      if (phase4Token === "injury_out") {
+        const details = error?.payload?.details?.details ?? {};
+        showNotice(`You're out of training with your ${details.injury || "injury"}${details.expected_return ? ` (expected back around ${details.expected_return})` : ""}. Follow your physio's plan - your sessions start again when they move you on.`, "error");
+        return;
+      }
+      if (phase4Token === "sport_load_rest") {
+        showNotice("After your match, everything in this session is jumps or heavy leg work - rest today and pick it up tomorrow.", "error");
         return;
       }
       if (phase4Token === "match_day_rest") {
@@ -6332,8 +6342,21 @@ document.addEventListener("kolosseum:edit-programme", (event) => {
   if (!templateId) return;
   coachTemplateById(templateId)
     .then((template) => {
-      if (template) openTemplateBuilder(templateRecordToDraft(template));
-      else handleError(new Error("That programme could not be found - refresh the programme library."));
+      if (!template) {
+        handleError(new Error("That programme could not be found - refresh the programme library."));
+        return null;
+      }
+      const status = String(template.template_status ?? "draft");
+      if (status === "draft") return openTemplateBuilder(templateRecordToDraft(template));
+      // Finished but not sent to anyone yet: still the coach's to change;
+      // saving makes it a draft again. Sent: athletes keep the version they
+      // have, so the coach edits a new one.
+      if (status !== "archived" && template.sent !== true) {
+        openTemplateBuilder({ ...templateRecordToDraft(template), template_status: "draft" });
+        showNotice("Nobody has this programme yet, so you can still change it. Saving makes it a draft again - check it's ready and mark it ready to send when you're done.");
+        return null;
+      }
+      return duplicateTemplate(templateId);
     })
     .catch(handleError);
 });

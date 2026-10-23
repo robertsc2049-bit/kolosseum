@@ -5180,3 +5180,45 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .readiness-extras { display: grid; gap: var(--k-space-2); }
 .readiness-readings { display: flex; flex-wrap: wrap; gap: var(--k-space-3); }
 .readiness-readings .field { max-width: 200px; }
+
+/* Injury log (InjuryLog.tsx). */
+.injury-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--k-space-2); margin-top: var(--k-space-2); }
+.injury-form .report-actions, .injury-form .injury-note { grid-column: 1 / -1; }
+.injury-update { display: flex; flex-wrap: wrap; gap: var(--k-space-2); align-items: flex-end; }
+.injury-actions { white-space: nowrap; }
+.injury-actions .text-button { min-height: 44px; }
+.injury-actions .text-button + .text-button { margin-left: var(--k-space-4); }
+/* On a phone each injury is a card. */
+@media (max-width: 759px) {
+  .injury-table, .injury-table tbody, .injury-table tr, .injury-table td { display: block; width: 100%; }
+  .injury-table thead { display: none; }
+  .injury-table tr { margin-bottom: var(--k-space-3); padding: var(--k-space-3); border: 1px solid var(--line-soft); border-radius: var(--k-radius-m); background: var(--k-surface-1); }
+  .injury-table td { border: 0; padding: 2px 0; }
+  .injury-table td[data-label="Injury"] { font-weight: 600; }
+  .injury-table td[data-label]:not([data-label="Injury"])::before { content: attr(data-label) ": "; color: var(--k-text-secondary); font-size: 0.8rem; }
+}
+
+/* The next weeks of the plan (CoachAnalysisPanel.tsx). */
+.analysis-ahead { display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.analysis-ahead h4 { margin: 0; }
+
+/* Bar speed on the set logger (SetLogger.tsx). */
+.set-log-speed input { max-width: 5.5rem; }
+.set-log-speed-toggle { display: flex; align-items: center; gap: var(--k-space-2); min-height: 44px; font-size: 0.85rem; color: var(--k-text-secondary); }
+
+/* Meet attempts (CoachAnalysisPanel.tsx). */
+.analysis-attempts { display: grid; gap: var(--k-space-2); margin-bottom: var(--k-space-3); }
+.analysis-attempts h4 { margin: 0; }
+
+/* Adjusting a programme for one athlete (AthleteProgrammeAdjust.tsx). */
+.programme-adjust { grid-column: 1 / -1; display: grid; gap: var(--k-space-2); margin-top: var(--k-space-3); }
+.programme-adjust .panel-header h4, .programme-adjust-session h5 { margin: 0; }
+.programme-adjust-form { display: flex; flex-wrap: wrap; gap: var(--k-space-2); align-items: flex-end; margin: var(--k-space-2) 0; }
+.programme-adjust-form .field { max-width: 120px; }
+.programme-adjust-form .programme-adjust-note { max-width: 280px; }
+.programme-adjust-change { color: var(--k-accent); }
+.programme-adjust .text-button { min-height: 44px; margin-left: var(--k-space-2); }
+
+/* The team's medical lead (TeamMedicalPanel.tsx). */
+.team-medical { display: grid; gap: var(--k-space-3); margin-top: var(--k-space-3); padding-top: var(--k-space-3); border-top: 1px solid var(--line-soft); }
+.team-medical h4 { margin: 0; }

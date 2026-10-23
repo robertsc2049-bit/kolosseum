@@ -668,7 +668,9 @@ const EXTRA_SET_LOAD_UNITS = new Set(["kg", "lb"]);
 // reps achieved (0 records a failed set) and, for loaded work, the load (a
 // negative load is band/machine assistance, as for extra sets). Logging the
 // same set again replaces the earlier entry, so a mistyped set can be fixed.
-const SET_LOG_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "set_index", "reps", "load_value", "load_unit", "client_request_id"]);
+const SET_LOG_REPORT_ALLOWED_KEYS = new Set(["type", "exercise_id", "set_index", "reps", "load_value", "load_unit", "velocity_mps", "missed_part", "client_request_id"]);
+// A missed clean & jerk: was it the clean or the jerk.
+const CLEAN_AND_JERK = /^clean_and_jerk(__r[0-9]+)?$/u;
 const SET_LOG_MAX_SET_INDEX = 30;
 const SET_LOG_MAX_REPS = 100;
 
@@ -708,6 +710,15 @@ function ensureSetLogReportShapeValid(event: unknown, planned: PlannedSession, s
       invalid("load_value", "set log load_value must be a non-zero number no larger than 1000");
     }
     if (typeof obj.load_unit !== "string" || !EXTRA_SET_LOAD_UNITS.has(obj.load_unit)) invalid("load_unit", "set log load_unit must be kg or lb");
+  }
+  if (obj.missed_part !== undefined) {
+    if (obj.missed_part !== "clean" && obj.missed_part !== "jerk") invalid("missed_part", "set log missed_part must be clean or jerk");
+    if (!CLEAN_AND_JERK.test(String(obj.exercise_id ?? ""))) invalid("missed_part", "set log missed_part is only for the clean and jerk");
+  }
+  // Bar speed: the set's mean velocity from a VBT device, in m/s.
+  if (obj.velocity_mps !== undefined) {
+    const velocity = obj.velocity_mps;
+    if (typeof velocity !== "number" || !Number.isFinite(velocity) || velocity < 0.05 || velocity > 3) invalid("velocity_mps", "set log velocity_mps must be a number from 0.05 to 3");
   }
 
   // Only a prescribed exercise of this session that has not been skipped.
