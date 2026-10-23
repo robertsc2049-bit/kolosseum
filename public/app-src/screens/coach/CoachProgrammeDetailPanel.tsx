@@ -175,19 +175,19 @@ export function CoachProgrammeDetailPanel() {
       </p>
 
       <div className="button-row programme-detail-actions">
-        {storedStatus === "draft" ? (
+        {storedStatus !== "archived" ? (
           <button className="button secondary" type="button" onClick={() => dispatchProgrammeAction("kolosseum:edit-programme", templateId)}>
-            Edit draft
+            {storedStatus === "draft" ? "Edit draft" : template.sent === true ? "Edit as a new version" : "Edit"}
           </button>
         ) : null}
         {storedStatus === "draft" ? (
           <button className="button secondary" type="button" onClick={() => dispatchProgrammeAction("kolosseum:complete-programme", templateId)}>
-            Save complete template
+            Check it's ready
           </button>
         ) : null}
         {storedStatus === "complete" ? (
           <button className="button primary" type="button" onClick={() => dispatchProgrammeAction("kolosseum:activate-programme", templateId)}>
-            Activate programme
+            Ready to send
           </button>
         ) : null}
         {storedStatus !== "draft" ? (

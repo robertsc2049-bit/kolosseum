@@ -15,8 +15,8 @@ The programmes themselves are defined in
    ```
 
    Running it again skips programmes the account already has.
-3. In the builder, open each programme, review and edit it, then **Save
-   complete template** and **Activate programme**.
+3. In the builder, open each programme, review and edit it, then **Check it's
+   ready** and **Ready to send**.
 4. On the programme page, **Publish to coaches**: confirm the title, summary,
    levels, sports and days a week (suggested values for each are in the file
    above), then publish.

@@ -125,19 +125,19 @@ function TemplateCard({ template, allTemplates, assignments }: { template: JsonR
         <button className="button secondary small-button template-detail" type="button" onClick={() => openProgrammeDetail(templateId)}>
           View detail
         </button>
-        {storedStatus === "draft" ? (
+        {storedStatus !== "archived" ? (
           <button className="button secondary small-button template-edit" type="button" onClick={() => dispatchProgrammeAction("kolosseum:edit-programme", templateId)}>
-            Edit
+            {storedStatus !== "draft" && template.sent === true ? "Edit as a new version" : "Edit"}
           </button>
         ) : null}
         {storedStatus === "draft" ? (
           <button className="button secondary small-button template-complete" type="button" onClick={() => dispatchProgrammeAction("kolosseum:complete-programme", templateId)}>
-            Mark complete
+            Check it's ready
           </button>
         ) : null}
         {storedStatus === "complete" ? (
           <button className="button primary small-button template-activate" type="button" onClick={() => dispatchProgrammeAction("kolosseum:activate-programme", templateId)}>
-            Activate
+            Ready to send
           </button>
         ) : null}
         {storedStatus !== "draft" ? (
