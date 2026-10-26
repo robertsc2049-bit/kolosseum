@@ -295,3 +295,29 @@ Verified production dependency audit:
 
 - high: 0;
 - critical: 0.
+
+## Dependency audit refresh (2026-10-26)
+
+Commit subject: fix(deps): patch body-parser and multer denial-of-service advisories (npm audit fix)
+
+Dependency audit totals before remediation:
+
+- high: 2 in production (body-parser, GHSA-27r3-jxmh-p828: denial of service via trailing bytes after a compressed request body; multer, GHSA-q7qp-rjg7-q26m: denial of service via a pending asynchronous fileFilter after request teardown) and 3 more in development tooling (vite and its dependencies);
+- moderate: 2 (fast-uri, ip-address).
+
+package-lock.json changed through the non-breaking remediation command:
+
+`npm audit fix`
+
+Resolved versions: body-parser 2.4.0 (content-type 2.1.0), multer 2.5.0, fast-uri 3.1.9, ip-address 10.7.5, iconv-lite 0.7.3, qs 6.16.1, js-yaml 4.3.2, source-map-js 1.2.2, vite 6.4.5. Every version is within its existing declared range.
+
+No direct dependency declaration was added to, removed from or changed in package.json.
+
+Verified dependency audit (production and full tree):
+
+- high: 0;
+- critical: 0.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or
+any existing user-facing behaviour.
