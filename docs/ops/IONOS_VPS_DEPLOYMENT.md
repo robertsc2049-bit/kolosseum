@@ -69,8 +69,9 @@ Fill in:
 - **`KOLOSSEUM_DOMAIN` and `KOLOSSEUM_PUBLIC_APP_URL`:** your domain, without and with `https://`.
 - **`POSTGRES_PASSWORD`:** generate one with `openssl rand -hex 24`. Never reuse a password.
 - **`VAPID_*`:** run `node scripts/generate_vapid_keys.mjs` on your own computer, in the repo. Use a new pair for production, not your local development keys. `VAPID_SUBJECT` is `mailto:` followed by your email.
+- **`RESEND_API_KEY` and `KOLOSSEUM_EMAIL_FROM`:** needed for real users. They email the sign-up verification and password-reset codes; without them nobody can reset a forgotten password. In Resend, add and verify a sending domain (a subdomain such as `mail.<your-domain>` keeps your main domain's email untouched), then create a key with Sending access. `KOLOSSEUM_EMAIL_FROM` is an address on that domain, e.g. `Kolosseum <no-reply@mail.<your-domain>>`. Outgoing port 25 being blocked on the VPS doesn't matter: Resend is called over HTTPS.
 - **Optional:**
-  - `RESEND_API_KEY` plus the two support-alert addresses, if you want an email when a user reports a problem;
+  - the two support-alert addresses, if you want an email when a user reports a problem;
   - Stripe, if the beta is paid;
   - `KOLOSSEUM_PROGRAMME_AUTHORS`.
 
