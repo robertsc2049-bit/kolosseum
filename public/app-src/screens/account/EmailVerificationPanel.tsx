@@ -33,7 +33,7 @@ export function EmailVerificationPanel({
           ? "Email is already verified."
           : developmentCode
             ? `Development code: ${developmentCode}`
-            : "Verification code requested."
+            : "We've emailed you a 6-digit code - it can take a minute, so check your spam folder too."
       );
     }
     catch {

@@ -4,6 +4,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import { sendAccountCodeEmail } from "./account_code_email.js";
 import {
   createBeta16AcknowledgementRecord,
   createBeta16AuthRecord,
@@ -403,6 +404,12 @@ async function createChallenge(
       expiresAt
     ]
   );
+
+  // Email it to the account's address (the new one after an email change).
+  // Not awaited: the request never waits on, or fails because of, the email.
+  void pool.query(`SELECT email_canonical FROM product_accounts WHERE user_id = $1`, [userId])
+    .then((result) => sendAccountCodeEmail(String(result.rows?.[0]?.email_canonical ?? ""), challengeType, code, Math.round(CHALLENGE_TTL_MS / 60000)))
+    .catch(() => undefined);
 
   return Object.freeze({
     code,

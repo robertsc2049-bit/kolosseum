@@ -171,7 +171,7 @@ export function useEntryAuth() {
         ...current,
         submitting: false,
         mode: "reset-complete",
-        resetRequestResult: developmentCode ? `Development code: ${developmentCode}` : "The request was recorded."
+        resetRequestResult: developmentCode ? `Development code: ${developmentCode}` : "If an account uses that email, we've sent it a 6-digit code. It can take a minute - check your spam folder too."
       }));
 
       return { email: trimmedEmail, code: developmentCode };
