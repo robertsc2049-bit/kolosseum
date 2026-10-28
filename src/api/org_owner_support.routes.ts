@@ -11,6 +11,7 @@ import {
   type Response
 } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import { authenticatedOrgOwner } from "./org_owner_auth.js";
 import {
@@ -27,6 +28,7 @@ export const orgOwnerSupportRouter = Router();
 // routes, including GET - matches the existing orgOwnerDataRightsRateLimit/
 // orgOwnerAdminRateLimit precedent in org_owner.routes.ts/product_admin.routes.ts.
 const orgOwnerSupportRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,

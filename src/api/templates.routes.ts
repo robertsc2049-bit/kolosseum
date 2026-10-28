@@ -21,6 +21,7 @@ import {
 } from "./templates.handlers.js";
 
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import { authenticatedCoach } from "./coach_session_auth.js";
 import { StarterTemplateError, createKolosseumStarterTemplate } from "./kolosseum_starter_template_service.js";
 import { ProgrammeGrantError, giveProgrammeGrant, listCoachProgrammeGrants, revokeProgrammeGrant } from "./programme_grant_service.js";
@@ -33,7 +34,7 @@ export const templatesRouter =
 // engine's programme for a sport, level and days a week. The coach comes
 // from their session, not the request body; rate-limited like every newly-
 // added authorising route (CodeQL js/missing-rate-limiting).
-const starterRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+const starterRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
 templatesRouter.post(
   "/kolosseum-starter",
   starterRateLimit,
@@ -54,7 +55,7 @@ templatesRouter.post(
 
 // Kolosseum programmes for coaches: browse the listed ones, and copy one into
 // your own library as a draft (programme_catalogue_service.ts).
-const coachCatalogueRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const coachCatalogueRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 templatesRouter.get(
   "/kolosseum-programmes",
   coachCatalogueRateLimit,
@@ -81,7 +82,7 @@ templatesRouter.post(
 // Programmes a coach sells outside the app and gives in it
 // (programme_grant_service.ts): their grants and allowance, give one of their
 // active programmes to an athlete by email, take back one not yet accepted.
-const programmeGrantRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const programmeGrantRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 const programmeGrantError = (response: Response, error: unknown) => {
   if (error instanceof ProgrammeGrantError) return response.status(error.status).json({ ok: false, error: error.code });
   throw error;
@@ -143,7 +144,7 @@ templatesRouter.post(
 
 // Kolosseum programmes: a catalogue author lists one of their active
 // programmes for athletes without a coach (programme_catalogue_service.ts).
-const catalogueRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const catalogueRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
 templatesRouter.get(
   "/:template_id/catalogue-listing",
   catalogueRateLimit,

@@ -35,11 +35,12 @@ import {
 } from "./athlete_activity_change_service.js";
 
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_flag_service.js";
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting); the profile reads flags on every visit.
-const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const painFlagsRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
 import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
@@ -58,13 +59,13 @@ export const athleteOnboardingRouter = Router();
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting).
-const readinessRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const standDownRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const equipmentRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const matchWeekRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const weightClassRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const athleteMaxesRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
-const athleteProgrammeRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const readinessRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const standDownRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const equipmentRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const matchWeekRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const weightClassRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const athleteMaxesRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const athleteProgrammeRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (
   request: Request,

@@ -17,6 +17,7 @@ import {
 } from "express";
 import { MulterError } from "multer";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import { authenticatedCoach } from "./coach_session_auth.js";
 import {
@@ -99,6 +100,7 @@ coachOrgMembershipRouter.get(
 // CodeQL's js/missing-rate-limiting query flags newly-added authorising
 // routes - mirrors coach_workspace.routes.ts's own athleteActivityChangeRateLimit.
 const teamPositionOverrideRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -122,6 +124,7 @@ coachOrgMembershipRouter.get(
 // active member of, summed up as a team, by position and by coach
 // (team_analysis_service.ts - the same access as the team roster above).
 const teamAnalysisRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 60,
   standardHeaders: true,

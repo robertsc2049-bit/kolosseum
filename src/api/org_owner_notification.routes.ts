@@ -14,6 +14,7 @@ import {
   type Response
 } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import { authenticatedOrgOwner } from "./org_owner_auth.js";
 import {
@@ -32,6 +33,7 @@ export const orgOwnerNotificationRouter = Router();
 // flags newly-added authorising routes - mirrors coach_org_membership.
 // routes.ts's own teamPositionOverrideRateLimit.
 const orgOwnerNotificationRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,

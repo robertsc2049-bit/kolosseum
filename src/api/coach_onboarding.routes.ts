@@ -8,6 +8,7 @@ import {
 } from "express";
 
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -210,6 +211,7 @@ coachOnboardingRouter.post(
 // that already exists, unremediated, on its neighbours.
 const accessibilityPreferencesRateLimit =
   rateLimit({
+    keyGenerator: accountRateLimitKey,
     windowMs: 15 * 60 * 1000,
     limit: 30,
     standardHeaders: true,
