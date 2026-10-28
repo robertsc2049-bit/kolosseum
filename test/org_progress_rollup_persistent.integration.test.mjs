@@ -746,6 +746,16 @@ test(
     assert.equal((await request(baseUrl, "GET", `/coach-workspace/athletes/${encodeURIComponent(athlete1.userId)}/analysis?weeks=8`, undefined, { cookie: coachB.cookie })).response.status, 403, "nothing else of theirs: no analysis");
     const physioTeam = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachB.cookie });
     assert.equal(physioTeam.json.medical_lead, true);
+    // The physio sees the squad's injury numbers and why a player is out -
+    // but still can't open the coach's analysis of them.
+    assert.ok(physioTeam.json.summary.injuries, "the squad injury summary");
+    assert.ok(physioTeam.json.summary.injuries.out >= 1);
+    const physioRow = physioTeam.json.athletes.find((row) => row.athlete_user_id === athlete1.userId);
+    assert.equal(physioRow.availability.status, "unavailable");
+    assert.match(physioRow.availability.reason, /ankle/u, "why they're out");
+    assert.equal(physioRow.openable, false, "the training analysis stays with their coach");
+    const coachATeam = await request(baseUrl, "GET", `/coach-workspace/organisations/${encodeURIComponent(teamOrgId)}/team-analysis`, undefined, { cookie: coachA.cookie });
+    if (coachATeam.json?.head_coach === false) assert.equal(coachATeam.json.summary.injuries ?? null, null, "a plain coach still gets no squad injury numbers");
     const ownerSees = await request(baseUrl, "GET", `/org/organisations/${encodeURIComponent(teamOrgId)}/analysis`, undefined, { cookie: owner.cookie });
     assert.equal(ownerSees.json.analysis.medical_lead_user_id, coachB.userId);
     assert.equal((await request(baseUrl, "POST", `/org/organisations/${encodeURIComponent(gymOrgId)}/medical-lead`, { coach_user_id: coachB.userId }, { cookie: owner.cookie, csrf: owner.csrf })).response.status, 409, "a gym has no medical lead");
