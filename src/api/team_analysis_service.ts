@@ -11,7 +11,7 @@ import { analyseAthleteWindow, rosterRowFor } from "./coach_analysis_service.js"
 import { listOrgAthleteRosterForCoach } from "./coach_team_position_override_service.js";
 import { resolveOrgActiveCoachAcceptedAthletes } from "./attendance_event_org_invite_service.js";
 import { headCoachOf, headCoachOrgs, medicalLeadOf, medicalLeadOrgs } from "./org_head_coach_service.js";
-import { groupFindings, squadTesting, summariseBy, summariseGroup, withoutPainDetail } from "./team_analysis_metrics.js";
+import { groupFindings, squadTesting, summariseBy, summariseGroup, medicalLeadView, withoutPainDetail } from "./team_analysis_metrics.js";
 import { analyseInjuries } from "./injury_metrics.js";
 import { loadInjuries } from "./injury_log_service.js";
 import { activeStandDown } from "./medical_stand_down_service.js";
@@ -114,15 +114,19 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
   const rows = await analyseMembers(roster, today);
   const coachNames = await displayNames(rows.map((row) => text(row.coach_user_id)));
   // Your own athletes in full; a teammate's pain as a flag only - unless
-  // you're the team's head coach, who sees and opens every athlete in full.
+  // you're the team's head coach, who sees and opens every athlete in full,
+  // or its medical lead, who sees every athlete's injuries and availability.
   const head = (await headCoachOf(orgId)) === coachUserId;
+  const medical = !head && (await medicalLeadOf(orgId)) === coachUserId;
   const emails = await emailsOf(rows.filter((row) => head || row.coach_user_id === coachUserId).map((row) => text(row.athlete_user_id)));
   const email = (row: Json) => emails.get(text(row.athlete_user_id)) || null;
   const shown = rows.map((row): Json => (row.coach_user_id === coachUserId
     ? { ...row, email: email(row), yours: true, openable: true }
-    : head ? { ...row, email: email(row), yours: false, openable: true } : { ...withoutPainDetail(row), yours: false, openable: false }));
-  // Injury numbers for the group: the head coach only (they see every athlete in full).
-  const summary = summariseGroup(rows, { includeInjuries: head });
+    : head ? { ...row, email: email(row), yours: false, openable: true }
+    : medical ? { ...medicalLeadView(row), yours: false, openable: false }
+    : { ...withoutPainDetail(row), yours: false, openable: false }));
+  // Injury numbers for the group: the head coach and the medical lead.
+  const summary = summariseGroup(rows, { includeInjuries: head || medical });
   return {
     ok: true,
     today,
@@ -131,8 +135,8 @@ async function buildTeamView(coachUserId: string, orgId: string, roster: readonl
     head_coach: head,
     summary,
     findings: groupFindings(summary, "the team"),
-    by_position: summariseBy(rows, (row) => text(row.position), positionLabel, { includeInjuries: head }),
-    by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach", { includeInjuries: head }),
+    by_position: summariseBy(rows, (row) => text(row.position), positionLabel, { includeInjuries: head || medical }),
+    by_coach: summariseBy(rows, (row) => text(row.coach_user_id), (key) => coachNames.get(key) || "Coach", { includeInjuries: head || medical }),
     testing: squadTesting(rows),
     athletes: shown.map((row): Json => ({ ...row, coach_name: coachNames.get(text(row.coach_user_id)) || "Coach" })).sort(byAttention)
   };

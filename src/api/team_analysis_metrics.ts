@@ -194,6 +194,20 @@ export function squadTesting(rows: readonly Json[]): Json[] {
 
 // A teammate's row for someone who isn't their coach (a fellow team coach,
 // or the org owner): pain stays a flag, never the area or the detail.
+// The team's medical lead (their physio) on a teammate: the injuries and why
+// they're unavailable - what a physio keeps - but not the coach's training
+// analysis, and pain only as the flag everyone sees.
+export function medicalLeadView(row: Json): Json {
+  const base = withoutPainDetail(row);
+  const injuryFindings = ((row.findings ?? []) as Json[]).filter((finding) => String(finding.id).startsWith("injury_"));
+  return {
+    ...base,
+    ...(row.availability ? { availability: row.availability } : {}),
+    ...(row.injuries ? { injuries: row.injuries } : {}),
+    findings: [...injuryFindings, ...((base.findings ?? []) as Json[])]
+  };
+}
+
 export function withoutPainDetail(row: Json): Json {
   const areas = (((row.pain as Json | undefined)?.recurring_areas ?? []) as unknown[]).length;
   const findings = ((row.findings ?? []) as Json[]).filter((finding) => !String(finding.id).startsWith("pain_") && !String(finding.id).startsWith("injury_"));
