@@ -231,6 +231,7 @@ async function api(method, path, body) {
   if (!response.ok) {
     const error = new Error(payload?.error ?? payload?.reason ?? `request_failed_${response.status}`);
     error.status = response.status;
+    error.fieldErrors = payload?.field_errors ?? null;
     throw error;
   }
   return payload;
@@ -403,6 +404,7 @@ function renderOrganisations(organisations) {
         <span class="badge ${organisation.visibility_mode === "shared" ? "active" : "neutral"}">${visibilityModeLabel(organisation.visibility_mode)}</span>
         <button class="button secondary" type="button" data-manage-roster="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage roster</button>
         <button class="button secondary" type="button" data-manage-billing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Manage billing</button>
+        ${organisation.visibility_mode === "individual" ? `<button class="button secondary" type="button" data-gym-listing="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Gym listing</button>` : ""}
         <button class="button secondary" type="button" data-view-athletes="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">View athletes</button>
         <button class="button secondary" type="button" data-view-progress="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Progress</button>
         <button class="button secondary" type="button" data-view-attendance="${escapeHtml(organisation.org_id)}" data-org-name="${escapeHtml(organisation.org_name)}">Attendance</button>
@@ -415,6 +417,12 @@ function renderOrganisations(organisations) {
   for (const button of container.querySelectorAll("[data-manage-roster]")) {
     button.addEventListener("click", () => {
       showRosterSection(button.getAttribute("data-manage-roster"), button.getAttribute("data-org-name"));
+    });
+  }
+
+  for (const button of container.querySelectorAll("[data-gym-listing]")) {
+    button.addEventListener("click", () => {
+      showGymListingSection(button.getAttribute("data-gym-listing"), button.getAttribute("data-org-name"));
     });
   }
 
@@ -516,6 +524,7 @@ function showRosterSection(orgId, orgName) {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgRosterSection").hidden = false;
   el("orgRosterOrgName").textContent = orgName;
   el("orgRosterInviteForm").reset();
@@ -563,6 +572,7 @@ function showBillingSection(orgId, orgName) {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgBillingSection").hidden = false;
   el("orgBillingOrgName").textContent = orgName;
   el("orgBillingSeatPlanForm").reset();
@@ -575,6 +585,77 @@ function hideBillingSection() {
   el("orgBillingSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
+}
+
+// A gym's free listing: name, area and equipment. Athletes find it once an
+// admin approves it; the owner sees how many athletes chose the gym, never
+// who (gym_listing_service.ts).
+const GYM_LISTING_STATUS = {
+  pending: "Waiting for us to check it - athletes can't find it yet.",
+  approved: "Listed - athletes can find and choose your gym.",
+  rejected: "Not listed - change it and save to send it back to us.",
+  hidden: "Hidden from athletes - contact support to have it listed again."
+};
+
+function renderGymListing(result) {
+  const listing = result.listing;
+  const status = listing ? GYM_LISTING_STATUS[listing.listing_status] || "" : "Not listed yet.";
+  const note = listing?.review_note ? ` Our note: ${listing.review_note}` : "";
+  el("orgGymListingStatus").textContent = `${status}${note} ${result.athletes_label}.`;
+  el("orgGymListingName").value = listing?.display_name || el("orgGymListingOrgName").textContent;
+  el("orgGymListingArea").value = listing?.area || "";
+  const have = new Set(listing?.equipment || []);
+  el("orgGymListingEquipment").innerHTML = `<fieldset class="choice-chips equipment-options"><legend>Equipment</legend>${(result.options || []).map((option) => `
+    <label class="choice-chip equipment-option"><input type="checkbox" value="${escapeHtml(option.equipment_id)}" ${have.has(option.equipment_id) ? "checked" : ""} /><span>${escapeHtml(option.display_name)}</span></label>`).join("")}</fieldset>`;
+}
+
+async function refreshGymListing() {
+  renderGymListing(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-listing`));
+}
+
+function showGymListingSection(orgId, orgName) {
+  state.selectedOrgId = orgId;
+  for (const id of ["orgListSection", "orgCreateSection", "orgRosterSection", "orgBillingSection", "orgVisibilitySection", "orgMessagesSection", "orgThreadDetailSection", "orgAuditSection", "orgProgressSection", "orgAttendanceSection", "orgAttendanceDetailSection"]) el(id).hidden = true;
+  el("orgGymListingSection").hidden = false;
+  el("orgGymListingOrgName").textContent = orgName;
+  el("orgGymListingError").hidden = true;
+  el("orgGymListingStatus").textContent = "Loading...";
+  el("orgGymListingEquipment").innerHTML = "";
+  refreshGymListing().catch((error) => {
+    el("orgGymListingStatus").textContent = "";
+    el("orgGymListingError").textContent = "The listing couldn't be loaded. Try again.";
+    el("orgGymListingError").hidden = false;
+    console.error(error);
+  });
+}
+
+function hideGymListingSection() {
+  state.selectedOrgId = null;
+  el("orgGymListingSection").hidden = true;
+  el("orgListSection").hidden = false;
+  el("orgCreateSection").hidden = false;
+}
+
+async function saveGymListingForm(event) {
+  event.preventDefault();
+  const errorEl = el("orgGymListingError");
+  const button = event.target.querySelector("button[type=submit]");
+  errorEl.hidden = true;
+  button.disabled = true;
+  try {
+    const equipment = [...el("orgGymListingEquipment").querySelectorAll("input:checked")].map((input) => input.value);
+    renderGymListing(await api("PUT", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-listing`, {
+      display_name: el("orgGymListingName").value, area: el("orgGymListingArea").value, equipment
+    }));
+  }
+  catch (error) {
+    errorEl.textContent = error.fieldErrors ? Object.values(error.fieldErrors).join(" ") : "The listing couldn't be saved. Try again.";
+    errorEl.hidden = false;
+    console.error(error);
+  }
+  finally {
+    button.disabled = false;
+  }
 }
 
 function relationshipStateLabel(relationshipState) {
@@ -689,6 +770,7 @@ function showVisibilitySection(orgId, orgName) {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgVisibilitySection").hidden = false;
   el("orgVisibilityOrgName").textContent = orgName;
   el("orgVisibilityRosterExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/athlete-visibility/export.csv`;
@@ -1092,6 +1174,7 @@ function showProgressSection(orgId, orgName) {
   el("orgAuditSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgProgressSection").hidden = false;
   el("orgProgressOrgName").textContent = orgName;
   el("orgProgressError").hidden = true;
@@ -1109,6 +1192,7 @@ function hideProgressSection() {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgListSection").hidden = false;
   el("orgCreateSection").hidden = false;
 }
@@ -1248,6 +1332,7 @@ function showAttendanceSection(orgId, orgName) {
   el("orgAuditSection").hidden = true;
   el("orgProgressSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgAttendanceSection").hidden = false;
   el("orgAttendanceOrgName").textContent = orgName;
   el("orgAttendanceCalendarExportLink").href = `/org/organisations/${encodeURIComponent(orgId)}/attendance-events/calendar.ics`;
@@ -1370,6 +1455,7 @@ function hideAttendanceDetailSection() {
   state.selectedAttendanceEventId = null;
   state.reschedulingOccurrenceId = null;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgAttendanceSection").hidden = false;
   refreshAttendanceEvents().catch(console.error);
 }
@@ -1494,6 +1580,7 @@ function showAuditSection(orgId, orgName) {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgAuditSection").hidden = false;
   el("orgAuditOrgName").textContent = orgName;
   el("orgAuditError").hidden = true;
@@ -1745,6 +1832,7 @@ function showMessagesSection(orgId, orgName) {
   el("orgProgressSection").hidden = true;
   el("orgAttendanceSection").hidden = true;
   el("orgAttendanceDetailSection").hidden = true;
+  el("orgGymListingSection").hidden = true;
   el("orgMessagesSection").hidden = false;
   el("orgMessagesOrgName").textContent = orgName;
   el("orgMessagesError").hidden = true;
@@ -2367,6 +2455,8 @@ function boot() {
   el("orgRosterBackButton").addEventListener("click", () => hideRosterSection());
   el("orgBillingSeatPlanForm").addEventListener("submit", (event) => updateSeatPlan(event).catch(console.error));
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
+  el("orgGymListingBackButton").addEventListener("click", () => hideGymListingSection());
+  el("orgGymListingForm").addEventListener("submit", saveGymListingForm);
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
   el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
   el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());

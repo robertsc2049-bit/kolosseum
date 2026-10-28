@@ -78,6 +78,7 @@ function showWorkspace() {
   el("orgOwnerDataRightsReviewSection").hidden = false;
   el("auditSection").hidden = false;
   el("exerciseDemoVideoSection").hidden = false;
+  el("gymListingSection").hidden = false;
 
   refreshCommercialRecords();
   refreshSupportRequests();
@@ -86,6 +87,7 @@ function showWorkspace() {
   refreshOrgOwnerDataRightsReview();
   refreshAuditRecords();
   refreshExerciseDemoVideos().catch(console.error);
+  refreshGymListings().catch(console.error);
 }
 
 async function signIn(event) {
@@ -526,6 +528,55 @@ async function confirmAndChangeOrgOwnerSupportStatus(targetCorrelationId, newSta
   await refreshOrgOwnerSupportRequests();
   await refreshAuditRecords();
 }
+
+// Gym listings (gym_listing_service.ts): approve, turn down or hide a gym's
+// free listing. Athletes only find approved ones.
+async function refreshGymListings() {
+  const status = el("gymListingStatusFilter").value;
+  const result = await api("GET", `/admin/gym-listings${status ? `?status=${encodeURIComponent(status)}` : ""}`);
+  renderGymListings(result.gym_listings ?? []);
+}
+
+function renderGymListings(listings) {
+  const tbody = el("gymListingList");
+  tbody.innerHTML = listings.length ? "" : `<tr><td colspan="6" class="muted">No gym listings here.</td></tr>`;
+  for (const listing of listings) {
+    const row = document.createElement("tr");
+    const actions = [["approve", "Approve", "approved"], ["reject", "Turn down", "rejected"], ["hide", "Hide", "hidden"]]
+      .filter(([, , status]) => status !== listing.listing_status)
+      .map(([decision, label]) => `<button type="button" class="review-gym-listing" data-org-id="${escapeHtml(listing.org_id)}" data-decision="${decision}">${label}</button>`)
+      .join(" ");
+    row.innerHTML = `
+      <td>${escapeHtml(listing.display_name)}<br /><span class="muted">${escapeHtml(listing.org_name)}${listing.org_state === "active" ? "" : ` (${escapeHtml(listing.org_state)})`}</span></td>
+      <td>${escapeHtml(listing.area)}</td>
+      <td>${escapeHtml(listing.owner_email ?? "")}</td>
+      <td>${escapeHtml(listing.equipment.join(", ") || "None listed")}</td>
+      <td>${escapeHtml(listing.listing_status)}${listing.review_note ? `<br /><span class="muted">${escapeHtml(listing.review_note)}</span>` : ""}</td>
+      <td>${actions}</td>
+    `;
+    tbody.appendChild(row);
+  }
+  tbody.querySelectorAll(".review-gym-listing").forEach((button) => {
+    button.addEventListener("click", () => reviewGymListing(button.dataset.orgId, button.dataset.decision));
+  });
+}
+
+async function reviewGymListing(orgId, decision) {
+  const note = decision === "approve" ? "" : window.prompt("A note for the gym's owner (optional):", "") ?? null;
+  if (note === null) return;
+  const result = el("gymListingResult");
+  try {
+    await api("POST", `/admin/gym-listings/${encodeURIComponent(orgId)}/review`, { decision, note });
+    result.textContent = "Gym listing updated.";
+  }
+  catch (error) {
+    result.textContent = `The gym listing couldn't be updated (${error.message}).`;
+  }
+  result.hidden = false;
+  await refreshGymListings();
+}
+
+el("gymListingStatusFilter").addEventListener("change", () => { refreshGymListings().catch(console.error); });
 
 async function refreshDataRightsReview() {
   const [exportsResult, deletionsResult] = await Promise.all([

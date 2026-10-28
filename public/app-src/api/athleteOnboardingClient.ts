@@ -96,6 +96,15 @@ export function saveAthleteEquipment(input: { full_gym: true } | { available_equ
   return request("PUT", "/account/onboarding/equipment", input, csrfToken);
 }
 
+// Listed gyms by name or area, and the athlete's gyms (up to 3) with their main gym.
+export function searchGyms(query: string): Promise<JsonRecord> {
+  return request("GET", `/account/onboarding/gyms/search?q=${encodeURIComponent(query)}`);
+}
+
+export function saveAthleteGyms(input: { gym_org_ids: string[]; main_org_id: string | null }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/gyms", input, csrfToken);
+}
+
 // The athlete's match week: usual match/race/key-session days plus one-off fixtures.
 // A fighter's weight class: fight-camp loading in the 4 weeks before a fight.
 export function loadWeightClass(): Promise<JsonRecord> {

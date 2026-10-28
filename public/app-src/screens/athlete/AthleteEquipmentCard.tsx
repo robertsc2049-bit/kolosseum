@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { loadAthleteEquipment, saveAthleteEquipment } from "../../api/athleteOnboardingClient";
+import { loadAthleteEquipment, saveAthleteEquipment, saveAthleteGyms, searchGyms } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 
@@ -9,8 +9,19 @@ import { type JsonRecord } from "../../api/transport";
 // exercise they can't do is swapped for a flagged substitute (or flagged).
 // First where they train, then - for anything short of a full gym - what they
 // have, as tappable chips grouped the way a gym is laid out.
+// An athlete can choose up to 3 listed gyms and name one their main gym: its
+// listed equipment is theirs, and what they choose here is their home kit on
+// top of it.
 
 type Option = { equipment_id: string; display_name: string };
+type Gym = { org_id: string; display_name: string; area: string; equipment_count: number; listed: boolean };
+type MainGym = { org_id: string; display_name: string; equipment: string[] };
+const MAX_GYMS = 3;
+
+const gymFrom = (g: JsonRecord): Gym => ({
+  org_id: String(g.org_id), display_name: String(g.display_name ?? ""), area: String(g.area ?? ""),
+  equipment_count: Number(g.equipment_count ?? 0), listed: g.listed !== false
+});
 type Mode = "full_gym" | "home_gym" | "bodyweight" | "custom";
 
 const HOME_GYM = ["barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"];
@@ -37,12 +48,55 @@ export function AthleteEquipmentCard() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gyms, setGyms] = useState<Gym[]>([]);
+  const [mainGym, setMainGym] = useState<MainGym | null>(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Gym[] | null>(null);
+  const [gymBusy, setGymBusy] = useState(false);
+  const [gymError, setGymError] = useState<string | null>(null);
 
   function apply(result: JsonRecord) {
     const nextHave = Array.isArray(result.available_equipment) ? result.available_equipment.map(String) : [];
     setOptions(Array.isArray(result.options) ? (result.options as JsonRecord[]).map((o) => ({ equipment_id: String(o.equipment_id), display_name: String(o.display_name) })) : []);
     setHave(nextHave);
-    setMode(modeFor(result.full_gym !== false, nextHave));
+    const main = result.main_gym && typeof result.main_gym === "object" ? (result.main_gym as JsonRecord) : null;
+    setMainGym(main ? { org_id: String(main.org_id), display_name: String(main.display_name ?? ""), equipment: Array.isArray(main.equipment) ? main.equipment.map(String) : [] } : null);
+    setGyms(Array.isArray(result.gyms) ? (result.gyms as JsonRecord[]).map(gymFrom) : []);
+    setMode(main ? (nextHave.length ? "custom" : "bodyweight") : modeFor(result.full_gym !== false, nextHave));
+  }
+
+  async function csrfToken(): Promise<string> {
+    const account = await loadAccountDetail();
+    return typeof account.csrf_token === "string" ? account.csrf_token : "";
+  }
+
+  async function search() {
+    setGymError(null);
+    if (query.trim().length < 2) { setResults([]); return; }
+    try {
+      const found = await searchGyms(query.trim());
+      setResults(Array.isArray(found.gyms) ? (found.gyms as JsonRecord[]).map(gymFrom) : []);
+    }
+    catch {
+      setGymError("Gyms could not be searched. Try again.");
+    }
+  }
+
+  async function saveGyms(ids: string[], mainId: string | null) {
+    setGymBusy(true);
+    setGymError(null);
+    setSaved(false);
+    try {
+      apply(await saveAthleteGyms({ gym_org_ids: ids, main_org_id: ids.length ? (mainId && ids.includes(mainId) ? mainId : ids[0]) : null }, await csrfToken()));
+      setResults(null);
+      setQuery("");
+    }
+    catch {
+      setGymError("Your gyms could not be saved. Try again.");
+    }
+    finally {
+      setGymBusy(false);
+    }
   }
 
   useEffect(() => {
@@ -72,9 +126,7 @@ export function AthleteEquipmentCard() {
     setSaving(true);
     setError(null);
     try {
-      const account = await loadAccountDetail();
-      const csrf = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      apply(await saveAthleteEquipment(mode === "full_gym" ? { full_gym: true } : { available_equipment: have }, csrf));
+      apply(await saveAthleteEquipment(mode === "full_gym" && !mainGym ? { full_gym: true } : { available_equipment: have }, await csrfToken()));
       setSaved(true);
     }
     catch {
@@ -100,11 +152,52 @@ export function AthleteEquipmentCard() {
       <p className="eyebrow">Your equipment</p>
       <h3>What can you train with?</h3>
       <p className="muted">Your exercise options and sessions only use what you have. Anything you can't do is swapped for a substitute that fits - and marked as one.</p>
+      <section className="athlete-gyms" data-testid="athlete-gyms">
+        <h4>Your gyms</h4>
+        <p className="choice-hint">Choose the gym you train at and its listed equipment counts as yours. The gym only sees how many athletes chose it, never who.</p>
+        {gymError ? <p className="field-error" role="alert">{gymError}</p> : null}
+        {gyms.length ? (
+          <ul className="athlete-gym-list">
+            {gyms.map((gym) => (
+              <li key={gym.org_id}>
+                <label className="choice-chip">
+                  <input type="radio" name="main-gym" checked={mainGym?.org_id === gym.org_id} disabled={gymBusy || !gym.listed} onChange={() => void saveGyms(gyms.map((g) => g.org_id), gym.org_id)} />
+                  <span>{gym.display_name}{gym.area ? `, ${gym.area}` : ""}{mainGym?.org_id === gym.org_id ? " - main gym" : ""}</span>
+                </label>
+                {!gym.listed ? <span className="muted"> No longer listed - its equipment doesn't count.</span> : null}
+                <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms(gyms.filter((g) => g.org_id !== gym.org_id).map((g) => g.org_id), mainGym?.org_id ?? null)}>Remove</button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {gyms.length < MAX_GYMS ? (
+          <form className="athlete-gym-search" onSubmit={(event) => { event.preventDefault(); void search(); }}>
+            <label className="field">
+              <span>Find a gym by name or town</span>
+              <input type="search" value={query} maxLength={80} onChange={(event) => setQuery(event.target.value)} />
+            </label>
+            <button className="button secondary" type="submit">Search</button>
+          </form>
+        ) : <p className="choice-hint">You've chosen {MAX_GYMS} gyms - remove one to add another.</p>}
+        {results ? (
+          results.length ? (
+            <ul className="athlete-gym-results">
+              {results.filter((gym) => !gyms.some((g) => g.org_id === gym.org_id)).map((gym) => (
+                <li key={gym.org_id}>
+                  <span>{gym.display_name}, {gym.area} <span className="muted">({gym.equipment_count} pieces of kit)</span></span>
+                  <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms([...gyms.map((g) => g.org_id), gym.org_id], mainGym?.org_id ?? null)}>Add</button>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="choice-hint">No listed gyms match. Your gym can list itself for free from the organisation app.</p>
+        ) : null}
+      </section>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {saved ? <p className="muted" role="status">Your equipment is saved.</p> : null}
+      {mainGym ? <p className="choice-hint">The {mainGym.equipment.length} pieces of kit listed at {mainGym.display_name} count as yours. Add your home kit below - anything you have away from the gym.</p> : null}
       <fieldset className="choice-chips equipment-mode">
-        <legend>Where do you train?</legend>
-        {MODES.map(([value, label]) => (
+        <legend>{mainGym ? "Your home kit" : "Where do you train?"}</legend>
+        {MODES.filter(([value]) => !mainGym || value !== "full_gym").map(([value, label]) => (
           <label key={value} className="choice-chip">
             <input type="radio" name="equipment-mode" checked={mode === value} onChange={() => chooseMode(value)} />
             <span>{label}</span>
@@ -112,7 +205,7 @@ export function AthleteEquipmentCard() {
         ))}
       </fieldset>
       {mode === "full_gym" ? <p className="choice-hint">Everything is available.</p> : null}
-      {mode === "bodyweight" ? <p className="choice-hint">Bodyweight exercises only - add anything you do have below.</p> : null}
+      {mode === "bodyweight" && !mainGym ? <p className="choice-hint">Bodyweight exercises only - add anything you do have below.</p> : null}
       {mode !== "full_gym" ? (
         <div className="choice-section">
           {sections.map(([title, ids]) => (
@@ -129,7 +222,7 @@ export function AthleteEquipmentCard() {
         </div>
       ) : null}
       <div className="onboarding-actions">
-        <button className="button primary" type="button" disabled={saving} onClick={() => void save()}>Save equipment</button>
+        <button className="button primary" type="button" disabled={saving} onClick={() => void save()}>{mainGym ? "Save home kit" : "Save equipment"}</button>
       </div>
     </article>
   );

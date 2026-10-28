@@ -5961,7 +5961,9 @@
           "api_routes": [
             "/admin/audit-records",
             "/admin/exercise-demo-videos",
-            "/admin/exercise-demo-videos/:exercise_id"
+            "/admin/exercise-demo-videos/:exercise_id",
+            "/admin/gym-listings",
+            "/admin/gym-listings/:org_id/review"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -6222,7 +6224,8 @@
             "/org/organisations/:org_id/progress-rollup",
             "/org/organisations/:org_id/analysis",
             "/org/organisations/:org_id/head-coach",
-            "/org/organisations/:org_id/medical-lead"
+            "/org/organisations/:org_id/medical-lead",
+            "/org/organisations/:org_id/gym-listing"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8912,6 +8915,18 @@
     {
       "method": "GET",
       "path": "/admin/audit-records",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/gym-listings",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/gym-listings/:org_id/review",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },
