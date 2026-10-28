@@ -53,7 +53,8 @@ export const PUSH_TITLES: Readonly<Record<string, string>> = Object.freeze({
   coach_athlete_message_received: "New message",
   org_owner_message_received: "New message from your organisation",
   athlete_pain_reported: "Athlete reported pain",
-  athlete_strength_reference_missing: "Athlete needs a max to train"
+  athlete_strength_reference_missing: "Athlete needs a max to train",
+  athlete_block_completed: "Finished a block - report ready"
 });
 
 export function pushPayloadFor(notificationType: string): Readonly<Record<string, string>> {

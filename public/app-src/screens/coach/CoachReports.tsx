@@ -461,8 +461,8 @@ function CustomDates({ today, onCompile }: { today: string; onCompile: (id: stri
   );
 }
 
-export function CoachReports({ athleteUserId }: { athleteUserId: string }) {
-  const [type, setType] = useState("week");
+export function CoachReports({ athleteUserId, initialType = "week" }: { athleteUserId: string; initialType?: string }) {
+  const [type, setType] = useState(TYPES.some((entry) => entry.type === initialType) ? initialType : "week");
   const [list, setList] = useState<JsonRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState<{ type: string; id: string } | null>(null);
