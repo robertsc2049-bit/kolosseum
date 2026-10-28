@@ -22,6 +22,7 @@
 
 const state = {
   csrfToken: "",
+  ownerUserId: "",
   selectedOrgId: null,
   selectedThreadKind: null,
   selectedThreadId: null,
@@ -247,7 +248,14 @@ function showSignedOut() {
   el("orgCreateSection").hidden = true;
 }
 
+// The "Show me around" tours (org_tours.js, a separate module) listen for
+// these two events rather than this file importing anything.
+function announce(name, detail) {
+  document.dispatchEvent(new CustomEvent(name, { detail }));
+}
+
 async function showWorkspace(displayName) {
+  announce("kolosseum:org-workspace-shown", { ownerUserId: state.ownerUserId });
   el("orgSignInSection").hidden = true;
   el("orgRegisterSection").hidden = true;
   el("orgWorkspaceSection").hidden = false;
@@ -391,6 +399,7 @@ function renderOrganisations(organisations) {
         <p>No organisations yet. Create one below.</p>
       </div>
     `;
+    announce("kolosseum:org-organisations-rendered", { organisations: [] });
     return;
   }
 
@@ -461,6 +470,10 @@ function renderOrganisations(organisations) {
       showAuditSection(button.getAttribute("data-view-audit"), button.getAttribute("data-org-name"));
     });
   }
+
+  announce("kolosseum:org-organisations-rendered", {
+    organisations: organisations.map((organisation) => ({ org_id: organisation.org_id, org_name: organisation.org_name, visibility_mode: organisation.visibility_mode }))
+  });
 }
 
 function membershipStatusLabel(status) {
@@ -2037,6 +2050,7 @@ async function signIn(event) {
       password: el("orgSignInPassword").value
     });
     state.csrfToken = result.csrf_token;
+    state.ownerUserId = result.org_owner.user_id;
     await showWorkspace(result.org_owner.display_name);
   }
   catch (error) {
@@ -2057,6 +2071,7 @@ async function register(event) {
       password: el("orgRegisterPassword").value
     });
     state.csrfToken = result.csrf_token;
+    state.ownerUserId = result.org_owner.user_id;
     await showWorkspace(result.org_owner.display_name);
   }
   catch (error) {

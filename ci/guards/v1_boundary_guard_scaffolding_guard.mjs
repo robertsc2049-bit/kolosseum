@@ -79,6 +79,8 @@ const explicitLaterSliceAllowedChangedPaths =
     "public/app/coach_onboarding_ui.js",
     "public/app/commercial_ui.js",
     "public/app/event_lifecycle_ui.js",
+    "public/app/guided_tour.js",
+    "public/app/guided_tours.js",
     "public/app/icons/apple-touch-icon.png",
     "public/app/icons/icon-192.png",
     "public/app/icons/icon-512.png",
