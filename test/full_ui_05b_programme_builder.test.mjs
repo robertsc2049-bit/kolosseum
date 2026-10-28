@@ -166,3 +166,101 @@ test("FULL-UI-05B remains presentation-only and engine-inert", () => {
   // by the component's own DEV NOTE, which is what we check here instead.
   assert.match(validationList, /same rules engine/u);
 });
+
+// Pulls one top-level declaration out of app.js - top-level declarations
+// start at column 0, so the next unindented line that opens another
+// declaration (or a top-level comment/listener) bounds it.
+function extractTopLevel(source, startMarker) {
+  const start = source.indexOf(startMarker);
+  assert.ok(start >= 0, `expected to find ${startMarker} in app.js`);
+  const rest = source.slice(start + startMarker.length);
+  const next = rest.search(/\n(?:async function |function |const |let |document\.|\/\/)/u);
+  return source.slice(start, start + startMarker.length + next);
+}
+
+function loadDraftRecoveryHarness(storage) {
+  const source = [
+    'const STORAGE_KEY = "kolosseum.product.app.v1";',
+    extractTopLevel(app, "const DEFAULT_STATE = "),
+    extractTopLevel(app, "const UNSAVED_STATE_KEYS = "),
+    ...[
+      "cloneDefaultState",
+      "normalisePersistedTemplateDraft",
+      "loadState",
+      "saveState",
+      "applyAccountIdentity",
+      "templateDraftSnapshot",
+      "templateDraftIsDirty",
+      "currentTemplateDraftOwnerUserId",
+      "hasRecoverableTemplateDraft",
+      "clearTemplateDraftState"
+    ].map((name) => extractTopLevel(app, `function ${name}(`)),
+    "let templateBuilderSaveError = \"\";",
+    "function broadcastProgrammeDraft() {}",
+    "const state = loadState();",
+    "return { state, saveState, applyAccountIdentity, hasRecoverableTemplateDraft, currentTemplateDraftOwnerUserId };"
+  ].join("\n");
+  return new Function("localStorage", source)(storage);
+}
+
+function fakeLocalStorage() {
+  const items = new Map();
+  return {
+    getItem: (key) => (items.has(key) ? items.get(key) : null),
+    setItem: (key, value) => items.set(key, String(value)),
+    removeItem: (key) => items.delete(key)
+  };
+}
+
+function coachAccount(userId) {
+  return { user_id: userId, actor_type: "coach", display_name: userId, email: `${userId}@example.test` };
+}
+
+// Mirrors what openTemplateBuilder() + one edit leave in state: an open,
+// dirty draft owned by the signed-in coach.
+function leaveDirtyDraft(harness) {
+  const { state } = harness;
+  state.templateDraft = {
+    template_id: "tmpl_progression_check",
+    template_name: "Progression check",
+    template_status: "draft",
+    blocks: []
+  };
+  state.templateDraftSavedSnapshot = JSON.stringify({ ...state.templateDraft, template_name: "Old name" });
+  state.templateDraftWasOpen = true;
+  state.templateDraftOwnerUserId = harness.currentTemplateDraftOwnerUserId();
+  harness.saveState();
+}
+
+test("FULL-UI-05B a recovered browser draft is only offered back to the coach who left it", () => {
+  const storage = fakeLocalStorage();
+
+  const coachA = loadDraftRecoveryHarness(storage);
+  coachA.applyAccountIdentity(coachAccount("coach_a"));
+  leaveDirtyDraft(coachA);
+  assert.equal(coachA.hasRecoverableTemplateDraft(), true);
+
+  // Coach A reloads the page: the draft is still theirs to recover.
+  const coachAReloaded = loadDraftRecoveryHarness(storage);
+  coachAReloaded.applyAccountIdentity(coachAccount("coach_a"));
+  assert.equal(coachAReloaded.hasRecoverableTemplateDraft(), true);
+  assert.equal(coachAReloaded.state.templateDraft.template_id, "tmpl_progression_check");
+
+  // A different coach signs in on the same browser (no sign-out between,
+  // e.g. coach A's session expired): never offered, and coach A's draft is
+  // dropped rather than kept around.
+  const coachB = loadDraftRecoveryHarness(storage);
+  coachB.applyAccountIdentity(coachAccount("coach_b"));
+  assert.equal(coachB.hasRecoverableTemplateDraft(), false);
+  assert.equal(coachB.state.templateDraft, null);
+  assert.equal(coachB.state.templateDraftOwnerUserId, "");
+});
+
+test("FULL-UI-05B a draft persisted before drafts recorded an owner is never offered", () => {
+  const storage = fakeLocalStorage();
+  const harness = loadDraftRecoveryHarness(storage);
+  harness.applyAccountIdentity(coachAccount("coach_a"));
+  leaveDirtyDraft(harness);
+  harness.state.templateDraftOwnerUserId = "";
+  assert.equal(harness.hasRecoverableTemplateDraft(), false);
+});

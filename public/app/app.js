@@ -35,6 +35,7 @@ const DEFAULT_STATE = Object.freeze({
   templateDraftSavedSnapshot: "",
   templateDraftSavedAt: "",
   templateDraftWasOpen: false,
+  templateDraftOwnerUserId: "",
   templateDraftRecovered: false,
   templateDraftDirty: false,
   athleteProfiles: {},
@@ -291,6 +292,7 @@ function loadState() {
       selectedTemplateId: String(parsed.selectedTemplateId ?? ""),
       templateExercises: Array.isArray(parsed.templateExercises) ? parsed.templateExercises : [],
       templateDraft: normalisePersistedTemplateDraft(parsed.templateDraft),
+      templateDraftOwnerUserId: String(parsed.templateDraftOwnerUserId ?? ""),
       athleteProfiles: parsed.athleteProfiles && typeof parsed.athleteProfiles === "object"
         ? parsed.athleteProfiles
         : {},
@@ -1144,6 +1146,18 @@ function applyAccountIdentity(
         state.profile?.activityId ??
         "powerlifting"
     };
+  }
+
+  // The unsaved programme draft is kept in this browser's localStorage, so
+  // a different account signing in on the same device (or a stale session
+  // that expired without a sign-out) must never inherit it - it is another
+  // coach's private work, and resuming it would save it against the wrong
+  // coach.
+  if (
+    state.templateDraft &&
+    state.templateDraftOwnerUserId !== currentTemplateDraftOwnerUserId()
+  ) {
+    clearTemplateDraftState();
   }
 }
 
@@ -4653,10 +4667,22 @@ function templateDraftIsDirty() {
     String(state.templateDraftSavedSnapshot ?? "");
 }
 
+function currentTemplateDraftOwnerUserId() {
+  return state.role === "coach"
+    ? String(state.profile?.coachUserId ?? "")
+    : "";
+}
+
+// A draft is only offered back to the coach who left it - one saved by an
+// earlier account in this browser (or before drafts recorded an owner) is
+// never shown.
 function hasRecoverableTemplateDraft() {
+  const ownerUserId = currentTemplateDraftOwnerUserId();
   return Boolean(
     state.templateDraft &&
     state.templateDraftWasOpen === true &&
+    ownerUserId &&
+    state.templateDraftOwnerUserId === ownerUserId &&
     templateDraftIsDirty()
   );
 }
@@ -4666,6 +4692,7 @@ function clearTemplateDraftState() {
   state.templateDraftSavedSnapshot = "";
   state.templateDraftSavedAt = "";
   state.templateDraftWasOpen = false;
+  state.templateDraftOwnerUserId = "";
   state.templateDraftRecovered = false;
   state.templateDraftDirty = false;
   templateBuilderSaveError = "";
@@ -5200,6 +5227,7 @@ function openTemplateBuilder(draft, options = {}) {
   }
 
   state.templateDraftWasOpen = true;
+  state.templateDraftOwnerUserId = currentTemplateDraftOwnerUserId();
   state.templateDraftRecovered = options.recovered === true;
   state.templateDraftDirty = templateDraftIsDirty();
   templateBuilderSaveError = "";
@@ -5663,6 +5691,7 @@ async function saveTemplateDraft(options = {}) {
       nowIso()
     );
     state.templateDraftWasOpen = true;
+    state.templateDraftOwnerUserId = currentTemplateDraftOwnerUserId();
     state.templateDraftRecovered = false;
     state.templateDraftDirty = false;
 
