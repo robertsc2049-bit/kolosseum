@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import { loadAthleteRelationshipsMine } from "../../api/accountRelationshipsClient";
 import { loadTrainingWeek } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { InfoTooltip } from "../../components/InfoTooltip";
@@ -62,6 +63,36 @@ const MESSAGE_STATE_COPY: Record<string, { icon: string; heading: string; body: 
     badgeClass: "complete"
   }
 };
+
+// An athlete with nothing assigned and no accepted coach is training on their
+// own: "ask your coach" is the wrong message - point them at building their
+// week instead.
+const SELF_COACHED_COPY = {
+  icon: "P",
+  heading: "Your training",
+  body: "You're training without a coach: your sessions follow the training week you build on Declarations, and Kolosseum's generated programme fills in until you do. Start a session when you're ready to train.",
+  badgeLabel: "Self-coached",
+  badgeClass: "neutral"
+};
+
+// Whether an athlete with nothing assigned has an accepted coach - asked only
+// in that state. Null while unknown, so neither message shows early.
+function useHasAcceptedCoach(needed: boolean): boolean | null {
+  const [hasCoach, setHasCoach] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!needed) return undefined;
+    let cancelled = false;
+    loadAthleteRelationshipsMine()
+      .then((relationships) => { if (!cancelled) setHasCoach(relationships.some((relationship) => relationship.relationship_state === "accepted")); })
+      .catch(() => { if (!cancelled) setHasCoach(true); });
+    return () => { cancelled = true; };
+  }, [needed]);
+  return needed ? hasCoach : null;
+}
+
+function openTrainingSetup() {
+  (document.getElementById("athleteOnboardingNav") as HTMLElement | null)?.click();
+}
 
 function todaySessionLabel(session: JsonRecord | null): string {
   if (!session) return "";
@@ -195,7 +226,10 @@ export function TodaysSessionPicker({ options, onStart, onCancel }: {
 
 export function AthleteTodaySessionCard() {
   const { loading, today, sessionState, refresh } = useAthleteToday();
-  const badge = statusBadge(today, sessionState);
+  const unassigned = today?.state === "no_current_assignment";
+  const hasCoach = useHasAcceptedCoach(unassigned);
+  const selfCoached = unassigned && hasCoach === false;
+  const badge = selfCoached ? { label: SELF_COACHED_COPY.badgeLabel, className: SELF_COACHED_COPY.badgeClass } : statusBadge(today, sessionState);
 
   if (loading && !today) {
     return (
@@ -230,7 +264,7 @@ export function AthleteTodaySessionCard() {
   const assignment = (today?.assignment ?? null) as JsonRecord | null;
   const session = (today?.session ?? null) as JsonRecord | null;
   const notes = Array.isArray(today?.notes) ? (today!.notes as JsonRecord[]) : [];
-  const messageCopy = MESSAGE_STATE_COPY[stateKey];
+  const messageCopy = selfCoached ? SELF_COACHED_COPY : MESSAGE_STATE_COPY[stateKey];
   const firstPlannedItem = Array.isArray(session?.planned_items) ? (session!.planned_items[0] as JsonRecord | undefined) : undefined;
   const resolvedLoad = firstPlannedItem?.resolved_load as JsonRecord | undefined;
   const resolvedLoadSource = resolvedLoad?.source as JsonRecord | undefined;
@@ -252,11 +286,12 @@ export function AthleteTodaySessionCard() {
         </div>
       ) : null}
 
-      {messageCopy ? (
+      {messageCopy && !(unassigned && hasCoach === null) ? (
         <div className="empty-state">
           <div className="empty-icon">{messageCopy.icon}</div>
           <h3>{messageCopy.heading}</h3>
           <p>{messageCopy.body}</p>
+          {selfCoached ? <button className="button secondary" type="button" onClick={openTrainingSetup}>Build your training</button> : null}
         </div>
       ) : null}
 

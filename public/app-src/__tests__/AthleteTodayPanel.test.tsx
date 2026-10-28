@@ -24,10 +24,11 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
   } as Response;
 }
 
-function installMocks(today: Record<string, unknown>, sessionState?: Record<string, unknown>, trainingWeek?: Record<string, unknown>) {
+function installMocks(today: Record<string, unknown>, sessionState?: Record<string, unknown>, trainingWeek?: Record<string, unknown>, relationships?: Array<Record<string, unknown>>) {
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const path = String(input);
     if (trainingWeek && path === "/account/onboarding/training-week") return jsonResponse(trainingWeek);
+    if (relationships && path === "/coach-workspace/relationships/mine") return jsonResponse({ ok: true, relationships });
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: ATHLETE_USER_ID } });
     if (path.startsWith("/sessions/beta-athlete-today")) return jsonResponse({ ok: true, ...today });
     if (/\/sessions\/.+\/state$/u.test(path)) return jsonResponse(sessionState ?? {});
@@ -274,6 +275,31 @@ test("an active event shows its type, countdown, name and date/location", async 
   await waitFor(() => screen.getByText("Regional Meet"));
   assert.ok(screen.getByText("Powerlifting Meet"));
   assert.match(document.body.textContent ?? "", /Sheffield/u);
+});
+
+test("a self-coached athlete with nothing assigned is pointed at building their training, not told to ask a coach", async () => {
+  installMocks({ state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] }, undefined, undefined, []);
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => screen.getByRole("heading", { name: "Your training" }));
+  assert.equal(document.querySelector(".badge")?.textContent, "Self-coached");
+  assert.doesNotMatch(document.body.textContent ?? "", /Ask your coach/u);
+
+  let opened = false;
+  const nav = document.createElement("button");
+  nav.id = "athleteOnboardingNav";
+  nav.addEventListener("click", () => { opened = true; });
+  document.body.appendChild(nav);
+  await act(async () => { screen.getByRole("button", { name: "Build your training" }).click(); });
+  assert.equal(opened, true, "Build your training opens Declarations");
+  nav.remove();
+});
+
+test("a coached athlete still waiting for a programme is told to ask their coach", async () => {
+  installMocks({ state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] }, undefined, undefined, [{ relationship_state: "accepted", coach_display_name: "Sam Carter" }]);
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => screen.getByRole("heading", { name: "No active programme" }));
+  assert.match(document.body.textContent ?? "", /Ask your coach to assign one/u);
+  assert.equal(screen.queryByRole("button", { name: "Build your training" }), null);
 });
 
 test("refetches when kolosseum:today-changed fires", async () => {
