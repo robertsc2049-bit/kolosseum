@@ -5222,3 +5222,28 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 /* The team's medical lead (TeamMedicalPanel.tsx). */
 .team-medical { display: grid; gap: var(--k-space-3); margin-top: var(--k-space-3); padding-top: var(--k-space-3); border-top: 1px solid var(--line-soft); }
 .team-medical h4 { margin: 0; }
+
+/* "Progress across weeks" in a programme block (BlockProgressionPanel.tsx). */
+.block-progression {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.12));
+  border-radius: 12px;
+}
+
+.block-progression summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.block-progression-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.block-progression-preview p {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
