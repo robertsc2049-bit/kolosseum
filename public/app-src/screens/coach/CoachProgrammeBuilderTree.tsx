@@ -20,6 +20,7 @@ import {
   MAX_PLANNED_SETS,
   setsWarning
 } from "./programmeDraft";
+import { BlockProgressionPanel } from "./BlockProgressionPanel";
 import { CoachDemoVideoEditor } from "./CoachDemoVideoEditor";
 import { useExerciseHowto } from "./useExerciseHowto";
 import { useProgrammeBuilderDraft } from "./useProgrammeBuilderDraft";
@@ -999,6 +1000,9 @@ function BuilderBlock({
   activityId: string;
 }) {
   const [open, setOpen] = useCollapsible(true);
+  // Bumped when the weeks are replaced wholesale (progression), so their
+  // inputs remount with the new values.
+  const [weeksRevision, setWeeksRevision] = React.useState(0);
   const sessionTotal = block.weeks.reduce((sum, week) => sum + week.sessions.length, 0);
   return (
     <article className="template-block" data-open={String(open)}>
@@ -1051,6 +1055,13 @@ function BuilderBlock({
         </label>
       </div>
 
+      <BlockProgressionPanel
+        block={block}
+        blockIndex={blockIndex}
+        exerciseName={(exerciseId) => exerciseNameOf(exerciseId, templateExercises)}
+        onApplied={() => setWeeksRevision((n) => n + 1)}
+      />
+
       {hasEventPlan && block.calendar_start_date ? (
         <div className="block-calendar-strip">
           <span>{formatDate(block.calendar_start_date)}</span>
@@ -1062,7 +1073,7 @@ function BuilderBlock({
       <div className="template-weeks">
         {block.weeks.map((week, weekIndex) => (
           <BuilderWeek
-            key={week.week_id || `new_${weekIndex}`}
+            key={`${week.week_id || `new_${weekIndex}`}_${weeksRevision}`}
             week={week}
             blockIndex={blockIndex}
             weekIndex={weekIndex}

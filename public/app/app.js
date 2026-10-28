@@ -6575,6 +6575,18 @@ elements.fitFinalBlockButton.addEventListener("click", () => {
   }
 });
 
+// The builder's "Progress across weeks" (BlockProgressionPanel.tsx) hands
+// back a block's weeks, progressed from week 1 (or put back by Undo).
+document.addEventListener("kolosseum:replace-template-block-weeks", (event) => {
+  const blockIndex = Number(event.detail?.block_index);
+  const weeks = event.detail?.weeks;
+  const block = state.templateDraft?.blocks?.[blockIndex];
+  if (!block || !Array.isArray(weeks) || weeks.length !== block.weeks.length) return;
+  block.weeks = JSON.parse(JSON.stringify(weeks));
+  state.templateDraft.event_compile_summary = null;
+  rerenderTemplateBuilder();
+});
+
 document.addEventListener("kolosseum:bind-template-event", (event) => {
   const eventId = event.detail?.event_id;
   if (eventId) bindSelectedEventToTemplate(eventId).catch(handleError);
