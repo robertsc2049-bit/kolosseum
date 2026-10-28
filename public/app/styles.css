@@ -5255,3 +5255,73 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   margin: 0.25rem 0;
   overflow-wrap: anywhere;
 }
+
+/* Laptop-width layout. Between ~900px and ~1300px the sidebar leaves the
+   content only 650-1000px wide, which the window-width breakpoints above
+   don't account for - so these rules key off the space actually left. */
+
+/* Filter fields shrink to their column rather than running into the next. */
+.history-filters > *,
+.history-filters :is(input, select) { min-width: 0; width: 100%; }
+
+/* Assigning a programme: the current assignment, actions and history run
+   the full width under the two pickers. */
+.athlete-assignment-form > :is(.assignment-current-state, .assignment-action-row),
+.athlete-assignment-form > :last-child { grid-column: 1 / -1; }
+
+/* Stat grids fill whole rows - no single card left on its own. */
+.coach-dashboard-metrics,
+.athlete-detail-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+@media (min-width: 621px) {
+  /* A two-part card row (text, then badges and buttons) keeps its text a
+     real width: on a narrow card the badges and buttons drop underneath
+     rather than squeezing the name to nothing. */
+  .record-card:not(:has(> :nth-child(3))) { display: flex; flex-wrap: wrap; }
+  .record-card:not(:has(> :nth-child(3))) > :first-child { flex: 1 1 12rem; min-width: 0; }
+  .record-card:not(:has(> :nth-child(3))) > .record-meta { flex: 0 1 auto; margin-left: auto; }
+  /* Longer cards: the text column still keeps a real width, and anything
+     after the actions (the current programme's "Adjust for this athlete")
+     gets its own row. */
+  .record-card:has(> :nth-child(3)) { grid-template-columns: minmax(min(10rem, 100%), 1fr) minmax(0, max-content); }
+  .record-card > .record-actions ~ * { grid-column: 1 / -1; justify-self: start; }
+  .record-card:has(> .record-actions ~ *) { grid-template-columns: minmax(0, 1fr); gap: var(--k-space-3); }
+
+  /* Panels and blocks stacked down a screen never touch. Block siblings'
+     margins collapse, so this only fills gaps nothing else spaces. */
+  :is(.view, .view > [data-tab-panel]) > :is(section, article, div, form) + :is(section, article, div, form) { margin-top: var(--k-space-4); }
+
+  /* A heading and its actions share a row while there's room; the actions
+     drop below the heading rather than squeezing it into a sliver. */
+  .page-heading,
+  .panel-header { flex-wrap: wrap; }
+  .page-heading > :first-child { flex: 1 1 18rem; min-width: 0; }
+  .panel-header > :first-child { flex: 1 1 12rem; min-width: 0; }
+  .page-heading .button,
+  .panel-header .button { white-space: nowrap; }
+  .page-heading > .review-toolbar { flex: 1 1 34rem; }
+
+  /* An athlete's maxes: max, unit and source in columns wide enough for
+     "Tested 1RM", rather than three 8em boxes. */
+  .athlete-max-row { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 6rem) minmax(0, 11rem); }
+  .athlete-max-row > :not(label) { grid-column: 1 / -1; }
+  .athlete-max-row input,
+  .athlete-max-row select { max-width: none; width: 100%; }
+  .review-toolbar { grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr)); }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .two-column,
+  .account-settings-grid,
+  .status-support-grid { grid-template-columns: 1fr; }
+  .relationship-metric-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1181px) {
+  .relationship-metric-cards { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1340px) {
+  .coach-dashboard-metrics,
+  .athlete-detail-metrics { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
