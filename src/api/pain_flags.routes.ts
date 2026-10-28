@@ -11,6 +11,7 @@ import {
   type Response
 } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import { authenticatedCoach } from "./coach_session_auth.js";
 import { PainFlagError, clearPainFlagForCoach, getPainFlagsForCoach } from "./pain_flag_service.js";
@@ -19,7 +20,7 @@ export const painFlagsRouter = Router();
 
 // Rate-limited like every newly-added authorising route (CodeQL
 // js/missing-rate-limiting); generous enough for a coach reviewing a roster.
-const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+const painFlagsRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
 type AsyncHandler = (request: Request, response: Response, next: NextFunction) => Promise<unknown>;
 

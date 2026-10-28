@@ -2,6 +2,7 @@
 
 import { Router, type NextFunction, type Request, type Response } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import { asyncHandler } from "./async_handler.js";
 import { authenticatedCoach } from "./coach_session_auth.js";
@@ -169,6 +170,7 @@ coachWorkspaceRouter.post(
 // routes - see coach_onboarding.routes.ts's own accessibilityPreferencesRateLimit
 // for the identical precedent this mirrors.
 const athleteActivityChangeRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -249,6 +251,7 @@ coachWorkspaceRouter.get(
 // A coach's own exercise demo videos (exercise_demo_video_service.ts): a
 // YouTube/Vimeo link shown to them and their athletes instead of the default.
 const exerciseDemoVideoRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 120,
   standardHeaders: true,
@@ -332,6 +335,7 @@ coachWorkspaceRouter.post(
 // (org_handover_service.ts): listed on their workspace, taken over by
 // choosing a password for the organisation app.
 const orgHandoverRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -374,6 +378,7 @@ coachWorkspaceRouter.post(
 // % of max behind every weight, the athlete's maxes and bodyweight history
 // (athlete_my_programme_service.ts). Only for the coach who assigned it.
 const coachProgrammePrintRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 60,
   standardHeaders: true,
@@ -398,6 +403,7 @@ coachWorkspaceRouter.get(
 // Coach Analysis (coach_analysis_service.ts): every connected athlete ranked
 // by how much needs a look, and one athlete's pattern trends over 4-26 weeks.
 const coachAnalysisRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 120,
   standardHeaders: true,
@@ -532,7 +538,7 @@ coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/remove", co
 
 // Getting a squad's data in at once (squad_entry_service.ts): a squad
 // session's effort, a test day, a GPS / heart-rate import.
-const squadEntryRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+const squadEntryRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
 // Each route is written out (not generated) so the route catalog guard sees it.
 const squadHandler = (work: (coachUserId: string, body: unknown) => Promise<unknown>) => asyncHandler(async (req, res) => {
   const coachUserId = await authenticatedCoach(req, true);

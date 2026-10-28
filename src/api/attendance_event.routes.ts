@@ -14,6 +14,7 @@ import {
   type Response
 } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -161,6 +162,7 @@ attendanceEventRouter.get(
 // flags newly-added authorising routes - mirrors org_owner.routes.ts's own
 // orgOwnerAttendanceCalendarExportRateLimit for the FULL-UI-92 sibling route.
 const coachAttendanceCalendarExportRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,

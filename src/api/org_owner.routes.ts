@@ -14,6 +14,7 @@ import {
 } from "express";
 import { MulterError } from "multer";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   ORG_OWNER_SESSION_COOKIE,
@@ -278,6 +279,7 @@ orgOwnerRouter.get(
 // flags newly-added authorising routes - mirrors this file's own
 // orgOwnerAttendanceCalendarExportRateLimit/orgOwnerPositionOverrideRateLimit.
 const orgOwnerRosterCsvExportRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -332,6 +334,7 @@ orgOwnerRouter.get(
 // Each call works out every athlete's analysis, so it's limited like the
 // coach's own Analysis reads.
 const orgOwnerAnalysisRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 60,
   standardHeaders: true,
@@ -352,6 +355,7 @@ orgOwnerRouter.get(
 // it) - an owner who also coaches names their own coach account
 // (org_head_coach_service.ts). Audited.
 const orgHeadCoachRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -376,6 +380,7 @@ orgOwnerRouter.post(
 // A gym's free listing - name, area, equipment - that athletes find once an
 // admin approves it (gym_listing_service.ts). Gym organisations only.
 const orgGymListingRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 60,
   standardHeaders: true,
@@ -464,6 +469,7 @@ orgOwnerRouter.get(
 // flags newly-added authorising routes - mirrors this file's own
 // orgOwnerPositionOverrideRateLimit.
 const orgOwnerAttendanceCalendarExportRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -667,6 +673,7 @@ orgOwnerRouter.get(
 // single-recipient send) from being hammered, without adding four separate
 // limiter instances for what is one logical capability.
 const orgBroadcastRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -721,6 +728,7 @@ orgOwnerRouter.get(
 // product_accounts. Rate-limited like the broadcast routes above, for the
 // same CodeQL js/missing-rate-limiting reason.
 const orgOwnerDataRightsRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -823,6 +831,7 @@ orgOwnerRouter.get(
 // shared-visibility roster. See org_owner_position_override_service.ts's
 // own DEV NOTE for the full authorization chain.
 const orgOwnerPositionOverrideRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,

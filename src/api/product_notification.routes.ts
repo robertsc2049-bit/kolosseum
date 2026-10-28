@@ -3,6 +3,7 @@
 // this file never accepts a caller-supplied recipient id.
 
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import {
   Router,
   type NextFunction,
@@ -189,7 +190,7 @@ productNotificationRouter.use(
 // --- Web Push: notifications on this phone (product_push_service.ts) -------
 
 // A phone turns notifications on or off a handful of times at most.
-const pushSubscriptionRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
+const pushSubscriptionRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
 
 function rethrowPushError(error: unknown): never {
   if (error instanceof ProductPushError) {

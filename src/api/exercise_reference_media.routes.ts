@@ -7,6 +7,7 @@
 // athlete/coach paths. There is no POST/PUT/DELETE anywhere in this file.
 
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import {
   Router,
   type NextFunction,
@@ -68,7 +69,7 @@ async function authenticatedAthleteOrCoach(request: Request): Promise<Readonly<{
 
 // Opening an exercise's how-to reads this; generous, but bounded now that it
 // resolves the viewer's coach from the database.
-const referenceMediaRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false });
+const referenceMediaRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 600, standardHeaders: true, legacyHeaders: false });
 
 exerciseReferenceMediaRouter.get(
   "/:exercise_id/reference-media",

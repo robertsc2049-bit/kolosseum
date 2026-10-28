@@ -11,6 +11,7 @@ import {
   type Response
 } from "express";
 import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   ADMIN_SESSION_COOKIE,
@@ -243,7 +244,7 @@ productAdminRouter.get(
 // GDPR erasure: carry out a reviewed athlete/coach deletion request
 // (product_admin_action_service.ts eraseAccountForDeletionRequest). Irreversible;
 // the admin app asks for a typed confirmation first.
-const dataErasureRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
+const dataErasureRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false });
 
 productAdminRouter.post(
   "/data-rights/deletions/:deletion_request_id/erase",
@@ -269,6 +270,7 @@ productAdminRouter.post(
 // routes - one shared limiter across all seven keeps a single new instance
 // from being added per route for what is one logical capability.
 const orgOwnerAdminRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
   windowMs: 15 * 60 * 1000,
   limit: 30,
   standardHeaders: true,
@@ -382,7 +384,7 @@ productAdminRouter.get(
 // --- Gym listings (gym_listing_service.ts): a gym's listing only reaches
 // athletes once an admin approves it.
 
-const gymListingAdminRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const gymListingAdminRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
 function gymListingAdminError(error: unknown): never {
   if (error instanceof GymListingError) {
@@ -424,7 +426,7 @@ productAdminRouter.post(
 // --- Platform default exercise demo videos (exercise_demo_video_service.ts):
 // what athletes without a coach demo see.
 
-const exerciseDemoAdminRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const exerciseDemoAdminRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
 productAdminRouter.get(
   "/exercise-demo-videos",
