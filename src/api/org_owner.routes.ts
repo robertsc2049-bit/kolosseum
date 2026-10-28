@@ -54,6 +54,7 @@ import {
 } from "./org_visibility_service.js";
 import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import { OrgHeadCoachError, setHeadCoach, setMedicalLead } from "./org_head_coach_service.js";
+import { getGymListing, GymListingError, saveGymListing } from "./gym_listing_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -368,6 +369,48 @@ orgOwnerRouter.post(
     catch (error) {
       if (error instanceof OrgHeadCoachError) return response.status(error.status).json({ ok: false, error: error.message });
       throw error;
+    }
+  })
+);
+
+// A gym's free listing - name, area, equipment - that athletes find once an
+// admin approves it (gym_listing_service.ts). Gym organisations only.
+const orgGymListingRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+function gymListingError(error: unknown, response: Response) {
+  if (error instanceof GymListingError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+  throw error;
+}
+
+orgOwnerRouter.get(
+  "/organisations/:org_id/gym-listing",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    try {
+      return response.status(200).json(await getGymListing(user_id, String(request.params.org_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.put(
+  "/organisations/:org_id/gym-listing",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      return response.status(200).json(await saveGymListing(user_id, String(request.params.org_id), request.body));
+    }
+    catch (error) {
+      return gymListingError(error, response);
     }
   })
 );

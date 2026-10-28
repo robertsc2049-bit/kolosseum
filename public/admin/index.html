@@ -261,6 +261,27 @@
     </div>
   </section>
 
+  <section id="gymListingSection" hidden>
+    <h2>Gym listings</h2>
+    <p class="muted">A gym's free listing reaches athletes only once it's approved here. Check it's a real gym with a sensible name, area and equipment. Your note is shown to the gym's owner.</p>
+    <label>Show<br />
+      <select id="gymListingStatusFilter">
+        <option value="pending">Waiting for review</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Turned down</option>
+        <option value="hidden">Hidden</option>
+        <option value="">All</option>
+      </select>
+    </label>
+    <p id="gymListingResult" class="muted" role="status" hidden></p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Gym</th><th>Area</th><th>Owner</th><th>Equipment</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="gymListingList"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section id="exerciseDemoVideoSection" hidden>
     <h2>Exercise demo videos</h2>
     <p class="muted">The default demo for an exercise - what every athlete sees unless their coach has set their own. A YouTube or Vimeo link; it plays inside the app. Exercises without one fall back to the curated video, if any.</p>

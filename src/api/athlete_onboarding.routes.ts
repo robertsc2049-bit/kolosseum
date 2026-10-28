@@ -44,7 +44,8 @@ const painFlagsRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 120, sta
 import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
 import { currentInjury } from "./injury_log_service.js";
-import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment } from "./athlete_equipment_service.js";
+import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment, saveAthleteGyms } from "./athlete_equipment_service.js";
+import { searchGyms } from "./gym_listing_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
@@ -296,6 +297,16 @@ athleteOnboardingRouter.get(
   })
 );
 
+// Listed gyms an athlete can choose, by name or area (approved listings only).
+athleteOnboardingRouter.get(
+  "/gyms/search",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    await athleteSession(request);
+    return response.status(200).json({ ok: true, gyms: await searchGyms(request.query.q) });
+  })
+);
+
 // A fighter's declared weight class (fight-camp loading before a fight).
 athleteOnboardingRouter.get(
   "/weight-class",
@@ -520,6 +531,18 @@ athleteOnboardingRouter.put(
     const { token, session } = await athleteSession(request);
     assertMutation(request, token);
     return response.status(200).json(await saveAthleteEquipment(session.account_row.user_id, request.body));
+  })
+);
+
+// The athlete's gyms (up to 3) and their main gym, whose equipment counts as
+// theirs alongside their home kit.
+athleteOnboardingRouter.put(
+  "/gyms",
+  equipmentRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await saveAthleteGyms(session.account_row.user_id, request.body));
   })
 );
 

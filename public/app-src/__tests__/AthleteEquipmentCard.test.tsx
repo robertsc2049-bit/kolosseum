@@ -63,3 +63,41 @@ test("a strongman training at home picks the home-gym set and saves it", async (
 test("a substitute keeps its own name, so the session shows what to actually do", () => {
   assert.equal(exerciseName({ exercise_id: "overhead_press", display_name: "Overhead press", equipment_swap: { from_display_name: "Strongman log press", missing: ["Strongman log"] } }), "Overhead press");
 });
+
+test("a lifter finds their gym, it becomes their main gym, and their own list becomes home kit", async () => {
+  const gymSaves: Record<string, unknown>[] = [];
+  const ironworks = { org_id: "org_ironworks", display_name: "Ironworks", area: "Leeds", equipment_count: 3 };
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? "GET";
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "athlete_1" }, csrf_token: "csrf" });
+    if (path === "/account/onboarding/equipment") return jsonResponse({ full_gym: true, available_equipment: [], gyms: [], main_gym: null, options });
+    if (path === "/account/onboarding/gyms/search?q=leeds") return jsonResponse({ ok: true, gyms: [ironworks] });
+    if (path === "/account/onboarding/gyms" && method === "PUT") {
+      const body = typeof init?.body === "string" ? JSON.parse(init.body) : {};
+      gymSaves.push(body);
+      return jsonResponse({
+        full_gym: false, available_equipment: [], options,
+        gyms: [{ ...ironworks, listed: true }],
+        main_gym: { org_id: "org_ironworks", display_name: "Ironworks", equipment: ["barbell", "rack", "bench"] }
+      });
+    }
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+  render(<AthleteEquipmentCard />);
+  await screen.findByText("Your gyms");
+  fireEvent.change(screen.getByLabelText("Find a gym by name or town"), { target: { value: "leeds" } });
+  await act(async () => {
+    fireEvent.click(screen.getByText("Search"));
+  });
+  await screen.findByText("Ironworks, Leeds");
+  await act(async () => {
+    fireEvent.click(screen.getByText("Add"));
+  });
+  await waitFor(() => assert.equal(gymSaves.length, 1));
+  assert.deepEqual(gymSaves[0], { gym_org_ids: ["org_ironworks"], main_org_id: "org_ironworks" }, "the first gym is the main gym");
+  await screen.findByText("Ironworks, Leeds - main gym");
+  assert.ok(screen.getByText("The 3 pieces of kit listed at Ironworks count as yours. Add your home kit below - anything you have away from the gym."));
+  assert.equal(screen.queryByLabelText("Full gym"), null, "no full-gym choice with a main gym");
+  assert.ok(screen.getByText("Save home kit"));
+});

@@ -20,6 +20,7 @@ import {
   signOutAdminSession
 } from "./product_admin_account_service.js";
 import { adminCookieValue, authenticatedAdmin } from "./product_admin_auth.js";
+import { GymListingError, listGymListingsForAdmin, reviewGymListing } from "./gym_listing_service.js";
 import {
   changeAccountState,
   changeOrgOwnerAccountState,
@@ -375,6 +376,48 @@ productAdminRouter.get(
     await authenticatedAdmin(request, false);
     const records = await listAdminAuditRecords(request.query.user_id);
     return response.status(200).json({ records });
+  })
+);
+
+// --- Gym listings (gym_listing_service.ts): a gym's listing only reaches
+// athletes once an admin approves it.
+
+const gymListingAdminRateLimit = rateLimit({ windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+
+function gymListingAdminError(error: unknown): never {
+  if (error instanceof GymListingError) {
+    throw error.status === 404
+      ? notFound(error.message, { failure_token: error.message })
+      : badRequest(error.message, { failure_token: error.message, field_errors: error.fieldErrors });
+  }
+  throw error;
+}
+
+productAdminRouter.get(
+  "/gym-listings",
+  gymListingAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    try {
+      return response.status(200).json({ ok: true, gym_listings: await listGymListingsForAdmin(request.query.status) });
+    }
+    catch (error) {
+      gymListingAdminError(error);
+    }
+  })
+);
+
+productAdminRouter.post(
+  "/gym-listings/:org_id/review",
+  gymListingAdminRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    try {
+      return response.status(200).json({ ok: true, gym_listing: await reviewGymListing(admin.user_id, String(request.params.org_id), request.body) });
+    }
+    catch (error) {
+      gymListingAdminError(error);
+    }
   })
 );
 

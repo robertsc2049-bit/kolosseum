@@ -245,6 +245,33 @@
       <p id="orgBillingError" class="muted small" hidden></p>
     </section>
 
+    <section id="orgGymListingSection" class="panel" hidden>
+      <div class="button-row" style="justify-content: space-between;">
+        <div>
+          <p class="eyebrow">Gym listing</p>
+          <h2>List <strong id="orgGymListingOrgName"></strong> for athletes</h2>
+        </div>
+        <button id="orgGymListingBackButton" class="button secondary" type="button">Back to organisations</button>
+      </div>
+      <p class="muted small">Free. Athletes find your gym by name or area once we've checked it, choose it as their gym, and their sessions use the equipment you list. You see how many athletes chose your gym - never who.</p>
+      <p id="orgGymListingStatus" class="muted" role="status" data-testid="org-gym-listing-status"></p>
+      <form id="orgGymListingForm">
+        <label class="field">
+          <span>Gym name</span>
+          <input id="orgGymListingName" maxlength="120" required />
+        </label>
+        <label class="field">
+          <span>Town or area</span>
+          <input id="orgGymListingArea" maxlength="120" required />
+        </label>
+        <div id="orgGymListingEquipment" class="choice-section"></div>
+        <div class="button-row">
+          <button class="button primary" type="submit">Save listing</button>
+        </div>
+      </form>
+      <p id="orgGymListingError" class="field-error" role="alert" hidden></p>
+    </section>
+
     <section id="orgVisibilitySection" class="panel" hidden>
       <div class="button-row" style="justify-content: space-between;">
         <div>

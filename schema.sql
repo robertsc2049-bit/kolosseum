@@ -2994,3 +2994,31 @@ ALTER TABLE product_org_audit_records
       'medical_lead_cleared'
     )
   );
+
+-- Gym listings (gym_listing_service.ts): a gym ('individual') organisation's
+-- free listing - its name, area and equipment - so athletes can choose it as
+-- their gym. Athletes only find it once a platform admin approves it; the
+-- gym sees how many athletes chose it, never who.
+CREATE TABLE IF NOT EXISTS product_gym_listings (
+  org_id              TEXT PRIMARY KEY
+    REFERENCES product_organisations(org_id)
+    ON DELETE CASCADE,
+  display_name        TEXT NOT NULL
+    CHECK (char_length(display_name) BETWEEN 1 AND 120),
+  area                TEXT NOT NULL
+    CHECK (char_length(area) BETWEEN 1 AND 120),
+  equipment           JSONB NOT NULL DEFAULT '[]'::jsonb
+    CHECK (jsonb_typeof(equipment) = 'array'),
+  listing_status      TEXT NOT NULL DEFAULT 'pending'
+    CHECK (listing_status IN ('pending', 'approved', 'rejected', 'hidden')),
+  review_note         TEXT
+    CHECK (review_note IS NULL OR char_length(review_note) <= 500),
+  reviewed_by_user_id TEXT,
+  reviewed_at         TIMESTAMPTZ,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_gym_listings_status
+ON product_gym_listings (listing_status);

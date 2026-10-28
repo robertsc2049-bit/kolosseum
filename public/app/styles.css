@@ -5223,6 +5223,14 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .team-medical { display: grid; gap: var(--k-space-3); margin-top: var(--k-space-3); padding-top: var(--k-space-3); border-top: 1px solid var(--line-soft); }
 .team-medical h4 { margin: 0; }
 
+/* Your gyms (AthleteEquipmentCard): the chosen gyms with the main-gym radio,
+   then search results - one row each, the action at the end. */
+.athlete-gyms { margin: 0.75rem 0 1rem; }
+.athlete-gym-list, .athlete-gym-results { list-style: none; margin: 0.5rem 0; padding: 0; display: grid; gap: 0.5rem; }
+.athlete-gym-list li, .athlete-gym-results li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.athlete-gym-search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; }
+.athlete-gym-search .field { flex: 1 1 14rem; margin: 0; }
+
 /* "Progress across weeks" in a programme block (BlockProgressionPanel.tsx). */
 .block-progression {
   margin: 0.75rem 0;
