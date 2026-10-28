@@ -37,11 +37,18 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   coach_athlete_message_received: "New message",
   org_owner_message_received: "New message from your organisation",
   athlete_pain_reported: "Athlete reported pain",
-  athlete_strength_reference_missing: "Athlete needs a max to train"
+  athlete_strength_reference_missing: "Athlete needs a max to train",
+  athlete_block_completed: "Finished a block - report ready"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
   const type = String(notification.notification_type ?? "");
+  // Names the block (or the whole programme) the athlete just finished.
+  if (type === "athlete_block_completed") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    if (payload.programme_finished === true) return "Finished the programme - report ready";
+    if (typeof payload.block_name === "string" && payload.block_name.trim()) return `Finished ${payload.block_name.trim()} - report ready`;
+  }
   return NOTIFICATION_TYPE_LABELS[type] ?? titleCase(type);
 }
 

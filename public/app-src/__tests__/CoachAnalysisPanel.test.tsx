@@ -159,3 +159,25 @@ test("effort against your target reads in words - on target, harder or easier th
     athlete.analysis.execution.rows = rowsBefore;
   }
 });
+
+test("tapping a coach's \"finished a block - report ready\" notification opens that athlete's reports", async () => {
+  installMocks();
+  render(<CoachAnalysisPanel />);
+  await screen.findByText("Jordan");
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "coach_progress_overview", params: { athlete_id: "a1", report: "block" } } }));
+  });
+  const reports = await screen.findByRole("button", { name: "Reports" });
+  assert.equal(reports.getAttribute("aria-pressed"), "true", "Reports is open, not Trends");
+  const block = screen.getAllByRole("button").find((b) => /^Block/u.test(b.textContent ?? ""));
+  assert.equal(block?.getAttribute("aria-pressed"), "true", "on the block report, not the weekly one");
+  assert.equal(screen.getByRole("button", { name: "Trends" }).getAttribute("aria-pressed"), "false");
+
+  // Any other notification target leaves the page alone.
+  await act(async () => { fireEvent.click(screen.getAllByRole("button").find((b) => /back|all athletes/iu.test(b.textContent ?? ""))!); });
+  await screen.findByText("Casey");
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "coach_review_athlete", params: { athlete_id: "a1" } } }));
+  });
+  assert.ok(screen.getByText("Casey"), "still on the roster");
+});

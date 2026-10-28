@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { type JsonRecord } from "../../api/transport";
 import { TrendChart, shortWeek, type TrendMarker } from "../../components/TrendChart";
@@ -78,9 +78,9 @@ function Section({ id, title, headline, children }: { id: string; title: string;
   );
 }
 
-function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onBack: () => void }) {
+function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initialReport }: { athleteUserId: string; onBack: () => void; initialView?: "trends" | "reports"; initialReport?: string }) {
   const [weeks, setWeeks] = useState(12);
-  const [view, setView] = useState<"trends" | "reports">("trends");
+  const [view, setView] = useState<"trends" | "reports">(initialView);
   const { data, error, loading, reload } = useCoachAthleteAnalysis(athleteUserId, weeks);
   const a = (data?.analysis ?? null) as JsonRecord | null;
   const findings = rows(data?.findings) as unknown as Finding[];
@@ -131,7 +131,7 @@ function AthleteAnalysis({ athleteUserId, onBack }: { athleteUserId: string; onB
         ) : null}
       </div>
       {data?.viewed_as === "head_coach" ? <p className="muted small analysis-head-coach-note" data-testid="viewed-as-head-coach">{`You're viewing this athlete as head coach of ${String((data.org as JsonRecord | undefined)?.org_name ?? "the team")} - they're coached by someone else, who keeps their reports.`}</p> : null}
-      {view === "reports" ? <CoachReports athleteUserId={athleteUserId} /> : null}
+      {view === "reports" ? <CoachReports athleteUserId={athleteUserId} initialType={initialReport} /> : null}
       {view === "trends" && error ? <p className="field-error" role="alert">{error}</p> : null}
       {view === "trends" && loading && !a ? <p className="muted">Working out the patterns…</p> : null}
       {view === "trends" && a ? (
@@ -477,9 +477,26 @@ export function CoachAnalysisPanel() {
   const { roster, error } = useCoachAnalysisRoster();
   const teams = useCoachTeams();
   const [selected, setSelected] = useState<string | null>(null);
+  // The report a notification opened ("block" or "programme"), or null.
+  const [openOnReport, setOpenOnReport] = useState<string | null>(null);
   // "mine" (the coach's own athletes) or a team org's id.
   const [scope, setScope] = useState("mine");
-  if (selected) return <AthleteAnalysis athleteUserId={selected} onBack={() => setSelected(null)} />;
+  // A "finished a block - report ready" notification opens that athlete's
+  // reports (product_notification_service.ts: coach_progress_overview with an
+  // athlete_id param).
+  useEffect(() => {
+    const onOpenTarget = (event: Event) => {
+      const detail = (event as CustomEvent).detail as JsonRecord | undefined;
+      const params = (detail?.params ?? {}) as JsonRecord;
+      if (detail?.route_id !== "coach_progress_overview" || !params.athlete_id) return;
+      setScope("mine");
+      setOpenOnReport(String(params.report ?? "block"));
+      setSelected(String(params.athlete_id));
+    };
+    document.addEventListener("kolosseum:open-notification-target", onOpenTarget);
+    return () => document.removeEventListener("kolosseum:open-notification-target", onOpenTarget);
+  }, []);
+  if (selected) return <AthleteAnalysis key={`${selected}:${openOnReport ?? ""}`} athleteUserId={selected} initialView={openOnReport ? "reports" : "trends"} initialReport={openOnReport ?? undefined} onBack={() => { setSelected(null); setOpenOnReport(null); }} />;
   const athletes = rows(roster?.athletes);
   const team = teams.find((entry) => entry.org_id === scope) ?? null;
   return (
@@ -501,7 +518,7 @@ export function CoachAnalysisPanel() {
           ))}
         </div>
       ) : null}
-      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={setSelected} /> : null}
+      {team && team.visibility_mode === "shared" ? <TeamAnalysis team={team} onOpenAthlete={(id) => { setOpenOnReport(null); setSelected(id); }} /> : null}
       {team && team.visibility_mode === "individual" ? <GymAnalysis team={team} /> : null}
       {team ? null : <>
       <Explain id="roster" />
@@ -522,7 +539,7 @@ export function CoachAnalysisPanel() {
                 const z = num((athlete.readiness as JsonRecord | undefined)?.z);
                 return (
                   <tr key={String(athlete.athlete_user_id)}>
-                    <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => setSelected(String(athlete.athlete_user_id))}>{String(athlete.display_name)}</button></td>
+                    <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => { setOpenOnReport(null); setSelected(String(athlete.athlete_user_id)); }}>{String(athlete.display_name)}</button></td>
                     <td data-label="Status"><span className={`analysis-status is-${status.level}`}>{status.label}</span></td>
                     <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>

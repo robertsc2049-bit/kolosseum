@@ -306,3 +306,11 @@ test("opening a notification with a real target dispatches the navigation bridge
   assert.deepEqual(captured, { route_id: "coach_athlete_detail", params: { athlete_id: "athlete_1" } });
   assert.equal(document.querySelector(".notification-panel"), null);
 });
+
+test("a coach's block-finished notification names the block, or says the whole programme is done", async () => {
+  const { notificationTypeLabel } = await import("../api/notificationsClient");
+  const label = (payload: Record<string, unknown>) => notificationTypeLabel({ notification_type: "athlete_block_completed", notification_payload: payload });
+  assert.equal(label({ block_name: "Accumulation", programme_finished: false }), "Finished Accumulation - report ready");
+  assert.equal(label({ block_name: "Intensification", programme_finished: true }), "Finished the programme - report ready");
+  assert.equal(label({}), "Finished a block - report ready");
+});

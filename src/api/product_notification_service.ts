@@ -12,6 +12,7 @@ import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
 import { getSessionStateQuery } from "./session_state_query_service.js";
+import { loadActiveCoachTemplateById, orderedTemplateSessions } from "./beta18_programme_template_service.js";
 import { deriveAthleteVisibleNoteNotifications } from "./product_notification_note_derivation.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -64,7 +65,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "owner_message_received_from_coach",
   "owner_message_received_from_athlete",
   "athlete_pain_reported",
-  "athlete_strength_reference_missing"
+  "athlete_strength_reference_missing",
+  "athlete_block_completed"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -79,6 +81,9 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   coachAthletes: "coach_athletes",
   coachReviewAthlete: "coach_review_athlete",
   coachProgrammeDetail: "coach_programme_detail",
+  // Analysis; the athlete_id param opens that athlete's reports
+  // (CoachAnalysisPanel.tsx) - the route itself takes no entity.
+  coachProgressOverview: "coach_progress_overview",
   sharedAccount: "shared_account",
   athleteAttendanceEvents: "athlete_attendance_events",
   coachAttendanceEvents: "coach_attendance_events",
@@ -685,6 +690,84 @@ async function deriveAthleteStrengthReferenceMissingNotifications(
         exercise_id: cleanString(payload.exercise_id)
       },
       occurredAtIso8601: toIso(row.occurred_at)
+    });
+  }
+}
+
+// --- Athlete finished a programme block --------------------------------------
+// One per assignment and block: the athlete completed the last session of a
+// block in this coach's programme (or the programme's last session), so its
+// block report is ready to write and send (Analysis > Reports). Sessions
+// record their place in the programme (planned_session.template_position);
+// the assigned programme's own session order says where each block ends.
+
+async function assignedTemplateId(client: QueryClient, assignmentId: string): Promise<string> {
+  const result = await client.query(
+    `
+    SELECT record_payload->>'template_id' AS template_id
+    FROM beta_product_records
+    WHERE record_type = 'beta17_assignment_trigger'
+      AND record_payload->>'assignment_id' = $1
+    ORDER BY effective_at DESC, created_at DESC
+    LIMIT 1
+    `,
+    [assignmentId]
+  );
+  return cleanString(result.rows?.[0]?.template_id);
+}
+
+async function deriveAthleteBlockCompletedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT session_id, beta_subject_user_id, beta_assignment_id, updated_at,
+           planned_session->'template_position'->>'template_session_index' AS template_session_index
+    FROM sessions
+    WHERE beta_coach_user_id = $1
+      AND beta_assignment_id IS NOT NULL
+      AND planned_session ? 'template_position'
+    `,
+    [recipientUserId]
+  );
+
+  const programmes = new Map<string, readonly Readonly<JsonRecord>[] | null>();
+  for (const row of result.rows) {
+    const assignmentId = cleanString(row.beta_assignment_id);
+    const athleteId = cleanString(row.beta_subject_user_id);
+    const index = Number(row.template_session_index);
+    if (!assignmentId || !athleteId || !Number.isInteger(index) || index < 0) continue;
+
+    if (!programmes.has(assignmentId)) {
+      const templateId = await assignedTemplateId(client, assignmentId);
+      const template = templateId ? await loadActiveCoachTemplateById(recipientUserId, templateId).catch(() => null) : null;
+      programmes.set(assignmentId, template ? orderedTemplateSessions(template) : null);
+    }
+    const sessions = programmes.get(assignmentId);
+    const current = sessions?.[index];
+    if (!sessions || !current) continue;
+    const blockId = cleanString(current.template_block_id);
+    const next = sessions[index + 1];
+    const programmeFinished = next === undefined;
+    if (!blockId || (!programmeFinished && cleanString(next.template_block_id) === blockId)) continue;
+
+    const state = await getSessionStateQuery(cleanString(row.session_id)).catch(() => null);
+    if (!state || (state.execution_status !== "completed" && state.execution_status !== "partial")) continue;
+
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "athlete_block_completed",
+      sourceRecordType: "sessions",
+      sourceRecordId: `${assignmentId}:${blockId}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachProgressOverview,
+      deepLinkParams: { athlete_id: athleteId, report: programmeFinished ? "programme" : "block" },
+      notificationPayload: {
+        athlete_user_id: athleteId,
+        block_name: cleanString(current.template_block_name) || null,
+        programme_finished: programmeFinished
+      },
+      occurredAtIso8601: toIso(row.updated_at)
     });
   }
 }
@@ -1387,6 +1470,7 @@ async function deriveNotificationsForRecipient(
   await deriveSessionCompletedNotifications(client, recipientUserId);
   await deriveAthletePainReportedNotifications(client, recipientUserId);
   await deriveAthleteStrengthReferenceMissingNotifications(client, recipientUserId);
+  await deriveAthleteBlockCompletedNotifications(client, recipientUserId);
   await deriveAthleteVisibleNoteNotifications(client, recipientUserId, DEEP_LINK_ROUTE_IDS.athleteToday);
   await deriveBillingNotifications(client, recipientUserId);
   await deriveMarketplaceReleaseNotifications(client, recipientUserId);
@@ -1442,7 +1526,8 @@ async function withTargetAvailability(
     let targetAvailable = true;
     if (
       (routeId === DEEP_LINK_ROUTE_IDS.coachAthleteDetail ||
-        routeId === DEEP_LINK_ROUTE_IDS.coachReviewAthlete) &&
+        routeId === DEEP_LINK_ROUTE_IDS.coachReviewAthlete ||
+        routeId === DEEP_LINK_ROUTE_IDS.coachProgressOverview) &&
       athleteId
     ) {
       targetAvailable = await isCoachAthleteRelationshipActive(
