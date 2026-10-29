@@ -78,6 +78,52 @@ function Section({ id, title, headline, children }: { id: string; title: string;
   );
 }
 
+const LEVEL_NAMES: Record<string, string> = { beginner: "Beginner", amateur: "Amateur", pro: "Pro" };
+const fmtSets = (value: unknown) => (num(value) === null ? "–" : Number.isInteger(num(value)) ? String(num(value)) : (num(value) as number).toFixed(1));
+
+// Hard sets per muscle group each week against the usual range for the
+// athlete's level: how many complete weeks each group sat under, in or over
+// it, and the weekly done / planned sets in the numbers.
+function MuscleVolumeSection({ muscleVolume, weekList }: { muscleVolume: JsonRecord; weekList: string[] }) {
+  const groups = rows(muscleVolume.groups);
+  const weekRows = rows(muscleVolume.rows);
+  const verdict = (group: JsonRecord) => {
+    const over = Number(group.weeks_over); const under = Number(group.weeks_under); const total = Number(group.weeks_complete);
+    if (!total) return { label: "No full week yet", level: "info" };
+    if (over) return { label: `Over in ${over} of ${total} wks`, level: "watch" };
+    if (under) return { label: `Under in ${under} of ${total} wks`, level: "info" };
+    return { label: group.min === null && group.max === null ? "No range" : "In range", level: "good" };
+  };
+  return (
+    <div className="analysis-muscle-volume" data-testid="analysis-muscle-volume">
+      <h4>{`Sets per muscle group - ${LEVEL_NAMES[String(muscleVolume.level)] ?? "Amateur"} ranges`}</h4>
+      <ul className="analysis-muscle-list">
+        {groups.map((group) => {
+          const status = verdict(group);
+          return (
+            <li key={String(group.group)} data-status={status.level}>
+              <span>{String(group.label)}</span>
+              <strong>{num(group.average_done) !== null ? `${fmtSets(group.average_done)} a week` : `${fmtSets(group.this_week_done ?? 0)} so far this week`}</strong>
+              <small className="muted">{String(group.range_text || "no range")}</small>
+              <small className={`analysis-status is-${status.level}`}>{status.label}</small>
+            </li>
+          );
+        })}
+      </ul>
+      <Numbers>
+        <WeekTable weeks={weekList} columns={groups.map((group) => ({
+          label: String(group.label),
+          cell: (i: number) => {
+            const cell = ((weekRows[i]?.groups ?? {}) as Record<string, JsonRecord>)[String(group.group)];
+            return cell ? `${fmtSets(cell.done)} / ${fmtSets(cell.planned)}` : "–";
+          }
+        }))} />
+        <Method><p>Done / planned hard sets per group each week. A logged set counts in full for each group its exercise targets and half for each group only its secondary muscles reach; jumps, sprints, throws, Olympic lifts, carries and conditioning don't count. The average and weeks under or over read complete weeks they trained - a week with no training is a question for Turning up, not volume. Ranges are for the athlete's declared level; under is only flagged for general strength, where building muscle is the aim.</p></Method>
+      </Numbers>
+    </div>
+  );
+}
+
 function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initialReport }: { athleteUserId: string; onBack: () => void; initialView?: "trends" | "reports"; initialReport?: string }) {
   const [weeks, setWeeks] = useState(12);
   const [view, setView] = useState<"trends" | "reports">(initialView);
@@ -95,6 +141,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
   const pain = (a?.pain ?? {}) as JsonRecord;
   const injuries = (a?.injuries ?? {}) as JsonRecord;
   const volume = (a?.volume ?? {}) as JsonRecord;
+  const muscleVolume = (a?.muscle_volume ?? null) as JsonRecord | null;
   const col = (list: JsonRecord[], key: string) => list.map((row) => num(row[key]));
   const lifts = rows(strength.lifts);
   const mainLifts = lifts.filter((lift) => lift.main !== false);
@@ -453,8 +500,9 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
             </Section>
           ) : null}
 
-          <Section id="volume" title="Volume" headline={null}>
+          <Section id="volume" title="Volume" headline={first("volume")}>
             <TrendChart markers={markers} title="Logged sets and tonnage per week" weeks={weekList} series={[{ id: "sets", label: "Sets logged", kind: "bar", values: col(rows(volume.rows), "sets") }]} />
+            {muscleVolume ? <MuscleVolumeSection muscleVolume={muscleVolume} weekList={weekList} /> : null}
             <Numbers>
               <WeekTable weeks={weekList} columns={[
                 { label: "Sets", cell: (i) => show(rows(volume.rows)[i]?.sets) },

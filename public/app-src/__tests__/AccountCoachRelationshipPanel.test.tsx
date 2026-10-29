@@ -94,6 +94,24 @@ test("renders nothing for a coach account", async () => {
   assert.equal(container.innerHTML, "");
 });
 
+test("a coach session never requests the athlete-only relationships/mine endpoint", async () => {
+  seedRole("coach");
+  installMocks({});
+  const requested: string[] = [];
+  const mocked = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    requested.push(String(input));
+    return mocked(input, init);
+  }) as typeof fetch;
+  render(<AccountCoachRelationshipPanel />);
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:account-role-known"));
+    document.dispatchEvent(new CustomEvent("kolosseum:athlete-relationship-changed"));
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  });
+  assert.deepEqual(requested.filter((path) => path.includes("/relationships/mine")), []);
+});
+
 test("renders nothing when there are no relationships at all", async () => {
   seedRole("athlete");
   installMocks({ relationships: [] });

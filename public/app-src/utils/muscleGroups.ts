@@ -77,11 +77,6 @@ export type MuscleOption = { muscle_groups?: unknown; secondary_muscle_groups?: 
 export type GroupVolume = { group: string; label: string; sets: number };
 
 export const MAJOR_MUSCLE_GROUPS: readonly string[] = ["chest", "back", "shoulders", "quads", "hamstrings", "glutes"];
-// Above this, a week's sets for one group is a lot to recover from.
-export const HIGH_WEEKLY_SETS = 25;
-// Groups a sport trains on purpose, never flagged as very high (mirrors
-// SPORT_FOCUS_GROUPS in src/api/exercise_muscles.ts).
-export const SPORT_FOCUS_GROUPS: Readonly<Record<string, readonly string[]>> = { grip_sport: ["forearms_grip"], olympic_weightlifting: ["quads", "glutes", "lower_back"] };
 
 export function weeklyMuscleVolume(items: readonly VolumeItem[], exercises: ReadonlyMap<string, MuscleOption>): GroupVolume[] {
   const sets = new Map<string, number>();
