@@ -7,7 +7,7 @@ import { PRINTING_CLASS, ProgrammePrintSheet, type PrintWeek, type ProgrammeCove
 // the athlete's maxes and bodyweight history, the overview, then a page per
 // week - each weight with the % of max it comes from (the athlete's own
 // prints never show either).
-type Exercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string; percent?: number | null; percent_max?: number | null };
+type Exercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string; percent?: number | null; percent_max?: number | null; by_set?: string; by_set_percent?: string };
 
 export function coachPrintWeeks(data: JsonRecord): PrintWeek[] {
   const blocks = Array.isArray(data.blocks) ? (data.blocks as Array<{ name: string; block_type: string; weeks: Array<{ week_number: number; sessions: Array<JsonRecord> }> }>) : [];
@@ -21,6 +21,8 @@ export function coachPrintWeeks(data: JsonRecord): PrintWeek[] {
       date: typeof session.date === "string" ? session.date : null,
       exercises: (Array.isArray(session.exercises) ? (session.exercises as Exercise[]) : []).map((exercise) => ({
         ...exercise,
+        // Set by set: the weights, then the % behind them.
+        ...(exercise.by_set_percent ? { by_set: exercise.by_set ? `${exercise.by_set} (${exercise.by_set_percent})` : exercise.by_set_percent } : {}),
         // "115 kg (72.5%)": the coach's copy keeps the % beside the weight.
         load: (() => {
           const percent = typeof exercise.percent === "number" ? (typeof exercise.percent_max === "number" ? `${exercise.percent}–${exercise.percent_max}%` : `${exercise.percent}%`) : "";

@@ -24,14 +24,27 @@ import { V1_ACTIVITY_IDS } from "../../../../shared/v1-boundary/v1ActivityRegist
 // result as before. See test/full_ui_05a_programme_library.test.mjs's own
 // DEV NOTE for how its governing test reflects this boundary.
 
+// One line of a set-by-set item: sets with their own reps and load value
+// (in the item's load mode), the last one as many reps as they can if amrap.
+export type SetPlanLineDraft = { sets: number; reps: number; value: number; amrap: boolean };
+
+export function setPlanDraft(raw: unknown): SetPlanLineDraft[] {
+  return (Array.isArray(raw) ? raw : []).map((line) => {
+    const record = (line && typeof line === "object" ? line : {}) as Record<string, unknown>;
+    return { sets: Number(record.sets ?? 1), reps: Number(record.reps ?? 5), value: Number(record.value ?? 0), amrap: record.amrap === true };
+  });
+}
+
 export type ProgrammeWorkItemDraft = {
   work_item_id: string;
   order_index: number;
   exercise_id: string;
   planned_sets: number;
-  // Sets as a range ("3-4"): planned_sets is the low end.
-  set_mode: "fixed" | "range";
+  // Sets as a range ("3-4"): planned_sets is the low end. "per_set": set by
+  // set, each line of set_plan its own sets, reps and load value.
+  set_mode: "fixed" | "range" | "per_set";
   planned_sets_max: number;
+  set_plan?: SetPlanLineDraft[];
   prescription_mode: "reps" | "duration" | "distance";
   rep_mode: "fixed" | "range";
   planned_reps: number;
@@ -263,7 +276,10 @@ export function storedWorkItemToDraft(workItem: JsonRecord | undefined, workItem
     order_index: Number(workItem?.order_index ?? workItemIndex + 1),
     exercise_id: String(workItem?.exercise_id ?? ""),
     planned_sets: Number(workItem?.planned_sets ?? 3),
-    set_mode: setPrescription.type === "range" && Number(setPrescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    set_mode: Array.isArray(workItem?.set_plan) && (workItem!.set_plan as unknown[]).length
+      ? "per_set"
+      : setPrescription.type === "range" && Number(setPrescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    set_plan: setPlanDraft(workItem?.set_plan),
     planned_sets_max: setPrescription.type === "range" ? Number(setPrescription.maximum) : Number(workItem?.planned_sets ?? 3) + 1,
     prescription_mode: ["duration", "distance"].includes(String(workItem?.prescription_mode ?? "")) ? (workItem!.prescription_mode as "duration" | "distance") : "reps",
     rep_mode: repMode,
@@ -432,6 +448,7 @@ export function draftToValidationRecord(draft: ProgrammeDraft): JsonRecord {
                 set_mode: workItem.set_mode,
                 planned_sets_max: workItem.planned_sets_max,
                 set_prescription: workItem.set_mode === "range" && workItem.planned_sets_max > workItem.planned_sets ? { type: "range", minimum: workItem.planned_sets, maximum: workItem.planned_sets_max } : undefined,
+                ...(workItem.set_mode === "per_set" && workItem.set_plan?.length ? { set_plan: workItem.set_plan } : {}),
                 prescription_mode: workItem.prescription_mode,
                 rep_mode: workItem.rep_mode,
                 planned_reps: workItem.planned_reps,
@@ -565,12 +582,6 @@ export function programmeActivationIssues(template: JsonRecord, templateExercise
 
         if (session.coaching_notes.length > 500) {
           addIssue("session_coaching_notes_too_long", `${sessionPath} coaching notes must be 500 characters or fewer.`, sessionPath);
-        }
-
-        const exerciseIds = workItems.map((workItem) => workItem.exercise_id).filter(Boolean);
-
-        if (new Set(exerciseIds).size !== exerciseIds.length) {
-          addIssue("duplicate_exercise_in_session", `${sessionPath} contains a duplicate exercise.`, sessionPath);
         }
 
         const groupOrderIndices = new Map<string, number[]>();

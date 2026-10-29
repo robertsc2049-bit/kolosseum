@@ -10,7 +10,8 @@ import { PRINTING_CLASS, ProgrammePrintSheet, type ProgrammeCover } from "./Prog
 // builder), the chosen week's days side by side, and each day's exercises
 // with the dose. Done days are ticked; the next one is highlighted.
 
-type Exercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
+// by_set: a set-by-set exercise's weights, set by set (it replaces sets × reps and the load).
+type Exercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string; by_set?: string };
 type Session = { session_index: number; title: string; state: string; date: string | null; exercises: Exercise[] };
 type Week = { week_number: number; sessions: Session[] };
 type Block = { name: string; block_type: string; weeks: Week[] };
@@ -28,6 +29,7 @@ const STATE_LABEL: Record<string, string> = {
 export { restLabel } from "../../utils/format";
 
 export function doseLabel(exercise: Exercise): string {
+  if (exercise.by_set) return exercise.by_set;
   const reps = exercise.reps.trim();
   const sets = exercise.sets_max && exercise.sets_max > exercise.sets ? `${exercise.sets}–${exercise.sets_max}` : String(exercise.sets);
   if (!reps) return `${sets} sets`;
@@ -50,7 +52,7 @@ function ExerciseRows({ exercises }: { exercises: Exercise[] }) {
         <li key={`${exercise.name}-${index}`}>
           <span className="my-programme-exercise-name">{exercise.name}</span>
           <span className="my-programme-dose">{doseLabel(exercise)}</span>
-          <span className="my-programme-load">{exercise.load}</span>
+          <span className="my-programme-load">{exercise.by_set ? "" : exercise.load}</span>
           <span className="my-programme-rest muted">{restLabel(exercise.rest_seconds)}</span>
           {exercise.notes ? <span className="my-programme-notes muted">{exercise.notes}</span> : null}
         </li>

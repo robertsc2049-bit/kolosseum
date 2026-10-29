@@ -53,3 +53,25 @@ test("a pull-up with no weight set says to leave it blank for bodyweight or ente
   render(<SetLogger exercise={{ exercise_id: "pull_up", sets: 4, reps: 5, intensity: { type: "rpe", value: 8 } }} setLogs={[{ set_index: 1, reps: 4, load_value: 20, load_unit: "kg", missed_part: null }]} busy={false} logSet={async () => true} />);
   assert.ok(screen.getByText(/leave the weight blank for bodyweight, or enter what you added/u));
 });
+
+// A Sheiko-style squat written set by set: 5 @ 50%, 4 @ 60%, 2 x 3 @ 70%, 3+ @ 75% of 140 kg.
+const bySet = {
+  exercise_id: "back_squat", sets: 5, reps: 5, resolved_load: { value: 70, unit: "kg", maximum_value: 105 },
+  set_targets: [
+    { set_index: 1, reps: 5, intensity: { type: "percent_1rm", value: 50 }, resolved_load: { value: 70, unit: "kg" } },
+    { set_index: 2, reps: 4, intensity: { type: "percent_1rm", value: 60 }, resolved_load: { value: 85, unit: "kg" } },
+    { set_index: 3, reps: 3, intensity: { type: "percent_1rm", value: 70 }, resolved_load: { value: 97.5, unit: "kg" } },
+    { set_index: 4, reps: 3, intensity: { type: "percent_1rm", value: 70 }, resolved_load: { value: 97.5, unit: "kg" } },
+    { set_index: 5, reps: 3, amrap: true, intensity: { type: "percent_1rm", value: 75 }, resolved_load: { value: 105, unit: "kg" } }
+  ]
+};
+
+test("set by set: every row starts at its own reps and weight, and the all-out set says so", async () => {
+  const calls: unknown[][] = [];
+  render(<SetLogger exercise={bySet} setLogs={[]} busy={false} logSet={async (...args: unknown[]) => { calls.push(args); return true; }} />);
+  const value = (label: string) => (screen.getByLabelText(label) as HTMLInputElement).value;
+  assert.deepEqual([1, 2, 3, 4, 5].map((n) => [value(`Set ${n} reps`), value(`Set ${n} load (kg)`)]), [["5", "70"], ["4", "85"], ["3", "97.5"], ["3", "97.5"], ["3", "105"]]);
+  assert.ok(screen.getByText("Set 5 - as many as you can"));
+  await act(async () => { fireEvent.click(screen.getByText("Log set 2")); });
+  assert.deepEqual(calls[0], ["back_squat", 2, 4, { value: 85, unit: "kg" }, null, null]);
+});

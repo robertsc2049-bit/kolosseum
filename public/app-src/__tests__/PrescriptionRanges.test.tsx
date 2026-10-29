@@ -65,3 +65,19 @@ test("1 to 30 sets are allowed; past 12 the coach is asked to check, never block
   assert.match(setsWarning(4, 15) ?? "", /15 sets/u, "the top of a set range counts");
   assert.equal(setsWarning(31), null, "past 30 it is an error, not a warning");
 });
+
+test("set by set, the athlete reads each set's weight - never the % behind it - with the same sets grouped and the all-out set marked", () => {
+  const details = exerciseDetails({
+    exercise_id: "back_squat", sets: 5, reps: 5, rest_seconds: 180,
+    intensity: { type: "percent_1rm", value: 50, maximum: 75 }, resolved_load: { value: 70, unit: "kg", maximum_value: 105 },
+    set_targets: [
+      { set_index: 1, reps: 5, intensity: { type: "percent_1rm", value: 50 }, resolved_load: { value: 70, unit: "kg" } },
+      { set_index: 2, reps: 4, intensity: { type: "percent_1rm", value: 60 }, resolved_load: { value: 85, unit: "kg" } },
+      { set_index: 3, reps: 3, intensity: { type: "percent_1rm", value: 70 }, resolved_load: { value: 97.5, unit: "kg" } },
+      { set_index: 4, reps: 3, intensity: { type: "percent_1rm", value: 70 }, resolved_load: { value: 97.5, unit: "kg" } },
+      { set_index: 5, reps: 3, amrap: true, intensity: { type: "percent_1rm", value: 75 }, resolved_load: { value: 105, unit: "kg" } }
+    ]
+  });
+  assert.deepEqual(details, ["5 × 70 kg · 4 × 85 kg · 2 × 3 × 97.5 kg · 3+ × 105 kg", "3:00 rest"]);
+  assert.ok(!details.join(" ").includes("%"));
+});

@@ -47,6 +47,27 @@ function prescribedLoad(exercise: JsonRecord): { value: string; unit: "kg" | "lb
   return { value: "", unit: "kg" };
 }
 
+// Set by set: this set's own reps and weight when the coach wrote the
+// exercise set by set (5 @ 50%, 4 @ 60% ...); otherwise the exercise's.
+function setTargetAt(exercise: JsonRecord, setIndex: number): JsonRecord | null {
+  const targets = Array.isArray(exercise.set_targets) ? exercise.set_targets as JsonRecord[] : [];
+  return targets.find((target) => Number(target.set_index) === setIndex) ?? null;
+}
+
+export function setDefaults(exercise: JsonRecord, setIndex: number): { reps: number; load: string; unit: "kg" | "lb"; amrap: boolean } {
+  const base = prescribedLoad(exercise);
+  const target = setTargetAt(exercise, setIndex);
+  if (!target) return { reps: prescribedReps(exercise), load: base.value, unit: base.unit, amrap: false };
+  const own = prescribedLoad({ resolved_load: target.resolved_load, intensity: target.intensity });
+  return {
+    reps: Number.isInteger(target.reps) ? Number(target.reps) : prescribedReps(exercise),
+    // A % with no weight worked out (no max yet): the exercise's own guidance.
+    load: own.value || base.value,
+    unit: own.value ? own.unit : base.unit,
+    amrap: target.amrap === true
+  };
+}
+
 function formatLogged(log: JsonRecord): string {
   const load = log.load_value !== null && log.load_value !== undefined ? ` × ${Number(log.load_value)} ${String(log.load_unit ?? "kg")}` : "";
   const speed = log.velocity_mps !== null && log.velocity_mps !== undefined ? ` · ${Number(log.velocity_mps).toFixed(2)} m/s` : "";
@@ -59,7 +80,7 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
   exerciseId: string;
   setIndex: number;
   optional?: boolean;
-  defaults: { reps: number; load: string; unit: "kg" | "lb" };
+  defaults: { reps: number; load: string; unit: "kg" | "lb"; amrap?: boolean };
   logged: JsonRecord | undefined;
   busy: boolean;
   logSet: LogSet;
@@ -106,7 +127,7 @@ function SetRow({ exerciseId, setIndex, optional = false, defaults, logged, busy
 
   return (
     <li className="set-log-row" data-testid={`set-log-${setIndex}`}>
-      <span>{optional ? `Set ${setIndex} (optional)` : `Set ${setIndex}`}</span>
+      <span>{optional ? `Set ${setIndex} (optional)` : defaults.amrap ? `Set ${setIndex} - as many as you can` : `Set ${setIndex}`}</span>
       <label className="set-log-field">
         <span className="visually-hidden">{`Set ${setIndex} reps`}</span>
         <input aria-label={`Set ${setIndex} reps`} type="number" inputMode="numeric" min={0} max={100} value={reps} onChange={(event) => setReps(event.target.value)} />
@@ -153,8 +174,6 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
   if (exercise.distance_value !== undefined || exercise.duration_seconds !== undefined || exercise.distance_range || exercise.duration_range) return null;
 
   const [speedOn, setSpeedOn] = useState(readSpeedSetting);
-  const load = prescribedLoad(exercise);
-  const defaults = { reps: prescribedReps(exercise), load: load.value, unit: load.unit };
   const bySet = new Map(setLogs.map((log) => [Number(log.set_index), log]));
   // A set range ("3–4 sets"): the sets beyond the least are offered as optional.
   const setRange = exercise.set_range && typeof exercise.set_range === "object" ? (exercise.set_range as JsonRecord) : null;
@@ -171,7 +190,7 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
             exerciseId={exerciseId}
             setIndex={setIndex}
             optional={setIndex > sets}
-            defaults={defaults}
+            defaults={setDefaults(exercise, setIndex)}
             logged={bySet.get(setIndex)}
             busy={busy}
             logSet={logSet}
@@ -179,7 +198,7 @@ export function SetLogger({ exercise, setLogs, busy, logSet }: {
           />
         ))}
       </ul>
-      {!defaults.load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
+      {!setDefaults(exercise, 1).load ? <p className="muted small set-log-hint">No weight set: leave the weight blank for bodyweight, or enter what you added (a weighted pull-up or dip) or used.</p> : null}
       <label className="set-log-speed-toggle">
         <input type="checkbox" checked={speedOn} onChange={(event) => { setSpeedOn(event.target.checked); writeSpeedSetting(event.target.checked); }} />
         <span>Log bar speed (from a VBT device)</span>

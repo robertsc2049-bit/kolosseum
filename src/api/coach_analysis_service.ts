@@ -90,6 +90,16 @@ function plannedExercises(plannedSession: unknown): AnalysisPlannedExercise[] {
       sets: num(exercise.sets) ?? 0,
       ...(setRange && num(setRange.maximum) !== null ? { sets_max: num(setRange.maximum)! } : {}),
       reps_target: dose === "reps" ? (repRange ? num(repRange.minimum) : num(exercise.reps)) : null,
+      ...(Array.isArray(exercise.set_targets) && exercise.set_targets.length
+        ? {
+            set_targets: exercise.set_targets.filter(isRecord).map((target) => {
+              const at = isRecord(target.resolved_load) ? target.resolved_load : null;
+              const fixed = isRecord(target.intensity) && text(target.intensity.type) === "load" ? target.intensity : null;
+              const kg = at ? toKg(num(at.value), at.unit) : fixed ? toKg(num(fixed.value), fixed.unit) : null;
+              return { reps: num(target.reps) ?? 0, load_kg: kg && kg > 0 ? kg : null, ...(target.amrap === true ? { amrap: true } : {}) };
+            })
+          }
+        : {}),
       load_kg: load && load > 0 ? load : null,
       load_kg_max: loadMax && load && loadMax > load ? loadMax : null,
       one_rep_max_kg: oneRepMax && oneRepMax > 0 ? oneRepMax : null,

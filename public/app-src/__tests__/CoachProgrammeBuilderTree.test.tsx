@@ -797,3 +797,10 @@ test("typing more than 12 sets shows a check-it note as the coach types - and sa
   assert.match(document.querySelector("[data-testid='sets-warning']")?.textContent ?? "", /20 sets is a lot for one exercise/u);
   assert.equal(sets.max, "30");
 });
+
+test("a lift written set by set reads as its lines in the summary: 5 @ 50%, 4 @ 60%, 2 × 3 @ 70%, 3+ @ 75%", () => {
+  const item = { ...storedWorkItemToDraft({ exercise_id: "back_squat", planned_sets: 5, rest_seconds: 180, loading_reference: { type: "percent_1rm", value: 50, maximum: 75 },
+    set_plan: [{ sets: 1, reps: 5, value: 50 }, { sets: 1, reps: 4, value: 60 }, { sets: 2, reps: 3, value: 70 }, { sets: 1, reps: 3, value: 75, amrap: true }] }, 0) };
+  assert.equal(item.set_mode, "per_set");
+  assert.equal(workItemSummary(item), "5 @ 50%, 4 @ 60%, 2 × 3 @ 70%, 3+ @ 75% · 3:00 rest");
+});

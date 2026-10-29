@@ -66,3 +66,17 @@ test("a first session on a lift and bodyweight work just lose a set; a single se
   assert.deepEqual([plank.sets, plank.intensity], [2, { type: "bodyweight" }]);
   assert.equal(single.sets, 1);
 });
+
+test("set by set: back after two weeks, the last set goes and every set left is 10 points lighter", () => {
+  const [lift] = lighterForReentry([{
+    exercise_id: "back_squat", sets: 3, reps: 5, intensity: { type: "percent_1rm", value: 60, maximum: 80 },
+    resolved_load: { type: "resolved_load", value: 120, unit: "kg", percentage: 60, rounding_increment: 2.5 },
+    set_targets: [
+      { set_index: 1, reps: 5, intensity: { type: "percent_1rm", value: 60 }, resolved_load: { value: 120, unit: "kg", percentage: 60, rounding_increment: 2.5 } },
+      { set_index: 2, reps: 3, intensity: { type: "percent_1rm", value: 70 }, resolved_load: { value: 140, unit: "kg", percentage: 70, rounding_increment: 2.5 } },
+      { set_index: 3, reps: 1, intensity: { type: "percent_1rm", value: 80 }, resolved_load: { value: 160, unit: "kg", percentage: 80, rounding_increment: 2.5 } }
+    ]
+  }], twoWeeks);
+  assert.equal(lift.sets, 2);
+  assert.deepEqual(lift.set_targets.map((target) => [target.set_index, target.intensity.value, target.resolved_load.value]), [[1, 50, 100], [2, 60, 120]]);
+});
