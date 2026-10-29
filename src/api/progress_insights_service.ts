@@ -32,6 +32,7 @@ import { MUSCLE_GROUPS, SPORT_FOCUS_GROUPS, exerciseMuscleFields } from "./exerc
 import { getAthleteTrainingProfile } from "./athlete_onboarding_service.js";
 import { workoutHistories, type WorkoutResult } from "./workout_scores.js";
 import { projectStrengthReferenceLifecycle } from "../../shared/strength-reference/strengthReferenceLifecycle.mjs";
+import { volumeLevel } from "../../shared/muscle-volume-ranges/muscleVolumeRanges.mjs";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 
 type JsonRecord = Record<string, unknown>;
@@ -222,12 +223,6 @@ function loadedSets(rows: readonly LoggedSetRow[], bodyweightKg: number | null):
 // counts, weighted or not; power, plyometric, carry, conditioning and
 // mobility work and exercises with no muscles (an athlete's own) don't.
 const VOLUME_WINDOW_DAYS = 7;
-// Above this many sets in a week, a group is flagged "very high". A pro's
-// accumulation block legitimately runs 25-30 hard sets for the big lower-body
-// groups (glutes get a full set from every squat, hinge and lunge), so the
-// warning sits higher for them and stays meaningful.
-const HIGH_WEEKLY_SETS = 25;
-const PRO_HIGH_WEEKLY_SETS = 30;
 function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activityId: string | undefined, experienceLevel: string | undefined): Readonly<JsonRecord> {
   const since = new Date(today.getTime() - (VOLUME_WINDOW_DAYS - 1) * 86_400_000).toISOString().slice(0, 10);
   const sets = new Map<string, number>();
@@ -247,7 +242,10 @@ function weeklyMuscleVolume(rows: readonly LoggedSetRow[], today: Date, activity
     since,
     // Groups this athlete's sport trains on purpose - never flagged as very high.
     focus_groups: Object.freeze([...(SPORT_FOCUS_GROUPS[activityId ?? ""] ?? [])]),
-    high_sets: experienceLevel === "pro" ? PRO_HIGH_WEEKLY_SETS : HIGH_WEEKLY_SETS,
+    // Read against the weekly ranges for their level
+    // (shared/muscle-volume-ranges): beginners recover from less, pros more.
+    activity_id: activityId ?? "",
+    level: volumeLevel(experienceLevel ?? ""),
     groups: Object.freeze(MUSCLE_GROUPS.filter((g) => (sets.get(g.id) ?? 0) > 0).map((g) => Object.freeze({ group: g.id, label: g.label, sets: sets.get(g.id) ?? 0 })))
   });
 }

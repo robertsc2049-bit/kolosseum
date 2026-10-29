@@ -19,6 +19,7 @@ import { isE1rmExercise } from "./training_e1rm.js";
 import { blockMarkers, listOtherTraining, loadExternalLoad, loadSessionReports, planMarkers } from "./athlete_training_log_service.js";
 import { loadInjuries } from "./injury_log_service.js";
 import { isBodyweightLift } from "./bodyweight_lifts.js";
+import { MUSCLE_GROUPS, exerciseMuscleFields } from "./exercise_muscles.js";
 import { latestBodyweightKg } from "./body_metrics_service.js";
 import { plannedWeeksAhead } from "./athlete_my_programme_service.js";
 import { programmeHistory } from "./programme_history.js";
@@ -42,6 +43,16 @@ function patternOf(exerciseId: string): string | undefined {
     patterns = new Map(Object.values(isRecord(doc?.entries) ? doc.entries : {}).filter(isRecord).map((entry) => [text(entry.exercise_id), text(entry.movement_pattern_id)] as [string, string]));
   }
   return patterns.get(exerciseId) || undefined;
+}
+
+// The groups a set counts for in weekly sets per muscle group - only hard
+// strength work (exercise_muscles.ts countsAsStrengthVolume).
+const MUSCLE_GROUP_LABELS: Readonly<Record<string, string>> = Object.fromEntries(MUSCLE_GROUPS.map((group) => [group.id, group.label]));
+function musclesOf(exerciseId: string): { groups: readonly string[]; secondary: readonly string[] } | null {
+  const pattern = patternOf(exerciseId);
+  if (!pattern) return null;
+  const fields = exerciseMuscleFields(exerciseId, pattern);
+  return fields.volume_counted ? { groups: fields.muscle_groups, secondary: fields.secondary_muscle_groups } : null;
 }
 
 function plannedExercises(plannedSession: unknown): AnalysisPlannedExercise[] {
@@ -220,6 +231,8 @@ export async function analyseAthleteWindow(athleteUserId: string, checkinCoachUs
     ...(options.from ? { from: options.from } : {}),
     ...(options.to ? { to: options.to } : {}),
     pattern_of: patternOf,
+    muscles_of: musclesOf,
+    muscle_group_labels: MUSCLE_GROUP_LABELS,
     sessions,
     readiness,
     checkins: checkinFacts(checkins as Json[]),

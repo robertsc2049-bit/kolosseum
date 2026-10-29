@@ -235,13 +235,16 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
   },
   volume: {
     title: "Volume",
-    shows: "How much work the athlete did: sets logged each week and total weight lifted (tonnage).",
+    shows: "How much work the athlete did: sets logged each week and total weight lifted (tonnage), and hard sets per muscle group against the usual weekly range for their level.",
     read: [
       "Volume should follow your plan: higher in volume blocks, lower in peaking blocks and deloads.",
-      "A sudden fall in sets with no planned deload often goes with missed sessions or skipped exercises - check Turning up."
+      "A sudden fall in sets with no planned deload often goes with missed sessions or skipped exercises - check Turning up.",
+      "Per muscle group: under the range is less than usually builds muscle there - fine when size there isn't the aim (a runner's chest, a fighter making weight). Over is more than most athletes at that level recover from - fine for a planned overreach with a lighter week after it, a question if it goes on."
     ],
     how: [
       "Every logged set, planned and extra. Tonnage = reps × weight, added up across every set.",
+      "Sets per muscle group: each logged set of strength work counts in full for every group the exercise targets and as half a set for each group only its secondary muscles reach - the same count as the programme builder. Jumps, sprints, throws, Olympic lifts, carries and conditioning don't count. Planned is the sets prescribed in that week's sessions.",
+      "Ranges (sets a week) by level, from the research on weekly sets per muscle: Beginner chest 6-14, back 6-18, quads 6-14, hamstrings 4-12; Amateur chest 8-22, back 10-24, quads 8-22, hamstrings 6-20; Pro chest 10-26, back 12-28, quads 10-26, hamstrings 8-24. Glutes and lower back run higher (they get a full set from many compound lifts); smaller groups have a maximum only. A sport's focus groups (a grip athlete's forearms, a weightlifter's legs) have no maximum.",
       "Bodyweight reps: the reps of sets logged with no weight added (they add nothing to tonnage). Timed and distance work: sets × the prescribed time or distance, counted once the athlete completes it."
     ],
     mind: ["Tonnage favours heavy lower-body lifts, so compare weeks with each other rather than exercises with each other.", "Timed and distance work is counted as prescribed: the athlete marks it done rather than logging their actual time or distance."]
