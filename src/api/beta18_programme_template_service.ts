@@ -576,6 +576,105 @@ function setPrescriptionFromInput(
     : null;
 }
 
+// Set by set ("5 @ 50%, 4 @ 60%, 2 x 3 @ 70%, 5 x 3+ @ 75%"): each line is a
+// number of sets with their own reps and load, in the item's load mode (% of
+// 1RM, a weight in the item's unit, or an RPE; none for bodyweight). The
+// item's sets are the lines' total and its load range their lowest to
+// highest. "amrap": the line's last set is as many reps as they can.
+export type SetPlanLine = Readonly<{ sets: number; reps: number; value?: number; amrap?: true }>;
+export const MAX_SET_PLAN_LINES = 12;
+const SET_PLAN_LOAD_MODES = new Set(["percent_1rm", "fixed_weight", "rpe", "bodyweight"]);
+
+function setPlanValue(raw: unknown, loadMode: string): number | undefined {
+  if (loadMode === "bodyweight") return undefined;
+  if (loadMode === "rpe") return integerInRange(raw, 1, 10, "set_plan_value_invalid");
+  if (loadMode === "fixed_weight") return numberInSymmetricRange(raw, 0.25, 1000, "set_plan_value_invalid");
+  return numberInRange(raw, 1, 100, "set_plan_value_invalid");
+}
+
+function setPlanFromInput(workItem: JsonRecord): readonly SetPlanLine[] | null {
+  if (workItem.set_plan === undefined || workItem.set_plan === null) return null;
+  if (!Array.isArray(workItem.set_plan) || workItem.set_plan.length < 1 || workItem.set_plan.length > MAX_SET_PLAN_LINES) {
+    throw new Beta18ProgrammeTemplateError("set_plan_invalid");
+  }
+  const loadMode = cleanString(workItem.load_mode) || "percent_1rm";
+  if (!SET_PLAN_LOAD_MODES.has(loadMode)) throw new Beta18ProgrammeTemplateError("set_plan_load_mode_invalid");
+  if ((cleanString(workItem.prescription_mode) || "reps") !== "reps") throw new Beta18ProgrammeTemplateError("set_plan_needs_reps");
+  if (cleanString(workItem.set_mode) === "range" || cleanString(workItem.load_range_mode) === "range") {
+    throw new Beta18ProgrammeTemplateError("set_plan_with_range");
+  }
+  const lines = workItem.set_plan.map((raw) => {
+    if (!isRecord(raw)) throw new Beta18ProgrammeTemplateError("set_plan_invalid");
+    exactKeys(raw, ["sets", "reps", "value", "amrap"], "set_plan_line");
+    const value = setPlanValue(raw.value, loadMode);
+    return deepFreeze({
+      sets: integerInRange(raw.sets, 1, MAX_PLANNED_SETS, "set_plan_sets_invalid"),
+      reps: integerInRange(raw.reps, 1, 100, "set_plan_reps_invalid"),
+      ...(value === undefined ? {} : { value }),
+      ...(raw.amrap === true ? { amrap: true as const } : {})
+    });
+  });
+  if (lines.reduce((sum, line) => sum + line.sets, 0) > MAX_PLANNED_SETS) throw new Beta18ProgrammeTemplateError("planned_sets_invalid");
+  return deepFreeze(lines);
+}
+
+export function setPlanFromStored(workItem: JsonRecord): readonly SetPlanLine[] | null {
+  if (!Array.isArray(workItem.set_plan) || !workItem.set_plan.length) return null;
+  const lines = workItem.set_plan.filter(isRecord).map((raw) => deepFreeze({
+    sets: Number(raw.sets), reps: Number(raw.reps),
+    ...(typeof raw.value === "number" ? { value: raw.value } : {}),
+    ...(raw.amrap === true ? { amrap: true as const } : {})
+  })).filter((line) => Number.isInteger(line.sets) && line.sets > 0 && Number.isInteger(line.reps) && line.reps > 0);
+  return lines.length ? deepFreeze(lines) : null;
+}
+
+// The item's load as the set plan's lowest to highest line.
+function withSetPlanRange(reference: LoadingReference, plan: readonly SetPlanLine[]): LoadingReference {
+  const values = plan.map((line) => line.value).filter((value): value is number => typeof value === "number");
+  if (!values.length) return reference;
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  if (reference.type === "percent_1rm") return deepFreeze({ type: "percent_1rm", value: low, ...(high > low ? { maximum: high } : {}) });
+  if (reference.type === "load") return deepFreeze({ type: "load", value: low, ...(high > low ? { maximum: high } : {}), unit: reference.unit });
+  if (reference.type === "rpe") return deepFreeze({ type: "rpe", value: high });
+  return reference;
+}
+
+// One target per set, from a set plan: reps (amrap on a line's last set)
+// and its load - a weight resolved from the athlete's max for a % (when they
+// have one), the weight itself, or the RPE. A % without a max, or a session
+// whose loads the athlete sets, keeps the % for later.
+export function setTargets(
+  plan: readonly SetPlanLine[],
+  reference: LoadingReference,
+  resolvePercent: (percent: number) => Readonly<JsonRecord> | null
+): readonly Readonly<JsonRecord>[] {
+  const targets: Readonly<JsonRecord>[] = [];
+  for (const line of plan) {
+    for (let set = 1; set <= line.sets; set += 1) {
+      const value = line.value;
+      const intensity =
+        reference.type === "percent_1rm" && typeof value === "number" ? { type: "percent_1rm", value }
+        : reference.type === "load" && typeof value === "number" ? { type: "load", value, unit: reference.unit }
+        : reference.type === "rpe" && typeof value === "number" ? { type: "rpe", value }
+        : reference.type === "bodyweight" ? { type: "bodyweight" }
+        : reference;
+      const resolved =
+        reference.type === "percent_1rm" && typeof value === "number" ? resolvePercent(value)
+        : reference.type === "load" ? { value: value ?? reference.value, unit: reference.unit }
+        : null;
+      targets.push(deepFreeze({
+        set_index: targets.length + 1,
+        reps: line.reps,
+        ...(line.amrap && set === line.sets ? { amrap: true } : {}),
+        intensity,
+        ...(resolved ? { resolved_load: resolved } : {})
+      }));
+    }
+  }
+  return deepFreeze(targets);
+}
+
 function setPrescriptionFromStored(
   workItem: JsonRecord
 ): Readonly<{ type: "range"; minimum: number; maximum: number }> | null {
@@ -1963,7 +2062,8 @@ function normaliseTemplateStructure(
                               "planned_sets_max",
                               "load_range_mode",
                               "percent_1rm_max",
-                              "weight_value_max"
+                              "weight_value_max",
+                              "set_plan"
                             ],
                             "work_item"
                           );
@@ -2004,16 +2104,11 @@ function normaliseTemplateStructure(
                             );
                           }
 
-                          if (
-                            sessionExerciseIds.has(
-                              exerciseId
-                            )
-                          ) {
-                            throw new Beta18ProgrammeTemplateError(
-                              "duplicate_exercise_in_session"
-                            );
-                          }
-
+                          // A lift may come more than once in a session
+                          // (Sheiko benches twice; Boring But Big is the
+                          // same lift again for 5 x 10): each later one is
+                          // its own exercise in the athlete's session
+                          // (<id>__r2 ...), logged separately.
                           sessionExerciseIds.add(
                             exerciseId
                           );
@@ -2043,14 +2138,20 @@ function normaliseTemplateStructure(
 
                           // 1-30 sets: from a peaking single to interval
                           // repeats (20 x 400 m) - see MAX_PLANNED_SETS.
-                          const plannedSets =
-                            integerInRange(
+                          const setPlan =
+                            setPlanFromInput(
                               rawWorkItem
-                                .planned_sets,
-                              1,
-                              MAX_PLANNED_SETS,
-                              "planned_sets_invalid"
                             );
+                          const plannedSets =
+                            setPlan
+                              ? setPlan.reduce((sum, line) => sum + line.sets, 0)
+                              : integerInRange(
+                                  rawWorkItem
+                                    .planned_sets,
+                                  1,
+                                  MAX_PLANNED_SETS,
+                                  "planned_sets_invalid"
+                                );
 
                           const prescriptionMode =
                             cleanString(
@@ -2110,9 +2211,16 @@ function normaliseTemplateStructure(
                           }
 
                           const loadingReference =
-                            loadingReferenceFromInput(
-                              rawWorkItem
-                            );
+                            setPlan
+                              ? withSetPlanRange(
+                                  loadingReferenceFromInput(
+                                    rawWorkItem
+                                  ),
+                                  setPlan
+                                )
+                              : loadingReferenceFromInput(
+                                  rawWorkItem
+                                );
 
                           const restSeconds =
                             integerInRange(
@@ -2264,6 +2372,9 @@ function normaliseTemplateStructure(
                               exerciseId,
                             planned_sets:
                               plannedSets,
+                            ...(setPlan
+                              ? { set_plan: setPlan }
+                              : {}),
                             ...(setPrescriptionFromInput(
                               rawWorkItem,
                               plannedSets
@@ -2773,10 +2884,14 @@ export function templateRecordInput(
                                       )
                                     : 75,
                                 load_range_mode:
+                                  !setPlanFromStored(workItem) &&
                                   Number.isFinite(Number(loading.maximum)) &&
                                   Number(loading.maximum) > Number(loading.value)
                                     ? "range"
                                     : "fixed",
+                                ...(setPlanFromStored(workItem)
+                                  ? { set_plan: setPlanFromStored(workItem) }
+                                  : {}),
                                 percent_1rm_max:
                                   cleanString(
                                     loading.type
@@ -4921,6 +5036,9 @@ export async function materialiseNextCoachTemplateProgram(
   const missingMax: string[] = [];
   const maxFallbacks: Array<{ exercise_id: string; fallback: string }> = [];
 
+  // A lift that comes again in the session is its own exercise (<id>__r2,
+  // __r3): logged, completed and skipped on its own.
+  const occurrences = new Map<string, number>();
   const plannedItems =
     rawWorkItems.map(
       (
@@ -4963,6 +5081,9 @@ export async function materialiseNextCoachTemplateProgram(
             workItem.exercise_id
           );
         let maxMissingFallback: string | null = null;
+        const occurrence = (occurrences.get(exerciseId) ?? 0) + 1;
+        occurrences.set(exerciseId, occurrence);
+        const plannedExerciseId = occurrence > 1 ? `${exerciseId}__r${occurrence}` : exerciseId;
 
         if (
           !registry.entries[
@@ -5046,7 +5167,7 @@ export async function materialiseNextCoachTemplateProgram(
             ) ||
             `${templateId}_item_${index + 1}`,
           exercise_id:
-            exerciseId,
+            plannedExerciseId,
           session_id:
             cleanString(
               selectedSession
@@ -5180,6 +5301,21 @@ export async function materialiseNextCoachTemplateProgram(
                   maximum_percentage: resolvedMaximum.percentage
                 })
               : resolvedLoad,
+          // Set by set: each set's reps and load (a weight from the
+          // athlete's max for a %), in order.
+          ...(setPlanFromStored(workItem)
+            ? {
+                // No max: every set takes the fallback (the coach's weight
+                // or an RPE), not its own %.
+                set_targets: setTargets(
+                  maxMissingFallback
+                    ? setPlanFromStored(workItem)!.map(({ sets, reps, amrap }) => ({ sets, reps, ...(amrap ? { amrap } : {}) }))
+                    : setPlanFromStored(workItem)!,
+                  loadingReference,
+                  (percent) => (resolvedLoad && loadingReference.type === "percent_1rm" ? resolvePercentageLoad(athleteProfile, exerciseId, percent) : null)
+                )
+              }
+            : {}),
           rest_seconds:
             Number(
               workItem
@@ -5214,7 +5350,7 @@ export async function materialiseNextCoachTemplateProgram(
   ) {
     exercisePool[exerciseId] =
       registry.entries[
-        exerciseId
+        exerciseId.replace(/__r[0-9]+$/u, "")
       ];
   }
 
@@ -5256,7 +5392,7 @@ export async function materialiseNextCoachTemplateProgram(
       exerciseIds.map(
         (exerciseId) =>
           registry.entries[
-            exerciseId
+            exerciseId.replace(/__r[0-9]+$/u, "")
           ]
       ),
     exercise_pool:

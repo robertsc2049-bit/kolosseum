@@ -21,3 +21,16 @@ test("the day after a match, a coach's set weight drops 15% to the nearest 2.5 k
   const [row] = applyMatchWeek([{ exercise_id: "romanian_deadlift", sets: 4, intensity: { type: "load", value: 100, maximum: 110, unit: "kg" } }], { role: "day_after", match_date: "2026-10-17", label: "v Northside" }, () => "hinge");
   assert.deepEqual([row.sets, row.intensity.value, row.intensity.maximum], [2, 85, 92.5]);
 });
+
+test("set by set: the day after a match every set comes down by the same share as the lift", () => {
+  const [lift] = rescaleResolvedLoads([{
+    exercise_id: "back_squat", intensity: { type: "percent_1rm", value: 60, maximum: 75 },
+    resolved_load: { value: 80, percentage: 75, one_rep_max: 160 },
+    set_targets: [
+      { set_index: 1, reps: 5, intensity: { type: "percent_1rm", value: 50 }, resolved_load: { value: 80, percentage: 50, one_rep_max: 160 } },
+      { set_index: 2, reps: 3, intensity: { type: "percent_1rm", value: 75 }, resolved_load: { value: 120, percentage: 75, one_rep_max: 160 } }
+    ]
+  }]);
+  // The lift's low end went 75% -> 60% (a fifth lighter): so does each set.
+  assert.deepEqual(lift.set_targets.map((target) => [target.intensity.value, target.resolved_load.value]), [[40, 65], [60, 95]]);
+});

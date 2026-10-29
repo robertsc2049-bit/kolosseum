@@ -64,7 +64,35 @@ function range(prescription: unknown, unit: string): string {
     : num(prescription.value) === null ? "" : `${num(prescription.value)}${suffix}`;
 }
 
-function dose(item: Json, profile: Json | null): Json & { percent: number | null; percent_max: number | null } {
+// A set-by-set item's lines (set_plan): sets, reps, the load value in the
+// item's load mode, and whether the line's last set is as many as they can.
+type PlanLine = { sets: number; reps: number; value: number | null; amrap: boolean };
+function planLines(item: Json): PlanLine[] {
+  return (Array.isArray(item.set_plan) ? item.set_plan : []).filter(isRecord)
+    .map((line) => ({ sets: num(line.sets) ?? 0, reps: num(line.reps) ?? 0, value: num(line.value), amrap: line.amrap === true }))
+    .filter((line) => line.sets > 0 && line.reps > 0);
+}
+
+// "5 × 40 kg · 4 × 47.5 kg · 2 × 3 × 55 kg · 5 × 3+ × 60 kg": the weights
+// (never the % behind them) - "" for a % with no max to work from.
+function bySetText(item: Json, lines: PlanLine[], profile: Json | null): string {
+  const loading = isRecord(item.loading_reference) ? item.loading_reference : {};
+  const loadOf = (value: number | null): string => {
+    if (loading.type === "percent_1rm" && value !== null) {
+      const resolved = profile ? resolvePercentageLoad(profile, text(item.exercise_id), value) : null;
+      return resolved && num(resolved.value) !== null ? `${num(resolved.value)} ${text(resolved.unit) || "kg"}` : "";
+    }
+    if (loading.type === "load" && value !== null) return `${value} ${text(loading.unit) || "kg"}`;
+    if (loading.type === "rpe" && value !== null) return `RPE ${value}`;
+    if (loading.type === "bodyweight") return "bodyweight";
+    return "";
+  };
+  const parts = lines.map((line) => ({ line, load: loadOf(line.value) }));
+  if (parts.some((part) => !part.load)) return "";
+  return parts.map(({ line, load }) => `${line.sets > 1 ? `${line.sets} × ` : ""}${line.reps}${line.amrap ? "+" : ""} × ${load}`).join(" · ");
+}
+
+function dose(item: Json, profile: Json | null): Json & { percent: number | null; percent_max: number | null; by_set_percent: string | null } {
   const mode = text(item.prescription_mode) || "reps";
   const distance = isRecord(item.distance_prescription) ? item.distance_prescription : {};
   const reps = mode === "duration"
@@ -92,15 +120,23 @@ function dose(item: Json, profile: Json | null): Json & { percent: number | null
   else if (loading.type === "cr10" && value !== null) load = `Effort ${value}/10`;
   const setRange = isRecord(item.set_prescription) && item.set_prescription.type === "range" ? num(item.set_prescription.maximum) : null;
   const sets = num(item.planned_sets) ?? 1;
+  const lines = planLines(item);
+  const bySet = lines.length ? bySetText(item, lines, profile) : "";
   return {
     sets,
+    // Set by set: the weights set by set.
+    ...(bySet ? { by_set: bySet } : {}),
     ...(setRange !== null && setRange > sets ? { sets_max: setRange } : {}),
     reps,
     load,
     rest_seconds: num(item.rest_seconds),
     notes: text(item.coaching_notes),
     percent: loading.type === "percent_1rm" ? value : null,
-    percent_max: loading.type === "percent_1rm" ? maximum : null
+    percent_max: loading.type === "percent_1rm" ? maximum : null,
+    // The coach's copy: "5 @ 50% · 4 @ 60% · 2 × 3 @ 70%".
+    by_set_percent: loading.type === "percent_1rm" && lines.length
+      ? lines.map((line) => `${line.sets > 1 ? `${line.sets} × ` : ""}${line.reps}${line.amrap ? "+" : ""} @ ${line.value}%`).join(" · ")
+      : null
   };
 }
 
@@ -191,13 +227,13 @@ async function buildProgramme(athleteUserId: string, viewer: Viewer, assignment:
       state,
       date: record?.date ?? null,
       exercises: (Array.isArray(session.work_items) ? session.work_items : []).filter(isRecord).map((item) => {
-        const { percent, percent_max: percentMax, ...prescribed } = dose(item, profile);
+        const { percent, percent_max: percentMax, by_set_percent: bySetPercent, ...prescribed } = dose(item, profile);
         return {
           exercise_id: text(item.exercise_id),
           name: names[text(item.exercise_id)] ?? text(item.exercise_id),
           segment: ["warm_up", "cool_down"].includes(text(item.segment)) ? text(item.segment) : "working",
           ...prescribed,
-          ...(viewer === "coach" ? { percent, percent_max: percentMax } : {})
+          ...(viewer === "coach" ? { percent, percent_max: percentMax, ...(bySetPercent ? { by_set_percent: bySetPercent } : {}) } : {})
         };
       })
     });
@@ -331,6 +367,23 @@ export async function plannedWeeksAhead(athleteUserId: string, weeksAhead = 4): 
       const sets = num(item.planned_sets) ?? 1;
       week.working_sets += sets;
       const loading = isRecord(item.loading_reference) ? item.loading_reference : {};
+      // Set by set: each line at its own reps and load.
+      const lines = planLines(item);
+      if (lines.length) {
+        for (const line of lines) {
+          let lineKg: number | null = null;
+          if (loading.type === "percent_1rm" && line.value !== null) {
+            if (line.value >= 80) week.sets_80 += line.sets;
+            if (line.value >= 90) week.sets_90 += line.sets;
+            const resolved = profile ? resolvePercentageLoad(profile, text(item.exercise_id), line.value) : null;
+            if (resolved && num(resolved.value) !== null) lineKg = toKg(num(resolved.value)!, text(resolved.unit) || "kg");
+          }
+          else if (loading.type === "load" && line.value !== null) lineKg = toKg(line.value, text(loading.unit) || "kg");
+          else if (loading.type === "rpe" && line.value !== null) week.rpe.push(line.value);
+          if (lineKg !== null) week.tonnage_kg = Math.round((week.tonnage_kg ?? 0) + line.sets * line.reps * lineKg);
+        }
+        continue;
+      }
       const value = num(loading.value);
       const reps = repsOf(item);
       let kg: number | null = null;

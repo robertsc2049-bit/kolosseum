@@ -8,7 +8,7 @@ import { restDuration } from "../../utils/format";
 // what was lifted. Rendered straight into <body> (outside the app shell) so
 // the print stylesheet can hide the whole app and show only this.
 
-export type PrintExercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string };
+export type PrintExercise = { name: string; segment: string; sets: number; sets_max?: number; reps: string; load: string; rest_seconds: number | null; notes?: string; by_set?: string };
 export type PrintSession = { session_index: number; title: string; state: string; date: string | null; exercises: PrintExercise[] };
 export type PrintWeek = { week_number: number; sessions: PrintSession[]; block: { name: string; block_type: string } };
 
@@ -21,6 +21,8 @@ const MAX_SET_BOXES = 8;
 const rest = restDuration;
 
 function dose(exercise: PrintExercise): string {
+  // Set by set: the sets and their weights in one line.
+  if (exercise.by_set) return exercise.by_set;
   const reps = exercise.reps.trim();
   const sets = exercise.sets_max && exercise.sets_max > exercise.sets ? `${exercise.sets}–${exercise.sets_max}` : String(exercise.sets);
   if (!reps) return `${sets} sets`;
@@ -47,7 +49,7 @@ function Rows({ exercises, logged }: { exercises: PrintExercise[]; logged: boole
             {exercise.notes ? <span className="print-notes">{exercise.notes}</span> : null}
           </td>
           <td className="print-dose">{dose(exercise)}</td>
-          <td>{exercise.load}</td>
+          <td>{exercise.by_set ? "" : exercise.load}</td>
           <td>{rest(exercise.rest_seconds)}</td>
           <td className="print-lifted">
             {logged

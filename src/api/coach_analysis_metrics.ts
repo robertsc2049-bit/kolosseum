@@ -51,6 +51,8 @@ export type AnalysisPlannedExercise = Readonly<{
   sets: number;
   sets_max?: number;
   reps_target: number | null;
+  // Set by set: each set's own reps (and weight, when it's known), in order.
+  set_targets?: readonly Readonly<{ reps: number; load_kg: number | null; amrap?: boolean }>[];
   // The prescribed weight (a fixed weight, or a % of max made a weight); a
   // range's top; the max a % came from.
   load_kg: number | null;
@@ -272,6 +274,9 @@ const averageOf = (values: ReadonlyArray<number | null | undefined>, places = 1)
 // ---------- the analysis ----------
 type WeekRow = Json & { week_start: string };
 
+// The reps a logged set was meant to hit: its own (set by set) or the exercise's.
+const targetRepsFor = (planned: AnalysisPlannedExercise, setIndex: number | undefined): number | null =>
+  planned.set_targets?.[(setIndex ?? 1) - 1]?.reps ?? planned.reps_target;
 const setLogs = (session: AnalysisSession) => session.events.filter((event) => event.type === "SET_LOG_REPORT" || event.type === "EXTRA_SET_REPORT");
 const done = (session: AnalysisSession) => session.status === "completed" || session.status === "partial";
 
@@ -501,7 +506,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const lift = baseExercise(planned.exercise_id);
       const rpe = rating.get(lift);
       if (rpe === undefined || rpe < 9.5 || !(primary(lift) || (!anyRoles && input.is_strength_lift(lift)))) return [];
-      const missed = session.events.filter((event) => event.type === "SET_LOG_REPORT" && event.exercise_id === planned.exercise_id && finite(event.reps) && Number(event.reps) < Number(planned.reps_target));
+      const missed = session.events.filter((event) => event.type === "SET_LOG_REPORT" && event.exercise_id === planned.exercise_id && finite(event.reps) && Number(event.reps) < Number(targetRepsFor(planned, event.set_index)));
       return missed.length ? [{ date: sessionDay(session), exercise_id: lift, name: input.exercise_name(lift), rpe, missed_sets: missed.length, reps_target: planned.reps_target, fewest_reps: Math.min(...missed.map((event) => Number(event.reps))) }] : [];
     });
   });
@@ -544,7 +549,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
         if (planned.reps_target !== null) {
           for (const log of mine) {
             t.reps_checked += 1;
-            if (finite(log.reps) && log.reps >= planned.reps_target) t.reps_hit += 1;
+            if (finite(log.reps) && log.reps >= Number(targetRepsFor(planned, log.set_index))) t.reps_hit += 1;
             else ex.missed_sets += 1;
           }
         }
@@ -876,7 +881,10 @@ export function analyseAthlete(input: AnalysisInput): Json {
       for (const planned of session.planned.filter((p) => p.segment === "working")) {
         plannedSets += planned.sets;
         const weighted = planned.load_kg && planned.load_kg > 0 && planned.reps_target !== null && planned.dose !== "time" && planned.dose !== "distance";
-        if (weighted) plannedTonnage += planned.sets * (planned.reps_target as number) * (planned.load_kg as number);
+        // Set by set: each set at its own reps and weight.
+        const bySet = planned.set_targets?.length && planned.set_targets.every((target) => finite(target.load_kg)) ? planned.set_targets : null;
+        if (bySet) plannedTonnage += bySet.reduce((sum, target) => sum + target.reps * Number(target.load_kg), 0);
+        else if (weighted) plannedTonnage += planned.sets * (planned.reps_target as number) * (planned.load_kg as number);
         if (!finished) continue;
         if (planned.dose === "time" || planned.dose === "distance") {
           if (completedIds.has(planned.exercise_id) && !skippedIds.has(planned.exercise_id)) doneSets += planned.sets;

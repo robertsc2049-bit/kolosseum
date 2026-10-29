@@ -260,8 +260,42 @@ export function groupTimingLabel(source: JsonRecord | null | undefined): string 
   return titleCase(groupType);
 }
 
+// Set by set, as the athlete reads it: "5 × 40 kg · 4 × 47.5 kg · 2 × 3 ×
+// 55 kg · 5 × 3+ × 60 kg" - each set's reps and weight (never the % behind
+// it), the same sets in a row grouped. null when the exercise isn't set by set.
+export function setTargetsText(exercise: JsonRecord | null | undefined): string | null {
+  const targets = Array.isArray(exercise?.set_targets) ? (exercise?.set_targets as JsonRecord[]) : [];
+  if (!targets.length) return null;
+  const loadText = (target: JsonRecord): string => {
+    const resolved = target.resolved_load && typeof target.resolved_load === "object" ? target.resolved_load as JsonRecord : null;
+    const intensity = target.intensity && typeof target.intensity === "object" ? target.intensity as JsonRecord : null;
+    if (resolved && Number.isFinite(Number(resolved.value))) return `${Number(resolved.value)} ${resolved.unit === "lb" ? "lb" : "kg"}`;
+    if (intensity?.type === "load" && Number.isFinite(Number(intensity.value))) return `${Number(intensity.value)} ${intensity.unit === "lb" ? "lb" : "kg"}`;
+    if (intensity?.type === "rpe" && Number.isFinite(Number(intensity.value))) return `RPE ${Number(intensity.value)}`;
+    if (intensity?.type === "bodyweight") return "bodyweight";
+    return "a weight you choose";
+  };
+  const parts: { count: number; reps: string; load: string }[] = [];
+  for (const target of targets) {
+    const reps = `${Number(target.reps)}${target.amrap === true ? "+" : ""}`;
+    const load = loadText(target);
+    const last = parts[parts.length - 1];
+    if (last && last.reps === reps && last.load === load) last.count += 1;
+    else parts.push({ count: 1, reps, load });
+  }
+  return parts.map((part) => `${part.count > 1 ? `${part.count} × ` : ""}${part.reps} × ${part.load}`).join(" · ");
+}
+
 export function exerciseDetails(exercise: JsonRecord | null | undefined): string[] {
   const details: string[] = [];
+  const bySet = setTargetsText(exercise);
+  if (bySet) {
+    details.push(bySet);
+    const setTempo = String(exercise?.tempo ?? "");
+    if (setTempo) details.push(`Tempo ${setTempo}`);
+    if (Number.isInteger(exercise?.rest_seconds) && Number(exercise?.rest_seconds) > 0) details.push(restLabel(Number(exercise?.rest_seconds)));
+    return details;
+  }
   const timedGroupMember = isTimedGroupMember(exercise);
 
   const setRange = exercise?.set_range && typeof exercise.set_range === "object" ? exercise.set_range as JsonRecord : null;

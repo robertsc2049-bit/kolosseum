@@ -115,7 +115,7 @@ test("an exercise outside the active registry is flagged, but only when the regi
   assert.ok(!withEmptyRegistry.some((issue) => issue.code === "exercise_not_in_active_registry"));
 });
 
-test("a duplicate exercise within one session is flagged", () => {
+test("the same lift twice in one session is allowed (Sheiko's second bench, Boring But Big's 5 x 10)", () => {
   const duplicated = template({
     template_structure: {
       blocks: [block({
@@ -128,7 +128,7 @@ test("a duplicate exercise within one session is flagged", () => {
     }
   });
   const issues = programmeActivationIssues(duplicated, [{ exercise_id: "back_squat" }]);
-  assert.ok(issues.some((issue) => issue.code === "duplicate_exercise_in_session"));
+  assert.ok(!issues.some((issue) => issue.code === "duplicate_exercise_in_session"));
 });
 
 test("an invalid percent-1RM load is flagged", () => {

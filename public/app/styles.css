@@ -4553,6 +4553,16 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 }
 .template-prescription-grid > .template-sets-group { grid-area: sets; display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: var(--k-space-2); align-items: end; }
 .template-sets-group > label { margin: 0; }
+/* Set by set: one row per line of sets, wrapping on a phone. */
+.template-sets-group > .template-set-plan { grid-column: 1 / -1; }
+.template-set-plan-lines { list-style: decimal inside; margin: 0; padding: 0; display: grid; gap: var(--k-space-2); }
+.template-set-plan-line { display: flex; flex-wrap: wrap; align-items: end; gap: var(--k-space-2); }
+.template-set-plan-line > label { margin: 0; display: grid; gap: 2px; min-width: 0; }
+.template-set-plan-line > label > input[type="number"] { width: 5.5rem; }
+.template-set-plan-line .template-set-plan-amrap { display: flex; align-items: center; gap: 6px; padding-bottom: 6px; }
+.template-set-plan-footer { display: flex; flex-wrap: wrap; align-items: center; gap: var(--k-space-2); margin-top: var(--k-space-2); }
+.template-work-item[data-open="false"] .template-set-plan { flex: 1 1 100%; }
+.template-work-item[data-open="false"] .template-set-plan-line > .template-set-plan-amrap { display: grid; justify-items: center; padding-bottom: 0; }
 .template-prescription-grid > .template-sets-field { grid-area: sets; }
 .template-prescription-grid > .template-prescription-mode-field { grid-area: mode; margin-bottom: 0; }
 .template-prescription-grid > .template-rest-field { grid-area: rest; }
