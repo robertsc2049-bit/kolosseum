@@ -13,9 +13,10 @@
 // % range ({ pct, pct_max }) with the per-set percentages in the note: the
 // builder holds each exercise once a session.
 //
-// Left out on purpose: Smolov, the Bulgarian method and German Volume
-// Training (10 x 10) - each needs more than the builder's 8 sets or daily
-// near-maximal work no unsupervised athlete should be handed.
+// Smolov, the Bulgarian method and German Volume Training go past the
+// volume or intensity the rest of the catalogue keeps to (more than 8 sets of
+// a lift, or a near-maximal single every day), so they're marked high-risk
+// and coach-supervised on their cards and on every main lift.
 
 const ex = (id, sets, reps, load, rest, note) => ({ id, sets, reps, load, rest, ...(note ? { note } : {}) });
 const range = (pct, pct_max) => ({ pct, pct_max });
@@ -593,11 +594,121 @@ const sovietCycle = {
   ]
 };
 
+// ---------------------------------------------------------------------------
+// High-risk programmes - coach-supervised only. Each runs past the volume or
+// intensity the rest of the catalogue keeps to (more than 8 sets of a lift,
+// or a near-maximal single every day), so each is listed for pros, says so on
+// its card, and tells the athlete to stop and tell their coach if joints ache.
+const SUPERVISED = "High-risk volume or intensity: run it with a coach watching, and stop and tell them if a knee, hip or back aches.";
+
+// Smolov (squat), 13 weeks: an introductory 2 weeks, the 4-week base
+// mesocycle (4x9 at 70%, 5x7 at 75%, 7x5 at 80%, 10x3 at 85%, the weights
+// going up each week), a 2-week switching phase of lighter, faster work, the
+// 4-week intense mesocycle working up to 90-95%, and a test week. All % of the
+// max you start with; nothing past 95%.
+const SMOLOV_BASE = [[4, 9, 70], [5, 7, 75], [7, 5, 80], [10, 3, 85]];
+const smolovWeek = (week) => {
+  const light = (items) => [...items, ex("bench_press", 3, 5, { rpe: 7 }, 120, "Upper body stays easy - the squat takes all the recovery."), ex("chest_supported_row", 3, 10, { rpe: 7 }, 60)];
+  if (week <= 2) {
+    const top = week === 1 ? 75 : 80;
+    const day = (title) => ({ title, items: light([ex("back_squat", 7, [1, 8], range(65, top), 210, `Intro: 3x8 at 65%, then 5 at 70%, 2x2 at 75%${week === 2 ? ", a single at 80%" : ""}. ${SUPERVISED}`)]) });
+    return [day("Intro day 1"), day("Intro day 2"), day("Intro day 3")];
+  }
+  if (week <= 6) {
+    const step = week - 3;
+    if (step === 3) return [
+      { title: "Rest", items: [ex("goblet_squat", 3, 8, { rpe: 5 }, 90, "Easy movement only."), ex("front_plank", 3, { seconds: 30 }, "bw", 45)] },
+      { title: "Test", items: [ex("back_squat", 3, 1, { pct: 95 }, 300, `Work up to a new max, or take 95% if the day isn't there. ${SUPERVISED}`)] }
+    ];
+    const bump = step * 2.5;
+    return SMOLOV_BASE.map(([sets, reps, pct], d) => ({ title: `Base day ${d + 1}`, items: light([ex("back_squat", sets, reps, { pct: Math.min(pct + bump, 90) }, reps >= 7 ? 240 : 180, `${sets}x${reps}${bump ? ` - ${bump}% heavier than week 1` : ""}. ${SUPERVISED}`)]) }));
+  }
+  if (week <= 8) {
+    const day = (title) => ({ title, items: [ex("box_squat", 6, 2, { pct: week === 7 ? 60 : 65 }, 90, "Switching phase: fast, crisp doubles to recover and sharpen."), ex("box_jump", 4, 3, "bw", 90), ex("romanian_deadlift", 3, 8, { rpe: 6 }, 90)] });
+    return [day("Switching day 1"), day("Switching day 2"), day("Switching day 3")];
+  }
+  if (week <= 12) {
+    const top = [85, 87.5, 90, 95][week - 9];
+    return [
+      { title: "Intense day 1", items: light([ex("back_squat", 7, [3, 5], range(65, top - 5), 240, `Work up in triples and fours to ${top - 5}%. ${SUPERVISED}`)]) },
+      { title: "Intense day 2", items: light([ex("back_squat", 6, [3, 5], range(60, top - 2.5), 240, `Work up in fives and fours to ${top - 2.5}%. ${SUPERVISED}`)]) },
+      { title: "Intense day 3", items: light([ex("back_squat", 6, [1, 3], range(65, top), 300, `Work up in triples, doubles then singles to ${top}%. ${SUPERVISED}`)]) }
+    ];
+  }
+  return [
+    { title: "Taper", items: [ex("back_squat", 3, 3, { pct: 70 }, 180, "Light and fast."), ex("bench_press", 3, 5, { rpe: 6 }, 120)] },
+    { title: "Test", items: [ex("back_squat", 3, 1, { pct: 95 }, 300, `Work up to a new max - the cycle aims at 10-20 kg on it. ${SUPERVISED}`)] }
+  ];
+};
+const smolov = {
+  key: "smolov_squat_pro",
+  template_name: "Thirteen-week squat specialisation",
+  activity_id: "powerlifting",
+  description: "Thirteen weeks of squat specialisation: a 2-week introduction, the 4-week base mesocycle (4x9 at 70%, 5x7 at 75%, 7x5 at 80% and 10x3 at 85% in one week, heavier each week), a test, a 2-week switching phase, the 4-week intense mesocycle working up to 90-95%, and a taper and test. Upper body stays easy throughout. In the style of Sergey Smolov's squat routine. High-risk volume - coach-supervised only.",
+  listing: { title: "Thirteen-week squat specialisation (based on Smolov)", summary: `For experienced lifters only, with a coach watching: thirteen weeks of squatting up to four times a week - the base cycle's 10×3 at 85% included - aiming at 10-20 kg on the squat. Stop and tell your coach if a knee, hip or back aches. Based on Sergey Smolov's squat routine. ${notEndorsed("Sergey Smolov")}`, levels: ["pro"], activity_ids: ["powerlifting"], days_per_week: 3, next: "powerlifting_meet_prep" },
+  blocks: [
+    { name: "Introduction", block_type: "general", weeks: [1, 2].map(smolovWeek) },
+    { name: "Base mesocycle", block_type: "volume", weeks: [3, 4, 5, 6].map(smolovWeek) },
+    { name: "Switching phase", block_type: "deload", weeks: [7, 8].map(smolovWeek) },
+    { name: "Intense mesocycle", block_type: "peak", weeks: [9, 10, 11, 12].map(smolovWeek) },
+    { name: "Taper and test", block_type: "deload", weeks: [13].map(smolovWeek) }
+  ]
+};
+
+// Bulgarian method (weightlifting), 8 weeks, six days a week: work up to a
+// daily maximum single in the snatch, the clean & jerk and a squat, then
+// back-off doubles - every fourth week to an easier single.
+const bulgarianWeek = (week) => {
+  const lighter = week % 4 === 0;
+  const rpe = lighter ? 7 : 9;
+  const max = (id, note) => ex(id, 4, 1, { rpe }, 150, lighter ? "Lighter week: work up to an easy single." : `Work up in singles to today's max (RPE 9, no misses), then 2 doubles 10% lighter. ${note ?? ""}${SUPERVISED}`);
+  const day = (title, squat, variation) => ({ title, items: [max(variation === "power" ? "power_snatch" : "snatch"), max(variation === "power" ? "power_clean" : "clean_and_jerk"), max(squat, "Squat daily: the legs carry this method. ")] });
+  return [day("Day 1", "front_squat"), day("Day 2", "back_squat", "power"), day("Day 3", "front_squat"), day("Day 4", "back_squat", "power"), day("Day 5", "front_squat"), day("Day 6", "back_squat")];
+};
+const bulgarian = {
+  key: "bulgarian_daily_max_pro",
+  template_name: "Daily-max weightlifting",
+  activity_id: "olympic_weightlifting",
+  description: "Eight weeks, six days a week: work up to a daily maximum single in the snatch (or power snatch), the clean & jerk (or power clean) and a front or back squat, then two back-off doubles 10% lighter - few exercises, high frequency, near-maximal every day, with every fourth week to an easy single. In the style of Ivan Abadjiev's Bulgarian method. High-risk intensity - coach-supervised only.",
+  listing: { title: "Daily-max weightlifting (based on the Bulgarian method)", summary: `For experienced weightlifters only, with a coach watching: six days a week to a near-maximal single in the snatch, clean & jerk and squat, then back-off doubles, every fourth week lighter. Stop and tell your coach if a knee, hip, back, wrist or elbow aches. Based on Ivan Abadjiev's Bulgarian method. ${notEndorsed("any federation or the Abadjiev family")}`, levels: ["pro"], activity_ids: ["olympic_weightlifting"], days_per_week: 6, next: "olympic_weightlifting_meet_prep" },
+  blocks: [
+    { name: "Daily max 1", block_type: "peak", weeks: [1, 2, 3, 4].map(bulgarianWeek) },
+    { name: "Daily max 2", block_type: "peak", weeks: [5, 6, 7, 8].map(bulgarianWeek) }
+  ]
+};
+
+// German Volume Training, 6 weeks: 10 sets of 10 at about 60% on one lift
+// per body part, 60-90 s rest, plus 3x10-12 of a second exercise; the weight
+// goes up when all 100 reps are made.
+const GVT_PCT = [60, 60, 62.5, 62.5, 65, 55];
+const gvtWeek = (week) => {
+  const pct = GVT_PCT[week - 1];
+  const lighter = week === 6;
+  // About 60% of max: % on the barbell lifts, RPE 7 (a 20-rep-max weight)
+  // on the rest, bodyweight on dips and chin-ups.
+  const loadFor = (id) => (id === "back_squat" || id === "bench_press" ? { pct } : id === "dip" || id === "chin_up" ? "bw" : { rpe: 7 });
+  const ten = (id, rest, note) => ex(id, lighter ? 5 : 10, 10, loadFor(id), rest, lighter ? "Lighter week: 5 sets of 10." : `10 sets of 10, the same weight every set, ${rest} s rest. All 100 reps? Add 2.5-5% next time. ${note ?? ""}`.trim());
+  return [
+    { title: "Chest and back", items: [ten("bench_press", 90), ten("chin_up", 90, "Use assistance or added weight to land at 10."), ex("incline_dumbbell_press", 2, [10, 12], { rpe: 8 }, 60), ex("straight_arm_pulldown", 3, [10, 12], { rpe: 8 }, 60)] },
+    { title: "Legs and abs", items: [ten("back_squat", 90), ten("lying_leg_curl", 60), ex("standing_calf_raise", 3, [12, 15], { rpe: 8 }, 45), ex("hanging_leg_raise", 3, 10, "bw", 45)] },
+    { title: "Arms and shoulders", items: [ten("dip", 90, "Use assistance or added weight to land at 10."), ten("barbell_curl", 60), ex("dumbbell_lateral_raise", 3, [10, 12], { rpe: 8 }, 45), ex("dumbbell_rear_delt_row", 3, [10, 12], { rpe: 8 }, 45)] }
+  ];
+};
+const germanVolume = {
+  key: "ten_sets_of_ten",
+  template_name: "Ten sets of ten",
+  activity_id: "general_strength",
+  description: "Six weeks of 10 sets of 10 at about 60% on one main exercise per body part - chest and back, legs, arms and shoulders - with 60-90 s rest, plus 3 sets of 10-12 on a second exercise; the weight goes up once all 100 reps are made, and the last week is lighter. In the style of German Volume Training (Rolf Feser, popularised by Charles Poliquin). High-risk volume - coach-supervised.",
+  listing: { title: "Ten sets of ten (based on German Volume Training)", summary: `Six weeks of 10 sets of 10 on one main exercise per body part, short rests, for size - very high volume, so run it with a coach and stop and tell them if a joint aches. Based on German Volume Training (Rolf Feser, popularised by Charles Poliquin). ${notEndorsed("the Poliquin Group")}`, levels: ["amateur", "pro"], activity_ids: [], days_per_week: 3, next: "power_hypertrophy_upper_lower" },
+  blocks: [{ name: "Ten by ten", block_type: "volume", weeks: [1, 2, 3, 4, 5, 6].map(gvtWeek) }]
+};
+
 // The programme's name in the coach's library is its catalogue title, so the
 // programme it's based on travels with it when a coach copies it.
 export const RECOGNISED_PROGRAMMES = [
   bodyweightFundamentals, linear3x5, novice5x5, noviceAmrap, wave531Fsl,
   tieredLinear, texasMethod, ramping5x5, wave531Bbb, repWaves, operatorWaves, easyStrength,
   phul, phat, pushPullLegs, bodyPartSplit, goldenEraSplit,
-  canditoPeak, sheikoVolume, conjugate, sovietCycle
+  canditoPeak, sheikoVolume, conjugate, sovietCycle,
+  smolov, bulgarian, germanVolume
 ].map((programme) => ({ ...programme, template_name: programme.listing.title }));

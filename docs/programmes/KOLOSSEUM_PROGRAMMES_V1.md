@@ -1136,11 +1136,26 @@ published methods, written in Kolosseum's notation, not the authors' products.
 | High-frequency competition-lift volume (powerlifting) | Sheiko's preparatory programmes | Amateur, Pro | 3 |
 | Max effort / dynamic effort (powerlifting) | Westside conjugate method (Simmons) | Amateur, Pro | 4 |
 | Classic Soviet weightlifting cycle | the Soviet system (Medvedyev, Vorobyev) | Amateur, Pro | 4 |
+| Thirteen-week squat specialisation (powerlifting) | Smolov (Sergey Smolov) | Pro | 3-4 |
+| Daily-max weightlifting | the Bulgarian method (Ivan Abadjiev) | Pro | 6 |
+| Ten sets of ten | German Volume Training (Feser, Poliquin) | Amateur, Pro | 3 |
 
-**Left out on purpose:** Smolov and Smolov Jr, the Bulgarian method and
-German Volume Training (10×10). Each needs more than the builder's 8 sets an
-exercise, or daily near-maximal work, and none is something to hand an
-athlete to run without a coach watching.
+**High-risk, coach-supervised:** Smolov, the Bulgarian method and German
+Volume Training go past the volume or intensity every other programme keeps
+to - Smolov's base week ends with 10×3 at 85% and GVT is 10×10, past the
+catalogue's usual 8 sets of a lift (the builder itself takes up to 30), and
+the Bulgarian method works up to a near-maximal single six days a week. They
+are in because coaches ask for them by name, with guard rails:
+- Smolov and the Bulgarian method are listed for Pro only; GVT for Amateur
+  and Pro.
+- Every card says to run it with a coach watching and to stop and tell the
+  coach if a joint aches; so does every main lift's note.
+- Smolov's loads stay at or under 95% of the starting max (the original's
+  intense block goes past it); its upper-body work stays easy throughout.
+- The Bulgarian method's every fourth week only works up to an easy single.
+- All three still read in range on the weekly sets-per-muscle ranges for
+  their levels (Smolov's introduction drops the lunges; GVT's second chest
+  exercise is 2 sets and its back accessory spares the biceps).
 
 ## Not in v1, and why
 

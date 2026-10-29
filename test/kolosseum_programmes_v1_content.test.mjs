@@ -16,7 +16,7 @@ const working = (s) => ({ ...s, items: s.items.filter((i) => !i.segment) });
 const allSessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 const sessionsOf = (p) => allSessionsOf(p).map(working);
 
-test("seventy-six programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
+test("seventy-nine programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep",
     "collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "field_ice_off_season", "field_ice_in_season", "court_off_season", "court_in_season",
@@ -32,7 +32,8 @@ test("seventy-six programmes: every sport has its own, team sports by family and
     "bodyweight_fundamentals", "novice_linear_3x5", "novice_5x5", "novice_amrap_linear", "wave_531_full_body",
     "tiered_linear", "texas_method", "ramping_5x5", "wave_531_bbb", "rep_waves", "three_lift_waves", "easy_strength_40_day",
     "power_hypertrophy_upper_lower", "power_hypertrophy_5_day", "push_pull_legs_6_day", "body_part_split_5_day", "golden_era_6_day",
-    "six_week_strength_peak", "competition_lift_volume", "max_effort_dynamic_effort", "soviet_weightlifting_cycle"
+    "six_week_strength_peak", "competition_lift_volume", "max_effort_dynamic_effort", "soviet_weightlifting_cycle",
+    "smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -63,12 +64,15 @@ test("every programme fits the builder: 1-12 exercises a session, none twice, 1-
   }
 });
 
-test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
+// The high-volume programmes a coach asks for by name (Smolov's 10x3, German
+// Volume Training's 10x10) may go to 10 sets of a lift; nothing else past 8.
+const HIGH_VOLUME = new Set(["smolov_squat_pro", "ten_sets_of_ten"]);
+test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets (10 on Smolov and 10x10), no % on a bodyweight lift", () => {
   for (const p of PROGRAMMES) {
     for (const s of sessionsOf(p)) {
       for (const i of s.items) {
         const where = `${p.key}: ${s.title} ${i.id}`;
-        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= 8, `${where} sets`);
+        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= (HIGH_VOLUME.has(p.key) ? 10 : 8), `${where} sets`);
         if (i.load !== "bw" && "pct" in i.load) {
           assert.ok(i.load.pct >= 50 && i.load.pct <= 95, `${where} % ${i.load.pct}`);
           if ("pct_max" in i.load) assert.ok(i.load.pct_max > i.load.pct && i.load.pct_max <= 95, `${where} % range ${i.load.pct}-${i.load.pct_max}`);
@@ -254,7 +258,10 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     six_week_strength_peak: "powerlifting_meet_prep",
     competition_lift_volume: "powerlifting_meet_prep",
     max_effort_dynamic_effort: "powerlifting_meet_prep",
-    soviet_weightlifting_cycle: "olympic_weightlifting_meet_prep"
+    soviet_weightlifting_cycle: "olympic_weightlifting_meet_prep",
+    smolov_squat_pro: "powerlifting_meet_prep",
+    bulgarian_daily_max_pro: "olympic_weightlifting_meet_prep",
+    ten_sets_of_ten: "power_hypertrophy_upper_lower"
   });
   for (const [from, to] of Object.entries(next)) {
     assert.ok(byKey[to], `${from} -> ${to} exists`);
@@ -572,7 +579,7 @@ const recognised = PROGRAMMES.filter((p) => RECOGNISED_PROGRAMMES.some((r) => r.
 const mainOf = (p, week, title) => working(p.blocks.flatMap((b) => b.weeks)[week - 1].find((s) => s.title === title)).items[0];
 
 test("every recognised programme is named for what it is, credits the programme it's based on, and says it isn't endorsed", () => {
-  assert.equal(recognised.length, 21);
+  assert.equal(recognised.length, 24);
   for (const p of recognised) {
     assert.match(p.listing.title, /\(based on [^)]+\)$/, `${p.key}: title credits the original`);
     assert.equal(p.template_name, p.listing.title, `${p.key}: the coach's copy keeps the credit`);
@@ -617,4 +624,31 @@ test("a novice adds weight session to session; past novice, the programmes progr
   assert.deepEqual(byKey.golden_era_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
   assert.deepEqual(byKey.push_pull_legs_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
   assert.deepEqual(byKey.wave_531_full_body.listing.levels, ["beginner", "amateur"]);
+});
+
+test("Smolov, the Bulgarian method and 10x10 say on the card and on every main lift that they're high-risk and coach-supervised, and are listed for the right lifters", () => {
+  const byKey = Object.fromEntries(recognised.map((p) => [p.key, p]));
+  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"]) {
+    const p = byKey[key];
+    assert.match(p.listing.summary, /with a coach/, `${key}: card`);
+    assert.match(p.listing.summary, /stop and tell/i, `${key}: card says when to stop`);
+    assert.match(p.description, /High-risk .+ coach-supervised/, `${key}: design notes`);
+  }
+  assert.deepEqual(byKey.smolov_squat_pro.listing.levels, ["pro"]);
+  assert.deepEqual(byKey.bulgarian_daily_max_pro.listing.levels, ["pro"]);
+  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro"]) {
+    for (const s of sessionsOf(byKey[key])) {
+      const main = s.items[0];
+      if (main.id.includes("squat") || main.id.includes("snatch") || main.id.includes("clean")) {
+        if (main.note && !/Lighter week|Light and fast|Easy movement|Switching phase|Lighter/.test(main.note)) assert.match(main.note, /coach watching/, `${key}: ${s.title} ${main.id}`);
+      }
+    }
+  }
+});
+
+test("Smolov's base week is 4x9 at 70%, 5x7 at 75%, 7x5 at 80% and 10x3 at 85%, and nothing in the cycle passes 95% of the starting max", () => {
+  const smolov = recognised.find((p) => p.key === "smolov_squat_pro");
+  const base = smolov.blocks.find((b) => b.name === "Base mesocycle").weeks[0].map((s) => working(s).items.find((i) => i.id === "back_squat"));
+  assert.deepEqual(base.map((i) => [i.sets, i.reps, i.load.pct]), [[4, 9, 70], [5, 7, 75], [7, 5, 80], [10, 3, 85]]);
+  for (const s of sessionsOf(smolov)) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok((i.load.pct_max ?? i.load.pct) <= 95, `${s.title}`);
 });

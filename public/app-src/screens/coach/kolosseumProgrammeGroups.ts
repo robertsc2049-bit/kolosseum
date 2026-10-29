@@ -60,6 +60,7 @@ export const KOLOSSEUM_GENERAL_PROGRAMME_SPORTS: Record<string, string[]> = {
   "Push/pull/legs, 6 days (based on the Reddit PPL)": [],
   "Five-day body-part split (based on the classic bodybuilding split)": [],
   "Golden-era 6-day split (based on Arnold Schwarzenegger's split)": [],
+  "Ten sets of ten (based on German Volume Training)": [],
 };
 
 // Named groups for the sport sets those programmes share.
