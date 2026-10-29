@@ -21,6 +21,7 @@
 import { readFileSync } from "node:fs";
 
 import { sessionBookends } from "../../shared/session-bookends/sessionBookends.mjs";
+import { RECOGNISED_PROGRAMMES } from "./recognised_programmes.mjs";
 
 export const ex = (id, sets, reps, load, rest, note) => ({ id, sets, reps, load, rest, ...(note ? { note } : {}) });
 
@@ -1679,5 +1680,7 @@ export const PROGRAMMES = [
   ...PRO_VERSIONS,
   contactBeginner, fieldBeginner, owlBeginner, streetBeginner, cfBeginner, hyroxBeginner,
   ...STRENGTH_PRO_VERSIONS,
-  ...GRIP_PROGRAMMES
+  ...GRIP_PROGRAMMES,
+  // The programmes coaches know by name (recognised_programmes.mjs).
+  ...RECOGNISED_PROGRAMMES
 ].map(withSessionBookends);
