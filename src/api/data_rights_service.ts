@@ -65,7 +65,7 @@ function tagOwnedRecord(record: JsonRecord, targetUserId: string): JsonRecord {
 
 async function resolveAccountRow(userId: string): Promise<JsonRecord | null> {
   const result = await pool.query(
-    `SELECT user_id, email_canonical, display_name, actor_type, account_state,
+    `SELECT user_id, email_canonical, display_name, actor_type, additional_role, account_state,
             accepted_terms_version, accepted_consent_version, created_at, updated_at
      FROM product_accounts
      WHERE user_id = $1`,
@@ -264,6 +264,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     email: accountRow.email_canonical,
     display_name: accountRow.display_name,
     actor_type: accountRow.actor_type,
+    // The other role, when the account is both a coach and an athlete.
+    additional_role: accountRow.additional_role ?? null,
     account_state: accountRow.account_state,
     accepted_terms_version: accountRow.accepted_terms_version,
     accepted_consent_version: accountRow.accepted_consent_version,

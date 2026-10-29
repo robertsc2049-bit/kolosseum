@@ -34,6 +34,14 @@ export function signOutAccount(csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/sign-out", {}, csrfToken);
 }
 
+// One login, both roles: add the other role, or act as the other one.
+export function addAccountRole(role: "coach" | "athlete", csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/roles", { role }, csrfToken);
+}
+export function switchAccountRole(role: "coach" | "athlete", csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/roles/active", { role }, csrfToken);
+}
+
 export function requestAccountClosure(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/account/closure", input, csrfToken);
 }

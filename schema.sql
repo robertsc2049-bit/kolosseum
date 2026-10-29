@@ -744,6 +744,19 @@ CREATE TABLE IF NOT EXISTS product_auth_sessions (
   user_agent_hash text NOT NULL
 );
 
+-- One login can be both a coach and an athlete: additional_role is the role
+-- the account didn't sign up as (actor_type), once they add it; a signed-in
+-- session acts as one of them at a time (active_role; null is actor_type).
+ALTER TABLE product_accounts
+  ADD COLUMN IF NOT EXISTS additional_role text;
+ALTER TABLE product_accounts
+  DROP CONSTRAINT IF EXISTS product_accounts_additional_role_check;
+ALTER TABLE product_accounts
+  ADD CONSTRAINT product_accounts_additional_role_check
+  CHECK (additional_role IS NULL OR (additional_role IN ('athlete', 'coach') AND additional_role <> actor_type));
+ALTER TABLE product_auth_sessions
+  ADD COLUMN IF NOT EXISTS active_role text;
+
 CREATE INDEX IF NOT EXISTS
   product_auth_sessions_user_id_idx
 ON product_auth_sessions(user_id);

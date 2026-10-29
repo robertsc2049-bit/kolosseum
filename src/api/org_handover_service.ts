@@ -48,7 +48,7 @@ export async function acceptOrgHandover(coachUserId: string, orgId: string, pass
   const org = pending.rows[0];
   if (!org) throw new OrgHandoverError("org_handover_not_found", 404);
   const coach = (await pool.query(
-    `SELECT email_canonical, display_name FROM product_accounts WHERE user_id = $1 AND actor_type = 'coach' AND account_state = 'active'`,
+    `SELECT email_canonical, display_name FROM product_accounts WHERE user_id = $1 AND (actor_type = 'coach' OR additional_role = 'coach') AND account_state = 'active'`,
     [coachUserId]
   )).rows[0];
   if (!coach) throw new OrgHandoverError("org_handover_not_found", 404);

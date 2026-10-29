@@ -27,7 +27,7 @@ import {
   changeOrgOwnerAccountState,
   changeOrgOwnerSupportRequestStatus,
   changeSupportRequestStatus,
-  convertAccountToCoach,
+  addCoachRoleToAccount,
   AdminActionError,
   eraseAccountForDeletionRequest,
   eraseOrgOwnerForDeletionRequest,
@@ -164,13 +164,13 @@ productAdminRouter.post(
 );
 
 productAdminRouter.post(
-  "/accounts/:user_id/convert-to-coach",
+  "/accounts/:user_id/add-coach-role",
   asyncHandler(async (request, response) => {
     const admin = await authenticatedAdmin(request, true);
     const body = request.body ?? {};
 
     try {
-      const outcome = await convertAccountToCoach(
+      const outcome = await addCoachRoleToAccount(
         admin.user_id,
         String(body.correlation_id ?? ""),
         String(request.params.user_id)

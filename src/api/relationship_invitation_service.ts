@@ -76,7 +76,7 @@ async function findActiveAthleteByEmail(
     FROM product_accounts
     WHERE
       email_canonical = $1
-      AND actor_type = 'athlete'
+      AND (actor_type = 'athlete' OR additional_role = 'athlete')
       AND account_state = 'active'
     `,
     [email]
@@ -214,6 +214,11 @@ export async function createRelationshipInvitationByEmail(
   await requireActiveCoachProfile(coachUserIdClean);
   const email = canonicalEmail(athleteEmailInput);
   const athlete = await findActiveAthleteByEmail(email);
+  // A coach who also trains coaches themselves by building their own
+  // training - never as their own client.
+  if (athlete.user_id === coachUserIdClean) {
+    throw new RelationshipInvitationError("relationship_self_not_allowed", 409);
+  }
 
   const existing = await latestRelationshipRecord(coachUserIdClean, athlete.user_id);
 

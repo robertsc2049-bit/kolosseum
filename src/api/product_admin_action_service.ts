@@ -222,13 +222,13 @@ export async function changeAccountState(
   });
 }
 
-// An athlete account made a coach account - same login, same user id. Both
-// account tables take the coach type, every signed-in session is ended (so the
-// next sign-in starts coach setup at the coach home), and the coach profile a
-// coach sign-up creates is added. The athlete's own history stays where it is.
-// Recorded as an account_state_change (the audit CHECK has no separate type,
-// as with the org-owner variant below) with the actor type before and after.
-export async function convertAccountToCoach(
+// Give an athlete account the coach role as well - same login, same user id,
+// the athlete side kept (one login can be both: product_account_service
+// addAccountRole). The coach profile a coach sign-up creates is added; the
+// account switches between the two in the app. Recorded as an
+// account_state_change (the audit CHECK has no separate type, as with the
+// org-owner variant below) with the roles before and after.
+export async function addCoachRoleToAccount(
   adminUserId: string,
   correlationId: string,
   targetUserId: string
@@ -239,26 +239,23 @@ export async function convertAccountToCoach(
     throw new AdminActionError("admin_action_identity_required", 400);
   }
 
-  let account: { email: string; name: string } | null = null;
+  let added: { email: string; name: string } | null = null;
   const outcome = await withAdminTransaction(async (client) => {
     const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
     if (existingAudit) return toAuditOutcome(existingAudit, true);
 
     const current = await client.query(
-      `SELECT user_id, actor_type, email_canonical, display_name FROM product_accounts WHERE user_id = $1 FOR UPDATE`,
+      `SELECT user_id, actor_type, additional_role, email_canonical, display_name FROM product_accounts WHERE user_id = $1 FOR UPDATE`,
       [cleanTargetUserId]
     );
     const row = current.rows[0];
     if (!row) throw new AdminActionError("admin_account_not_found", 404);
-    if (cleanString(row.actor_type) === "coach") throw new AdminActionError("admin_account_already_coach", 409);
+    if (cleanString(row.actor_type) === "coach" || cleanString(row.additional_role) === "coach") {
+      throw new AdminActionError("admin_account_already_coach", 409);
+    }
 
-    await client.query(`UPDATE product_accounts SET actor_type = 'coach', updated_at = now() WHERE user_id = $1`, [cleanTargetUserId]);
-    await client.query(`UPDATE beta_accounts SET actor_type = 'coach' WHERE user_id = $1`, [cleanTargetUserId]);
-    const ended = await client.query(
-      `UPDATE product_auth_sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL`,
-      [cleanTargetUserId]
-    );
-    account = { email: cleanString(row.email_canonical), name: cleanString(row.display_name) };
+    await client.query(`UPDATE product_accounts SET additional_role = 'coach', updated_at = now() WHERE user_id = $1`, [cleanTargetUserId]);
+    added = { email: cleanString(row.email_canonical), name: cleanString(row.display_name) };
 
     return writeAuditRecord(client, {
       adminUserId,
@@ -266,14 +263,14 @@ export async function convertAccountToCoach(
       actionType: "account_state_change",
       targetRecordType: "product_accounts",
       targetRecordId: cleanTargetUserId,
-      beforeState: { actor_type: cleanString(row.actor_type) },
-      afterState: { actor_type: "coach", sessions_ended: ended.rowCount ?? 0 }
+      beforeState: { roles: [cleanString(row.actor_type)] },
+      afterState: { roles: [cleanString(row.actor_type), "coach"] }
     });
   });
-  // The coach profile, once the account is a coach (it's idempotent: a replay
-  // or a profile already there changes nothing).
-  const converted = account as { email: string; name: string } | null;
-  if (converted) await createCoachProfileForAccount(cleanTargetUserId, converted.email, converted.name);
+  // The coach profile, once the role is there (idempotent: a replay or a
+  // profile already there changes nothing).
+  const withRole = added as { email: string; name: string } | null;
+  if (withRole) await createCoachProfileForAccount(cleanTargetUserId, withRole.email, withRole.name);
   return outcome;
 }
 

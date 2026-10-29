@@ -27,7 +27,12 @@ type AccountRow = Readonly<{
   user_id: string;
   email_canonical: string;
   display_name: string;
+  // The role this account (or this signed-in session) is acting as.
   actor_type: ActorType;
+  // The role it signed up as, and the other one if it has added it: one login
+  // can be both a coach and an athlete.
+  own_actor_type: ActorType;
+  additional_role: ActorType | null;
   account_state: AccountState;
   password_salt: string;
   password_hash: string;
@@ -249,11 +254,14 @@ function mapAccountRow(value: unknown): AccountRow | null {
     return null;
   }
 
+  const additional = value.additional_role === "athlete" || value.additional_role === "coach" ? value.additional_role : null;
   return Object.freeze({
     user_id: String(value.user_id ?? ""),
     email_canonical: String(value.email_canonical ?? ""),
     display_name: String(value.display_name ?? ""),
     actor_type: actor,
+    own_actor_type: actor,
+    additional_role: additional !== actor ? additional : null,
     account_state: state,
     password_salt: String(value.password_salt ?? ""),
     password_hash: String(value.password_hash ?? ""),
@@ -284,6 +292,8 @@ function publicAccount(row: AccountRow): Readonly<JsonRecord> {
     email: row.email_canonical,
     display_name: row.display_name,
     actor_type: row.actor_type,
+    // Both roles when the account has both; actor_type is the one in use.
+    roles: row.additional_role ? [row.own_actor_type, row.additional_role] : [row.own_actor_type],
     actor_home_route:
       row.actor_type === "coach"
         ? "#/coach/overview"
@@ -311,6 +321,7 @@ async function accountBy(
       email_canonical,
       display_name,
       actor_type,
+      additional_role,
       account_state,
       password_salt,
       password_hash,
@@ -655,8 +666,9 @@ function phase1Input(
   });
 }
 
-// An athlete account an admin has made a coach (product_admin_action_service
-// convertAccountToCoach): the coach profile a coach sign-up creates.
+// An athlete account an admin has given the coach role
+// (product_admin_action_service addCoachRoleToAccount): the coach profile a
+// coach sign-up creates.
 export async function createCoachProfileForAccount(userId: string, email: string, name: string): Promise<void> {
   await persistInitialProductRecords(userId, "coach", email, name, null);
 }
@@ -1196,6 +1208,8 @@ export async function resolveProductSession(
     `
     SELECT
       s.expires_at AS session_expires_at,
+      s.active_role,
+      a.additional_role,
       a.user_id,
       a.email_canonical,
       a.display_name,
@@ -1222,14 +1236,20 @@ export async function resolveProductSession(
     [sessionHash]
   );
 
-  const row = mapAccountRow(result.rows?.[0]);
+  const ownRow = mapAccountRow(result.rows?.[0]);
 
-  if (!row) {
+  if (!ownRow) {
     throw new ProductAccountError(
       "account_session_invalid",
       401
     );
   }
+
+  // A session switched to the account's other role acts as that role.
+  const activeRole = result.rows[0].active_role;
+  const row: AccountRow = activeRole && activeRole === ownRow.additional_role
+    ? Object.freeze({ ...ownRow, actor_type: ownRow.additional_role as ActorType })
+    : ownRow;
 
   if (row.account_state !== "active") {
     throw new ProductAccountError(
@@ -1262,6 +1282,31 @@ export async function resolveProductSession(
     expires_at_iso8601:
       String(result.rows[0].session_expires_at)
   });
+}
+
+// Add the role the account didn't sign up as - a coach who also trains, or an
+// athlete who also coaches - and switch this session to it. The new role
+// starts with what that sign-up creates (the coach profile, or the athlete's
+// records); its own setup follows in the app.
+export async function addAccountRole(rawSessionToken: string, role: unknown): Promise<void> {
+  const session = await resolveProductSession(rawSessionToken);
+  const own = session.account_row;
+  if (role !== "athlete" && role !== "coach") throw new ProductAccountError("account_role_invalid", 400);
+  if (role === own.own_actor_type || role === own.additional_role) throw new ProductAccountError("account_role_already_held", 409);
+  await pool.query(`UPDATE product_accounts SET additional_role = $2, updated_at = now() WHERE user_id = $1`, [own.user_id, role]);
+  await persistInitialProductRecords(own.user_id, role, own.email_canonical, own.display_name, null);
+  await pool.query(`UPDATE product_auth_sessions SET active_role = $2 WHERE session_hash = $1`, [session.session_hash, role]);
+}
+
+// Act as the other role this account holds, in this signed-in session.
+export async function switchAccountRole(rawSessionToken: string, role: unknown): Promise<void> {
+  const session = await resolveProductSession(rawSessionToken);
+  const own = session.account_row;
+  if (role !== own.own_actor_type && role !== own.additional_role) throw new ProductAccountError("account_role_not_held", 409);
+  await pool.query(
+    `UPDATE product_auth_sessions SET active_role = $2 WHERE session_hash = $1`,
+    [session.session_hash, role === own.own_actor_type ? null : role]
+  );
 }
 
 export function assertProductCsrf(
