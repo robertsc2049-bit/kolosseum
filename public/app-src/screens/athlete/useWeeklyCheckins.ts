@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import { loadWeeklyCheckins, submitWeeklyCheckin, type WeeklyCheckinInput } from "../../api/athleteWeeklyCheckinsClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
@@ -35,6 +35,10 @@ export function useWeeklyCheckins() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const checkins = await loadWeeklyCheckins();
       setState((current) => ({ ...current, loading: false, checkins }));
     }

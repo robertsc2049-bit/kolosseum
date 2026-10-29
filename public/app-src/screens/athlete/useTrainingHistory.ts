@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   type AthleteHistoryFilters,
   loadAthleteHistoryDetail,
@@ -66,6 +66,10 @@ export function useTrainingHistory() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const athleteUserId = await currentAthleteUserId();
       const response = await loadAthleteHistoryList(athleteUserId);
       const sessions = Array.isArray(response.sessions) ? (response.sessions as JsonRecord[]) : [];

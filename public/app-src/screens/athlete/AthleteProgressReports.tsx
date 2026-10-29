@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+import { accountMayBeAthlete } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
 import { shortWeek } from "../../components/TrendChart";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
@@ -175,7 +176,8 @@ export function AthleteProgressReportsPanel() {
   useEffect(() => {
     let cancelled = false;
     const load = () => {
-      request("GET", "/account/onboarding/progress-reports")
+      accountMayBeAthlete()
+        .then((mayBeAthlete) => (mayBeAthlete ? request("GET", "/account/onboarding/progress-reports") : { reports: [] }))
         .then((result) => { if (!cancelled) { setReports(rows(result.reports)); setError(null); } })
         .catch(() => { if (!cancelled) setError("Your reports could not be loaded. Try again."); });
     };

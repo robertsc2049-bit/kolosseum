@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   type CreateAthleteGoalInput,
   createAthleteGoalSelf,
@@ -38,6 +38,10 @@ export function useAthleteGoalsSelf() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const goals = await loadAthleteGoalsSelf();
       setState((current) => ({ ...current, loading: false, goals }));
     }

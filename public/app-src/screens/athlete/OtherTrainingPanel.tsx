@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import { request, type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
@@ -28,7 +28,8 @@ export function OtherTrainingPanel() {
   const [requestId, setRequestId] = useState(newRequestId);
 
   const load = () => {
-    request("GET", "/account/onboarding/other-training")
+    accountMayBeAthlete()
+      .then((mayBeAthlete) => (mayBeAthlete ? request("GET", "/account/onboarding/other-training") : { entries: [] }))
       .then((result) => { setEntries(Array.isArray(result.entries) ? (result.entries as JsonRecord[]) : []); setError(null); })
       .catch(() => setEntries((current) => current ?? []));
   };

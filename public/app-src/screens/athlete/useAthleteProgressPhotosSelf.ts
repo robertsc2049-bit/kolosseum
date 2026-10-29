@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   type UploadProgressPhotoInput,
   loadProgressPhotosSelf,
@@ -38,6 +38,10 @@ export function useAthleteProgressPhotosSelf() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const photos = await loadProgressPhotosSelf();
       setState((current) => ({ ...current, loading: false, photos }));
     }

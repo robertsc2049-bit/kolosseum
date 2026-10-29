@@ -38,6 +38,12 @@ export function useAthleteTodayRecentActivity() {
     setState((current) => ({ ...current, loading: true }));
     try {
       const account = await loadAccountDetail();
+      // Always mounted - only an athlete has a history to preview.
+      const actorType = String((account.account as JsonRecord | undefined)?.actor_type ?? "");
+      if (actorType !== "" && actorType !== "athlete") {
+        setState({ loading: false, sessionCount: 0, recentSessions: [] });
+        return;
+      }
       const athleteUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
       const response = await loadAthleteHistoryList(athleteUserId);
       const sessions = Array.isArray(response.sessions) ? (response.sessions as JsonRecord[]) : [];
