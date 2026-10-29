@@ -84,7 +84,11 @@ test("programme authoring contains explicit ordered training blocks", () => {
 test("builder is registry-bound and supports complete explicit prescriptions", () => {
   assert.match(templateService, /registries",\s*"exercise",\s*"exercise\.registry\.json"/u);
   assert.match(templateService, /session_work_item_count_invalid/u);
-  assert.match(templateService, /duplicate_exercise_in_session/u);
+  // A lift may come twice in a session (Sheiko, Boring But Big): the later
+  // one is its own exercise in the athlete's session.
+  assert.doesNotMatch(templateService, /throw new Beta18ProgrammeTemplateError\(\s*"duplicate_exercise_in_session"/u);
+  assert.match(templateService, /__r\$\{occurrence\}/u);
+  assert.match(templateService, /set_plan_invalid/u);
   assert.match(templateService, /const repModes/u);
   assert.match(templateService, /"fixed",\s*"range"/u);
   assert.match(templateService, /const loadModes/u);

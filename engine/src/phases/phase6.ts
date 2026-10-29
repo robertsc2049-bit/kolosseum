@@ -26,6 +26,15 @@ export type Phase6SessionExercise = {
     minimum: number;
     maximum: number;
   };
+  // Set by set: each set's own reps and load, in order (a coach's
+  // "5 @ 50%, 4 @ 60%, 2 x 3 @ 70%"); `sets` is their count.
+  set_targets?: Array<{
+    set_index: number;
+    reps: number;
+    amrap?: boolean;
+    intensity?: Record<string, unknown>;
+    resolved_load?: Record<string, unknown>;
+  }>;
   intensity?:
     | { type: "percent_1rm"; value: number }
     | { type: "rpe"; value: number }
@@ -346,6 +355,10 @@ export function phase6ProduceSessionOutput(program: unknown, canonicalInput: unk
       if (roundSeconds > 0) ex.group_round_seconds = roundSeconds;
       const totalRounds = typeof it.group_total_rounds === "number" ? it.group_total_rounds : 0;
       if (totalRounds > 0) ex.group_total_rounds = totalRounds;
+    }
+
+    if (Array.isArray(it.set_targets) && it.set_targets.length) {
+      ex.set_targets = it.set_targets.filter(isRecord).map((target: Record<string, unknown>) => ({ ...target })) as Phase6SessionExercise["set_targets"];
     }
 
     // Segment always carries a value (defaults to "working", same as the builder).

@@ -216,7 +216,20 @@ function DistanceControls({ workItem, blockIndex, weekIndex, sessionIndex, workI
 
 // Sets as a fixed count or a range: "3-4 sets" means the athlete does at
 // least 3 and may do a 4th. planned_sets is the low end.
-function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+function SetControls(props: WorkItemControlProps) {
+  if (props.workItem.set_mode === "per_set") {
+    return (
+      <div className="template-sets-group">
+        <SetModeSelect {...props} />
+        <SetPlanEditor {...props} />
+      </div>
+    );
+  }
+  return <SetCountControls {...props} />;
+}
+
+function SetCountControls(props: WorkItemControlProps) {
+  const { workItem, blockIndex, weekIndex, sessionIndex, workItemIndex } = props;
   const rangeMode = workItem.set_mode === "range";
   // The inputs stay uncontrolled (the legacy builder reads them); this only
   // follows what the coach types, for the "that's a lot of sets" check.
@@ -224,13 +237,7 @@ function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIn
   const warning = setsWarning(typed.sets, rangeMode ? typed.most : undefined);
   return (
     <div className="template-sets-group">
-      <label className="template-set-mode-field">
-        <span>Sets as</span>
-        <select defaultValue={rangeMode ? "range" : "fixed"} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "set_mode")}>
-          <option value="fixed">Fixed sets</option>
-          <option value="range">Set range</option>
-        </select>
-      </label>
+      <SetModeSelect {...props} />
       <label className="template-sets-field core-field" data-short={rangeMode ? "Min sets" : "Sets"}>
         <span>{rangeMode ? "Least sets" : "Sets"}</span>
         <input type="number" min={1} max={MAX_PLANNED_SETS} step={1} defaultValue={workItem.planned_sets} onChange={(event) => { const value = Number(event.target.value); setTyped((current) => ({ ...current, sets: value })); }} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "planned_sets")} />
@@ -242,6 +249,68 @@ function SetControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemIn
         </label>
       ) : null}
       {warning ? <p className="template-sets-warning" role="status" data-testid="sets-warning">{warning}</p> : null}
+    </div>
+  );
+}
+
+function SetModeSelect({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const mode = workItem.set_mode === "range" || workItem.set_mode === "per_set" ? workItem.set_mode : "fixed";
+  return (
+    <label className="template-set-mode-field">
+      <span>Sets as</span>
+      <select defaultValue={mode} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "set_mode")}>
+        <option value="fixed">Fixed sets</option>
+        <option value="range">Set range</option>
+        <option value="per_set">Set by set</option>
+      </select>
+    </label>
+  );
+}
+
+// Set by set: each line is some sets with their own reps and load ("5 @
+// 50%", "2 x 3 @ 70%", "5 x 3+ @ 75%"), in the item's loading method. The
+// inputs are uncontrolled like the rest of the builder; app.js keeps the
+// lines (data-template-kind="set-line", data-line-index) and adds or removes
+// them on the buttons.
+const SET_LINE_VALUE: Record<string, { label: string; short: string; min: number; max: number; step: number } | null> = {
+  percent_1rm: { label: "% 1RM", short: "%", min: 1, max: 100, step: 0.5 },
+  fixed_weight: { label: "Weight", short: "Weight", min: 0.25, max: 1000, step: 0.25 },
+  rpe: { label: "RPE", short: "RPE", min: 1, max: 10, step: 1 },
+  bodyweight: null
+};
+function SetPlanEditor({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
+  const lines = workItem.set_plan ?? [];
+  const valueField = SET_LINE_VALUE[workItem.load_mode] ?? null;
+  const unsupported = !(workItem.load_mode in SET_LINE_VALUE);
+  const lineAttrs = (lineIndex: number, field: string) => ({
+    "data-template-kind": "set-line", "data-block-index": blockIndex, "data-week-index": weekIndex,
+    "data-session-index": sessionIndex, "data-work-item-index": workItemIndex, "data-line-index": lineIndex, "data-field": field
+  });
+  const buttonAttrs = { "data-block-index": blockIndex, "data-week-index": weekIndex, "data-session-index": sessionIndex, "data-work-item-index": workItemIndex };
+  // The inputs are uncontrolled; this follows the sets typed, for the total.
+  const [typedSets, setTypedSets] = React.useState(() => lines.map((line) => Number(line.sets) || 0));
+  const total = lines.reduce((sum, line, lineIndex) => sum + (typedSets[lineIndex] ?? (Number(line.sets) || 0)), 0);
+  return (
+    <div className="template-set-plan" data-testid="set-plan-editor">
+      {unsupported ? <p className="field-warning">Set by set works with % of 1RM, a fixed weight, RPE or bodyweight - choose one of those below.</p> : null}
+      <ol className="template-set-plan-lines">
+        {lines.map((line, lineIndex) => (
+          <li key={`${lineIndex}-${lines.length}`} className="template-set-plan-line">
+            <label className="core-field" data-short="Sets"><span>Sets</span><input type="number" min={1} max={MAX_PLANNED_SETS} step={1} defaultValue={line.sets} onChange={(event) => { const value = Number(event.target.value); setTypedSets((current) => current.map((sets, index) => (index === lineIndex ? value : sets))); }} {...lineAttrs(lineIndex, "sets")} /></label>
+            <span aria-hidden="true">×</span>
+            <label className="core-field" data-short="Reps"><span>Reps</span><input type="number" min={1} max={100} step={1} defaultValue={line.reps} {...lineAttrs(lineIndex, "reps")} /></label>
+            {valueField ? (
+              <label className="core-field" data-short={valueField.short}><span>{workItem.load_mode === "fixed_weight" ? `${valueField.label} (${workItem.weight_unit})` : valueField.label}</span><input type="number" min={valueField.min} max={valueField.max} step={valueField.step} defaultValue={line.value} {...lineAttrs(lineIndex, "value")} /></label>
+            ) : null}
+            <label className="template-set-plan-amrap core-field" data-short="AMRAP" title="The last set of this line is as many reps as they can"><input type="checkbox" defaultChecked={line.amrap} aria-label={`Line ${lineIndex + 1}: last set as many reps as they can`} {...lineAttrs(lineIndex, "amrap")} /><span>As many as they can</span></label>
+            {lines.length > 1 ? <button className="button danger small-button remove-set-line" type="button" aria-label={`Remove set line ${lineIndex + 1}`} data-line-index={lineIndex} {...buttonAttrs}>Remove</button> : null}
+          </li>
+        ))}
+      </ol>
+      <div className="template-set-plan-footer">
+        <button className="button secondary small-button add-set-line" type="button" disabled={lines.length >= 12} {...buttonAttrs}>Add set line</button>
+        <span className="muted small">{`${total} ${total === 1 ? "set" : "sets"} in all`}</span>
+      </div>
     </div>
   );
 }
@@ -262,6 +331,7 @@ function LoadRangeSelect({ workItem, blockIndex, weekIndex, sessionIndex, workIt
 
 function PrescriptionControls(props: WorkItemControlProps) {
   const { workItem, blockIndex, weekIndex, sessionIndex, workItemIndex } = props;
+  if (workItem.set_mode === "per_set") return null;
   const prescriptionMode = workItem.prescription_mode === "duration" || workItem.prescription_mode === "distance"
     ? workItem.prescription_mode
     : "reps";
@@ -305,10 +375,21 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
             <option value="cr10">Modified Borg / CR10 (0-10)</option>
           </select>
         </label>
-        {loadMode === "percent_1rm" || loadMode === "fixed_weight" ? (
+        {workItem.set_mode === "per_set" ? (
+          loadMode === "fixed_weight" ? (
+            <label>
+              <span>Unit</span>
+              <select defaultValue={workItem.weight_unit} {...workItemAttrs(blockIndex, weekIndex, sessionIndex, workItemIndex, "weight_unit")}>
+                <option value="kg">kg</option>
+                <option value="lb">lb</option>
+              </select>
+            </label>
+          ) : <div className="template-bodyweight-note">Each set line has its own load.</div>
+        ) : null}
+        {workItem.set_mode !== "per_set" && (loadMode === "percent_1rm" || loadMode === "fixed_weight") ? (
           <LoadRangeSelect workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : null}
-        {loadMode === "percent_1rm" ? (
+        {workItem.set_mode === "per_set" ? null : loadMode === "percent_1rm" ? (
           <PercentOneRmField workItem={workItem} blockIndex={blockIndex} weekIndex={weekIndex} sessionIndex={sessionIndex} workItemIndex={workItemIndex} />
         ) : loadMode === "fixed_weight" ? (
           <>
@@ -628,7 +709,23 @@ function formatSeconds(total: number): string {
   return minutes ? `${minutes}:${String(seconds).padStart(2, "0")}` : `${seconds}s`;
 }
 
+// "5 @ 50%, 4 @ 60%, 2 × 3 @ 70%, 5 × 3+ @ 75%".
+export function setPlanSummary(workItem: ProgrammeWorkItemDraft): string {
+  const lines = workItem.set_plan ?? [];
+  const value = (line: { value: number }) => ({
+    percent_1rm: ` @ ${line.value}%`,
+    fixed_weight: ` @ ${line.value} ${workItem.weight_unit}`,
+    rpe: ` @ RPE ${line.value}`
+  }[workItem.load_mode as string] ?? "");
+  return lines.map((line) => `${line.sets > 1 ? `${line.sets} × ` : ""}${line.reps}${line.amrap ? "+" : ""}${value(line)}`).join(", ");
+}
+
 export function workItemSummary(workItem: ProgrammeWorkItemDraft): string {
+  if (workItem.set_mode === "per_set" && workItem.set_plan?.length) {
+    const rest = restLabel(workItem.rest_seconds);
+    const group = workItem.group_id && GROUP_LABELS[workItem.group_type] ? ` · ${GROUP_LABELS[workItem.group_type]}` : "";
+    return `${setPlanSummary(workItem)}${workItem.load_mode === "bodyweight" ? " bodyweight" : ""}${rest ? ` · ${rest}` : ""}${group}`;
+  }
   const sets = workItem.set_mode === "range" && workItem.planned_sets_max > workItem.planned_sets
     ? `${workItem.planned_sets}–${workItem.planned_sets_max} ×`
     : `${workItem.planned_sets} ×`;

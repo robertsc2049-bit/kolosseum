@@ -53,6 +53,31 @@ export function lighterForReentry<T extends Json>(exercises: readonly T[], reent
       out.intensity = { ...intensity, value: easierRpe(Number(intensity.value), cut.rpe) };
     }
 
+    // Set by set: a set fewer (from the end) and each set lighter by the same cut.
+    if (Array.isArray(exercise.set_targets)) {
+      const keep = num(out.sets) ?? exercise.set_targets.length;
+      out.set_targets = (exercise.set_targets as Json[]).slice(0, keep).map((target) => {
+        const at = isRecord(target.intensity) ? target.intensity : null;
+        const was = isRecord(target.resolved_load) ? target.resolved_load : null;
+        if (at?.type === "percent_1rm" && num(at.value) !== null) {
+          const percent = Math.max(40, Number(at.value) - cut.percent);
+          const step = num(was?.rounding_increment) ?? (was?.unit === "lb" ? 5 : 2.5);
+          return {
+            ...target,
+            intensity: { ...at, value: percent },
+            ...(was && num(was.value) !== null && num(was.percentage) ? { resolved_load: { ...was, percentage: percent, value: floorTo(Number(was.value) * percent / Number(was.percentage), step) } } : {})
+          };
+        }
+        if (at?.type === "load" && num(at.value) !== null) {
+          const step = at.unit === "lb" ? 5 : 2.5;
+          const value = floorTo(Number(at.value) * (1 - cut.percent / 100), step);
+          return { ...target, intensity: { ...at, value }, ...(was ? { resolved_load: { ...was, value } } : {}) };
+        }
+        if (at?.type === "rpe" && num(at.value) !== null) return { ...target, intensity: { ...at, value: easierRpe(Number(at.value), cut.rpe) } };
+        return target;
+      });
+    }
+
     // No max recorded: the effort target they're shown.
     const guidance = isRecord(exercise.load_guidance) ? exercise.load_guidance : null;
     if (guidance?.type === "rpe" && num(guidance.value) !== null) {

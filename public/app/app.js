@@ -194,8 +194,9 @@ function normalisePersistedTemplateDraft(draft) {
       percent_1rm: Number(workItem?.percent_1rm ?? 75),
       weight_value: Number(workItem?.weight_value ?? 20),
       weight_unit: workItem?.weight_unit === "lb" ? "lb" : "kg",
-      set_mode: workItem?.set_mode === "range" ? "range" : "fixed",
+      set_mode: ["range", "per_set"].includes(workItem?.set_mode) ? workItem.set_mode : "fixed",
       planned_sets_max: Number(workItem?.planned_sets_max ?? Number(workItem?.planned_sets ?? 3) + 1),
+      set_plan: normaliseSetPlan(workItem?.set_plan),
       load_range_mode: workItem?.load_range_mode === "range" ? "range" : "fixed",
       percent_1rm_max: Number(workItem?.percent_1rm_max ?? Number(workItem?.percent_1rm ?? 75) + 5),
       weight_value_max: Number(workItem?.weight_value_max ?? Number(workItem?.weight_value ?? 20) + 10),
@@ -622,6 +623,13 @@ function friendlyError(payload, status) {
     exercise_not_in_active_registry: "Choose exercises from the active exercise registry.",
     duplicate_exercise_in_session: "Each exercise in a session must be unique.",
     planned_sets_invalid: "Sets must be between 1 and 30.",
+    set_plan_invalid: "Set by set needs 1 to 12 lines.",
+    set_plan_sets_invalid: "Each set line needs 1 to 30 sets.",
+    set_plan_reps_invalid: "Each set line needs 1 to 100 reps.",
+    set_plan_value_invalid: "Each set line's load must be a valid % of 1RM (1-100), weight or RPE (1-10).",
+    set_plan_load_mode_invalid: "Set by set works with % of 1RM, a fixed weight, RPE or bodyweight.",
+    set_plan_needs_reps: "Set by set is for exercises prescribed by reps.",
+    set_plan_with_range: "Set by set can't also use a set or load range - each line has its own.",
     planned_reps_invalid: "Fixed reps must be between 1 and 100.",
     rep_mode_invalid: "Choose fixed reps or a rep range.",
     rep_range_min_invalid: "The minimum reps must be between 1 and 100.",
@@ -2859,6 +2867,52 @@ function renderCoachWorkspace() {
 // interaction, driving the exact same untouched mutation functions
 // below). See CoachProgrammeBuilderTree.tsx's own DEV NOTE.
 
+// Set by set ("5 @ 50%, 4 @ 60%, 2 x 3 @ 70%"): a work item's set_plan, one
+// line per group of sets with their own reps and load value (in the item's
+// load mode; none for bodyweight) and whether the line's last set is as many
+// reps as they can. In the draft set_mode is "per_set".
+function normaliseSetPlan(plan) {
+  return (Array.isArray(plan) ? plan : []).map((line) => ({
+    sets: Number(line?.sets ?? 1),
+    reps: Number(line?.reps ?? 5),
+    value: Number(line?.value ?? 0),
+    amrap: line?.amrap === true
+  }));
+}
+
+// The item's current single load value in its load mode, to start a plan from.
+function workItemLoadValue(workItem) {
+  if (workItem.load_mode === "fixed_weight") return Number(workItem.weight_value);
+  if (workItem.load_mode === "rpe") return Number(workItem.rpe_value);
+  if (workItem.load_mode === "bodyweight") return 0;
+  return Number(workItem.percent_1rm);
+}
+
+// A set-by-set item as the server takes it: the plan, the total sets, and the
+// first line's reps and value in the single fields (they must stay valid).
+function withSetPlanPayload(workItem, payload) {
+  if (workItem?.set_mode !== "per_set") return payload;
+  const lines = normaliseSetPlan(workItem.set_plan);
+  const bodyweight = workItem.load_mode === "bodyweight";
+  const first = lines[0] ?? { sets: 1, reps: 1, value: 0 };
+  const out = {
+    ...payload,
+    set_mode: "fixed",
+    prescription_mode: "reps",
+    rep_mode: "fixed",
+    load_range_mode: "fixed",
+    planned_sets: lines.reduce((sum, line) => sum + line.sets, 0),
+    planned_reps: first.reps,
+    rep_min: first.reps,
+    rep_max: first.reps,
+    set_plan: lines.map((line) => ({ sets: line.sets, reps: line.reps, ...(bodyweight ? {} : { value: line.value }), ...(line.amrap ? { amrap: true } : {}) }))
+  };
+  if (workItem.load_mode === "fixed_weight") out.weight_value = first.value;
+  else if (workItem.load_mode === "rpe") out.rpe_value = first.value;
+  else if (!bodyweight) out.percent_1rm = first.value;
+  return out;
+}
+
 // A new row starts with no exercise chosen ("Choose an exercise"): the coach
 // picks it. It used to take the library's exercise at the same position,
 // which - with the library sorted A-Z - filled every new programme with
@@ -2890,6 +2944,7 @@ function newTemplateWorkItem(index) {
     weight_unit: "kg",
     set_mode: "fixed",
     planned_sets_max: 4,
+    set_plan: [],
     load_range_mode: "fixed",
     percent_1rm_max: index === 0 ? 80 : 70,
     weight_value_max: index === 0 ? 110 : 30,
@@ -3023,7 +3078,10 @@ function storedWorkItemToDraft(workItem, workItemIndex) {
       ? Number(loadingReference.value ?? 20)
       : 20,
     weight_unit: loadingReference.unit === "lb" ? "lb" : "kg",
-    set_mode: workItem?.set_prescription?.type === "range" && Number(workItem.set_prescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    set_mode: Array.isArray(workItem?.set_plan) && workItem.set_plan.length
+      ? "per_set"
+      : workItem?.set_prescription?.type === "range" && Number(workItem.set_prescription.maximum) > Number(workItem?.planned_sets ?? 3) ? "range" : "fixed",
+    set_plan: normaliseSetPlan(workItem?.set_plan),
     planned_sets_max: workItem?.set_prescription?.type === "range" ? Number(workItem.set_prescription.maximum) : Number(workItem?.planned_sets ?? 3) + 1,
     load_range_mode: Number(loadingReference.maximum) > Number(loadingReference.value) ? "range" : "fixed",
     percent_1rm_max: loadingReference.type === "percent_1rm" ? Number(loadingReference.maximum ?? Number(loadingReference.value ?? 75) + 5) : 80,
@@ -3429,18 +3487,6 @@ function programmeActivationIssues(template) {
           addIssue(
             "session_coaching_notes_too_long",
             `${sessionPath} coaching notes must be 500 characters or fewer.`,
-            sessionPath
-          );
-        }
-
-        const exerciseIds = workItems
-          .map((workItem) => String(workItem?.exercise_id ?? ""))
-          .filter(Boolean);
-
-        if (new Set(exerciseIds).size !== exerciseIds.length) {
-          addIssue(
-            "duplicate_exercise_in_session",
-            `${sessionPath} contains a duplicate exercise.`,
             sessionPath
           );
         }
@@ -4770,7 +4816,7 @@ function templateDraftValidationRecord() {
                       Array.isArray(session?.work_items)
                         ? session.work_items
                         : []
-                    ).map((workItem, workItemIndex) => ({
+                    ).map((workItem, workItemIndex) => withSetPlanPayload(workItem, {
                       work_item_id: String(workItem?.work_item_id ?? ""),
                       order_index: workItemIndex + 1,
                       exercise_id: String(workItem?.exercise_id ?? ""),
@@ -5324,6 +5370,16 @@ function updateTemplateFieldFromControl(control) {
   const field = control.dataset.field;
   let target;
 
+  // A set line of a set-by-set item (data-line-index).
+  if (kind === "set-line") {
+    const item = draft.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex]?.work_items[workItemIndex];
+    const line = item?.set_plan?.[Number(control.dataset.lineIndex)];
+    if (!line || !field) return;
+    line[field] = control.type === "checkbox" ? control.checked : Number(control.value);
+    saveState();
+    return;
+  }
+
   if (kind === "block") {
     target = draft.blocks[blockIndex];
   }
@@ -5335,6 +5391,11 @@ function updateTemplateFieldFromControl(control) {
   }
 
   if (!target || !field) return;
+
+  // Starting set by set: one line from what the item had.
+  if (kind === "work-item" && field === "set_mode" && control.value === "per_set" && !(Array.isArray(target.set_plan) && target.set_plan.length)) {
+    target.set_plan = [{ sets: Number(target.planned_sets) || 3, reps: Number(target.planned_reps) || 5, value: workItemLoadValue(target), amrap: false }];
+  }
 
   if (kind === "block" && field === "week_count") {
     resizeBlockWeeks(blockIndex, Number(control.value));
@@ -5618,7 +5679,7 @@ function templatePayloadFromDraft() {
           order_index: Number(session.order_index),
           title: session.title.trim(),
           coaching_notes: (session.coaching_notes ?? "").trim(),
-          work_items: session.work_items.map((workItem) => ({
+          work_items: session.work_items.map((workItem) => withSetPlanPayload(workItem, {
             work_item_id: workItem.work_item_id,
             order_index: Number(workItem.order_index),
             exercise_id: workItem.exercise_id,
@@ -6640,6 +6701,20 @@ elements.templateBlocks.addEventListener("click", (event) => {
   const sessionIndex = Number(action.dataset.sessionIndex);
   const workItemIndex = Number(action.dataset.workItemIndex);
   const direction = Number(action.dataset.direction);
+
+  if (action.classList.contains("add-set-line") || action.classList.contains("remove-set-line")) {
+    const item = state.templateDraft?.blocks[blockIndex]?.weeks[weekIndex]?.sessions[sessionIndex]?.work_items[workItemIndex];
+    if (!item) return;
+    const lines = Array.isArray(item.set_plan) ? item.set_plan : [];
+    if (action.classList.contains("add-set-line")) {
+      const last = lines[lines.length - 1];
+      if (lines.length < 12) lines.push(last ? { ...last, amrap: false } : { sets: 1, reps: 5, value: workItemLoadValue(item), amrap: false });
+    }
+    else if (lines.length > 1) lines.splice(Number(action.dataset.lineIndex), 1);
+    item.set_plan = lines;
+    rerenderTemplateBuilder();
+    return;
+  }
 
   if (action.classList.contains("add-template-session")) {
     addTemplateSession(blockIndex, weekIndex);

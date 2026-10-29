@@ -25,6 +25,7 @@ type Json = Record<string, unknown>;
 import { analyseInjuries, injuryActionFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
 import { ewmaRatios, forwardActionFor, forwardFindings, forwardRows, type PlannedWeek } from "./forward_load.js";
 import { attemptPlan, prilepinCheck, velocitySummary, type HeavySet, type VelocitySet } from "./strength_top_end.js";
+import { muscleVolumeRange, rangeText, volumeLevel, volumeStatus } from "../../shared/muscle-volume-ranges/muscleVolumeRanges.mjs";
 
 export type AnalysisEvent = Readonly<{
   type: string;
@@ -51,6 +52,8 @@ export type AnalysisPlannedExercise = Readonly<{
   sets: number;
   sets_max?: number;
   reps_target: number | null;
+  // Set by set: each set's own reps (and weight, when it's known), in order.
+  set_targets?: readonly Readonly<{ reps: number; load_kg: number | null; amrap?: boolean }>[];
   // The prescribed weight (a fixed weight, or a % of max made a weight); a
   // range's top; the max a % came from.
   load_kg: number | null;
@@ -112,6 +115,12 @@ export type AnalysisInput = Readonly<{
   to?: string;
   // Movement pattern per exercise (squat, hinge, push...), for sets by pattern.
   pattern_of?: (exerciseId: string) => string | undefined;
+  // The muscle groups a set of an exercise counts for (a full set for each
+  // target group, half for each secondary-only group), or null when it isn't
+  // hard strength work (jumps, carries, conditioning, an athlete's own); and
+  // each group's name - for weekly sets per muscle group.
+  muscles_of?: (exerciseId: string) => Readonly<{ groups: readonly string[]; secondary: readonly string[] }> | null;
+  muscle_group_labels?: Readonly<Record<string, string>>;
   sessions: readonly AnalysisSession[];
   readiness: readonly ReadinessFact[];
   checkins: readonly CheckinFact[];
@@ -272,6 +281,9 @@ const averageOf = (values: ReadonlyArray<number | null | undefined>, places = 1)
 // ---------- the analysis ----------
 type WeekRow = Json & { week_start: string };
 
+// The reps a logged set was meant to hit: its own (set by set) or the exercise's.
+const targetRepsFor = (planned: AnalysisPlannedExercise, setIndex: number | undefined): number | null =>
+  planned.set_targets?.[(setIndex ?? 1) - 1]?.reps ?? planned.reps_target;
 const setLogs = (session: AnalysisSession) => session.events.filter((event) => event.type === "SET_LOG_REPORT" || event.type === "EXTRA_SET_REPORT");
 const done = (session: AnalysisSession) => session.status === "completed" || session.status === "partial";
 
@@ -401,6 +413,59 @@ export function analyseAthlete(input: AnalysisInput): Json {
     return { week_start: start, sets: logs.length, tonnage_kg: round(tonnage, 0), bodyweight_reps: bodyweightReps, timed_minutes: round(minutes, 1), distance_m: round(distance, 0) };
   });
 
+  // --- sets per muscle group, planned and done, against the level's range ---
+  const muscleVolume = (() => {
+    if (!input.muscles_of) return null;
+    const level = volumeLevel(input.experience_level ?? "");
+    const activity = String(input.activity_id ?? "");
+    const add = (into: Map<string, number>, exerciseId: string, sets: number) => {
+      const muscles = input.muscles_of!(baseExercise(exerciseId));
+      if (!muscles || !(sets > 0)) return;
+      for (const group of muscles.groups) if (group !== "conditioning") into.set(group, (into.get(group) ?? 0) + sets);
+      for (const group of muscles.secondary) if (group !== "conditioning") into.set(group, (into.get(group) ?? 0) + sets / 2);
+    };
+    const rows = weeks.map((start) => {
+      const weekSessions = sessions.filter((session) => weekStart(sessionDay(session)) === start);
+      const planned = new Map<string, number>();
+      const doneSets = new Map<string, number>();
+      for (const session of weekSessions) {
+        for (const item of session.planned.filter((p) => (p.segment || "working") === "working" && (p.dose ?? "reps") === "reps")) add(planned, item.exercise_id, item.sets);
+        for (const log of setLogs(session)) if (log.exercise_id && finite(log.reps) && log.reps > 0) add(doneSets, log.exercise_id, 1);
+      }
+      const groups = [...new Set([...planned.keys(), ...doneSets.keys()])];
+      return {
+        week_start: start, partial_week: start === currentWeek,
+        // A week they didn't train at all (before they started, away, ill)
+        // says nothing about the programme's volume - Turning up covers it.
+        trained: weekSessions.some(done),
+        groups: Object.fromEntries(groups.map((group) => [group, { planned: round(planned.get(group) ?? 0, 1), done: round(doneSets.get(group) ?? 0, 1) }]))
+      };
+    });
+    const seen = [...new Set(rows.flatMap((row) => Object.keys(row.groups)))];
+    if (!seen.length) return null;
+    const labels = input.muscle_group_labels ?? {};
+    const order = Object.keys(labels);
+    seen.sort((x, y) => (order.indexOf(x) === -1 ? 99 : order.indexOf(x)) - (order.indexOf(y) === -1 ? 99 : order.indexOf(y)));
+    // Each group over the complete weeks they trained: how often under, in or over its range.
+    const complete = rows.filter((row) => !row.partial_week && row.trained);
+    const groups = seen.map((group) => {
+      const range = muscleVolumeRange(group, level, activity);
+      const doneWeeks = complete.map((row) => row.groups[group]?.done ?? 0);
+      const status = doneWeeks.map((sets) => volumeStatus(sets, range));
+      return {
+        group, label: labels[group] ?? group.replaceAll("_", " "), min: range.min, max: range.max, range_text: rangeText(range),
+        latest_done: doneWeeks.length ? doneWeeks[doneWeeks.length - 1] : null,
+        // The current week so far (not judged: it isn't over).
+        this_week_done: (() => { const current = rows.find((row) => row.partial_week); return current ? current.groups[group]?.done ?? 0 : null; })(),
+        average_done: doneWeeks.length ? round(mean(doneWeeks), 1) : null,
+        weeks_under: status.filter((value) => value === "under").length,
+        weeks_over: status.filter((value) => value === "over").length,
+        weeks_complete: doneWeeks.length
+      };
+    });
+    return { level, activity_id: activity || null, rows, groups };
+  })();
+
   // --- strength (estimated max per lift, weekly best) ---
   const liftWeeks = new Map<string, Map<string, { value: number; method: string; reps: number; load: number }>>();
   for (const session of sessions.filter(done)) {
@@ -501,7 +566,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
       const lift = baseExercise(planned.exercise_id);
       const rpe = rating.get(lift);
       if (rpe === undefined || rpe < 9.5 || !(primary(lift) || (!anyRoles && input.is_strength_lift(lift)))) return [];
-      const missed = session.events.filter((event) => event.type === "SET_LOG_REPORT" && event.exercise_id === planned.exercise_id && finite(event.reps) && Number(event.reps) < Number(planned.reps_target));
+      const missed = session.events.filter((event) => event.type === "SET_LOG_REPORT" && event.exercise_id === planned.exercise_id && finite(event.reps) && Number(event.reps) < Number(targetRepsFor(planned, event.set_index)));
       return missed.length ? [{ date: sessionDay(session), exercise_id: lift, name: input.exercise_name(lift), rpe, missed_sets: missed.length, reps_target: planned.reps_target, fewest_reps: Math.min(...missed.map((event) => Number(event.reps))) }] : [];
     });
   });
@@ -544,7 +609,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
         if (planned.reps_target !== null) {
           for (const log of mine) {
             t.reps_checked += 1;
-            if (finite(log.reps) && log.reps >= planned.reps_target) t.reps_hit += 1;
+            if (finite(log.reps) && log.reps >= Number(targetRepsFor(planned, log.set_index))) t.reps_hit += 1;
             else ex.missed_sets += 1;
           }
         }
@@ -876,7 +941,10 @@ export function analyseAthlete(input: AnalysisInput): Json {
       for (const planned of session.planned.filter((p) => p.segment === "working")) {
         plannedSets += planned.sets;
         const weighted = planned.load_kg && planned.load_kg > 0 && planned.reps_target !== null && planned.dose !== "time" && planned.dose !== "distance";
-        if (weighted) plannedTonnage += planned.sets * (planned.reps_target as number) * (planned.load_kg as number);
+        // Set by set: each set at its own reps and weight.
+        const bySet = planned.set_targets?.length && planned.set_targets.every((target) => finite(target.load_kg)) ? planned.set_targets : null;
+        if (bySet) plannedTonnage += bySet.reduce((sum, target) => sum + target.reps * Number(target.load_kg), 0);
+        else if (weighted) plannedTonnage += planned.sets * (planned.reps_target as number) * (planned.load_kg as number);
         if (!finished) continue;
         if (planned.dose === "time" || planned.dose === "distance") {
           if (completedIds.has(planned.exercise_id) && !skippedIds.has(planned.exercise_id)) doneSets += planned.sets;
@@ -960,6 +1028,7 @@ export function analyseAthlete(input: AnalysisInput): Json {
     load: { rows: loadRows, sessions: sessionRows.filter((row) => inWindow(String(row.date))), quality: loadQuality },
     markers: markerRows,
     volume: { rows: volumeRows },
+    muscle_volume: muscleVolume,
     strength: { lifts, bodyweight: bodyweightLifts, grinds },
     execution: { rows: executionRows, most_missed: mostMissed, effort_creep: effortCreep.slice(0, 5), effort_targets: effortTargetRows, intensity },
     adherence: { rows: adherenceRows, planned_days_per_week: expected, by_weekday: byWeekday, most_skipped: mostSkipped },
@@ -1043,11 +1112,13 @@ function actionFor(finding: Finding): string | undefined {
   if (id === "plan_under") return "Find out what's being cut - whole sessions, the last exercises, or lighter weights - and adjust the plan to what they can do.";
   if (id === "plan_over") return "They're adding extra on top of the plan - check it's intended, as it adds fatigue you didn't plan for.";
   if (id.startsWith("bodyweight_")) return "Progress it: more reps, a harder variation or a little added weight.";
+  if (id.startsWith("muscle_over_")) return "Trim this group's accessory sets first - keep the main lifts - or check it's a planned overreach with a lighter week after it. Watch soreness and their performance on the lifts that use it.";
+  if (id.startsWith("muscle_under_")) return "If you want it to grow, add a few direct sets across the week (2-4 per session) rather than one big day.";
   if (id.startsWith("pain_")) return "Check technique and load on the exercises involved and swap them if needed. If it continues, refer them to a medical professional.";
   return undefined;
 }
 
-const SECTION_ORDER: Record<string, number> = { injuries: -1, pain: 0, strength: 1, readiness: 2, load: 3, gps: 3.5, adherence: 4, execution: 5, testing: 6 };
+const SECTION_ORDER: Record<string, number> = { injuries: -1, pain: 0, strength: 1, readiness: 2, load: 3, gps: 3.5, adherence: 4, execution: 5, testing: 6, volume: 7 };
 
 // One story instead of two lines that look like they disagree.
 function mergeRelated(list: Finding[]): Finding[] {
@@ -1254,6 +1325,27 @@ export function findings(analysis: Json): Finding[] {
   if (level && level.experience_level === "beginner" && Number(level.heavy_sessions) > 0) {
     const n = Number(level.heavy_sessions);
     out.push({ id: "beginner_heavy", section: "execution", level: "watch", text: `A beginner on heavy work: ${n} session${n === 1 ? "" : "s"} in this period set RPE 8+ or 80%+ of max (${((level.heavy_lifts ?? []) as string[]).join(", ")}).` });
+  }
+  // Sets per muscle group against the level's range, over the last 4
+  // complete weeks: over the maximum in 2+ is a recovery question for any
+  // athlete; under the minimum in 3+ only matters where building muscle is
+  // the aim (general strength) - a runner's or a fighter's programme is
+  // meant to be light on size.
+  const muscleVolume = a.muscle_volume as Json | null | undefined;
+  if (muscleVolume) {
+    const recent = complete((muscleVolume.rows ?? []) as Json[]).filter((row) => row.trained === true).slice(-4);
+    const span = recent.length;
+    const who = { beginner: "a beginner", amateur: "an amateur", pro: "a pro" }[String(muscleVolume.level)] ?? "an amateur";
+    for (const group of (muscleVolume.groups ?? []) as Json[]) {
+      const done = recent.map((row) => Number(((row.groups as Json)[String(group.group)] as Json | undefined)?.done ?? 0));
+      const overWeeks = group.max === null ? 0 : done.filter((sets) => sets > Number(group.max)).length;
+      const underWeeks = group.min === null ? 0 : done.filter((sets) => sets < Number(group.min)).length;
+      if (span >= 2 && overWeeks >= 2) {
+        out.push({ id: `muscle_over_${group.group}`, section: "volume", level: "watch", text: `${group.label}: over ${group.max} sets a week (the most ${who} usually recovers from) in ${overWeeks} of the last ${span} weeks trained, up to ${Math.max(...done)}.` });
+      } else if (span >= 3 && underWeeks >= 3 && muscleVolume.activity_id === "general_strength") {
+        out.push({ id: `muscle_under_${group.group}`, section: "volume", level: "info", text: `${group.label}: under ${group.min} sets a week (the usual minimum to build it) in ${underWeeks} of the last ${span} weeks trained.` });
+      }
+    }
   }
   if (!a.closed) out.push(...(forwardFindings((((a.plan as Json)?.ahead as Json | undefined)?.rows ?? []) as Json[]) as Finding[]));
 
