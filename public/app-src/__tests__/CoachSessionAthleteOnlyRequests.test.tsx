@@ -9,6 +9,7 @@ import React from "react";
 import { act, cleanup, render, waitFor } from "@testing-library/react";
 
 import { AccountCoachInvitationsPanel } from "../screens/account/AccountCoachInvitationsPanel";
+import { AccountCoachRelationshipPanel } from "../screens/account/AccountCoachRelationshipPanel";
 import { AccountOrgMessagesPanel } from "../screens/account/AccountOrgMessagesPanel";
 import { AthleteAttendanceEventsPanel } from "../screens/athlete/AthleteAttendanceEventsPanel";
 import { AthleteHistoryPanel } from "../screens/athlete/AthleteHistoryPanel";
@@ -29,6 +30,7 @@ import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../screens/entry/useEntryAuth";
 
 const ATHLETE_ONLY_PATHS = [
   "/coach-workspace/relationship-invitations",
+  "/coach-workspace/relationships/mine",
   "/messages/athlete/org-messages/threads",
   "/coach-workspace/org-context/mine",
   "/account/onboarding/",
@@ -49,6 +51,8 @@ function jsonResponse(body: unknown, ok = true, status = ok ? 200 : 400): Respon
 
 function installMocks(actorType: string) {
   const requested: string[] = [];
+  // The relationships panel gates on the stored role (utils/role.ts).
+  window.localStorage.setItem("kolosseum.product.app.v1", JSON.stringify({ role: actorType }));
   globalThis.fetch = (async (input: RequestInfo | URL) => {
     const path = String(input);
     requested.push(path);
@@ -62,6 +66,7 @@ function renderAthletePanels() {
   return render(
     <>
       <AccountCoachInvitationsPanel />
+      <AccountCoachRelationshipPanel />
       <AccountOrgMessagesPanel />
       <AthleteAttendanceEventsPanel />
       <AthleteHistoryPanel />
@@ -86,7 +91,10 @@ function athleteOnlyRequests(requested: string[]) {
   return requested.filter((path) => ATHLETE_ONLY_PATHS.some((prefix) => path.startsWith(prefix)));
 }
 
-test.afterEach(() => cleanup());
+test.afterEach(() => {
+  cleanup();
+  window.localStorage.clear();
+});
 
 for (const actorType of ["coach", "org_owner", "admin"]) {
   test(`a ${actorType} session makes no athlete-only requests from the always-mounted athlete panels`, async () => {
