@@ -47,11 +47,13 @@ test("under, in range and over; an unknown level reads as amateur; a sport's foc
 const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exercise.registry.json", import.meta.url), "utf8"));
 const patternOf = (id) => registry.entries?.[id]?.movement_pattern_id ?? Object.values(registry.entries ?? {}).find((entry) => entry.exercise_id === id)?.movement_pattern_id;
 
-test("no week of a Kolosseum programme reads 'over' for the levels it's written for - a strongman build, a meet prep and a beginner programme included", () => {
+test("no week of a Kolosseum-written programme reads 'over' for the levels it's written for - a strongman build, a meet prep and a beginner programme included", () => {
   const flat = (items) => items.flatMap((item) => (Array.isArray(item?.items) ? flat(item.items) : [item]));
   const over = [];
   let weeksChecked = 0;
-  for (const programme of PROGRAMMES) {
+  // Kolosseum's own programmes only: a recognised programme ("(based on ...)")
+  // is kept identical to its original, and the builder's ranges warn instead.
+  for (const programme of PROGRAMMES.filter((p) => !/\(based on [^)]+\)$/.test(p.listing?.title ?? ""))) {
     for (const block of programme.blocks) {
       block.weeks.forEach((week, weekIndex) => {
         weeksChecked += 1;
