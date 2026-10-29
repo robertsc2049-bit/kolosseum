@@ -16,7 +16,7 @@
 // meet-prep or strongman block reads "in range". "Shoulders" is front, side
 // and rear delts together - three areas coaches dose separately - so its
 // ceiling sits above the other major groups'. A beginner's ceiling allows
-// the 15 squat sets of a three-day novice 5x5, a proven recoverable dose.
+// the 15 squat sets of a three-day novice 5x5, a dose novices widely recover from.
 //
 // A minimum is given only for the major groups a balanced programme trains
 // directly. Being under it is not a fault when the sport doesn't want size
