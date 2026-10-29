@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   cancelActivityChange,
   confirmAthleteOnboarding,
@@ -111,6 +111,10 @@ export function useAthleteOnboarding() {
     const requestId = ++requestIdRef.current;
     setState((current) => ({ ...current, loading: true, unavailableError: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const serverState = await loadAthleteOnboardingState();
       const draft = (serverState.draft as JsonRecord | undefined)?.fields
         ?? (serverState.current_effective_declaration as JsonRecord | undefined)?.fields
