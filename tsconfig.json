@@ -22,6 +22,7 @@
     "src/**/*.ts",
     "shared/strength-reference/**/*.mjs",
     "shared/body-metrics/**/*.mjs",
+    "shared/muscle-volume-ranges/**/*.mjs",
     "engine/src/runtime/**/*.ts",
     "engine/src/render/**/*.ts"
   ],

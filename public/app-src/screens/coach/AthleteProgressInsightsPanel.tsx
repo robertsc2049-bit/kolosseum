@@ -140,7 +140,7 @@ export function AthleteProgressInsightsPanel() {
         }]}
         emptyLabel="No sessions recorded yet to chart adherence over time."
       />
-      <LoggedMuscleVolume weekly={insights.weekly_muscle_volume} />
+      <LoggedMuscleVolume weekly={insights.weekly_muscle_volume} coach />
       {trainingE1rmTrends.map((trend) => (
         <TrainingE1rmCard key={`e1rm-${String(trend.exercise_id)}`} trend={trend} exercises={exercises} />
       ))}

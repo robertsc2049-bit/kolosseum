@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { loadAccountDetail } from "../../api/client";
+import { readRole } from "../../utils/role";
 import {
   endAthleteRelationship,
   loadAthleteOwnMessageThreadsMine,
@@ -76,6 +77,12 @@ export function useAccountCoachRelationship() {
   }, []);
 
   const refresh = useCallback(async () => {
+    // Always mounted, so a coach/org owner/admin session must not hit the
+    // athlete-only /coach-workspace/relationships/mine (403).
+    if (readRole() !== "athlete") {
+      setState((current) => ({ ...current, loading: false, error: null, relationships: [] }));
+      return;
+    }
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
       const relationships = await loadAthleteRelationshipsMine();
