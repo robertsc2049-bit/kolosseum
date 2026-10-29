@@ -3,7 +3,19 @@
 // used by scripts/seed_kolosseum_programmes.mjs and the programme tests.
 
 // One builder work item from the programme notation.
+// item.plan: set by set, [[sets, reps, value, amrap?], ...] - value in the
+// item's load (% of 1RM for { pct }, kg for { kg }, RPE for { rpe }, none for
+// "bw"). item.sets as [min, max]: a set range ("3-4 sets").
 export function workItem(item, index, items) {
+  if (Array.isArray(item.plan)) {
+    const lines = item.plan.map(([sets, reps, value, amrap]) => ({ sets, reps, ...(item.load === "bw" ? {} : { value }), ...(amrap ? { amrap: true } : {}) }));
+    const first = item.plan[0];
+    const base = workItem({ ...item, plan: undefined, sets: lines.reduce((sum, line) => sum + line.sets, 0), reps: first[1], load: item.load === "bw" ? "bw" : "pct" in item.load ? { pct: first[2] } : "kg" in item.load ? { kg: first[2] } : { rpe: first[2] } }, index, items);
+    return { ...base, set_plan: lines };
+  }
+  if (Array.isArray(item.sets)) {
+    return { ...workItem({ ...item, sets: item.sets[0] }, index, items), set_mode: "range", planned_sets_max: item.sets[1] };
+  }
   const reps = item.reps;
   const timed = typeof reps === "object" && !Array.isArray(reps) && "seconds" in reps;
   const distance = typeof reps === "object" && !Array.isArray(reps) && "metres" in reps;
@@ -13,7 +25,7 @@ export function workItem(item, index, items) {
   return {
     work_item_id: "", order_index: index + 1, exercise_id: item.id, planned_sets: item.sets,
     prescription_mode: timed ? "duration" : distance ? "distance" : "reps",
-    rep_mode: range ? "range" : "fixed", planned_reps: fixedReps, rep_min: range ? reps[0] : fixedReps, rep_max: range ? reps[1] : fixedReps, tempo: "",
+    rep_mode: range ? "range" : "fixed", planned_reps: fixedReps, rep_min: range ? reps[0] : fixedReps, rep_max: range ? reps[1] : fixedReps, tempo: item.tempo ?? "",
     duration_mode: "fixed", planned_duration_seconds: timed ? reps.seconds : 30, duration_min_seconds: timed ? reps.seconds : 30, duration_max_seconds: timed ? reps.seconds : 30,
     distance_mode: "fixed", distance_unit: "meters", planned_distance_value: distance ? reps.metres : 20, distance_min_value: distance ? reps.metres : 20, distance_max_value: distance ? reps.metres : 20,
     load_mode: load === "bw" ? "bodyweight" : "pct" in load ? "percent_1rm" : "rpe" in load ? "rpe" : "fixed_weight",

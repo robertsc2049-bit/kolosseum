@@ -16,7 +16,7 @@ const working = (s) => ({ ...s, items: s.items.filter((i) => !i.segment) });
 const allSessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 const sessionsOf = (p) => allSessionsOf(p).map(working);
 
-test("seventy-nine programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
+test("seventy-eight programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep",
     "collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "field_ice_off_season", "field_ice_in_season", "court_off_season", "court_in_season",
@@ -31,12 +31,13 @@ test("seventy-nine programmes: every sport has its own, team sports by family an
     // The recognised programmes (recognised_programmes.mjs).
     "bodyweight_fundamentals", "novice_linear_3x5", "novice_5x5", "novice_amrap_linear", "wave_531_full_body",
     "tiered_linear", "texas_method", "ramping_5x5", "wave_531_bbb", "rep_waves", "three_lift_waves", "easy_strength_40_day",
-    "power_hypertrophy_upper_lower", "power_hypertrophy_5_day", "push_pull_legs_6_day", "body_part_split_5_day", "golden_era_6_day",
-    "six_week_strength_peak", "competition_lift_volume", "max_effort_dynamic_effort", "soviet_weightlifting_cycle",
-    "smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"
+    "power_hypertrophy_upper_lower", "power_hypertrophy_5_day", "push_pull_legs_6_day", "body_part_split_5_day", "golden_era_6_day", "ten_sets_of_ten",
+    "smolov_squat_pro", "smolov_jr_pro", "competition_lift_volume", "max_effort_dynamic_effort", "bulgarian_daily_max_pro"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
+
+const isRecognised = (p) => RECOGNISED_PROGRAMMES.some((r) => r.key === p.key);
 
 test("every exercise is in the exercise registry the builder offers", () => {
   const missing = [];
@@ -53,7 +54,12 @@ test("every programme fits the builder: 1-12 exercises a session, none twice, 1-
         assert.ok(week.length >= 1 && week.length <= 7, `${p.key}/${b.name}: sessions a week`);
         for (const s of week) {
           assert.ok(s.items.length >= 1 && s.items.length <= 12, `${p.key}: ${s.title} exercises`);
-          assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${p.key}: ${s.title} has an exercise twice (the builder refuses it)`);
+          // Kolosseum's own programmes don't repeat a lift; a recognised one may, as published (Sheiko, Boring But Big).
+          if (!isRecognised(p)) assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${p.key}: ${s.title} has an exercise twice`);
+          for (const i of s.items.filter((item) => Array.isArray(item.plan))) {
+            assert.ok(i.plan.length >= 1 && i.plan.length <= 12, `${p.key}: ${s.title} ${i.id} set lines`);
+            assert.ok(i.plan.reduce((sum, [sets]) => sum + sets, 0) <= 30, `${p.key}: ${s.title} ${i.id} at most 30 sets`);
+          }
           for (const i of s.items) {
             if (i.reps && typeof i.reps === "object" && "seconds" in i.reps) assert.ok(i.reps.seconds >= 1 && i.reps.seconds <= 1800, `${p.key}: ${s.title} ${i.id} at most 30 min (the builder's limit)`);
             if (i.reps && typeof i.reps === "object" && "metres" in i.reps) assert.ok(i.reps.metres >= 1 && i.reps.metres <= 10000, `${p.key}: ${s.title} ${i.id} at most 10 km (the builder's limit)`);
@@ -64,15 +70,16 @@ test("every programme fits the builder: 1-12 exercises a session, none twice, 1-
   }
 });
 
-// The high-volume programmes a coach asks for by name (Smolov's 10x3, German
-// Volume Training's 10x10) may go to 10 sets of a lift; nothing else past 8.
-const HIGH_VOLUME = new Set(["smolov_squat_pro", "ten_sets_of_ten"]);
-test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets (10 on Smolov and 10x10), no % on a bodyweight lift", () => {
-  for (const p of PROGRAMMES) {
+// Every load an item asks for: its own, or each set line's (set by set).
+const loadsOf = (i) => (Array.isArray(i.plan)
+  ? i.plan.map(([sets, reps, value]) => ({ sets, reps, load: i.load === "bw" ? "bw" : "pct" in i.load ? { pct: value } : "rpe" in i.load ? { rpe: value } : { kg: value } }))
+  : [{ sets: Array.isArray(i.sets) ? i.sets[1] : i.sets, reps: i.reps, load: i.load }]);
+test("Kolosseum's own programmes keep to its rules: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
+  for (const p of PROGRAMMES.filter((x) => !isRecognised(x))) {
     for (const s of sessionsOf(p)) {
       for (const i of s.items) {
         const where = `${p.key}: ${s.title} ${i.id}`;
-        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= (HIGH_VOLUME.has(p.key) ? 10 : 8), `${where} sets`);
+        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= 8, `${where} sets`);
         if (i.load !== "bw" && "pct" in i.load) {
           assert.ok(i.load.pct >= 50 && i.load.pct <= 95, `${where} % ${i.load.pct}`);
           if ("pct_max" in i.load) assert.ok(i.load.pct_max > i.load.pct && i.load.pct_max <= 95, `${where} % range ${i.load.pct}-${i.load.pct_max}`);
@@ -250,16 +257,16 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     wave_531_bbb: "rep_waves",
     rep_waves: "wave_531_bbb",
     easy_strength_40_day: "three_lift_waves",
+    three_lift_waves: "easy_strength_40_day",
     power_hypertrophy_upper_lower: "power_hypertrophy_5_day",
     power_hypertrophy_5_day: "power_hypertrophy_upper_lower",
     push_pull_legs_6_day: "power_hypertrophy_upper_lower",
     body_part_split_5_day: "push_pull_legs_6_day",
     golden_era_6_day: "body_part_split_5_day",
-    six_week_strength_peak: "powerlifting_meet_prep",
     competition_lift_volume: "powerlifting_meet_prep",
     max_effort_dynamic_effort: "powerlifting_meet_prep",
-    soviet_weightlifting_cycle: "olympic_weightlifting_meet_prep",
     smolov_squat_pro: "powerlifting_meet_prep",
+    smolov_jr_pro: "powerlifting_meet_prep",
     bulgarian_daily_max_pro: "olympic_weightlifting_meet_prep",
     ten_sets_of_ten: "power_hypertrophy_upper_lower"
   });
@@ -540,7 +547,9 @@ test("every session opens with a warm-up for what it trains and ends with stretc
     for (const s of allSessionsOf(p)) {
       const where = `${p.key}: ${s.title}`;
       assert.ok(s.items.length <= 12, `${where}: ${s.items.length} exercises`);
-      assert.equal(new Set(s.items.map((i) => i.id)).size, s.items.length, `${where}: an exercise twice`);
+      // Warm-up and cool-down never repeat; a recognised programme's working lifts may (as published).
+      const ids = isRecognised(p) ? s.items.filter((i) => i.segment).map((i) => i.id) : s.items.map((i) => i.id);
+      assert.equal(new Set(ids).size, ids.length, `${where}: an exercise twice`);
       const segments = s.items.map((i) => order[i.segment]);
       assert.deepEqual(segments, [...segments].sort((a, b) => a - b), `${where}: warm-up, then training, then cool-down`);
       const bookends = s.items.filter((i) => i.segment);
@@ -574,81 +583,77 @@ test("a squat day stretches the hips and hamstrings, a bench day the chest and l
 });
 
 // ---------------------------------------------------------------------------
-// Recognised programmes (recognised_programmes.mjs).
-const recognised = PROGRAMMES.filter((p) => RECOGNISED_PROGRAMMES.some((r) => r.key === p.key));
+// Recognised programmes (recognised_programmes.mjs): as published, within the
+// builder's limits, with a warning wherever they pass Kolosseum's own rules.
+const recognised = PROGRAMMES.filter(isRecognised);
 const mainOf = (p, week, title) => working(p.blocks.flatMap((b) => b.weeks)[week - 1].find((s) => s.title === title)).items[0];
 
 test("every recognised programme is named for what it is, credits the programme it's based on, and says it isn't endorsed", () => {
-  assert.equal(recognised.length, 24);
+  assert.equal(recognised.length, 23);
   for (const p of recognised) {
     assert.match(p.listing.title, /\(based on [^)]+\)$/, `${p.key}: title credits the original`);
     assert.equal(p.template_name, p.listing.title, `${p.key}: the coach's copy keeps the credit`);
     assert.match(p.listing.summary, /Based on .+\. Independent - not endorsed by .+\.$/, `${p.key}: summary`);
-    assert.match(p.description, /In the style of|based on/i, `${p.key}: design notes say what it follows`);
+    assert.ok(p.listing.summary.length <= 400, `${p.key}: summary length`);
   }
 });
 
-test("a 5/3/1 cycle climbs 5s, 3s, then 5/3/1, and deloads in week 4 - from a 90% training max", () => {
-  const bbb = recognised.find((p) => p.key === "wave_531_bbb");
-  const week = (n) => mainOf(bbb, n, "Squat");
-  assert.deepEqual([week(1).load, week(1).reps], [{ pct: 57.5, pct_max: 77.5 }, 5], "65/75/85% of a 90% training max");
-  assert.deepEqual([week(2).load, week(2).reps], [{ pct: 62.5, pct_max: 80 }, 3]);
-  assert.deepEqual([week(3).load, week(3).reps], [{ pct: 67.5, pct_max: 85 }, [1, 5]], "5, 3, then 1+ at 85%");
-  assert.deepEqual(week(4).load, { pct: 50, pct_max: 55 }, "deload");
-  assert.deepEqual(week(5).load, week(1).load, "cycle 2 starts the wave again (the training max goes up instead)");
-});
-
-test("the recognised beginner programmes never go past 85% or below 3 reps on a weighted lift", () => {
-  for (const p of recognised.filter((x) => x.listing.levels.includes("beginner"))) {
+test("recognised programmes stay inside the builder's limits: % of 1RM 1-100, whole RPEs 1-10, up to 30 sets", () => {
+  for (const p of recognised) {
     for (const s of sessionsOf(p)) {
       for (const i of s.items) {
-        if (i.load !== "bw" && "pct" in i.load) assert.ok((i.load.pct_max ?? i.load.pct) <= 85, `${p.key}: ${s.title} ${i.id}`);
-        if (i.load !== "bw" && typeof i.reps === "number") assert.ok(i.reps >= 3, `${p.key}: ${s.title} ${i.id} ${i.reps} reps`);
+        for (const { sets, load } of loadsOf(i)) {
+          const where = `${p.key}: ${s.title} ${i.id}`;
+          assert.ok(Number.isInteger(sets) && sets >= 1 && sets <= 30, `${where} sets`);
+          if (load !== "bw" && "pct" in load) assert.ok(load.pct >= 1 && load.pct <= 100, `${where} % ${load.pct}`);
+          if (load !== "bw" && "rpe" in load) assert.ok(Number.isInteger(load.rpe) && load.rpe >= 1 && load.rpe <= 10, `${where} RPE ${load.rpe}`);
+        }
       }
     }
   }
 });
 
-test("the Texas Method's Friday is heavier than Monday every week, and Wednesday is the lightest", () => {
-  const texas = recognised.find((p) => p.key === "texas_method");
-  for (let week = 1; week <= 12; week += 1) {
-    const [mon, wed, fri] = ["Volume day", "Recovery day", "Intensity day"].map((title) => mainOf(texas, week, title).load.pct);
-    assert.ok(fri > mon && mon > wed, `week ${week}: ${mon} / ${wed} / ${fri}`);
-  }
-});
-
-test("a novice adds weight session to session; past novice, the programmes progress weekly and then in waves", () => {
-  const byKey = Object.fromEntries(recognised.map((p) => [p.key, p]));
-  for (const key of ["novice_linear_3x5", "novice_5x5", "novice_amrap_linear", "bodyweight_fundamentals"]) assert.deepEqual(byKey[key].listing.levels, ["beginner"], key);
-  for (const key of ["texas_method", "ramping_5x5", "tiered_linear"]) assert.deepEqual(byKey[key].listing.levels, ["amateur"], key);
-  assert.deepEqual(byKey.golden_era_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
-  assert.deepEqual(byKey.push_pull_legs_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
-  assert.deepEqual(byKey.wave_531_full_body.listing.levels, ["beginner", "amateur"]);
-});
-
-test("Smolov, the Bulgarian method and 10x10 say on the card and on every main lift that they're high-risk and coach-supervised, and are listed for the right lifters", () => {
-  const byKey = Object.fromEntries(recognised.map((p) => [p.key, p]));
-  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"]) {
-    const p = byKey[key];
-    assert.match(p.listing.summary, /with a coach/, `${key}: card`);
-    assert.match(p.listing.summary, /stop and tell/i, `${key}: card says when to stop`);
-    assert.match(p.description, /High-risk .+ coach-supervised/, `${key}: design notes`);
-  }
-  assert.deepEqual(byKey.smolov_squat_pro.listing.levels, ["pro"]);
-  assert.deepEqual(byKey.bulgarian_daily_max_pro.listing.levels, ["pro"]);
-  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro"]) {
-    for (const s of sessionsOf(byKey[key])) {
-      const main = s.items[0];
-      if (main.id.includes("squat") || main.id.includes("snatch") || main.id.includes("clean")) {
-        if (main.note && !/Lighter week|Light and fast|Easy movement|Switching phase|Lighter/.test(main.note)) assert.match(main.note, /coach watching/, `${key}: ${s.title} ${main.id}`);
-      }
+test("wherever a recognised programme passes Kolosseum's own rules, its card carries a warning", () => {
+  for (const p of recognised) {
+    const beginner = p.listing.levels.includes("beginner");
+    const breaks = sessionsOf(p).flatMap((s) => s.items).flatMap(loadsOf).some(({ sets, reps, load }) =>
+      sets > 8 ||
+      (load !== "bw" && "pct" in load && (load.pct < 50 || load.pct > 95 || (beginner && load.pct > 85))) ||
+      (load !== "bw" && "rpe" in load && load.rpe > 9) ||
+      (beginner && load !== "bw" && "pct" in load && typeof reps === "number" && reps < 3));
+    if (breaks) {
+      assert.ok(p.listing.warnings?.length, `${p.key}: passes Kolosseum's rules, needs a warning`);
+      assert.match(p.listing.summary, /Warning:/u, `${p.key}: the card says so`);
     }
   }
 });
 
-test("Smolov's base week is 4x9 at 70%, 5x7 at 75%, 7x5 at 80% and 10x3 at 85%, and nothing in the cycle passes 95% of the starting max", () => {
+test("a 5/3/1 week is the published three work sets from a 90% training max - 65/75/85%, 70/80/90%, 75/85/95% - then the deload at 40/50/60%", () => {
+  const bbb = recognised.find((p) => p.key === "wave_531_bbb");
+  assert.deepEqual(mainOf(bbb, 1, "Squat").plan, [[1, 5, 58.5], [1, 5, 67.5], [1, 5, 76.5, true]]);
+  assert.deepEqual(mainOf(bbb, 2, "Squat").plan, [[1, 3, 63], [1, 3, 72], [1, 3, 81, true]]);
+  assert.deepEqual(mainOf(bbb, 3, "Squat").plan, [[1, 5, 67.5], [1, 3, 76.5], [1, 1, 85.5, true]]);
+  assert.deepEqual(mainOf(bbb, 4, "Squat").plan, [[1, 5, 36], [1, 5, 45], [1, 5, 54]]);
+  const squatDay = working(bbb.blocks[0].weeks[0].find((s) => s.title === "Squat")).items;
+  assert.deepEqual([squatDay[1].id, squatDay[1].sets, squatDay[1].reps, squatDay[1].load], ["back_squat", 5, 10, { pct: 45 }], "Boring But Big is the same lift again, 5x10 at 50% of the training max");
+});
+
+test("Sheiko #29 benches twice on day 1, each set at its own %: 50% x5, 60% x4 x2, 70% x3 x2, 75% x3 x5", () => {
+  const sheiko = recognised.find((p) => p.key === "competition_lift_volume");
+  const day1 = working(sheiko.blocks[0].weeks[0][0]).items;
+  assert.deepEqual(day1.map((i) => i.id).slice(0, 3), ["bench_press", "back_squat", "bench_press"]);
+  assert.deepEqual(day1[0].plan, [[1, 5, 50], [2, 4, 60], [2, 3, 70], [5, 3, 75]]);
+});
+
+test("Smolov's base week is 4x9 at 70%, 5x7 at 75%, 7x5 at 80% and 10x3 at 85%, and the hard programmes say they're coach-supervised", () => {
   const smolov = recognised.find((p) => p.key === "smolov_squat_pro");
-  const base = smolov.blocks.find((b) => b.name === "Base mesocycle").weeks[0].map((s) => working(s).items.find((i) => i.id === "back_squat"));
-  assert.deepEqual(base.map((i) => [i.sets, i.reps, i.load.pct]), [[4, 9, 70], [5, 7, 75], [7, 5, 80], [10, 3, 85]]);
-  for (const s of sessionsOf(smolov)) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok((i.load.pct_max ?? i.load.pct) <= 95, `${s.title}`);
+  const base = smolov.blocks.find((b) => b.name === "Base mesocycle").weeks[0].map((s) => working(s).items[0].plan[0]);
+  assert.deepEqual(base, [[4, 9, 70], [5, 7, 75], [7, 5, 80], [10, 3, 85]]);
+  for (const key of ["smolov_squat_pro", "smolov_jr_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten", "max_effort_dynamic_effort"]) {
+    const p = recognised.find((x) => x.key === key);
+    assert.ok(p.listing.warnings.some((w) => /Particularly hard/u.test(w) && /Coach-supervised/u.test(w)), `${key}: marked particularly hard and coach-supervised`);
+    assert.ok(sessionsOf(p).some((s) => s.items.some((i) => /Coach-supervised/u.test(i.note ?? ""))), `${key}: the main lifts say so too`);
+  }
+  assert.deepEqual(recognised.find((x) => x.key === "smolov_squat_pro").listing.levels, ["pro"]);
+  assert.deepEqual(recognised.find((x) => x.key === "bulgarian_daily_max_pro").listing.levels, ["pro"]);
 });
