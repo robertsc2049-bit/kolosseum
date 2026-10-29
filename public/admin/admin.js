@@ -165,8 +165,12 @@ async function openAccountDetail(userId) {
   el("accountToggleTestConfirmButton").hidden = true;
   el("accountTestMarkingReason").hidden = true;
   el("accountTestMarkingReason").value = "";
+  // Only an athlete account can be made a coach.
+  el("accountConvertToCoachButton").hidden = account.actor_type !== "athlete";
+  el("accountConvertToCoachConfirmButton").hidden = true;
   state.pendingStateChange = null;
   state.pendingTestMarking = null;
+  state.pendingCoachConversion = null;
 
   const historyBody = el("accountEventHistory");
   historyBody.innerHTML = "";
@@ -222,6 +226,26 @@ async function confirmTestMarkingToggle() {
   el("accountTestMarkingReason").hidden = true;
   state.pendingTestMarking = null;
   await openAccountDetail(state.selectedUserId);
+  await refreshAuditRecords();
+}
+
+// Make an athlete account a coach account: same login; they're signed out
+// and set up as a coach next time they sign in.
+function requestCoachConversion() {
+  if (!state.selectedUserId) return;
+  state.pendingCoachConversion = { correlation_id: generateCorrelationId() };
+  el("accountConvertToCoachConfirmButton").hidden = false;
+}
+
+async function confirmCoachConversion() {
+  if (!state.pendingCoachConversion || !state.selectedUserId) return;
+  const outcome = await api("POST", `/admin/accounts/${encodeURIComponent(state.selectedUserId)}/convert-to-coach`, state.pendingCoachConversion);
+  el("accountActionResult").hidden = false;
+  el("accountActionResult").textContent = `Audit record ${outcome.audit.audit_record_id}: ${JSON.stringify(outcome.audit.before_state)} -> ${JSON.stringify(outcome.audit.after_state)}`;
+  el("accountConvertToCoachConfirmButton").hidden = true;
+  state.pendingCoachConversion = null;
+  await openAccountDetail(state.selectedUserId);
+  await refreshAccountSearchResults();
   await refreshAuditRecords();
 }
 
@@ -904,6 +928,8 @@ el("accountSearchForm").addEventListener("submit", searchAccounts);
 el("accountToggleStateButton").addEventListener("click", requestAccountStateToggle);
 el("accountToggleStateConfirmButton").addEventListener("click", () => confirmAccountStateToggle().catch(console.error));
 el("accountToggleTestButton").addEventListener("click", requestTestMarkingToggle);
+el("accountConvertToCoachButton").addEventListener("click", requestCoachConversion);
+el("accountConvertToCoachConfirmButton").addEventListener("click", () => confirmCoachConversion().catch(console.error));
 el("accountToggleTestConfirmButton").addEventListener("click", () => confirmTestMarkingToggle().catch(console.error));
 el("exportRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);

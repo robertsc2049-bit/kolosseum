@@ -655,6 +655,12 @@ function phase1Input(
   });
 }
 
+// An athlete account an admin has made a coach (product_admin_action_service
+// convertAccountToCoach): the coach profile a coach sign-up creates.
+export async function createCoachProfileForAccount(userId: string, email: string, name: string): Promise<void> {
+  await persistInitialProductRecords(userId, "coach", email, name, null);
+}
+
 async function persistInitialProductRecords(
   userId: string,
   actor: ActorType,

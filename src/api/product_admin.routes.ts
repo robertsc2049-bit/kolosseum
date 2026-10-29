@@ -27,6 +27,7 @@ import {
   changeOrgOwnerAccountState,
   changeOrgOwnerSupportRequestStatus,
   changeSupportRequestStatus,
+  convertAccountToCoach,
   AdminActionError,
   eraseAccountForDeletionRequest,
   eraseOrgOwnerForDeletionRequest,
@@ -153,6 +154,26 @@ productAdminRouter.post(
         String(body.correlation_id ?? ""),
         String(request.params.user_id),
         String(body.account_state ?? "")
+      );
+      return response.status(200).json({ ok: true, audit: outcome });
+    }
+    catch (error) {
+      rethrowActionError(error);
+    }
+  })
+);
+
+productAdminRouter.post(
+  "/accounts/:user_id/convert-to-coach",
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    const body = request.body ?? {};
+
+    try {
+      const outcome = await convertAccountToCoach(
+        admin.user_id,
+        String(body.correlation_id ?? ""),
+        String(request.params.user_id)
       );
       return response.status(200).json({ ok: true, audit: outcome });
     }
