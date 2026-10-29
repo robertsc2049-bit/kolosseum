@@ -294,6 +294,24 @@ test("a self-coached athlete with nothing assigned is pointed at building their 
   nav.remove();
 });
 
+test("a coach session (the card is always mounted) never requests the athlete-only relationships/mine endpoint", async () => {
+  const requested: string[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    const path = String(input);
+    requested.push(path);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1", actor_type: "coach" } });
+    if (path.startsWith("/sessions/beta-athlete-today")) return jsonResponse({ ok: true, state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] });
+    return jsonResponse({ error: "forbidden" }, false, 403);
+  }) as typeof fetch;
+  render(<AthleteTodaySessionCard />);
+  await waitFor(() => assert.ok(requested.some((path) => path.startsWith("/sessions/beta-athlete-today"))));
+  await act(async () => {
+    document.dispatchEvent(new CustomEvent("kolosseum:today-changed"));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  });
+  assert.deepEqual(requested.filter((path) => path.includes("/relationships/mine")), []);
+});
+
 test("a coached athlete still waiting for a programme is told to ask their coach", async () => {
   installMocks({ state: "no_current_assignment", assignment: null, session: null, event: null, notes: [] }, undefined, undefined, [{ relationship_state: "accepted", coach_display_name: "Sam Carter" }]);
   render(<AthleteTodaySessionCard />);
