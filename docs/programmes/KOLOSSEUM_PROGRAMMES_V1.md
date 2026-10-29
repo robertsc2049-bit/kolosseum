@@ -1088,6 +1088,60 @@ modestly.
 presses and pull-ups adding weight as reps are made, plus light crush, pinch,
 support and wrist work at RPE 6 to build the tendons before heavy attempts.
 
+## 19. Recognised programmes (product/programmes/recognised_programmes.mjs)
+
+The programmes coaches already know by name, so a coach can start from the
+one they'd have written out by hand. Each is named for what it is and credits
+the programme it's based on in its title ("Wave 5s/3s/1s with 5×10 (based on
+5/3/1 Boring But Big)"), which is also the name a coach's copy keeps. Every
+summary ends "Independent - not endorsed by ...": these are the widely
+published methods, written in Kolosseum's notation, not the authors' products.
+
+**How they're written:**
+- Loads are % of the athlete's real max. Programmes built on a 90% training
+  max (5/3/1, Juggernaut) are converted: 85% of the training max is 77.5% of
+  max.
+- The builder holds an exercise once a session, so climbing work sets (5/3/1's
+  three sets, Madcow's ramps, Sheiko's pyramids) are one exercise with a %
+  range and the per-set percentages in the note. Back-off sets of the same
+  lift go in the same exercise (5/3/1 First Set Last) or use the opposite lift
+  (Boring But Big: a squat day's 5×10 is deadlifts).
+- Every programme reads "in range" against the weekly sets-per-muscle ranges
+  for the levels it's listed for (test/muscle_volume_ranges.test.mjs). Where
+  the original goes past them for its level, it's trimmed and the note says
+  so: 5/3/1 for Beginners' back-off sets are 3×5, not 5×5; the bodyweight
+  routine alternates dips and push-ups and does one core exercise a session;
+  the 6-day push/pull/legs and golden-era split are listed for Pro only.
+
+| Programme | Based on | Level | Days |
+|---|---|---|---|
+| Bodyweight fundamentals | r/bodyweightfitness Recommended Routine | Beginner | 3 |
+| Novice linear 3×5 | Starting Strength (Rippetoe) | Beginner | 3 |
+| Novice 5×5 | StrongLifts 5×5 (Hadim) | Beginner | 3 |
+| Novice linear with AMRAP sets | Greyskull LP (Sheaffer) | Beginner | 3 |
+| Wave 5s/3s/1s full body | 5/3/1 for Beginners (Wendler) | Beginner, Amateur | 3 |
+| Tiered T1/T2/T3 progression | GZCLP (Lefever) | Amateur | 4 |
+| Volume, recovery and intensity days | Texas Method (Pendlay, Rippetoe) | Amateur | 3 |
+| Ramping weekly 5×5 | Madcow 5×5 (after Bill Starr) | Amateur | 3 |
+| Wave 5s/3s/1s with 5×10 | 5/3/1 Boring But Big (Wendler) | Amateur, Pro | 4 |
+| Rep waves 10s, 8s, 5s, 3s | Juggernaut Method (C. W. Smith) | Amateur, Pro | 4 |
+| Three-lift strength waves | Tactical Barbell Operator (K. Black) | Amateur, Pro | 3 |
+| Easy strength, 40 days | Easy Strength (Dan John, Tsatsouline) | Amateur, Pro | 5 |
+| Power and hypertrophy upper/lower | PHUL (Campbell) | Amateur, Pro | 4 |
+| Power and hypertrophy, 5 days | PHAT (Norton) | Amateur, Pro | 5 |
+| Push/pull/legs, 6 days | r/Fitness PPL (Metallicadpa) | Pro | 6 |
+| Five-day body-part split | the traditional bodybuilding split | Amateur, Pro | 5 |
+| Golden-era 6-day split | Arnold Schwarzenegger's split | Pro | 6 |
+| Six-week strength peak (powerlifting) | Candito 6 Week Strength Program | Amateur, Pro | 4 |
+| High-frequency competition-lift volume (powerlifting) | Sheiko's preparatory programmes | Amateur, Pro | 3 |
+| Max effort / dynamic effort (powerlifting) | Westside conjugate method (Simmons) | Amateur, Pro | 4 |
+| Classic Soviet weightlifting cycle | the Soviet system (Medvedyev, Vorobyev) | Amateur, Pro | 4 |
+
+**Left out on purpose:** Smolov and Smolov Jr, the Bulgarian method and
+German Volume Training (10×10). Each needs more than the builder's 8 sets an
+exercise, or daily near-maximal work, and none is something to hand an
+athlete to run without a coach watching.
+
 ## Not in v1, and why
 
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.
