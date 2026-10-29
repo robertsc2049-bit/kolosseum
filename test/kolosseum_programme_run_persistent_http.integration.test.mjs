@@ -506,7 +506,7 @@ test(
 );
 
 test(
-  "Kolosseum programmes: all fifty-five save in the builder with their warm-ups and cool-downs, and an athlete's session opens with the warm-up, trains, then stretches",
+  "Kolosseum programmes: all seventy-nine (recognised programmes and their % ranges included) save in the builder with their warm-ups and cool-downs, and an athlete's session opens with the warm-up, trains, then stretches",
   { timeout: 600000 },
   async (testContext) => {
     const root = repoRoot();

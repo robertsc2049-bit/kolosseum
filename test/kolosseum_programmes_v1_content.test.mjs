@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
+import { RECOGNISED_PROGRAMMES } from "../product/programmes/recognised_programmes.mjs";
 
 const registry = JSON.parse(fs.readFileSync(new URL("../registries/exercise/exercise.registry.json", import.meta.url), "utf8")).entries;
 const activities = new Set(Object.values(JSON.parse(fs.readFileSync(new URL("../registries/activity/activity.registry.json", import.meta.url), "utf8")).entries).map((a) => a.activity_id));
@@ -15,7 +16,7 @@ const working = (s) => ({ ...s, items: s.items.filter((i) => !i.segment) });
 const allSessionsOf = (p) => p.blocks.flatMap((b) => b.weeks.flat());
 const sessionsOf = (p) => allSessionsOf(p).map(working);
 
-test("fifty-five programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
+test("seventy-nine programmes: every sport has its own, team sports by family and position, athletics by event group, sport foundations for beginners, and pro versions of the sport builds and preps", () => {
   assert.deepEqual(PROGRAMMES.map((p) => p.key), [
     "beginner_full_body", "intermediate_upper_lower", "powerlifting_meet_prep",
     "collision_forwards_off_season", "collision_backs_off_season", "collision_in_season", "field_ice_off_season", "field_ice_in_season", "court_off_season", "court_in_season",
@@ -26,7 +27,13 @@ test("fifty-five programmes: every sport has its own, team sports by family and 
     "collision_forwards_off_season_pro", "collision_backs_off_season_pro", "field_ice_off_season_pro", "court_off_season_pro", "tennis_off_season_pro", "cricket_off_season_pro", "combat_strength_power_pro", "athletics_power_build_pro", "endurance_run_ride_strength_pro", "triathlon_strength_pro", "endurance_swim_row_paddle_strength_pro",
     "beginner_contact_foundation", "beginner_field_court_foundation", "beginner_weightlifting_foundation", "beginner_street_lifting_foundation", "beginner_crossfit_on_ramp", "beginner_hyrox_first_race",
     "powerlifting_meet_prep_pro", "olympic_weightlifting_meet_prep_pro", "strongman_strength_events_pro", "street_lifting_meet_prep_pro", "hyrox_race_build_pro", "crossfit_strength_conditioning_pro",
-    "beginner_grip_sport_foundation", "grip_sport_meet_prep", "grip_sport_meet_prep_pro"
+    "beginner_grip_sport_foundation", "grip_sport_meet_prep", "grip_sport_meet_prep_pro",
+    // The recognised programmes (recognised_programmes.mjs).
+    "bodyweight_fundamentals", "novice_linear_3x5", "novice_5x5", "novice_amrap_linear", "wave_531_full_body",
+    "tiered_linear", "texas_method", "ramping_5x5", "wave_531_bbb", "rep_waves", "three_lift_waves", "easy_strength_40_day",
+    "power_hypertrophy_upper_lower", "power_hypertrophy_5_day", "push_pull_legs_6_day", "body_part_split_5_day", "golden_era_6_day",
+    "six_week_strength_peak", "competition_lift_volume", "max_effort_dynamic_effort", "soviet_weightlifting_cycle",
+    "smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"
   ]);
   assert.equal(new Set(PROGRAMMES.map((p) => p.template_name)).size, PROGRAMMES.length, "names are unique (the seed script skips by name)");
 });
@@ -57,14 +64,18 @@ test("every programme fits the builder: 1-12 exercises a session, none twice, 1-
   }
 });
 
-test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets, no % on a bodyweight lift", () => {
+// The high-volume programmes a coach asks for by name (Smolov's 10x3, German
+// Volume Training's 10x10) may go to 10 sets of a lift; nothing else past 8.
+const HIGH_VOLUME = new Set(["smolov_squat_pro", "ten_sets_of_ten"]);
+test("loads are sensible: % of 1RM between 50 and 95, whole RPEs between 5 and 9, 1-8 sets (10 on Smolov and 10x10), no % on a bodyweight lift", () => {
   for (const p of PROGRAMMES) {
     for (const s of sessionsOf(p)) {
       for (const i of s.items) {
         const where = `${p.key}: ${s.title} ${i.id}`;
-        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= 8, `${where} sets`);
+        assert.ok(Number.isInteger(i.sets) && i.sets >= 1 && i.sets <= (HIGH_VOLUME.has(p.key) ? 10 : 8), `${where} sets`);
         if (i.load !== "bw" && "pct" in i.load) {
           assert.ok(i.load.pct >= 50 && i.load.pct <= 95, `${where} % ${i.load.pct}`);
+          if ("pct_max" in i.load) assert.ok(i.load.pct_max > i.load.pct && i.load.pct_max <= 95, `${where} % range ${i.load.pct}-${i.load.pct_max}`);
           assert.ok(!(registry[i.id].equipment_requirements ?? []).includes("bodyweight"), `${where} is a bodyweight lift with a %`);
         }
         if (i.load !== "bw" && "rpe" in i.load) assert.ok(Number.isInteger(i.load.rpe) && i.load.rpe >= 5 && i.load.rpe <= 9, `${where} RPE ${i.load.rpe} (the builder takes whole RPEs)`);
@@ -225,7 +236,32 @@ test("each finished programme leads somewhere sensible: off-season to in-season 
     combat_strength_power_pro: "combat_fight_camp",
     athletics_power_build_pro: "athletics_competition_season",
     endurance_run_ride_strength_pro: "endurance_in_season",
-    endurance_swim_row_paddle_strength_pro: "endurance_in_season"
+    endurance_swim_row_paddle_strength_pro: "endurance_in_season",
+    // Recognised programmes: novice -> intermediate -> advanced, hypertrophy
+    // splits between each other, sport peaks into the sport's meet prep.
+    bodyweight_fundamentals: "novice_linear_3x5",
+    novice_linear_3x5: "texas_method",
+    novice_5x5: "ramping_5x5",
+    novice_amrap_linear: "texas_method",
+    wave_531_full_body: "wave_531_bbb",
+    tiered_linear: "wave_531_bbb",
+    texas_method: "wave_531_bbb",
+    ramping_5x5: "wave_531_bbb",
+    wave_531_bbb: "rep_waves",
+    rep_waves: "wave_531_bbb",
+    easy_strength_40_day: "three_lift_waves",
+    power_hypertrophy_upper_lower: "power_hypertrophy_5_day",
+    power_hypertrophy_5_day: "power_hypertrophy_upper_lower",
+    push_pull_legs_6_day: "power_hypertrophy_upper_lower",
+    body_part_split_5_day: "push_pull_legs_6_day",
+    golden_era_6_day: "body_part_split_5_day",
+    six_week_strength_peak: "powerlifting_meet_prep",
+    competition_lift_volume: "powerlifting_meet_prep",
+    max_effort_dynamic_effort: "powerlifting_meet_prep",
+    soviet_weightlifting_cycle: "olympic_weightlifting_meet_prep",
+    smolov_squat_pro: "powerlifting_meet_prep",
+    bulgarian_daily_max_pro: "olympic_weightlifting_meet_prep",
+    ten_sets_of_ten: "power_hypertrophy_upper_lower"
   });
   for (const [from, to] of Object.entries(next)) {
     assert.ok(byKey[to], `${from} -> ${to} exists`);
@@ -535,4 +571,84 @@ test("a squat day stretches the hips and hamstrings, a bench day the chest and l
   assert.ok(warm(sprint).includes("walking_straight_leg_kick"), "hamstrings opened up before sprinting");
   const grip = find("beginner_grip_sport_foundation", "Pull and crush");
   assert.ok(cool(grip).includes("wrist_flexor_stretch"), "wrists after grip work");
+});
+
+// ---------------------------------------------------------------------------
+// Recognised programmes (recognised_programmes.mjs).
+const recognised = PROGRAMMES.filter((p) => RECOGNISED_PROGRAMMES.some((r) => r.key === p.key));
+const mainOf = (p, week, title) => working(p.blocks.flatMap((b) => b.weeks)[week - 1].find((s) => s.title === title)).items[0];
+
+test("every recognised programme is named for what it is, credits the programme it's based on, and says it isn't endorsed", () => {
+  assert.equal(recognised.length, 24);
+  for (const p of recognised) {
+    assert.match(p.listing.title, /\(based on [^)]+\)$/, `${p.key}: title credits the original`);
+    assert.equal(p.template_name, p.listing.title, `${p.key}: the coach's copy keeps the credit`);
+    assert.match(p.listing.summary, /Based on .+\. Independent - not endorsed by .+\.$/, `${p.key}: summary`);
+    assert.match(p.description, /In the style of|based on/i, `${p.key}: design notes say what it follows`);
+  }
+});
+
+test("a 5/3/1 cycle climbs 5s, 3s, then 5/3/1, and deloads in week 4 - from a 90% training max", () => {
+  const bbb = recognised.find((p) => p.key === "wave_531_bbb");
+  const week = (n) => mainOf(bbb, n, "Squat");
+  assert.deepEqual([week(1).load, week(1).reps], [{ pct: 57.5, pct_max: 77.5 }, 5], "65/75/85% of a 90% training max");
+  assert.deepEqual([week(2).load, week(2).reps], [{ pct: 62.5, pct_max: 80 }, 3]);
+  assert.deepEqual([week(3).load, week(3).reps], [{ pct: 67.5, pct_max: 85 }, [1, 5]], "5, 3, then 1+ at 85%");
+  assert.deepEqual(week(4).load, { pct: 50, pct_max: 55 }, "deload");
+  assert.deepEqual(week(5).load, week(1).load, "cycle 2 starts the wave again (the training max goes up instead)");
+});
+
+test("the recognised beginner programmes never go past 85% or below 3 reps on a weighted lift", () => {
+  for (const p of recognised.filter((x) => x.listing.levels.includes("beginner"))) {
+    for (const s of sessionsOf(p)) {
+      for (const i of s.items) {
+        if (i.load !== "bw" && "pct" in i.load) assert.ok((i.load.pct_max ?? i.load.pct) <= 85, `${p.key}: ${s.title} ${i.id}`);
+        if (i.load !== "bw" && typeof i.reps === "number") assert.ok(i.reps >= 3, `${p.key}: ${s.title} ${i.id} ${i.reps} reps`);
+      }
+    }
+  }
+});
+
+test("the Texas Method's Friday is heavier than Monday every week, and Wednesday is the lightest", () => {
+  const texas = recognised.find((p) => p.key === "texas_method");
+  for (let week = 1; week <= 12; week += 1) {
+    const [mon, wed, fri] = ["Volume day", "Recovery day", "Intensity day"].map((title) => mainOf(texas, week, title).load.pct);
+    assert.ok(fri > mon && mon > wed, `week ${week}: ${mon} / ${wed} / ${fri}`);
+  }
+});
+
+test("a novice adds weight session to session; past novice, the programmes progress weekly and then in waves", () => {
+  const byKey = Object.fromEntries(recognised.map((p) => [p.key, p]));
+  for (const key of ["novice_linear_3x5", "novice_5x5", "novice_amrap_linear", "bodyweight_fundamentals"]) assert.deepEqual(byKey[key].listing.levels, ["beginner"], key);
+  for (const key of ["texas_method", "ramping_5x5", "tiered_linear"]) assert.deepEqual(byKey[key].listing.levels, ["amateur"], key);
+  assert.deepEqual(byKey.golden_era_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
+  assert.deepEqual(byKey.push_pull_legs_6_day.listing.levels, ["pro"], "six days of bodybuilding volume");
+  assert.deepEqual(byKey.wave_531_full_body.listing.levels, ["beginner", "amateur"]);
+});
+
+test("Smolov, the Bulgarian method and 10x10 say on the card and on every main lift that they're high-risk and coach-supervised, and are listed for the right lifters", () => {
+  const byKey = Object.fromEntries(recognised.map((p) => [p.key, p]));
+  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro", "ten_sets_of_ten"]) {
+    const p = byKey[key];
+    assert.match(p.listing.summary, /with a coach/, `${key}: card`);
+    assert.match(p.listing.summary, /stop and tell/i, `${key}: card says when to stop`);
+    assert.match(p.description, /High-risk .+ coach-supervised/, `${key}: design notes`);
+  }
+  assert.deepEqual(byKey.smolov_squat_pro.listing.levels, ["pro"]);
+  assert.deepEqual(byKey.bulgarian_daily_max_pro.listing.levels, ["pro"]);
+  for (const key of ["smolov_squat_pro", "bulgarian_daily_max_pro"]) {
+    for (const s of sessionsOf(byKey[key])) {
+      const main = s.items[0];
+      if (main.id.includes("squat") || main.id.includes("snatch") || main.id.includes("clean")) {
+        if (main.note && !/Lighter week|Light and fast|Easy movement|Switching phase|Lighter/.test(main.note)) assert.match(main.note, /coach watching/, `${key}: ${s.title} ${main.id}`);
+      }
+    }
+  }
+});
+
+test("Smolov's base week is 4x9 at 70%, 5x7 at 75%, 7x5 at 80% and 10x3 at 85%, and nothing in the cycle passes 95% of the starting max", () => {
+  const smolov = recognised.find((p) => p.key === "smolov_squat_pro");
+  const base = smolov.blocks.find((b) => b.name === "Base mesocycle").weeks[0].map((s) => working(s).items.find((i) => i.id === "back_squat"));
+  assert.deepEqual(base.map((i) => [i.sets, i.reps, i.load.pct]), [[4, 9, 70], [5, 7, 75], [7, 5, 80], [10, 3, 85]]);
+  for (const s of sessionsOf(smolov)) for (const i of s.items) if (i.load !== "bw" && "pct" in i.load) assert.ok((i.load.pct_max ?? i.load.pct) <= 95, `${s.title}`);
 });
