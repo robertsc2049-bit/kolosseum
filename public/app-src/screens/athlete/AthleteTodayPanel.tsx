@@ -225,9 +225,10 @@ export function TodaysSessionPicker({ options, onStart, onCancel }: {
 }
 
 export function AthleteTodaySessionCard() {
-  const { loading, today, sessionState, refresh } = useAthleteToday();
+  const { loading, today, sessionState, actorType, refresh } = useAthleteToday();
   const unassigned = today?.state === "no_current_assignment";
-  const hasCoach = useHasAcceptedCoach(unassigned);
+  // /coach-workspace/relationships/mine is athlete-only (403 for anyone else).
+  const hasCoach = useHasAcceptedCoach(unassigned && (actorType === "" || actorType === "athlete"));
   const selfCoached = unassigned && hasCoach === false;
   const badge = selfCoached ? { label: SELF_COACHED_COPY.badgeLabel, className: SELF_COACHED_COPY.badgeClass } : statusBadge(today, sessionState);
 
