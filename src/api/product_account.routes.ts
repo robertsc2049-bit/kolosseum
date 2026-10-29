@@ -7,6 +7,8 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -273,6 +275,7 @@ productAccountRouter.post(
 // One login, both roles: add the other role, or switch to it.
 productAccountRouter.post(
   "/roles",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
     const token = sessionToken(request);
     assertMutationAuthorised(request, token);
@@ -284,6 +287,7 @@ productAccountRouter.post(
 
 productAccountRouter.post(
   "/roles/active",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
     const token = sessionToken(request);
     assertMutationAuthorised(request, token);

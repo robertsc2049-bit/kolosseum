@@ -165,6 +165,7 @@ productAdminRouter.post(
 
 productAdminRouter.post(
   "/accounts/:user_id/add-coach-role",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
     const admin = await authenticatedAdmin(request, true);
     const body = request.body ?? {};
