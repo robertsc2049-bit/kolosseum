@@ -18,6 +18,8 @@ export function workItem(item, index, items) {
     distance_mode: "fixed", distance_unit: "meters", planned_distance_value: distance ? reps.metres : 20, distance_min_value: distance ? reps.metres : 20, distance_max_value: distance ? reps.metres : 20,
     load_mode: load === "bw" ? "bodyweight" : "pct" in load ? "percent_1rm" : "rpe" in load ? "rpe" : "fixed_weight",
     percent_1rm: load !== "bw" && "pct" in load ? load.pct : 75,
+    // A % range ({ pct, pct_max }): sets that climb, e.g. 5/3/1's three work sets.
+    ...(load !== "bw" && "pct_max" in load ? { load_range_mode: "range", percent_1rm_max: load.pct_max } : {}),
     weight_value: load !== "bw" && "kg" in load ? load.kg : 20, weight_unit: "kg",
     rpe_value: load !== "bw" && "rpe" in load ? load.rpe : 8, borg_value: 13, cr10_value: 5,
     rest_seconds: item.rest ?? 120, role: index === items.findIndex((other) => !other.segment) ? "primary" : "accessory", coaching_notes: item.note ?? "", segment: item.segment ?? "working",
