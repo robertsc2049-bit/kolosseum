@@ -21,12 +21,17 @@ export type AthleteTodayState = {
   loading: boolean;
   today: JsonRecord | null;
   sessionState: JsonRecord | null;
+  // The signed-in account's actor_type ("" until known). This card is
+  // always mounted, so callers use it to keep a coach/org owner/admin
+  // session off athlete-only endpoints.
+  actorType: string;
 };
 
 const initialState: AthleteTodayState = {
   loading: true,
   today: null,
-  sessionState: null
+  sessionState: null,
+  actorType: ""
 };
 
 export function useAthleteToday() {
@@ -36,8 +41,10 @@ export function useAthleteToday() {
     setState((current) => ({ ...current, loading: true }));
 
     let today: JsonRecord;
+    let actorType = "";
     try {
       const account = await loadAccountDetail();
+      actorType = String((account.account as JsonRecord | undefined)?.actor_type ?? "");
       const athleteUserId = String((account.account as JsonRecord | undefined)?.user_id ?? "");
       today = await loadAthleteTodaySnapshot(athleteUserId);
     }
@@ -48,7 +55,7 @@ export function useAthleteToday() {
     const sessionId = String((today.session as JsonRecord | undefined)?.session_id ?? "");
     const sessionState = sessionId ? await loadAthleteSessionState(sessionId).catch(() => null) : null;
 
-    setState({ loading: false, today, sessionState });
+    setState({ loading: false, today, sessionState, actorType });
   }, []);
 
   useEffect(() => {
