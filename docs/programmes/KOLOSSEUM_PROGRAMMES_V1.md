@@ -1088,6 +1088,76 @@ modestly.
 presses and pull-ups adding weight as reps are made, plus light crush, pinch,
 support and wrist work at RPE 6 to build the tendons before heavy attempts.
 
+## 19. Recognised programmes (product/programmes/recognised_programmes.mjs)
+
+The programmes coaches already know by name, entered as published so a coach
+can start from the one they'd have written out by hand. Each is named for
+what it is and credits the programme it's based on in its title ("Wave
+5s/3s/1s with 5×10 (based on 5/3/1 Boring But Big)"), which is also the name a
+coach's copy keeps; every summary ends "Independent - not endorsed by ...".
+
+**As published, with warnings - not adjusted.** The coach (the product owner)
+decided these must be identical to the originals. They are not held to
+Kolosseum's own rules (the weekly per-muscle ranges, the 8-set cap, the 50-95%
+and RPE 5-9 bands, the beginner 85% limit); the content test holds them to the
+builder's limits instead, and any programme that passes Kolosseum's rules
+must carry `listing.warnings` and say "Warning" on its card. Warnings also
+cover what the app can't hold exactly:
+- Linear progressions add weight every session; here they're a weekly % climb
+  from the starting max (update maxes as they rise).
+- GZCLP changes stage on failure; here every 4 weeks.
+- Smolov adds kilos (10 kg, then 5 kg); here as % of max.
+- Rep-range programmes with no load (PHUL, PHAT, the PPL, splits) are set by
+  effort (RPE 8).
+- Library stand-ins where an exercise is missing (the Recommended Routine's
+  ladder rungs, cable kickbacks, reverse crunches).
+
+**How they're written:** set by set (each set its own reps and %: 5/3/1's work
+sets, Madcow's ramps, Sheiko's pyramids, Smolov's intense days) and the same
+lift twice in a session (Boring But Big's 5×10, Sheiko's second bench,
+Westside's back-off set) - the builder's set-by-set prescriptions. Training-max
+programmes are converted exactly (65% of a 90% training max is 58.5%).
+
+**Particularly hard** - marked "Particularly hard ... Coach-supervised" on the
+card and on the main lifts: Smolov, Smolov Jr, the Bulgarian method, German
+Volume Training, Westside max effort.
+
+| Programme | Based on | Level | Days |
+|---|---|---|---|
+| Bodyweight fundamentals | r/bodyweightfitness Recommended Routine | Beginner | 3 |
+| Novice linear 3×5 | Starting Strength (phase 2) | Beginner | 3 |
+| Novice 5×5 | StrongLifts 5×5 | Beginner | 3 |
+| Novice linear with AMRAP sets | Greyskull LP (Phrak's) | Beginner | 3 |
+| Wave 5s/3s/1s full body | 5/3/1 for Beginners | Beginner, Amateur | 3 |
+| Tiered T1/T2/T3 progression | GZCLP | Beginner, Amateur | 4 |
+| Volume, recovery and intensity days | the Texas Method | Amateur | 3 |
+| Ramping weekly 5×5 | Madcow 5×5 | Amateur | 3 |
+| Wave 5s/3s/1s with 5×10 | 5/3/1 Boring But Big | Amateur, Pro | 4 |
+| Rep waves 10s, 8s, 5s, 3s | the Juggernaut Method 2.0 | Amateur, Pro | 4 |
+| Three-lift strength waves | Tactical Barbell Operator | Amateur, Pro | 3 |
+| Easy strength, 40 days | Easy Strength | Amateur, Pro | 5 |
+| Power and hypertrophy upper/lower | PHUL | Amateur, Pro | 4 |
+| Power and hypertrophy, 5 days | PHAT | Amateur, Pro | 5 |
+| Push/pull/legs, 6 days | the r/Fitness PPL | Beginner, Amateur | 6 |
+| Five-day body-part split | the classic bodybuilding split | Amateur, Pro | 5 |
+| Golden-era 6-day split | Arnold Schwarzenegger's split | Pro | 6 |
+| Ten sets of ten | German Volume Training | Amateur, Pro | 3 |
+| Thirteen-week squat specialisation | the Smolov squat routine | Pro | 3-4 |
+| Three-week squat peak | Smolov Jr | Pro | 4 |
+| High-frequency competition-lift volume | Sheiko #29 | Amateur, Pro | 3 |
+| Max effort / dynamic effort | the Westside conjugate method | Amateur, Pro | 4 |
+| Daily-max weightlifting | the Bulgarian method | Pro | 6 |
+
+**Not included yet:** Candito's 6 Week Strength Program (its official
+spreadsheet isn't public in full) and a single "classic Soviet cycle" (the
+Soviet system is tables and principles, not one programme) - they'll be added
+from a verified source. The Bulgarian method is principles too (Abadjiev); its
+programme follows the core and says so.
+
+Sources for the structures: the authors' publications where available, and
+Liftosaur's published programme definitions (liftosaur.com/programs) for the
+set-by-set detail.
+
 ## Not in v1, and why
 
 - **Women-specific or youth programmes:** under-18s can't sign up in the beta.
