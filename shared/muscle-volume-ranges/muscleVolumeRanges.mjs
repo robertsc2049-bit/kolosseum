@@ -13,7 +13,10 @@
 // pro. Groups that get a full set from many compound lifts (glutes from
 // every squat, hinge and lunge; lower back from every hinge) sit higher, and
 // were checked against Kolosseum's own coach-written programmes so a sound
-// meet-prep or strongman block reads "in range".
+// meet-prep or strongman block reads "in range". "Shoulders" is front, side
+// and rear delts together - three areas coaches dose separately - so its
+// ceiling sits above the other major groups'. A beginner's ceiling allows
+// the 15 squat sets of a three-day novice 5x5, a proven recoverable dose.
 //
 // A minimum is given only for the major groups a balanced programme trains
 // directly. Being under it is not a fault when the sport doesn't want size
@@ -27,17 +30,17 @@ const range = (min, max) => Object.freeze({ min, max });
 
 export const MUSCLE_VOLUME_RANGES = Object.freeze({
   beginner: Object.freeze({
-    chest: range(6, 14), back: range(6, 18), shoulders: range(6, 14), quads: range(6, 14), hamstrings: range(4, 12), glutes: range(4, 18),
-    biceps: range(null, 12), triceps: range(null, 12), traps: range(null, 12), forearms_grip: range(null, 14), abs_obliques: range(null, 14),
+    chest: range(6, 16), back: range(6, 18), shoulders: range(6, 16), quads: range(6, 16), hamstrings: range(4, 12), glutes: range(4, 18),
+    biceps: range(null, 14), triceps: range(null, 12), traps: range(null, 12), forearms_grip: range(null, 14), abs_obliques: range(null, 14),
     lower_back: range(null, 14), calves_shins: range(null, 12), adductors: range(null, 12), neck: range(null, 10), rotator_cuff: range(null, 10), hip_flexors: range(null, 10)
   }),
   amateur: Object.freeze({
-    chest: range(8, 22), back: range(10, 24), shoulders: range(8, 22), quads: range(8, 22), hamstrings: range(6, 20), glutes: range(6, 30),
+    chest: range(8, 22), back: range(10, 24), shoulders: range(8, 26), quads: range(8, 22), hamstrings: range(6, 20), glutes: range(6, 30),
     biceps: range(null, 20), triceps: range(null, 20), traps: range(null, 20), forearms_grip: range(null, 20), abs_obliques: range(null, 20),
     lower_back: range(null, 25), calves_shins: range(null, 18), adductors: range(null, 16), neck: range(null, 15), rotator_cuff: range(null, 14), hip_flexors: range(null, 14)
   }),
   pro: Object.freeze({
-    chest: range(10, 26), back: range(12, 28), shoulders: range(10, 26), quads: range(10, 26), hamstrings: range(8, 24), glutes: range(8, 34),
+    chest: range(10, 26), back: range(12, 28), shoulders: range(10, 32), quads: range(10, 26), hamstrings: range(8, 24), glutes: range(8, 34),
     biceps: range(null, 24), triceps: range(null, 26), traps: range(null, 24), forearms_grip: range(null, 24), abs_obliques: range(null, 24),
     lower_back: range(null, 30), calves_shins: range(null, 22), adductors: range(null, 20), neck: range(null, 18), rotator_cuff: range(null, 16), hip_flexors: range(null, 16)
   })

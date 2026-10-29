@@ -60,7 +60,7 @@ test("the coach picks the level to check against, and the choice holds for every
   await act(async () => { fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "pro" } }); });
     assert.equal(screen.getAllByText("10-26 sets").length, 2, "both weeks now read against Pro");
   await act(async () => { fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "beginner" } }); });
-  assert.equal(screen.getAllByText("6-14 sets").length, 2);
+  assert.equal(screen.getAllByText("6-16 sets").length, 2);
   await act(async () => { fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "amateur" } }); });
 });
 

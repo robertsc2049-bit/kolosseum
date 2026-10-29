@@ -33,7 +33,8 @@ test("under, in range and over; an unknown level reads as amateur; a sport's foc
   assert.equal(volumeStatus(5, muscleVolumeRange("conditioning", "amateur")), null);
   assert.equal(volumeLevel(""), "amateur");
   assert.equal(volumeLevel("elite"), "amateur");
-  assert.equal(volumeStatus(16, muscleVolumeRange("quads", "beginner")), "over", "16 sets of quads is more than a beginner needs or recovers from");
+  assert.equal(volumeStatus(18, muscleVolumeRange("quads", "beginner")), "over", "18 sets of quads is more than a beginner needs or recovers from");
+  assert.equal(volumeStatus(15, muscleVolumeRange("quads", "beginner")), "in_range", "a novice 5x5's 15 squat sets");
   assert.equal(volumeStatus(16, muscleVolumeRange("quads", "pro")), "in_range");
   assert.equal(volumeStatus(40, muscleVolumeRange("quads", "pro", "olympic_weightlifting")), "in_range", "a weightlifter squats a lot on purpose");
   assert.equal(volumeStatus(40, muscleVolumeRange("forearms_grip", "amateur", "grip_sport")), null, "a grip athlete's forearms: no range to read against");
