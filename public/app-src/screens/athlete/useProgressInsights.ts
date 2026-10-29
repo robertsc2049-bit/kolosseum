@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { accountMayBeAthlete } from "../../api/client";
 import { loadProgressInsights } from "../../api/athleteProgressInsightsClient";
 import { loadTemplateExercises } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
@@ -38,6 +39,10 @@ export function useProgressInsights() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const [insights, exercises] = await Promise.all([
         loadProgressInsights(),
         loadTemplateExercises()

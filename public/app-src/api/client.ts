@@ -14,6 +14,23 @@ export function loadAccountDetail(): Promise<JsonRecord> {
   return request("GET", "/account/detail");
 }
 
+// False only once the signed-in account is known to be a coach/org owner/
+// admin. Athlete panels stay mounted for every role, so their reads check
+// this before calling athlete-only endpoints (403 for anyone else). An
+// unknown or unreadable actor_type still lets the read through, so a real
+// athlete is never held back right after sign-in. /account/detail reads are
+// coalesced by request(), so the extra call is shared across panels.
+export async function accountMayBeAthlete(): Promise<boolean> {
+  try {
+    const account = await loadAccountDetail();
+    const actorType = String((account.account as JsonRecord | undefined)?.actor_type ?? "");
+    return actorType === "" || actorType === "athlete";
+  }
+  catch {
+    return true;
+  }
+}
+
 export function updateAccountProfile(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("PATCH", "/account/profile", input, csrfToken);
 }

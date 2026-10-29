@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import { loadMyAttendanceOccurrences, submitAttendanceRsvp } from "../../api/attendanceEventsClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
@@ -17,6 +17,10 @@ export function useAthleteAttendanceEvents() {
     setLoading(true);
     setError(null);
     try {
+      if (!(await accountMayBeAthlete())) {
+        setLoading(false);
+        return;
+      }
       const loaded = await loadMyAttendanceOccurrences();
       setOccurrences(loaded);
       setLoading(false);

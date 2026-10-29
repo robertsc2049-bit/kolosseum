@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   loadAthleteOrgContextMine,
   loadAthleteOrgMessageThreadsMine,
@@ -75,6 +75,10 @@ export function useAccountOrgMessages() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const [threadEntries, contexts] = await Promise.all([
         loadAthleteOrgMessageThreadsMine(),
         loadAthleteOrgContextMine()

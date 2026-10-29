@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   acceptRelationshipInvitation,
   declineRelationshipInvitation,
@@ -44,6 +44,10 @@ export function useAccountCoachInvitations() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const invitations = await loadPendingRelationshipInvitations();
       setState((current) => ({ ...current, loading: false, invitations }));
     }

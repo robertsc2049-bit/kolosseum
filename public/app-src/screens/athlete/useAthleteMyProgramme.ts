@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { accountMayBeAthlete } from "../../api/client";
 import { loadAthleteMyProgramme } from "../../api/athleteOnboardingClient";
 import { type JsonRecord } from "../../api/transport";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
@@ -15,6 +16,7 @@ export function useAthleteMyProgramme() {
 
   const refresh = useCallback(async () => {
     try {
+      if (!(await accountMayBeAthlete())) return;
       setData(await loadAthleteMyProgramme());
       setError(null);
     }

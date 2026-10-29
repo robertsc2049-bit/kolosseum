@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { loadAccountDetail } from "../../api/client";
+import { accountMayBeAthlete, loadAccountDetail } from "../../api/client";
 import {
   type LogAthleteNutritionInput,
   loadAthleteNutritionSelf,
@@ -37,6 +37,10 @@ export function useAthleteNutritionSelf() {
   const refresh = useCallback(async () => {
     setState((current) => ({ ...current, loading: true, error: null }));
     try {
+      if (!(await accountMayBeAthlete())) {
+        setState((current) => ({ ...current, loading: false }));
+        return;
+      }
       const entries = await loadAthleteNutritionSelf();
       setState((current) => ({ ...current, loading: false, entries }));
     }
