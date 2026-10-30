@@ -239,7 +239,8 @@ export async function listMarketplaceSharedTemplates(): Promise<readonly Readonl
       coach_user_id: coachUserId,
       coach_display_name: cleanString(coachProfile?.display_name) || coachUserId,
       coach_brand_color: cleanString(brandPreference?.brand_color) || null,
-      coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null
+      coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null,
+      coach_business_name: cleanString(brandPreference?.business_name) || null
     });
   }
 

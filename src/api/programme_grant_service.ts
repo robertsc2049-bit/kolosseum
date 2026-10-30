@@ -21,6 +21,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import { coachBusinessName, coachNameWithBusiness } from "./coach_branding_service.js";
 import { loadActiveCoachTemplateById, loadExecutableCoachTemplateById, nextTemplateSessionIndex } from "./beta18_programme_template_service.js";
 import { getCurrentProgrammeRun, programmeRunTotalSessions } from "./programme_catalogue_service.js";
 
@@ -192,7 +193,8 @@ async function athleteEmail(athleteUserId: string): Promise<string> {
 
 async function coachName(coachUserId: string): Promise<string> {
   const result = await pool.query(`SELECT display_name FROM product_accounts WHERE user_id = $1`, [coachUserId]);
-  return text(result.rows?.[0]?.display_name) || "Your coach";
+  const name = text(result.rows?.[0]?.display_name);
+  return name ? coachNameWithBusiness(name, await coachBusinessName(coachUserId)) : "Your coach";
 }
 
 // On a coach's programme, sessions come from the coach: a granted

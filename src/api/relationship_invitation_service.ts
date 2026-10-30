@@ -314,6 +314,7 @@ async function withCoachDisplay(
     coach_email: cleanString(coachProfile?.email) || null,
     coach_brand_color: cleanString(brandPreference?.brand_color) || null,
     coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null,
+    coach_business_name: cleanString(brandPreference?.business_name) || null,
     relationship_state: relationshipExpired(relationship) ? "expired" : relationship.relationship_state,
     created_at_iso8601: cleanString(relationship.created_at_iso8601),
     accepted_at_iso8601: cleanString(relationship.accepted_at_iso8601) || null,

@@ -6,6 +6,9 @@
 // shared/weekly-checkins/weeklyCheckinLifecycle.mjs's own boundary.
 
 const MAX_TAGLINE_LENGTH = 120;
+// A coaching business name ("Old Tyme Strength"), shown next to the coach's
+// own name wherever their athletes see them.
+const MAX_BUSINESS_NAME_LENGTH = 80;
 
 export class CoachBrandingLifecycleError
   extends Error {
@@ -73,7 +76,8 @@ export function normaliseCoachBrandPreference(
     input,
     [
       "brand_color",
-      "brand_tagline"
+      "brand_tagline",
+      "business_name"
     ],
     "coach_brand_preference_unknown_field"
   );
@@ -107,8 +111,21 @@ export function normaliseCoachBrandPreference(
     );
   }
 
+  const businessName =
+    cleanString(input.business_name) || null;
+
+  if (
+    businessName !== null &&
+    businessName.length > MAX_BUSINESS_NAME_LENGTH
+  ) {
+    fail(
+      "coach_business_name_too_long"
+    );
+  }
+
   return Object.freeze({
     brand_color: brandColor,
-    brand_tagline: brandTagline
+    brand_tagline: brandTagline,
+    business_name: businessName
   });
 }

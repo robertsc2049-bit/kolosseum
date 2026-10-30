@@ -1,6 +1,7 @@
 // DEV NOTE: FULL-UI-18 factual in-product notifications - ported from
 // public/app/app.js's notification bell/panel functions.
 
+import { coachLabel } from "../utils/coachName";
 import { titleCase } from "../utils/format";
 import { type JsonRecord, request } from "./transport";
 
@@ -73,9 +74,9 @@ export function resolveNotificationSubject(
   if (record.coach_user_id) {
     const coachUserId = String(record.coach_user_id);
     const accepted = context.athleteRelationships.find((entry) => String(entry.coach_user_id) === coachUserId);
-    if (accepted?.coach_display_name) return String(accepted.coach_display_name);
+    if (accepted?.coach_display_name) return coachLabel(accepted);
     const pending = context.pendingInvitations.find((entry) => String(entry.coach_user_id) === coachUserId);
-    return String(pending?.coach_display_name ?? "A connected coach");
+    return coachLabel(pending, "A connected coach");
   }
 
   if (record.org_name) {

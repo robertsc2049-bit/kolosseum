@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
 import { useRole } from "../../utils/role";
 import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
@@ -79,7 +80,7 @@ export function AccountCoachRelationshipPanel() {
               style={entry.coach_brand_color ? { borderLeft: `3px solid ${String(entry.coach_brand_color)}` } : undefined}
             >
               <div>
-                <strong>{String(entry.coach_display_name ?? "")}</strong>
+                <strong>{coachLabel(entry)}</strong>
                 <p className="muted small">{String(entry.coach_email ?? "")}</p>
                 {entry.coach_brand_tagline ? <p className="muted small">{String(entry.coach_brand_tagline)}</p> : null}
               </div>
@@ -98,7 +99,7 @@ export function AccountCoachRelationshipPanel() {
             {past.map((entry: JsonRecord, index) => (
               <article className="record-row" key={String(entry.relationship_id ?? index)}>
                 <div>
-                  <strong>{String(entry.coach_display_name ?? "")}</strong>
+                  <strong>{coachLabel(entry)}</strong>
                   <p className="muted small">{titleCase(entry.relationship_state)}</p>
                 </div>
               </article>

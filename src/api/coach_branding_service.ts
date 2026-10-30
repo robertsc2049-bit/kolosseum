@@ -69,6 +69,7 @@ function sha256(value: unknown): string {
 type CoachBrandPreferenceInput = {
   brand_color?: unknown;
   brand_tagline?: unknown;
+  business_name?: unknown;
 };
 
 export async function saveCoachBrandPreference(
@@ -94,6 +95,7 @@ export async function saveCoachBrandPreference(
     coach_user_id: coach,
     brand_color: normalised.brand_color,
     brand_tagline: normalised.brand_tagline,
+    business_name: normalised.business_name,
     updated_at_iso8601: new Date().toISOString(),
     factual_user_supplied_state: true as const,
     immutable_reference_history: true as const,
@@ -112,6 +114,20 @@ export async function saveCoachBrandPreference(
   });
 
   return persistBetaProductRecord(record);
+}
+
+// A coach's name as their athletes see it: with their coaching business
+// name when they've set one ("Chris Roberts · Old Tyme Strength").
+export function coachNameWithBusiness(name: string, businessName: unknown): string {
+  const business = cleanString(businessName);
+  return business ? `${name} · ${business}` : name;
+}
+
+export async function coachBusinessName(coachUserIdInput: string): Promise<string | null> {
+  const coachUserId = cleanString(coachUserIdInput);
+  if (!coachUserId) return null;
+  const preference = await loadLatestBetaProductRecord("coach_brand_preference", coachUserId, coachUserId).catch(() => null);
+  return cleanString(preference?.business_name) || null;
 }
 
 export async function loadCoachBrandPreference(

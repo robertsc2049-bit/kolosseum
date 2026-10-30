@@ -130,6 +130,14 @@ test("shows the current coach and a working messaging widget", async () => {
   await screen.findByText("Welcome!");
 });
 
+test("the current coach shows with their coaching business name", async () => {
+  seedRole("athlete");
+  installMocks({ relationships: [baseRelationship({ coach_display_name: "Chris Roberts", coach_business_name: "Old Tyme Strength" })] });
+  render(<AccountCoachRelationshipPanel />);
+
+  await screen.findByText("Chris Roberts · Old Tyme Strength");
+});
+
 test("shows past relationships separately from the current one", async () => {
   seedRole("athlete");
   installMocks({
