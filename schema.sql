@@ -1862,34 +1862,6 @@ ALTER TABLE product_notifications
       )
     ) NOT VALID;
 
--- Finding a coach by gym (coaching_request_service.ts): an athlete asks a
--- coach a gym has confirmed to coach them; the coach invites them through
--- the usual invitation, or dismisses it. One open request per athlete and
--- coach.
-CREATE TABLE IF NOT EXISTS product_coaching_requests (
-  request_id      TEXT PRIMARY KEY,
-  athlete_user_id TEXT NOT NULL,
-  coach_user_id   TEXT NOT NULL,
-  org_id          TEXT
-    REFERENCES product_organisations(org_id)
-    ON DELETE SET NULL,
-  note            TEXT
-    CHECK (note IS NULL OR char_length(note) <= 300),
-  request_status  TEXT NOT NULL
-    CHECK (request_status IN ('pending', 'invited', 'dismissed')),
-  decided_at      TIMESTAMPTZ,
-  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS
-  uq_product_coaching_requests_open
-ON product_coaching_requests (athlete_user_id, coach_user_id)
-WHERE request_status = 'pending';
-
-CREATE INDEX IF NOT EXISTS
-  idx_product_coaching_requests_coach
-ON product_coaching_requests (coach_user_id, request_status);
-
 -- product_notifications_coaching_requested_type_migration
 -- Additive coaching_requested - tells a coach an athlete who found them at a
 -- gym asked to be coached. Same DROP/ADD pattern as every migration above.
@@ -3257,3 +3229,31 @@ ON product_coach_gyms (coach_user_id);
 CREATE INDEX IF NOT EXISTS
   idx_product_coach_gyms_org
 ON product_coach_gyms (org_id);
+
+-- Finding a coach by gym (coaching_request_service.ts): an athlete asks a
+-- coach a gym has confirmed to coach them; the coach invites them through
+-- the usual invitation, or dismisses it. One open request per athlete and
+-- coach.
+CREATE TABLE IF NOT EXISTS product_coaching_requests (
+  request_id      TEXT PRIMARY KEY,
+  athlete_user_id TEXT NOT NULL,
+  coach_user_id   TEXT NOT NULL,
+  org_id          TEXT
+    REFERENCES product_organisations(org_id)
+    ON DELETE SET NULL,
+  note            TEXT
+    CHECK (note IS NULL OR char_length(note) <= 300),
+  request_status  TEXT NOT NULL
+    CHECK (request_status IN ('pending', 'invited', 'dismissed')),
+  decided_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  uq_product_coaching_requests_open
+ON product_coaching_requests (athlete_user_id, coach_user_id)
+WHERE request_status = 'pending';
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coaching_requests_coach
+ON product_coaching_requests (coach_user_id, request_status);
