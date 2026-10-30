@@ -1805,6 +1805,61 @@ ALTER TABLE product_notifications
         'athlete_strength_reference_missing',
         'athlete_block_completed'
       )
+    ) NOT VALID;
+
+-- product_notifications_coach_gym_type_migration
+-- Additive coach-gym link notifications (coach_gym_service.ts): the gym's
+-- owner is told a coach says they coach there; the coach is told the gym
+-- confirmed or didn't, and when a gym they typed in joins Kolosseum.
+-- Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.

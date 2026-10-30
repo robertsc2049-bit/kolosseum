@@ -66,7 +66,11 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "owner_message_received_from_athlete",
   "athlete_pain_reported",
   "athlete_strength_reference_missing",
-  "athlete_block_completed"
+  "athlete_block_completed",
+  "gym_coach_link_requested",
+  "coach_gym_confirmed",
+  "coach_gym_declined",
+  "coach_gym_now_listed"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -91,7 +95,10 @@ const DEEP_LINK_ROUTE_IDS = Object.freeze({
   // equivalent - this is a sentinel the org console's own bell click
   // handler special-cases directly (calls showMessagesSection(org_id)),
   // never resolved through public/app/route_bootstrap.js.
-  orgMessages: "org_messages"
+  orgMessages: "org_messages",
+  // Likewise a sentinel: the org console's bell opens that gym's listing,
+  // where its coaches are confirmed (showGymListingSection(org_id)).
+  orgGymCoaches: "org_gym_coaches"
 });
 
 function notificationId(
@@ -768,6 +775,106 @@ async function deriveAthleteBlockCompletedNotifications(
         programme_finished: programmeFinished
       },
       occurredAtIso8601: toIso(row.updated_at)
+    });
+  }
+}
+
+// --- Coach gyms (coach_gym_service.ts) -------------------------------------
+// The gym's owner: a coach says they coach at one of their gyms and waits for
+// them to confirm. A coach who re-links after a decline is a new request.
+async function deriveGymCoachLinkRequestedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT g.coach_gym_id, g.org_id, g.coach_user_id, g.updated_at,
+           COALESCE(l.display_name, o.org_name) AS gym_name, a.display_name AS coach_display_name
+    FROM product_coach_gyms g
+    JOIN product_organisations o ON o.org_id = g.org_id
+    LEFT JOIN product_gym_listings l ON l.org_id = g.org_id
+    LEFT JOIN product_accounts a ON a.user_id = g.coach_user_id
+    WHERE o.owner_user_id = $1 AND g.link_status = 'pending'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    const orgId = cleanString(row.org_id);
+    const brand = await client.query(
+      `SELECT record_payload->>'business_name' AS business_name FROM beta_product_records
+       WHERE record_type = 'coach_brand_preference' AND subject_user_id = $1
+       ORDER BY effective_at DESC LIMIT 1`,
+      [cleanString(row.coach_user_id)]
+    );
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "gym_coach_link_requested",
+      sourceRecordType: "product_coach_gyms",
+      sourceRecordId: `${cleanString(row.coach_gym_id)}:${new Date(String(row.updated_at)).getTime()}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgGymCoaches,
+      deepLinkParams: { org_id: orgId },
+      notificationPayload: {
+        org_id: orgId,
+        org_name: cleanString(row.gym_name),
+        coach_display_name: cleanString(row.coach_display_name) || "A coach",
+        coach_business_name: cleanString(brand.rows[0]?.business_name) || null
+      },
+      occurredAtIso8601: toIso(row.updated_at)
+    });
+  }
+}
+
+// The coach: a gym confirmed them, or didn't (or removed them); and a gym
+// they typed in has joined Kolosseum, so they can link it.
+async function deriveCoachGymNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const decided = await client.query(
+    `
+    SELECT g.coach_gym_id, g.org_id, g.link_status, g.decided_at, COALESCE(l.display_name, g.gym_name) AS gym_name
+    FROM product_coach_gyms g LEFT JOIN product_gym_listings l ON l.org_id = g.org_id
+    WHERE g.coach_user_id = $1 AND g.link_status IN ('confirmed', 'declined') AND g.decided_at IS NOT NULL
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of decided.rows) {
+    const confirmed = cleanString(row.link_status) === "confirmed";
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: confirmed ? "coach_gym_confirmed" : "coach_gym_declined",
+      sourceRecordType: "product_coach_gyms",
+      sourceRecordId: `${cleanString(row.coach_gym_id)}:${new Date(String(row.decided_at)).getTime()}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.gym_name) },
+      occurredAtIso8601: toIso(row.decided_at)
+    });
+  }
+
+  const listed = await client.query(
+    `
+    SELECT g.coach_gym_id, l.org_id, l.display_name, l.reviewed_at, l.updated_at
+    FROM product_coach_gyms g
+    JOIN product_gym_listings l ON lower(l.display_name) = lower(g.gym_name)
+    JOIN product_organisations o ON o.org_id = l.org_id
+    WHERE g.coach_user_id = $1 AND g.link_status = 'unlisted'
+      AND l.listing_status = 'approved' AND o.org_state = 'active'
+      AND NOT EXISTS (SELECT 1 FROM product_coach_gyms x WHERE x.coach_user_id = $1 AND x.org_id = l.org_id)
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of listed.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coach_gym_now_listed",
+      sourceRecordType: "product_gym_listings",
+      sourceRecordId: `${cleanString(row.coach_gym_id)}:${cleanString(row.org_id)}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { org_id: cleanString(row.org_id), org_name: cleanString(row.display_name) },
+      occurredAtIso8601: toIso(row.reviewed_at ?? row.updated_at)
     });
   }
 }
@@ -1482,6 +1589,8 @@ async function deriveNotificationsForRecipient(
   await deriveCoachAthleteMessageNotifications(client, recipientUserId);
   await deriveOrgOwnerMessageNotifications(client, recipientUserId);
   await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
+  await deriveGymCoachLinkRequestedNotifications(client, recipientUserId);
+  await deriveCoachGymNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

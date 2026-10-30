@@ -327,3 +327,15 @@ test("a coach's block-finished notification names the block, or says the whole p
   assert.equal(label({ block_name: "Intensification", programme_finished: true }), "Finished the programme - report ready");
   assert.equal(label({}), "Finished a block - report ready");
 });
+
+test("a coach's gym notifications say what happened, naming the gym", async () => {
+  const { notificationTypeLabel } = await import("../api/notificationsClient");
+  const label = (type: string) => notificationTypeLabel({ notification_type: type, notification_payload: { org_id: "org_1", org_name: "Iron Temple" } });
+  assert.equal(label("coach_gym_confirmed"), "Gym confirmed you coach there");
+  assert.equal(label("coach_gym_declined"), "Gym didn't confirm you coach there");
+  assert.equal(label("coach_gym_now_listed"), "Your gym is now on Kolosseum - link it");
+  assert.equal(
+    resolveNotificationSubject({ notification_payload: { org_id: "org_1", org_name: "Iron Temple" } }, { coachRelationships: [], athleteRelationships: [], pendingInvitations: [] }),
+    "Iron Temple"
+  );
+});
