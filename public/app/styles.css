@@ -4177,9 +4177,12 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #view-athletes > .page-heading { order: 0; }
   #view-athletes > #athleteDirectoryStatus { order: 1; }
   #view-athletes > .athlete-directory-layout { order: 2; margin-bottom: var(--k-space-4); }
-  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout):not(.athlete-actions) { order: 3; }
-  /* ...but the compact Invite / Message / Add buttons stay above it. */
+  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout):not(.athlete-actions):not(#coaching-requests-root) { order: 3; }
+  /* ...but athletes asking to be coached, and the compact Invite / Message /
+     Add buttons, stay above it. */
+  #view-athletes > #coaching-requests-root,
   #view-athletes > .athlete-actions { order: 1; }
+  #view-athletes > #coaching-requests-root:not(:empty) { margin-bottom: var(--k-space-3); }
   .athlete-actions > .athlete-action:not([open]) { flex: 1 1 auto; }
   .athlete-actions > .athlete-action:not([open]) > summary { width: 100%; justify-content: center; }
   .athlete-directory-layout > .athlete-directory-panel { order: -1; }

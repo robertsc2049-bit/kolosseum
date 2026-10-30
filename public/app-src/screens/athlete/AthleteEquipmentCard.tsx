@@ -57,7 +57,7 @@ function GymCoaches({ gym, onAsked }: { gym: Gym; onAsked: (coachGymId: string) 
   return (
     <div className="gym-coaches" data-testid="gym-coaches">
       <p className="choice-hint">Coaches at {gym.display_name}:</p>
-      <ul>
+      <ul className="gym-coach-list" style={{ listStyle: "none", paddingLeft: 0, margin: 0 }}>
         {gym.coaches.map((coach) => (
           <li key={coach.coach_gym_id}>
             <span>{coach.display_name}{coach.business_name ? ` · ${coach.business_name}` : ""}</span>{" "}
