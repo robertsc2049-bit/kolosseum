@@ -373,6 +373,15 @@ export async function sendCoachAthleteMessage(
 // (accountRelationshipsClient.ts's loadPendingRelationshipInvitations/
 // accept/decline) shipped in the previous slice. Ported from app.js's
 // (removed) inviteAthleteByEmail().
+// Athletes who found the coach at a gym and asked to be coached.
+export function loadCoachingRequests(): Promise<JsonRecord> {
+  return request("GET", "/coach-workspace/coaching-requests");
+}
+
+export function decideCoachingRequest(requestId: string, decision: "invite" | "dismiss", csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-workspace/coaching-requests/${encodeURIComponent(requestId)}/decision`, { decision }, csrfToken);
+}
+
 export function inviteAthleteByEmail(athleteEmail: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/coach-workspace/relationship-invitations", { athlete_email: athleteEmail }, csrfToken);
 }

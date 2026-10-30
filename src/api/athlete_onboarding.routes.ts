@@ -47,6 +47,7 @@ import { StandDownError, describeStandDown, endStandDown, recordStandDown } from
 import { currentInjury } from "./injury_log_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment, saveAthleteGyms } from "./athlete_equipment_service.js";
 import { searchGyms } from "./gym_listing_service.js";
+import { CoachingRequestError, requestCoaching, withGymCoaches } from "./coaching_request_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
@@ -294,7 +295,9 @@ athleteOnboardingRouter.get(
   equipmentRateLimit,
   asyncHandler(async (request, response) => {
     const { session } = await athleteSession(request);
-    return response.status(200).json(await describeAthleteEquipment(session.account_row.user_id));
+    const described = await describeAthleteEquipment(session.account_row.user_id);
+    // Each of their gyms with the coaches it has confirmed.
+    return response.status(200).json({ ...described, gyms: await withGymCoaches(session.account_row.user_id, described.gyms) });
   })
 );
 
@@ -303,8 +306,25 @@ athleteOnboardingRouter.get(
   "/gyms/search",
   equipmentRateLimit,
   asyncHandler(async (request, response) => {
-    await athleteSession(request);
-    return response.status(200).json({ ok: true, gyms: await searchGyms(request.query.q) });
+    const { session } = await athleteSession(request);
+    return response.status(200).json({ ok: true, gyms: await withGymCoaches(session.account_row.user_id, await searchGyms(request.query.q)) });
+  })
+);
+
+// Ask a coach a gym has confirmed to coach them (coaching_request_service.ts).
+athleteOnboardingRouter.post(
+  "/coaching-requests",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try {
+      return response.status(201).json(await requestCoaching(session.account_row.user_id, request.body));
+    }
+    catch (error) {
+      if (error instanceof CoachingRequestError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+      throw error;
+    }
   })
 );
 

@@ -96,6 +96,11 @@ export function saveAthleteEquipment(input: { full_gym: true } | { available_equ
   return request("PUT", "/account/onboarding/equipment", input, csrfToken);
 }
 
+// Ask a coach a gym has confirmed to coach them.
+export function requestCoaching(coachGymId: string, note: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/account/onboarding/coaching-requests", { coach_gym_id: coachGymId, ...(note ? { note } : {}) }, csrfToken);
+}
+
 // Listed gyms by name or area, and the athlete's gyms (up to 3) with their main gym.
 export function searchGyms(query: string): Promise<JsonRecord> {
   return request("GET", `/account/onboarding/gyms/search?q=${encodeURIComponent(query)}`);

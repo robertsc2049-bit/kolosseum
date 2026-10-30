@@ -70,7 +70,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "gym_coach_link_requested",
   "coach_gym_confirmed",
   "coach_gym_declined",
-  "coach_gym_now_listed"
+  "coach_gym_now_listed",
+  "coaching_requested"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -879,6 +880,38 @@ async function deriveCoachGymNotifications(
   }
 }
 
+// The coach: an athlete who found them at a gym asked to be coached
+// (coaching_request_service.ts). Named in the payload - they aren't one of
+// the coach's athletes yet.
+async function deriveCoachingRequestedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT r.request_id, r.created_at, a.display_name, COALESCE(l.display_name, o.org_name) AS gym_name
+    FROM product_coaching_requests r
+    JOIN product_accounts a ON a.user_id = r.athlete_user_id
+    LEFT JOIN product_organisations o ON o.org_id = r.org_id
+    LEFT JOIN product_gym_listings l ON l.org_id = r.org_id
+    WHERE r.coach_user_id = $1 AND r.request_status = 'pending'
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coaching_requested",
+      sourceRecordType: "product_coaching_requests",
+      sourceRecordId: cleanString(row.request_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthletes,
+      notificationPayload: { athlete_display_name: cleanString(row.display_name) || "An athlete", org_name: cleanString(row.gym_name) || null },
+      occurredAtIso8601: toIso(row.created_at)
+    });
+  }
+}
+
 // --- Billing / entitlement action required ----------------------------------
 
 async function deriveBillingNotifications(
@@ -1591,6 +1624,7 @@ async function deriveNotificationsForRecipient(
   await deriveMessageNotificationsForOrgOwner(client, recipientUserId);
   await deriveGymCoachLinkRequestedNotifications(client, recipientUserId);
   await deriveCoachGymNotifications(client, recipientUserId);
+  await deriveCoachingRequestedNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

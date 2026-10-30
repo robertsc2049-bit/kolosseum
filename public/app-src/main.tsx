@@ -87,6 +87,7 @@ import { CoachOverviewEventsPanel } from "./screens/coach/CoachOverviewEventsPan
 import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from "./screens/coach/CoachOverviewSessionReviewPanel";
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
+import { CoachingRequestsPanel } from "./screens/coach/CoachingRequestsPanel";
 import { EntryAuthPanel } from "./screens/entry/EntryAuthPanel";
 import { BarbellCalculatorPanel } from "./screens/tools/BarbellCalculatorPanel";
 
@@ -143,6 +144,7 @@ mount("athlete-progress-reports-root", <AthleteProgressReportsPanel />);
 mount("athlete-other-training-root", <OtherTrainingPanel />);
 mount("athlete-directory-root", <AthleteDirectoryPanel />);
 mount("invite-athlete-root", <InviteAthleteByEmailPanel />);
+mount("coaching-requests-root", <CoachingRequestsPanel />);
 mount("coach-broadcast-root", <CoachBroadcastPanel />);
 mount("connect-athlete-root", <ConnectAthletePanel />);
 mount("athlete-relationship-detail-root", <AthleteRelationshipDetailPanel />);

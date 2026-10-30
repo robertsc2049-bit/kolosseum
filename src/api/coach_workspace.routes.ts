@@ -22,6 +22,7 @@ import {
 } from "./exercise_demo_video_storage.js";
 import { badRequest, conflict, notFound } from "./http_errors.js";
 import { OrgHandoverError, acceptOrgHandover, listPendingOrgHandovers } from "./org_handover_service.js";
+import { CoachingRequestError, decideCoachingRequest, listCoachingRequests } from "./coaching_request_service.js";
 import {
   acceptAthleteRelationshipInvitationHandler,
   createAthleteProfileAssignment,
@@ -581,6 +582,32 @@ coachWorkspaceRouter.post(
     catch (error) {
       const status = reportErrorStatus(error);
       if (status) return res.status(status).json({ ok: false, error: (error as Error).message });
+      throw error;
+    }
+  })
+);
+
+// Athletes who found the coach at a gym and asked to be coached
+// (coaching_request_service.ts): invite them, or dismiss the request.
+coachWorkspaceRouter.get(
+  "/coaching-requests",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, false);
+    return res.status(200).json(await listCoachingRequests(coachUserId));
+  })
+);
+
+coachWorkspaceRouter.post(
+  "/coaching-requests/:request_id/decision",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (req, res) => {
+    const coachUserId = await authenticatedCoach(req, true);
+    try {
+      return res.status(200).json(await decideCoachingRequest(coachUserId, String(req.params.request_id), req.body));
+    }
+    catch (error) {
+      if (error instanceof CoachingRequestError) return res.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
       throw error;
     }
   })

@@ -42,7 +42,8 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   athlete_block_completed: "Finished a block - report ready",
   coach_gym_confirmed: "Gym confirmed you coach there",
   coach_gym_declined: "Gym didn't confirm you coach there",
-  coach_gym_now_listed: "Your gym is now on Kolosseum - link it"
+  coach_gym_now_listed: "Your gym is now on Kolosseum - link it",
+  coaching_requested: "An athlete asked you to coach them"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -67,6 +68,11 @@ export function resolveNotificationSubject(
   const payload = notification.notification_payload;
   if (!payload || typeof payload !== "object") return null;
   const record = payload as JsonRecord;
+
+  // Not one of the coach's athletes yet (coaching_requested): named directly.
+  if (typeof record.athlete_display_name === "string" && record.athlete_display_name) {
+    return record.athlete_display_name;
+  }
 
   if (record.athlete_user_id) {
     const athleteUserId = String(record.athlete_user_id);
