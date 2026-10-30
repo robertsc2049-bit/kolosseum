@@ -28,6 +28,12 @@ function cookieOf(result, name) {
   return found.split(";")[0];
 }
 
+async function notificationsOf(base, who, path) {
+  const result = await request(base, "GET", path, undefined, who);
+  assert.equal(result.response.status, 200, result.text);
+  return result.json.notifications ?? [];
+}
+
 function expect(result, status, label) {
   assert.equal(result.response.status, status, `${label}: ${result.text}`);
   return result.json;
@@ -120,6 +126,11 @@ test("a coach lists their gyms, the gym confirms them, and their athletes see wh
   const suggested = mine.gyms.find((gym) => gym.coach_gym_id === typed.coach_gym_id);
   assert.deepEqual(suggested.now_on_kolosseum, [{ org_id: orgId, display_name: gymName, area: "Leeds" }], "the gym they typed in is now on Kolosseum");
   assert.deepEqual(mine.gyms.find((gym) => gym.gym_name === "Garage Gym").now_on_kolosseum, []);
+  // ...and is told so in the bell.
+  const joined = (await notificationsOf(base, coach, "/account/notifications")).filter((n) => n.notification_type === "coach_gym_now_listed");
+  assert.equal(joined.length, 1, "one 'your gym is now on Kolosseum' notification");
+  assert.equal(joined[0].notification_payload.org_name, gymName);
+  assert.equal(joined[0].deep_link_route_id ?? joined[0].deep_link?.route_id ?? "shared_account", "shared_account");
   expect(await request(base, "POST", "/coach-branding/gyms", { org_id: orgId }, coach), 201, "adding the listed gym directly is also fine");
   expect(await request(base, "POST", `/coach-branding/gyms/${typed.coach_gym_id}/link`, { org_id: orgId }, coach), 409, "already listed via the search");
   const direct = (await request(base, "GET", "/coach-branding/gyms", undefined, coach)).json.gyms.find((gym) => gym.org_id === orgId);
@@ -139,6 +150,15 @@ test("a coach lists their gyms, the gym confirms them, and their athletes see wh
   assert.deepEqual(pendingEntry.coach_gyms.map((gym) => gym.gym_name), ["Garage Gym"], "only the typed-in gym until the gym confirms");
   assert.ok(relationshipId || pendingEntry.relationship_id);
 
+  // The gym's owner is told in their bell, with the coach's name and business.
+  const requested = (await notificationsOf(base, owner, "/org/notifications")).filter((n) => n.notification_type === "gym_coach_link_requested");
+  assert.equal(requested.length, 1);
+  assert.deepEqual(
+    [requested[0].notification_payload.org_id, requested[0].notification_payload.org_name, requested[0].notification_payload.coach_display_name, requested[0].notification_payload.coach_business_name],
+    [orgId, gymName, "Chris Roberts", "Old Tyme Strength"]
+  );
+  assert.ok(!JSON.stringify(requested).includes(coach.email), "no coach email in the gym's notification");
+
   // The gym sees the coach - name and business name - and confirms them.
   const gymRaw = await request(base, "GET", `/org/organisations/${orgId}/gym-coaches`, undefined, owner);
   let gymView = expect(gymRaw, 200, "gym's coaches");
@@ -150,6 +170,8 @@ test("a coach lists their gyms, the gym confirms them, and their athletes see wh
   expect(await request(base, "POST", `/org/organisations/${orgId}/gym-coaches/${coachGymId}/decision`, { decision: "maybe" }, owner), 422, "unknown decision");
   gymView = expect(await request(base, "POST", `/org/organisations/${orgId}/gym-coaches/${coachGymId}/decision`, { decision: "confirm" }, owner), 200, "confirm");
   assert.equal(gymView.coaches[0].link_status, "confirmed");
+  const confirmedNote = (await notificationsOf(base, coach, "/account/notifications")).filter((n) => n.notification_type === "coach_gym_confirmed");
+  assert.deepEqual(confirmedNote.map((n) => n.notification_payload.org_name), [gymName], "the coach is told the gym confirmed them");
 
   const confirmedList = expect(await request(base, "GET", "/coach-workspace/relationship-invitations", undefined, athlete), 200, "athlete's invitations again");
   const confirmedEntry = (confirmedList.invitations ?? confirmedList.relationships ?? []).find((entry) => entry.coach_user_id === coach.userId);
@@ -174,6 +196,8 @@ test("a coach lists their gyms, the gym confirms them, and their athletes see wh
   expect(await request(base, "POST", `/org/organisations/${orgId}/gym-coaches/${coachGymId}/decision`, { decision: "remove" }, owner), 200, "remove");
   mine = expect(await request(base, "GET", "/coach-branding/gyms", undefined, coach), 200, "coach's gyms after removal");
   assert.equal(mine.gyms.find((gym) => gym.coach_gym_id === coachGymId).link_status, "declined");
+  const declinedNote = (await notificationsOf(base, coach, "/account/notifications")).filter((n) => n.notification_type === "coach_gym_declined");
+  assert.deepEqual(declinedNote.map((n) => n.notification_payload.org_name), [gymName], "the coach is told the gym no longer confirms them");
   assert.deepEqual(expect(await request(base, "GET", `/org/organisations/${orgId}/gym-coaches`, undefined, owner), 200, "gym's coaches after").coaches, []);
 
   // Up to 5 gyms.

@@ -313,8 +313,12 @@ function renderNotificationPanel(notifications) {
     return;
   }
 
+  // A coach who says they coach at one of the owner's gyms: one line each,
+  // opening that gym's coaches to confirm or decline (coach_gym_service.ts).
+  const coachRequests = notifications.filter((notification) => notification.notification_type === "gym_coach_link_requested");
   const countsByOrg = new Map();
   for (const notification of notifications) {
+    if (notification.notification_type === "gym_coach_link_requested") continue;
     const payload = notification.notification_payload || {};
     const orgId = String(payload.org_id || "");
     if (!orgId) continue;
@@ -324,13 +328,27 @@ function renderNotificationPanel(notifications) {
   }
 
   const groups = [...countsByOrg.values()];
-  if (groups.length === 0) {
+  if (groups.length === 0 && coachRequests.length === 0) {
     body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
     return;
   }
 
   body.innerHTML = `
     <ul class="notification-list">
+      ${coachRequests.map((notification) => {
+        const payload = notification.notification_payload || {};
+        const coach = `${payload.coach_display_name || "A coach"}${payload.coach_business_name ? ` · ${payload.coach_business_name}` : ""}`;
+        return `
+        <li class="notification-item">
+          <button type="button" class="notification-item-open" data-open-gym-coaches="${escapeHtml(payload.org_id || "")}" data-org-name="${escapeHtml(payload.org_name || "")}">
+            <span class="notification-item-dot" aria-hidden="true"></span>
+            <span class="notification-item-body">
+              <span class="notification-item-type">${escapeHtml(payload.org_name || "Your gym")}</span>
+              <span class="notification-item-subject">${escapeHtml(coach)} says they coach here - confirm or decline</span>
+            </span>
+          </button>
+        </li>`;
+      }).join("")}
       ${groups.map((group) => `
         <li class="notification-item">
           <button type="button" class="notification-item-open" data-open-org-notifications="${escapeHtml(group.orgId)}" data-org-name="${escapeHtml(group.orgName)}">
@@ -344,6 +362,13 @@ function renderNotificationPanel(notifications) {
       `).join("")}
     </ul>
   `;
+
+  for (const button of body.querySelectorAll("[data-open-gym-coaches]")) {
+    button.addEventListener("click", () => {
+      closeNotificationPanel();
+      showGymListingSection(button.getAttribute("data-open-gym-coaches"), button.getAttribute("data-org-name"));
+    });
+  }
 
   for (const button of body.querySelectorAll("[data-open-org-notifications]")) {
     button.addEventListener("click", () => {
