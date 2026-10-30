@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { coachLabel } from "../../utils/coachName";
 import { useRole } from "../../utils/role";
 import { useAccountCoachInvitations } from "./useAccountCoachInvitations";
 
@@ -32,7 +33,7 @@ export function AccountCoachInvitationsPanel() {
           return (
             <article className="record-row" key={relationshipId}>
               <div>
-                <strong>{String(invitation.coach_display_name ?? "")}</strong>
+                <strong>{coachLabel(invitation)}</strong>
                 <p className="muted small">{String(invitation.coach_email ?? "")}</p>
               </div>
               <div className="inline-controls">

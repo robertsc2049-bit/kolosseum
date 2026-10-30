@@ -3,6 +3,7 @@ import React, { useMemo, useState } from "react";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 
 import { type JsonRecord } from "../../api/transport";
+import { coachLabel } from "../../utils/coachName";
 import { titleCase } from "../../utils/format";
 import { useCoachMarketplace } from "./useCoachMarketplace";
 // eslint-disable-next-line import/no-unresolved
@@ -18,7 +19,7 @@ import { V1_ACTIVITIES } from "../../../../shared/v1-boundary/v1ActivityRegistry
 // stays legacy, untouched by this slice.
 
 function marketplaceSearchText(template: JsonRecord): string {
-  return [template.template_name, template.description, template.activity_id, template.coach_display_name, template.coach_brand_tagline]
+  return [template.template_name, template.description, template.activity_id, template.coach_display_name, template.coach_business_name, template.coach_brand_tagline]
     .map((value) => String(value ?? "").toLowerCase())
     .join(" ");
 }
@@ -134,7 +135,7 @@ export function CoachMarketplacePanel() {
                   <p className="muted small">Accepted payment: {String(template.payment_methods_note)}</p>
                 ) : null}
                 <p className="muted small">
-                  Shared by {String(template.coach_display_name ?? "")}
+                  Shared by {coachLabel(template)}
                   {template.coach_brand_tagline ? ` — ${String(template.coach_brand_tagline)}` : ""}
                 </p>
               </div>

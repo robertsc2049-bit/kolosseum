@@ -374,12 +374,21 @@ test(
     // A second save supersedes the first - latest wins, nothing is
     // UPDATEd or DELETEd.
     // ============================================================
+    assertStatus(
+      await request(baseUrl, "POST", "/coach-branding", {
+        brand_color: "#336699", business_name: "x".repeat(81)
+      }, { cookie: coach.cookie, csrf: coach.csrf }),
+      400,
+      "an over-length business name is rejected"
+    );
+
     const secondSave = await request(baseUrl, "POST", "/coach-branding", {
-      brand_color: "#a52a2a"
+      brand_color: "#a52a2a", business_name: "  Old Tyme Strength  "
     }, { cookie: coach.cookie, csrf: coach.csrf });
     assertStatus(secondSave, 201, "coach saves second, superseding brand preference");
     assert.equal(secondSave.json?.brand_preference?.brand_color, "#a52a2a");
     assert.equal(secondSave.json?.brand_preference?.brand_tagline, null, "omitted tagline clears to null on the new row");
+    assert.equal(secondSave.json?.brand_preference?.business_name, "Old Tyme Strength");
 
     const readAfterSecondSave = await request(baseUrl, "GET", "/coach-branding", undefined, { cookie: coach.cookie });
     assertStatus(readAfterSecondSave, 200, "coach reads back superseding preference");
@@ -432,11 +441,13 @@ test(
     assert.ok(brandedEntry, "expected the branded coach's relationship in the athlete's list");
     assert.equal(brandedEntry.coach_brand_color, "#a52a2a");
     assert.equal(brandedEntry.coach_brand_tagline, null);
+    assert.equal(brandedEntry.coach_business_name, "Old Tyme Strength", "the athlete sees the coach's business name");
 
     const unsetEntry = relationshipFor(athleteRelationships.json?.relationships ?? [], unsetCoach.userId);
     assert.ok(unsetEntry, "expected the unbranded coach's relationship in the athlete's list");
     assert.equal(unsetEntry.coach_brand_color, null);
     assert.equal(unsetEntry.coach_brand_tagline, null);
+    assert.equal(unsetEntry.coach_business_name, null);
 
     // ============================================================
     // An athlete with no relationship to the branded coach at all never

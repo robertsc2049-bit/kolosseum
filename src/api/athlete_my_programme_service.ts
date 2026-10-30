@@ -6,6 +6,7 @@
 // server's own (orderedTemplateSessions), so "session 7" here is session 7
 // when it's created.
 import { pool } from "../db/pool.js";
+import { coachBusinessName, coachNameWithBusiness } from "./coach_branding_service.js";
 import { orderedTemplateSessions, loadExecutableCoachTemplateById } from "./beta18_programme_template_service.js";
 import { loadAthleteStrengthProfile, requireCoachAthleteAccess, resolvePercentageLoad } from "./beta19_coach_workspace_service.js";
 import { getCurrentProgrammeRun } from "./programme_catalogue_service.js";
@@ -247,7 +248,7 @@ async function buildProgramme(athleteUserId: string, viewer: Viewer, assignment:
   const competitionDate = text(event?.event_date) || text(plan?.competition_date);
   const cover: Json = {
     athlete_name: await displayName(athleteUserId),
-    coach_name: assignment ? await displayName(ownerId) : "",
+    coach_name: assignment ? coachNameWithBusiness(await displayName(ownerId), await coachBusinessName(ownerId)) : "",
     description: text(template.description),
     started_on: (assignment ? text(assignment.requested_at_iso8601) : text(run!.started_at)).slice(0, 10) || null,
     competition: competitionDate ? { name: text(event?.event_name) || "Competition", date: competitionDate } : null,

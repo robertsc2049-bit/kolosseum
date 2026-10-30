@@ -86,7 +86,7 @@ test("the preview updates as the colour and tagline change, and escapes the tagl
   render(<AccountBrandingPanel />);
   await waitFor(() => screen.getByText("Your athletes will see this next to your name"));
 
-  const taglineInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+  const taglineInput = screen.getByPlaceholderText("Strength coaching, straightforward and simple.") as HTMLInputElement;
   fireEvent.change(taglineInput, { target: { value: '<img src=x onerror="window.pwned=true">' } });
 
   await waitFor(() => screen.getByText(/img src=x/iu));
@@ -100,13 +100,36 @@ test("saves the branding preference and shows a success message", async () => {
   render(<AccountBrandingPanel />);
   await waitFor(() => screen.getByText("Your athletes will see this next to your name"));
 
-  const taglineInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+  const taglineInput = screen.getByPlaceholderText("Strength coaching, straightforward and simple.") as HTMLInputElement;
   fireEvent.change(taglineInput, { target: { value: "Factual and simple." } });
 
   const form = document.querySelector("form") as HTMLFormElement;
   fireEvent.submit(form);
 
   await waitFor(() => screen.getByText("Branding saved."));
+});
+
+test("a coaching business name loads, previews next to the coach's name and is saved", async () => {
+  setRole("coach");
+  let saved: Record<string, unknown> | null = null;
+  installMocks({ preference: { brand_color: "#112233", brand_tagline: null, business_name: "Old Tyme Strength" } });
+  const baseFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(input).startsWith("/coach-branding") && init?.method === "POST") saved = JSON.parse(String(init.body));
+    return baseFetch(input, init);
+  }) as typeof fetch;
+  render(<AccountBrandingPanel />);
+
+  const businessInput = await waitFor(() => screen.getByDisplayValue("Old Tyme Strength")) as HTMLInputElement;
+  screen.getByText("Your name · Old Tyme Strength");
+  fireEvent.change(businessInput, { target: { value: "Old Tyme Strength Club" } });
+  screen.getByText("Your name · Old Tyme Strength Club");
+
+  await act(async () => {
+    fireEvent.submit(document.querySelector("form") as HTMLFormElement);
+  });
+  await waitFor(() => screen.getByText("Branding saved."));
+  assert.equal(saved?.business_name, "Old Tyme Strength Club");
 });
 
 test("shows a mapped error message when the server rejects an invalid colour", async () => {

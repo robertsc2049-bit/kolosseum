@@ -99,6 +99,19 @@ test("resolveNotificationSubject resolves a coach name for an athlete viewing a 
   assert.equal(subject, "Coach Accepted");
 });
 
+test("resolveNotificationSubject shows the coach's business name next to their name when they've set one", () => {
+  const context = { coachRelationships: [], athleteRelationships: [], pendingInvitations: [] };
+  assert.equal(
+    resolveNotificationSubject({ notification_payload: { coach_user_id: "coach_1" } }, { ...context, athleteRelationships: [{ coach_user_id: "coach_1", coach_display_name: "Chris Roberts", coach_business_name: "Old Tyme Strength" }] }),
+    "Chris Roberts · Old Tyme Strength"
+  );
+  assert.equal(
+    resolveNotificationSubject({ notification_payload: { coach_user_id: "coach_1" } }, { ...context, pendingInvitations: [{ coach_user_id: "coach_1", coach_display_name: "Chris Roberts", coach_business_name: null }] }),
+    "Chris Roberts"
+  );
+  assert.equal(resolveNotificationSubject({ notification_payload: { coach_user_id: "coach_9" } }, context), "A connected coach");
+});
+
 test("shows no unread badge before any notification exists", async () => {
   installMocks({ unreadCount: 0 });
   render(<NotificationBellPanel />);

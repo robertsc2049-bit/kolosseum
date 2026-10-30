@@ -13,6 +13,7 @@ const DEFAULT_BRAND_COLOR = "#d2a952";
 const ERROR_MESSAGES: Record<string, string> = {
   coach_branding_coach_brand_color_invalid: "Choose a valid colour.",
   coach_branding_coach_brand_tagline_too_long: "Tagline must be 120 characters or fewer.",
+  coach_branding_coach_business_name_too_long: "Business name must be 80 characters or fewer.",
   account_session_missing: "Sign in to edit branding.",
   account_session_invalid: "The sign-in session has expired."
 };
@@ -28,6 +29,7 @@ function errorMessage(error: unknown): string {
 export type AccountBrandingState = {
   brandColor: string;
   brandTagline: string;
+  businessName: string;
   statusMessage: string | null;
   statusTone: "neutral" | "success" | "error";
   saving: boolean;
@@ -36,6 +38,7 @@ export type AccountBrandingState = {
 const initialState: AccountBrandingState = {
   brandColor: DEFAULT_BRAND_COLOR,
   brandTagline: "",
+  businessName: "",
   statusMessage: null,
   statusTone: "neutral",
   saving: false
@@ -52,6 +55,7 @@ export function useAccountBranding() {
         ...current,
         brandColor: (preference && typeof preference.brand_color === "string" && preference.brand_color) || DEFAULT_BRAND_COLOR,
         brandTagline: (preference && typeof preference.brand_tagline === "string" && preference.brand_tagline) || "",
+        businessName: (preference && typeof preference.business_name === "string" && preference.business_name) || "",
         // A prior failed refresh (e.g. re-fetched too early during a
         // same-tab sign-in, before the new role's session was fully
         // current) must not leave a stale error message behind once a
@@ -73,6 +77,10 @@ export function useAccountBranding() {
     setState((current) => ({ ...current, brandTagline }));
   }, []);
 
+  const setBusinessName = useCallback((businessName: string) => {
+    setState((current) => ({ ...current, businessName }));
+  }, []);
+
   const saveBranding = useCallback(async () => {
     setState((current) => ({ ...current, saving: true }));
     try {
@@ -81,7 +89,8 @@ export function useAccountBranding() {
       await saveCoachBrandPreference(
         {
           brand_color: state.brandColor.trim() || DEFAULT_BRAND_COLOR,
-          brand_tagline: state.brandTagline.trim() || undefined
+          brand_tagline: state.brandTagline.trim() || undefined,
+          business_name: state.businessName.trim() || undefined
         },
         csrfToken
       );
@@ -90,7 +99,7 @@ export function useAccountBranding() {
     catch (error) {
       setState((current) => ({ ...current, saving: false, statusMessage: errorMessage(error), statusTone: "error" }));
     }
-  }, [state.brandColor, state.brandTagline]);
+  }, [state.brandColor, state.brandTagline, state.businessName]);
 
   useEffect(() => {
     refreshBranding();
@@ -111,6 +120,7 @@ export function useAccountBranding() {
     ...state,
     setBrandColor,
     setBrandTagline,
+    setBusinessName,
     saveBranding
   };
 }
