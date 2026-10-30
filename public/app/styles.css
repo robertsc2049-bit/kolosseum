@@ -3478,6 +3478,46 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   padding-left: var(--k-space-3);
 }
 
+/* A coach's share link (CoachShareLinkPanel.tsx) and the athlete side of it. */
+.share-link-address {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.share-link-address input {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.share-link-on a {
+  overflow-wrap: anywhere;
+}
+
+.share-link-qr {
+  display: block;
+  width: 200px;
+  max-width: 100%;
+  height: auto;
+  margin: var(--k-space-3) 0;
+  border-radius: var(--k-radius-s);
+  background: #fff;
+}
+
+.entry-coach-banner {
+  margin: 0 0 var(--k-space-3);
+  padding: var(--k-space-3);
+  border-left: 3px solid var(--bronze);
+  border-radius: var(--k-radius-s);
+  background: var(--ink-2);
+}
+
+#coach-link-request-root:not(:empty) {
+  margin-bottom: var(--k-space-3);
+}
+
 .message-attachment-image,
 .message-attachment-video {
   max-width: 280px;

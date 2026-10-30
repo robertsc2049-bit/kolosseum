@@ -30,6 +30,20 @@ export function removeCoachGym(coachGymId: string, csrfToken: string): Promise<J
   return request("DELETE", `/coach-branding/gyms/${encodeURIComponent(coachGymId)}`, undefined, csrfToken);
 }
 
+// The coach's share link: a public page with a QR code.
+export function loadCoachShareLink(): Promise<JsonRecord> {
+  return request("GET", "/coach-branding/share-link");
+}
+
+export function saveCoachShareLink(input: { slug: string; enabled: boolean }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/coach-branding/share-link", input, csrfToken);
+}
+
+// A coach's public card, from their share link (no sign-in needed).
+export function loadSharedCoachCard(slug: string): Promise<JsonRecord> {
+  return request("GET", `/c/${encodeURIComponent(slug)}/card`);
+}
+
 export function saveCoachBrandPreference(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/coach-branding", input, csrfToken);
 }

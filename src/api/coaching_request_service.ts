@@ -1,4 +1,4 @@
-// DEV NOTE: Finding a coach by gym. An athlete sees the coaches a gym has
+// DEV NOTE: Finding a coach by gym or by their share link. An athlete sees the coaches a gym has
 // confirmed (coach_gym_service.ts) and asks one to coach them; the coach sees
 // the request - the athlete's name and email, the gym, and a short note - and
 // invites them through the usual invitation (relationship_invitation_service
@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
 import { coachBusinessName } from "./coach_branding_service.js";
+import { coachUserIdForLink } from "./coach_share_link_service.js";
 import { createRelationshipInvitationByEmail } from "./relationship_invitation_service.js";
 
 type Json = Record<string, unknown>;
@@ -57,20 +58,31 @@ export async function withGymCoaches(athleteUserId: string, gyms: unknown): Prom
   return list.map((gym) => ({ ...gym, coaches: coaches.get(text(gym.org_id)) ?? [] }));
 }
 
-// The athlete asks a coach they found at a gym to coach them, with an
-// optional short note.
+// The athlete asks a coach to coach them, with an optional short note - a
+// coach they found at a gym (coach_gym_id), or one whose share link they
+// followed (coach_link, coach_share_link_service.ts).
 export async function requestCoaching(athleteUserId: string, input: unknown): Promise<Json> {
   if (!isRecord(input)) throw new CoachingRequestError("coaching_request_invalid", 422);
-  const coachGymId = text(input.coach_gym_id);
   const note = text(input.note);
   if (note.length > 300) throw new CoachingRequestError("coaching_request_invalid", 422, { note: "Up to 300 characters." });
-  const gym = await pool.query(
-    `SELECT g.coach_user_id, g.org_id FROM product_coach_gyms g JOIN product_accounts a ON a.user_id = g.coach_user_id
-     WHERE g.coach_gym_id = $1 AND g.link_status = 'confirmed' AND a.account_state = 'active'`,
-    [coachGymId]
-  );
-  if (!gym.rows.length) throw new CoachingRequestError("coaching_request_coach_not_found", 404);
-  const coachUserId = String(gym.rows[0].coach_user_id);
+  let coachUserId: string | null = null;
+  let orgId: string | null = null;
+  const source = text(input.coach_link) ? "share_link" : "gym";
+  if (source === "share_link") {
+    coachUserId = await coachUserIdForLink(input.coach_link);
+  }
+  else {
+    const gym = await pool.query(
+      `SELECT g.coach_user_id, g.org_id FROM product_coach_gyms g JOIN product_accounts a ON a.user_id = g.coach_user_id
+       WHERE g.coach_gym_id = $1 AND g.link_status = 'confirmed' AND a.account_state = 'active'`,
+      [text(input.coach_gym_id)]
+    );
+    if (gym.rows.length) {
+      coachUserId = String(gym.rows[0].coach_user_id);
+      orgId = String(gym.rows[0].org_id);
+    }
+  }
+  if (!coachUserId) throw new CoachingRequestError("coaching_request_coach_not_found", 404);
   if (coachUserId === athleteUserId) throw new CoachingRequestError("coaching_request_self_not_allowed", 409);
   const relationship = await pool.query(
     `SELECT record_payload->>'relationship_state' AS state FROM beta_product_records
@@ -80,10 +92,10 @@ export async function requestCoaching(athleteUserId: string, input: unknown): Pr
   );
   if (text(relationship.rows[0]?.state) === "accepted") throw new CoachingRequestError("coaching_request_already_coached", 409);
   const inserted = await pool.query(
-    `INSERT INTO product_coaching_requests (request_id, athlete_user_id, coach_user_id, org_id, note, request_status)
-     VALUES ($1, $2, $3, $4, $5, 'pending')
+    `INSERT INTO product_coaching_requests (request_id, athlete_user_id, coach_user_id, org_id, source, note, request_status)
+     VALUES ($1, $2, $3, $4, $5, $6, 'pending')
      ON CONFLICT DO NOTHING RETURNING request_id`,
-    [`creq_${crypto.randomUUID().replaceAll("-", "")}`, athleteUserId, coachUserId, String(gym.rows[0].org_id), note || null]
+    [`creq_${crypto.randomUUID().replaceAll("-", "")}`, athleteUserId, coachUserId, orgId, source, note || null]
   );
   if (!inserted.rows.length) throw new CoachingRequestError("coaching_request_already_sent", 409);
   return { ok: true, request_id: String(inserted.rows[0].request_id) };
@@ -92,7 +104,7 @@ export async function requestCoaching(athleteUserId: string, input: unknown): Pr
 // The coach's open requests: who asked, at which gym, and their note.
 export async function listCoachingRequests(coachUserId: string): Promise<Json> {
   const result = await pool.query(
-    `SELECT r.request_id, r.note, r.created_at, a.display_name, a.email_canonical,
+    `SELECT r.request_id, r.source, r.note, r.created_at, a.display_name, a.email_canonical,
             COALESCE(l.display_name, o.org_name) AS gym_name
      FROM product_coaching_requests r
      JOIN product_accounts a ON a.user_id = r.athlete_user_id
@@ -109,6 +121,7 @@ export async function listCoachingRequests(coachUserId: string): Promise<Json> {
       athlete_display_name: text(row.display_name) || "An athlete",
       athlete_email: text(row.email_canonical),
       gym_name: text(row.gym_name) || null,
+      via_share_link: row.source === "share_link",
       note: text(row.note) || null,
       requested_at: row.created_at ? new Date(String(row.created_at)).toISOString() : null
     }))

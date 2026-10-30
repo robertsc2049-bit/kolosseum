@@ -20,6 +20,7 @@ import { authenticatedCoach } from "./coach_session_auth.js";
 import { accountRateLimitKey } from "./rate_limit_key.js";
 import { searchGyms } from "./gym_listing_service.js";
 import { addCoachGym, CoachGymError, linkCoachGym, listCoachGyms, removeCoachGym } from "./coach_gym_service.js";
+import { CoachShareLinkError, getCoachShareLink, saveCoachShareLink } from "./coach_share_link_service.js";
 import {
   CoachBrandingError,
   loadCoachBrandPreference,
@@ -104,9 +105,29 @@ coachBrandingRouter.delete(
   })
 );
 
+// The coach's share link: a public page with a QR code
+// (coach_share_link_service.ts).
+coachBrandingRouter.get(
+  "/share-link",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    return response.status(200).json(await getCoachShareLink(coachUserId));
+  })
+);
+
+coachBrandingRouter.put(
+  "/share-link",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    return response.status(200).json(await saveCoachShareLink(coachUserId, request.body));
+  })
+);
+
 coachBrandingRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof CoachGymError) {
+    if (error instanceof CoachGymError || error instanceof CoachShareLinkError) {
       response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
       return;
     }

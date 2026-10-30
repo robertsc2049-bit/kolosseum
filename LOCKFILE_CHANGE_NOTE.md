@@ -321,3 +321,19 @@ Verified dependency audit (production and full tree):
 This change does not alter Kolosseum engine law, deterministic output,
 registry content, sealed artefact bytes, access-policy decisions, or
 any existing user-facing behaviour.
+
+## QR codes for coach share links (2026-10-30)
+
+Commit subject: feat(coaches): a share link and QR code that bring new athletes to a coach
+
+package-lock.json changed by adding one direct production dependency:
+
+`npm install --save-exact qrcode-generator@2.0.4`
+
+qrcode-generator (MIT, no dependencies of its own) builds the QR code for a
+coach's public share page (src/api/coach_share_link_service.ts), served as
+PNG and SVG. Pinned to the exact version. No other package moved.
+
+This change does not alter Kolosseum engine law, deterministic output,
+registry content, sealed artefact bytes, access-policy decisions, or
+any existing user-facing behaviour beyond the new share link.
