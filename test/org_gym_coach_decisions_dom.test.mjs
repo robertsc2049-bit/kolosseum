@@ -6,8 +6,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { JSDOM } from "jsdom";
 
-const html = fs.readFileSync(new URL("../public/org/index.html", import.meta.url), "utf8")
-  .replace(/<script[^>]*><\/script>/gu, "");
+// jsdom never runs the page's own <script> tags (no runScripts option), so
+// the real index.html loads as is; org.js is imported below.
+const html = fs.readFileSync(new URL("../public/org/index.html", import.meta.url), "utf8");
 const dom = new JSDOM(html, { url: "http://localhost/org/", pretendToBeVisual: true });
 const { window } = dom;
 Object.assign(globalThis, { window, document: window.document, localStorage: window.localStorage, CustomEvent: window.CustomEvent, Event: window.Event, HTMLElement: window.HTMLElement });
