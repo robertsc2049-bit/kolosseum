@@ -53,10 +53,20 @@ async function call(method, route, body) {
 }
 
 await call("POST", "/account/sign-in", { email, password });
-const detail = await call("GET", "/account/detail");
+let detail = await call("GET", "/account/detail");
 csrf = detail.csrf_token;
+// An account that's both an athlete and a coach signs in as the role it
+// signed up as: act as its coaching side.
+const roles = Array.isArray(detail.account?.roles) ? detail.account.roles : [detail.account?.actor_type];
+if (detail.account?.actor_type !== "coach" && roles.includes("coach")) {
+  await call("POST", "/account/roles/active", { role: "coach" });
+  detail = await call("GET", "/account/detail");
+  csrf = detail.csrf_token;
+}
 const coachUserId = detail.account?.user_id;
-if (detail.account?.actor_type !== "coach") throw new Error("The author must be a coach account.");
+if (detail.account?.actor_type !== "coach") {
+  throw new Error("The author must be a coach account. In the app, open Account and click \"Also coach athletes\", finish the coach setup, then run this again.");
+}
 
 // Every exercise must be one the builder offers.
 const registry = new Set(((await call("GET", "/templates/exercises")).exercises ?? []).map((e) => e.exercise_id));
