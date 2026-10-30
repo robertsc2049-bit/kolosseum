@@ -79,7 +79,7 @@ function authorEmails(): Set<string> {
 export async function isProgrammeCatalogueAuthor(userId: string): Promise<boolean> {
   const emails = authorEmails();
   if (emails.size === 0) return false;
-  const result = await pool.query(`SELECT email_canonical FROM product_accounts WHERE user_id = $1 AND actor_type = 'coach'`, [userId]);
+  const result = await pool.query(`SELECT email_canonical FROM product_accounts WHERE user_id = $1 AND (actor_type = 'coach' OR additional_role = 'coach')`, [userId]);
   const email = text(result.rows?.[0]?.email_canonical).toLowerCase();
   return emails.has(email);
 }

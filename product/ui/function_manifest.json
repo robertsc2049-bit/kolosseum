@@ -8824,6 +8824,18 @@
     },
     {
       "method": "POST",
+      "path": "/account/roles",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
+      "path": "/account/roles/active",
+      "source": "src/api/product_account.routes.ts",
+      "tracked_by_area": "identity_account"
+    },
+    {
+      "method": "POST",
       "path": "/account/support/reports",
       "source": "src/api/product_support.routes.ts",
       "tracked_by_area": "status_support"
@@ -8867,6 +8879,12 @@
     {
       "method": "POST",
       "path": "/admin/accounts/:user_id/state",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/accounts/:user_id/add-coach-role",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

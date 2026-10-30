@@ -152,7 +152,7 @@ async function openAccountDetail(userId) {
 
   el("accountDetailSection").hidden = false;
   el("accountDetailUserId").textContent = account.user_id;
-  el("accountDetailActorType").textContent = account.actor_type;
+  el("accountDetailActorType").textContent = Array.isArray(account.roles) ? account.roles.join(" + ") : account.actor_type;
   el("accountDetailState").textContent = account.account_state;
   el("accountDetailTestFlag").textContent = account.is_test_account ? "Yes" : "No";
   el("accountDetailTestReasonWrap").hidden = !account.test_account_reason;
@@ -165,8 +165,12 @@ async function openAccountDetail(userId) {
   el("accountToggleTestConfirmButton").hidden = true;
   el("accountTestMarkingReason").hidden = true;
   el("accountTestMarkingReason").value = "";
+  // An athlete without the coach role can be given it.
+  el("accountAddCoachRoleButton").hidden = !(Array.isArray(account.roles) ? !account.roles.includes("coach") : account.actor_type === "athlete");
+  el("accountAddCoachRoleConfirmButton").hidden = true;
   state.pendingStateChange = null;
   state.pendingTestMarking = null;
+  state.pendingCoachConversion = null;
 
   const historyBody = el("accountEventHistory");
   historyBody.innerHTML = "";
@@ -222,6 +226,26 @@ async function confirmTestMarkingToggle() {
   el("accountTestMarkingReason").hidden = true;
   state.pendingTestMarking = null;
   await openAccountDetail(state.selectedUserId);
+  await refreshAuditRecords();
+}
+
+// Give an athlete account the coach role too: same login, their athlete
+// side kept; they switch between the two in the app.
+function requestCoachConversion() {
+  if (!state.selectedUserId) return;
+  state.pendingCoachConversion = { correlation_id: generateCorrelationId() };
+  el("accountAddCoachRoleConfirmButton").hidden = false;
+}
+
+async function confirmCoachConversion() {
+  if (!state.pendingCoachConversion || !state.selectedUserId) return;
+  const outcome = await api("POST", `/admin/accounts/${encodeURIComponent(state.selectedUserId)}/add-coach-role`, state.pendingCoachConversion);
+  el("accountActionResult").hidden = false;
+  el("accountActionResult").textContent = `Audit record ${outcome.audit.audit_record_id}: ${JSON.stringify(outcome.audit.before_state)} -> ${JSON.stringify(outcome.audit.after_state)}`;
+  el("accountAddCoachRoleConfirmButton").hidden = true;
+  state.pendingCoachConversion = null;
+  await openAccountDetail(state.selectedUserId);
+  await refreshAccountSearchResults();
   await refreshAuditRecords();
 }
 
@@ -904,6 +928,8 @@ el("accountSearchForm").addEventListener("submit", searchAccounts);
 el("accountToggleStateButton").addEventListener("click", requestAccountStateToggle);
 el("accountToggleStateConfirmButton").addEventListener("click", () => confirmAccountStateToggle().catch(console.error));
 el("accountToggleTestButton").addEventListener("click", requestTestMarkingToggle);
+el("accountAddCoachRoleButton").addEventListener("click", requestCoachConversion);
+el("accountAddCoachRoleConfirmButton").addEventListener("click", () => confirmCoachConversion().catch(console.error));
 el("accountToggleTestConfirmButton").addEventListener("click", () => confirmTestMarkingToggle().catch(console.error));
 el("exportRequestsSearch").addEventListener("input", renderDataRightsReview);
 el("deletionRequestsSearch").addEventListener("input", renderDataRightsReview);

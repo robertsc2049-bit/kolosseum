@@ -600,13 +600,14 @@ function state(all: readonly StoredEvent[]): Readonly<Json> {
 
 async function account(client: QueryClient, userId: string, lock = false): Promise<void> {
   const result = await client.query(
-    `SELECT actor_type, account_state FROM product_accounts
+    `SELECT actor_type, additional_role, account_state FROM product_accounts
      WHERE user_id = $1 ${lock ? "FOR UPDATE" : ""}`,
     [userId]
   );
   const row = result.rows?.[0];
   if (!row) throw new AthleteOnboardingError("athlete_onboarding_account_not_found", 404);
-  if (row.actor_type !== "athlete") throw new AthleteOnboardingError("athlete_onboarding_athlete_required", 403);
+  // An athlete, or a coach who also trains (the athlete role added).
+  if (row.actor_type !== "athlete" && row.additional_role !== "athlete") throw new AthleteOnboardingError("athlete_onboarding_athlete_required", 403);
   if (row.account_state !== "active") throw new AthleteOnboardingError("athlete_onboarding_service_unavailable", 423);
 }
 async function append(client: QueryClient, userId: string, eventType: string, payload: Json, at: string): Promise<void> {

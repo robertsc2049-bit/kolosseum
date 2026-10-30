@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { type JsonRecord } from "../../api/client";
+import { type JsonRecord, addAccountRole, switchAccountRole } from "../../api/client";
 import { initials, titleCase } from "../../utils/format";
 import { useAccountIdentityHeader } from "./useAccountIdentityHeader";
 
@@ -17,8 +17,59 @@ function roleLabel(actorType: unknown): string {
   return actorType === "coach" ? "Coach" : "Athlete";
 }
 
+// Open the app at the role's home. The app always lives at /app/, so only a
+// real reload (not a hash change) re-reads the account as the other role.
+function reloadAt(homeRoute: unknown) {
+  window.history.replaceState(null, "", `/app/${typeof homeRoute === "string" && homeRoute.startsWith("#/") ? homeRoute : ""}`);
+  window.location.reload();
+}
+
+// One login, both roles: a coach who also trains, or an athlete who also
+// coaches, switches between the two here - or adds the other role.
+export function AccountRoleSwitch({ account, csrfToken }: { account: JsonRecord | null; csrfToken: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!account) return null;
+  const acting = account.actor_type === "coach" ? "coach" : "athlete";
+  const roles = Array.isArray(account.roles) ? account.roles.map(String) : [acting];
+  const other: "coach" | "athlete" = acting === "coach" ? "athlete" : "coach";
+  const hasBoth = roles.includes("coach") && roles.includes("athlete");
+  async function go(action: "add" | "switch") {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = action === "add" ? await addAccountRole(other, csrfToken) : await switchAccountRole(other, csrfToken);
+      reloadAt((result.account as JsonRecord | undefined)?.actor_home_route);
+    }
+    catch (caught) {
+      setError(caught instanceof Error ? caught.message : "That didn't work - try again.");
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="account-role-switch" data-testid="account-role-switch">
+      {hasBoth ? (
+        <>
+          <p className="muted small">{acting === "coach" ? "You're in your coaching workspace. Your own training is one tap away." : "You're in your own training. Your coaching workspace is one tap away."}</p>
+          <button className="button primary small-button" type="button" disabled={busy} onClick={() => void go("switch")}>
+            {other === "coach" ? "Switch to coaching" : "Switch to my training"}
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="muted small">{acting === "coach" ? "Train yourself too? Add an athlete side to this account - same login - and switch between coaching and your own training." : "Coach others too? Add a coaching workspace to this account - same login - and switch between your training and coaching."}</p>
+          <button className="button secondary small-button" type="button" disabled={busy} onClick={() => void go("add")}>
+            {other === "athlete" ? "Also train as an athlete" : "Also coach athletes"}
+          </button>
+        </>
+      )}
+      {error ? <p className="field-error" role="alert">{error}</p> : null}
+    </div>
+  );
+}
+
 export function AccountIdentityHeaderCard() {
-  const { loading, account } = useAccountIdentityHeader();
+  const { loading, account, csrfToken } = useAccountIdentityHeader();
   const name = String((account as JsonRecord | null)?.display_name ?? "Kolosseum user");
   const email = String((account as JsonRecord | null)?.email ?? "");
   const accountState = String((account as JsonRecord | null)?.account_state ?? "active");
@@ -42,12 +93,13 @@ export function AccountIdentityHeaderCard() {
         <h3 id="accountName">{name}</h3>
         <p id="accountEmail" className="muted">{email}</p>
         <div className="badge-row">
-          <span id="accountRoleBadge" className="badge neutral">{roleLabel((account as JsonRecord | null)?.actor_type)}</span>
+          <span id="accountRoleBadge" className="badge neutral">{Array.isArray((account as JsonRecord | null)?.roles) && ((account as JsonRecord).roles as unknown[]).length > 1 ? `Coach and athlete · now ${roleLabel((account as JsonRecord | null)?.actor_type).toLowerCase()}` : roleLabel((account as JsonRecord | null)?.actor_type)}</span>
           <span id="accountStateBadge" className={accountStateClass(accountState)}>{titleCase(accountState)}</span>
           <span id="accountVerificationBadge" className={emailVerified ? "badge complete" : "badge neutral"}>
             {emailVerified ? "Email verified" : "Email not verified"}
           </span>
         </div>
+        <AccountRoleSwitch account={account as JsonRecord | null} csrfToken={csrfToken} />
       </div>
     </article>
   );

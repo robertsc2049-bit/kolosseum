@@ -22,6 +22,7 @@ import {
   eraseUserFiles,
   orgOwnerErasurePlan
 } from "./gdpr_erasure_service.js";
+import { createCoachProfileForAccount } from "./product_account_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -219,6 +220,58 @@ export async function changeAccountState(
       afterState
     });
   });
+}
+
+// Give an athlete account the coach role as well - same login, same user id,
+// the athlete side kept (one login can be both: product_account_service
+// addAccountRole). The coach profile a coach sign-up creates is added; the
+// account switches between the two in the app. Recorded as an
+// account_state_change (the audit CHECK has no separate type, as with the
+// org-owner variant below) with the roles before and after.
+export async function addCoachRoleToAccount(
+  adminUserId: string,
+  correlationId: string,
+  targetUserId: string
+): Promise<AuditOutcome> {
+  const cleanCorrelationId = cleanString(correlationId);
+  const cleanTargetUserId = cleanString(targetUserId);
+  if (!cleanCorrelationId || !cleanTargetUserId) {
+    throw new AdminActionError("admin_action_identity_required", 400);
+  }
+
+  let added: { email: string; name: string } | null = null;
+  const outcome = await withAdminTransaction(async (client) => {
+    const existingAudit = await findExistingAudit(client, adminUserId, cleanCorrelationId);
+    if (existingAudit) return toAuditOutcome(existingAudit, true);
+
+    const current = await client.query(
+      `SELECT user_id, actor_type, additional_role, email_canonical, display_name FROM product_accounts WHERE user_id = $1 FOR UPDATE`,
+      [cleanTargetUserId]
+    );
+    const row = current.rows[0];
+    if (!row) throw new AdminActionError("admin_account_not_found", 404);
+    if (cleanString(row.actor_type) === "coach" || cleanString(row.additional_role) === "coach") {
+      throw new AdminActionError("admin_account_already_coach", 409);
+    }
+
+    await client.query(`UPDATE product_accounts SET additional_role = 'coach', updated_at = now() WHERE user_id = $1`, [cleanTargetUserId]);
+    added = { email: cleanString(row.email_canonical), name: cleanString(row.display_name) };
+
+    return writeAuditRecord(client, {
+      adminUserId,
+      correlationId: cleanCorrelationId,
+      actionType: "account_state_change",
+      targetRecordType: "product_accounts",
+      targetRecordId: cleanTargetUserId,
+      beforeState: { roles: [cleanString(row.actor_type)] },
+      afterState: { roles: [cleanString(row.actor_type), "coach"] }
+    });
+  });
+  // The coach profile, once the role is there (idempotent: a replay or a
+  // profile already there changes nothing).
+  const withRole = added as { email: string; name: string } | null;
+  if (withRole) await createCoachProfileForAccount(cleanTargetUserId, withRole.email, withRole.name);
+  return outcome;
 }
 
 // DEV NOTE: FULL-UI-80 - mirrors changeAccountState exactly, targeting

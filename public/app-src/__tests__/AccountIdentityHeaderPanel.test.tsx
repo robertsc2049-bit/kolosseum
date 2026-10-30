@@ -106,3 +106,38 @@ test("refetches when kolosseum:account-detail-refreshed fires", async () => {
 
   await screen.findByText("Refreshed Name");
 });
+
+// One login, both roles (AccountRoleSwitch).
+test("a coach with one role is offered an athlete side; adding it posts the role and reopens the app at the athlete home", async () => {
+  const posts: Array<{ path: string; body: unknown }> = [];
+  let reloadedAt = "";
+  const originalReplace = window.history.replaceState.bind(window.history);
+  window.history.replaceState = ((_data: unknown, _unused: string, url?: string | URL | null) => { reloadedAt = String(url ?? ""); }) as typeof window.history.replaceState;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: baseAccount({ actor_type: "coach", roles: ["coach"] }), terms: {}, consent_history: [], csrf_token: "csrf" });
+    if (path === "/account/roles") {
+      posts.push({ path, body: typeof init?.body === "string" ? JSON.parse(init.body) : null });
+      return jsonResponse({ account: baseAccount({ actor_type: "athlete", roles: ["coach", "athlete"], actor_home_route: "#/athlete/today" }), csrf_token: "csrf" }, true, 201);
+    }
+    return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
+  }) as typeof fetch;
+  try {
+    render(<AccountIdentityHeaderCard />);
+    const add = await screen.findByText("Also train as an athlete");
+    await act(async () => { add.click(); });
+    assert.deepEqual(posts, [{ path: "/account/roles", body: { role: "athlete" } }]);
+    assert.equal(reloadedAt, "/app/#/athlete/today");
+  }
+  finally {
+    window.history.replaceState = originalReplace;
+  }
+});
+
+test("an account with both roles shows which it's in and switches to the other", async () => {
+  installMocks(baseAccount({ actor_type: "athlete", roles: ["coach", "athlete"] }));
+  render(<AccountIdentityHeaderCard />);
+  assert.ok(await screen.findByText("Switch to coaching"));
+  assert.ok(screen.getByText("Coach and athlete · now athlete"));
+  assert.equal(screen.queryByText("Also coach athletes"), null);
+});

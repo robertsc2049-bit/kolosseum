@@ -329,7 +329,7 @@ async function findActiveCoachByEmail(
     FROM product_accounts
     WHERE
       email_canonical = $1
-      AND actor_type = 'coach'
+      AND (actor_type = 'coach' OR additional_role = 'coach')
       AND account_state = 'active'
     `,
     [email]

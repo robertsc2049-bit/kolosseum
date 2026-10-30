@@ -93,6 +93,8 @@ export async function getAdminAccountDetail(
     email: cleanString(row.email_canonical),
     display_name: cleanString(row.display_name),
     actor_type: cleanString(row.actor_type),
+    // Both roles when the account is a coach and an athlete.
+    roles: cleanString(row.additional_role) ? [cleanString(row.actor_type), cleanString(row.additional_role)] : [cleanString(row.actor_type)],
     account_state: cleanString(row.account_state),
     email_verified: row.email_verified_at !== null,
     created_at_iso8601: toIso(row.created_at),

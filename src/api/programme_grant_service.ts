@@ -76,7 +76,7 @@ async function grantsBy(where: "coach" | "email" | "id", value: string): Promise
 
 async function athleteIdForEmail(email: string): Promise<string | null> {
   if (!email) return null;
-  const result = await pool.query(`SELECT user_id FROM product_accounts WHERE email_canonical = $1 AND actor_type = 'athlete'`, [email]);
+  const result = await pool.query(`SELECT user_id FROM product_accounts WHERE email_canonical = $1 AND (actor_type = 'athlete' OR additional_role = 'athlete')`, [email]);
   return text(result.rows?.[0]?.user_id) || null;
 }
 
@@ -186,7 +186,7 @@ export async function revokeProgrammeGrant(coachUserId: string, grantIdInput: un
 }
 
 async function athleteEmail(athleteUserId: string): Promise<string> {
-  const result = await pool.query(`SELECT email_canonical FROM product_accounts WHERE user_id = $1 AND actor_type = 'athlete'`, [athleteUserId]);
+  const result = await pool.query(`SELECT email_canonical FROM product_accounts WHERE user_id = $1 AND (actor_type = 'athlete' OR additional_role = 'athlete')`, [athleteUserId]);
   return canonicalEmail(result.rows?.[0]?.email_canonical);
 }
 

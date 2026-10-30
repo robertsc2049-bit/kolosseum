@@ -7,6 +7,8 @@ import {
   type Request,
   type Response
 } from "express";
+import { rateLimit } from "express-rate-limit";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -23,6 +25,8 @@ import {
   requestProductEmailVerification,
   requestProductPasswordReset,
   resolveProductSession,
+  addAccountRole,
+  switchAccountRole,
   signInProductAccount,
   signOutProductAccount,
   updateProductAccountProfile
@@ -265,6 +269,31 @@ productAccountRouter.post(
     clearSessionCookie(response);
 
     return response.status(204).end();
+  })
+);
+
+// One login, both roles: add the other role, or switch to it.
+productAccountRouter.post(
+  "/roles",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+    await addAccountRole(token, request.body?.role);
+    const session = await resolveProductSession(token);
+    return response.status(201).json({ account: session.account, csrf_token: session.csrf_token });
+  })
+);
+
+productAccountRouter.post(
+  "/roles/active",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const token = sessionToken(request);
+    assertMutationAuthorised(request, token);
+    await switchAccountRole(token, request.body?.role);
+    const session = await resolveProductSession(token);
+    return response.status(200).json({ account: session.account, csrf_token: session.csrf_token });
   })
 );
 
