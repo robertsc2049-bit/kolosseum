@@ -101,3 +101,31 @@ test("a lifter finds their gym, it becomes their main gym, and their own list be
   assert.equal(screen.queryByLabelText("Full gym"), null, "no full-gym choice with a main gym");
   assert.ok(screen.getByText("Save home kit"));
 });
+
+test("an athlete sees the coaches their gym confirmed and asks one to coach them", async () => {
+  const requests: Record<string, unknown>[] = [];
+  const gyms = [{
+    org_id: "org_1", display_name: "Forge", area: "York", equipment_count: 2, listed: true,
+    coaches: [{ coach_gym_id: "cgym_1", display_name: "Chris Roberts", business_name: "Old Tyme Strength", asked: false }]
+  }];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "athlete_1" }, csrf_token: "csrf" });
+    if (path === "/account/onboarding/equipment") return jsonResponse({ full_gym: false, available_equipment: [], options, gyms, main_gym: { org_id: "org_1", display_name: "Forge", equipment: ["barbell", "rack"] } });
+    if (path === "/account/onboarding/coaching-requests") {
+      requests.push(JSON.parse(String(init?.body)));
+      return jsonResponse({ ok: true, request_id: "creq_1" }, true, 201);
+    }
+    return jsonResponse({ error: `unhandled_${path}` }, false, 404);
+  }) as typeof fetch;
+
+  render(<AthleteEquipmentCard />);
+  await screen.findByText("Chris Roberts · Old Tyme Strength");
+  fireEvent.click(screen.getByRole("button", { name: "Ask to coach me" }));
+  fireEvent.change(screen.getByPlaceholderText("A line about you and your goals (optional)"), { target: { value: "Competing in spring." } });
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Send" }));
+  });
+  await screen.findByText("Asked - they'll invite you if they can take you on");
+  assert.deepEqual(requests, [{ coach_gym_id: "cgym_1", note: "Competing in spring." }]);
+});

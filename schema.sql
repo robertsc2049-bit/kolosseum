@@ -1860,6 +1860,88 @@ ALTER TABLE product_notifications
         'coach_gym_declined',
         'coach_gym_now_listed'
       )
+    ) NOT VALID;
+
+-- Finding a coach by gym (coaching_request_service.ts): an athlete asks a
+-- coach a gym has confirmed to coach them; the coach invites them through
+-- the usual invitation, or dismisses it. One open request per athlete and
+-- coach.
+CREATE TABLE IF NOT EXISTS product_coaching_requests (
+  request_id      TEXT PRIMARY KEY,
+  athlete_user_id TEXT NOT NULL,
+  coach_user_id   TEXT NOT NULL,
+  org_id          TEXT
+    REFERENCES product_organisations(org_id)
+    ON DELETE SET NULL,
+  note            TEXT
+    CHECK (note IS NULL OR char_length(note) <= 300),
+  request_status  TEXT NOT NULL
+    CHECK (request_status IN ('pending', 'invited', 'dismissed')),
+  decided_at      TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  uq_product_coaching_requests_open
+ON product_coaching_requests (athlete_user_id, coach_user_id)
+WHERE request_status = 'pending';
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coaching_requests_coach
+ON product_coaching_requests (coach_user_id, request_status);
+
+-- product_notifications_coaching_requested_type_migration
+-- Additive coaching_requested - tells a coach an athlete who found them at a
+-- gym asked to be coached. Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed',
+        'coaching_requested'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.

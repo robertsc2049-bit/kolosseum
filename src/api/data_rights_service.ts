@@ -136,6 +136,24 @@ async function loadCoachGyms(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+// Requests to be coached: ones they sent as an athlete, or received as a coach.
+async function loadCoachingRequests(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT request_id, athlete_user_id, coach_user_id, org_id, note, request_status, decided_at, created_at
+     FROM product_coaching_requests WHERE athlete_user_id = $1 OR coach_user_id = $1 ORDER BY created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    request_id: row.request_id,
+    direction: row.athlete_user_id === userId ? "sent" : "received",
+    org_id: row.org_id ?? null,
+    note: row.note ?? null,
+    request_status: row.request_status,
+    decided_at_iso8601: isoString(row.decided_at),
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
 async function loadCoachOrgMemberships(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT m.membership_id, m.org_id, m.coach_user_id, m.membership_status,
@@ -256,6 +274,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     coachOrgMemberships,
     coachOrgMessagesSent,
     coachGyms,
+    coachingRequests,
     accountEvents
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
@@ -276,6 +295,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadCoachOrgMemberships(userId),
     loadCoachOrgMessagesSent(userId),
     loadCoachGyms(userId),
+    loadCoachingRequests(userId),
     loadAccountEvents(userId)
   ]);
 
@@ -313,6 +333,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     org_coach_memberships: coachOrgMemberships.map((r) => tagOwnedRecord(r, userId)),
     org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId)),
     coach_gyms: coachGyms.map((r) => tagOwnedRecord(r, userId)),
+    coaching_requests: coachingRequests.map((r) => tagOwnedRecord(r, userId)),
     account_events: accountEvents.map((r) => tagOwnedRecord(r, userId))
   };
 

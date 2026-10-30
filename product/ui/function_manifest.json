@@ -8119,7 +8119,9 @@
             "/coach-branding/gyms",
             "/coach-branding/gyms/search",
             "/coach-branding/gyms/:coach_gym_id/link",
-            "/coach-branding/gyms/:coach_gym_id"
+            "/coach-branding/gyms/:coach_gym_id",
+            "/coach-workspace/coaching-requests",
+            "/coach-workspace/coaching-requests/:request_id/decision"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -10020,6 +10022,18 @@
       "method": "DELETE",
       "path": "/coach-branding/gyms/:coach_gym_id",
       "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-workspace/coaching-requests",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-workspace/coaching-requests/:request_id/decision",
+      "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_branding"
     }
   ],

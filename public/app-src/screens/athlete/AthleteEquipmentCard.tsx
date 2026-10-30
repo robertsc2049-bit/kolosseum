@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { loadAthleteEquipment, saveAthleteEquipment, saveAthleteGyms, searchGyms } from "../../api/athleteOnboardingClient";
+import { loadAthleteEquipment, requestCoaching, saveAthleteEquipment, saveAthleteGyms, searchGyms } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 
@@ -14,14 +14,72 @@ import { type JsonRecord } from "../../api/transport";
 // top of it.
 
 type Option = { equipment_id: string; display_name: string };
-type Gym = { org_id: string; display_name: string; area: string; equipment_count: number; listed: boolean };
+type GymCoach = { coach_gym_id: string; display_name: string; business_name: string | null; asked: boolean };
+type Gym = { org_id: string; display_name: string; area: string; equipment_count: number; listed: boolean; coaches: GymCoach[] };
 type MainGym = { org_id: string; display_name: string; equipment: string[] };
 const MAX_GYMS = 3;
 
 const gymFrom = (g: JsonRecord): Gym => ({
   org_id: String(g.org_id), display_name: String(g.display_name ?? ""), area: String(g.area ?? ""),
-  equipment_count: Number(g.equipment_count ?? 0), listed: g.listed !== false
+  equipment_count: Number(g.equipment_count ?? 0), listed: g.listed !== false,
+  coaches: Array.isArray(g.coaches) ? (g.coaches as JsonRecord[]).map((c) => ({
+    coach_gym_id: String(c.coach_gym_id), display_name: String(c.display_name ?? ""),
+    business_name: typeof c.business_name === "string" && c.business_name ? c.business_name : null, asked: c.asked === true
+  })) : []
 });
+
+// The coaches a gym has confirmed: the athlete asks one to coach them, with
+// an optional short note; the coach then sends the usual invitation.
+function GymCoaches({ gym, onAsked }: { gym: Gym; onAsked: (coachGymId: string) => void }) {
+  const [asking, setAsking] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!gym.coaches.length) return null;
+  async function send(coachGymId: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const account = await loadAccountDetail();
+      await requestCoaching(coachGymId, note.trim(), typeof account.csrf_token === "string" ? account.csrf_token : "");
+      onAsked(coachGymId);
+      setAsking(null);
+      setNote("");
+    }
+    catch (caught) {
+      const code = String(((caught as { payload?: JsonRecord }).payload ?? {}).error ?? "");
+      setError(code === "coaching_request_already_coached" ? "They already coach you." : code === "coaching_request_already_sent" ? "You've already asked them." : "Your request couldn't be sent. Try again.");
+    }
+    finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="gym-coaches" data-testid="gym-coaches">
+      <p className="choice-hint">Coaches at {gym.display_name}:</p>
+      <ul>
+        {gym.coaches.map((coach) => (
+          <li key={coach.coach_gym_id}>
+            <span>{coach.display_name}{coach.business_name ? ` · ${coach.business_name}` : ""}</span>{" "}
+            {coach.asked ? <span className="muted small">Asked - they'll invite you if they can take you on</span> : asking === coach.coach_gym_id ? (
+              <span className="inline-controls">
+                <input type="text" maxLength={300} placeholder="A line about you and your goals (optional)" value={note} onChange={(event) => setNote(event.target.value)} />
+                <button className="button primary small" type="button" disabled={busy} onClick={() => void send(coach.coach_gym_id)}>Send</button>
+                <button className="button secondary small" type="button" disabled={busy} onClick={() => setAsking(null)}>Cancel</button>
+              </span>
+            ) : (
+              <button className="button secondary small" type="button" onClick={() => { setAsking(coach.coach_gym_id); setNote(""); }}>Ask to coach me</button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {error ? <p className="field-error" role="alert">{error}</p> : null}
+    </div>
+  );
+}
+
+const markAsked = (list: Gym[], coachGymId: string): Gym[] =>
+  list.map((gym) => ({ ...gym, coaches: gym.coaches.map((coach) => (coach.coach_gym_id === coachGymId ? { ...coach, asked: true } : coach)) }));
 type Mode = "full_gym" | "home_gym" | "bodyweight" | "custom";
 
 const HOME_GYM = ["barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"];
@@ -166,6 +224,7 @@ export function AthleteEquipmentCard() {
                 </label>
                 {!gym.listed ? <span className="muted"> No longer listed - its equipment doesn't count.</span> : null}
                 <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms(gyms.filter((g) => g.org_id !== gym.org_id).map((g) => g.org_id), mainGym?.org_id ?? null)}>Remove</button>
+                <GymCoaches gym={gym} onAsked={(id) => { setGyms((list) => markAsked(list, id)); setResults((list) => (list ? markAsked(list, id) : list)); }} />
               </li>
             ))}
           </ul>
@@ -186,6 +245,7 @@ export function AthleteEquipmentCard() {
                 <li key={gym.org_id}>
                   <span>{gym.display_name}, {gym.area} <span className="muted">({gym.equipment_count} pieces of kit)</span></span>
                   <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms([...gyms.map((g) => g.org_id), gym.org_id], mainGym?.org_id ?? null)}>Add</button>
+                  <GymCoaches gym={gym} onAsked={(id) => { setGyms((list) => markAsked(list, id)); setResults((list) => (list ? markAsked(list, id) : list)); }} />
                 </li>
               ))}
             </ul>

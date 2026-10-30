@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { useInviteAthleteByEmail } from "./useInviteAthleteByEmail";
+import { CoachingRequestsPanel } from "./CoachingRequestsPanel";
 
 // DEV NOTE: ported from index.html's #inviteAthleteByEmailForm ("Lawful
 // invitation / Invite athlete by email").
@@ -15,6 +16,8 @@ export function InviteAthleteByEmailPanel() {
   }
 
   return (
+    <>
+    <CoachingRequestsPanel />
     <form className="panel form-panel" onSubmit={(event) => { handleSubmit(event).catch(() => {}); }}>
       <div>
         <p className="eyebrow">Invite</p>
@@ -41,5 +44,6 @@ export function InviteAthleteByEmailPanel() {
 
       <button className="button primary" type="submit" disabled={submitting}>Send invitation</button>
     </form>
+    </>
   );
 }
