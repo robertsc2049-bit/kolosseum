@@ -9,6 +9,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import { coachGymsForAthletes } from "./coach_gym_service.js";
 import {
   createBeta17RelationshipRecord
 } from "./beta17_coach_managed_service.js";
@@ -288,8 +289,9 @@ async function withCoachDisplay(
   // doesn't exist yet" defaults used below.
   let coachProfile = null;
   let brandPreference = null;
+  let coachGyms: JsonRecord[] = [];
   try {
-    [coachProfile, brandPreference] = await Promise.all([
+    [coachProfile, brandPreference, coachGyms] = await Promise.all([
       loadLatestBetaProductRecord(
         "beta17_coach_profile",
         coachUserId,
@@ -299,7 +301,8 @@ async function withCoachDisplay(
         "coach_brand_preference",
         coachUserId,
         coachUserId
-      )
+      ),
+      coachGymsForAthletes(coachUserId)
     ]);
   }
   catch {
@@ -315,6 +318,7 @@ async function withCoachDisplay(
     coach_brand_color: cleanString(brandPreference?.brand_color) || null,
     coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null,
     coach_business_name: cleanString(brandPreference?.business_name) || null,
+    coach_gyms: coachGyms,
     relationship_state: relationshipExpired(relationship) ? "expired" : relationship.relationship_state,
     created_at_iso8601: cleanString(relationship.created_at_iso8601),
     accepted_at_iso8601: cleanString(relationship.accepted_at_iso8601) || null,

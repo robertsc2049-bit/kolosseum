@@ -138,6 +138,14 @@ test("the current coach shows with their coaching business name", async () => {
   await screen.findByText("Chris Roberts · Old Tyme Strength");
 });
 
+test("the current coach's card says which gyms they coach at", async () => {
+  seedRole("athlete");
+  installMocks({ relationships: [baseRelationship({ coach_gyms: [{ gym_name: "Iron Temple", area: "Leeds", on_kolosseum: true }, { gym_name: "Garage Gym", area: "", on_kolosseum: false }] })] });
+  render(<AccountCoachRelationshipPanel />);
+
+  await screen.findByText("Coaches at Iron Temple, Leeds; Garage Gym");
+});
+
 test("shows past relationships separately from the current one", async () => {
   seedRole("athlete");
   installMocks({
