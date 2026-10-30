@@ -28,7 +28,7 @@ function installMocks(options: { cardStatus?: number; askError?: string } = {}) 
       return jsonResponse({ ok: true, coach: { slug: "old-tyme-strength", display_name: "Chris Roberts", business_name: "Old Tyme Strength", tagline: "Barbell strength, the old way.", brand_color: "#8a5a2b", gyms: [] } });
     }
     if (path === "/account/onboarding/coaching-requests" && method === "POST") {
-      if (options.askError) return jsonResponse({ ok: false, error: options.askError }, 409);
+      if (options.askError) return jsonResponse({ ok: false, error: options.askError, ...(options.askError === "coaching_request_recently_declined" ? { field_errors: { ask_again_from: "2099-11-29T10:00:00.000Z" } } : {}) }, 409);
       return jsonResponse({ ok: true, request_id: "creq_1" }, 201);
     }
     return jsonResponse({ error: `unhandled_${path}` }, 404);
@@ -99,6 +99,20 @@ test("asking a coach who already coaches them says so", async () => {
     fireEvent.click(screen.getByRole("button", { name: "Ask to coach me" }));
   });
   await screen.findByText("Chris Roberts already coaches you.");
+});
+
+test("a coach who turned them down recently says when they can ask again", async () => {
+  signInAs("athlete");
+  followLink("old-tyme-strength");
+  installMocks({ askError: "coaching_request_recently_declined" });
+  render(<CoachLinkRequestCard />);
+  await screen.findByText("Ask Chris Roberts · Old Tyme Strength to coach you?");
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Ask to coach me" }));
+  });
+  const when = new Date("2099-11-29T10:00:00.000Z").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  await screen.findByText(`Chris Roberts couldn't take you on recently - you can ask them again from ${when}.`);
+  assert.equal(readPendingCoach(), "");
 });
 
 test("a link that's been switched off is forgotten quietly", async () => {

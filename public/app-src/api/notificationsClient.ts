@@ -43,7 +43,8 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   coach_gym_confirmed: "Gym confirmed you coach there",
   coach_gym_declined: "Gym didn't confirm you coach there",
   coach_gym_now_listed: "Your gym is now on Kolosseum - link it",
-  coaching_requested: "An athlete asked you to coach them"
+  coaching_requested: "An athlete asked you to coach them",
+  coaching_request_declined: "A coach can't take you on right now"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -72,6 +73,11 @@ export function resolveNotificationSubject(
   // Not one of the coach's athletes yet (coaching_requested): named directly.
   if (typeof record.athlete_display_name === "string" && record.athlete_display_name) {
     return record.athlete_display_name;
+  }
+
+  // Not the athlete's coach (coaching_request_declined): named directly.
+  if (typeof record.coach_display_name === "string" && record.coach_display_name) {
+    return coachLabel(record);
   }
 
   if (record.athlete_user_id) {

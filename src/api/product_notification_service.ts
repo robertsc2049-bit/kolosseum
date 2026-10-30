@@ -14,6 +14,7 @@ import { pool } from "../db/pool.js";
 import { getSessionStateQuery } from "./session_state_query_service.js";
 import { loadActiveCoachTemplateById, orderedTemplateSessions } from "./beta18_programme_template_service.js";
 import { deriveAthleteVisibleNoteNotifications } from "./product_notification_note_derivation.js";
+import { coachBusinessName } from "./coach_branding_service.js";
 
 type JsonRecord = Record<string, unknown>;
 export type QueryClient = { query: (typeof pool)["query"] };
@@ -71,7 +72,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "coach_gym_confirmed",
   "coach_gym_declined",
   "coach_gym_now_listed",
-  "coaching_requested"
+  "coaching_requested",
+  "coaching_request_declined"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -912,6 +914,38 @@ async function deriveCoachingRequestedNotifications(
   }
 }
 
+// The athlete: a coach they asked can't take them on (the coach dismissed
+// the request). Named in the payload - the coach isn't theirs.
+async function deriveCoachingRequestDeclinedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `
+    SELECT r.request_id, r.coach_user_id, r.decided_at, a.display_name
+    FROM product_coaching_requests r
+    JOIN product_accounts a ON a.user_id = r.coach_user_id
+    WHERE r.athlete_user_id = $1 AND r.request_status = 'dismissed' AND r.decided_at IS NOT NULL
+    `,
+    [recipientUserId]
+  );
+
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "coaching_request_declined",
+      sourceRecordType: "product_coaching_requests",
+      sourceRecordId: cleanString(row.request_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: {
+        coach_display_name: cleanString(row.display_name) || "A coach",
+        coach_business_name: await coachBusinessName(cleanString(row.coach_user_id))
+      },
+      occurredAtIso8601: toIso(row.decided_at)
+    });
+  }
+}
+
 // --- Billing / entitlement action required ----------------------------------
 
 async function deriveBillingNotifications(
@@ -1625,6 +1659,7 @@ async function deriveNotificationsForRecipient(
   await deriveGymCoachLinkRequestedNotifications(client, recipientUserId);
   await deriveCoachGymNotifications(client, recipientUserId);
   await deriveCoachingRequestedNotifications(client, recipientUserId);
+  await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

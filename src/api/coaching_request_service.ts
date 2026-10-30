@@ -58,6 +58,10 @@ export async function withGymCoaches(athleteUserId: string, gyms: unknown): Prom
   return list.map((gym) => ({ ...gym, coaches: coaches.get(text(gym.org_id)) ?? [] }));
 }
 
+// After a coach says they can't take someone on, the athlete can ask them
+// again after this many days.
+export const ASK_AGAIN_AFTER_DAYS = 30;
+
 // The athlete asks a coach to coach them, with an optional short note - a
 // coach they found at a gym (coach_gym_id), or one whose share link they
 // followed (coach_link, coach_share_link_service.ts).
@@ -91,6 +95,18 @@ export async function requestCoaching(athleteUserId: string, input: unknown): Pr
     [coachUserId, athleteUserId]
   );
   if (text(relationship.rows[0]?.state) === "accepted") throw new CoachingRequestError("coaching_request_already_coached", 409);
+  // A coach who couldn't take them on isn't asked again for a while.
+  const recentlyDeclined = await pool.query(
+    `SELECT decided_at FROM product_coaching_requests
+     WHERE athlete_user_id = $1 AND coach_user_id = $2 AND request_status = 'dismissed'
+       AND decided_at > now() - make_interval(days => $3)
+     ORDER BY decided_at DESC LIMIT 1`,
+    [athleteUserId, coachUserId, ASK_AGAIN_AFTER_DAYS]
+  );
+  if (recentlyDeclined.rows.length) {
+    const askAgainFrom = new Date(new Date(String(recentlyDeclined.rows[0].decided_at)).getTime() + ASK_AGAIN_AFTER_DAYS * 86400000);
+    throw new CoachingRequestError("coaching_request_recently_declined", 409, { ask_again_from: askAgainFrom.toISOString() });
+  }
   const inserted = await pool.query(
     `INSERT INTO product_coaching_requests (request_id, athlete_user_id, coach_user_id, org_id, source, note, request_status)
      VALUES ($1, $2, $3, $4, $5, $6, 'pending')
@@ -147,4 +163,55 @@ export async function decideCoachingRequest(coachUserId: string, requestId: stri
     [requestId, coachUserId, decision === "invite" ? "invited" : "dismissed"]
   );
   return listCoachingRequests(coachUserId);
+}
+
+// The requests an athlete has sent, newest first, and where each stands:
+// waiting for the coach, invited (with whether they've accepted), or not
+// taken on - with when they can ask that coach again. Withdrawn ones drop out.
+export async function listMyCoachingRequests(athleteUserId: string): Promise<Json> {
+  const result = await pool.query(
+    `SELECT r.request_id, r.coach_user_id, r.source, r.note, r.request_status, r.created_at, r.decided_at,
+            a.display_name, COALESCE(l.display_name, o.org_name) AS gym_name,
+            (SELECT p.record_payload->>'relationship_state' FROM beta_product_records p
+             WHERE p.record_type = 'beta17_coach_relationship' AND p.actor_user_id = r.coach_user_id AND p.subject_user_id = r.athlete_user_id
+             ORDER BY p.effective_at DESC, p.created_at DESC LIMIT 1) AS relationship_state
+     FROM product_coaching_requests r
+     JOIN product_accounts a ON a.user_id = r.coach_user_id
+     LEFT JOIN product_organisations o ON o.org_id = r.org_id
+     LEFT JOIN product_gym_listings l ON l.org_id = r.org_id
+     WHERE r.athlete_user_id = $1 AND r.request_status <> 'withdrawn'
+     ORDER BY r.created_at DESC
+     LIMIT 20`,
+    [athleteUserId]
+  );
+  const requests = [];
+  for (const row of result.rows) {
+    const status = String(row.request_status);
+    const decidedAt = row.decided_at ? new Date(String(row.decided_at)) : null;
+    requests.push({
+      request_id: String(row.request_id),
+      coach_display_name: text(row.display_name) || "A coach",
+      coach_business_name: await coachBusinessName(String(row.coach_user_id)),
+      gym_name: text(row.gym_name) || null,
+      via_share_link: row.source === "share_link",
+      note: text(row.note) || null,
+      status: status === "pending" ? "waiting" : status === "invited" ? (text(row.relationship_state) === "accepted" ? "coaching" : "invited") : "not_taken_on",
+      requested_at: row.created_at ? new Date(String(row.created_at)).toISOString() : null,
+      decided_at: decidedAt ? decidedAt.toISOString() : null,
+      ask_again_from: status === "dismissed" && decidedAt ? new Date(decidedAt.getTime() + ASK_AGAIN_AFTER_DAYS * 86400000).toISOString() : null
+    });
+  }
+  return { ok: true, requests };
+}
+
+// The athlete takes back a request the coach hasn't answered yet.
+export async function withdrawCoachingRequest(athleteUserId: string, requestId: string): Promise<Json> {
+  const updated = await pool.query(
+    `UPDATE product_coaching_requests SET request_status = 'withdrawn', decided_at = now()
+     WHERE request_id = $1 AND athlete_user_id = $2 AND request_status = 'pending'
+     RETURNING request_id`,
+    [requestId, athleteUserId]
+  );
+  if (!updated.rows.length) throw new CoachingRequestError("coaching_request_not_found", 404);
+  return listMyCoachingRequests(athleteUserId);
 }

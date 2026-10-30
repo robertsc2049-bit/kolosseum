@@ -106,6 +106,15 @@ export function requestCoachingViaLink(slug: string, note: string, csrfToken: st
   return request("POST", "/account/onboarding/coaching-requests", { coach_link: slug, ...(note ? { note } : {}) }, csrfToken);
 }
 
+// The requests the athlete has sent and where each stands.
+export function loadMyCoachingRequests(): Promise<JsonRecord> {
+  return request("GET", "/account/onboarding/coaching-requests");
+}
+
+export function withdrawCoachingRequest(requestId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/account/onboarding/coaching-requests/${encodeURIComponent(requestId)}/withdraw`, {}, csrfToken);
+}
+
 // Listed gyms by name or area, and the athlete's gyms (up to 3) with their main gym.
 export function searchGyms(query: string): Promise<JsonRecord> {
   return request("GET", `/account/onboarding/gyms/search?q=${encodeURIComponent(query)}`);
