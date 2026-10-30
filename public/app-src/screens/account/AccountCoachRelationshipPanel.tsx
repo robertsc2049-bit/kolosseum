@@ -83,6 +83,11 @@ export function AccountCoachRelationshipPanel() {
                 <strong>{coachLabel(entry)}</strong>
                 <p className="muted small">{String(entry.coach_email ?? "")}</p>
                 {entry.coach_brand_tagline ? <p className="muted small">{String(entry.coach_brand_tagline)}</p> : null}
+                {Array.isArray(entry.coach_gyms) && entry.coach_gyms.length > 0 ? (
+                  <p className="muted small" data-testid="coach-gyms">
+                    {`Coaches at ${(entry.coach_gyms as JsonRecord[]).map((gym) => (gym.area ? `${String(gym.gym_name)}, ${String(gym.area)}` : String(gym.gym_name))).join("; ")}`}
+                  </p>
+                ) : null}
               </div>
               <button type="button" className="button secondary" disabled={endingId === relationshipId} onClick={() => handleEnd(relationshipId)}>
                 End relationship

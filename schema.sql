@@ -3085,3 +3085,38 @@ CREATE TABLE IF NOT EXISTS product_gym_listings (
 CREATE INDEX IF NOT EXISTS
   idx_product_gym_listings_status
 ON product_gym_listings (listing_status);
+
+-- The gyms a coach works out of (coach_gym_service.ts). A gym on Kolosseum
+-- (org_id set) waits for the gym to confirm ('pending' -> 'confirmed', or
+-- 'declined'); one that isn't on Kolosseum yet is typed in ('unlisted') and
+-- linked once the gym joins. A coach lists up to 5.
+CREATE TABLE IF NOT EXISTS product_coach_gyms (
+  coach_gym_id   TEXT PRIMARY KEY,
+  coach_user_id  TEXT NOT NULL,
+  org_id         TEXT
+    REFERENCES product_organisations(org_id)
+    ON DELETE CASCADE,
+  gym_name       TEXT NOT NULL
+    CHECK (char_length(gym_name) BETWEEN 1 AND 120),
+  area           TEXT NOT NULL DEFAULT ''
+    CHECK (char_length(area) <= 120),
+  link_status    TEXT NOT NULL
+    CHECK (link_status IN ('unlisted', 'pending', 'confirmed', 'declined')),
+  decided_at     TIMESTAMPTZ,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK ((org_id IS NULL) = (link_status = 'unlisted'))
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  uq_product_coach_gyms_coach_org
+ON product_coach_gyms (coach_user_id, org_id)
+WHERE org_id IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_gyms_coach
+ON product_coach_gyms (coach_user_id);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_gyms_org
+ON product_coach_gyms (org_id);

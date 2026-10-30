@@ -111,7 +111,7 @@ test("saves the branding preference and shows a success message", async () => {
 
 test("a coaching business name loads, previews next to the coach's name and is saved", async () => {
   setRole("coach");
-  let saved: Record<string, unknown> | null = null;
+  let saved = null as Record<string, unknown> | null;
   installMocks({ preference: { brand_color: "#112233", brand_tagline: null, business_name: "Old Tyme Strength" } });
   const baseFetch = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {

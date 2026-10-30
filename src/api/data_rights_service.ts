@@ -118,6 +118,24 @@ async function loadCoachNotesAuthored(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+// The gyms a coach works out of, and where each link stands.
+async function loadCoachGyms(userId: string): Promise<JsonRecord[]> {
+  const result = await pool.query(
+    `SELECT coach_gym_id, org_id, gym_name, area, link_status, decided_at, created_at
+     FROM product_coach_gyms WHERE coach_user_id = $1 ORDER BY created_at ASC`,
+    [userId]
+  );
+  return result.rows.map((row) => ({
+    coach_gym_id: row.coach_gym_id,
+    org_id: row.org_id ?? null,
+    gym_name: row.gym_name,
+    area: row.area,
+    link_status: row.link_status,
+    decided_at_iso8601: isoString(row.decided_at),
+    created_at_iso8601: isoString(row.created_at)
+  }));
+}
+
 async function loadCoachOrgMemberships(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
     `SELECT m.membership_id, m.org_id, m.coach_user_id, m.membership_status,
@@ -237,6 +255,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     athleteGoals,
     coachOrgMemberships,
     coachOrgMessagesSent,
+    coachGyms,
     accountEvents
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
@@ -256,6 +275,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadBetaProductRecordsByType(userId, "athlete_goal"),
     loadCoachOrgMemberships(userId),
     loadCoachOrgMessagesSent(userId),
+    loadCoachGyms(userId),
     loadAccountEvents(userId)
   ]);
 
@@ -292,6 +312,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     athlete_goals: athleteGoals.map((r) => tagOwnedRecord(r, userId)),
     org_coach_memberships: coachOrgMemberships.map((r) => tagOwnedRecord(r, userId)),
     org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId)),
+    coach_gyms: coachGyms.map((r) => tagOwnedRecord(r, userId)),
     account_events: accountEvents.map((r) => tagOwnedRecord(r, userId))
   };
 

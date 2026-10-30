@@ -9,6 +9,27 @@ export function loadCoachBrandPreference(): Promise<JsonRecord> {
   return request("GET", "/coach-branding");
 }
 
+// The gyms the coach works out of.
+export function loadCoachGyms(): Promise<JsonRecord> {
+  return request("GET", "/coach-branding/gyms");
+}
+
+export function searchCoachGyms(query: string): Promise<JsonRecord> {
+  return request("GET", `/coach-branding/gyms/search?q=${encodeURIComponent(query)}`);
+}
+
+export function addCoachGym(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/coach-branding/gyms", input, csrfToken);
+}
+
+export function linkCoachGym(coachGymId: string, orgId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-branding/gyms/${encodeURIComponent(coachGymId)}/link`, { org_id: orgId }, csrfToken);
+}
+
+export function removeCoachGym(coachGymId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("DELETE", `/coach-branding/gyms/${encodeURIComponent(coachGymId)}`, undefined, csrfToken);
+}
+
 export function saveCoachBrandPreference(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/coach-branding", input, csrfToken);
 }

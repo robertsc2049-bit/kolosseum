@@ -6225,7 +6225,9 @@
             "/org/organisations/:org_id/analysis",
             "/org/organisations/:org_id/head-coach",
             "/org/organisations/:org_id/medical-lead",
-            "/org/organisations/:org_id/gym-listing"
+            "/org/organisations/:org_id/gym-listing",
+            "/org/organisations/:org_id/gym-coaches",
+            "/org/organisations/:org_id/gym-coaches/:coach_gym_id/decision"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8113,7 +8115,11 @@
           ],
           "route_id": "shared_account",
           "api_routes": [
-            "/coach-branding"
+            "/coach-branding",
+            "/coach-branding/gyms",
+            "/coach-branding/gyms/search",
+            "/coach-branding/gyms/:coach_gym_id/link",
+            "/coach-branding/gyms/:coach_gym_id"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -9985,6 +9991,36 @@
       "path": "/coach-workspace/exercise-demo-videos/:exercise_id/upload",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-branding/gyms",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-branding/gyms/search",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding/gyms",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding/gyms/:coach_gym_id/link",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "DELETE",
+      "path": "/coach-branding/gyms/:coach_gym_id",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
     }
   ],
   "completion_rules": [

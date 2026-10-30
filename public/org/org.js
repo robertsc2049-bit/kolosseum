@@ -624,6 +624,51 @@ function renderGymListing(result) {
 
 async function refreshGymListing() {
   renderGymListing(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-listing`));
+  await refreshGymCoaches();
+}
+
+// Coaches who say they work out of the gym: confirm, decline, or remove
+// (coach_gym_service.ts). Name and business name only.
+const GYM_COACH_ACTIONS = {
+  pending: [["confirm", "Confirm", "primary"], ["decline", "Decline", "secondary"]],
+  confirmed: [["remove", "Remove", "secondary"]]
+};
+
+function renderGymCoaches(result) {
+  const coaches = result.coaches || [];
+  el("orgGymCoaches").innerHTML = coaches.length === 0
+    ? `<p class="muted small">No coaches have linked to your gym yet.</p>`
+    : coaches.map((coach) => `
+      <article class="record-row">
+        <div>
+          <strong>${escapeHtml(coach.display_name)}${coach.business_name ? ` · ${escapeHtml(coach.business_name)}` : ""}</strong>
+          <p class="muted small">${coach.link_status === "pending" ? "Waiting for you to confirm" : "Confirmed"}</p>
+        </div>
+        <div class="button-row">${(GYM_COACH_ACTIONS[coach.link_status] || []).map(([decision, label, tone]) => `
+          <button class="button ${tone}" type="button" data-gym-coach="${escapeHtml(coach.coach_gym_id)}" data-decision="${decision}">${label}</button>`).join("")}
+        </div>
+      </article>`).join("");
+}
+
+async function refreshGymCoaches() {
+  renderGymCoaches(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-coaches`));
+}
+
+async function decideGymCoach(button) {
+  const errorEl = el("orgGymCoachesError");
+  errorEl.hidden = true;
+  button.disabled = true;
+  try {
+    renderGymCoaches(await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-coaches/${encodeURIComponent(button.getAttribute("data-gym-coach"))}/decision`, {
+      decision: button.getAttribute("data-decision")
+    }));
+  }
+  catch (error) {
+    errorEl.textContent = "That couldn't be saved. Try again.";
+    errorEl.hidden = false;
+    button.disabled = false;
+    console.error(error);
+  }
 }
 
 function showGymListingSection(orgId, orgName) {
@@ -634,6 +679,8 @@ function showGymListingSection(orgId, orgName) {
   el("orgGymListingError").hidden = true;
   el("orgGymListingStatus").textContent = "Loading...";
   el("orgGymListingEquipment").innerHTML = "";
+  el("orgGymCoaches").innerHTML = "";
+  el("orgGymCoachesError").hidden = true;
   refreshGymListing().catch((error) => {
     el("orgGymListingStatus").textContent = "";
     el("orgGymListingError").textContent = "The listing couldn't be loaded. Try again.";

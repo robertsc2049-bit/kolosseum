@@ -48,6 +48,11 @@ async function athleteCount(orgId: string): Promise<number> {
   return Number(result.rows[0]?.n ?? 0);
 }
 
+// The signed-in owner owns this gym ('individual') organisation.
+export async function assertGymOwner(ownerUserId: string, orgId: string): Promise<void> {
+  return ownedGym(ownerUserId, orgId);
+}
+
 async function ownedGym(ownerUserId: string, orgId: string): Promise<void> {
   const org = await pool.query("SELECT owner_user_id, visibility_mode FROM product_organisations WHERE org_id = $1", [orgId]);
   if (!org.rows.length) throw new GymListingError("gym_listing_organisation_not_found", 404);

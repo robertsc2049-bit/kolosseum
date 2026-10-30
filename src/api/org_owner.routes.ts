@@ -56,6 +56,7 @@ import {
 import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import { OrgHeadCoachError, setHeadCoach, setMedicalLead } from "./org_head_coach_service.js";
 import { getGymListing, GymListingError, saveGymListing } from "./gym_listing_service.js";
+import { CoachGymError, decideGymCoach, listGymCoaches } from "./coach_gym_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -388,9 +389,39 @@ const orgGymListingRateLimit = rateLimit({
 });
 
 function gymListingError(error: unknown, response: Response) {
-  if (error instanceof GymListingError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+  if (error instanceof GymListingError || error instanceof CoachGymError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
   throw error;
 }
+
+// The coaches who say they work out of the gym: the owner confirms or
+// declines them, or removes one they confirmed (coach_gym_service.ts).
+orgOwnerRouter.get(
+  "/organisations/:org_id/gym-coaches",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    try {
+      return response.status(200).json(await listGymCoaches(user_id, String(request.params.org_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/gym-coaches/:coach_gym_id/decision",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      return response.status(200).json(await decideGymCoach(user_id, String(request.params.org_id), String(request.params.coach_gym_id), request.body));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
 
 orgOwnerRouter.get(
   "/organisations/:org_id/gym-listing",
