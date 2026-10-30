@@ -3,6 +3,7 @@ import React from "react";
 import { useRole } from "../../utils/role";
 import { useAccountBranding } from "./useAccountBranding";
 import { CoachGymsPanel } from "./CoachGymsPanel";
+import { CoachShareLinkPanel } from "./CoachShareLinkPanel";
 
 // DEV NOTE: FULL-UI-65 coach branding - ported from coach_branding_ui.js's
 // #accountBrandingPanel. This panel mounts inside the shared #view-account
@@ -82,6 +83,7 @@ export function AccountBrandingPanel() {
       </div>
     </section>
     <CoachGymsPanel />
+    <CoachShareLinkPanel />
     </>
   );
 }

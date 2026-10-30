@@ -88,8 +88,10 @@ import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from ".
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
 import { CoachingRequestsPanel } from "./screens/coach/CoachingRequestsPanel";
+import { CoachLinkRequestCard } from "./screens/athlete/CoachLinkRequestCard";
 import { EntryAuthPanel } from "./screens/entry/EntryAuthPanel";
 import { BarbellCalculatorPanel } from "./screens/tools/BarbellCalculatorPanel";
+import { capturePendingCoachFromUrl } from "./utils/pendingCoach";
 
 // DEV NOTE: mounts once at script load into divs that always exist in
 // public/app/index.html (which the legacy router shows/hides unchanged -
@@ -101,6 +103,9 @@ function mount(containerId: string, node: React.ReactNode) {
   if (!container) return;
   createRoot(container).render(<StrictMode>{node}</StrictMode>);
 }
+
+// A coach's share link opens /app/?coach=<slug> - keep it before anything renders.
+capturePendingCoachFromUrl();
 
 mount("entry-auth-root", <EntryAuthPanel />);
 mount("barbell-calculator-root", <BarbellCalculatorPanel />);
@@ -168,6 +173,7 @@ mount("athlete-attendance-events-root", <AthleteAttendanceEventsPanel />);
 mount("coach-review-root", <CoachReviewPanel />);
 mount("coach-video-feedback-queue-root", <CoachVideoFeedbackQueuePanel />);
 mount("athlete-today-create-session-root", <AthleteTodayCreateSessionButton />);
+mount("coach-link-request-root", <CoachLinkRequestCard />);
 mount("athlete-today-session-root", <AthleteTodaySessionCard />);
 mount("athlete-today-event-root", <AthleteTodayEventCard />);
 mount("today-history-count-root", <AthleteTodayHistoryCountBadge />);

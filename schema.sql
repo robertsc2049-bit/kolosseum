@@ -3257,3 +3257,20 @@ WHERE request_status = 'pending';
 CREATE INDEX IF NOT EXISTS
   idx_product_coaching_requests_coach
 ON product_coaching_requests (coach_user_id, request_status);
+
+-- A coach's share link (coach_share_link_service.ts): a public page at
+-- /c/<slug>, with a QR code, that a coach switches on to bring in new
+-- athletes. Asking through it sends the coach a coaching request with
+-- source 'share_link' instead of a gym.
+CREATE TABLE IF NOT EXISTS product_coach_share_links (
+  coach_user_id TEXT PRIMARY KEY,
+  slug          TEXT NOT NULL UNIQUE
+    CHECK (slug ~ '^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$'),
+  enabled       BOOLEAN NOT NULL DEFAULT false,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE product_coaching_requests
+  ADD COLUMN IF NOT EXISTS source TEXT NOT NULL DEFAULT 'gym'
+    CHECK (source IN ('gym', 'share_link'));

@@ -69,7 +69,7 @@ export function CoachingRequestsPanel() {
                 <strong>{String(request.athlete_display_name ?? "")}</strong>
                 <p className="muted small">{String(request.athlete_email ?? "")}</p>
                 <p className="muted small">
-                  {request.gym_name ? `Found you at ${String(request.gym_name)}` : "Found you at a gym"}
+                  {request.via_share_link ? "Found you through your link" : request.gym_name ? `Found you at ${String(request.gym_name)}` : "Found you at a gym"}
                   {request.requested_at ? ` · ${formatDate(request.requested_at)}` : ""}
                 </p>
                 {request.note ? <p className="small">{`"${String(request.note)}"`}</p> : null}

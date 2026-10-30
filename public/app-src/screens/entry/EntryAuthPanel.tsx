@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import { loadSharedCoachCard } from "../../api/coachBrandingClient";
 import { ApiRequestError, type JsonRecord } from "../../api/transport";
+import { usePendingCoach } from "../../utils/pendingCoach";
 import { DateOfBirthInput } from "../../components/DateOfBirthInput";
 import { useEntryAuth } from "./useEntryAuth";
 
@@ -67,6 +69,34 @@ function errorMessage(error: Error | null): string {
   return error.message;
 }
 
+// Arrived from a coach's share link: say who they're signing up to train
+// with. The request itself is offered once they're signed in
+// (CoachLinkRequestCard.tsx).
+function PendingCoachBanner() {
+  const slug = usePendingCoach();
+  const [label, setLabel] = useState<string | null>(null);
+  useEffect(() => {
+    setLabel(null);
+    if (!slug) return;
+    let live = true;
+    loadSharedCoachCard(slug).then(
+      (payload) => {
+        const coach = (payload.coach ?? {}) as JsonRecord;
+        const name = String(coach.display_name ?? "");
+        if (live && name) setLabel(coach.business_name ? `${name} · ${String(coach.business_name)}` : name);
+      },
+      () => undefined
+    );
+    return () => { live = false; };
+  }, [slug]);
+  if (!label) return null;
+  return (
+    <p className="entry-coach-banner" role="note" data-testid="entry-coach-banner">
+      {`You're joining to train with ${label}. Create an athlete account, or sign in, and you can ask them to coach you.`}
+    </p>
+  );
+}
+
 export function EntryAuthPanel() {
   const {
     mode, terms, termsAvailable, submitting, error, statusMessage, resetRequestResult,
@@ -131,6 +161,7 @@ export function EntryAuthPanel() {
 
   return (
     <>
+      <PendingCoachBanner />
       <div className="entry-mode-tabs" role="tablist" aria-label="Account access">
         <button
           type="button"
