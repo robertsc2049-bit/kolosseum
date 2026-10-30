@@ -673,6 +673,9 @@ function renderGymCoaches(result) {
           <button class="button ${tone}" type="button" data-gym-coach="${escapeHtml(coach.coach_gym_id)}" data-decision="${decision}">${label}</button>`).join("")}
         </div>
       </article>`).join("");
+  for (const button of el("orgGymCoaches").querySelectorAll("[data-gym-coach]")) {
+    button.addEventListener("click", () => decideGymCoach(button).catch(console.error));
+  }
 }
 
 async function refreshGymCoaches() {
