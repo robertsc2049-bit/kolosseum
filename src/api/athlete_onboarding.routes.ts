@@ -47,7 +47,7 @@ import { StandDownError, describeStandDown, endStandDown, recordStandDown } from
 import { currentInjury } from "./injury_log_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment, saveAthleteGyms } from "./athlete_equipment_service.js";
 import { searchGyms } from "./gym_listing_service.js";
-import { CoachingRequestError, requestCoaching, withGymCoaches } from "./coaching_request_service.js";
+import { CoachingRequestError, listMyCoachingRequests, requestCoaching, withdrawCoachingRequest, withGymCoaches } from "./coaching_request_service.js";
 import { MatchWeekError, getMatchWeek, saveMatchWeek } from "./match_week_service.js";
 import { WeightClassError, getWeightClass, saveWeightClass } from "./weight_class_service.js";
 import { AthleteMaxesError, getAthleteMaxes, saveAthleteMaxes } from "./athlete_maxes_service.js";
@@ -323,6 +323,33 @@ athleteOnboardingRouter.post(
     }
     catch (error) {
       if (error instanceof CoachingRequestError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+      throw error;
+    }
+  })
+);
+
+// The requests the athlete has sent and where each stands.
+athleteOnboardingRouter.get(
+  "/coaching-requests",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const { session } = await athleteSession(request);
+    return response.status(200).json(await listMyCoachingRequests(session.account_row.user_id));
+  })
+);
+
+// Take back a request the coach hasn't answered yet.
+athleteOnboardingRouter.post(
+  "/coaching-requests/:request_id/withdraw",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    try {
+      return response.status(200).json(await withdrawCoachingRequest(session.account_row.user_id, String(request.params.request_id)));
+    }
+    catch (error) {
+      if (error instanceof CoachingRequestError) return response.status(error.status).json({ ok: false, error: error.code });
       throw error;
     }
   })

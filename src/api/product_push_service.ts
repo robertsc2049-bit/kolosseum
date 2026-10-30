@@ -58,7 +58,8 @@ export const PUSH_TITLES: Readonly<Record<string, string>> = Object.freeze({
   coach_gym_confirmed: "Gym confirmed you coach there",
   coach_gym_declined: "Gym didn't confirm you coach there",
   coach_gym_now_listed: "Your gym is now on Kolosseum - link it",
-  coaching_requested: "An athlete asked you to coach them"
+  coaching_requested: "An athlete asked you to coach them",
+  coaching_request_declined: "A coach can't take you on right now"
 });
 
 export function pushPayloadFor(notificationType: string): Readonly<Record<string, string>> {

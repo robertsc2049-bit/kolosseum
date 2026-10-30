@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { loadAthleteEquipment, requestCoaching, saveAthleteEquipment, saveAthleteGyms, searchGyms } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { askAgainText, COACHING_REQUESTS_CHANGED_EVENT } from "../../utils/coachingRequests";
 
 // The equipment a self-directed athlete has. A full gym is assumed until they
 // say; once set, recommendations only offer what they can do, and a session
@@ -43,12 +44,13 @@ function GymCoaches({ gym, onAsked }: { gym: Gym; onAsked: (coachGymId: string) 
       const account = await loadAccountDetail();
       await requestCoaching(coachGymId, note.trim(), typeof account.csrf_token === "string" ? account.csrf_token : "");
       onAsked(coachGymId);
+      document.dispatchEvent(new Event(COACHING_REQUESTS_CHANGED_EVENT));
       setAsking(null);
       setNote("");
     }
     catch (caught) {
       const code = String(((caught as { payload?: JsonRecord }).payload ?? {}).error ?? "");
-      setError(code === "coaching_request_already_coached" ? "They already coach you." : code === "coaching_request_already_sent" ? "You've already asked them." : "Your request couldn't be sent. Try again.");
+      setError(code === "coaching_request_already_coached" ? "They already coach you." : code === "coaching_request_already_sent" ? "You've already asked them." : code === "coaching_request_recently_declined" ? `They couldn't take you on recently - you can ask them again ${askAgainText(caught)}.` : "Your request couldn't be sent. Try again.");
     }
     finally {
       setBusy(false);

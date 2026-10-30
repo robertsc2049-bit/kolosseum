@@ -4,6 +4,7 @@ import { requestCoachingViaLink } from "../../api/athleteOnboardingClient";
 import { loadSharedCoachCard } from "../../api/coachBrandingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { askAgainText, COACHING_REQUESTS_CHANGED_EVENT } from "../../utils/coachingRequests";
 import { clearPendingCoach, usePendingCoach } from "../../utils/pendingCoach";
 import { useRole } from "../../utils/role";
 
@@ -51,6 +52,7 @@ export function CoachLinkRequestCard() {
       const account = await loadAccountDetail();
       await requestCoachingViaLink(slug, note.trim(), typeof account.csrf_token === "string" ? account.csrf_token : "");
       clearPendingCoach();
+      document.dispatchEvent(new Event(COACHING_REQUESTS_CHANGED_EVENT));
       setDone(`Asked - ${name} will invite you if they can take you on. Their invitation shows on your Account page.`);
     }
     catch (caught) {
@@ -58,6 +60,10 @@ export function CoachLinkRequestCard() {
       if (code === "coaching_request_already_coached" || code === "coaching_request_already_sent" || code === "coaching_request_self_not_allowed") {
         clearPendingCoach();
         setDone(code === "coaching_request_already_coached" ? `${name} already coaches you.` : code === "coaching_request_already_sent" ? `You've already asked ${name}.` : "That's your own link.");
+      }
+      else if (code === "coaching_request_recently_declined") {
+        clearPendingCoach();
+        setDone(`${name} couldn't take you on recently - you can ask them again ${askAgainText(caught)}.`);
       }
       else if (code === "coaching_request_coach_not_found") {
         clearPendingCoach();
