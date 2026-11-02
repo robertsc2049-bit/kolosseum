@@ -52,6 +52,7 @@ export const GDPR_EXPORT_ALLOWED_DATA_CATEGORIES = Object.freeze([
   "org_messages_sent",
   "coach_gyms",
   "coach_share_link",
+  "coach_checkins",
   "coaching_requests",
   "org_audit_records",
   "account_events"
