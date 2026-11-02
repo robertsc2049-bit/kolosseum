@@ -65,7 +65,10 @@ export const PUSH_TITLES: Readonly<Record<string, string>> = Object.freeze({
   checkin_confirmed: "Athlete confirmed a check-in call",
   checkin_move_requested: "Athlete asked to move a check-in call",
   checkin_booked: "Athlete booked a check-in call",
-  checkin_cancelled_by_athlete: "Athlete cancelled a check-in call"
+  checkin_cancelled_by_athlete: "Athlete cancelled a check-in call",
+  package_payment_upcoming: "Package payment due soon",
+  package_payment_due: "Package payment due",
+  athlete_package_payment_due: "Athlete's package payment is due"
 });
 
 export function pushPayloadFor(notificationType: string): Readonly<Record<string, string>> {

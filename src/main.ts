@@ -7,6 +7,7 @@
 import { app } from "./server.js";
 import { attachRealtimeWebSocketServer } from "./api/realtime_hub.js";
 import { startPushSweeps } from "./api/product_push_service.js";
+import { startPackageReminderSweeps } from "./api/package_payment_reminders.js";
 
 function getPort(): number {
   const raw = process.env.PORT;
@@ -48,3 +49,6 @@ attachRealtimeWebSocketServer(server);
 
 // Phone notifications (Web Push) - a no-op unless VAPID keys are configured.
 startPushSweeps();
+
+// Package payment reminder emails - a no-op unless email is configured.
+startPackageReminderSweeps();
