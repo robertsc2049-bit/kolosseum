@@ -34,6 +34,7 @@ import { athleteGoalsRouter } from "./api/athlete_goals.routes.js";
 import { weeklyCheckinsRouter } from "./api/weekly_checkins.routes.js";
 import { coachBrandingRouter } from "./api/coach_branding.routes.js";
 import { coachSharePageRouter } from "./api/coach_share_page.routes.js";
+import { coachCheckinRouter } from "./api/coach_checkin.routes.js";
 import { programmeTemplateSharingRouter } from "./api/programme_template_sharing.routes.js";
 import { deviceSyncRouter } from "./api/device_sync.routes.js";
 import { progressInsightsRouter } from "./api/progress_insights.routes.js";
@@ -197,6 +198,8 @@ app.use("/weekly-checkins", weeklyCheckinsRouter);
 app.use("/coach-branding", coachBrandingRouter);
 // A coach's public share page and QR code, /c/<slug> (public, GET-only).
 app.use(coachSharePageRouter);
+// Check-in calls between a coach and their athletes.
+app.use("/check-ins", coachCheckinRouter);
 app.use("/programme-marketplace", programmeTemplateSharingRouter);
 app.use("/device-sync", deviceSyncRouter);
 app.use("/progress-insights", progressInsightsRouter);

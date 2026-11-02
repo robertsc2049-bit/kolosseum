@@ -1970,6 +1970,67 @@ ALTER TABLE product_notifications
         'coaching_requested',
         'coaching_request_declined'
       )
+    ) NOT VALID;
+
+-- product_notifications_coach_checkin_type_migration
+-- Additive check-in call notifications (coach_checkin_service.ts): the
+-- athlete is told a check-in was booked or cancelled; the coach that the
+-- athlete confirmed it or asked to move it. Same DROP/ADD pattern as every
+-- migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed',
+        'coaching_requested',
+        'coaching_request_declined',
+        'checkin_scheduled',
+        'checkin_cancelled',
+        'checkin_confirmed',
+        'checkin_move_requested'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.
@@ -3339,3 +3400,49 @@ ALTER TABLE product_coaching_requests
 ALTER TABLE product_coaching_requests
   ADD CONSTRAINT product_coaching_requests_request_status_check
     CHECK (request_status IN ('pending', 'invited', 'dismissed', 'withdrawn'));
+
+-- Check-in calls (coach_checkin_service.ts). A coach saves how athletes
+-- reach them for a call - a WhatsApp number and/or a Teams meeting link -
+-- and books check-ins with their athletes: one-off, or a weekly or
+-- fortnightly run (one row per call, sharing series_id). The athlete
+-- confirms or asks to move it, with a short message.
+CREATE TABLE IF NOT EXISTS product_coach_call_settings (
+  coach_user_id   TEXT PRIMARY KEY,
+  whatsapp_number TEXT
+    CHECK (whatsapp_number IS NULL OR whatsapp_number ~ '^[0-9]{7,15}$'),
+  teams_link      TEXT
+    CHECK (teams_link IS NULL OR char_length(teams_link) <= 500),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS product_coach_checkins (
+  checkin_id        TEXT PRIMARY KEY,
+  series_id         TEXT,
+  coach_user_id     TEXT NOT NULL,
+  athlete_user_id   TEXT NOT NULL,
+  starts_at         TIMESTAMPTZ NOT NULL,
+  duration_minutes  INTEGER NOT NULL
+    CHECK (duration_minutes IN (15, 30, 45, 60)),
+  call_method       TEXT NOT NULL
+    CHECK (call_method IN ('whatsapp', 'teams', 'in_person')),
+  note              TEXT
+    CHECK (note IS NULL OR char_length(note) <= 300),
+  checkin_status    TEXT NOT NULL
+    CHECK (checkin_status IN ('scheduled', 'confirmed', 'move_requested', 'cancelled')),
+  athlete_message   TEXT
+    CHECK (athlete_message IS NULL OR char_length(athlete_message) <= 300),
+  -- When it was booked or last moved by the coach (one notification each).
+  booked_at         TIMESTAMPTZ NOT NULL DEFAULT now(),
+  responded_at      TIMESTAMPTZ,
+  cancelled_at      TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_checkins_coach
+ON product_coach_checkins (coach_user_id, starts_at);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_checkins_athlete
+ON product_coach_checkins (athlete_user_id, starts_at);

@@ -44,7 +44,11 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   coach_gym_declined: "Gym didn't confirm you coach there",
   coach_gym_now_listed: "Your gym is now on Kolosseum - link it",
   coaching_requested: "An athlete asked you to coach them",
-  coaching_request_declined: "A coach can't take you on right now"
+  coaching_request_declined: "A coach can't take you on right now",
+  checkin_scheduled: "Check-in call booked",
+  checkin_cancelled: "Check-in call cancelled",
+  checkin_confirmed: "Athlete confirmed a check-in call",
+  checkin_move_requested: "Athlete asked to move a check-in call"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {

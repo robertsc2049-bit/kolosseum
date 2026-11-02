@@ -150,6 +150,35 @@ async function loadCoachShareLink(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+// Check-in calls: ones they booked as a coach (with their call settings), or
+// were booked into as an athlete.
+async function loadCoachCheckins(userId: string): Promise<JsonRecord[]> {
+  const [checkins, settings] = await Promise.all([
+    pool.query(
+      `SELECT checkin_id, series_id, coach_user_id, athlete_user_id, starts_at, duration_minutes, call_method, note, checkin_status, athlete_message, created_at
+       FROM product_coach_checkins WHERE coach_user_id = $1 OR athlete_user_id = $1 ORDER BY starts_at ASC`,
+      [userId]
+    ),
+    pool.query(`SELECT whatsapp_number, teams_link, updated_at FROM product_coach_call_settings WHERE coach_user_id = $1`, [userId])
+  ]);
+  return [
+    ...settings.rows.map((row) => ({ record: "call_settings", whatsapp_number: row.whatsapp_number ?? null, teams_link: row.teams_link ?? null, updated_at_iso8601: isoString(row.updated_at) })),
+    ...checkins.rows.map((row) => ({
+      record: "checkin",
+      checkin_id: row.checkin_id,
+      series_id: row.series_id ?? null,
+      role: row.coach_user_id === userId ? "coach" : "athlete",
+      starts_at_iso8601: isoString(row.starts_at),
+      duration_minutes: row.duration_minutes,
+      call_method: row.call_method,
+      note: row.note ?? null,
+      status: row.checkin_status,
+      athlete_message: row.athlete_message ?? null,
+      created_at_iso8601: isoString(row.created_at)
+    }))
+  ];
+}
+
 // Requests to be coached: ones they sent as an athlete, or received as a coach.
 async function loadCoachingRequests(userId: string): Promise<JsonRecord[]> {
   const result = await pool.query(
@@ -290,6 +319,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     coachOrgMessagesSent,
     coachGyms,
     coachShareLink,
+    coachCheckins,
     coachingRequests,
     accountEvents
   ] = await Promise.all([
@@ -312,6 +342,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadCoachOrgMessagesSent(userId),
     loadCoachGyms(userId),
     loadCoachShareLink(userId),
+    loadCoachCheckins(userId),
     loadCoachingRequests(userId),
     loadAccountEvents(userId)
   ]);
@@ -351,6 +382,7 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     org_messages_sent: coachOrgMessagesSent.map((r) => tagOwnedRecord(r, userId)),
     coach_gyms: coachGyms.map((r) => tagOwnedRecord(r, userId)),
     coach_share_link: coachShareLink.map((r) => tagOwnedRecord(r, userId)),
+    coach_checkins: coachCheckins.map((r) => tagOwnedRecord(r, userId)),
     coaching_requests: coachingRequests.map((r) => tagOwnedRecord(r, userId)),
     account_events: accountEvents.map((r) => tagOwnedRecord(r, userId))
   };

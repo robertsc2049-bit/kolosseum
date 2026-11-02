@@ -73,7 +73,11 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "coach_gym_declined",
   "coach_gym_now_listed",
   "coaching_requested",
-  "coaching_request_declined"
+  "coaching_request_declined",
+  "checkin_scheduled",
+  "checkin_cancelled",
+  "checkin_confirmed",
+  "checkin_move_requested"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -946,6 +950,80 @@ async function deriveCoachingRequestDeclinedNotifications(
   }
 }
 
+// Check-in calls (coach_checkin_service.ts). The athlete: a call was booked
+// or moved (one notification per booking - a weekly run is one), or
+// cancelled. The coach: the athlete confirmed it or asked to move it.
+async function deriveCheckinNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const booked = await client.query(
+    `
+    SELECT DISTINCT ON (COALESCE(series_id, checkin_id), booked_at)
+      checkin_id, series_id, coach_user_id, starts_at, call_method, booked_at
+    FROM product_coach_checkins
+    WHERE athlete_user_id = $1 AND checkin_status <> 'cancelled' AND starts_at > now()
+    ORDER BY COALESCE(series_id, checkin_id), booked_at, starts_at
+    `,
+    [recipientUserId]
+  );
+  for (const row of booked.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "checkin_scheduled",
+      sourceRecordType: "product_coach_checkins",
+      sourceRecordId: `${cleanString(row.series_id) || cleanString(row.checkin_id)}:${toIso(row.booked_at)}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: { coach_user_id: cleanString(row.coach_user_id), starts_at_iso8601: toIso(row.starts_at), call_method: cleanString(row.call_method), repeating: !!row.series_id },
+      occurredAtIso8601: toIso(row.booked_at)
+    });
+  }
+
+  const cancelled = await client.query(
+    `
+    SELECT DISTINCT ON (COALESCE(series_id, checkin_id), cancelled_at)
+      checkin_id, series_id, coach_user_id, starts_at, cancelled_at
+    FROM product_coach_checkins
+    WHERE athlete_user_id = $1 AND checkin_status = 'cancelled' AND cancelled_at IS NOT NULL AND starts_at > cancelled_at
+    ORDER BY COALESCE(series_id, checkin_id), cancelled_at, starts_at
+    `,
+    [recipientUserId]
+  );
+  for (const row of cancelled.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "checkin_cancelled",
+      sourceRecordType: "product_coach_checkins",
+      sourceRecordId: `${cleanString(row.series_id) || cleanString(row.checkin_id)}:${toIso(row.cancelled_at)}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.athleteToday,
+      notificationPayload: { coach_user_id: cleanString(row.coach_user_id), starts_at_iso8601: toIso(row.starts_at) },
+      occurredAtIso8601: toIso(row.cancelled_at)
+    });
+  }
+
+  const responses = await client.query(
+    `
+    SELECT checkin_id, athlete_user_id, starts_at, checkin_status, athlete_message, responded_at
+    FROM product_coach_checkins
+    WHERE coach_user_id = $1 AND checkin_status IN ('confirmed', 'move_requested') AND responded_at IS NOT NULL
+    `,
+    [recipientUserId]
+  );
+  for (const row of responses.rows) {
+    const athleteId = cleanString(row.athlete_user_id);
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: row.checkin_status === "confirmed" ? "checkin_confirmed" : "checkin_move_requested",
+      sourceRecordType: "product_coach_checkins",
+      sourceRecordId: `${cleanString(row.checkin_id)}:${toIso(row.responded_at)}`,
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteId },
+      notificationPayload: { athlete_user_id: athleteId, starts_at_iso8601: toIso(row.starts_at), athlete_message: cleanString(row.athlete_message) || null },
+      occurredAtIso8601: toIso(row.responded_at)
+    });
+  }
+}
+
 // --- Billing / entitlement action required ----------------------------------
 
 async function deriveBillingNotifications(
@@ -1660,6 +1738,7 @@ async function deriveNotificationsForRecipient(
   await deriveCoachGymNotifications(client, recipientUserId);
   await deriveCoachingRequestedNotifications(client, recipientUserId);
   await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
+  await deriveCheckinNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

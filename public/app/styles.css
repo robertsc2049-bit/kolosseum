@@ -3514,7 +3514,8 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   background: var(--ink-2);
 }
 
-#coach-link-request-root:not(:empty) {
+#coach-link-request-root:not(:empty),
+#athlete-checkins-root:not(:empty) {
   margin-bottom: var(--k-space-3);
 }
 
