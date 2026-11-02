@@ -11,6 +11,7 @@ import qrcode from "qrcode-generator";
 
 import { pool } from "../db/pool.js";
 import { loadCoachBrandPreference } from "./coach_branding_service.js";
+import { publicCoachPackages } from "./service_package_service.js";
 
 type Json = Record<string, unknown>;
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -117,7 +118,7 @@ export async function coachUserIdForLink(slugInput: unknown): Promise<string | n
 export async function publicCoachCard(slugInput: unknown): Promise<Json | null> {
   const coachUserId = await coachUserIdForLink(slugInput);
   if (!coachUserId) return null;
-  const [account, preference, gyms] = await Promise.all([
+  const [account, preference, gyms, packages] = await Promise.all([
     pool.query(`SELECT display_name FROM product_accounts WHERE user_id = $1`, [coachUserId]),
     loadCoachBrandPreference(coachUserId).catch(() => null),
     pool.query(
@@ -126,7 +127,8 @@ export async function publicCoachCard(slugInput: unknown): Promise<Json | null> 
        WHERE g.coach_user_id = $1 AND g.link_status IN ('confirmed', 'unlisted')
        ORDER BY g.created_at`,
       [coachUserId]
-    )
+    ),
+    publicCoachPackages(coachUserId)
   ]);
   const color = text(preference?.brand_color);
   return {
@@ -135,7 +137,8 @@ export async function publicCoachCard(slugInput: unknown): Promise<Json | null> 
     business_name: text(preference?.business_name) || null,
     tagline: text(preference?.brand_tagline) || null,
     brand_color: /^#[0-9a-f]{6}$/i.test(color) ? color : null,
-    gyms: gyms.rows.map((row) => (text(row.area) ? `${text(row.gym_name)}, ${text(row.area)}` : text(row.gym_name)))
+    gyms: gyms.rows.map((row) => (text(row.area) ? `${text(row.gym_name)}, ${text(row.area)}` : text(row.gym_name))),
+    packages
   };
 }
 

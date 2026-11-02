@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 
 import { type JsonRecord } from "../../api/transport";
+import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
 import { useRole } from "../../utils/role";
@@ -87,6 +88,13 @@ export function AccountCoachRelationshipPanel() {
                   <p className="muted small" data-testid="coach-gyms">
                     {`Coaches at ${(entry.coach_gyms as JsonRecord[]).map((gym) => (gym.area ? `${String(gym.gym_name)}, ${String(gym.area)}` : String(gym.gym_name))).join("; ")}`}
                   </p>
+                ) : null}
+                {Array.isArray(entry.coach_packages) && entry.coach_packages.length > 0 ? (
+                  <details className="coach-packages" data-testid="coach-packages-list">
+                    <summary>{`Packages (${entry.coach_packages.length})`}</summary>
+                    <PackageList packages={entry.coach_packages as JsonRecord[]} />
+                    <p className="muted small">Paid to your coach directly.</p>
+                  </details>
                 ) : null}
               </div>
               <button type="button" className="button secondary" disabled={endingId === relationshipId} onClick={() => handleEnd(relationshipId)}>

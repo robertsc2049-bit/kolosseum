@@ -21,6 +21,7 @@ import { accountRateLimitKey } from "./rate_limit_key.js";
 import { searchGyms } from "./gym_listing_service.js";
 import { addCoachGym, CoachGymError, linkCoachGym, listCoachGyms, removeCoachGym } from "./coach_gym_service.js";
 import { CoachShareLinkError, getCoachShareLink, saveCoachShareLink } from "./coach_share_link_service.js";
+import { archiveCoachPackage, listCoachPackages, saveCoachPackage, ServicePackageError } from "./service_package_service.js";
 import {
   CoachBrandingError,
   loadCoachBrandPreference,
@@ -125,9 +126,46 @@ coachBrandingRouter.put(
   })
 );
 
+// The coach's packages (service_package_service.ts).
+coachBrandingRouter.get(
+  "/packages",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, false);
+    return response.status(200).json(await listCoachPackages(coachUserId));
+  })
+);
+
+coachBrandingRouter.post(
+  "/packages",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    return response.status(201).json(await saveCoachPackage(coachUserId, null, request.body));
+  })
+);
+
+coachBrandingRouter.put(
+  "/packages/:package_id",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    return response.status(200).json(await saveCoachPackage(coachUserId, String(request.params.package_id), request.body));
+  })
+);
+
+coachBrandingRouter.post(
+  "/packages/:package_id/archive",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    return response.status(200).json(await archiveCoachPackage(coachUserId, String(request.params.package_id)));
+  })
+);
+
 coachBrandingRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
-    if (error instanceof CoachGymError || error instanceof CoachShareLinkError) {
+    if (error instanceof CoachGymError || error instanceof CoachShareLinkError || error instanceof ServicePackageError) {
       response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
       return;
     }

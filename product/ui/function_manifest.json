@@ -8121,6 +8121,7 @@
             "/coach-branding/gyms/:coach_gym_id/link",
             "/coach-branding/gyms/:coach_gym_id",
             "/coach-branding/share-link",
+            "/coach-branding/packages",
             "/coach-workspace/coaching-requests",
             "/coach-workspace/coaching-requests/:request_id/decision"
           ],
@@ -10022,6 +10023,30 @@
     {
       "method": "GET",
       "path": "/coach-branding/gyms/search",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "GET",
+      "path": "/coach-branding/packages",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding/packages",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "PUT",
+      "path": "/coach-branding/packages/:package_id",
+      "source": "src/api/coach_branding.routes.ts",
+      "tracked_by_area": "coach_branding"
+    },
+    {
+      "method": "POST",
+      "path": "/coach-branding/packages/:package_id/archive",
       "source": "src/api/coach_branding.routes.ts",
       "tracked_by_area": "coach_branding"
     },

@@ -3521,6 +3521,61 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-bottom: var(--k-space-3);
 }
 
+/* Coaching packages (PackageList.tsx). */
+.package-list {
+  list-style: none;
+  margin: var(--k-space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--k-space-2);
+}
+
+.package-card {
+  border: 1px solid var(--line);
+  border-radius: var(--k-radius-m);
+  padding: var(--k-space-3);
+  display: grid;
+  gap: 6px;
+}
+
+.package-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--k-space-2);
+  align-items: baseline;
+}
+
+.package-price {
+  color: var(--bronze);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.package-includes {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.9rem;
+}
+
+.package-includes-fields {
+  border: 1px solid var(--line);
+  border-radius: var(--k-radius-s);
+  padding: var(--k-space-3);
+  display: grid;
+  gap: var(--k-space-2);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: var(--k-space-2);
+}
+
+.gym-packages,
+.coach-packages {
+  margin-top: var(--k-space-2);
+}
+
 /* Booking a check-in slot (AthleteCheckinsCard.tsx). */
 .checkin-booking {
   margin-top: var(--k-space-3);

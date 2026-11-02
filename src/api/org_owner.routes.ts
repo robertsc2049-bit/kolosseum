@@ -55,8 +55,9 @@ import {
 } from "./org_visibility_service.js";
 import { getOrgAnalysis, getOrgProgressRollup } from "./org_progress_rollup_service.js";
 import { OrgHeadCoachError, setHeadCoach, setMedicalLead } from "./org_head_coach_service.js";
-import { getGymListing, GymListingError, saveGymListing } from "./gym_listing_service.js";
+import { assertGymOwner, getGymListing, GymListingError, saveGymListing } from "./gym_listing_service.js";
 import { CoachGymError, decideGymCoach, listGymCoaches } from "./coach_gym_service.js";
+import { archiveGymPackage, listGymPackages, saveGymPackage, ServicePackageError } from "./service_package_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -389,9 +390,71 @@ const orgGymListingRateLimit = rateLimit({
 });
 
 function gymListingError(error: unknown, response: Response) {
-  if (error instanceof GymListingError || error instanceof CoachGymError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+  if (error instanceof GymListingError || error instanceof CoachGymError || error instanceof ServicePackageError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
   throw error;
 }
+
+// The gym's packages (service_package_service.ts): what it offers athletes,
+// at what price, and which of its confirmed coaches deliver each.
+orgOwnerRouter.get(
+  "/organisations/:org_id/packages",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(200).json(await listGymPackages(String(request.params.org_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/packages",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(201).json(await saveGymPackage(String(request.params.org_id), null, request.body));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.put(
+  "/organisations/:org_id/packages/:package_id",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(200).json(await saveGymPackage(String(request.params.org_id), String(request.params.package_id), request.body));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.post(
+  "/organisations/:org_id/packages/:package_id/archive",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(200).json(await archiveGymPackage(String(request.params.org_id), String(request.params.package_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
 
 // The coaches who say they work out of the gym: the owner confirms or
 // declines them, or removes one they confirmed (coach_gym_service.ts).

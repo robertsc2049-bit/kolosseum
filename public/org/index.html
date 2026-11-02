@@ -278,6 +278,36 @@
         <div id="orgGymCoaches" data-testid="org-gym-coaches"></div>
         <p id="orgGymCoachesError" class="field-error" role="alert" hidden></p>
       </div>
+      <div class="gym-packages-admin" style="margin-top: 1.5rem;">
+        <p class="eyebrow">Packages</p>
+        <h3>What your gym offers</h3>
+        <p class="muted small">Athletes see these under your gym when they choose one. They pay you directly - nothing is taken in the app. Name the coaches who deliver each one.</p>
+        <div id="orgGymPackages" data-testid="org-gym-packages"></div>
+        <form id="orgGymPackageForm" data-testid="org-gym-package-form" hidden>
+          <label class="field"><span>Name</span><input id="orgPackageName" maxlength="80" required placeholder="PT block" /></label>
+          <div class="button-row">
+            <label class="field"><span>Price</span><input id="orgPackagePrice" type="number" min="0" step="0.01" required placeholder="45" /></label>
+            <label class="field"><span>Currency</span><select id="orgPackageCurrency"><option value="GBP">£ GBP</option><option value="EUR">€ EUR</option><option value="USD">$ USD</option></select></label>
+            <label class="field"><span>Paid</span><select id="orgPackageBilling"><option value="monthly">Monthly</option><option value="weekly">Weekly</option><option value="one_off">Once</option></select></label>
+          </div>
+          <label class="field"><span>About it (optional)</span><input id="orgPackageDescription" maxlength="500" /></label>
+          <fieldset class="choice-section">
+            <legend>What's included</legend>
+            <label><input id="orgPackageProgramming" type="checkbox" /> Programming</label>
+            <label class="field"><span>Check-in calls each period</span><input id="orgPackageCheckins" type="number" min="0" max="30" value="0" /></label>
+            <label class="field"><span>In-person sessions each period</span><input id="orgPackageInPerson" type="number" min="0" max="30" value="0" /></label>
+            <label class="field"><span>Session reviews</span><select id="orgPackageReviews"><option value="none">None</option><option value="weekly">Weekly review</option><option value="every_session">Every session</option></select></label>
+            <label><input id="orgPackageMessaging" type="checkbox" /> Messaging</label>
+          </fieldset>
+          <div id="orgPackageCoaches" class="choice-section"></div>
+          <div class="button-row">
+            <button class="button primary" type="submit">Save package</button>
+            <button id="orgPackageCancelButton" class="button secondary" type="button">Cancel</button>
+          </div>
+        </form>
+        <div class="button-row"><button id="orgAddPackageButton" class="button secondary" type="button">Add a package</button></div>
+        <p id="orgGymPackagesError" class="field-error" role="alert" hidden></p>
+      </div>
     </section>
 
     <section id="orgVisibilitySection" class="panel" hidden>

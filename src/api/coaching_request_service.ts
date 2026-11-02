@@ -10,6 +10,7 @@ import { pool } from "../db/pool.js";
 import { coachBusinessName } from "./coach_branding_service.js";
 import { coachUserIdForLink } from "./coach_share_link_service.js";
 import { createRelationshipInvitationByEmail } from "./relationship_invitation_service.js";
+import { publicGymPackages } from "./service_package_service.js";
 
 type Json = Record<string, unknown>;
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -51,11 +52,13 @@ export async function coachesAtGyms(athleteUserId: string, orgIds: string[]): Pr
   return out;
 }
 
-// Add each gym's confirmed coaches to a list of gyms ({ org_id, ... }).
+// Add each gym's confirmed coaches and its packages to a list of gyms
+// ({ org_id, ... }).
 export async function withGymCoaches(athleteUserId: string, gyms: unknown): Promise<Json[]> {
   const list = Array.isArray(gyms) ? (gyms as Json[]) : [];
-  const coaches = await coachesAtGyms(athleteUserId, list.map((gym) => text(gym.org_id)).filter(Boolean));
-  return list.map((gym) => ({ ...gym, coaches: coaches.get(text(gym.org_id)) ?? [] }));
+  const orgIds = list.map((gym) => text(gym.org_id)).filter(Boolean);
+  const [coaches, packages] = await Promise.all([coachesAtGyms(athleteUserId, orgIds), publicGymPackages(orgIds)]);
+  return list.map((gym) => ({ ...gym, coaches: coaches.get(text(gym.org_id)) ?? [], packages: packages.get(text(gym.org_id)) ?? [] }));
 }
 
 // After a coach says they can't take someone on, the athlete can ask them
