@@ -73,8 +73,10 @@ test("a coach adds a package with what's included, edits its price and removes i
   });
   await screen.findByText("£90 a month");
 
+  fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+  screen.getByText(/anyone already on it stays on it/);
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Remove" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, remove it" }));
   });
   await screen.findByText("No packages yet.");
 });

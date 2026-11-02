@@ -138,6 +138,7 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   assert.ok(expect(await request(base, "POST", `${packageOf}/payment`, { paid_until: "2020-01-01" }, coach), 422, "bad date").field_errors.paid_until);
   view = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "payment");
   assert.deepEqual([view.membership.paid_until, view.membership.payment_due], [nextPaidUntil(startedOn, "monthly", nextPaidUntil(startedOn, "monthly", null)), false]);
+  assert.equal(view.membership.next_paid_until, nextPaidUntil(startedOn, "monthly", view.membership.paid_until), "what one more payment would cover");
   assert.equal(expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, coach), 409, "not due").error, "package_payment_not_due");
   expect(await request(base, "POST", "/check-ins/book", { coach_user_id: coach.userId, starts_at: slotTime }, sam), 201, "books");
   mine = expect(await request(base, "GET", "/coach-workspace/relationships/mine", undefined, sam), 200, "my coach").relationships.find((r) => r.coach_user_id === coach.userId);

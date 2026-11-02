@@ -4,7 +4,7 @@ import { cancelUpcomingForUnpaid, endAthletePackage, loadAthletePackage, recordP
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { errorCode } from "../../utils/checkins";
-import { paidLabel, usageLines } from "../../utils/packages";
+import { dayLabel, paidLabel, periodLine, usageLines } from "../../utils/packages";
 
 // The athlete's package with this coach, inside their check-ins: put them on
 // one of the coach's packages (or a gym package they deliver), record
@@ -23,11 +23,21 @@ function message(error: unknown): string {
   return Object.values(fieldErrors).map(String)[0] ?? ERRORS[errorCode(error)] ?? "That didn't work. Try again.";
 }
 
-const todayInput = () => new Date().toISOString().slice(0, 10);
+// Today in the coach's own time zone, for the date input.
+const todayInput = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
 
-export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }: { athleteUserId: string; onCheckinsChanged: () => void }) {
+export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onCheckinsChanged, onPaymentDue }: {
+  athleteUserId: string;
+  // Upcoming calls and in-person sessions booked with them (the panel's list).
+  upcomingCount: number;
+  onCheckinsChanged: () => void;
+  onPaymentDue?: (due: boolean) => void;
+}) {
   const [data, setData] = useState<JsonRecord | null>(null);
-  const [mode, setMode] = useState<"view" | "choose" | "pay" | "cancel">("view");
+  const [mode, setMode] = useState<"view" | "choose" | "pay" | "cancel" | "end">("view");
   const [packageId, setPackageId] = useState("");
   const [startedOn, setStartedOn] = useState(todayInput());
   const [paidNow, setPaidNow] = useState(true);
@@ -46,6 +56,9 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
     return () => { live = false; };
   }, [athleteUserId]);
 
+  const due = !!(data?.membership as JsonRecord | null | undefined)?.payment_due;
+  useEffect(() => { onPaymentDue?.(due); }, [due, onPaymentDue]);
+
   if (!data) return null;
   const membership = (data.membership ?? null) as JsonRecord | null;
   const options = Array.isArray(data.options) ? (data.options as JsonRecord[]) : [];
@@ -62,6 +75,8 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
       const payload = await action(typeof account.csrf_token === "string" ? account.csrf_token : "");
       setData(payload);
       setMode("view");
+      // The athlete list shows each athlete's package and payment due.
+      document.dispatchEvent(new Event("kolosseum:athlete-directory-changed"));
       return payload;
     }
     catch (caught) {
@@ -91,6 +106,7 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
           <strong>{String(pkg.name)}</strong>
           <span className="muted">{` ${String(pkg.price_label ?? "")}${pkg.gym_name ? ` · at ${String(pkg.gym_name)}` : ""}`}</span>
           <p className={membership.payment_due ? "field-error" : "muted small"}>{paidLabel(membership)}</p>
+          {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
           {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
           {membership.payment_due ? <p className="muted small">They can't book your open slots until you record a payment.</p> : null}
         </div>
@@ -130,19 +146,23 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
       ) : null}
 
       {mode === "pay" ? (
-        <form className="inline-controls" onSubmit={(event) => { event.preventDefault(); void act((token) => recordPackagePayment(athleteUserId, paidUntil, token)); }}>
+        <form className="athlete-detail-note-form" onSubmit={(event) => { event.preventDefault(); void act((token) => recordPackagePayment(athleteUserId, paidUntil, token)); }}>
           <label className="field">
-            <span>Paid up to (leave empty for one more period)</span>
+            <span>Paid up to (optional - leave empty for one more {String(pkg.billing) === "weekly" ? "week" : "month"})</span>
             <input type="date" value={paidUntil} onChange={(event) => setPaidUntil(event.target.value)} />
           </label>
-          <button className="button primary small" type="submit" disabled={busy}>Record payment</button>
-          <button className="button secondary small" type="button" onClick={() => setMode("view")}>Cancel</button>
+          <div className="inline-controls">
+            <button className="button primary small" type="submit" disabled={busy}>
+              {paidUntil ? `Record payment - paid until ${dayLabel(paidUntil)}` : membership?.next_paid_until ? `Record payment - paid until ${dayLabel(membership.next_paid_until)}` : "Record payment"}
+            </button>
+            <button className="button secondary small" type="button" onClick={() => setMode("view")}>Cancel</button>
+          </div>
         </form>
       ) : null}
 
       {mode === "cancel" ? (
         <div className="inline-controls" role="group" aria-label="Cancel upcoming">
-          <p className="small">Cancel every upcoming check-in call and in-person session with them? They'll be told.</p>
+          <p className="small">{`Cancel the ${upcomingCount === 1 ? "upcoming call or session" : `${upcomingCount} upcoming calls and sessions`} with them? They'll be told.`}</p>
           <button className="button primary small" type="button" disabled={busy} onClick={() => void act((token) => cancelUpcomingForUnpaid(athleteUserId, token)).then((payload) => {
             if (!payload) return;
             const count = Number(payload.cancelled_count ?? 0);
@@ -150,6 +170,14 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
             onCheckinsChanged();
           })}>Yes, cancel them</button>
           <button className="button secondary small" type="button" onClick={() => setMode("view")}>Keep them</button>
+        </div>
+      ) : null}
+
+      {mode === "end" ? (
+        <div className="inline-controls" role="group" aria-label="End package">
+          <p className="small">End their package? Their booked calls stay booked; you can put them on a package again any time.</p>
+          <button className="button primary small" type="button" disabled={busy} onClick={() => void act((token) => endAthletePackage(athleteUserId, token))}>Yes, end it</button>
+          <button className="button secondary small" type="button" onClick={() => setMode("view")}>Keep it</button>
         </div>
       ) : null}
 
@@ -162,9 +190,9 @@ export function CoachAthletePackageSection({ athleteUserId, onCheckinsChanged }:
               ) : (
                 <button className="button secondary small" type="button" disabled={busy} onClick={() => { setPaidUntil(""); setMode("pay"); }}>Record a payment</button>
               )}
-              {membership.payment_due ? <button className="button secondary small" type="button" disabled={busy} onClick={() => setMode("cancel")}>Cancel upcoming sessions and check-ins</button> : null}
+              {membership.payment_due && upcomingCount > 0 ? <button className="button secondary small" type="button" disabled={busy} onClick={() => setMode("cancel")}>Cancel upcoming sessions and check-ins</button> : null}
               {options.length ? <button className="button secondary small" type="button" disabled={busy} onClick={openChoose}>Change package</button> : null}
-              <button className="button secondary small" type="button" disabled={busy} onClick={() => void act((token) => endAthletePackage(athleteUserId, token))}>End package</button>
+              <button className="button secondary small" type="button" disabled={busy} onClick={() => setMode("end")}>End package</button>
             </>
           ) : options.length ? (
             <button className="button secondary small" type="button" onClick={openChoose}>Put them on a package</button>

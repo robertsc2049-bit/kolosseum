@@ -565,6 +565,10 @@
                 </article>
               </div>
 
+              <!-- The athlete's package and check-in calls, above the tabs so a coach
+                   finds them (CoachAthleteCheckinsPanel.tsx). -->
+              <div id="coach-athlete-checkins-root"></div>
+
               <div class="section-tabs" role="tablist" aria-label="Athlete detail sections" data-tab-group="athlete-detail">
                 <button type="button" role="tab" class="section-tab active" aria-selected="true" data-tab-target="training-log">Training log</button>
                 <button type="button" role="tab" class="section-tab" aria-selected="false" data-tab-target="notes-messages">Notes &amp; messages</button>
@@ -676,8 +680,6 @@
                 <!-- DEV NOTE: "Message this athlete" is now React - see
                      public/app-src/screens/coach/CoachAthleteMessagePanel.tsx. -->
                 <div id="coach-athlete-message-root"></div>
-
-                <div id="coach-athlete-checkins-root"></div>
 
                 <article class="panel athlete-detail-org-messages-panel">
                   <div class="panel-header">

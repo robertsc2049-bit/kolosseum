@@ -99,6 +99,9 @@ test("the gym owner adds a package delivered by a confirmed coach, edits it and 
 
   await until(() => document.querySelector("[data-archive-package='pkg_1']"));
   document.querySelector("[data-archive-package='pkg_1']").click();
+  assert.equal(document.querySelector("[data-archive-package='pkg_1']").textContent, "Yes, remove it");
+  assert.equal(sent.length, 2, "nothing removed on the first tap");
+  document.querySelector("[data-archive-package='pkg_1']").click();
   await until(() => sent.length === 3 && /No packages yet/u.test($("orgGymPackages").textContent));
   assert.equal(sent[2].path, `/org/organisations/${ORG}/packages/pkg_1/archive`);
 });

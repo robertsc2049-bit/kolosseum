@@ -28,6 +28,7 @@ function installMocks(options: {
   assignments?: Record<string, unknown>[];
   templates?: Record<string, unknown>[];
   threads?: Record<string, unknown>[];
+  members?: Record<string, unknown>[];
 }) {
   const original = globalThis.fetch;
   globalThis.fetch = (async (input: RequestInfo | URL) => {
@@ -37,6 +38,7 @@ function installMocks(options: {
     if (path.startsWith("/coach-workspace/assignments")) return jsonResponse({ assignments: options.assignments ?? [] });
     if (path.startsWith("/templates")) return jsonResponse({ templates: options.templates ?? [] });
     if (path.startsWith("/messages/coach/threads")) return jsonResponse({ threads: options.threads ?? [] });
+    if (path.startsWith("/check-ins/package-members")) return jsonResponse({ members: options.members ?? [] });
     return jsonResponse({ error: `unhandled_request_${path}` }, false, 404);
   }) as typeof fetch;
   return { restore: () => { globalThis.fetch = original; } };
@@ -314,4 +316,24 @@ test("refetches once a same-tab sign-in completes", async () => {
   });
 
   await waitFor(() => screen.getByText("Jordan Lee"));
+});
+
+test("an athlete on a package shows it, and payment due stands out", async () => {
+  installMocks({
+    relationships: [
+      { athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: "powerlifting", relationship_state: "accepted" },
+      { athlete_user_id: "athlete_2", display_name: "Sam Paid", email: "sam@example.com", activity_id: "powerlifting", relationship_state: "accepted" }
+    ],
+    members: [
+      { athlete_user_id: "athlete_1", payment_due: true, package: { name: "Online coaching" } },
+      { athlete_user_id: "athlete_2", payment_due: false, package: { name: "PT block" } }
+    ]
+  });
+  render(<AthleteDirectoryPanel />);
+  await waitFor(() => screen.getByText("Package: Online coaching"));
+  const due = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
+  assert.ok(due.getByText("Payment due"));
+  const paid = within(screen.getByText("Sam Paid").closest("article") as HTMLElement);
+  assert.ok(paid.getByText("Package: PT block"));
+  assert.equal(paid.queryByText("Payment due"), null);
 });
