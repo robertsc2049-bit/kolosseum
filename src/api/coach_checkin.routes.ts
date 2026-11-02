@@ -30,6 +30,14 @@ import {
   removeAvailabilityBlock,
   removeDayOff
 } from "./coach_availability_service.js";
+import {
+  cancelUpcomingForUnpaid,
+  endAthletePackage,
+  getAthletePackageForCoach,
+  listCoachPackageMembers,
+  recordPackagePayment,
+  startAthletePackage
+} from "./package_membership_service.js";
 
 export const coachCheckinRouter = Router();
 
@@ -104,6 +112,39 @@ coachCheckinRouter.delete("/availability/days-off/:day_off_id", writeLimit, asyn
 coachCheckinRouter.get("/athletes/:athlete_user_id", readLimit, asyncHandler(async (request, response) => {
   const coachUserId = await authenticatedCoach(request, false);
   return response.status(200).json(await listCoachCheckinsForAthlete(coachUserId, request.params.athlete_user_id));
+}));
+
+// The athlete's package with this coach (package_membership_service.ts):
+// put them on one, record a payment, end it, or - payment due - cancel every
+// upcoming call and in-person session.
+coachCheckinRouter.get("/package-members", readLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, false);
+  return response.status(200).json(await listCoachPackageMembers(coachUserId));
+}));
+
+coachCheckinRouter.get("/athletes/:athlete_user_id/package", readLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, false);
+  return response.status(200).json(await getAthletePackageForCoach(coachUserId, request.params.athlete_user_id));
+}));
+
+coachCheckinRouter.put("/athletes/:athlete_user_id/package", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await startAthletePackage(coachUserId, request.params.athlete_user_id, request.body));
+}));
+
+coachCheckinRouter.post("/athletes/:athlete_user_id/package/payment", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await recordPackagePayment(coachUserId, request.params.athlete_user_id, request.body));
+}));
+
+coachCheckinRouter.post("/athletes/:athlete_user_id/package/end", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await endAthletePackage(coachUserId, request.params.athlete_user_id));
+}));
+
+coachCheckinRouter.post("/athletes/:athlete_user_id/package/cancel-upcoming", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await cancelUpcomingForUnpaid(coachUserId, request.params.athlete_user_id));
 }));
 
 coachCheckinRouter.post("/", writeLimit, asyncHandler(async (request, response) => {

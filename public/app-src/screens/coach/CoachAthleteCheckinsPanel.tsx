@@ -4,10 +4,12 @@ import { cancelCheckin, loadAthleteCheckinsForCoach, moveCheckin, scheduleChecki
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { checkinWhen, downloadCalendarFile, errorCode, localInputToIso, METHOD_LABEL } from "../../utils/checkins";
+import { CoachAthletePackageSection } from "./CoachAthletePackageSection";
 
 // Check-in calls with the athlete whose profile the coach has open: book one
 // (once, weekly or fortnightly), see whether the athlete confirmed or asked
-// to move it, move it, or cancel it (coach_checkin_service.ts).
+// to move it, move it, or cancel it (coach_checkin_service.ts). Their
+// package with the coach sits at the top (CoachAthletePackageSection).
 const OPENED_EVENT = "kolosseum:coach-athlete-profile-opened";
 const CLOSED_EVENT = "kolosseum:coach-athlete-profile-closed";
 
@@ -137,6 +139,9 @@ export function CoachAthleteCheckinsPanel() {
         {!booking ? <button className="button secondary" type="button" onClick={() => setBooking(true)}>Book a check-in</button> : null}
       </div>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
+      <CoachAthletePackageSection athleteUserId={athleteUserId} onCheckinsChanged={() => {
+        loadAthleteCheckinsForCoach(athleteUserId).then(show, () => undefined);
+      }} />
 
       {booking ? (
         <form className="athlete-detail-note-form" onSubmit={book}>

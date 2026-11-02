@@ -11,6 +11,7 @@ import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 import { coachGymsForAthletes } from "./coach_gym_service.js";
 import { publicCoachPackages } from "./service_package_service.js";
+import { athleteMembershipWith } from "./package_membership_service.js";
 import {
   createBeta17RelationshipRecord
 } from "./beta17_coach_managed_service.js";
@@ -365,7 +366,14 @@ export async function listRelationshipsForAthlete(
   const all = await latestRelationshipRecordsForAthlete(athleteUserId);
   const relevant = all.filter((relationship) => relationship.relationship_state !== "invited");
 
-  return Promise.all(relevant.map(withCoachDisplay));
+  // A current coach's card also shows the package the athlete is on with
+  // them (package_membership_service.ts).
+  return Promise.all(relevant.map(async (relationship) => {
+    const entry = await withCoachDisplay(relationship);
+    if (entry.relationship_state !== "accepted") return entry;
+    const myPackage = await athleteMembershipWith(cleanString(relationship.coach_user_id), athleteUserId).catch(() => null);
+    return Object.freeze({ ...entry, my_package: myPackage });
+  }));
 }
 
 // Athlete action: accept a pending invitation. The athlete supplies only the

@@ -4,6 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
+import { paidLabel, usageLines } from "../../utils/packages";
 import { useRole } from "../../utils/role";
 import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
 
@@ -11,6 +12,21 @@ import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
 // relationships. A closed relationship is never deleted, only ever
 // appended to, so its history remains visible here even after the athlete
 // or coach ends it.
+
+// The package the athlete is on with this coach, whether it's paid, and
+// what they've used this period (package_membership_service.ts).
+function MyPackage({ membership }: { membership: JsonRecord }) {
+  const pkg = (membership.package ?? {}) as JsonRecord;
+  return (
+    <div className="my-package" data-testid="my-package">
+      <p className="small"><strong>{`Your package: ${String(pkg.name ?? "")}`}</strong>{` ${String(pkg.price_label ?? "")}`}</p>
+      <p className={membership.payment_due ? "field-error" : "muted small"}>{membership.payment_due ? `${paidLabel(membership)} - pay your coach directly; booking calls opens again once they've recorded it.` : paidLabel(membership)}</p>
+      {(Array.isArray(pkg.includes_summary) ? (pkg.includes_summary as string[]) : []).length ? <p className="muted small">{`Includes: ${(pkg.includes_summary as string[]).join(" · ")}`}</p> : null}
+      {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
+    </div>
+  );
+}
+
 function MessageAttachment({ attachment }: { attachment: JsonRecord | null | undefined }) {
   if (!attachment) return null;
   const sizeLabel = formatAttachmentSize(attachment.byte_size);
@@ -89,6 +105,7 @@ export function AccountCoachRelationshipPanel() {
                     {`Coaches at ${(entry.coach_gyms as JsonRecord[]).map((gym) => (gym.area ? `${String(gym.gym_name)}, ${String(gym.area)}` : String(gym.gym_name))).join("; ")}`}
                   </p>
                 ) : null}
+                {entry.my_package ? <MyPackage membership={entry.my_package as JsonRecord} /> : null}
                 {Array.isArray(entry.coach_packages) && entry.coach_packages.length > 0 ? (
                   <details className="coach-packages" data-testid="coach-packages-list">
                     <summary>{`Packages (${entry.coach_packages.length})`}</summary>

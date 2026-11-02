@@ -13,7 +13,9 @@ import { useRole } from "../../utils/role";
 // with a short message (coach_checkin_service.ts). A call they booked
 // themselves they can cancel instead. When their coach has open slots, "Book
 // a check-in" lists them by day and books one straight away
-// (coach_availability_service.ts).
+// (coach_availability_service.ts). While payment is due on their package
+// with a coach (package_membership_service.ts) that coach's slots are closed
+// and the card says why.
 const BOOKING_ERRORS: Record<string, string> = {
   booking_slot_taken: "Someone's just taken that slot - pick another.",
   booking_one_at_a_time: "You've already booked a call with this coach - cancel it to book a different time."
@@ -183,7 +185,12 @@ export function AthleteCheckinsCard() {
       <p className="eyebrow">Check-in calls</p>
       <h3>{checkins.length ? "Your next check-in" : "Check-in calls"}</h3>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {checkins.length === 0 ? <p className="muted small">Nothing booked. Your coach has open slots.</p> : null}
+      {checkins.length === 0 && coaches.some((c) => Array.isArray(c.slots) && c.slots.length) ? <p className="muted small">Nothing booked. Your coach has open slots.</p> : null}
+      {coaches.filter((c) => c.payment_due).map((c) => (
+        <p className="muted small" key={`due-${String(c.coach_user_id)}`} data-testid="checkin-payment-due">
+          {`Payment due to ${coachLabel(c, "your coach")} - you can book a call again once they've recorded it.`}
+        </p>
+      ))}
       <div className="record-list">
         {checkins.slice(0, 1).map((checkin) => {
           const id = String(checkin.checkin_id);

@@ -3571,6 +3571,21 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   gap: var(--k-space-2);
 }
 
+/* An athlete's package: on the coach's check-ins, the athlete's coach card
+   and the coach's Packages panel. */
+.athlete-package {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--k-space-3);
+  margin-bottom: var(--k-space-3);
+  display: grid;
+  gap: var(--k-space-2);
+}
+
+.my-package,
+.package-members {
+  margin-top: var(--k-space-2);
+}
+
 .gym-packages,
 .coach-packages {
   margin-top: var(--k-space-2);
