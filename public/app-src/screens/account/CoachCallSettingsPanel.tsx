@@ -70,7 +70,7 @@ export function CoachCallSettingsPanel() {
         <div>
           <p className="eyebrow">Check-in calls</p>
           <h3 id="coachCallSettingsHeading">How athletes reach you for a call</h3>
-          <p className="muted">When you book a check-in on WhatsApp or Teams, your athlete gets a button that opens your WhatsApp chat or your Teams meeting. Only athletes you've booked a call with see these.</p>
+          <p className="muted">When you book a check-in on WhatsApp or Teams, your athlete gets a button that opens WhatsApp to call you, or your Teams meeting. Only athletes you've booked a call with see these.</p>
         </div>
       </div>
       <form className="athlete-detail-note-form" onSubmit={save}>

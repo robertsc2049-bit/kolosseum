@@ -1,6 +1,6 @@
 // DEV NOTE: Check-in calls. A coach saves how their athletes reach them for
 // a call - a WhatsApp number and/or a Teams meeting link (Kolosseum doesn't
-// create meetings; it opens the coach's own WhatsApp chat or Teams link) -
+// create meetings; it links to the coach's own WhatsApp number or Teams meeting) -
 // and books check-ins with an athlete they coach: one-off, or a weekly or
 // fortnightly run, one row per call sharing a series_id. The athlete
 // confirms or asks to move it with a short message; the coach moves or

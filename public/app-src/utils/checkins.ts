@@ -61,7 +61,7 @@ export function downloadCalendarFile(checkin: JsonRecord, title: string): void {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-// Join the call: the coach's WhatsApp chat or their Teams meeting.
+// Join the call: the coach's WhatsApp number or their Teams meeting.
 export function joinLink(checkin: JsonRecord): { href: string; label: string } | null {
   if (checkin.whatsapp_url) return { href: String(checkin.whatsapp_url), label: "Open WhatsApp" };
   if (checkin.teams_link) return { href: String(checkin.teams_link), label: "Join on Teams" };

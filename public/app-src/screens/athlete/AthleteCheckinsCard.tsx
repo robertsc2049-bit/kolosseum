@@ -8,7 +8,7 @@ import { coachLabel } from "../../utils/coachName";
 import { useRole } from "../../utils/role";
 
 // The athlete's upcoming check-in calls on Today: join (the coach's WhatsApp
-// chat or Teams meeting), add to their calendar, confirm, or ask to move it
+// number or Teams meeting), add to their calendar, confirm, or ask to move it
 // with a short message (coach_checkin_service.ts).
 export function AthleteCheckinsCard() {
   const isAthlete = useRole() === "athlete";
