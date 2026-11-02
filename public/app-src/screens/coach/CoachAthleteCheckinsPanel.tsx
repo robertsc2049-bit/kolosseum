@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { cancelCheckin, loadAthleteCheckinsForCoach, moveCheckin, scheduleCheckin } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
-import { checkinWhen, downloadCalendarFile, errorCode, joinLink, localInputToIso, METHOD_LABEL } from "../../utils/checkins";
+import { checkinWhen, downloadCalendarFile, errorCode, localInputToIso, METHOD_LABEL } from "../../utils/checkins";
 
 // Check-in calls with the athlete whose profile the coach has open: book one
 // (once, weekly or fortnightly), see whether the athlete confirmed or asked
@@ -25,6 +25,9 @@ const ERROR_MESSAGES: Record<string, string> = {
   checkin_not_found: "That call has already been cancelled."
 };
 
+// A run of weekly calls is long on a phone: the next few, then the rest on request.
+const SHOWN_AT_FIRST = 3;
+
 const message = (error: unknown) => ERROR_MESSAGES[errorCode(error)] ?? "That didn't work. Try again.";
 
 async function csrf(): Promise<string> {
@@ -45,6 +48,7 @@ export function CoachAthleteCheckinsPanel() {
   const [note, setNote] = useState("");
   const [moving, setMoving] = useState<string | null>(null);
   const [moveTo, setMoveTo] = useState("");
+  const [showAll, setShowAll] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,6 +76,7 @@ export function CoachAthleteCheckinsPanel() {
     setBooking(false);
     setMoving(null);
     setError(null);
+    setShowAll(false);
     if (!athleteUserId) return undefined;
     let live = true;
     loadAthleteCheckinsForCoach(athleteUserId).then((payload) => { if (live) show(payload); }, () => { if (live) setCheckins(null); });
@@ -181,9 +186,11 @@ export function CoachAthleteCheckinsPanel() {
 
       {checkins.length === 0 && !booking ? <p className="muted small">No check-ins booked.</p> : null}
       <div className="record-list">
-        {checkins.map((checkin) => {
+        {(showAll ? checkins : checkins.slice(0, SHOWN_AT_FIRST)).map((checkin) => {
           const id = String(checkin.checkin_id);
-          const join = joinLink(checkin);
+          // The coach joins their own Teams meeting; a WhatsApp call they
+          // make to the athlete themselves (the link is the coach's number).
+          const teams = checkin.teams_link ? String(checkin.teams_link) : null;
           return (
             <article className="record-row" key={id}>
               <div>
@@ -206,7 +213,7 @@ export function CoachAthleteCheckinsPanel() {
                 ) : null}
               </div>
               <div className="inline-controls">
-                {join ? <a className="button secondary small" href={join.href} target="_blank" rel="noopener noreferrer">{join.label}</a> : null}
+                {teams ? <a className="button secondary small" href={teams} target="_blank" rel="noopener noreferrer">Join on Teams</a> : null}
                 <button className="button secondary small" type="button" onClick={() => downloadCalendarFile(checkin, "Check-in call")}>Add to calendar</button>
                 <button className="button secondary small" type="button" disabled={busy} onClick={() => { setMoving(id); setMoveTo(""); }}>Move</button>
                 <button className="button secondary small" type="button" disabled={busy} onClick={() => void act((token) => cancelCheckin(id, false, token))}>Cancel</button>
@@ -216,6 +223,9 @@ export function CoachAthleteCheckinsPanel() {
           );
         })}
       </div>
+      {!showAll && checkins.length > SHOWN_AT_FIRST ? (
+        <button className="button secondary small" type="button" onClick={() => setShowAll(true)}>{`Show all ${checkins.length} calls`}</button>
+      ) : null}
     </article>
   );
 }

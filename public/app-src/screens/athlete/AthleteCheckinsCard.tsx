@@ -7,7 +7,8 @@ import { checkinWhen, downloadCalendarFile, joinLink, METHOD_LABEL } from "../..
 import { coachLabel } from "../../utils/coachName";
 import { useRole } from "../../utils/role";
 
-// The athlete's upcoming check-in calls on Today: join (the coach's WhatsApp
+// The athlete's next check-in call on Today (the rest of a run listed in a
+// line, so it doesn't push the session down): join (the coach's WhatsApp
 // number or Teams meeting), add to their calendar, confirm, or ask to move it
 // with a short message (coach_checkin_service.ts).
 export function AthleteCheckinsCard() {
@@ -59,10 +60,10 @@ export function AthleteCheckinsCard() {
   return (
     <article className="panel" data-testid="athlete-checkins">
       <p className="eyebrow">Check-in calls</p>
-      <h3>{checkins.length === 1 ? "Your next check-in" : "Your check-ins"}</h3>
+      <h3>Your next check-in</h3>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       <div className="record-list">
-        {checkins.slice(0, 3).map((checkin) => {
+        {checkins.slice(0, 1).map((checkin) => {
           const id = String(checkin.checkin_id);
           const join = joinLink(checkin);
           const coach = coachLabel(checkin, "Your coach");
@@ -98,6 +99,9 @@ export function AthleteCheckinsCard() {
           );
         })}
       </div>
+      {checkins.length > 1 ? (
+        <p className="muted small">{`Also booked: ${checkins.slice(1, 3).map((checkin) => checkinWhen(checkin.starts_at)).join(" · ")}${checkins.length > 3 ? ` and ${checkins.length - 3} more` : ""}`}</p>
+      ) : null}
     </article>
   );
 }

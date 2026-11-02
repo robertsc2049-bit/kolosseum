@@ -100,7 +100,7 @@ test("copy and adapt makes a new draft: fewer days, a different length, heavier 
   assert.equal(weeksOf(shorter).length, 6);
   assert.deepEqual(shorter.template_structure.blocks.map((b) => b.weeks.length), [4, 2], "weeks cut from the end");
   assert.ok(weeksOf(shorter).every((w) => sessionsOf(w).length === 2), "first two days kept");
-  assert.match(shorter.description, /Copied from .*\(2 days a week, 6 weeks, loads \+5%\)\.$/u);
+  assert.match(shorter.description, /^Copied from .*\(2 days a week, 6 weeks, loads \+5%\)\. About the original: Quick build:/u);
   const firstSourceDay = sessionsOf(weeksOf(source)[0])[0].work_items;
   const firstCopyDay = sessionsOf(weeksOf(shorter)[0])[0].work_items;
   assert.deepEqual(firstCopyDay.map((w) => w.exercise_id), firstSourceDay.map((w) => w.exercise_id), "same exercises");
