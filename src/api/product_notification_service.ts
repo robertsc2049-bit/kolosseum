@@ -77,7 +77,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "checkin_scheduled",
   "checkin_cancelled",
   "checkin_confirmed",
-  "checkin_move_requested"
+  "checkin_move_requested",
+  "checkin_booked",
+  "checkin_cancelled_by_athlete"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -963,6 +965,7 @@ async function deriveCheckinNotifications(
       checkin_id, series_id, coach_user_id, starts_at, call_method, booked_at
     FROM product_coach_checkins
     WHERE athlete_user_id = $1 AND checkin_status <> 'cancelled' AND starts_at > now()
+      AND (booked_by = 'coach' OR booked_at > created_at + interval '1 second')
     ORDER BY COALESCE(series_id, checkin_id), booked_at, starts_at
     `,
     [recipientUserId]
@@ -985,6 +988,7 @@ async function deriveCheckinNotifications(
       checkin_id, series_id, coach_user_id, starts_at, cancelled_at
     FROM product_coach_checkins
     WHERE athlete_user_id = $1 AND checkin_status = 'cancelled' AND cancelled_at IS NOT NULL AND starts_at > cancelled_at
+      AND cancelled_by IS DISTINCT FROM 'athlete'
     ORDER BY COALESCE(series_id, checkin_id), cancelled_at, starts_at
     `,
     [recipientUserId]
@@ -999,6 +1003,43 @@ async function deriveCheckinNotifications(
       notificationPayload: { coach_user_id: cleanString(row.coach_user_id), starts_at_iso8601: toIso(row.starts_at) },
       occurredAtIso8601: toIso(row.cancelled_at)
     });
+  }
+
+  // The coach: an athlete booked one of their open slots, or cancelled a
+  // call they'd booked.
+  const athleteBooked = await client.query(
+    `
+    SELECT checkin_id, athlete_user_id, starts_at, created_at, checkin_status, cancelled_by, cancelled_at
+    FROM product_coach_checkins
+    WHERE coach_user_id = $1 AND booked_by = 'athlete'
+    `,
+    [recipientUserId]
+  );
+  for (const row of athleteBooked.rows) {
+    const athleteId = cleanString(row.athlete_user_id);
+    const payload = { athlete_user_id: athleteId, starts_at_iso8601: toIso(row.starts_at) };
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "checkin_booked",
+      sourceRecordType: "product_coach_checkins",
+      sourceRecordId: cleanString(row.checkin_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+      deepLinkParams: { athlete_id: athleteId },
+      notificationPayload: payload,
+      occurredAtIso8601: toIso(row.created_at)
+    });
+    if (row.checkin_status === "cancelled" && row.cancelled_by === "athlete") {
+      await insertDerivedNotification(client, {
+        recipientUserId,
+        notificationType: "checkin_cancelled_by_athlete",
+        sourceRecordType: "product_coach_checkins",
+        sourceRecordId: cleanString(row.checkin_id),
+        deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+        deepLinkParams: { athlete_id: athleteId },
+        notificationPayload: payload,
+        occurredAtIso8601: toIso(row.cancelled_at)
+      });
+    }
   }
 
   const responses = await client.query(

@@ -48,7 +48,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   checkin_scheduled: "Check-in call booked",
   checkin_cancelled: "Check-in call cancelled",
   checkin_confirmed: "Athlete confirmed a check-in call",
-  checkin_move_requested: "Athlete asked to move a check-in call"
+  checkin_move_requested: "Athlete asked to move a check-in call",
+  checkin_booked: "Athlete booked a check-in call",
+  checkin_cancelled_by_athlete: "Athlete cancelled a check-in call"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {

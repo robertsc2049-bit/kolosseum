@@ -196,7 +196,7 @@ export function CoachAthleteCheckinsPanel() {
               <div>
                 <strong>{checkinWhen(checkin.starts_at)}</strong>
                 <p className="muted small">{`${METHOD_LABEL[String(checkin.call_method)] ?? ""} · ${String(checkin.duration_minutes)} min${checkin.series_id ? " · repeating" : ""}`}</p>
-                <p className="muted small">{STATUS_LABEL[String(checkin.status)] ?? ""}</p>
+                <p className="muted small">{checkin.booked_by === "athlete" ? "They booked this" : STATUS_LABEL[String(checkin.status)] ?? ""}</p>
                 {checkin.athlete_message ? <p className="small">{`“${String(checkin.athlete_message)}”`}</p> : null}
                 {checkin.note ? <p className="muted small">{String(checkin.note)}</p> : null}
                 {moving === id ? (
