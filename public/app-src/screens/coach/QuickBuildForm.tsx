@@ -12,6 +12,9 @@ import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter"
 // in the builder as a draft; nothing is assigned.
 type Goal = { goal_id: string; label: string; summary: string };
 
+// The first-programme guide opens the form from Overview.
+export const OPEN_QUICK_BUILD_EVENT = "kolosseum:open-quick-build";
+
 export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (templateId: string) => void; startOpen?: boolean }) {
   const [open, setOpen] = useState(startOpen);
   const [activityId, setActivityId] = useState("");
@@ -26,6 +29,12 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
   const [error, setError] = useState<string | null>(null);
   // A double tap builds once.
   const inFlight = useRef(false);
+
+  useEffect(() => {
+    const show = () => setOpen(true);
+    document.addEventListener(OPEN_QUICK_BUILD_EVENT, show);
+    return () => document.removeEventListener(OPEN_QUICK_BUILD_EVENT, show);
+  }, []);
 
   useEffect(() => {
     setGoals([]);
