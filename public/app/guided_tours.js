@@ -46,14 +46,14 @@ function coachSteps(account) {
     { before: openView("coach-overview"), target: "#coach-overview-metrics-root", title: "Your Overview", body: "Everything at a glance: connected athletes, programmes assigned, sessions waiting for your review and competitions coming up." },
     { before: openView("athletes"), target: "#view-athletes .athlete-actions", title: "Bring your athletes in", body: "Invite athletes by email, or add one with their account code. They join your roster as soon as they accept." },
     { before: openView("athletes"), target: ["#athlete-directory-root .record-card", "#athlete-directory-root .metric-cards"], title: "Your roster", body: "Open an athlete's profile to assign a programme, record their maxes and bodyweight, see pain flags and leave notes and messages." },
-    { before: openView("templates"), target: "#newTemplateButton", title: "Build programmes", body: "A programme is blocks of weeks, each with sessions of exercises - sets, reps, % of max, RPE or weight, and rest. Start from scratch or from a Kolosseum programme, then check it's ready and make it active to assign it." },
+    { before: openView("templates"), target: "#newTemplateButton", title: "Build programmes", body: "A programme is blocks of weeks, each with sessions of exercises - sets, reps, % of max, RPE or weight, and rest. Quick build one from a few answers, start from scratch or from a Kolosseum programme, then check it's ready and make it active to assign it." },
     { before: openView("events"), target: "#view-events .page-heading", title: "Competitions", body: "Add meets, races and match days. Assign a programme against one and it's timed to peak for that date." },
     { before: openView("review"), target: "#coach-review-root .page-heading", title: "Review sessions", body: "Every completed session lands here: what was lifted, how hard it felt, pain flags, swaps and anything skipped. Mark it reviewed and leave a note the athlete sees." },
     { before: openView("coach-progress"), target: ["[data-testid=\"analysis-roster\"]", "#coach-progress-overview-root h2"], title: "Analysis", body: "Who needs a look: each athlete's trends, load against their own normal and readiness, with the ones needing attention first. Reports you write here go to the athlete." },
     { before: openView("coach-attendance"), target: "#attendance-event-create-root .panel-header", title: "Classes", body: "Schedule a class, squad session or practice, invite athletes and see who's coming." },
     { before: openView("marketplace"), target: "#view-marketplace .page-heading h2", title: "Marketplace", body: "Browse programmes other coaches share, and share or sell your own." },
     { before: openView("account"), target: "#account-code-root", title: "Your account", body: "Your account code lets an athlete connect with you. Branding, billing, your data and \"Show me around\" are all here." },
-    { before: openView("coach-overview"), title: "You're set", body: "A good first step: invite an athlete, then build or pick a programme and assign it from their profile.", doneLabel: "Get started" }
+    { before: openView("coach-overview"), title: "You're set", body: "The \"Your first programme\" guide on Overview walks you through it: build a programme, make it ready, bring in an athlete and assign it.", doneLabel: "Get started" }
   ];
 }
 

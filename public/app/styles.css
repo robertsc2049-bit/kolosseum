@@ -3515,8 +3515,51 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 }
 
 #coach-link-request-root:not(:empty),
-#athlete-checkins-root:not(:empty) {
+#athlete-checkins-root:not(:empty),
+#athlete-first-steps-root:not(:empty),
+#coach-first-programme-root:not(:empty) {
   margin-bottom: var(--k-space-3);
+}
+
+/* First-steps guides (GuideChecklist.tsx). */
+.guide-steps {
+  list-style: none;
+  margin: var(--k-space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--k-space-3);
+}
+
+.guide-step {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: var(--k-space-2);
+  align-items: start;
+}
+
+.guide-step-mark {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.guide-step.current .guide-step-mark {
+  border-color: var(--bronze);
+}
+
+.guide-step.done .guide-step-mark {
+  background: var(--bronze);
+  border-color: var(--bronze);
+  color: #fff;
+}
+
+.guide-step.done strong {
+  opacity: 0.7;
 }
 
 .message-attachment-image,
