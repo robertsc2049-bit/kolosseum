@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { loadAthleteEquipment, requestCoaching, saveAthleteEquipment, saveAthleteGyms, searchGyms } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { PackageList } from "../../components/PackageList";
 import { askAgainText, COACHING_REQUESTS_CHANGED_EVENT } from "../../utils/coachingRequests";
 
 // The equipment a self-directed athlete has. A full gym is assumed until they
@@ -16,7 +17,7 @@ import { askAgainText, COACHING_REQUESTS_CHANGED_EVENT } from "../../utils/coach
 
 type Option = { equipment_id: string; display_name: string };
 type GymCoach = { coach_gym_id: string; display_name: string; business_name: string | null; asked: boolean };
-type Gym = { org_id: string; display_name: string; area: string; equipment_count: number; listed: boolean; coaches: GymCoach[] };
+type Gym = { org_id: string; display_name: string; area: string; equipment_count: number; listed: boolean; coaches: GymCoach[]; packages: JsonRecord[] };
 type MainGym = { org_id: string; display_name: string; equipment: string[] };
 const MAX_GYMS = 3;
 
@@ -26,8 +27,21 @@ const gymFrom = (g: JsonRecord): Gym => ({
   coaches: Array.isArray(g.coaches) ? (g.coaches as JsonRecord[]).map((c) => ({
     coach_gym_id: String(c.coach_gym_id), display_name: String(c.display_name ?? ""),
     business_name: typeof c.business_name === "string" && c.business_name ? c.business_name : null, asked: c.asked === true
-  })) : []
+  })) : [],
+  packages: Array.isArray(g.packages) ? (g.packages as JsonRecord[]) : []
 });
+
+// What a gym offers (its packages), folded away under the gym.
+function GymPackages({ gym }: { gym: Gym }) {
+  if (!gym.packages.length) return null;
+  return (
+    <details className="gym-packages" data-testid="gym-packages">
+      <summary>{`${gym.display_name}'s packages (${gym.packages.length})`}</summary>
+      <PackageList packages={gym.packages} showDeliveredBy />
+      <p className="muted small">Paid to the gym directly.</p>
+    </details>
+  );
+}
 
 // The coaches a gym has confirmed: the athlete asks one to coach them, with
 // an optional short note; the coach then sends the usual invitation.
@@ -227,6 +241,7 @@ export function AthleteEquipmentCard() {
                 {!gym.listed ? <span className="muted"> No longer listed - its equipment doesn't count.</span> : null}
                 <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms(gyms.filter((g) => g.org_id !== gym.org_id).map((g) => g.org_id), mainGym?.org_id ?? null)}>Remove</button>
                 <GymCoaches gym={gym} onAsked={(id) => { setGyms((list) => markAsked(list, id)); setResults((list) => (list ? markAsked(list, id) : list)); }} />
+                  <GymPackages gym={gym} />
               </li>
             ))}
           </ul>
@@ -248,6 +263,7 @@ export function AthleteEquipmentCard() {
                   <span>{gym.display_name}, {gym.area} <span className="muted">({gym.equipment_count} pieces of kit)</span></span>
                   <button className="button secondary small" type="button" disabled={gymBusy} onClick={() => void saveGyms([...gyms.map((g) => g.org_id), gym.org_id], mainGym?.org_id ?? null)}>Add</button>
                   <GymCoaches gym={gym} onAsked={(id) => { setGyms((list) => markAsked(list, id)); setResults((list) => (list ? markAsked(list, id) : list)); }} />
+                  <GymPackages gym={gym} />
                 </li>
               ))}
             </ul>

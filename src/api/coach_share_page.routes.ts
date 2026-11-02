@@ -55,6 +55,7 @@ export function sharePageHtml(card: Record<string, unknown>, pageUrl: string): s
   const tagline = card.tagline ? String(card.tagline) : "";
   const accent = card.brand_color ? String(card.brand_color) : "#b4552d";
   const gyms = Array.isArray(card.gyms) ? (card.gyms as string[]) : [];
+  const packages = Array.isArray(card.packages) ? (card.packages as Record<string, unknown>[]) : [];
   const slug = encodeURIComponent(String(card.slug));
   const description = tagline || `Train with ${title} on Kolosseum.`;
   return `<!doctype html>
@@ -82,6 +83,12 @@ h1 { margin: 0; font-size: 26px; line-height: 1.2; }
 .gyms li::before { content: "Coaches at "; }
 .gyms li + li::before { content: "and "; }
 .cta { display: block; margin-top: 24px; padding: 14px 16px; border-radius: 10px; background: var(--accent); color: #fff; text-align: center; font-weight: 700; text-decoration: none; font-size: 17px; }
+.packages { margin: 22px 0 0; display: grid; gap: 10px; }
+.package { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.package h2 { margin: 0; font-size: 17px; display: flex; justify-content: space-between; gap: 10px; }
+.package .price { color: var(--accent); white-space: nowrap; }
+.package p { margin: 6px 0 0; font-size: 14px; color: var(--muted); }
+.package ul { margin: 8px 0 0; padding-left: 18px; font-size: 14px; }
 .small { margin: 14px 0 0; font-size: 14px; color: var(--muted); text-align: center; }
 footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); text-align: center; }
 </style>
@@ -93,8 +100,9 @@ footer { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line);
 ${business ? `<p class="business">${escapeHtml(business)}</p>` : ""}
 ${tagline ? `<p class="tagline">${escapeHtml(tagline)}</p>` : ""}
 ${gyms.length ? `<ul class="gyms">${gyms.map((gym) => `<li>${escapeHtml(gym)}</li>`).join("")}</ul>` : ""}
+${packages.length ? `<section class="packages" aria-label="Coaching packages">${packages.map((pkg) => `<article class="package"><h2><span>${escapeHtml(String(pkg.name))}</span><span class="price">${escapeHtml(String(pkg.price_label))}</span></h2>${pkg.description ? `<p>${escapeHtml(String(pkg.description))}</p>` : ""}<ul>${(Array.isArray(pkg.includes_summary) ? pkg.includes_summary : []).map((line) => `<li>${escapeHtml(String(line))}</li>`).join("")}</ul></article>`).join("")}</section>` : ""}
 <a class="cta" href="/app/?coach=${slug}">Train with me</a>
-<p class="small">Create a free athlete account, or sign in, and ${escapeHtml(name)} gets your request. They'll invite you if they can take you on.</p>
+<p class="small">Create a free athlete account, or sign in, and ${escapeHtml(name)} gets your request. They'll invite you if they can take you on.${packages.length ? " You pay them directly - nothing is taken in the app." : ""}</p>
 <footer>Training on Kolosseum</footer>
 </main>
 </body>

@@ -44,6 +44,21 @@ export function loadSharedCoachCard(slug: string): Promise<JsonRecord> {
   return request("GET", `/c/${encodeURIComponent(slug)}/card`);
 }
 
+// The coach's packages (what they offer athletes, paid directly).
+export function loadCoachPackages(): Promise<JsonRecord> {
+  return request("GET", "/coach-branding/packages");
+}
+
+export function saveCoachPackage(packageId: string | null, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return packageId
+    ? request("PUT", `/coach-branding/packages/${encodeURIComponent(packageId)}`, input, csrfToken)
+    : request("POST", "/coach-branding/packages", input, csrfToken);
+}
+
+export function archiveCoachPackage(packageId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/coach-branding/packages/${encodeURIComponent(packageId)}/archive`, {}, csrfToken);
+}
+
 export function saveCoachBrandPreference(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
   return request("POST", "/coach-branding", input, csrfToken);
 }

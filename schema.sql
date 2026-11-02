@@ -3564,3 +3564,41 @@ ALTER TABLE product_coach_checkins
 ALTER TABLE product_coach_checkins
   ADD COLUMN IF NOT EXISTS cancelled_by TEXT
     CHECK (cancelled_by IS NULL OR cancelled_by IN ('coach', 'athlete'));
+
+-- Coaching packages (service_package_service.ts): what a coach or a gym
+-- offers - a name, a price and how often it's paid, and what's included
+-- (programming, check-in calls and in-person sessions a period, session
+-- reviews, messaging). Paid outside the app. A coach's packages are theirs;
+-- a gym's belong to the gym and name which of its confirmed coaches deliver
+-- them. Removing one archives it.
+CREATE TABLE IF NOT EXISTS product_service_packages (
+  package_id     TEXT PRIMARY KEY,
+  coach_user_id  TEXT,
+  org_id         TEXT
+    REFERENCES product_organisations(org_id)
+    ON DELETE CASCADE,
+  name           TEXT NOT NULL
+    CHECK (char_length(name) BETWEEN 1 AND 80),
+  description    TEXT
+    CHECK (description IS NULL OR char_length(description) <= 500),
+  price_minor    INTEGER NOT NULL
+    CHECK (price_minor BETWEEN 0 AND 10000000),
+  currency       TEXT NOT NULL DEFAULT 'GBP'
+    CHECK (currency IN ('GBP', 'EUR', 'USD')),
+  billing        TEXT NOT NULL
+    CHECK (billing IN ('monthly', 'weekly', 'one_off')),
+  includes       JSONB NOT NULL DEFAULT '{}'::jsonb,
+  delivered_by   TEXT[] NOT NULL DEFAULT '{}',
+  archived_at    TIMESTAMPTZ,
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK ((coach_user_id IS NULL) <> (org_id IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_service_packages_coach
+ON product_service_packages (coach_user_id);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_service_packages_org
+ON product_service_packages (org_id);

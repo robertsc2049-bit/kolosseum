@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
 import { coachGymsForAthletes } from "./coach_gym_service.js";
+import { publicCoachPackages } from "./service_package_service.js";
 import {
   createBeta17RelationshipRecord
 } from "./beta17_coach_managed_service.js";
@@ -290,8 +291,9 @@ async function withCoachDisplay(
   let coachProfile = null;
   let brandPreference = null;
   let coachGyms: JsonRecord[] = [];
+  let coachPackages: JsonRecord[] = [];
   try {
-    [coachProfile, brandPreference, coachGyms] = await Promise.all([
+    [coachProfile, brandPreference, coachGyms, coachPackages] = await Promise.all([
       loadLatestBetaProductRecord(
         "beta17_coach_profile",
         coachUserId,
@@ -302,7 +304,8 @@ async function withCoachDisplay(
         coachUserId,
         coachUserId
       ),
-      coachGymsForAthletes(coachUserId)
+      coachGymsForAthletes(coachUserId),
+      publicCoachPackages(coachUserId)
     ]);
   }
   catch {
@@ -319,6 +322,7 @@ async function withCoachDisplay(
     coach_brand_tagline: cleanString(brandPreference?.brand_tagline) || null,
     coach_business_name: cleanString(brandPreference?.business_name) || null,
     coach_gyms: coachGyms,
+    coach_packages: coachPackages,
     relationship_state: relationshipExpired(relationship) ? "expired" : relationship.relationship_state,
     created_at_iso8601: cleanString(relationship.created_at_iso8601),
     accepted_at_iso8601: cleanString(relationship.accepted_at_iso8601) || null,

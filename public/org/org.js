@@ -650,6 +650,124 @@ function renderGymListing(result) {
 async function refreshGymListing() {
   renderGymListing(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-listing`));
   await refreshGymCoaches();
+  await refreshGymPackages();
+}
+
+// The gym's packages (service_package_service.ts): name, price, what's
+// included and which confirmed coaches deliver each. Athletes pay the gym
+// directly.
+let gymPackagesState = { packages: [], coaches: [], editing: null };
+
+function renderGymPackages(result) {
+  gymPackagesState = { ...gymPackagesState, packages: result.packages || [], coaches: result.coaches || [] };
+  const packages = gymPackagesState.packages;
+  el("orgGymPackages").innerHTML = packages.length === 0
+    ? `<p class="muted small">No packages yet.</p>`
+    : packages.map((pkg) => `
+      <article class="record-row" data-package="${escapeHtml(pkg.package_id)}">
+        <div>
+          <strong>${escapeHtml(pkg.name)}</strong> <span class="muted">${escapeHtml(pkg.price_label)}</span>
+          ${pkg.description ? `<p class="muted small">${escapeHtml(pkg.description)}</p>` : ""}
+          <p class="muted small">${(pkg.includes_summary || []).map(escapeHtml).join(" · ")}</p>
+          ${(pkg.delivered_by || []).length ? `<p class="muted small">With ${pkg.delivered_by.map((coach) => escapeHtml(coach.display_name)).join(", ")}</p>` : ""}
+        </div>
+        <div class="button-row">
+          <button class="button secondary" type="button" data-edit-package="${escapeHtml(pkg.package_id)}">Edit</button>
+          <button class="button secondary" type="button" data-archive-package="${escapeHtml(pkg.package_id)}">Remove</button>
+        </div>
+      </article>`).join("");
+  for (const button of el("orgGymPackages").querySelectorAll("[data-edit-package]")) {
+    button.addEventListener("click", () => openGymPackageForm(button.getAttribute("data-edit-package")));
+  }
+  for (const button of el("orgGymPackages").querySelectorAll("[data-archive-package]")) {
+    button.addEventListener("click", () => archiveGymPackage(button.getAttribute("data-archive-package")).catch(console.error));
+  }
+}
+
+async function refreshGymPackages() {
+  renderGymPackages(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/packages`));
+}
+
+function openGymPackageForm(packageId) {
+  const pkg = gymPackagesState.packages.find((p) => p.package_id === packageId) || null;
+  const includes = pkg?.includes || {};
+  gymPackagesState.editing = packageId || "new";
+  el("orgPackageName").value = pkg?.name || "";
+  el("orgPackagePrice").value = pkg ? String(pkg.price) : "";
+  el("orgPackageCurrency").value = pkg?.currency || "GBP";
+  el("orgPackageBilling").value = pkg?.billing || "monthly";
+  el("orgPackageDescription").value = pkg?.description || "";
+  el("orgPackageProgramming").checked = includes.programming === true;
+  el("orgPackageCheckins").value = String(includes.checkin_calls || 0);
+  el("orgPackageInPerson").value = String(includes.in_person_sessions || 0);
+  el("orgPackageReviews").value = includes.session_reviews || "none";
+  el("orgPackageMessaging").checked = includes.messaging === true;
+  const delivering = new Set((pkg?.delivered_by || []).map((coach) => coach.coach_user_id));
+  el("orgPackageCoaches").innerHTML = gymPackagesState.coaches.length
+    ? `<fieldset class="choice-chips"><legend>Delivered by</legend>${gymPackagesState.coaches.map((coach) => `
+      <label class="choice-chip"><input type="checkbox" value="${escapeHtml(coach.coach_user_id)}" ${delivering.has(coach.coach_user_id) ? "checked" : ""} /><span>${escapeHtml(coach.display_name)}</span></label>`).join("")}</fieldset>`
+    : `<p class="muted small">Confirm coaches above to name who delivers it.</p>`;
+  el("orgGymPackagesError").hidden = true;
+  el("orgGymPackageForm").hidden = false;
+  el("orgAddPackageButton").hidden = true;
+}
+
+function closeGymPackageForm() {
+  gymPackagesState.editing = null;
+  el("orgGymPackageForm").hidden = true;
+  el("orgAddPackageButton").hidden = false;
+}
+
+async function saveGymPackageForm(event) {
+  event.preventDefault();
+  const errorEl = el("orgGymPackagesError");
+  const button = event.target.querySelector("button[type=submit]");
+  errorEl.hidden = true;
+  button.disabled = true;
+  const body = {
+    name: el("orgPackageName").value,
+    price: Number(el("orgPackagePrice").value),
+    currency: el("orgPackageCurrency").value,
+    billing: el("orgPackageBilling").value,
+    description: el("orgPackageDescription").value,
+    includes: {
+      programming: el("orgPackageProgramming").checked,
+      checkin_calls: Number(el("orgPackageCheckins").value || 0),
+      in_person_sessions: Number(el("orgPackageInPerson").value || 0),
+      session_reviews: el("orgPackageReviews").value,
+      messaging: el("orgPackageMessaging").checked
+    },
+    delivered_by: [...el("orgPackageCoaches").querySelectorAll("input:checked")].map((input) => input.value)
+  };
+  const editing = gymPackagesState.editing;
+  const base = `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/packages`;
+  try {
+    renderGymPackages(editing && editing !== "new"
+      ? await api("PUT", `${base}/${encodeURIComponent(editing)}`, body)
+      : await api("POST", base, body));
+    closeGymPackageForm();
+  }
+  catch (error) {
+    errorEl.textContent = error.fieldErrors ? Object.values(error.fieldErrors).join(" ") : "The package couldn't be saved. Try again.";
+    errorEl.hidden = false;
+    console.error(error);
+  }
+  finally {
+    button.disabled = false;
+  }
+}
+
+async function archiveGymPackage(packageId) {
+  const errorEl = el("orgGymPackagesError");
+  errorEl.hidden = true;
+  try {
+    renderGymPackages(await api("POST", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/packages/${encodeURIComponent(packageId)}/archive`, {}));
+  }
+  catch (error) {
+    errorEl.textContent = "That couldn't be removed. Try again.";
+    errorEl.hidden = false;
+    throw error;
+  }
 }
 
 // Coaches who say they work out of the gym: confirm, decline, or remove
@@ -709,6 +827,8 @@ function showGymListingSection(orgId, orgName) {
   el("orgGymListingEquipment").innerHTML = "";
   el("orgGymCoaches").innerHTML = "";
   el("orgGymCoachesError").hidden = true;
+  el("orgGymPackages").innerHTML = "";
+  closeGymPackageForm();
   refreshGymListing().catch((error) => {
     el("orgGymListingStatus").textContent = "";
     el("orgGymListingError").textContent = "The listing couldn't be loaded. Try again.";
@@ -2547,6 +2667,9 @@ function boot() {
   el("orgBillingBackButton").addEventListener("click", () => hideBillingSection());
   el("orgGymListingBackButton").addEventListener("click", () => hideGymListingSection());
   el("orgGymListingForm").addEventListener("submit", saveGymListingForm);
+  el("orgAddPackageButton").addEventListener("click", () => openGymPackageForm(null));
+  el("orgPackageCancelButton").addEventListener("click", closeGymPackageForm);
+  el("orgGymPackageForm").addEventListener("submit", saveGymPackageForm);
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
   el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
   el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
