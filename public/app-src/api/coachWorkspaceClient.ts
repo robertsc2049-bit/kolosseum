@@ -444,6 +444,11 @@ export function createKolosseumStarterTemplate(input: { activity_id: string; exp
   return request("POST", "/templates/kolosseum-starter", input, csrfToken);
 }
 
+// Copy and adapt: a new draft from one of the coach's programmes.
+export function adaptProgramme(templateId: string, input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/templates/${encodeURIComponent(templateId)}/adapt`, input, csrfToken);
+}
+
 // Quick build: a whole periodised draft from one short form; the goals
 // depend on the sport.
 export function loadQuickBuildGoals(activityId: string): Promise<JsonRecord> {

@@ -9463,6 +9463,12 @@
     },
     {
       "method": "POST",
+      "path": "/templates/:template_id/adapt",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
       "path": "/progress-photos",
       "source": "src/api/progress_photos.routes.ts",
       "tracked_by_area": "progress_photos"
