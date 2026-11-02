@@ -9,6 +9,7 @@ import {
   programmeFamilyVersions,
   programmeVersionNumber
 } from "./useCoachProgrammeLibrary";
+import { CopyAndAdaptSection } from "./CopyAndAdaptSection";
 import { GroupAssignSection } from "./GroupAssignSection";
 import { ProgrammeCatalogueListingSection } from "./ProgrammeCatalogueListingSection";
 import { ProgrammeGrantsSection } from "./ProgrammeGrantsSection";
@@ -201,6 +202,8 @@ export function CoachProgrammeDetailPanel() {
           </button>
         ) : null}
       </div>
+
+      <CopyAndAdaptSection key={templateId} template={template} />
 
       {storedStatus === "active" ? (
         <GroupAssignSection
