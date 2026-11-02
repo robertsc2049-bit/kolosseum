@@ -86,7 +86,7 @@ export async function saveCoachCallSettings(coachUserId: string, input: unknown)
 
 // --- Booking ---------------------------------------------------------------
 
-async function assertCoachesAthlete(coachUserId: string, athleteUserId: string): Promise<void> {
+export async function assertCoachesAthlete(coachUserId: string, athleteUserId: string): Promise<void> {
   const result = await pool.query(
     `SELECT record_payload->>'relationship_state' AS state FROM beta_product_records
      WHERE record_type = 'beta17_coach_relationship' AND actor_user_id = $1 AND subject_user_id = $2
@@ -113,6 +113,7 @@ function checkinView(row: Json, settings: { whatsapp_number: string | null; team
     note: text(row.note) || null,
     status: String(row.checkin_status),
     athlete_message: text(row.athlete_message) || null,
+    booked_by: row.booked_by === "athlete" ? "athlete" : "coach",
     ...joinDetails(method, settings)
   };
 }
@@ -200,9 +201,9 @@ export async function cancelCheckin(coachUserId: string, checkinId: string, inpu
   const wholeRun = isRecord(input) && input.and_later === true && row.series_id;
   await pool.query(
     wholeRun
-      ? `UPDATE product_coach_checkins SET checkin_status = 'cancelled', cancelled_at = now(), updated_at = now()
+      ? `UPDATE product_coach_checkins SET checkin_status = 'cancelled', cancelled_by = 'coach', cancelled_at = now(), updated_at = now()
          WHERE series_id = $1 AND coach_user_id = $2 AND starts_at >= $3 AND checkin_status <> 'cancelled'`
-      : `UPDATE product_coach_checkins SET checkin_status = 'cancelled', cancelled_at = now(), updated_at = now()
+      : `UPDATE product_coach_checkins SET checkin_status = 'cancelled', cancelled_by = 'coach', cancelled_at = now(), updated_at = now()
          WHERE checkin_id = $1 AND coach_user_id = $2`,
     wholeRun ? [row.series_id, coachUserId, row.starts_at] : [checkinId, coachUserId]
   );

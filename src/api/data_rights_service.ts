@@ -153,15 +153,19 @@ async function loadCoachShareLink(userId: string): Promise<JsonRecord[]> {
 // Check-in calls: ones they booked as a coach (with their call settings), or
 // were booked into as an athlete.
 async function loadCoachCheckins(userId: string): Promise<JsonRecord[]> {
-  const [checkins, settings] = await Promise.all([
+  const [checkins, settings, blocks, daysOff] = await Promise.all([
     pool.query(
       `SELECT checkin_id, series_id, coach_user_id, athlete_user_id, starts_at, duration_minutes, call_method, note, checkin_status, athlete_message, created_at
        FROM product_coach_checkins WHERE coach_user_id = $1 OR athlete_user_id = $1 ORDER BY starts_at ASC`,
       [userId]
     ),
-    pool.query(`SELECT whatsapp_number, teams_link, updated_at FROM product_coach_call_settings WHERE coach_user_id = $1`, [userId])
+    pool.query(`SELECT whatsapp_number, teams_link, updated_at FROM product_coach_call_settings WHERE coach_user_id = $1`, [userId]),
+    pool.query(`SELECT repeats_weekly, weekday, to_char(on_date, 'YYYY-MM-DD') AS on_date, start_minute, end_minute, slot_minutes, call_method, time_zone FROM product_coach_availability_blocks WHERE coach_user_id = $1`, [userId]),
+    pool.query(`SELECT to_char(from_date, 'YYYY-MM-DD') AS from_date, to_char(to_date, 'YYYY-MM-DD') AS to_date, note FROM product_coach_availability_days_off WHERE coach_user_id = $1`, [userId])
   ]);
   return [
+    ...blocks.rows.map((row) => ({ record: "availability", repeats_weekly: row.repeats_weekly, weekday: row.weekday ?? null, on_date: row.on_date ?? null, start_minute: row.start_minute, end_minute: row.end_minute, slot_minutes: row.slot_minutes, call_method: row.call_method, time_zone: row.time_zone })),
+    ...daysOff.rows.map((row) => ({ record: "day_off", from_date: row.from_date, to_date: row.to_date, note: row.note ?? null })),
     ...settings.rows.map((row) => ({ record: "call_settings", whatsapp_number: row.whatsapp_number ?? null, teams_link: row.teams_link ?? null, updated_at_iso8601: isoString(row.updated_at) })),
     ...checkins.rows.map((row) => ({
       record: "checkin",

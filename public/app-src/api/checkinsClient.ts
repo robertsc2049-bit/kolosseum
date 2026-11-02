@@ -32,3 +32,37 @@ export function loadMyCheckins(): Promise<JsonRecord> {
 export function respondToCheckin(checkinId: string, response: "confirm" | "move", message: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/check-ins/${encodeURIComponent(checkinId)}/respond`, { response, ...(message ? { message } : {}) }, csrfToken);
 }
+
+// The hours the coach is free for check-in calls, and their days off.
+export function loadAvailability(): Promise<JsonRecord> {
+  return request("GET", "/check-ins/availability");
+}
+
+export function addAvailabilityBlock(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/check-ins/availability/blocks", input, csrfToken);
+}
+
+export function removeAvailabilityBlock(blockId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("DELETE", `/check-ins/availability/blocks/${encodeURIComponent(blockId)}`, undefined, csrfToken);
+}
+
+export function addDayOff(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/check-ins/availability/days-off", input, csrfToken);
+}
+
+export function removeDayOff(dayOffId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("DELETE", `/check-ins/availability/days-off/${encodeURIComponent(dayOffId)}`, undefined, csrfToken);
+}
+
+// Open slots from the athlete's coaches, booking one, cancelling their own.
+export function loadOpenSlots(): Promise<JsonRecord> {
+  return request("GET", "/check-ins/slots");
+}
+
+export function bookSlot(input: { coach_user_id: string; starts_at: string; note?: string }, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/check-ins/book", input, csrfToken);
+}
+
+export function cancelMyBooking(checkinId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/${encodeURIComponent(checkinId)}/cancel-mine`, {}, csrfToken);
+}

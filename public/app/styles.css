@@ -3521,6 +3521,23 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-bottom: var(--k-space-3);
 }
 
+/* Booking a check-in slot (AthleteCheckinsCard.tsx). */
+.checkin-booking {
+  margin-top: var(--k-space-3);
+  display: grid;
+  gap: var(--k-space-2);
+}
+
+.checkin-slot-day .choice-chips {
+  margin-top: var(--k-space-1, 4px);
+}
+
+.choice-chip.selected {
+  border-color: var(--bronze);
+  box-shadow: inset 0 0 0 1px var(--bronze);
+  font-weight: 700;
+}
+
 /* First-steps guides (GuideChecklist.tsx). */
 .guide-steps {
   list-style: none;

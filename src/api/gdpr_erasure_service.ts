@@ -88,6 +88,8 @@ export async function eraseUserData(client: PoolClient, userId: string): Promise
   counts.coach_gyms = await count(client, `DELETE FROM product_coach_gyms WHERE coach_user_id = $1`, [userId]);
   counts.coach_share_link = await count(client, `DELETE FROM product_coach_share_links WHERE coach_user_id = $1`, [userId]);
   counts.coach_call_settings = await count(client, `DELETE FROM product_coach_call_settings WHERE coach_user_id = $1`, [userId]);
+  counts.coach_availability = await count(client, `DELETE FROM product_coach_availability_blocks WHERE coach_user_id = $1`, [userId]);
+  counts.coach_days_off = await count(client, `DELETE FROM product_coach_availability_days_off WHERE coach_user_id = $1`, [userId]);
   counts.coach_checkins = await count(client, `DELETE FROM product_coach_checkins WHERE coach_user_id = $1 OR athlete_user_id = $1`, [userId]);
   counts.coaching_requests = await count(client, `DELETE FROM product_coaching_requests WHERE athlete_user_id = $1 OR coach_user_id = $1`, [userId]);
   counts.account_events = await count(client, `DELETE FROM product_account_events WHERE user_id = $1`, [userId]);

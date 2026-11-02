@@ -2031,6 +2031,68 @@ ALTER TABLE product_notifications
         'checkin_confirmed',
         'checkin_move_requested'
       )
+    ) NOT VALID;
+
+-- product_notifications_checkin_slot_type_migration
+-- Additive: the coach is told an athlete booked one of their open check-in
+-- slots, or cancelled a call they'd booked (coach_checkin_service.ts).
+-- Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed',
+        'coaching_requested',
+        'coaching_request_declined',
+        'checkin_scheduled',
+        'checkin_cancelled',
+        'checkin_confirmed',
+        'checkin_move_requested',
+        'checkin_booked',
+        'checkin_cancelled_by_athlete'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.
@@ -3446,3 +3508,59 @@ ON product_coach_checkins (coach_user_id, starts_at);
 CREATE INDEX IF NOT EXISTS
   idx_product_coach_checkins_athlete
 ON product_coach_checkins (athlete_user_id, starts_at);
+
+-- Check-in slots (coach_checkin_service.ts): the hours a coach is free for
+-- check-in calls - every week on a weekday, or on one date - split into
+-- calls of slot_minutes, each block with its own call method. Times are the
+-- coach's local time in time_zone (an IANA name). Days off block every slot
+-- between two dates. Athletes book an open slot straight away.
+CREATE TABLE IF NOT EXISTS product_coach_availability_blocks (
+  block_id       TEXT PRIMARY KEY,
+  coach_user_id  TEXT NOT NULL,
+  repeats_weekly BOOLEAN NOT NULL,
+  weekday        INTEGER
+    CHECK (weekday IS NULL OR weekday BETWEEN 0 AND 6),
+  on_date        DATE,
+  start_minute   INTEGER NOT NULL
+    CHECK (start_minute BETWEEN 0 AND 1439),
+  end_minute     INTEGER NOT NULL
+    CHECK (end_minute BETWEEN 1 AND 1440),
+  slot_minutes   INTEGER NOT NULL
+    CHECK (slot_minutes IN (15, 30, 45, 60)),
+  call_method    TEXT NOT NULL
+    CHECK (call_method IN ('whatsapp', 'teams', 'in_person')),
+  time_zone      TEXT NOT NULL
+    CHECK (char_length(time_zone) BETWEEN 1 AND 64),
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (end_minute - start_minute >= slot_minutes),
+  CHECK (repeats_weekly = (weekday IS NOT NULL) AND repeats_weekly = (on_date IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_availability_blocks_coach
+ON product_coach_availability_blocks (coach_user_id);
+
+CREATE TABLE IF NOT EXISTS product_coach_availability_days_off (
+  day_off_id    TEXT PRIMARY KEY,
+  coach_user_id TEXT NOT NULL,
+  from_date     DATE NOT NULL,
+  to_date       DATE NOT NULL,
+  note          TEXT
+    CHECK (note IS NULL OR char_length(note) <= 80),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  CHECK (to_date >= from_date)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_coach_availability_days_off_coach
+ON product_coach_availability_days_off (coach_user_id);
+
+-- Who booked a check-in: the coach, or the athlete from an open slot.
+ALTER TABLE product_coach_checkins
+  ADD COLUMN IF NOT EXISTS booked_by TEXT NOT NULL DEFAULT 'coach'
+    CHECK (booked_by IN ('coach', 'athlete'));
+
+-- Who cancelled a check-in (an athlete can cancel a call they booked).
+ALTER TABLE product_coach_checkins
+  ADD COLUMN IF NOT EXISTS cancelled_by TEXT
+    CHECK (cancelled_by IS NULL OR cancelled_by IN ('coach', 'athlete'));
