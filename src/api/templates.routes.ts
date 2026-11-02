@@ -23,7 +23,7 @@ import {
 import { rateLimit } from "express-rate-limit";
 import { accountRateLimitKey } from "./rate_limit_key.js";
 import { authenticatedCoach } from "./coach_session_auth.js";
-import { StarterTemplateError, createKolosseumStarterTemplate } from "./kolosseum_starter_template_service.js";
+import { StarterTemplateError, createKolosseumStarterTemplate, createQuickBuildProgramme, quickBuildGoals } from "./kolosseum_starter_template_service.js";
 import { ProgrammeGrantError, giveProgrammeGrant, listCoachProgrammeGrants, revokeProgrammeGrant } from "./programme_grant_service.js";
 import { ProgrammeCatalogueError, copyProgrammeForCoach, getProgrammeListingForTemplate, listProgrammesForCoaches, saveProgrammeListing } from "./programme_catalogue_service.js";
 
@@ -48,6 +48,39 @@ templatesRouter.post(
       if (error instanceof StarterTemplateError) {
         return response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       }
+      throw error;
+    }
+  })
+);
+
+// Quick build: a whole periodised draft from one short form
+// (kolosseum_starter_template_service.ts). The goals depend on the sport.
+templatesRouter.get(
+  "/quick-build/goals",
+  rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    await authenticatedCoach(request, false);
+    try {
+      return response.status(200).json(quickBuildGoals(request.query.activity_id));
+    }
+    catch (error) {
+      if (error instanceof StarterTemplateError) return response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
+      throw error;
+    }
+  })
+);
+
+templatesRouter.post(
+  "/quick-build",
+  starterRateLimit,
+  asyncHandler(async (request, response) => {
+    const coachUserId = await authenticatedCoach(request, true);
+    try {
+      const template = await createQuickBuildProgramme(coachUserId, request.body);
+      return response.status(201).json({ ok: true, template });
+    }
+    catch (error) {
+      if (error instanceof StarterTemplateError) return response.status(error.status).json({ error: error.code, field_errors: error.fieldErrors });
       throw error;
     }
   })

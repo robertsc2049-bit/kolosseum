@@ -444,6 +444,16 @@ export function createKolosseumStarterTemplate(input: { activity_id: string; exp
   return request("POST", "/templates/kolosseum-starter", input, csrfToken);
 }
 
+// Quick build: a whole periodised draft from one short form; the goals
+// depend on the sport.
+export function loadQuickBuildGoals(activityId: string): Promise<JsonRecord> {
+  return request("GET", `/templates/quick-build/goals?activity_id=${encodeURIComponent(activityId)}`);
+}
+
+export function createQuickBuildProgramme(input: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", "/templates/quick-build", input, csrfToken);
+}
+
 // Kolosseum programmes (coach-written, published): browse them, and copy one
 // into the coach's own library as a draft.
 export function loadKolosseumProgrammesForCoach(): Promise<JsonRecord> {

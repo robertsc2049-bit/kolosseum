@@ -5,6 +5,7 @@ import { countdownLabel, formatDate, titleCase } from "../../utils/format";
 import { PhoneDisclosure } from "../../components/PhoneDisclosure";
 import { programmeSportGroup } from "./kolosseumProgrammeGroups";
 import { KolosseumStarterForm } from "./KolosseumStarterForm";
+import { QuickBuildForm } from "./QuickBuildForm";
 import {
   filteredProgrammeTemplates,
   programmeAssignmentUsage,
@@ -167,6 +168,13 @@ export function CoachProgrammeLibraryPanel() {
     [templates, assignments, search, statusFilter, activityFilter, sortMode]
   );
 
+  // A new draft from Quick build or a Kolosseum programme opens straight away.
+  function opened(templateId: string) {
+    document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"));
+    void refresh();
+    if (templateId) openProgrammeDetail(templateId);
+  }
+
   function clearFilters() {
     setSearch("");
     setStatusFilter("all");
@@ -176,13 +184,8 @@ export function CoachProgrammeLibraryPanel() {
 
   return (
     <>
-      <KolosseumStarterForm
-        onCreated={(templateId) => {
-          document.dispatchEvent(new CustomEvent("kolosseum:templates-changed"));
-          void refresh();
-          if (templateId) openProgrammeDetail(templateId);
-        }}
-      />
+      <QuickBuildForm onCreated={opened} />
+      <KolosseumStarterForm onCreated={opened} />
       <div className="programme-library-controls" aria-label="Programme library filters">
         <label className="field programme-search-field">
           <span>Search programmes</span>
