@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 
+import { loadPackageMembers } from "../../api/checkinsClient";
 import { archiveCoachPackage, loadCoachPackages, saveCoachPackage } from "../../api/coachBrandingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { PackageList } from "../../components/PackageList";
+import { paidLabel } from "../../utils/packages";
 
 // A coach's packages: what they offer, at what price and how often it's paid,
 // and what's included - shown to athletes on the coach's share page and
@@ -101,16 +103,51 @@ export function PackageFields({ draft, setDraft }: { draft: Draft; setDraft: (ne
   );
 }
 
+// Who is on the coach's packages, payment due first. They put athletes on a
+// package, and record payments, from the athlete's check-ins.
+function PackageMembers({ version }: { version: number }) {
+  const [members, setMembers] = useState<JsonRecord[]>([]);
+  useEffect(() => {
+    let live = true;
+    loadPackageMembers().then(
+      (payload) => { if (live) setMembers(Array.isArray(payload.members) ? (payload.members as JsonRecord[]) : []); },
+      () => { if (live) setMembers([]); }
+    );
+    return () => { live = false; };
+  }, [version]);
+  if (!members.length) return null;
+  const due = members.filter((member) => member.payment_due).length;
+  return (
+    <details className="package-members" data-testid="package-members" open={due > 0}>
+      <summary>{`On your packages (${members.length})${due ? ` - ${due} payment${due === 1 ? "" : "s"} due` : ""}`}</summary>
+      <div className="record-list">
+        {members.map((member) => (
+          <article className="record-row" key={String(member.membership_id)}>
+            <div>
+              <strong>{String(member.athlete_display_name)}</strong>
+              <p className="muted small">{String(((member.package ?? {}) as JsonRecord).name ?? "")}</p>
+              <p className={member.payment_due ? "field-error" : "muted small"}>{paidLabel(member)}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p className="muted small">Open an athlete's check-ins to put them on a package or record a payment.</p>
+    </details>
+  );
+}
+
 export function CoachPackagesPanel() {
   const [packages, setPackages] = useState<JsonRecord[] | null>(null);
   const [editing, setEditing] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [version, setVersion] = useState(0);
 
   const show = (payload: JsonRecord) => setPackages(Array.isArray(payload.packages) ? (payload.packages as JsonRecord[]) : []);
 
   const refresh = useCallback(async () => {
+    setVersion((n) => n + 1);
     try { show(await loadCoachPackages()); }
     catch { setPackages(null); }
   }, []);
@@ -171,6 +208,7 @@ export function CoachPackagesPanel() {
           <div className="inline-controls">
             <button className="button primary" type="button" onClick={() => { setEditing("new"); setDraft(EMPTY); }}>Add a package</button>
           </div>
+          <PackageMembers version={version} />
         </>
       ) : (
         <form className="athlete-detail-note-form" data-testid="package-form" onSubmit={save}>

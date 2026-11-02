@@ -3602,3 +3602,34 @@ ON product_service_packages (coach_user_id);
 CREATE INDEX IF NOT EXISTS
   idx_product_service_packages_org
 ON product_service_packages (org_id);
+
+-- Who is on which package (package_membership_service.ts): a coach puts an
+-- athlete on one of their packages, or a gym package they deliver, and
+-- records how far they've been paid (outside the app). Past paid_until -
+-- unless a one-off package is paid in full - payment is due: the athlete
+-- can't book that coach's open slots and the coach can cancel what's booked.
+-- A gym never sees who is on its packages. One current package per coach and
+-- athlete; ending one keeps the row.
+CREATE TABLE IF NOT EXISTS product_package_memberships (
+  membership_id    TEXT PRIMARY KEY,
+  package_id       TEXT NOT NULL
+    REFERENCES product_service_packages(package_id)
+    ON DELETE CASCADE,
+  coach_user_id    TEXT NOT NULL,
+  athlete_user_id  TEXT NOT NULL,
+  started_on       DATE NOT NULL,
+  paid_until       DATE,
+  paid_in_full     BOOLEAN NOT NULL DEFAULT false,
+  ended_at         TIMESTAMPTZ,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS
+  idx_product_package_memberships_current
+ON product_package_memberships (coach_user_id, athlete_user_id)
+WHERE ended_at IS NULL;
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_package_memberships_athlete
+ON product_package_memberships (athlete_user_id);

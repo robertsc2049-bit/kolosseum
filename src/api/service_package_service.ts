@@ -102,7 +102,7 @@ function normalisePackage(input: unknown): PackageInput {
   return { name, description: description || null, price_minor: Math.round(price * 100), currency, billing, includes };
 }
 
-function packageView(row: Json, coachNames: Map<string, string> = new Map()): Json {
+export function packageView(row: Json, coachNames: Map<string, string> = new Map()): Json {
   const includes = (isRecord(row.includes) ? row.includes : {}) as Includes;
   const billing = String(row.billing);
   const deliveredBy = Array.isArray(row.delivered_by) ? (row.delivered_by as string[]) : [];

@@ -13,6 +13,7 @@ import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 import { coachBusinessName } from "./coach_branding_service.js";
 import { CoachCheckinError, assertCoachesAthlete, listAthleteCheckins } from "./coach_checkin_service.js";
+import { athletePaymentDue } from "./package_membership_service.js";
 
 type Json = Record<string, unknown>;
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -229,19 +230,22 @@ export async function athleteBookableSlots(athleteUserId: string): Promise<Json>
   for (const row of coaches.rows) {
     if (text(row.state) !== "accepted") continue;
     const coachUserId = String(row.coach_user_id);
+    // Payment due on their package: no booking until the coach records it.
+    const due = await athletePaymentDue(coachUserId, athleteUserId);
     const [slots, upcoming] = await Promise.all([
-      openSlots(coachUserId),
+      due ? Promise.resolve([]) : openSlots(coachUserId),
       pool.query(
         `SELECT starts_at FROM product_coach_checkins WHERE coach_user_id = $1 AND athlete_user_id = $2 AND booked_by = 'athlete' AND checkin_status <> 'cancelled' AND starts_at > now() ORDER BY starts_at LIMIT 1`,
         [coachUserId, athleteUserId]
       )
     ]);
-    if (!slots.length && !upcoming.rows.length) continue;
+    if (!slots.length && !upcoming.rows.length && !due) continue;
     out.push({
       coach_user_id: coachUserId,
       coach_display_name: text(row.display_name) || "Your coach",
       coach_business_name: await coachBusinessName(coachUserId),
       booked_upcoming_at: upcoming.rows.length ? new Date(String(upcoming.rows[0].starts_at)).toISOString() : null,
+      payment_due: due,
       slots
     });
   }
@@ -267,6 +271,7 @@ export async function bookSlot(athleteUserId: string, input: unknown): Promise<J
       [coachUserId, athleteUserId]
     );
     if (already.rows.length) throw new CoachCheckinError("booking_one_at_a_time", 409);
+    if (await athletePaymentDue(coachUserId, athleteUserId, client)) throw new CoachCheckinError("booking_payment_due", 409);
     const slot = (await openSlots(coachUserId, client)).find((open) => open.starts_at === startsAt.toISOString());
     if (!slot) throw new CoachCheckinError("booking_slot_taken", 409);
     await client.query(

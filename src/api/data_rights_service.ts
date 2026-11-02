@@ -153,7 +153,7 @@ async function loadCoachShareLink(userId: string): Promise<JsonRecord[]> {
 // Check-in calls: ones they booked as a coach (with their call settings), or
 // were booked into as an athlete.
 async function loadCoachCheckins(userId: string): Promise<JsonRecord[]> {
-  const [checkins, settings, blocks, daysOff, packages] = await Promise.all([
+  const [checkins, settings, blocks, daysOff, packages, memberships] = await Promise.all([
     pool.query(
       `SELECT checkin_id, series_id, coach_user_id, athlete_user_id, starts_at, duration_minutes, call_method, note, checkin_status, athlete_message, created_at
        FROM product_coach_checkins WHERE coach_user_id = $1 OR athlete_user_id = $1 ORDER BY starts_at ASC`,
@@ -162,11 +162,18 @@ async function loadCoachCheckins(userId: string): Promise<JsonRecord[]> {
     pool.query(`SELECT whatsapp_number, teams_link, updated_at FROM product_coach_call_settings WHERE coach_user_id = $1`, [userId]),
     pool.query(`SELECT repeats_weekly, weekday, to_char(on_date, 'YYYY-MM-DD') AS on_date, start_minute, end_minute, slot_minutes, call_method, time_zone FROM product_coach_availability_blocks WHERE coach_user_id = $1`, [userId]),
     pool.query(`SELECT to_char(from_date, 'YYYY-MM-DD') AS from_date, to_char(to_date, 'YYYY-MM-DD') AS to_date, note FROM product_coach_availability_days_off WHERE coach_user_id = $1`, [userId]),
-    pool.query(`SELECT package_id, name, description, price_minor, currency, billing, includes, archived_at, created_at FROM product_service_packages WHERE coach_user_id = $1`, [userId])
+    pool.query(`SELECT package_id, name, description, price_minor, currency, billing, includes, archived_at, created_at FROM product_service_packages WHERE coach_user_id = $1`, [userId]),
+    pool.query(
+      `SELECT m.membership_id, m.coach_user_id, p.name, to_char(m.started_on, 'YYYY-MM-DD') AS started_on, to_char(m.paid_until, 'YYYY-MM-DD') AS paid_until, m.paid_in_full, m.ended_at
+       FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id
+       WHERE m.coach_user_id = $1 OR m.athlete_user_id = $1 ORDER BY m.created_at ASC`,
+      [userId]
+    )
   ]);
   return [
     ...blocks.rows.map((row) => ({ record: "availability", repeats_weekly: row.repeats_weekly, weekday: row.weekday ?? null, on_date: row.on_date ?? null, start_minute: row.start_minute, end_minute: row.end_minute, slot_minutes: row.slot_minutes, call_method: row.call_method, time_zone: row.time_zone })),
     ...packages.rows.map((row) => ({ record: "package", package_id: row.package_id, name: row.name, description: row.description ?? null, price_minor: row.price_minor, currency: row.currency, billing: row.billing, includes: row.includes, archived_at_iso8601: isoString(row.archived_at), created_at_iso8601: isoString(row.created_at) })),
+    ...memberships.rows.map((row) => ({ record: "package_membership", membership_id: row.membership_id, role: row.coach_user_id === userId ? "coach" : "athlete", package_name: row.name, started_on: row.started_on, paid_until: row.paid_until ?? null, paid_in_full: row.paid_in_full, ended_at_iso8601: isoString(row.ended_at) })),
     ...daysOff.rows.map((row) => ({ record: "day_off", from_date: row.from_date, to_date: row.to_date, note: row.note ?? null })),
     ...settings.rows.map((row) => ({ record: "call_settings", whatsapp_number: row.whatsapp_number ?? null, teams_link: row.teams_link ?? null, updated_at_iso8601: isoString(row.updated_at) })),
     ...checkins.rows.map((row) => ({

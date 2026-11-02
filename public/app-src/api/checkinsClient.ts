@@ -66,3 +66,29 @@ export function bookSlot(input: { coach_user_id: string; starts_at: string; note
 export function cancelMyBooking(checkinId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/check-ins/${encodeURIComponent(checkinId)}/cancel-mine`, {}, csrfToken);
 }
+
+// The athlete's package with this coach: put them on one, record a payment,
+// end it, or (payment due) cancel everything upcoming.
+export function loadAthletePackage(athleteUserId: string): Promise<JsonRecord> {
+  return request("GET", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package`);
+}
+
+export function startAthletePackage(athleteUserId: string, input: { package_id: string; started_on?: string; paid_now: boolean }, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package`, input, csrfToken);
+}
+
+export function recordPackagePayment(athleteUserId: string, paidUntil: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/payment`, paidUntil ? { paid_until: paidUntil } : {}, csrfToken);
+}
+
+export function endAthletePackage(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/end`, {}, csrfToken);
+}
+
+export function cancelUpcomingForUnpaid(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/cancel-upcoming`, {}, csrfToken);
+}
+
+export function loadPackageMembers(): Promise<JsonRecord> {
+  return request("GET", "/check-ins/package-members");
+}
