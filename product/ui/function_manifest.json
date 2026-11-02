@@ -9450,6 +9450,18 @@
       "tracked_by_area": "programme_library"
     },
     {
+      "method": "GET",
+      "path": "/templates/quick-build/goals",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
+      "method": "POST",
+      "path": "/templates/quick-build",
+      "source": "src/api/templates.routes.ts",
+      "tracked_by_area": "programme_library"
+    },
+    {
       "method": "POST",
       "path": "/progress-photos",
       "source": "src/api/progress_photos.routes.ts",

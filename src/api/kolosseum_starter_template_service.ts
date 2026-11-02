@@ -9,6 +9,7 @@
 import {
   MACRO_PHASES_BY_MODEL,
   cycleModelFor,
+  sessionsPerWeek,
   describeProgrammeSlots,
   phase4AssembleProgram
 } from "@kolosseum/engine/phases/phase4.js";
@@ -27,9 +28,11 @@ export class StarterTemplateError extends Error {
   }
 }
 
+type SlotConstraints = { available_equipment?: string[] };
+
 // One distinct recommended exercise per open slot of each training day.
-function defaultSelections(activity: string, level: string, daysPerWeek: number): Record<string, string> {
-  const days = describeProgrammeSlots({ activity_id: activity, experience_level: level, days_per_week: daysPerWeek }) ?? [];
+function defaultSelections(activity: string, level: string, daysPerWeek: number, constraints: SlotConstraints = {}): Record<string, string> {
+  const days = describeProgrammeSlots({ activity_id: activity, experience_level: level, days_per_week: daysPerWeek, constraints }) ?? [];
   const selections: Record<string, string> = {};
   for (const day of days) {
     const used = new Set(day.items.filter((i) => i.kind === "fixed").map((i) => (i as { exercise_id: string }).exercise_id));
@@ -40,6 +43,28 @@ function defaultSelections(activity: string, level: string, daysPerWeek: number)
     }
   }
   return selections;
+}
+
+// Picks within the equipment, plus the slots nothing in it can fill. The
+// engine needs every slot chosen, so those get the full-gym pick as a
+// stand-in and the work items for them are taken out afterwards; the
+// movements left out are named ("throw slam") for the coach.
+function selectionsWithinEquipment(activity: string, level: string, daysPerWeek: number, constraints: SlotConstraints) {
+  const selections = defaultSelections(activity, level, daysPerWeek, constraints);
+  const listing = describeProgrammeSlots({ activity_id: activity, experience_level: level, days_per_week: daysPerWeek, constraints }) ?? [];
+  const unfilled = listing.flatMap((day) => day.items.filter((item) => item.kind === "slot" && !selections[item.slot_id]).map((item) => (item as { slot_id: string }).slot_id));
+  if (!unfilled.length) return { selections, standIns: new Set<string>(), leftOut: [] as string[] };
+  const fullGym = defaultSelections(activity, level, daysPerWeek);
+  const kept = new Set([...Object.values(selections), ...listing.flatMap((day) => day.items.filter((i) => i.kind === "fixed").map((i) => (i as { exercise_id: string }).exercise_id))]);
+  const standIns = new Set<string>();
+  for (const slotId of unfilled) {
+    const standIn = fullGym[slotId];
+    if (!standIn) continue;
+    selections[slotId] = standIn;
+    if (!kept.has(standIn)) standIns.add(standIn);
+  }
+  const leftOut = [...new Set(unfilled.map((slotId) => slotId.replace(/^[^.]*\./u, "").replace(/_\d+$/u, "").replaceAll("_", " ")))];
+  return { selections, standIns, leftOut };
 }
 
 // An engine planned item as a template work item.
@@ -134,6 +159,163 @@ export async function createKolosseumStarterTemplate(coachUserId: string, input:
       week_count: 4,
       weeks
     }],
+    updated_at_iso8601: new Date().toISOString()
+  }) as Promise<Readonly<Json>>;
+}
+
+// --- Quick build -----------------------------------------------------------
+// One short form - sport, level, days a week, length, goal, session length
+// and equipment - builds a whole periodised draft: one 4-week block per four
+// weeks (three loading weeks and a deload each), the blocks running through
+// the goal's phases in order. Equipment narrows the exercise picks the way
+// an athlete's own equipment does; a session length trims accessory work
+// (never the main lifts) until the estimated session fits.
+
+type Goal = { goal_id: string; label: string; summary: string; phases: (blocks: number) => string[] };
+
+const repeatTo = (pattern: string[], blocks: number) => Array.from({ length: blocks }, (_, n) => pattern[n % pattern.length]);
+
+// The last block is the goal's own phase; the blocks before it lead up to
+// it in order, earliest phase first (["acc", "int"] + "peak" over 4 blocks:
+// acc, acc, int, peak).
+function endingIn(lead: string[], last: string) {
+  return (blocks: number): string[] => {
+    const before = blocks - 1;
+    if (before <= 0) return [last];
+    const tail = lead.slice(Math.max(0, lead.length - before));
+    const fill = Array(Math.max(0, before - tail.length)).fill(tail[0]);
+    return [...fill, ...tail, last];
+  };
+}
+
+export const QUICK_BUILD_GOALS: Readonly<Record<string, readonly Goal[]>> = Object.freeze({
+  meet: [
+    { goal_id: "build", label: "Get stronger", summary: "Volume then intensity blocks, repeating.", phases: (b) => repeatTo(["accumulation", "intensification"], b) },
+    { goal_id: "peak", label: "Peak for a competition", summary: "Volume, then intensity, then a peak block to finish.", phases: endingIn(["accumulation", "intensification"], "peak") }
+  ],
+  season: [
+    { goal_id: "off_season", label: "Off-season", summary: "Build strength while there are no matches.", phases: (b) => repeatTo(["off_season"], b) },
+    { goal_id: "pre_season", label: "Pre-season", summary: "Off-season strength into pre-season to finish.", phases: endingIn(["off_season"], "pre_season") },
+    { goal_id: "in_season", label: "In-season", summary: "Keep strength with two sessions a week around matches.", phases: (b) => repeatTo(["in_season"], b) }
+  ],
+  event: [
+    { goal_id: "base", label: "Build a base", summary: "Base then build blocks.", phases: (b) => Array.from({ length: b }, (_, n) => (n < Math.ceil(b / 2) ? "base" : "build")) },
+    { goal_id: "event_prep", label: "Prepare for an event", summary: "Base and build blocks, then event-specific work to finish.", phases: endingIn(["base", "build"], "specific") }
+  ]
+});
+
+const PHASE_LABEL: Record<string, string> = {
+  accumulation: "Volume", intensification: "Intensity", peak: "Peak", off_season: "Off-season", pre_season: "Pre-season",
+  in_season: "In-season", base: "Base", build: "Build", specific: "Event-specific"
+};
+const PHASE_BLOCK_TYPE: Record<string, string> = { accumulation: "volume", intensification: "strength", peak: "peak", specific: "peak" };
+
+export const QUICK_BUILD_WEEKS: readonly number[] = Object.freeze([4, 8, 12, 16]);
+export const QUICK_BUILD_SESSION_MINUTES: readonly number[] = Object.freeze([45, 60, 75, 90]);
+// Always available, then what a home gym usually has (AthleteEquipmentCard).
+const ALWAYS = ["bodyweight", "open_floor_space"];
+const EQUIPMENT: Record<string, string[] | null> = {
+  full_gym: null,
+  home_gym: [...ALWAYS, "barbell", "rack", "bench", "plate", "dumbbell", "pull_up_bar", "resistance_band"],
+  bodyweight: ALWAYS
+};
+
+export function quickBuildGoals(activityId: unknown): Json {
+  const model = cycleModelFor(String(activityId ?? ""));
+  if (!model) throw new StarterTemplateError("starter_template_invalid", 422, { activity_id: "Choose a supported sport." });
+  return { ok: true, goals: QUICK_BUILD_GOALS[model].map(({ goal_id, label, summary }) => ({ goal_id, label, summary })) };
+}
+
+// Roughly how long a session takes: each set's work plus its rest, and ten
+// minutes for the warm-up and changeovers.
+function estimatedMinutes(items: Json[]): number {
+  const seconds = items.reduce((sum, item) => {
+    const sets = Number(item.planned_sets ?? 1);
+    const work = item.prescription_mode === "duration" ? Number(item.planned_duration_seconds ?? 30) : 40;
+    return sum + sets * (work + Number(item.rest_seconds ?? 90));
+  }, 0);
+  return Math.ceil(seconds / 60) + 10;
+}
+
+// Drop accessory work from the end until the session fits; the main lifts stay.
+export function fitToSession(items: Json[], minutes: number | null): Json[] {
+  if (!minutes) return items;
+  const kept = [...items];
+  while (estimatedMinutes(kept) > minutes) {
+    const last = kept.map((item) => item.role).lastIndexOf("accessory");
+    if (last < 0 || kept.length <= 2) break;
+    kept.splice(last, 1);
+  }
+  return kept.map((item, index) => ({ ...item, order_index: index + 1 }));
+}
+
+export async function createQuickBuildProgramme(coachUserId: string, input: unknown): Promise<Readonly<Json>> {
+  if (!isRecord(input)) throw new StarterTemplateError("starter_template_invalid", 422);
+  const activity = String(input.activity_id ?? "");
+  const level = String(input.experience_level ?? "");
+  const days = Number(input.days_per_week);
+  const totalWeeks = Number(input.weeks);
+  const goalId = String(input.goal ?? "");
+  const minutes = input.session_minutes === null || input.session_minutes === undefined || input.session_minutes === "" ? null : Number(input.session_minutes);
+  const equipmentId = String(input.equipment ?? "full_gym");
+  const errors: Json = {};
+  const model = cycleModelFor(activity);
+  const goal = model ? QUICK_BUILD_GOALS[model].find((g) => g.goal_id === goalId) : undefined;
+  if (!model) errors.activity_id = "Choose a supported sport.";
+  if (!LEVELS.has(level)) errors.experience_level = "Choose beginner, amateur or pro.";
+  if (!Number.isInteger(days) || days < 1 || days > 6) errors.days_per_week = "Choose 1 to 6 training days a week.";
+  if (!QUICK_BUILD_WEEKS.includes(totalWeeks)) errors.weeks = "Choose 4, 8, 12 or 16 weeks.";
+  if (model && !goal) errors.goal = "Choose a goal for this sport.";
+  if (minutes !== null && !QUICK_BUILD_SESSION_MINUTES.includes(minutes)) errors.session_minutes = "Choose 45, 60, 75 or 90 minutes, or no limit.";
+  if (!(equipmentId in EQUIPMENT)) errors.equipment = "Choose full gym, home gym or bodyweight.";
+  if (Object.keys(errors).length || !model || !goal) throw new StarterTemplateError("starter_template_invalid", 422, errors);
+
+  const available = EQUIPMENT[equipmentId];
+  const constraints: SlotConstraints = available ? { available_equipment: available } : {};
+  const { selections, standIns, leftOut } = selectionsWithinEquipment(activity, level, days, constraints);
+  const phases = goal.phases(totalWeeks / 4);
+  const blocks = phases.map((phase, blockIndex) => ({
+    block_id: "",
+    order_index: blockIndex + 1,
+    name: `Block ${blockIndex + 1} - ${PHASE_LABEL[phase] ?? titleCase(phase)}`,
+    description: `${PHASE_LABEL[phase] ?? titleCase(phase)}: weeks 1-3 build, week 4 is a deload.`,
+    block_type: PHASE_BLOCK_TYPE[phase] ?? "general",
+    week_count: 4,
+    weeks: [1, 2, 3, 4].map((week) => ({
+      week_id: "",
+      order_index: week,
+      sessions: Array.from({ length: sessionsPerWeek(phase, days) }, (_, slot) => {
+        const result = phase4AssembleProgram(
+          { activity_id: activity, experience_level: level, training_cycle: { macro_phase: phase, meso_week: week, days_per_week: days, session_slot: slot }, exercise_selections: selections },
+          // The picks were already made within the equipment (stand-ins included).
+          { constraints: { constraints_version: "1.0.0" } } as never
+        ) as unknown as Json;
+        const program = isRecord(result.program) ? result.program : null;
+        if (result.ok !== true || !program) throw new StarterTemplateError("starter_template_unavailable", 409);
+        // With little kit two slots can land on the same exercise; the engine
+        // marks the second one a repeat (<id>__r2) - one is enough here.
+        const items = (Array.isArray(program.planned_items) ? program.planned_items.filter(isRecord) : [])
+          .filter((item) => !standIns.has(String(item.exercise_id)) && !/__r\d+$/u.test(String(item.exercise_id)));
+        return { session_id: "", order_index: slot + 1, title: `Day ${slot + 1}`, work_items: fitToSession(items.map(workItem).map((item, index) => ({ ...item, order_index: index + 1 })), minutes) };
+      })
+        // A day whose every exercise needs kit that isn't there is dropped.
+        .filter((session) => session.work_items.length > 0)
+        .map((session, index) => ({ ...session, order_index: index + 1, title: `Day ${index + 1}` }))
+    }))
+  }));
+  if (blocks.some((block) => block.weeks.some((week) => week.sessions.length === 0))) {
+    throw new StarterTemplateError("quick_build_equipment_too_limited", 422, { equipment: "There isn't enough to do for this sport with that equipment - choose more." });
+  }
+
+  const equipmentLabel = equipmentId === "home_gym" ? "home gym" : equipmentId === "bodyweight" ? "bodyweight only" : "full gym";
+  return saveCoachProgrammeTemplate({
+    coach_user_id: coachUserId,
+    template_version: 1,
+    template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks`,
+    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} Change anything before assigning it.`,
+    activity_id: activity,
+    event_plan: null,
+    blocks,
     updated_at_iso8601: new Date().toISOString()
   }) as Promise<Readonly<Json>>;
 }
