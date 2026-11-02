@@ -679,8 +679,16 @@ function renderGymPackages(result) {
   for (const button of el("orgGymPackages").querySelectorAll("[data-edit-package]")) {
     button.addEventListener("click", () => openGymPackageForm(button.getAttribute("data-edit-package")));
   }
+  // Remove asks once: the first tap turns the button into "Yes, remove it".
   for (const button of el("orgGymPackages").querySelectorAll("[data-archive-package]")) {
-    button.addEventListener("click", () => archiveGymPackage(button.getAttribute("data-archive-package")).catch(console.error));
+    button.addEventListener("click", () => {
+      if (button.dataset.confirming !== "true") {
+        button.dataset.confirming = "true";
+        button.textContent = "Yes, remove it";
+        return;
+      }
+      archiveGymPackage(button.getAttribute("data-archive-package")).catch(console.error);
+    });
   }
 }
 

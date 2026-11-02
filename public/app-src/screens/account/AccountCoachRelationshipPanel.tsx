@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
-import { paidLabel, usageLines } from "../../utils/packages";
+import { paidLabel, periodLine, usageLines } from "../../utils/packages";
 import { useRole } from "../../utils/role";
 import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
 
@@ -22,6 +22,7 @@ function MyPackage({ membership }: { membership: JsonRecord }) {
       <p className="small"><strong>{`Your package: ${String(pkg.name ?? "")}`}</strong>{` ${String(pkg.price_label ?? "")}`}</p>
       <p className={membership.payment_due ? "field-error" : "muted small"}>{membership.payment_due ? `${paidLabel(membership)} - pay your coach directly; booking calls opens again once they've recorded it.` : paidLabel(membership)}</p>
       {(Array.isArray(pkg.includes_summary) ? (pkg.includes_summary as string[]) : []).length ? <p className="muted small">{`Includes: ${(pkg.includes_summary as string[]).join(" · ")}`}</p> : null}
+      {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
       {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
     </div>
   );

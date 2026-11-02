@@ -131,7 +131,7 @@ function PackageMembers({ version }: { version: number }) {
           </article>
         ))}
       </div>
-      <p className="muted small">Open an athlete's check-ins to put them on a package or record a payment.</p>
+      <p className="muted small">Open an athlete's profile and use Package and check-ins to put them on a package or record a payment.</p>
     </details>
   );
 }
@@ -143,6 +143,7 @@ export function CoachPackagesPanel() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const [removing, setRemoving] = useState<string | null>(null);
 
   const show = (payload: JsonRecord) => setPackages(Array.isArray(payload.packages) ? (payload.packages as JsonRecord[]) : []);
 
@@ -166,6 +167,7 @@ export function CoachPackagesPanel() {
     try {
       const account = await loadAccountDetail();
       show(await action(typeof account.csrf_token === "string" ? account.csrf_token : ""));
+      setVersion((n) => n + 1);
       return true;
     }
     catch (caught) {
@@ -202,7 +204,15 @@ export function CoachPackagesPanel() {
           <PackageList packages={packages} actions={(pkg) => (
             <>
               <button className="button secondary small" type="button" disabled={busy} onClick={() => { setEditing(String(pkg.package_id)); setDraft(draftFrom(pkg)); }}>Edit</button>
-              <button className="button secondary small" type="button" disabled={busy} onClick={() => void act((token) => archiveCoachPackage(String(pkg.package_id), token))}>Remove</button>
+              {removing === String(pkg.package_id) ? (
+                <>
+                  <p className="small">Remove it? Athletes stop seeing it; anyone already on it stays on it until you end or change their package.</p>
+                  <button className="button primary small" type="button" disabled={busy} onClick={() => void act((token) => archiveCoachPackage(String(pkg.package_id), token)).then(() => setRemoving(null))}>Yes, remove it</button>
+                  <button className="button secondary small" type="button" onClick={() => setRemoving(null)}>Keep it</button>
+                </>
+              ) : (
+                <button className="button secondary small" type="button" disabled={busy} onClick={() => setRemoving(String(pkg.package_id))}>Remove</button>
+              )}
             </>
           )} />
           <div className="inline-controls">

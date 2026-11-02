@@ -100,6 +100,8 @@ async function membershipView(row: Json, client: QueryClient = pool): Promise<Js
     started_on: startedOn,
     paid_until: paidUntil,
     paid_in_full: row.paid_in_full === true,
+    // What "record a payment" with no date would make it (one more period).
+    next_paid_until: billing === "one_off" ? null : nextPaidUntil(startedOn, billing, paidUntil),
     payment_due: paymentDue({ started_on: startedOn, paid_until: paidUntil, paid_in_full: row.paid_in_full === true }, now),
     period_start: period.start,
     period_end: period.end,

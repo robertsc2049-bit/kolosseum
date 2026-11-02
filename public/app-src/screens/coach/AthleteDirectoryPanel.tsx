@@ -69,7 +69,7 @@ const COUNT_LABELS: Array<[string, EffectiveState]> = [
 ];
 
 export function AthleteDirectoryPanel() {
-  const { loading, error, relationships, assignments, templates, unreadByAthlete } = useAthleteDirectory();
+  const { loading, error, relationships, assignments, templates, unreadByAthlete, packageByAthlete } = useAthleteDirectory();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
 
@@ -151,6 +151,7 @@ export function AthleteDirectoryPanel() {
             const effectiveState = relationshipEffectiveState(record);
             const accepted = effectiveState === "accepted";
             const unreadCount = Number(unreadByAthlete[athleteUserId] ?? 0);
+            const onPackage = accepted ? packageByAthlete[athleteUserId] : undefined;
 
             return (
               <article className="record-card athlete-record-card relationship-directory-card" key={athleteUserId || index}>
@@ -159,10 +160,13 @@ export function AthleteDirectoryPanel() {
                   <h3>{String(record.display_name || "Connected athlete")}</h3>
                   <p>{String(record.email || "No email on file")}</p>
                   <p className="muted small">{programmeLabelFor(athleteUserId, assignments, templates)}</p>
+                  {onPackage ? <p className="muted small">{`Package: ${onPackage.name}`}</p> : null}
                 </div>
 
                 <div className="record-meta athlete-record-meta">
                   <span className={`badge ${relationshipBadgeClass(effectiveState)}`}>{titleCase(effectiveState)}</span>
+
+                  {onPackage?.payment_due ? <span className="badge partial">Payment due</span> : null}
 
                   {unreadCount > 0 ? (
                     <span className="badge active" title="Unread messages from this athlete">

@@ -53,6 +53,7 @@ export function CoachAthleteCheckinsPanel() {
   const [showAll, setShowAll] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentDue, setPaymentDue] = useState(false);
 
   const show = useCallback((payload: JsonRecord) => {
     setCheckins(Array.isArray(payload.checkins) ? (payload.checkins as JsonRecord[]) : []);
@@ -79,6 +80,7 @@ export function CoachAthleteCheckinsPanel() {
     setMoving(null);
     setError(null);
     setShowAll(false);
+    setPaymentDue(false);
     if (!athleteUserId) return undefined;
     let live = true;
     loadAthleteCheckinsForCoach(athleteUserId).then((payload) => { if (live) show(payload); }, () => { if (live) setCheckins(null); });
@@ -133,13 +135,14 @@ export function CoachAthleteCheckinsPanel() {
     <article className="panel" data-testid="coach-athlete-checkins">
       <div className="panel-header">
         <div>
-          <p className="eyebrow">Check-in calls</p>
-          <h3>Check-ins</h3>
+          <p className="eyebrow">Package and calls</p>
+          <h3>Package and check-ins</h3>
+          {paymentDue ? <span className="badge partial">Payment due</span> : null}
         </div>
         {!booking ? <button className="button secondary" type="button" onClick={() => setBooking(true)}>Book a check-in</button> : null}
       </div>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      <CoachAthletePackageSection athleteUserId={athleteUserId} onCheckinsChanged={() => {
+      <CoachAthletePackageSection athleteUserId={athleteUserId} upcomingCount={checkins.filter((c) => new Date(String(c.starts_at)).getTime() > Date.now()).length} onPaymentDue={setPaymentDue} onCheckinsChanged={() => {
         loadAthleteCheckinsForCoach(athleteUserId).then(show, () => undefined);
       }} />
 

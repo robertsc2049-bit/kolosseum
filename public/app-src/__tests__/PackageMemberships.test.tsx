@@ -25,7 +25,7 @@ function membership(overrides: Record<string, unknown> = {}) {
   return {
     membership_id: "pmem_1",
     package: { package_id: "pkg_online", name: "Online coaching", price_label: "£80 a month", billing: "monthly", includes_summary: ["Programming"], gym_name: null },
-    started_on: "2026-11-02", paid_until: "2026-12-01", paid_in_full: false, payment_due: false, period_start: "2026-11-02", period_end: "2026-12-01",
+    started_on: "2026-11-02", paid_until: "2026-12-01", paid_in_full: false, next_paid_until: "2027-01-01", payment_due: false, period_start: "2026-11-02", period_end: "2026-12-01",
     usage: { checkin_calls: { used: 1, included: 2 }, in_person_sessions: { used: 0, included: 0 } },
     ...overrides
   };
@@ -56,7 +56,7 @@ test.afterEach(() => cleanup());
 test("a coach puts an athlete on a package, cancels what's booked while payment is due, then records the payment", async () => {
   const calls = installFetch();
   let reloaded = 0;
-  render(<CoachAthletePackageSection athleteUserId="ath_1" onCheckinsChanged={() => { reloaded += 1; }} />);
+  render(<CoachAthletePackageSection athleteUserId="ath_1" upcomingCount={3} onCheckinsChanged={() => { reloaded += 1; }} />);
   await screen.findByText("Not on a package.");
   fireEvent.click(screen.getByRole("button", { name: "Put them on a package" }));
   fireEvent.change(screen.getByLabelText("Starts"), { target: { value: "2026-11-02" } });
@@ -69,6 +69,7 @@ test("a coach puts an athlete on a package, cancels what's booked while payment 
   screen.getByText("They can't book your open slots until you record a payment.");
 
   fireEvent.click(screen.getByRole("button", { name: "Cancel upcoming sessions and check-ins" }));
+  screen.getByText("Cancel the 3 upcoming calls and sessions with them? They'll be told.");
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Yes, cancel them" }));
   });
@@ -77,15 +78,17 @@ test("a coach puts an athlete on a package, cancels what's booked while payment 
 
   fireEvent.click(screen.getByRole("button", { name: "Record a payment" }));
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "Record payment" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Record payment - paid until/ }));
   });
   assert.deepEqual(calls.find((c) => c.path.endsWith("/payment"))?.body, {});
   await screen.findByText(/^Paid until/u);
   screen.getByText("1 of 2 check-in calls this month");
+  screen.getByText(/^This month: /);
   assert.equal(screen.queryByRole("button", { name: "Cancel upcoming sessions and check-ins" }), null);
 
+  fireEvent.click(screen.getByRole("button", { name: "End package" }));
   await act(async () => {
-    fireEvent.click(screen.getByRole("button", { name: "End package" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, end it" }));
   });
   await screen.findByText("Not on a package.");
 });
@@ -96,4 +99,16 @@ test("a one-off package switches to paid in full; usage lines say what's left", 
   assert.deepEqual(usageLines(oneOff), ["3 of 4 in-person sessions so far"]);
   assert.equal(paidLabel(membership({ payment_due: true, paid_until: null })), "Payment due");
   assert.deepEqual(usageLines(membership({ usage: { checkin_calls: { used: 1, included: 0 }, in_person_sessions: { used: 0, included: 0 } } })), ["1 check-in call this month"]);
+  assert.deepEqual(usageLines(membership({ usage: { checkin_calls: { used: 0, included: 2 }, in_person_sessions: { used: 3, included: 1 } } })), ["0 of 2 check-in calls this month", "3 in-person sessions this month - 1 included"]);
+});
+
+test("nothing booked: no cancel button even while payment is due", async () => {
+  installFetch();
+  render(<CoachAthletePackageSection athleteUserId="ath_1" upcomingCount={0} onCheckinsChanged={() => undefined} />);
+  fireEvent.click(await screen.findByRole("button", { name: "Put them on a package" }));
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+  });
+  await screen.findByText("Payment due");
+  assert.equal(screen.queryByRole("button", { name: "Cancel upcoming sessions and check-ins" }), null);
 });
