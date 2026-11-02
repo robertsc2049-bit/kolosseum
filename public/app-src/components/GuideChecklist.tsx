@@ -31,6 +31,20 @@ export function openAppView(view: string): void {
   item?.click();
 }
 
+// Bring a section into view for a guide step: open it if it's a collapsed
+// section (as Account and the setup screens are on a phone) and scroll it
+// clear of the sticky top bar. Runs after the screen has switched.
+export function revealSection(selector: string, delayMs = 300): void {
+  window.setTimeout(() => {
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return;
+    const panel = element.matches("[data-collapsible]") ? element : element.closest<HTMLElement>("[data-collapsible]");
+    if (panel?.dataset.collapsed === "true") panel.querySelector<HTMLElement>(".section-toggle")?.click();
+    const top = element.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+  }, delayMs);
+}
+
 export function GuideChecklist({ testId, eyebrow, title, intro, steps, onHide }: {
   testId: string;
   eyebrow: string;
@@ -62,7 +76,7 @@ export function GuideChecklist({ testId, eyebrow, title, intro, steps, onHide }:
               <div>
                 <strong>{step.title}{step.optional ? " (optional)" : ""}</strong>
                 <span className="visually-hidden">{step.done ? " - done" : " - to do"}</span>
-                {!step.done || current ? <p className="muted small">{step.body}</p> : null}
+                {current ? <p className="muted small">{step.body}</p> : null}
                 {!step.done ? (
                   <div className="inline-controls">
                     {step.actions.map((action) => (

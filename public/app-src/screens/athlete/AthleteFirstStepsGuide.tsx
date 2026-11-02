@@ -5,7 +5,7 @@ import { loadAthleteEquipment, loadAthleteMaxes, loadTrainingWeek } from "../../
 import { loadAthleteHistoryList } from "../../api/athleteHistoryClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
-import { dismissGuide, guideDismissed, GuideChecklist, openAppView, type GuideStep } from "../../components/GuideChecklist";
+import { dismissGuide, guideDismissed, GuideChecklist, openAppView, revealSection, type GuideStep } from "../../components/GuideChecklist";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // An athlete training without a coach, setting up their own training, step
@@ -20,7 +20,7 @@ type Progress = { userId: string; week: boolean; weights: boolean; kit: boolean;
 
 function openSetup(testId: string) {
   document.getElementById("athleteOnboardingNav")?.click();
-  window.setTimeout(() => document.querySelector(`[data-testid="${testId}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+  revealSection(`[data-testid="${testId}"]`);
 }
 
 export function AthleteFirstStepsGuide() {
@@ -107,7 +107,7 @@ export function AthleteFirstStepsGuide() {
       title: "Do your first session",
       body: "Your first session is waiting on Today. Start it, log each set as you go, and the next ones adjust to what you lift.",
       done: progress.sessions > 0,
-      actions: [{ label: "Go to today's session", primary: true, onClick: () => { openAppView("today"); document.getElementById("athlete-today-session-root")?.scrollIntoView({ behavior: "smooth", block: "start" }); } }]
+      actions: [{ label: "Go to today's session", primary: true, onClick: () => { openAppView("today"); revealSection("#athlete-today-session-root"); } }]
     }
   ];
 

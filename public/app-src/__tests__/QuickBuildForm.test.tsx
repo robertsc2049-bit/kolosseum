@@ -61,6 +61,7 @@ test("builds a peaking powerlifting programme with every choice, once", async ()
   fireEvent.change(screen.getByLabelText("Training days a week"), { target: { value: "4" } });
   fireEvent.change(screen.getByLabelText("Session length"), { target: { value: "60" } });
   fireEvent.change(screen.getByLabelText("Equipment"), { target: { value: "home_gym" } });
+  fireEvent.change(screen.getByLabelText("Set weights by"), { target: { value: "rpe" } });
   const button = screen.getByRole("button", { name: "Build programme" });
   await act(async () => {
     fireEvent.click(button);
@@ -69,7 +70,7 @@ test("builds a peaking powerlifting programme with every choice, once", async ()
   await waitFor(() => assert.deepEqual(created, ["tpl_qb_1"]));
   const posts = calls.filter((c) => c.method === "POST" && c.path === "/templates/quick-build");
   assert.equal(posts.length, 1, "a double tap builds once");
-  assert.deepEqual(posts[0].body, { activity_id: "powerlifting", experience_level: "amateur", days_per_week: 4, weeks: 12, goal: "peak", session_minutes: 60, equipment: "home_gym" });
+  assert.deepEqual(posts[0].body, { activity_id: "powerlifting", experience_level: "amateur", days_per_week: 4, weeks: 12, goal: "peak", session_minutes: 60, equipment: "home_gym", weights: "rpe" });
 });
 
 test("the goals change with the sport", async () => {

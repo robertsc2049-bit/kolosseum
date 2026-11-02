@@ -160,6 +160,18 @@ test("quick build makes a whole periodised draft from one short form", { timeout
   assert.ok(count(short, "accessory") < count(long, "accessory"), "accessories trimmed");
   assert.match(short.description, /about 45 minutes a session/);
 
+  // Weights by RPE: no % of max work at all, so no maxes are needed to
+  // assign it; heavier % lines become higher RPE targets.
+  expect(await build({ ...good, weights: "kg" }), 422, "unknown weights");
+  const byRpe = expect(await build({ ...good, weeks: 4, goal: "build", weights: "rpe" }), 201, "by RPE").template;
+  const rpeItems = itemsOf(byRpe);
+  assert.equal(rpeItems.filter((w) => w.loading_reference?.type === "percent_1rm").length, 0, "no % of max left");
+  const rpes = rpeItems.filter((w) => w.loading_reference?.type === "rpe").map((w) => w.loading_reference.value);
+  assert.ok(rpes.length > 0 && rpes.every((v) => Number.isInteger(v) && v >= 5 && v <= 10), `RPE targets 5-10: ${[...new Set(rpes)]}`);
+  assert.match(byRpe.description, /weights by RPE \(no maxes needed\)/u);
+  const { rpeForPercent } = await import("../dist/src/api/kolosseum_starter_template_service.js");
+  assert.deepEqual([rpeForPercent(80, 5), rpeForPercent(90, 3), rpeForPercent(70, 8), rpeForPercent(60, 5), rpeForPercent(100, 1)], [8, 10, 5, 5, 10]);
+
   // It's an ordinary draft: it completes and activates.
   expect(await request(base, "POST", `/templates/${encodeURIComponent(peak.template_id)}/complete`, { coach_user_id: coach.userId }, coach), 200, "complete");
   expect(await request(base, "POST", `/templates/${encodeURIComponent(peak.template_id)}/activate`, { coach_user_id: coach.userId }, coach), 200, "activate");

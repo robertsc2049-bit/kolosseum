@@ -137,3 +137,23 @@ test("coaches don't see the athlete guide, nor athletes the coach one", async ()
   await settle();
   assert.equal(screen.queryByTestId("coach-first-programme-guide"), null);
 });
+
+test("only the current step explains itself; the others are just a line", async () => {
+  installFetch("coach", coachData([], [], []));
+  render(<CoachFirstProgrammeGuide />);
+  await screen.findByText("Your first programme");
+  screen.getByText((text) => text.startsWith("Quick build makes a whole programme"));
+  assert.equal(screen.queryByText((text) => text.startsWith("Invite an athlete by email")), null);
+});
+
+test("revealSection opens a collapsed section before scrolling to it", async () => {
+  const { revealSection } = await import("../components/GuideChecklist");
+  document.body.innerHTML = `<article data-collapsible="1" data-collapsed="true"><h3>Maxes <button class="section-toggle"></button></h3><div data-testid="athlete-maxes">x</div></article>`;
+  const toggle = document.querySelector(".section-toggle") as HTMLButtonElement;
+  toggle.addEventListener("click", () => { (toggle.closest("article") as HTMLElement).dataset.collapsed = "false"; });
+  window.scrollTo = (() => undefined) as typeof window.scrollTo;
+  revealSection("[data-testid=\"athlete-maxes\"]", 0);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal((document.querySelector("article") as HTMLElement).dataset.collapsed, "false");
+  document.body.innerHTML = "";
+});

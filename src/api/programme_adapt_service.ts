@@ -144,13 +144,15 @@ export async function adaptCoachProgrammeTemplate(coachUserId: string, templateI
     loadChange ? `loads ${loadChange > 0 ? "+" : ""}${loadChange}%` : "",
     rpeChange ? `RPE ${rpeChange > 0 ? "+1" : "-1"}` : ""
   ].filter(Boolean);
-  // Descriptions are capped at 1000 characters; the note about the copy wins.
+  // What the copy is comes first; the original's own description follows,
+  // labelled, so its numbers aren't read as the copy's. Capped at 1000.
   const note = `Copied from ${text(source.template_name)}${changes.length ? ` (${changes.join(", ")})` : ""}.`.slice(0, 1000);
-  const original = text(base.description).slice(0, Math.max(0, 1000 - note.length - 1)).trim();
+  const label = " About the original: ";
+  const original = text(base.description).slice(0, Math.max(0, 1000 - note.length - label.length)).trim();
   const draft: Json = {
     ...base,
     template_name: name,
-    description: original ? `${original} ${note}` : note,
+    description: original ? `${note}${label}${original}` : note,
     blocks: adaptedBlocks,
     updated_at_iso8601: new Date().toISOString()
   };

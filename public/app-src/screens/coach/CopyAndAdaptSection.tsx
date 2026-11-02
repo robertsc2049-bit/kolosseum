@@ -39,7 +39,7 @@ export function CopyAndAdaptSection({ template }: { template: JsonRecord }) {
 
   if (!open) {
     return (
-      <div className="button-row">
+      <div className="button-row programme-detail-actions">
         <button className="button secondary" type="button" onClick={() => setOpen(true)}>Copy and adapt</button>
       </div>
     );

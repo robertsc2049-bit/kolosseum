@@ -165,3 +165,26 @@ test("the calendar file has the time, length, join link and a 15-minute reminder
   assert.ok(file.includes("TRIGGER:-PT15M"));
   assert.ok(file.startsWith("BEGIN:VCALENDAR\r\n") && file.endsWith("END:VCALENDAR\r\n"));
 });
+
+test("the coach never gets a WhatsApp link to their own number, and a long run shows the next 3 first", async () => {
+  const run = Array.from({ length: 6 }, (_, n) => ({ ...CHECKIN, checkin_id: `chk_${n}`, series_id: "cser_1", starts_at: new Date(Date.UTC(2099, 10, 4 + n * 7, 18)).toISOString() }));
+  installFetch((_method, path) => (path === "/check-ins/athletes/ath_1" ? jsonResponse({ ok: true, call_settings: { whatsapp_number: "447700900123" }, checkins: run }) : null));
+  render(<CoachAthleteCheckinsPanel />);
+  await act(async () => openProfile("ath_1"));
+  await screen.findAllByText("Waiting for them to confirm");
+  assert.equal(screen.queryByRole("link", { name: "Open WhatsApp" }), null);
+  assert.equal(screen.getAllByText("Waiting for them to confirm").length, 3);
+  fireEvent.click(screen.getByRole("button", { name: "Show all 6 calls" }));
+  assert.equal(screen.getAllByText("Waiting for them to confirm").length, 6);
+});
+
+test("Today shows the athlete only their next call, with the rest in a line", async () => {
+  window.localStorage.setItem("kolosseum.product.app.v1", JSON.stringify({ role: "athlete" }));
+  const run = Array.from({ length: 5 }, (_, n) => ({ ...CHECKIN, checkin_id: `chk_${n}`, starts_at: new Date(Date.UTC(2099, 10, 4 + n * 7, 18)).toISOString() }));
+  installFetch((_method, path) => (path === "/check-ins/mine" ? jsonResponse({ ok: true, checkins: run }) : null));
+  render(<AthleteCheckinsCard />);
+  await screen.findByText("Your next check-in");
+  assert.equal(screen.getAllByRole("link", { name: "Open WhatsApp" }).length, 1);
+  const also = screen.getByText((text) => text.startsWith("Also booked: "));
+  assert.ok(also.textContent?.endsWith(" and 2 more"), also.textContent ?? "");
+});

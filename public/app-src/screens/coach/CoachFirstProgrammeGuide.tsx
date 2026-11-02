@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { loadAccountDetail } from "../../api/client";
 import { loadCoachAssignments, loadCoachRelationships, loadCoachTemplates } from "../../api/coachWorkspaceClient";
 import { type JsonRecord } from "../../api/transport";
-import { dismissGuide, guideDismissed, GuideChecklist, openAppView, type GuideStep } from "../../components/GuideChecklist";
+import { dismissGuide, guideDismissed, GuideChecklist, openAppView, revealSection, type GuideStep } from "../../components/GuideChecklist";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 import { OPEN_QUICK_BUILD_EVENT } from "./QuickBuildForm";
 
@@ -19,6 +19,20 @@ function openProgramme(templateId: string) {
   openAppView("templates");
   window.location.hash = `#/coach/programmes/${encodeURIComponent(templateId)}`;
   document.dispatchEvent(new CustomEvent("kolosseum:open-programme-detail", { detail: { template_id: templateId } }));
+}
+
+// The Athletes screen with "Invite an athlete" already open.
+function openInvite() {
+  openAppView("athletes");
+  window.setTimeout(() => {
+    const invite = [...document.querySelectorAll<HTMLDetailsElement>("#view-athletes .athlete-actions details")]
+      .find((details) => details.querySelector("summary")?.textContent?.trim() === "Invite an athlete");
+    if (!invite) return;
+    invite.open = true;
+    invite.scrollIntoView({ block: "start" });
+    window.scrollBy(0, -80);
+    invite.querySelector<HTMLInputElement>("input[type=email]")?.focus({ preventScroll: true });
+  }, 300);
 }
 
 const newest = (templates: JsonRecord[]) => [...templates].sort((a, b) => String(b.updated_at_iso8601 ?? "").localeCompare(String(a.updated_at_iso8601 ?? "")))[0];
@@ -91,15 +105,15 @@ export function CoachFirstProgrammeGuide() {
       title: "Bring in an athlete",
       body: "Invite an athlete by email, share your link or QR code (Account → Branding), or add one with their account code. They're on your roster once they accept.",
       done: athletes.length > 0,
-      actions: [{ label: "Invite an athlete", primary: true, onClick: () => openAppView("athletes") }]
+      actions: [{ label: "Invite an athlete", primary: true, onClick: openInvite }]
     },
     {
       id: "assign",
       title: "Assign the programme",
-      body: "Open the programme and assign it to your athlete (or a group), or open the athlete's profile and pick it there. Their first session is then waiting on their Today.",
+      body: "Open the programme and assign it to your athlete (or a group), or open the athlete's profile and pick it there. A programme set by % of max needs the athlete's maxes first - record them on their profile (Units, bodyweight and maxes). Their first session is then waiting on their Today.",
       done: assignments.length > 0,
       actions: ready.length
-        ? [{ label: "Open my programme", primary: true, onClick: () => openProgramme(String(newest(ready).template_id)) }, { label: "Go to athletes", onClick: () => openAppView("athletes") }]
+        ? [{ label: "Assign my programme", primary: true, onClick: () => { openProgramme(String(newest(ready).template_id)); revealSection("[data-testid=\"group-assign\"]", 1200); } }, { label: "Go to athletes", onClick: () => openAppView("athletes") }]
         : [{ label: "Go to athletes", primary: true, onClick: () => openAppView("athletes") }]
     }
   ];

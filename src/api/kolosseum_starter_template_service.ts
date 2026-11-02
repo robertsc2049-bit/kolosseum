@@ -249,6 +249,23 @@ export function fitToSession(items: Json[], minutes: number | null): Json[] {
   return kept.map((item, index) => ({ ...item, order_index: index + 1 }));
 }
 
+// Weights by RPE instead of % of max, so a programme can be assigned before
+// the athlete's maxes are known: each % of max line becomes the RPE it
+// works out at for its reps - reps to failure at that % from the Epley
+// estimate (30 x (1/p - 1)), less the reps done, as reps in reserve - kept
+// between 5 and 10 in whole numbers.
+export function rpeForPercent(percent: number, reps: number): number {
+  const repsToFailure = 30 * (100 / percent - 1);
+  return Math.min(10, Math.max(5, Math.round(10 - (repsToFailure - reps))));
+}
+
+function byRpe(item: Json): Json {
+  if (item.load_mode !== "percent_1rm") return item;
+  return { ...item, load_mode: "rpe", rpe_value: rpeForPercent(Number(item.percent_1rm), Number(item.planned_reps ?? 1)) };
+}
+
+export const QUICK_BUILD_WEIGHTS: readonly string[] = Object.freeze(["percent_1rm", "rpe"]);
+
 export async function createQuickBuildProgramme(coachUserId: string, input: unknown): Promise<Readonly<Json>> {
   if (!isRecord(input)) throw new StarterTemplateError("starter_template_invalid", 422);
   const activity = String(input.activity_id ?? "");
@@ -268,6 +285,8 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
   if (model && !goal) errors.goal = "Choose a goal for this sport.";
   if (minutes !== null && !QUICK_BUILD_SESSION_MINUTES.includes(minutes)) errors.session_minutes = "Choose 45, 60, 75 or 90 minutes, or no limit.";
   if (!(equipmentId in EQUIPMENT)) errors.equipment = "Choose full gym, home gym or bodyweight.";
+  const weights = String(input.weights ?? "percent_1rm");
+  if (!QUICK_BUILD_WEIGHTS.includes(weights)) errors.weights = "Choose % of max or RPE.";
   if (Object.keys(errors).length || !model || !goal) throw new StarterTemplateError("starter_template_invalid", 422, errors);
 
   const available = EQUIPMENT[equipmentId];
@@ -296,7 +315,7 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
         // marks the second one a repeat (<id>__r2) - one is enough here.
         const items = (Array.isArray(program.planned_items) ? program.planned_items.filter(isRecord) : [])
           .filter((item) => !standIns.has(String(item.exercise_id)) && !/__r\d+$/u.test(String(item.exercise_id)));
-        return { session_id: "", order_index: slot + 1, title: `Day ${slot + 1}`, work_items: fitToSession(items.map(workItem).map((item, index) => ({ ...item, order_index: index + 1 })), minutes) };
+        return { session_id: "", order_index: slot + 1, title: `Day ${slot + 1}`, work_items: fitToSession(items.map(workItem).map((item, index) => ({ ...(weights === "rpe" ? byRpe(item) : item), order_index: index + 1 })), minutes) };
       })
         // A day whose every exercise needs kit that isn't there is dropped.
         .filter((session) => session.work_items.length > 0)
@@ -312,7 +331,7 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
     coach_user_id: coachUserId,
     template_version: 1,
     template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks`,
-    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} Change anything before assigning it.`,
+    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} Change anything before assigning it.`,
     activity_id: activity,
     event_plan: null,
     blocks,

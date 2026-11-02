@@ -25,6 +25,7 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
   const [goal, setGoal] = useState("");
   const [minutes, setMinutes] = useState("");
   const [equipment, setEquipment] = useState("full_gym");
+  const [weights, setWeights] = useState("percent_1rm");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // A double tap builds once.
@@ -68,7 +69,8 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
         weeks,
         goal,
         session_minutes: minutes ? Number(minutes) : null,
-        equipment
+        equipment,
+        weights
       }, typeof account.csrf_token === "string" ? account.csrf_token : "");
       const template = (result.template as JsonRecord | undefined) ?? {};
       setOpen(false);
@@ -142,6 +144,13 @@ export function QuickBuildForm({ onCreated, startOpen = false }: { onCreated: (t
           <option value="full_gym">Full gym</option>
           <option value="home_gym">Home gym (barbell, rack, bench, dumbbells, pull-up bar, bands)</option>
           <option value="bodyweight">Bodyweight only</option>
+        </select>
+      </label>
+      <label className="field">
+        <span>Set weights by</span>
+        <select aria-label="Set weights by" value={weights} onChange={(event) => setWeights(event.target.value)}>
+          <option value="percent_1rm">% of max - you'll need each athlete's maxes</option>
+          <option value="rpe">RPE - no maxes needed</option>
         </select>
       </label>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
