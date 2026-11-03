@@ -85,8 +85,28 @@ services:
       BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
     volumes:
       - ./deploy/backup.sh:/backup.sh:ro
+      - ./deploy/restore-check.sh:/restore-check.sh:ro
       - kolosseum-uploads:/uploads:ro
       - kolosseum-backups:/backups
+
+  # Copies the backups off the server to S3-compatible object storage (IONOS
+  # S3 Object Storage by default) - off until the bucket and key are in .env.
+  offsite:
+    image: rclone/rclone:1.68.2
+    restart: unless-stopped
+    entrypoint: ["sh", "/offsite.sh"]
+    environment:
+      OFFSITE_BACKUP_BUCKET: ${OFFSITE_BACKUP_BUCKET:-}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      RCLONE_CONFIG_OFFSITE_TYPE: s3
+      RCLONE_CONFIG_OFFSITE_PROVIDER: ${OFFSITE_BACKUP_PROVIDER:-IONOS}
+      RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID: ${OFFSITE_BACKUP_ACCESS_KEY:-}
+      RCLONE_CONFIG_OFFSITE_SECRET_ACCESS_KEY: ${OFFSITE_BACKUP_SECRET_KEY:-}
+      RCLONE_CONFIG_OFFSITE_ENDPOINT: ${OFFSITE_BACKUP_ENDPOINT:-s3-eu-central-1.ionoscloud.com}
+      RCLONE_CONFIG_OFFSITE_REGION: ${OFFSITE_BACKUP_REGION:-de}
+    volumes:
+      - ./deploy/offsite.sh:/offsite.sh:ro
+      - kolosseum-backups:/backups:ro
 
 volumes:
   kolosseum-db-data:

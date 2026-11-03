@@ -53,3 +53,21 @@ test("nightly backups dump the database and the uploads, and Caddy serves the co
   assert.match(script, /tar -czf "\/backups\/uploads_/u);
   assert.match(fs.readFileSync("deploy/Caddyfile", "utf8"), /\{\$KOLOSSEUM_DOMAIN\} \{[\s\S]*reverse_proxy app:3000/u);
 });
+
+test("backups are copied off the server once a bucket is set, and the newest one can be test-restored", () => {
+  const offsite = service("offsite");
+  assert.match(offsite, /image: rclone\/rclone:\d+\.\d+\.\d+\n/u, "a pinned rclone version");
+  assert.match(offsite, /kolosseum-backups:\/backups:ro/u, "it only reads the backups");
+  assert.match(offsite, /RCLONE_CONFIG_OFFSITE_PROVIDER: \$\{OFFSITE_BACKUP_PROVIDER:-IONOS\}/u);
+  assert.match(offsite, /RCLONE_CONFIG_OFFSITE_ENDPOINT: \$\{OFFSITE_BACKUP_ENDPOINT:-s3-eu-central-1\.ionoscloud\.com\}/u);
+  const script = fs.readFileSync("deploy/offsite.sh", "utf8");
+  assert.match(script, /OFFSITE_BACKUP_BUCKET:-\}" \] && \[ -n "\$\{RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID/u, "off until the bucket and key are set");
+  assert.match(script, /--min-age 10m/u, "a dump still being written waits");
+  assert.match(script, /rclone delete "\$REMOTE" --min-age "\$\{KEEP_DAYS\}d"/u);
+  assert.match(service("backup"), /\.\/deploy\/restore-check\.sh:\/restore-check\.sh:ro/u);
+  const check = fs.readFileSync("deploy/restore-check.sh", "utf8");
+  assert.match(check, /pg_restore --no-owner --exit-on-error -d "\$check_url"/u);
+  assert.match(check, /trap cleanup EXIT/u, "the throwaway copy is always dropped");
+  for (const drop of check.matchAll(/DROP DATABASE[^;"]*/gu)) assert.equal(drop[0], "DROP DATABASE IF EXISTS $CHECK_DB", "only the throwaway copy is ever dropped");
+  assert.match(check, /CHECK_DB="kolosseum_restore_check"/u);
+});
