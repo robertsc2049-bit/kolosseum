@@ -89,6 +89,7 @@ import { CoachOverviewOpenSessionsPanel, CoachOverviewReviewQueuePanel } from ".
 import { ConnectAthletePanel } from "./screens/coach/ConnectAthletePanel";
 import { InviteAthleteByEmailPanel } from "./screens/coach/InviteAthleteByEmailPanel";
 import { CoachingRequestsPanel } from "./screens/coach/CoachingRequestsPanel";
+import { CoachPaymentsPanel } from "./screens/coach/CoachPaymentsPanel";
 import { CoachLinkRequestCard } from "./screens/athlete/CoachLinkRequestCard";
 import { AthleteFirstStepsGuide } from "./screens/athlete/AthleteFirstStepsGuide";
 import { CoachFirstProgrammeGuide } from "./screens/coach/CoachFirstProgrammeGuide";
@@ -157,6 +158,7 @@ mount("athlete-other-training-root", <OtherTrainingPanel />);
 mount("athlete-directory-root", <AthleteDirectoryPanel />);
 mount("invite-athlete-root", <InviteAthleteByEmailPanel />);
 mount("coaching-requests-root", <CoachingRequestsPanel />);
+mount("coach-payments-root", <CoachPaymentsPanel />);
 mount("coach-broadcast-root", <CoachBroadcastPanel />);
 mount("connect-athlete-root", <ConnectAthletePanel />);
 mount("athlete-relationship-detail-root", <AthleteRelationshipDetailPanel />);

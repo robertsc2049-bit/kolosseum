@@ -64,6 +64,30 @@ export function paymentDue(row: { started_on: string; paid_until: string | null;
   return !row.paid_until || row.paid_until < on;
 }
 
+// How many unpaid periods have started by `on` (owed now), and how many more
+// start in the following `days` days (coming up). One-off: the whole package.
+export const OUTLOOK_DAYS = 30;
+export function paymentOutlook(
+  row: { billing: string; started_on: string; paid_until: string | null; paid_in_full: boolean },
+  on = today(),
+  days = OUTLOOK_DAYS
+): { owed: number; upcoming: number } {
+  const horizon = addDays(on, days);
+  if (row.billing === "one_off") {
+    if (row.paid_in_full) return { owed: 0, upcoming: 0 };
+    return { owed: row.started_on <= on ? 1 : 0, upcoming: row.started_on > on && row.started_on <= horizon ? 1 : 0 };
+  }
+  let owed = 0;
+  let upcoming = 0;
+  let start = row.paid_until && row.paid_until >= row.started_on ? addDays(row.paid_until, 1) : row.started_on;
+  for (let i = 0; i < 200 && start <= horizon; i += 1) {
+    if (start <= on) owed += 1;
+    else upcoming += 1;
+    start = addDays(periodOf(row.started_on, row.billing, start).end as string, 1);
+  }
+  return { owed, upcoming };
+}
+
 // --- Reading ---------------------------------------------------------------------
 
 const MEMBERSHIP_SELECT = `
@@ -176,12 +200,26 @@ export async function listCoachPackageMembers(coachUserId: string): Promise<Json
     [coachUserId]
   );
   const members: Json[] = [];
+  // Money owed now and coming up in the next 30 days, per currency - worked
+  // out from the package prices, as payments are made outside the app.
+  const totals = new Map<string, { currency: string; owed_minor: number; upcoming_minor: number }>();
+  const now = today();
   for (const row of result.rows) {
     const view = await membershipView(row);
-    members.push({ athlete_user_id: String(row.athlete_user_id), athlete_display_name: text(row.athlete_display_name) || "An athlete", ...view });
+    const outlook = paymentOutlook({ billing: String(row.billing), started_on: view.started_on as string, paid_until: view.paid_until as string | null, paid_in_full: view.paid_in_full === true }, now);
+    const priceMinor = Number(row.price_minor ?? 0);
+    const currency = String(row.currency ?? "GBP");
+    const total = totals.get(currency) ?? { currency, owed_minor: 0, upcoming_minor: 0 };
+    total.owed_minor += outlook.owed * priceMinor;
+    total.upcoming_minor += outlook.upcoming * priceMinor;
+    totals.set(currency, total);
+    members.push({
+      athlete_user_id: String(row.athlete_user_id), athlete_display_name: text(row.athlete_display_name) || "An athlete", ...view,
+      price_minor: priceMinor, currency, owed_periods: outlook.owed, owed_minor: outlook.owed * priceMinor
+    });
   }
   members.sort((a, b) => Number(b.payment_due) - Number(a.payment_due));
-  return { ok: true, members };
+  return { ok: true, today: now, outlook_days: OUTLOOK_DAYS, members, totals: [...totals.values()].filter((t) => t.owed_minor || t.upcoming_minor) };
 }
 
 // --- The coach's changes ---------------------------------------------------------------

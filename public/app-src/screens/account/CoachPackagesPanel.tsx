@@ -131,7 +131,7 @@ function PackageMembers({ version }: { version: number }) {
           </article>
         ))}
       </div>
-      <p className="muted small">Open an athlete's profile and use Package and check-ins to put them on a package or record a payment.</p>
+      <p className="muted small">Record payments from Payments on your Athletes page. Open an athlete's profile and use Package and check-ins to put them on a package.</p>
     </details>
   );
 }

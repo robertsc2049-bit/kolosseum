@@ -103,7 +103,7 @@ export function coachDueEmail(athletes: { name: string; packageName: string; pai
       "",
       ...athletes.map((a) => `- ${a.name} - ${a.packageName}, paid up to ${dayLabel(a.paidUntil)}`),
       "",
-      "They can't book your open slots until you record a payment. Open their profile and use Package and check-ins to record it, or to cancel what's booked with them:",
+      "They can't book your open slots until you record a payment. Record it under Payments on your Athletes page, or open their profile to cancel what's booked with them:",
       appUrl
     ].join("\n")
   };

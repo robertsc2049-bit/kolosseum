@@ -8,6 +8,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { CoachAthletePackageSection } from "../screens/coach/CoachAthletePackageSection";
+import { CoachPaymentsPanel, money, paymentGroups } from "../screens/coach/CoachPaymentsPanel";
 import { notificationTypeLabel } from "../api/notificationsClient";
 import { dayLabel, paidLabel, usageLines } from "../utils/packages";
 
@@ -121,4 +122,50 @@ test("payment reminders in the bell name the package and the paid-up date", () =
   assert.match(label("package_payment_due", { package_name: "Online coaching", paid_until: null }), /^Payment due for Online coaching$/);
   assert.equal(label("athlete_package_payment_due", { package_name: "PT block", paid_until: "2026-11-30" }), `Payment due for PT block - was paid up to ${dayLabel("2026-11-30")}`);
   assert.equal(label("package_payment_due", {}), "Package payment due");
+});
+
+test("payments on the Athletes page: who's due, what's owed, and recording a payment from the list", async () => {
+  const today = "2026-11-20";
+  let lee = { ...membership({ membership_id: "pmem_lee", started_on: "2026-09-02", paid_until: "2026-10-01", next_paid_until: "2026-11-01", payment_due: true }), athlete_user_id: "ath_lee", athlete_display_name: "Lee Lapsed", owed_periods: 2, owed_minor: 16000, currency: "GBP" };
+  const sam = { ...membership({ membership_id: "pmem_sam", paid_until: "2026-11-24" }), athlete_user_id: "ath_sam", athlete_display_name: "Sam Soon", owed_periods: 0, owed_minor: 0, currency: "GBP" };
+  const kim = { ...membership({ membership_id: "pmem_kim", paid_until: "2027-01-01" }), athlete_user_id: "ath_kim", athlete_display_name: "Kim Paid", owed_periods: 0, owed_minor: 0, currency: "GBP" };
+  const calls: Call[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? "GET";
+    calls.push({ method, path, body: typeof init?.body === "string" ? JSON.parse(init.body) : null });
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
+    if (path === "/check-ins/athletes/ath_lee/package/payment") {
+      lee = { ...lee, paid_until: "2026-11-01", next_paid_until: "2026-12-01", owed_periods: 1, owed_minor: 8000 };
+      return jsonResponse({ ok: true, membership: lee, options: OPTIONS });
+    }
+    if (path === "/check-ins/package-members") {
+      return jsonResponse({ ok: true, today, outlook_days: 30, members: [lee, sam, kim], totals: [{ currency: "GBP", owed_minor: lee.owed_minor, upcoming_minor: 8000 }] });
+    }
+    return jsonResponse({ error: "unhandled" }, 404);
+  }) as typeof fetch;
+
+  assert.deepEqual(Object.values(paymentGroups([lee, sam, kim], today)).map((list) => list.map((m) => m.athlete_display_name)), [["Lee Lapsed"], ["Sam Soon"], ["Kim Paid"]]);
+  assert.equal(money(16000, "GBP"), "£160");
+  render(<CoachPaymentsPanel />);
+  await screen.findByText("1 payment due");
+  screen.getByText(/Owed now: £160 · Due in the next 30 days: £80/u);
+  screen.getByText(/£160 owed \(2 months\)/u);
+  screen.getByText("Due in the next week");
+  screen.getByText("Paid up (1)");
+
+  let opened = "";
+  const onOpen = (event: Event) => { opened = String((event as CustomEvent).detail.athlete_user_id); };
+  document.addEventListener("kolosseum:open-athlete-profile-request", onOpen);
+  fireEvent.click(screen.getByRole("button", { name: "Lee Lapsed" }));
+  document.removeEventListener("kolosseum:open-athlete-profile-request", onOpen);
+  assert.equal(opened, "ath_lee");
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: `Record payment - to ${dayLabel("2026-11-01")}: Lee Lapsed` }));
+  });
+  assert.deepEqual(calls.find((c) => c.path.endsWith("/payment"))?.body, {});
+  await screen.findByText(`Lee Lapsed: paid until ${dayLabel("2026-11-01")}.`);
+  await screen.findByText(/£80 owed$/u);
+  assert.equal((screen.getByTestId("coach-payments") as HTMLDetailsElement).open, true, "stays open to show it went through");
 });
