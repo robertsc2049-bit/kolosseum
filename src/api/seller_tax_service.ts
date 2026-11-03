@@ -10,7 +10,8 @@
 // (product_package_payments, valued at the package price) - payments are
 // made outside the app, so these are the amounts as recorded. A gym's
 // packages are sold by the gym, so what's paid on them is the gym's (the
-// coach who delivers one only records it).
+// coach who delivers one only records it); the gym's owner enters the gym's
+// details (product_gym_tax_details).
 import { pool } from "../db/pool.js";
 import { CoachCheckinError } from "./coach_checkin_service.js";
 
@@ -103,10 +104,17 @@ export function validateTaxDetails(input: unknown): { details: TaxDetails | null
   };
 }
 
-const DETAILS_SELECT = `
-  SELECT seller_type, legal_name, date_of_birth::text AS date_of_birth, company_number, tax_number_type, tax_number, vat_number,
-         address_line1, address_line2, city, postcode, country, updated_at
-  FROM product_coach_tax_details`;
+const DETAILS_COLUMNS = `seller_type, legal_name, date_of_birth::text AS date_of_birth, company_number, tax_number_type, tax_number, vat_number,
+         address_line1, address_line2, city, postcode, country, updated_at`;
+const DETAILS_SELECT = `SELECT ${DETAILS_COLUMNS} FROM product_coach_tax_details`;
+const DETAIL_VALUES = (details: TaxDetails) => [
+  details.seller_type, details.legal_name, details.date_of_birth, details.company_number, details.tax_number_type, details.tax_number,
+  details.vat_number, details.address_line1, details.address_line2, details.city, details.postcode, details.country
+];
+const UPSERT_SET = `seller_type = EXCLUDED.seller_type, legal_name = EXCLUDED.legal_name, date_of_birth = EXCLUDED.date_of_birth,
+       company_number = EXCLUDED.company_number, tax_number_type = EXCLUDED.tax_number_type, tax_number = EXCLUDED.tax_number, vat_number = EXCLUDED.vat_number,
+       address_line1 = EXCLUDED.address_line1, address_line2 = EXCLUDED.address_line2, city = EXCLUDED.city, postcode = EXCLUDED.postcode,
+       country = EXCLUDED.country, updated_at = now()`;
 
 function detailsView(row: Json | undefined): Json | null {
   if (!row) return null;
@@ -139,14 +147,37 @@ export async function saveCoachTaxDetails(coachUserId: string, input: unknown): 
     `INSERT INTO product_coach_tax_details (coach_user_id, seller_type, legal_name, date_of_birth, company_number, tax_number_type, tax_number, vat_number,
        address_line1, address_line2, city, postcode, country)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-     ON CONFLICT (coach_user_id) DO UPDATE SET seller_type = EXCLUDED.seller_type, legal_name = EXCLUDED.legal_name, date_of_birth = EXCLUDED.date_of_birth,
-       company_number = EXCLUDED.company_number, tax_number_type = EXCLUDED.tax_number_type, tax_number = EXCLUDED.tax_number, vat_number = EXCLUDED.vat_number,
-       address_line1 = EXCLUDED.address_line1, address_line2 = EXCLUDED.address_line2, city = EXCLUDED.city, postcode = EXCLUDED.postcode,
-       country = EXCLUDED.country, updated_at = now()`,
-    [coachUserId, details.seller_type, details.legal_name, details.date_of_birth, details.company_number, details.tax_number_type, details.tax_number,
-      details.vat_number, details.address_line1, details.address_line2, details.city, details.postcode, details.country]
+     ON CONFLICT (coach_user_id) DO UPDATE SET ${UPSERT_SET}`,
+    [coachUserId, ...DETAIL_VALUES(details)]
   );
   return getCoachTaxDetails(coachUserId);
+}
+
+// A gym selling its own packages: the same details, entered by the gym's
+// owner (the route checks they own it), asked for once athletes are on one
+// of its packages.
+export async function getGymTaxDetails(orgId: string): Promise<Json> {
+  const [details, packages] = await Promise.all([
+    pool.query(`SELECT ${DETAILS_COLUMNS} FROM product_gym_tax_details WHERE org_id = $1`, [orgId]),
+    pool.query(
+      `SELECT count(*)::int AS n FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id WHERE p.org_id = $1`,
+      [orgId]
+    )
+  ]);
+  return { ok: true, tax_details: detailsView(details.rows[0] as Json | undefined), sells_packages: Number(packages.rows[0]?.n ?? 0) > 0 };
+}
+
+export async function saveGymTaxDetails(orgId: string, input: unknown): Promise<Json> {
+  const { details, errors } = validateTaxDetails(input);
+  if (!details) throw new CoachCheckinError("tax_details_invalid", 422, errors);
+  await pool.query(
+    `INSERT INTO product_gym_tax_details (org_id, seller_type, legal_name, date_of_birth, company_number, tax_number_type, tax_number, vat_number,
+       address_line1, address_line2, city, postcode, country)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+     ON CONFLICT (org_id) DO UPDATE SET ${UPSERT_SET}`,
+    [orgId, ...DETAIL_VALUES(details)]
+  );
+  return getGymTaxDetails(orgId);
 }
 
 // --- The admin's yearly report -------------------------------------------------------
@@ -199,11 +230,15 @@ export async function sellerTaxReport(yearInput: unknown): Promise<{ year: numbe
     [sellerIds, to]
   );
   const gyms = await pool.query(
-    `SELECT o.org_id AS seller_id, COALESCE(l.display_name, o.org_name) AS seller_name, w.email_canonical
+    `SELECT o.org_id AS seller_id, COALESCE(l.display_name, o.org_name) AS seller_name, w.email_canonical,
+            d.seller_type, d.legal_name, d.date_of_birth::text AS date_of_birth, d.company_number, d.tax_number_type, d.tax_number, d.vat_number,
+            d.address_line1, d.address_line2, d.city, d.postcode, d.country
      FROM product_organisations o
      JOIN product_org_owner_accounts w ON w.user_id = o.owner_user_id
      LEFT JOIN product_gym_listings l ON l.org_id = o.org_id
+     LEFT JOIN product_gym_tax_details d ON d.org_id = o.org_id
      WHERE o.org_id = ANY($1::text[])
+        OR d.org_id IS NOT NULL
         OR EXISTS (SELECT 1 FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id
                    WHERE p.org_id = o.org_id AND m.started_on < $2::date)
      ORDER BY o.org_id`,
