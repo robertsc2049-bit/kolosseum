@@ -353,6 +353,24 @@ async function requireCurrent(coachUserId: string, athleteUserId: string): Promi
   return row;
 }
 
+// Payment reminders someone has dealt with stop showing as unread in their
+// bell: a recorded payment settles every reminder on the membership, the
+// athlete saying they've paid settles theirs, and the coach saying it
+// hasn't arrived settles the claim (product_notification_service.ts derives
+// them, keyed "<membership_id>:...").
+const SETTLED_ON_PAYMENT = ["package_payment_upcoming", "package_payment_due", "package_payment_claim_declined", "athlete_package_payment_due", "athlete_package_payment_claimed"];
+const SETTLED_ON_CLAIM = ["package_payment_upcoming", "package_payment_due", "package_payment_claim_declined"];
+const SETTLED_ON_DECLINE = ["athlete_package_payment_claimed"];
+
+async function settleReminders(membershipId: string, types: string[]): Promise<void> {
+  await pool.query(
+    `UPDATE product_notifications SET read_at = now()
+     WHERE read_at IS NULL AND source_record_type = 'product_package_memberships'
+       AND starts_with(source_record_id, $1) AND notification_type = ANY($2::text[])`,
+    [`${membershipId}:`, types]
+  );
+}
+
 // A payment came in: one more period paid (or paid up to a date the coach
 // gives), or a one-off paid in full.
 export async function recordPackagePayment(coachUserId: string, athleteUserIdInput: unknown, input: unknown): Promise<Json> {
@@ -381,6 +399,7 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
     );
     recordedPaymentId = await logPayment(pool, { ...entry, from, to, paidInFull: false, periods: periodsCovered(startedOn, billing, from, to) });
   }
+  await settleReminders(String(row.membership_id), SETTLED_ON_PAYMENT);
   return { ...(await getAthletePackageForCoach(coachUserId, athleteUserId)), recorded_payment_id: recordedPaymentId };
 }
 
@@ -436,6 +455,7 @@ export async function claimPackagePayment(athleteUserId: string, coachUserIdInpu
        WHERE membership_id = $1 AND payment_claimed_at IS NULL`,
       [row.membership_id, note || null]
     );
+    await settleReminders(String(row.membership_id), SETTLED_ON_CLAIM);
   }
   return { ok: true, membership: await athleteMembershipWith(coachUserId, athleteUserId) };
 }
@@ -451,6 +471,7 @@ export async function declinePaymentClaim(coachUserId: string, athleteUserIdInpu
     [row.membership_id]
   );
   if (!updated.rowCount) throw new CoachCheckinError("package_payment_claim_not_found", 404);
+  await settleReminders(String(row.membership_id), SETTLED_ON_DECLINE);
   return getAthletePackageForCoach(coachUserId, athleteUserId);
 }
 

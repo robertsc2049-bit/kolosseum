@@ -211,9 +211,9 @@ export function CoachPaymentsPanel() {
       </summary>
       <p className="muted small">
         {[owed.length ? `Owed now: ${owed.join(", ")}` : "", upcoming.length ? `Due in the next ${String(payload?.outlook_days ?? 30)} days: ${upcoming.join(", ")}` : ""].filter(Boolean).join(" · ")
-          || "Nothing due in the next 30 days."}
-        {" "}Worked out from your package prices - athletes pay you directly.
+          || "Nothing due in the next 30 days"}.
       </p>
+      <p className="muted small">Worked out from your package prices - athletes pay you directly.</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {notice ? (
         <p className="muted small" role="status">

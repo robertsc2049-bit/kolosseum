@@ -11,6 +11,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { AccountCoachRelationshipPanel } from "../screens/account/AccountCoachRelationshipPanel";
+import { dayLabel } from "../utils/packages";
 
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
@@ -315,4 +316,43 @@ test("the coach hasn't received it: the athlete is told and can say they've paid
   render(<AccountCoachRelationshipPanel />);
   await screen.findByText("Jordan Coach hasn't received your payment yet - check with them.");
   screen.getByRole("button", { name: "I've paid" });
+});
+
+test("payment due shows on My coach's heading, and a payment notification opens My coach at the package", async () => {
+  seedRole("athlete");
+  installMocks({ relationships: [baseRelationship({ my_package: {
+    membership_id: "pmem_1", package: { name: "Online coaching", billing: "monthly" }, started_on: "2026-10-01", paid_until: "2026-10-31",
+    payment_due: true, usage: {}, payments: [], payment_claim: null, payment_claim_declined_at: null, can_claim_payment: true
+  } })] });
+  const { container } = render(<AccountCoachRelationshipPanel />);
+  await screen.findByRole("button", { name: "I've paid" });
+  const heading = screen.getByRole("heading", { name: /My coach/ });
+  assert.equal(heading.querySelector(".badge")?.textContent, "Payment due");
+
+  // Collapsed, as Account is on a phone (app.js adds the toggle).
+  const panel = container.querySelector("article.panel") as HTMLElement;
+  panel.dataset.collapsible = "2";
+  panel.dataset.collapsed = "true";
+  const toggle = document.createElement("button");
+  toggle.className = "section-toggle";
+  toggle.addEventListener("click", () => { panel.dataset.collapsed = "false"; });
+  heading.append(toggle);
+  window.scrollTo = (() => undefined) as typeof window.scrollTo;
+  document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "account_settings", params: {}, notification_type: "relationship_accepted" } }));
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  assert.equal(panel.dataset.collapsed, "true", "other notifications leave it alone");
+  document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "account_settings", params: {}, notification_type: "package_payment_due" } }));
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  assert.equal(panel.dataset.collapsed, "false");
+});
+
+test("no payment due, no badge on My coach", async () => {
+  seedRole("athlete");
+  installMocks({ relationships: [baseRelationship({ my_package: {
+    membership_id: "pmem_1", package: { name: "Online coaching", billing: "monthly" }, started_on: "2026-10-01", paid_until: "2026-11-30",
+    payment_due: false, usage: {}, payments: [], payment_claim: null, payment_claim_declined_at: null, can_claim_payment: false
+  } })] });
+  render(<AccountCoachRelationshipPanel />);
+  await screen.findByText(`Paid until ${dayLabel("2026-11-30")}`);
+  assert.equal(screen.getByRole("heading", { name: /My coach/ }).querySelector(".badge"), null);
 });

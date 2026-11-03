@@ -33,6 +33,7 @@ test("a coach who sells packages adds their tax details, fixing what's wrong fir
 
   render(<CoachTaxDetailsPanel />);
   await screen.findByText("You sell packages - add your tax details.");
+  screen.getByText("To add", { selector: ".badge" });
   fireEvent.click(screen.getByRole("button", { name: "Add tax details" }));
   fireEvent.change(screen.getByLabelText("Full legal name"), { target: { value: "Christopher Roberts" } });
   fireEvent.change(screen.getByLabelText("Date of birth"), { target: { value: "1988-06-15" } });

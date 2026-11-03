@@ -102,6 +102,7 @@ export function CoachTaxDetailsPanel() {
         <div>
           <p className="eyebrow">Tax details</p>
           <h3 id="coachTaxHeading">For HMRC reporting</h3>
+          {payload.sells_packages && !details ? <span className="badge partial">To add</span> : null}
           <p className="muted">
             Kolosseum may have to tell HMRC each year what you're paid through your packages, with your name, address and tax number.
             Only you and Kolosseum's admin see these.
