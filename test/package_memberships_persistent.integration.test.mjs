@@ -201,9 +201,15 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   view = expect(await request(base, "POST", `${packageOf}/payments/${extra.recorded_payment_id}/undo`, {}, coach), 200, "undo");
   assert.deepEqual([view.membership.paid_until, view.membership.payments.length], [paidUntilBefore, 2]);
   expect(await request(base, "POST", `${packageOf}/payments/${extra.recorded_payment_id}/undo`, {}, coach), 404, "already undone");
+  assert.deepEqual(await bell(sam, "package_payment_recorded"), [], "Sam isn't told while a payment can still be undone");
   // Too late to undo the one before.
   await pool.query("UPDATE product_package_payments SET recorded_at = recorded_at - interval '11 minutes' WHERE athlete_user_id = $1", [sam.userId]);
   assert.equal(expect(await request(base, "POST", `${packageOf}/payments/${view.membership.payments[0].payment_id}/undo`, {}, coach), 409, "too late").error, "package_payment_undo_expired");
+  // Now Sam is told about each payment that stood (a receipt: dates, no amounts); never the one undone.
+  const receipts = await bell(sam, "package_payment_recorded");
+  assert.deepEqual(receipts.map((n) => n.notification_payload.paid_until).sort(), view.membership.payments.map((p) => p.paid_until_to).sort());
+  assert.deepEqual(receipts.map((n) => [n.notification_payload.package_name, n.notification_payload.coach_user_id, "amount_minor" in n.notification_payload]), [["Online coaching", coach.userId, false], ["Online coaching", coach.userId, false]]);
+  assert.deepEqual(await bell(coach, "package_payment_recorded"), [], "only the athlete");
   // The athlete sees dates, not amounts.
   mine = expect(await request(base, "GET", "/coach-workspace/relationships/mine", undefined, sam), 200, "my coach").relationships.find((r) => r.coach_user_id === coach.userId);
   assert.deepEqual(mine.my_package.payments.map((p) => [p.paid_until_to, p.periods, "amount_minor" in p]), view.membership.payments.map((p) => [p.paid_until_to, p.periods, false]));

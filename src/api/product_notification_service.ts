@@ -16,6 +16,7 @@ import { loadActiveCoachTemplateById, orderedTemplateSessions } from "./beta18_p
 import { deriveAthleteVisibleNoteNotifications } from "./product_notification_note_derivation.js";
 import { coachBusinessName } from "./coach_branding_service.js";
 import { REMINDER_SELECT, reminderRow, remindersFor } from "./package_payment_reminders.js";
+import { UNDO_MINUTES } from "./package_membership_service.js";
 
 type JsonRecord = Record<string, unknown>;
 export type QueryClient = { query: (typeof pool)["query"] };
@@ -85,7 +86,8 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "package_payment_due",
   "athlete_package_payment_due",
   "athlete_package_payment_claimed",
-  "package_payment_claim_declined"
+  "package_payment_claim_declined",
+  "package_payment_recorded"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -1826,6 +1828,43 @@ async function derivePackagePaymentNotifications(
   }
 }
 
+// The athlete: their coach recorded a payment (a receipt, dates only). Told
+// once the payment can no longer be undone (UNDO_MINUTES), so a payment
+// recorded by mistake and undone never reaches them; corrections that move
+// the paid-up date back aren't payments.
+async function derivePackagePaymentRecordedNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `SELECT pp.payment_id, pp.coach_user_id, pp.paid_until_to::text AS paid_until, pp.paid_in_full, pp.recorded_at, p.name AS package_name
+     FROM product_package_payments pp
+     JOIN product_package_memberships m ON m.membership_id = pp.membership_id
+     JOIN product_service_packages p ON p.package_id = m.package_id
+     WHERE pp.athlete_user_id = $1
+       AND pp.recorded_at <= now() - make_interval(mins => $2)
+       AND pp.recorded_at > now() - interval '14 days'
+       AND (pp.paid_in_full OR pp.paid_until_from IS NULL OR pp.paid_until_to > pp.paid_until_from)`,
+    [recipientUserId, UNDO_MINUTES]
+  );
+  for (const row of result.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "package_payment_recorded",
+      sourceRecordType: "product_package_payments",
+      sourceRecordId: cleanString(row.payment_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: {
+        package_name: cleanString(row.package_name),
+        paid_until: row.paid_until ? cleanString(row.paid_until) : null,
+        paid_in_full: row.paid_in_full === true,
+        coach_user_id: cleanString(row.coach_user_id)
+      },
+      occurredAtIso8601: row.recorded_at instanceof Date ? row.recorded_at.toISOString() : cleanString(row.recorded_at)
+    });
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -1863,6 +1902,7 @@ async function deriveNotificationsForRecipient(
   await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
   await deriveCheckinNotifications(client, recipientUserId);
   await derivePackagePaymentNotifications(client, recipientUserId);
+  await derivePackagePaymentRecordedNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------
