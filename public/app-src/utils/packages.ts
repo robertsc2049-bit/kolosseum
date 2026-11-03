@@ -11,6 +11,15 @@ export function paidLabel(membership: JsonRecord): string {
   return `Starts ${dayLabel(membership.started_on)}`;
 }
 
+// "Says they've paid (3 Nov): bank transfer Friday" - the athlete's claim,
+// for the coach.
+export function claimLine(membership: JsonRecord): string {
+  const claim = (membership.payment_claim ?? null) as JsonRecord | null;
+  if (!claim) return "";
+  const on = new Date(String(claim.claimed_at)).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  return `Says they've paid (${on})${claim.note ? `: ${String(claim.note)}` : ""}`;
+}
+
 // One recorded payment: "3 Nov - paid up to 22 Dec (1 month)", "Paid in
 // full", or a correction ("Paid-up date moved back to 22 Nov"). Coaches also
 // see the amount at the package price.

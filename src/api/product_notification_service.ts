@@ -83,7 +83,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "checkin_cancelled_by_athlete",
   "package_payment_upcoming",
   "package_payment_due",
-  "athlete_package_payment_due"
+  "athlete_package_payment_due",
+  "athlete_package_payment_claimed",
+  "package_payment_claim_declined"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -1767,6 +1769,33 @@ async function derivePackagePaymentNotifications(
     const athleteId = cleanString(row.athlete_user_id);
     const coachId = cleanString(row.coach_user_id);
     const payload = { package_name: cleanString(row.package_name), paid_until: plain.paid_until };
+    // The athlete says they've paid: the coach is told (once per claim).
+    if (row.payment_claimed_at && coachId === recipientUserId) {
+      const claimedAt = row.payment_claimed_at instanceof Date ? row.payment_claimed_at.toISOString() : cleanString(row.payment_claimed_at);
+      await insertDerivedNotification(client, {
+        recipientUserId,
+        notificationType: "athlete_package_payment_claimed",
+        sourceRecordType: "product_package_memberships",
+        sourceRecordId: `${cleanString(row.membership_id)}:claim:${claimedAt}`,
+        deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+        deepLinkParams: { athlete_id: athleteId },
+        notificationPayload: { ...payload, athlete_user_id: athleteId },
+        occurredAtIso8601: claimedAt
+      });
+    }
+    // The coach says it hasn't arrived: the athlete is told.
+    if (row.payment_claim_declined_at && athleteId === recipientUserId) {
+      const declinedAt = row.payment_claim_declined_at instanceof Date ? row.payment_claim_declined_at.toISOString() : cleanString(row.payment_claim_declined_at);
+      await insertDerivedNotification(client, {
+        recipientUserId,
+        notificationType: "package_payment_claim_declined",
+        sourceRecordType: "product_package_memberships",
+        sourceRecordId: `${cleanString(row.membership_id)}:declined:${declinedAt}`,
+        deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+        notificationPayload: { ...payload, coach_user_id: coachId },
+        occurredAtIso8601: declinedAt
+      });
+    }
     for (const reminder of remindersFor(plain)) {
       const sourceRecordId = `${cleanString(row.membership_id)}:${reminder.key}`;
       if (reminder.kind === "coach_due") {

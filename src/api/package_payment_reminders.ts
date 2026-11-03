@@ -44,7 +44,7 @@ export function remindersFor(
 
 export const REMINDER_SELECT = `
   SELECT m.membership_id, m.coach_user_id, m.athlete_user_id, m.started_on::text AS started_on, m.paid_until::text AS paid_until,
-         m.paid_in_full, m.emailed_reminders, p.name AS package_name, p.billing
+         m.paid_in_full, m.emailed_reminders, m.payment_claimed_at, m.payment_claim_declined_at, p.name AS package_name, p.billing
   FROM product_package_memberships m
   JOIN product_service_packages p ON p.package_id = m.package_id
   WHERE m.ended_at IS NULL`;

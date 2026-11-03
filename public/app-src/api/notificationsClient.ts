@@ -54,7 +54,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   checkin_cancelled_by_athlete: "Athlete cancelled a check-in call",
   package_payment_upcoming: "Package payment due soon",
   package_payment_due: "Package payment due",
-  athlete_package_payment_due: "Athlete's package payment is due"
+  athlete_package_payment_due: "Athlete's package payment is due",
+  athlete_package_payment_claimed: "Athlete says they've paid",
+  package_payment_claim_declined: "Your coach hasn't received your payment yet"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -76,6 +78,11 @@ export function notificationTypeLabel(notification: JsonRecord): string {
       return `Payment due for ${name} - was paid up to ${dayLabel(paidUntil)}`;
     }
     if (name && type === "package_payment_due") return `Payment due for ${name}`;
+  }
+  if (type === "athlete_package_payment_claimed" || type === "package_payment_claim_declined") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    const name = typeof payload.package_name === "string" ? payload.package_name.trim() : "";
+    if (name) return type === "athlete_package_payment_claimed" ? `Says they've paid for ${name} - confirm it` : `Your coach hasn't received your payment for ${name} yet`;
   }
   return NOTIFICATION_TYPE_LABELS[type] ?? titleCase(type);
 }

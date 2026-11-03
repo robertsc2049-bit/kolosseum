@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { loadPackageMembers, recordPackagePayment, undoPackagePayment } from "../../api/checkinsClient";
+import { declinePaymentClaim, loadPackageMembers, recordPackagePayment, undoPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
-import { dayLabel, paidLabel } from "../../utils/packages";
+import { claimLine, dayLabel, paidLabel } from "../../utils/packages";
 import { ENTRY_AUTH_SUCCEEDED_EVENT } from "../entry/useEntryAuth";
 
 // Payments, on the coach's Athletes page: everyone on one of their packages
@@ -52,7 +52,7 @@ function recordLabel(member: JsonRecord): string {
   return member.next_paid_until ? `Record payment - to ${dayLabel(member.next_paid_until)}` : "Record payment";
 }
 
-function PaymentRow({ member, busy, onRecord }: { member: JsonRecord; busy: boolean; onRecord: (member: JsonRecord) => void }) {
+function PaymentRow({ member, busy, onRecord, onDecline }: { member: JsonRecord; busy: boolean; onRecord: (member: JsonRecord) => void; onDecline: (member: JsonRecord) => void }) {
   const name = String(member.athlete_display_name);
   const owedPeriods = Number(member.owed_periods ?? 0);
   const per = billingOf(member) === "weekly" ? "week" : "month";
@@ -67,10 +67,16 @@ function PaymentRow({ member, busy, onRecord }: { member: JsonRecord; busy: bool
             ? ` - ${money(Number(member.owed_minor), String(member.currency))} owed${owedPeriods > 1 ? ` (${owedPeriods} ${per}s)` : ""}`
             : ""}
         </p>
+        {member.payment_claim ? <p className="small"><strong>{claimLine(member)}</strong></p> : null}
       </div>
-      <button className="button secondary small-button" type="button" disabled={busy} aria-label={`${recordLabel(member)}: ${name}`} onClick={() => onRecord(member)}>
-        {recordLabel(member)}
-      </button>
+      <div className="inline-controls">
+        <button className={`button ${member.payment_claim ? "primary" : "secondary"} small-button`} type="button" disabled={busy} aria-label={`${recordLabel(member)}: ${name}`} onClick={() => onRecord(member)}>
+          {recordLabel(member)}
+        </button>
+        {member.payment_claim ? (
+          <button className="button secondary small-button" type="button" disabled={busy} aria-label={`Not received: ${name}`} onClick={() => onDecline(member)}>Not received</button>
+        ) : null}
+      </div>
     </article>
   );
 }
@@ -115,6 +121,7 @@ export function CoachPaymentsPanel() {
   if (!members.length) return null;
   const today = String(payload?.today ?? new Date().toISOString().slice(0, 10));
   const { due, soon, paid } = paymentGroups(members, today);
+  const claimed = members.filter((member) => member.payment_claim).length;
   const totals = Array.isArray(payload?.totals) ? (payload?.totals as JsonRecord[]) : [];
   const owed = totals.filter((t) => Number(t.owed_minor) > 0).map((t) => money(Number(t.owed_minor), String(t.currency)));
   const upcoming = totals.filter((t) => Number(t.upcoming_minor) > 0).map((t) => money(Number(t.upcoming_minor), String(t.currency)));
@@ -144,6 +151,28 @@ export function CoachPaymentsPanel() {
     }
   }
 
+  // The athlete says they've paid but it hasn't arrived: they're told.
+  async function decline(member: JsonRecord) {
+    const id = String(member.athlete_user_id);
+    if (busyId) return;
+    setBusyId(id);
+    setError(null);
+    setNotice(null);
+    setUndoable(null);
+    try {
+      const account = await loadAccountDetail();
+      await declinePaymentClaim(id, typeof account.csrf_token === "string" ? account.csrf_token : "");
+      setNotice(`${String(member.athlete_display_name)} has been told it hasn't arrived yet.`);
+      announce();
+    }
+    catch {
+      setError("That didn't save. Try again.");
+    }
+    finally {
+      setBusyId(null);
+    }
+  }
+
   async function undo() {
     if (!undoable || busyId) return;
     const { athleteUserId, paymentId, name } = undoable;
@@ -167,15 +196,18 @@ export function CoachPaymentsPanel() {
 
   const rows = (list: JsonRecord[]) => (
     <div className="record-list">
-      {list.map((member) => <PaymentRow key={String(member.membership_id)} member={member} busy={busyId !== null} onRecord={record} />)}
+      {list.map((member) => <PaymentRow key={String(member.membership_id)} member={member} busy={busyId !== null} onRecord={record} onDecline={decline} />)}
     </div>
   );
 
   return (
-    <details className="panel coach-payments" data-testid="coach-payments" open={open ?? due.length > 0} onToggle={(event) => setOpen(event.currentTarget.open)}>
+    <details className="panel coach-payments" data-testid="coach-payments" open={open ?? (due.length > 0 || claimed > 0)} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>
         <span className="eyebrow">Payments</span>
-        <strong>{due.length ? `${due.length} payment${due.length === 1 ? "" : "s"} due` : soon.length ? `${soon.length} due this week` : "Everyone's paid up"}</strong>
+        <strong>
+          {due.length ? `${due.length} payment${due.length === 1 ? "" : "s"} due` : soon.length ? `${soon.length} due this week` : "Everyone's paid up"}
+          {claimed ? ` - ${claimed} say${claimed === 1 ? "s" : ""} they've paid` : ""}
+        </strong>
       </summary>
       <p className="muted small">
         {[owed.length ? `Owed now: ${owed.join(", ")}` : "", upcoming.length ? `Due in the next ${String(payload?.outlook_days ?? 30)} days: ${upcoming.join(", ")}` : ""].filter(Boolean).join(" · ")

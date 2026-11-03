@@ -143,10 +143,23 @@ async function paymentHistory(membershipId: string, forAthlete: boolean, client:
   }));
 }
 
+const isoTime = (value: unknown) => (value instanceof Date ? value.toISOString() : String(value));
+
+// An athlete can say they've paid when payment is due or the paid-up date
+// is within the reminder window (package_payment_reminders.ts).
+export const CLAIM_DAYS_BEFORE = 3;
+export function canClaimPayment(row: { billing: string; started_on: string; paid_until: string | null; paid_in_full: boolean }, on = today()): boolean {
+  if (row.paid_in_full) return false;
+  if (paymentDue(row, on)) return true;
+  if (row.billing === "one_off") return row.started_on <= addDays(on, CLAIM_DAYS_BEFORE);
+  return !row.paid_until || row.paid_until <= addDays(on, CLAIM_DAYS_BEFORE - 1);
+}
+
 // --- Reading ---------------------------------------------------------------------
 
 const MEMBERSHIP_SELECT = `
   SELECT m.membership_id, m.coach_user_id, m.athlete_user_id, m.started_on::text AS started_on, m.paid_until::text AS paid_until, m.paid_in_full,
+         m.payment_claimed_at, m.payment_claim_note, m.payment_claim_declined_at,
          p.package_id, p.name, p.description, p.price_minor, p.currency, p.billing, p.includes, p.org_id,
          COALESCE(l.display_name, o.org_name) AS gym_name, a.display_name AS athlete_display_name
   FROM product_package_memberships m
@@ -179,6 +192,11 @@ async function membershipView(row: Json, client: QueryClient = pool): Promise<Js
     started_on: startedOn,
     paid_until: paidUntil,
     paid_in_full: row.paid_in_full === true,
+    // The athlete says they've paid, until the coach records it or says it
+    // hasn't arrived.
+    payment_claim: row.payment_claimed_at ? { claimed_at: isoTime(row.payment_claimed_at), note: text(row.payment_claim_note) || null } : null,
+    payment_claim_declined_at: row.payment_claim_declined_at ? isoTime(row.payment_claim_declined_at) : null,
+    can_claim_payment: canClaimPayment({ billing, started_on: startedOn, paid_until: paidUntil, paid_in_full: row.paid_in_full === true }, now) && !row.payment_claimed_at,
     // What "record a payment" with no date would make it (one more period).
     next_paid_until: billing === "one_off" ? null : nextPaidUntil(startedOn, billing, paidUntil),
     payment_due: paymentDue({ started_on: startedOn, paid_until: paidUntil, paid_in_full: row.paid_in_full === true }, now),
@@ -347,7 +365,7 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
   };
   let recordedPaymentId: string | null = null;
   if (billing === "one_off") {
-    const updated = await pool.query(`UPDATE product_package_memberships SET paid_in_full = true, updated_at = now() WHERE membership_id = $1 AND NOT paid_in_full`, [row.membership_id]);
+    const updated = await pool.query(`UPDATE product_package_memberships SET paid_in_full = true, payment_claimed_at = NULL, payment_claim_note = NULL, payment_claim_declined_at = NULL, updated_at = now() WHERE membership_id = $1 AND NOT paid_in_full`, [row.membership_id]);
     if (updated.rowCount) recordedPaymentId = await logPayment(pool, { ...entry, from: null, to: null, paidInFull: true, periods: 1 });
   }
   else {
@@ -357,7 +375,10 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
     }
     const from = dayValue(row.paid_until);
     const to = given ?? nextPaidUntil(startedOn, billing, from);
-    await pool.query(`UPDATE product_package_memberships SET paid_until = $2, updated_at = now() WHERE membership_id = $1`, [row.membership_id, to]);
+    await pool.query(
+      `UPDATE product_package_memberships SET paid_until = $2, payment_claimed_at = NULL, payment_claim_note = NULL, payment_claim_declined_at = NULL, updated_at = now() WHERE membership_id = $1`,
+      [row.membership_id, to]
+    );
     recordedPaymentId = await logPayment(pool, { ...entry, from, to, paidInFull: false, periods: periodsCovered(startedOn, billing, from, to) });
   }
   return { ...(await getAthletePackageForCoach(coachUserId, athleteUserId)), recorded_payment_id: recordedPaymentId };
@@ -396,6 +417,40 @@ export async function undoPackagePayment(coachUserId: string, athleteUserIdInput
   finally {
     client.release();
   }
+  return getAthletePackageForCoach(coachUserId, athleteUserId);
+}
+
+// The athlete says they've paid their coach (outside the app): the coach is
+// told and confirms it by recording the payment, or says it hasn't arrived.
+// Saying it again while waiting changes nothing.
+export async function claimPackagePayment(athleteUserId: string, coachUserIdInput: unknown, input: unknown): Promise<Json> {
+  const coachUserId = text(coachUserIdInput);
+  const row = await currentRow(coachUserId, athleteUserId);
+  if (!row) throw new CoachCheckinError("package_membership_not_found", 404);
+  const note = (isRecord(input) ? text(input.note) : "").slice(0, 200);
+  if (!row.payment_claimed_at) {
+    const plain = { billing: String(row.billing), started_on: dayValue(row.started_on) as string, paid_until: dayValue(row.paid_until), paid_in_full: row.paid_in_full === true };
+    if (!canClaimPayment(plain)) throw new CoachCheckinError("package_payment_not_due", 409);
+    await pool.query(
+      `UPDATE product_package_memberships SET payment_claimed_at = now(), payment_claim_note = $2, payment_claim_declined_at = NULL, updated_at = now()
+       WHERE membership_id = $1 AND payment_claimed_at IS NULL`,
+      [row.membership_id, note || null]
+    );
+  }
+  return { ok: true, membership: await athleteMembershipWith(coachUserId, athleteUserId) };
+}
+
+// The coach hasn't received what the athlete says they paid: the claim is
+// cleared and the athlete is told.
+export async function declinePaymentClaim(coachUserId: string, athleteUserIdInput: unknown): Promise<Json> {
+  const athleteUserId = text(athleteUserIdInput);
+  const row = await requireCurrent(coachUserId, athleteUserId);
+  const updated = await pool.query(
+    `UPDATE product_package_memberships SET payment_claimed_at = NULL, payment_claim_note = NULL, payment_claim_declined_at = now(), updated_at = now()
+     WHERE membership_id = $1 AND payment_claimed_at IS NOT NULL`,
+    [row.membership_id]
+  );
+  if (!updated.rowCount) throw new CoachCheckinError("package_payment_claim_not_found", 404);
   return getAthletePackageForCoach(coachUserId, athleteUserId);
 }
 
