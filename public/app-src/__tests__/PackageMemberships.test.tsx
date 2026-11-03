@@ -228,4 +228,7 @@ test("an athlete says they've paid: the coach sees it, and can say it hasn't arr
   assert.equal(screen.queryByText(/Says they've paid/), null);
   assert.equal(notificationTypeLabel({ notification_type: "athlete_package_payment_claimed", notification_payload: { package_name: "Online coaching" } }), "Says they've paid for Online coaching - confirm it");
   assert.equal(notificationTypeLabel({ notification_type: "package_payment_claim_declined", notification_payload: { package_name: "Online coaching" } }), "Your coach hasn't received your payment for Online coaching yet");
+  // The athlete's receipt once the coach records it.
+  assert.equal(notificationTypeLabel({ notification_type: "package_payment_recorded", notification_payload: { package_name: "Online coaching", paid_until: "2026-12-23", paid_in_full: false } }), `Payment recorded for Online coaching - paid up to ${dayLabel("2026-12-23")}`);
+  assert.equal(notificationTypeLabel({ notification_type: "package_payment_recorded", notification_payload: { package_name: "PT block", paid_until: null, paid_in_full: true } }), "Payment recorded for PT block - paid in full");
 });

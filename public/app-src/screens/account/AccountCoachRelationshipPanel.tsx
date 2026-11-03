@@ -113,7 +113,7 @@ function MessageAttachment({ attachment }: { attachment: JsonRecord | null | und
   );
 }
 
-const PACKAGE_NOTIFICATIONS = new Set(["package_payment_upcoming", "package_payment_due", "package_payment_claim_declined"]);
+const PACKAGE_NOTIFICATIONS = new Set(["package_payment_upcoming", "package_payment_due", "package_payment_claim_declined", "package_payment_recorded"]);
 
 export function AccountCoachRelationshipPanel() {
   const isAthlete = useRole() === "athlete";
