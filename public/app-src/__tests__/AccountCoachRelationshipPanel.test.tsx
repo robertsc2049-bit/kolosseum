@@ -11,6 +11,7 @@ import React from "react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { AccountCoachRelationshipPanel } from "../screens/account/AccountCoachRelationshipPanel";
+import { dayLabel } from "../utils/packages";
 
 const STORAGE_KEY = "kolosseum.product.app.v1";
 
@@ -352,6 +353,6 @@ test("no payment due, no badge on My coach", async () => {
     payment_due: false, usage: {}, payments: [], payment_claim: null, payment_claim_declined_at: null, can_claim_payment: false
   } })] });
   render(<AccountCoachRelationshipPanel />);
-  await screen.findByText("Paid until 30 Nov");
+  await screen.findByText(`Paid until ${dayLabel("2026-11-30")}`);
   assert.equal(screen.getByRole("heading", { name: /My coach/ }).querySelector(".badge"), null);
 });
