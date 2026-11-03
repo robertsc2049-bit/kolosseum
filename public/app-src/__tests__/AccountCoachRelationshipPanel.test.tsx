@@ -275,3 +275,44 @@ test("a coach display name and tagline containing markup render as inert text, n
   assert.equal((globalThis as Record<string, unknown>).pwned, undefined);
   assert.equal(document.querySelectorAll(".record-row img, .record-row script").length, 0);
 });
+
+test("payment due: the athlete tells their coach they've paid, then waits for them to confirm", async () => {
+  seedRole("athlete");
+  const myPackage = {
+    membership_id: "pmem_1", package: { name: "Online coaching", price_label: "£80 a month", billing: "monthly", includes_summary: [] },
+    started_on: "2026-10-01", paid_until: "2026-10-31", paid_in_full: false, payment_due: true, period_start: "2026-11-01", period_end: "2026-11-30",
+    usage: {}, payments: [], payment_claim: null, payment_claim_declined_at: null, can_claim_payment: true
+  };
+  installMocks({ relationships: [baseRelationship({ my_package: myPackage })] });
+  const mocked = globalThis.fetch;
+  const posts: { path: string; body: unknown }[] = [];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    if (path === "/check-ins/coaches/coach_1/package/paid") {
+      posts.push({ path, body: JSON.parse(String(init?.body)) });
+      return jsonResponse({ ok: true, membership: { ...myPackage, can_claim_payment: false, payment_claim: { claimed_at: "2026-11-03T10:00:00Z", note: "Bank transfer" } } });
+    }
+    return mocked(input, init);
+  }) as typeof fetch;
+  render(<AccountCoachRelationshipPanel />);
+
+  fireEvent.click(await screen.findByRole("button", { name: "I've paid" }));
+  fireEvent.change(screen.getByLabelText("How did you pay? (optional)"), { target: { value: "Bank transfer" } });
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Tell Jordan Coach" }));
+  });
+  assert.deepEqual(posts, [{ path: "/check-ins/coaches/coach_1/package/paid", body: { note: "Bank transfer" } }]);
+  await screen.findByText("You told Jordan Coach you've paid - waiting for them to confirm.");
+  assert.equal(screen.queryByRole("button", { name: "I've paid" }), null);
+});
+
+test("the coach hasn't received it: the athlete is told and can say they've paid again", async () => {
+  seedRole("athlete");
+  installMocks({ relationships: [baseRelationship({ my_package: {
+    membership_id: "pmem_1", package: { name: "Online coaching", billing: "monthly" }, started_on: "2026-10-01", paid_until: "2026-10-31",
+    payment_due: true, usage: {}, payments: [], payment_claim: null, payment_claim_declined_at: "2026-11-03T12:00:00Z", can_claim_payment: true
+  } })] });
+  render(<AccountCoachRelationshipPanel />);
+  await screen.findByText("Jordan Coach hasn't received your payment yet - check with them.");
+  screen.getByRole("button", { name: "I've paid" });
+});

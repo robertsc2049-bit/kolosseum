@@ -132,7 +132,30 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   const slotTime = new Date(`${day(3)}T09:00:00Z`).toISOString();
   assert.equal(expect(await request(base, "POST", "/check-ins/book", { coach_user_id: coach.userId, starts_at: slotTime }, sam), 409, "payment due").error, "booking_payment_due");
   let mine = expect(await request(base, "GET", "/coach-workspace/relationships/mine", undefined, sam), 200, "my coach").relationships.find((r) => r.coach_user_id === coach.userId);
-  assert.deepEqual([mine.my_package.package.name, mine.my_package.payment_due], ["Online coaching", true]);
+  assert.deepEqual([mine.my_package.package.name, mine.my_package.payment_due, mine.my_package.can_claim_payment], ["Online coaching", true, true]);
+
+  // Sam says they've paid; saying it twice changes nothing. The coach is told.
+  const paidRoute = `/check-ins/coaches/${coach.userId}/package/paid`;
+  expect(await request(base, "POST", paidRoute, {}, coach), 403, "coaches can't");
+  expect(await request(base, "POST", `/check-ins/coaches/${other.userId}/package/paid`, {}, sam), 404, "not on that coach's package");
+  let claimed = expect(await request(base, "POST", paidRoute, { note: "Bank transfer Friday" }, sam), 200, "says paid").membership;
+  assert.deepEqual([claimed.payment_claim.note, claimed.can_claim_payment, claimed.payment_due], ["Bank transfer Friday", false, true], "booking stays closed until the coach confirms");
+  const claimedAt = claimed.payment_claim.claimed_at;
+  claimed = expect(await request(base, "POST", paidRoute, { note: "again" }, sam), 200, "says it again").membership;
+  assert.deepEqual([claimed.payment_claim.claimed_at, claimed.payment_claim.note], [claimedAt, "Bank transfer Friday"]);
+  const bell = async (who, type) => expect(await request(base, "GET", "/account/notifications", undefined, who), 200, "bell").notifications.filter((n) => n.notification_type === type);
+  assert.deepEqual((await bell(coach, "athlete_package_payment_claimed")).map((n) => [n.notification_payload.package_name, n.notification_payload.athlete_user_id]), [["Online coaching", sam.userId]]);
+  assert.equal(expect(await request(base, "GET", "/check-ins/package-members", undefined, coach), 200, "members").members[0].payment_claim.note, "Bank transfer Friday");
+
+  // It hasn't arrived: Sam is told, and can say it again.
+  expect(await request(base, "POST", `${packageOf}/claim/decline`, {}, other), 404, "not their athlete");
+  view = expect(await request(base, "POST", `${packageOf}/claim/decline`, {}, coach), 200, "not received");
+  assert.deepEqual([view.membership.payment_claim, typeof view.membership.payment_claim_declined_at], [null, "string"]);
+  expect(await request(base, "POST", `${packageOf}/claim/decline`, {}, coach), 404, "nothing to decline");
+  assert.equal((await bell(sam, "package_payment_claim_declined")).length, 1);
+  claimed = expect(await request(base, "POST", paidRoute, {}, sam), 200, "says paid again").membership;
+  assert.deepEqual([claimed.payment_claim.note, claimed.payment_claim_declined_at], [null, null]);
+  assert.equal((await bell(coach, "athlete_package_payment_claimed")).length, 2, "a new claim, a new notification");
 
   // The coach can still book them; payment due, they cancel everything upcoming.
   expect(await request(base, "POST", "/check-ins", { athlete_user_id: sam.userId, starts_at: new Date(Date.now() + 2 * 86400000).toISOString(), call_method: "in_person", duration_minutes: 60, repeat: "weekly", occurrences: 3 }, coach), 201, "coach books");
@@ -151,6 +174,10 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   assert.ok(expect(await request(base, "POST", `${packageOf}/payment`, { paid_until: "2020-01-01" }, coach), 422, "bad date").field_errors.paid_until);
   view = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "payment");
   assert.deepEqual([view.membership.paid_until, view.membership.payment_due], [nextPaidUntil(startedOn, "monthly", nextPaidUntil(startedOn, "monthly", null)), false]);
+  assert.equal(view.membership.payment_claim, null, "recording the payment confirms Sam's claim");
+  if (view.membership.paid_until > day(3)) {
+    assert.equal(expect(await request(base, "POST", paidRoute, {}, sam), 409, "nothing due yet").error, "package_payment_not_due");
+  }
   assert.equal(view.membership.next_paid_until, nextPaidUntil(startedOn, "monthly", view.membership.paid_until), "what one more payment would cover");
   assert.equal(expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, coach), 409, "not due").error, "package_payment_not_due");
   expect(await request(base, "POST", "/check-ins/book", { coach_user_id: coach.userId, starts_at: slotTime }, sam), 201, "books");

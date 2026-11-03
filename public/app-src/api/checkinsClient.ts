@@ -81,6 +81,16 @@ export function recordPackagePayment(athleteUserId: string, paidUntil: string, c
   return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/payment`, paidUntil ? { paid_until: paidUntil } : {}, csrfToken);
 }
 
+// The athlete says they've paid their coach for their package.
+export function claimPackagePayment(coachUserId: string, note: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/coaches/${encodeURIComponent(coachUserId)}/package/paid`, note ? { note } : {}, csrfToken);
+}
+
+// The coach hasn't received what the athlete says they paid.
+export function declinePaymentClaim(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/claim/decline`, {}, csrfToken);
+}
+
 // Undo the payment just recorded.
 export function undoPackagePayment(athleteUserId: string, paymentId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/payments/${encodeURIComponent(paymentId)}/undo`, {}, csrfToken);

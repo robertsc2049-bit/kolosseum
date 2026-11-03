@@ -197,3 +197,35 @@ test("recorded payments read plainly, with amounts only for the coach", () => {
   assert.equal(paymentLine({ recorded_at: at, paid_until_from: "2026-12-22", paid_until_to: "2026-11-22", periods: -1, amount_minor: -8000, currency: "GBP" }, "monthly"), `${on} - paid-up date moved back to ${dayLabel("2026-11-22")}`);
   assert.equal(paymentLine({ recorded_at: at, paid_in_full: true, periods: 1 }, "one_off"), `${on} - paid in full`);
 });
+
+test("an athlete says they've paid: the coach sees it, and can say it hasn't arrived", async () => {
+  const claimed = { ...membership({ membership_id: "pmem_kim", payment_due: true, paid_until: "2026-10-31" }), athlete_user_id: "ath_kim", athlete_display_name: "Kim Paid", owed_periods: 1, owed_minor: 8000, currency: "GBP",
+    payment_claim: { claimed_at: "2026-11-03T10:00:00Z", note: "Bank transfer Friday" } };
+  const calls: Call[] = [];
+  let members = [claimed];
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const path = String(input);
+    const method = init?.method ?? "GET";
+    calls.push({ method, path, body: null });
+    if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
+    if (path === "/check-ins/athletes/ath_kim/package/claim/decline") {
+      members = [{ ...claimed, payment_claim: null }];
+      return jsonResponse({ ok: true, membership: members[0], options: OPTIONS });
+    }
+    if (path === "/check-ins/package-members") return jsonResponse({ ok: true, today: "2026-11-03", outlook_days: 30, members, totals: [] });
+    return jsonResponse({ error: "unhandled" }, 404);
+  }) as typeof fetch;
+
+  render(<CoachPaymentsPanel />);
+  await screen.findByText("1 payment due - 1 says they've paid");
+  const on = new Date("2026-11-03T10:00:00Z").toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  screen.getByText(`Says they've paid (${on}): Bank transfer Friday`);
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Not received: Kim Paid" }));
+  });
+  assert.ok(calls.some((c) => c.method === "POST" && c.path === "/check-ins/athletes/ath_kim/package/claim/decline"));
+  await screen.findByText("Kim Paid has been told it hasn't arrived yet.");
+  assert.equal(screen.queryByText(/Says they've paid/), null);
+  assert.equal(notificationTypeLabel({ notification_type: "athlete_package_payment_claimed", notification_payload: { package_name: "Online coaching" } }), "Says they've paid for Online coaching - confirm it");
+  assert.equal(notificationTypeLabel({ notification_type: "package_payment_claim_declined", notification_payload: { package_name: "Online coaching" } }), "Your coach hasn't received your payment for Online coaching yet");
+});

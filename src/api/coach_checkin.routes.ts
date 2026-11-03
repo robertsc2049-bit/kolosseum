@@ -33,6 +33,8 @@ import {
 } from "./coach_availability_service.js";
 import {
   cancelUpcomingForUnpaid,
+  claimPackagePayment,
+  declinePaymentClaim,
   endAthletePackage,
   getAthletePackageForCoach,
   listCoachPackageMembers,
@@ -149,6 +151,18 @@ coachCheckinRouter.put("/athletes/:athlete_user_id/package", writeLimit, asyncHa
 coachCheckinRouter.post("/athletes/:athlete_user_id/package/payment", writeLimit, asyncHandler(async (request, response) => {
   const coachUserId = await authenticatedCoach(request, true);
   return response.status(200).json(await recordPackagePayment(coachUserId, request.params.athlete_user_id, request.body));
+}));
+
+// The coach hasn't received what the athlete says they paid.
+coachCheckinRouter.post("/athletes/:athlete_user_id/package/claim/decline", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await declinePaymentClaim(coachUserId, request.params.athlete_user_id));
+}));
+
+// The athlete says they've paid their coach for their package.
+coachCheckinRouter.post("/coaches/:coach_user_id/package/paid", writeLimit, asyncHandler(async (request, response) => {
+  const athleteUserId = await authenticatedAthlete(request, true);
+  return response.status(200).json(await claimPackagePayment(athleteUserId, request.params.coach_user_id, request.body));
 }));
 
 // Undo the payment just recorded (package_membership_service.ts).

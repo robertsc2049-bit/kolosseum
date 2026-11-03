@@ -1,5 +1,7 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
+import { claimPackagePayment } from "../../api/checkinsClient";
+import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
@@ -14,9 +16,39 @@ import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
 // or coach ends it.
 
 // The package the athlete is on with this coach, whether it's paid, and
-// what they've used this period (package_membership_service.ts).
-function MyPackage({ membership }: { membership: JsonRecord }) {
+// what they've used this period (package_membership_service.ts). When
+// payment is due (or nearly), they can tell their coach they've paid.
+function MyPackage({ membership: initial, coachUserId, coachName }: { membership: JsonRecord; coachUserId: string; coachName: string }) {
+  const [membership, setMembership] = useState<JsonRecord>(initial);
+  // A fresh load of the relationships replaces what this card last saw.
+  useEffect(() => { setMembership(initial); }, [initial]);
+  const [telling, setTelling] = useState(false);
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const pkg = (membership.package ?? {}) as JsonRecord;
+  const claim = (membership.payment_claim ?? null) as JsonRecord | null;
+
+  async function tellCoach(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const account = await loadAccountDetail();
+      const payload = await claimPackagePayment(coachUserId, note.trim(), typeof account.csrf_token === "string" ? account.csrf_token : "");
+      if (payload.membership) setMembership(payload.membership as JsonRecord);
+      setTelling(false);
+      setNote("");
+    }
+    catch {
+      setError("That didn't send. Try again.");
+    }
+    finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="my-package" data-testid="my-package">
       <p className="small"><strong>{`Your package: ${String(pkg.name ?? "")}`}</strong>{` ${String(pkg.price_label ?? "")}`}</p>
@@ -24,6 +56,27 @@ function MyPackage({ membership }: { membership: JsonRecord }) {
       {(Array.isArray(pkg.includes_summary) ? (pkg.includes_summary as string[]) : []).length ? <p className="muted small">{`Includes: ${(pkg.includes_summary as string[]).join(" · ")}`}</p> : null}
       {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
       {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
+      {claim ? (
+        <p className="muted small" role="status">{`You told ${coachName} you've paid - waiting for them to confirm.`}</p>
+      ) : membership.payment_claim_declined_at ? (
+        <p className="field-error">{`${coachName} hasn't received your payment yet - check with them.`}</p>
+      ) : null}
+      {error ? <p className="field-error" role="alert">{error}</p> : null}
+      {membership.can_claim_payment && !telling ? (
+        <button className="button secondary small" type="button" onClick={() => setTelling(true)}>I've paid</button>
+      ) : null}
+      {telling ? (
+        <form className="claim-payment-form" onSubmit={tellCoach}>
+          <label className="field">
+            <span>How did you pay? (optional)</span>
+            <input type="text" maxLength={200} placeholder="Bank transfer on Friday" value={note} onChange={(event) => setNote(event.target.value)} />
+          </label>
+          <div className="inline-controls">
+            <button className="button primary small" type="submit" disabled={busy}>{`Tell ${coachName}`}</button>
+            <button className="button secondary small" type="button" disabled={busy} onClick={() => setTelling(false)}>Cancel</button>
+          </div>
+        </form>
+      ) : null}
       {Array.isArray(membership.payments) && membership.payments.length ? (
         <details className="payment-history">
           <summary>{`Payments recorded (${(membership.payments as JsonRecord[]).length})`}</summary>
@@ -114,7 +167,7 @@ export function AccountCoachRelationshipPanel() {
                     {`Coaches at ${(entry.coach_gyms as JsonRecord[]).map((gym) => (gym.area ? `${String(gym.gym_name)}, ${String(gym.area)}` : String(gym.gym_name))).join("; ")}`}
                   </p>
                 ) : null}
-                {entry.my_package ? <MyPackage membership={entry.my_package as JsonRecord} /> : null}
+                {entry.my_package ? <MyPackage membership={entry.my_package as JsonRecord} coachUserId={String(entry.coach_user_id ?? "")} coachName={coachLabel(entry)} /> : null}
                 {Array.isArray(entry.coach_packages) && entry.coach_packages.length > 0 ? (
                   <details className="coach-packages" data-testid="coach-packages-list">
                     <summary>{`Packages (${entry.coach_packages.length})`}</summary>

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import { cancelUpcomingForUnpaid, endAthletePackage, loadAthletePackage, recordPackagePayment, startAthletePackage, undoPackagePayment } from "../../api/checkinsClient";
+import { cancelUpcomingForUnpaid, declinePaymentClaim, endAthletePackage, loadAthletePackage, recordPackagePayment, startAthletePackage, undoPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { errorCode } from "../../utils/checkins";
-import { dayLabel, paidLabel, paymentLine, periodLine, usageLines } from "../../utils/packages";
+import { claimLine, dayLabel, paidLabel, paymentLine, periodLine, usageLines } from "../../utils/packages";
 
 // The athlete's package with this coach, inside their check-ins: put them on
 // one of the coach's packages (or a gym package they deliver), record
@@ -17,6 +17,7 @@ const ERRORS: Record<string, string> = {
   package_payment_not_due: "Payment isn't due - nothing was cancelled.",
   package_payment_not_found: "That payment can't be undone now - correct the paid-up date instead.",
   package_payment_undo_expired: "It's too late to undo that - correct the paid-up date instead.",
+  package_payment_claim_not_found: "They're not waiting for you to confirm a payment any more.",
   checkin_athlete_not_coached: "You no longer coach this athlete."
 };
 
@@ -136,6 +137,7 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
           {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
           {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
           {membership.payment_due ? <p className="muted small">They can't book your open slots until you record a payment.</p> : null}
+          {membership.payment_claim ? <p className="small"><strong>{claimLine(membership)}</strong> - record the payment to confirm it.</p> : null}
           {Array.isArray(membership.payments) && membership.payments.length ? (
             <details className="payment-history">
               <summary>{`Payments recorded (${(membership.payments as JsonRecord[]).length})`}</summary>
@@ -225,6 +227,11 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
               ) : (
                 <button className="button secondary small" type="button" disabled={busy} onClick={() => { setPaidUntil(""); setMode("pay"); }}>Record a payment</button>
               )}
+              {membership.payment_claim ? (
+                <button className="button secondary small" type="button" disabled={busy} onClick={() => void act((token) => declinePaymentClaim(athleteUserId, token)).then((payload) => {
+                  if (payload) setNotice("They've been told it hasn't arrived yet.");
+                })}>Not received</button>
+              ) : null}
               {membership.payment_due && upcomingCount > 0 ? <button className="button secondary small" type="button" disabled={busy} onClick={() => setMode("cancel")}>Cancel upcoming sessions and check-ins</button> : null}
               {options.length ? <button className="button secondary small" type="button" disabled={busy} onClick={openChoose}>Change package</button> : null}
               <button className="button secondary small" type="button" disabled={busy} onClick={() => setMode("end")}>End package</button>
