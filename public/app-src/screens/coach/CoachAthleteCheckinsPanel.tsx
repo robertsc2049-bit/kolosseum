@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { cancelCheckin, loadAthleteCheckinsForCoach, moveCheckin, scheduleCheckin } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { revealSection } from "../../components/GuideChecklist";
 import { checkinWhen, downloadCalendarFile, errorCode, localInputToIso, METHOD_LABEL } from "../../utils/checkins";
 import { CoachAthletePackageSection } from "./CoachAthletePackageSection";
 
@@ -12,6 +13,9 @@ import { CoachAthletePackageSection } from "./CoachAthletePackageSection";
 // package with the coach sits at the top (CoachAthletePackageSection).
 const OPENED_EVENT = "kolosseum:coach-athlete-profile-opened";
 const CLOSED_EVENT = "kolosseum:coach-athlete-profile-closed";
+const OPEN_TARGET_EVENT = "kolosseum:open-notification-target";
+// Notifications about an athlete's package open their profile here.
+const PACKAGE_NOTIFICATIONS = new Set(["athlete_package_payment_due", "athlete_package_payment_claimed"]);
 
 const STATUS_LABEL: Record<string, string> = {
   scheduled: "Waiting for them to confirm",
@@ -53,7 +57,10 @@ export function CoachAthleteCheckinsPanel() {
   const [showAll, setShowAll] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paymentDue, setPaymentDue] = useState(false);
+  const [paymentBadge, setPaymentBadge] = useState("");
+  // The athlete whose package notification was just opened: their section
+  // is opened and scrolled to once it has loaded.
+  const revealFor = useRef<string | null>(null);
 
   const show = useCallback((payload: JsonRecord) => {
     setCheckins(Array.isArray(payload.checkins) ? (payload.checkins as JsonRecord[]) : []);
@@ -66,11 +73,18 @@ export function CoachAthleteCheckinsPanel() {
       if (id) setAthleteUserId(id);
     };
     const closed = () => setAthleteUserId(null);
+    const openTarget = (event: Event) => {
+      const detail = ((event as CustomEvent).detail ?? {}) as JsonRecord;
+      const athleteId = ((detail.params ?? {}) as JsonRecord).athlete_id;
+      if (PACKAGE_NOTIFICATIONS.has(String(detail.notification_type ?? "")) && athleteId) revealFor.current = String(athleteId);
+    };
     document.addEventListener(OPENED_EVENT, opened);
     document.addEventListener(CLOSED_EVENT, closed);
+    document.addEventListener(OPEN_TARGET_EVENT, openTarget);
     return () => {
       document.removeEventListener(OPENED_EVENT, opened);
       document.removeEventListener(CLOSED_EVENT, closed);
+      document.removeEventListener(OPEN_TARGET_EVENT, openTarget);
     };
   }, []);
 
@@ -80,12 +94,18 @@ export function CoachAthleteCheckinsPanel() {
     setMoving(null);
     setError(null);
     setShowAll(false);
-    setPaymentDue(false);
+    setPaymentBadge("");
     if (!athleteUserId) return undefined;
     let live = true;
     loadAthleteCheckinsForCoach(athleteUserId).then((payload) => { if (live) show(payload); }, () => { if (live) setCheckins(null); });
     return () => { live = false; };
   }, [athleteUserId, show]);
+
+  useEffect(() => {
+    if (!athleteUserId || checkins === null || revealFor.current !== athleteUserId) return;
+    revealFor.current = null;
+    revealSection("[data-testid=\"coach-athlete-checkins\"]");
+  }, [athleteUserId, checkins]);
 
   if (!athleteUserId || checkins === null) return null;
 
@@ -137,12 +157,12 @@ export function CoachAthleteCheckinsPanel() {
         <div>
           <p className="eyebrow">Package and calls</p>
           <h3>Package and check-ins</h3>
-          {paymentDue ? <span className="badge partial">Payment due</span> : null}
+          {paymentBadge ? <span className={`badge ${paymentBadge === "Payment due" ? "partial" : "active"}`}>{paymentBadge}</span> : null}
         </div>
         {!booking ? <button className="button secondary" type="button" onClick={() => setBooking(true)}>Book a check-in</button> : null}
       </div>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      <CoachAthletePackageSection athleteUserId={athleteUserId} upcomingCount={checkins.filter((c) => new Date(String(c.starts_at)).getTime() > Date.now()).length} onPaymentDue={setPaymentDue} onCheckinsChanged={() => {
+      <CoachAthletePackageSection athleteUserId={athleteUserId} upcomingCount={checkins.filter((c) => new Date(String(c.starts_at)).getTime() > Date.now()).length} onPaymentBadge={setPaymentBadge} onCheckinsChanged={() => {
         loadAthleteCheckinsForCoach(athleteUserId).then(show, () => undefined);
       }} />
 

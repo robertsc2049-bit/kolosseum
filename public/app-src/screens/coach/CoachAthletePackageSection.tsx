@@ -32,12 +32,13 @@ const todayInput = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 };
 
-export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onCheckinsChanged, onPaymentDue }: {
+export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onCheckinsChanged, onPaymentBadge }: {
   athleteUserId: string;
   // Upcoming calls and in-person sessions booked with them (the panel's list).
   upcomingCount: number;
   onCheckinsChanged: () => void;
-  onPaymentDue?: (due: boolean) => void;
+  // "Says they've paid", "Payment due" or nothing, for the panel's heading.
+  onPaymentBadge?: (label: string) => void;
 }) {
   const [data, setData] = useState<JsonRecord | null>(null);
   const [mode, setMode] = useState<"view" | "choose" | "pay" | "cancel" | "end">("view");
@@ -62,8 +63,9 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
     return () => { live = false; };
   }, [athleteUserId]);
 
-  const due = !!(data?.membership as JsonRecord | null | undefined)?.payment_due;
-  useEffect(() => { onPaymentDue?.(due); }, [due, onPaymentDue]);
+  const current = (data?.membership ?? null) as JsonRecord | null;
+  const badge = current?.payment_claim ? "Says they've paid" : current?.payment_due ? "Payment due" : "";
+  useEffect(() => { onPaymentBadge?.(badge); }, [badge, onPaymentBadge]);
 
   if (!data) return null;
   const membership = (data.membership ?? null) as JsonRecord | null;

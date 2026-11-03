@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { claimPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
+import { revealSection } from "../../components/GuideChecklist";
 import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
@@ -112,11 +113,24 @@ function MessageAttachment({ attachment }: { attachment: JsonRecord | null | und
   );
 }
 
+const PACKAGE_NOTIFICATIONS = new Set(["package_payment_upcoming", "package_payment_due", "package_payment_claim_declined"]);
+
 export function AccountCoachRelationshipPanel() {
   const isAthlete = useRole() === "athlete";
   const { loading, error, relationships, endingId, endError, messages, sending, sendError, endRelationship, sendMessage } = useAccountCoachRelationship();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // A package payment notification opens Account: open My coach (collapsed
+  // on a phone) at the package, where "I've paid" is.
+  useEffect(() => {
+    const onOpenTarget = (event: Event) => {
+      const type = String(((event as CustomEvent).detail as JsonRecord | undefined)?.notification_type ?? "");
+      if (PACKAGE_NOTIFICATIONS.has(type)) revealSection("[data-testid=\"my-package\"]");
+    };
+    document.addEventListener("kolosseum:open-notification-target", onOpenTarget);
+    return () => document.removeEventListener("kolosseum:open-notification-target", onOpenTarget);
+  }, []);
 
   if (!isAthlete) return null;
   if (loading && relationships.length === 0) return null;
@@ -126,6 +140,8 @@ export function AccountCoachRelationshipPanel() {
   const current = relationships.filter((entry) => entry.relationship_state === "accepted");
   const past = relationships.filter((entry) => entry.relationship_state !== "accepted");
   const currentCoach = current[0] ?? null;
+  // Shown on the section's heading, so it's seen while My coach is collapsed.
+  const paymentDue = current.some((entry) => ((entry.my_package ?? null) as JsonRecord | null)?.payment_due === true);
 
   const handleEnd = (relationshipId: string) => {
     if (!window.confirm("End this relationship with your coach? Historical records will be preserved.")) return;
@@ -147,7 +163,7 @@ export function AccountCoachRelationshipPanel() {
   return (
     <article className="panel">
       <p className="eyebrow">Coach relationships</p>
-      <h3>My coach</h3>
+      <h3>My coach{paymentDue ? <> <span className="badge partial">Payment due</span></> : null}</h3>
       {endError ? <p role="status" className="muted small error">{endError}</p> : null}
       <div className="record-list">
         {current.length > 0 ? current.map((entry: JsonRecord) => {

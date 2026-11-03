@@ -166,7 +166,7 @@ export function AthleteDirectoryPanel() {
                 <div className="record-meta athlete-record-meta">
                   <span className={`badge ${relationshipBadgeClass(effectiveState)}`}>{titleCase(effectiveState)}</span>
 
-                  {onPackage?.payment_due ? <span className="badge partial">Payment due</span> : null}
+                  {onPackage?.payment_claimed ? <span className="badge active">Says they've paid</span> : onPackage?.payment_due ? <span className="badge partial">Payment due</span> : null}
 
                   {unreadCount > 0 ? (
                     <span className="badge active" title="Unread messages from this athlete">

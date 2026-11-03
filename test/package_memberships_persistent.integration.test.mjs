@@ -152,9 +152,13 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   view = expect(await request(base, "POST", `${packageOf}/claim/decline`, {}, coach), 200, "not received");
   assert.deepEqual([view.membership.payment_claim, typeof view.membership.payment_claim_declined_at], [null, "string"]);
   expect(await request(base, "POST", `${packageOf}/claim/decline`, {}, coach), 404, "nothing to decline");
+  const unread = (notifications) => notifications.filter((n) => n.read_at_iso8601 === null).length;
+  assert.equal(unread(await bell(coach, "athlete_package_payment_claimed")), 0, "the coach has dealt with the claim");
   assert.equal((await bell(sam, "package_payment_claim_declined")).length, 1);
+  assert.equal(unread(await bell(sam, "package_payment_due")), 1);
   claimed = expect(await request(base, "POST", paidRoute, {}, sam), 200, "says paid again").membership;
   assert.deepEqual([claimed.payment_claim.note, claimed.payment_claim_declined_at], [null, null]);
+  assert.equal(unread([...await bell(sam, "package_payment_claim_declined"), ...await bell(sam, "package_payment_due")]), 0, "Sam has acted on both");
   assert.equal((await bell(coach, "athlete_package_payment_claimed")).length, 2, "a new claim, a new notification");
 
   // The coach can still book them; payment due, they cancel everything upcoming.
@@ -175,6 +179,7 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   view = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "payment");
   assert.deepEqual([view.membership.paid_until, view.membership.payment_due], [nextPaidUntil(startedOn, "monthly", nextPaidUntil(startedOn, "monthly", null)), false]);
   assert.equal(view.membership.payment_claim, null, "recording the payment confirms Sam's claim");
+  assert.equal(unread(await bell(coach, "athlete_package_payment_claimed")), 0, "the payment settles the coach's reminders");
   if (view.membership.paid_until > day(3)) {
     assert.equal(expect(await request(base, "POST", paidRoute, {}, sam), 409, "nothing due yet").error, "package_payment_not_due");
   }

@@ -337,3 +337,15 @@ test("an athlete on a package shows it, and payment due stands out", async () =>
   assert.ok(paid.getByText("Package: PT block"));
   assert.equal(paid.queryByText("Payment due"), null);
 });
+
+test("an athlete who says they've paid shows that instead of payment due", async () => {
+  installMocks({
+    relationships: [{ athlete_user_id: "athlete_1", display_name: "Jordan Lee", email: "jordan@example.com", activity_id: "powerlifting", relationship_state: "accepted" }],
+    members: [{ athlete_user_id: "athlete_1", payment_due: true, payment_claim: { claimed_at: "2026-11-03T10:00:00Z", note: null }, package: { name: "Online coaching" } }]
+  });
+  render(<AthleteDirectoryPanel />);
+  await waitFor(() => screen.getByText("Package: Online coaching"));
+  const card = within(screen.getByText("Jordan Lee").closest("article") as HTMLElement);
+  assert.ok(card.getByText("Says they've paid"));
+  assert.equal(card.queryByText("Payment due"), null);
+});

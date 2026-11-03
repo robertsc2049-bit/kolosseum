@@ -40,8 +40,12 @@ export function revealSection(selector: string, delayMs = 300): void {
     if (!element) return;
     const panel = element.matches("[data-collapsible]") ? element : element.closest<HTMLElement>("[data-collapsible]");
     if (panel?.dataset.collapsed === "true") panel.querySelector<HTMLElement>(".section-toggle")?.click();
-    const top = element.getBoundingClientRect().top + window.scrollY - 80;
-    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    const scroll = (behavior: ScrollBehavior) => window.scrollTo({ top: Math.max(0, element.getBoundingClientRect().top + window.scrollY - 80), behavior });
+    scroll("smooth");
+    // A screen that's still filling in can stop the scroll short: check once more.
+    window.setTimeout(() => {
+      if (Math.abs(element.getBoundingClientRect().top - 80) > 40) scroll("auto");
+    }, 1200);
   }, delayMs);
 }
 

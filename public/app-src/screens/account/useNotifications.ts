@@ -207,7 +207,8 @@ export function useNotifications() {
     document.dispatchEvent(new CustomEvent(OPEN_TARGET_EVENT, {
       detail: {
         route_id: (notification.deep_link as JsonRecord | undefined)?.route_id,
-        params: (notification.deep_link as JsonRecord | undefined)?.params ?? {}
+        params: (notification.deep_link as JsonRecord | undefined)?.params ?? {},
+        notification_type: notification.notification_type
       }
     }));
   }, [csrfToken]);

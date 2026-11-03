@@ -307,7 +307,7 @@ test("opening a notification with a real target dispatches the navigation bridge
   });
   await screen.findByText("Relationship accepted");
 
-  let captured: { route_id?: string; params?: Record<string, unknown> } | null = null;
+  let captured: { route_id?: string; params?: Record<string, unknown>; notification_type?: string } | null = null;
   document.addEventListener("kolosseum:open-notification-target", (event) => {
     captured = (event as CustomEvent).detail;
   }, { once: true });
@@ -316,7 +316,8 @@ test("opening a notification with a real target dispatches the navigation bridge
     fireEvent.click(screen.getByText("Relationship accepted"));
   });
 
-  assert.deepEqual(captured, { route_id: "coach_athlete_detail", params: { athlete_id: "athlete_1" } });
+  // The type too, so a screen can open the right section (a package payment opens the package).
+  assert.deepEqual(captured, { route_id: "coach_athlete_detail", params: { athlete_id: "athlete_1" }, notification_type: "relationship_accepted" });
   assert.equal(document.querySelector(".notification-panel"), null);
 });
 

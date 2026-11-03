@@ -188,3 +188,32 @@ test("Today shows the athlete only their next call, with the rest in a line", as
   const also = screen.getByText((text) => text.startsWith("Also booked: "));
   assert.ok(also.textContent?.endsWith(" and 2 more"), also.textContent ?? "");
 });
+
+test("an athlete says they've paid: the profile's heading says so, and the notification opens the section", async () => {
+  installFetch((_method, path) => {
+    if (path === "/check-ins/athletes/ath_1") return jsonResponse({ ok: true, call_settings: {}, checkins: [] });
+    if (path === "/check-ins/athletes/ath_1/package") {
+      return jsonResponse({ ok: true, options: [], membership: {
+        membership_id: "pmem_1", package: { name: "Online coaching", billing: "monthly", includes_summary: [] }, started_on: "2026-10-01", paid_until: "2026-10-31",
+        payment_due: true, usage: {}, payments: [], payment_claim: { claimed_at: "2026-11-03T10:00:00Z", note: "Bank transfer" }
+      } });
+    }
+    return null;
+  });
+  window.scrollTo = (() => undefined) as typeof window.scrollTo;
+  render(<CoachAthleteCheckinsPanel />);
+  // The coach opens the notification: the profile opens, then the section.
+  document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "coach_athlete_detail", params: { athlete_id: "ath_1" }, notification_type: "athlete_package_payment_claimed" } }));
+  await act(async () => openProfile("ath_1"));
+  const panel = await screen.findByTestId("coach-athlete-checkins");
+  // Collapsed, as on a phone (app.js adds the toggle).
+  panel.dataset.collapsible = "1";
+  panel.dataset.collapsed = "true";
+  const toggle = document.createElement("button");
+  toggle.className = "section-toggle";
+  toggle.addEventListener("click", () => { panel.dataset.collapsed = "false"; });
+  panel.querySelector("h3")?.append(toggle);
+  await screen.findByText("Says they've paid", { selector: ".badge" });
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 350)); });
+  assert.equal(panel.dataset.collapsed, "false");
+});
