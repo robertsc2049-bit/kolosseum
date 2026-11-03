@@ -9,7 +9,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 import { CoachAthletePackageSection } from "../screens/coach/CoachAthletePackageSection";
 import { notificationTypeLabel } from "../api/notificationsClient";
-import { paidLabel, usageLines } from "../utils/packages";
+import { dayLabel, paidLabel, usageLines } from "../utils/packages";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, text: async () => JSON.stringify(body) } as Response;
@@ -116,8 +116,9 @@ test("nothing booked: no cancel button even while payment is due", async () => {
 
 test("payment reminders in the bell name the package and the paid-up date", () => {
   const label = (type: string, payload: Record<string, unknown>) => notificationTypeLabel({ notification_type: type, notification_payload: payload });
-  assert.match(label("package_payment_upcoming", { package_name: "Online coaching", paid_until: "2026-12-01" }), /^Online coaching is paid up to 1 Dec - payment due soon$/);
+  // Dates follow the viewer's locale ("1 Dec" / "Dec 1").
+  assert.equal(label("package_payment_upcoming", { package_name: "Online coaching", paid_until: "2026-12-01" }), `Online coaching is paid up to ${dayLabel("2026-12-01")} - payment due soon`);
   assert.match(label("package_payment_due", { package_name: "Online coaching", paid_until: null }), /^Payment due for Online coaching$/);
-  assert.match(label("athlete_package_payment_due", { package_name: "PT block", paid_until: "2026-11-30" }), /^Payment due for PT block - was paid up to 30 Nov$/);
+  assert.equal(label("athlete_package_payment_due", { package_name: "PT block", paid_until: "2026-11-30" }), `Payment due for PT block - was paid up to ${dayLabel("2026-11-30")}`);
   assert.equal(label("package_payment_due", {}), "Package payment due");
 });
