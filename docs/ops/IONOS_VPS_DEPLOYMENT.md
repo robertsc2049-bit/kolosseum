@@ -6,6 +6,7 @@ This guide runs Kolosseum on one IONOS Linux VPS. It uses `docker-compose.prod.y
 - **app:** the Kolosseum server, which is not exposed to the internet.
 - **db:** PostgreSQL 16, which is not exposed to the internet.
 - **backup:** a nightly database dump plus a copy of uploaded files.
+- **offsite:** copies those backups to IONOS S3 Object Storage, once you've set it up (see Backups).
 
 Push notifications, installing the app on a phone, and keeping the screen awake during a session all need HTTPS on a real domain. Before this guide, none of them could work for beta users.
 
@@ -125,14 +126,75 @@ To take a backup immediately:
 docker compose -f docker-compose.prod.yml exec backup sh /backup.sh once
 ```
 
-**These backups live on the same server, so losing the server loses them too.** Copy them off regularly. Either turn on IONOS's backup add-on for the VPS, or pull copies to your own computer:
+### Off the server: IONOS S3 Object Storage
+
+The backups above sit on the same server, so losing the server would lose them too. The `offsite` container copies each new backup to IONOS S3 Object Storage every hour, and deletes copies there older than `BACKUP_KEEP_DAYS`. It does nothing until you set it up:
+
+1. In the IONOS console, open **S3 Object Storage** and create a bucket, e.g. `kolosseum-backups-<something-unique>`. Choose the region **Frankfurt (de)** unless you have a reason not to. Keep it private.
+2. Under **Access keys**, create a key. Copy the access key and the secret key - the secret is shown once.
+3. On the server, add them to `.env` (type them in yourself; never paste them anywhere else):
+
+   ```bash
+   OFFSITE_BACKUP_BUCKET=<bucket name>
+   OFFSITE_BACKUP_ACCESS_KEY=<access key>
+   OFFSITE_BACKUP_SECRET_KEY=<secret key>
+   ```
+
+   If the bucket isn't in Frankfurt, also set `OFFSITE_BACKUP_ENDPOINT` and `OFFSITE_BACKUP_REGION` to the endpoint and region the IONOS console shows for it (Berlin is `s3-eu-central-2.ionoscloud.com` and `eu-central-2`).
+4. Restart it, copy now, and check the files arrived:
+
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d offsite
+   docker compose -f docker-compose.prod.yml exec offsite sh /offsite.sh once
+   docker compose -f docker-compose.prod.yml exec offsite sh /offsite.sh list
+   ```
+
+   `once` waits for files to be at least 10 minutes old, so straight after a fresh backup it may copy nothing yet - run it again shortly. `docker compose -f docker-compose.prod.yml logs offsite` shows each hourly copy, or why one failed.
+
+### Check that a backup restores
+
+Run this after setting up, and again every month or so. It restores the newest backup into a throwaway database beside the live one, shows its row counts next to the live counts for the tables that matter most, checks the uploads file opens, then deletes the throwaway copy. The live database is only read.
 
 ```bash
-# on the server
-docker compose -f docker-compose.prod.yml cp backup:/backups /root/kolosseum-backups
-# on your computer
-scp -r root@<server-ip>:/root/kolosseum-backups ./kolosseum-backups
+docker compose -f docker-compose.prod.yml exec backup sh /restore-check.sh
 ```
+
+It ends with `restore check passed`, or says what failed.
+
+### Restoring
+
+**Onto a new server** (the old one is gone):
+
+1. Set up the new server as in sections 1-4, with the same `.env` (including the `OFFSITE_BACKUP_*` lines). Don't do section 5 yet.
+2. Start only the database, which starts empty:
+
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d db
+   ```
+
+3. Pull the backups down from IONOS into the backups volume:
+
+   ```bash
+   docker compose -f docker-compose.prod.yml run --rm --entrypoint sh -v kolosseum_kolosseum-backups:/restore offsite \
+     -c 'rclone copy "offsite:$OFFSITE_BACKUP_BUCKET/kolosseum" /restore && ls -l /restore'
+   ```
+
+   The volume names start with the folder's name (`kolosseum_` for `/opt/kolosseum`); `docker volume ls` shows them.
+4. Restore the newest database dump and its uploads:
+
+   ```bash
+   docker compose -f docker-compose.prod.yml run --rm --entrypoint sh -v kolosseum_kolosseum-uploads:/restore-uploads backup \
+     -c 'd=$(ls -1t /backups/db_*.dump | head -n 1); echo "restoring $d"; pg_restore --no-owner --exit-on-error -d "$DATABASE_URL" "$d" && tar -xzf "/backups/$(basename "$d" .dump | sed s/^db_/uploads_/).tar.gz" -C /restore-uploads'
+   ```
+
+5. Start everything and bring the schema up to date (safe on a restored database):
+
+   ```bash
+   docker compose -f docker-compose.prod.yml up -d --build
+   docker compose -f docker-compose.prod.yml exec app node scripts/apply-schema.mjs
+   ```
+
+   Then point the domain's DNS at the new server's IP address.
 
 **Restoring the database** into a fresh, empty database:
 
