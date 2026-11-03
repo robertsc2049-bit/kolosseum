@@ -70,6 +70,7 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   const userIds = [];
   let adminId = "";
   let ownerId = "";
+  let otherOwnerId = "";
   t.after(async () => {
     await new Promise((resolve) => server.close(resolve));
     await pool.query("DELETE FROM product_package_payments WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
@@ -77,7 +78,12 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
     await pool.query("DELETE FROM product_package_memberships WHERE coach_user_id = ANY($1::text[]) OR athlete_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_service_packages WHERE coach_user_id = ANY($1::text[]) OR org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $2)", [userIds, ownerId]).catch(() => {});
     await pool.query("DELETE FROM product_coach_gyms WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+    if (otherOwnerId) {
+      await pool.query("DELETE FROM product_org_owner_sessions WHERE user_id = $1", [otherOwnerId]).catch(() => {});
+      await pool.query("DELETE FROM product_org_owner_accounts WHERE user_id = $1", [otherOwnerId]).catch(() => {});
+    }
     if (ownerId) {
+      await pool.query("DELETE FROM product_gym_tax_details WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)", [ownerId]).catch(() => {});
       await pool.query("DELETE FROM product_notifications WHERE recipient_user_id = $1", [ownerId]).catch(() => {});
       await pool.query("DELETE FROM product_gym_listings WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)", [ownerId]).catch(() => {});
       await pool.query("DELETE FROM product_org_audit_records WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)", [ownerId]).catch(() => {});
@@ -159,6 +165,23 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   const ptBlock = expect(await request(base, "POST", `/org/organisations/${orgId}/packages`, { name: "PT block", price: 120, billing: "one_off", includes: { in_person_sessions: 4 }, delivered_by: [coach.userId] }, owner), 201, "gym package").packages[0];
   assert.equal(expect(await request(base, "PUT", pkg, { package_id: ptBlock.package_id, paid_now: true }, coach), 200, "gym package").membership.paid_in_full, true);
 
+  // The gym's owner is asked for the gym's tax details, and adds them (a company: no date of birth).
+  const gymTax = `/org/organisations/${orgId}/tax-details`;
+  let gymDetails = expect(await request(base, "GET", gymTax, undefined, owner), 200, "gym: none yet");
+  assert.deepEqual([gymDetails.tax_details, gymDetails.sells_packages], [null, true]);
+  expect(await request(base, "GET", gymTax, undefined, coach), 401, "a coach can't");
+  const otherOwnerReg = await request(base, "POST", "/org/register", { email: `stax_owner2_${nonce}@example.com`, display_name: "Other Owner", password: `GymOwner${nonce}!2026` });
+  otherOwnerId = expect(otherOwnerReg, 201, "other owner").org_owner.user_id;
+  const otherOwner = { cookie: cookieOf(otherOwnerReg, "kolosseum_org_owner_session"), csrf: otherOwnerReg.json.csrf_token };
+  expect(await request(base, "GET", gymTax, undefined, otherOwner), 403, "not their gym");
+  expect(await request(base, "PUT", gymTax, { seller_type: "company" }, otherOwner), 403, "not their gym to change");
+  assert.ok(expect(await request(base, "PUT", gymTax, { seller_type: "company", legal_name: "Forge Gyms Ltd" }, owner), 422, "incomplete").field_errors.company_number);
+  gymDetails = expect(await request(base, "PUT", gymTax, {
+    seller_type: "company", legal_name: "Forge Gyms Ltd", company_number: "01234567", tax_number_type: "utr", tax_number: "1234567890",
+    vat_number: "GB123456789", address_line1: "2 Mill Lane", city: "York", postcode: "yo1 7hh", country: "GB"
+  }, owner), 200, "gym saves");
+  assert.deepEqual([gymDetails.tax_details.legal_name, gymDetails.tax_details.date_of_birth, gymDetails.tax_details.postcode], ["Forge Gyms Ltd", null, "YO1 7HH"]);
+
   // The admin's report for this year: the coach's details and this quarter's two payments.
   const adminEmail = `stax_admin_${nonce}@example.com`;
   const adminPassword = `TaxAdmin${nonce}!2026`;
@@ -182,7 +205,8 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   // The gym's own row: the PT block it sold, not added to the coach who delivers it.
   const gymRow = report.rows.find((r) => r.seller_id === orgId);
   assert.deepEqual(
-    [gymRow.seller_kind, gymRow.seller_name, gymRow.account_email, gymRow.details_added, gymRow[`q${quarter}_paid`], gymRow[`q${quarter}_payments`], gymRow.year_paid],
-    ["gym", gymName, ownerEmail, "no", "120.00", "1", "120.00"]
+    [gymRow.seller_kind, gymRow.seller_name, gymRow.account_email, gymRow.details_added, gymRow.legal_name, gymRow.company_number, gymRow.tax_number, gymRow.vat_number,
+      gymRow[`q${quarter}_paid`], gymRow[`q${quarter}_payments`], gymRow.year_paid],
+    ["gym", gymName, ownerEmail, "yes", "Forge Gyms Ltd", "01234567", "1234567890", "GB123456789", "120.00", "1", "120.00"]
   );
 });

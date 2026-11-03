@@ -259,6 +259,9 @@ export async function eraseOrgOwnerData(
 
   const counts: Record<string, number> = {};
   counts.messages = await count(client, `DELETE FROM product_messages WHERE sender_user_id = $1`, [orgOwnerUserId]);
+  // The tax details they gave for their gyms are theirs (a sole trader's date
+  // of birth and tax number); whoever takes a gym over gives their own.
+  counts.gym_tax_details = await count(client, `DELETE FROM product_gym_tax_details WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)`, [orgOwnerUserId]);
   counts.sign_in_sessions = await count(client, `DELETE FROM product_org_owner_sessions WHERE user_id = $1`, [orgOwnerUserId]);
   counts.closure_requests = await count(client, `DELETE FROM org_owner_closure_requests WHERE user_id = $1`, [orgOwnerUserId]);
   counts.export_requests = await count(client, `DELETE FROM org_owner_data_export_requests WHERE user_id = $1`, [orgOwnerUserId]);

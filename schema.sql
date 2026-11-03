@@ -3893,3 +3893,25 @@ CREATE TABLE IF NOT EXISTS product_coach_tax_details (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- The same, for a gym selling its own packages (seller_tax_service.ts) -
+-- entered by the gym's owner. Only they and the platform admin see them.
+CREATE TABLE IF NOT EXISTS product_gym_tax_details (
+  org_id           TEXT PRIMARY KEY
+    REFERENCES product_organisations(org_id)
+    ON DELETE CASCADE,
+  seller_type      TEXT NOT NULL CHECK (seller_type IN ('individual', 'company')),
+  legal_name       TEXT NOT NULL,
+  date_of_birth    DATE,
+  company_number   TEXT,
+  tax_number_type  TEXT CHECK (tax_number_type IN ('nino', 'utr', 'other')),
+  tax_number       TEXT,
+  vat_number       TEXT,
+  address_line1    TEXT NOT NULL,
+  address_line2    TEXT,
+  city             TEXT NOT NULL,
+  postcode         TEXT NOT NULL,
+  country          TEXT NOT NULL DEFAULT 'GB',
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);

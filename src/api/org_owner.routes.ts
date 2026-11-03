@@ -58,6 +58,8 @@ import { OrgHeadCoachError, setHeadCoach, setMedicalLead } from "./org_head_coac
 import { assertGymOwner, getGymListing, GymListingError, saveGymListing } from "./gym_listing_service.js";
 import { CoachGymError, decideGymCoach, listGymCoaches } from "./coach_gym_service.js";
 import { archiveGymPackage, listGymPackages, saveGymPackage, ServicePackageError } from "./service_package_service.js";
+import { getGymTaxDetails, saveGymTaxDetails } from "./seller_tax_service.js";
+import { CoachCheckinError } from "./coach_checkin_service.js";
 import {
   OrgCoachMessagingError,
   listOrgCoachThreadMessagesForOwner,
@@ -390,7 +392,9 @@ const orgGymListingRateLimit = rateLimit({
 });
 
 function gymListingError(error: unknown, response: Response) {
-  if (error instanceof GymListingError || error instanceof CoachGymError || error instanceof ServicePackageError) return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+  if (error instanceof GymListingError || error instanceof CoachGymError || error instanceof ServicePackageError || error instanceof CoachCheckinError) {
+    return response.status(error.status).json({ ok: false, error: error.code, field_errors: error.fieldErrors });
+  }
   throw error;
 }
 
@@ -449,6 +453,39 @@ orgOwnerRouter.post(
     try {
       await assertGymOwner(user_id, String(request.params.org_id));
       return response.status(200).json(await archiveGymPackage(String(request.params.org_id), String(request.params.package_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+// The gym's tax details, for Kolosseum's yearly report to HMRC of what the
+// gym was paid through its packages (seller_tax_service.ts). Only the owner
+// and the platform admin see them.
+orgOwnerRouter.get(
+  "/organisations/:org_id/tax-details",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(200).json(await getGymTaxDetails(String(request.params.org_id)));
+    }
+    catch (error) {
+      return gymListingError(error, response);
+    }
+  })
+);
+
+orgOwnerRouter.put(
+  "/organisations/:org_id/tax-details",
+  orgGymListingRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    try {
+      await assertGymOwner(user_id, String(request.params.org_id));
+      return response.status(200).json(await saveGymTaxDetails(String(request.params.org_id), request.body));
     }
     catch (error) {
       return gymListingError(error, response);

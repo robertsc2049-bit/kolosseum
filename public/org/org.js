@@ -651,6 +651,7 @@ async function refreshGymListing() {
   renderGymListing(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/gym-listing`));
   await refreshGymCoaches();
   await refreshGymPackages();
+  await refreshGymTaxDetails();
 }
 
 // The gym's packages (service_package_service.ts): name, price, what's
@@ -775,6 +776,110 @@ async function archiveGymPackage(packageId) {
     errorEl.textContent = "That couldn't be removed. Try again.";
     errorEl.hidden = false;
     throw error;
+  }
+}
+
+// The gym's tax details (seller_tax_service.ts), for Kolosseum's yearly
+// report to HMRC of what the gym is paid through its packages. Asked for
+// once athletes are on one of its packages. The tax number shows masked.
+const GYM_TAX_NUMBER_LABEL = { nino: "National Insurance number", utr: "UTR", other: "Tax number" };
+let gymTaxState = { details: null };
+
+function maskTaxNumber(value) {
+  const raw = String(value ?? "");
+  return raw.length > 4 ? `${raw.slice(0, 2)}${"\u2022".repeat(raw.length - 5)}${raw.slice(-3)}` : raw;
+}
+
+function gymTaxSellerType() {
+  return document.querySelector("input[name=orgGymTaxSellerType]:checked")?.value || "company";
+}
+
+function showGymTaxSellerType() {
+  const company = gymTaxSellerType() === "company";
+  el("orgGymTaxNameLabel").textContent = company ? "Company name (as registered)" : "Owner's full legal name";
+  el("orgGymTaxAddressLabel").textContent = company ? "Registered address" : "Owner's home address";
+  el("orgGymTaxCompanyField").hidden = !company;
+  el("orgGymTaxBirthField").hidden = company;
+}
+
+function renderGymTaxDetails(result, notice) {
+  const details = result.tax_details || null;
+  gymTaxState = { details };
+  el("orgGymTaxStatus").className = !details && result.sells_packages ? "field-error" : "muted small";
+  el("orgGymTaxStatus").textContent = notice
+    || (details ? "" : result.sells_packages ? "Athletes are on your gym's packages - add its tax details." : "Not added yet. You'll need these once athletes are on your gym's packages.");
+  el("orgGymTaxSummary").innerHTML = details ? `
+    <p><strong>${escapeHtml(details.legal_name)}</strong>${details.seller_type === "company" ? ` - company ${escapeHtml(details.company_number || "")}` : ""}</p>
+    <p class="muted small">${[details.address_line1, details.address_line2, details.city, details.postcode].filter(Boolean).map(escapeHtml).join(", ")}</p>
+    ${details.tax_number ? `<p class="muted small">${escapeHtml(GYM_TAX_NUMBER_LABEL[details.tax_number_type] || "Tax number")}: ${escapeHtml(maskTaxNumber(details.tax_number))}</p>` : ""}
+    ${details.vat_number ? `<p class="muted small">VAT: ${escapeHtml(details.vat_number)}</p>` : ""}` : "";
+  el("orgGymTaxEditButton").textContent = details ? "Change tax details" : "Add tax details";
+}
+
+async function refreshGymTaxDetails() {
+  closeGymTaxForm();
+  renderGymTaxDetails(await api("GET", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/tax-details`));
+}
+
+function openGymTaxForm() {
+  const details = gymTaxState.details || {};
+  const type = details.seller_type || "company";
+  for (const input of document.querySelectorAll("input[name=orgGymTaxSellerType]")) input.checked = input.value === type;
+  el("orgGymTaxLegalName").value = details.legal_name || "";
+  el("orgGymTaxCompanyNumber").value = details.company_number || "";
+  el("orgGymTaxDateOfBirth").value = details.date_of_birth || "";
+  el("orgGymTaxNumberType").value = details.tax_number_type || (type === "company" ? "" : "utr");
+  el("orgGymTaxNumber").value = details.tax_number || "";
+  el("orgGymTaxVat").value = details.vat_number || "";
+  el("orgGymTaxAddress1").value = details.address_line1 || "";
+  el("orgGymTaxAddress2").value = details.address_line2 || "";
+  el("orgGymTaxCity").value = details.city || "";
+  el("orgGymTaxPostcode").value = details.postcode || "";
+  el("orgGymTaxCountry").value = details.country || "GB";
+  showGymTaxSellerType();
+  el("orgGymTaxError").hidden = true;
+  el("orgGymTaxForm").hidden = false;
+  el("orgGymTaxEditButton").hidden = true;
+}
+
+function closeGymTaxForm() {
+  el("orgGymTaxForm").hidden = true;
+  el("orgGymTaxEditButton").hidden = false;
+}
+
+async function saveGymTaxForm(event) {
+  event.preventDefault();
+  const errorEl = el("orgGymTaxError");
+  const button = event.target.querySelector("button[type=submit]");
+  errorEl.hidden = true;
+  button.disabled = true;
+  const company = gymTaxSellerType() === "company";
+  const body = {
+    seller_type: gymTaxSellerType(),
+    legal_name: el("orgGymTaxLegalName").value,
+    company_number: company ? el("orgGymTaxCompanyNumber").value : "",
+    date_of_birth: company ? "" : el("orgGymTaxDateOfBirth").value,
+    tax_number_type: el("orgGymTaxNumberType").value,
+    tax_number: el("orgGymTaxNumber").value,
+    vat_number: el("orgGymTaxVat").value,
+    address_line1: el("orgGymTaxAddress1").value,
+    address_line2: el("orgGymTaxAddress2").value,
+    city: el("orgGymTaxCity").value,
+    postcode: el("orgGymTaxPostcode").value,
+    country: el("orgGymTaxCountry").value
+  };
+  try {
+    const result = await api("PUT", `/org/organisations/${encodeURIComponent(state.selectedOrgId)}/tax-details`, body);
+    closeGymTaxForm();
+    renderGymTaxDetails(result, "Tax details saved.");
+  }
+  catch (error) {
+    errorEl.textContent = error.fieldErrors ? Object.values(error.fieldErrors).join(" ") : "The tax details couldn't be saved. Try again.";
+    errorEl.hidden = false;
+    console.error(error);
+  }
+  finally {
+    button.disabled = false;
   }
 }
 
@@ -2678,6 +2783,10 @@ function boot() {
   el("orgAddPackageButton").addEventListener("click", () => openGymPackageForm(null));
   el("orgPackageCancelButton").addEventListener("click", closeGymPackageForm);
   el("orgGymPackageForm").addEventListener("submit", saveGymPackageForm);
+  el("orgGymTaxEditButton").addEventListener("click", openGymTaxForm);
+  el("orgGymTaxCancelButton").addEventListener("click", closeGymTaxForm);
+  el("orgGymTaxForm").addEventListener("submit", saveGymTaxForm);
+  for (const input of document.querySelectorAll("input[name=orgGymTaxSellerType]")) input.addEventListener("change", showGymTaxSellerType);
   el("orgVisibilityBackButton").addEventListener("click", () => hideVisibilitySection());
   el("orgProgressBackButton").addEventListener("click", () => hideProgressSection());
   el("orgAuditBackButton").addEventListener("click", () => hideAuditSection());
