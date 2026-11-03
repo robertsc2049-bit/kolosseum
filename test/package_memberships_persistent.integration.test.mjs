@@ -9,7 +9,7 @@ import test from "node:test";
 
 import { app } from "../dist/src/server.js";
 import { pool } from "../dist/src/db/pool.js";
-import { nextPaidUntil, paymentDue, periodOf } from "../dist/src/api/package_membership_service.js";
+import { nextPaidUntil, paymentDue, paymentOutlook, periodOf } from "../dist/src/api/package_membership_service.js";
 
 async function request(base, method, route, body, options = {}) {
   const headers = { origin: base };
@@ -49,6 +49,15 @@ test("billing periods run from the start date, month ends clamped", () => {
   assert.equal(paymentDue({ started_on: "2026-11-02", paid_until: "2026-11-30", paid_in_full: false }, "2026-12-01"), true);
   assert.equal(paymentDue({ started_on: "2026-12-01", paid_until: null, paid_in_full: false }, "2026-11-30"), false, "not started yet");
   assert.equal(paymentDue({ started_on: "2026-11-02", paid_until: null, paid_in_full: true }, "2027-01-01"), false);
+  // Owed now and coming up in the next 30 days, counted in periods.
+  const monthly = (paid_until, started_on = "2026-09-02") => ({ billing: "monthly", started_on, paid_until, paid_in_full: false });
+  assert.deepEqual(paymentOutlook(monthly("2026-10-01"), "2026-11-20"), { owed: 2, upcoming: 1 }, "October and November owed, December coming");
+  assert.deepEqual(paymentOutlook(monthly("2026-12-01"), "2026-11-20"), { owed: 0, upcoming: 1 });
+  assert.deepEqual(paymentOutlook(monthly("2027-02-01"), "2026-11-20"), { owed: 0, upcoming: 0 });
+  assert.deepEqual(paymentOutlook(monthly(null, "2026-12-10"), "2026-11-20"), { owed: 0, upcoming: 1 }, "starts unpaid within the month");
+  assert.deepEqual(paymentOutlook({ billing: "weekly", started_on: "2026-11-02", paid_until: "2026-11-08", paid_in_full: false }, "2026-11-20"), { owed: 2, upcoming: 4 });
+  assert.deepEqual(paymentOutlook({ billing: "one_off", started_on: "2026-11-02", paid_until: null, paid_in_full: false }, "2026-11-20"), { owed: 1, upcoming: 0 });
+  assert.deepEqual(paymentOutlook({ billing: "one_off", started_on: "2026-11-02", paid_until: null, paid_in_full: true }, "2026-11-20"), { owed: 0, upcoming: 0 });
 });
 
 test("a coach puts an athlete on a package, payment due blocks booking and lets the coach cancel what's booked", { timeout: 180000 }, async (t) => {
@@ -127,8 +136,11 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   // The coach can still book them; payment due, they cancel everything upcoming.
   expect(await request(base, "POST", "/check-ins", { athlete_user_id: sam.userId, starts_at: new Date(Date.now() + 2 * 86400000).toISOString(), call_method: "in_person", duration_minutes: 60, repeat: "weekly", occurrences: 3 }, coach), 201, "coach books");
   assert.equal(expect(await request(base, "GET", "/check-ins/mine", undefined, sam), 200, "booked").checkins.length, 3);
-  const members = expect(await request(base, "GET", "/check-ins/package-members", undefined, coach), 200, "members").members;
-  assert.deepEqual(members.map((m) => [m.athlete_display_name, m.package.name, m.payment_due]), [["Sam Lifter", "Online coaching", true]]);
+  const list = expect(await request(base, "GET", "/check-ins/package-members", undefined, coach), 200, "members");
+  const members = list.members;
+  assert.deepEqual(members.map((m) => [m.athlete_display_name, m.package.name, m.payment_due, m.owed_periods, m.owed_minor, m.currency]), [["Sam Lifter", "Online coaching", true, 1, 8000, "GBP"]]);
+  // A month owed, the next month starts within 30 days.
+  assert.deepEqual(list.totals, [{ currency: "GBP", owed_minor: 8000, upcoming_minor: 8000 }]);
   expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, other), 404, "not theirs");
   const cancelled = expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, coach), 200, "cancel upcoming");
   assert.equal(cancelled.cancelled_count, 3);

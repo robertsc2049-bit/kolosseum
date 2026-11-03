@@ -3586,6 +3586,14 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   margin-top: var(--k-space-2);
 }
 
+/* Payments on the coach's Athletes page (CoachPaymentsPanel.tsx). */
+#coach-payments-root:not(:empty) { margin-bottom: var(--k-space-3); }
+.coach-payments > summary { display: flex; flex-direction: column; gap: 2px; cursor: pointer; }
+.coach-payments h4 { margin: var(--k-space-3) 0 var(--k-space-1); }
+.payment-row { display: flex; justify-content: space-between; align-items: center; gap: var(--k-space-2); flex-wrap: wrap; }
+.payment-row .link-button { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; text-decoration: underline; cursor: pointer; }
+.payments-paid { margin-top: var(--k-space-3); }
+
 .gym-packages,
 .coach-packages {
   margin-top: var(--k-space-2);
@@ -4348,10 +4356,11 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   #view-athletes > .page-heading { order: 0; }
   #view-athletes > #athleteDirectoryStatus { order: 1; }
   #view-athletes > .athlete-directory-layout { order: 2; margin-bottom: var(--k-space-4); }
-  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout):not(.athlete-actions):not(#coaching-requests-root) { order: 3; }
+  #view-athletes > :not(.page-heading):not(#athleteDirectoryStatus):not(.athlete-directory-layout):not(.athlete-actions):not(#coaching-requests-root):not(#coach-payments-root) { order: 3; }
   /* ...but athletes asking to be coached, and the compact Invite / Message /
      Add buttons, stay above it. */
   #view-athletes > #coaching-requests-root,
+  #view-athletes > #coach-payments-root,
   #view-athletes > .athlete-actions { order: 1; }
   #view-athletes > #coaching-requests-root:not(:empty) { margin-bottom: var(--k-space-3); }
   .athlete-actions > .athlete-action:not([open]) { flex: 1 1 auto; }
