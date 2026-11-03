@@ -123,8 +123,11 @@ export function CoachPaymentsPanel() {
   const { due, soon, paid } = paymentGroups(members, today);
   const claimed = members.filter((member) => member.payment_claim).length;
   const totals = Array.isArray(payload?.totals) ? (payload?.totals as JsonRecord[]) : [];
-  const owed = totals.filter((t) => Number(t.owed_minor) > 0).map((t) => money(Number(t.owed_minor), String(t.currency)));
-  const upcoming = totals.filter((t) => Number(t.upcoming_minor) > 0).map((t) => money(Number(t.upcoming_minor), String(t.currency)));
+  // A gym's packages are paid to the gym, so its money is named apart from the coach's own.
+  const amount = (t: JsonRecord, key: string) => `${money(Number(t[key]), String(t.currency))}${t.gym_name ? ` to ${String(t.gym_name)}` : ""}`;
+  const owed = totals.filter((t) => Number(t.owed_minor) > 0).map((t) => amount(t, "owed_minor"));
+  const upcoming = totals.filter((t) => Number(t.upcoming_minor) > 0).map((t) => amount(t, "upcoming_minor"));
+  const gymPackages = members.some((member) => ((member.package ?? {}) as JsonRecord).gym_name);
 
   async function record(member: JsonRecord) {
     const id = String(member.athlete_user_id);
@@ -213,7 +216,9 @@ export function CoachPaymentsPanel() {
         {[owed.length ? `Owed now: ${owed.join(", ")}` : "", upcoming.length ? `Due in the next ${String(payload?.outlook_days ?? 30)} days: ${upcoming.join(", ")}` : ""].filter(Boolean).join(" · ")
           || "Nothing due in the next 30 days"}.
       </p>
-      <p className="muted small">Worked out from your package prices - athletes pay you directly.</p>
+      <p className="muted small">{gymPackages
+        ? "Worked out from the package prices - athletes pay you, or the gym for its packages, directly."
+        : "Worked out from your package prices - athletes pay you directly."}</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {notice ? (
         <p className="muted small" role="status">

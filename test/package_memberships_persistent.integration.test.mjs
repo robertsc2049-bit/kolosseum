@@ -168,7 +168,7 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   const members = list.members;
   assert.deepEqual(members.map((m) => [m.athlete_display_name, m.package.name, m.payment_due, m.owed_periods, m.owed_minor, m.currency]), [["Sam Lifter", "Online coaching", true, 1, 8000, "GBP"]]);
   // A month owed, the next month starts within 30 days.
-  assert.deepEqual(list.totals, [{ currency: "GBP", owed_minor: 8000, upcoming_minor: 8000 }]);
+  assert.deepEqual(list.totals, [{ currency: "GBP", gym_name: null, owed_minor: 8000, upcoming_minor: 8000 }]);
   expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, other), 404, "not theirs");
   const cancelled = expect(await request(base, "POST", `${packageOf}/cancel-upcoming`, {}, coach), 200, "cancel upcoming");
   assert.equal(cancelled.cancelled_count, 3);

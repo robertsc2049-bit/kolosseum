@@ -69,12 +69,22 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   const base = `http://127.0.0.1:${server.address().port}`;
   const userIds = [];
   let adminId = "";
+  let ownerId = "";
   t.after(async () => {
     await new Promise((resolve) => server.close(resolve));
     await pool.query("DELETE FROM product_package_payments WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_coach_tax_details WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_package_memberships WHERE coach_user_id = ANY($1::text[]) OR athlete_user_id = ANY($1::text[])", [userIds]).catch(() => {});
-    await pool.query("DELETE FROM product_service_packages WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+    await pool.query("DELETE FROM product_service_packages WHERE coach_user_id = ANY($1::text[]) OR org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $2)", [userIds, ownerId]).catch(() => {});
+    await pool.query("DELETE FROM product_coach_gyms WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
+    if (ownerId) {
+      await pool.query("DELETE FROM product_notifications WHERE recipient_user_id = $1", [ownerId]).catch(() => {});
+      await pool.query("DELETE FROM product_gym_listings WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)", [ownerId]).catch(() => {});
+      await pool.query("DELETE FROM product_org_audit_records WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)", [ownerId]).catch(() => {});
+      await pool.query("DELETE FROM product_organisations WHERE owner_user_id = $1", [ownerId]).catch(() => {});
+      await pool.query("DELETE FROM product_org_owner_sessions WHERE user_id = $1", [ownerId]).catch(() => {});
+      await pool.query("DELETE FROM product_org_owner_accounts WHERE user_id = $1", [ownerId]).catch(() => {});
+    }
     for (const id of userIds) for (const table of ["product_notifications", "product_account_events", "product_auth_sessions", "product_auth_challenges", "product_accounts", "beta_accounts"]) {
       await pool.query(`DELETE FROM ${table} WHERE ${table === "product_notifications" ? "recipient_user_id" : "user_id"} = $1`, [id]).catch(() => {});
     }
@@ -134,6 +144,21 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   assert.deepEqual([mine.tax_details.legal_name, mine.tax_details.tax_number, mine.tax_details.postcode], ["Christopher Roberts", "QQ123456C", "LS1 1AB"]);
   expect(await request(base, "PUT", "/check-ins/tax-details", { seller_type: "individual" }, athlete), 403, "athletes can't write");
 
+  // Sam moves to a gym's PT block, which Chris delivers, paid in full: that money is the gym's.
+  const ownerEmail = `stax_owner_${nonce}@example.com`;
+  const ownerReg = await request(base, "POST", "/org/register", { email: ownerEmail, display_name: "Gym Owner", password: `GymOwner${nonce}!2026` });
+  ownerId = expect(ownerReg, 201, "owner").org_owner.user_id;
+  const owner = { cookie: cookieOf(ownerReg, "kolosseum_org_owner_session"), csrf: ownerReg.json.csrf_token };
+  const gymName = `Forge ${nonce}`;
+  const orgId = expect(await request(base, "POST", "/org/organisations", { org_name: gymName, activity_id: "powerlifting", visibility_mode: "individual" }, owner), 201, "gym").organisation.org_id;
+  expect(await request(base, "PUT", `/org/organisations/${orgId}/gym-listing`, { display_name: gymName, area: "York", equipment: ["barbell", "rack"] }, owner), 200, "listing");
+  await pool.query("UPDATE product_gym_listings SET listing_status = 'approved', reviewed_at = now() WHERE org_id = $1", [orgId]);
+  expect(await request(base, "POST", "/coach-branding/gyms", { org_id: orgId }, coach), 201, "coach adds gym");
+  const link = expect(await request(base, "GET", `/org/organisations/${orgId}/gym-coaches`, undefined, owner), 200, "gym coaches").coaches[0];
+  expect(await request(base, "POST", `/org/organisations/${orgId}/gym-coaches/${link.coach_gym_id}/decision`, { decision: "confirm" }, owner), 200, "confirm");
+  const ptBlock = expect(await request(base, "POST", `/org/organisations/${orgId}/packages`, { name: "PT block", price: 120, billing: "one_off", includes: { in_person_sessions: 4 }, delivered_by: [coach.userId] }, owner), 201, "gym package").packages[0];
+  assert.equal(expect(await request(base, "PUT", pkg, { package_id: ptBlock.package_id, paid_now: true }, coach), 200, "gym package").membership.paid_in_full, true);
+
   // The admin's report for this year: the coach's details and this quarter's two payments.
   const adminEmail = `stax_admin_${nonce}@example.com`;
   const adminPassword = `TaxAdmin${nonce}!2026`;
@@ -146,11 +171,18 @@ test("a coach adds tax details, payments are kept, and the admin downloads the y
   expect(await request(base, "GET", `/admin/seller-tax-report?year=${new Date().getUTCFullYear()}`, undefined, coach), 401, "a coach can't");
   const report = expect(await request(base, "GET", `/admin/seller-tax-report?year=${new Date().getUTCFullYear()}`, undefined, admin), 200, "report").report;
   const quarter = Math.floor(new Date().getUTCMonth() / 3) + 1;
-  const row = report.rows.find((r) => r.coach_user_id === coach.userId);
+  const row = report.rows.find((r) => r.seller_id === coach.userId);
   assert.deepEqual(
     [row.details_added, row.legal_name, row.date_of_birth, row.tax_number_type, row.tax_number, row.postcode, row.currency, row[`q${quarter}_paid`], row[`q${quarter}_payments`], row.year_paid, row.platform_fees],
     ["yes", "Christopher Roberts", "1988-06-15", "nino", "QQ123456C", "LS1 1AB", "GBP", "160.00", "2", "160.00", "0.00"]
   );
-  assert.equal(report.rows.some((r) => r.coach_user_id === athlete.userId), false, "athletes aren't sellers");
+  assert.deepEqual([row.seller_kind, row.seller_name], ["coach", "Chris Roberts"]);
+  assert.equal(report.rows.some((r) => r.seller_id === athlete.userId), false, "athletes aren't sellers");
   assert.deepEqual(Object.keys(row), report.columns);
+  // The gym's own row: the PT block it sold, not added to the coach who delivers it.
+  const gymRow = report.rows.find((r) => r.seller_id === orgId);
+  assert.deepEqual(
+    [gymRow.seller_kind, gymRow.seller_name, gymRow.account_email, gymRow.details_added, gymRow[`q${quarter}_paid`], gymRow[`q${quarter}_payments`], gymRow.year_paid],
+    ["gym", gymName, ownerEmail, "no", "120.00", "1", "120.00"]
+  );
 });

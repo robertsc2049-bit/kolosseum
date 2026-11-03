@@ -8,7 +8,9 @@
 // their details up to date; only they and the platform admin see them. What
 // a coach was paid comes from the payments they record against packages
 // (product_package_payments, valued at the package price) - payments are
-// made outside the app, so these are the amounts as recorded.
+// made outside the app, so these are the amounts as recorded. A gym's
+// packages are sold by the gym, so what's paid on them is the gym's (the
+// coach who delivers one only records it).
 import { pool } from "../db/pool.js";
 import { CoachCheckinError } from "./coach_checkin_service.js";
 
@@ -116,12 +118,16 @@ function detailsView(row: Json | undefined): Json | null {
   };
 }
 
-// The coach's own details, and whether they sell packages (when they're
-// asked for them).
+// The coach's own details, and whether they sell packages of their own
+// (when they're asked for them - a gym's packages they deliver are the gym's).
 export async function getCoachTaxDetails(coachUserId: string): Promise<Json> {
   const [details, packages] = await Promise.all([
     pool.query(`${DETAILS_SELECT} WHERE coach_user_id = $1`, [coachUserId]),
-    pool.query(`SELECT count(*)::int AS n FROM product_package_memberships WHERE coach_user_id = $1`, [coachUserId])
+    pool.query(
+      `SELECT count(*)::int AS n FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id
+       WHERE m.coach_user_id = $1 AND p.org_id IS NULL`,
+      [coachUserId]
+    )
   ]);
   return { ok: true, tax_details: detailsView(details.rows[0] as Json | undefined), sells_packages: Number(packages.rows[0]?.n ?? 0) > 0 };
 }
@@ -148,15 +154,21 @@ export async function saveCoachTaxDetails(coachUserId: string, input: unknown): 
 export class SellerTaxReportError extends Error {}
 
 export const SELLER_TAX_REPORT_COLUMNS = [
-  "coach_user_id", "account_email", "details_added", "seller_type", "legal_name", "date_of_birth", "company_number", "tax_number_type", "tax_number",
-  "vat_number", "address_line1", "address_line2", "city", "postcode", "country", "currency",
+  "seller_kind", "seller_id", "seller_name", "account_email", "details_added", "seller_type", "legal_name", "date_of_birth", "company_number",
+  "tax_number_type", "tax_number", "vat_number", "address_line1", "address_line2", "city", "postcode", "country", "currency",
   "q1_paid", "q1_payments", "q2_paid", "q2_payments", "q3_paid", "q3_payments", "q4_paid", "q4_payments", "year_paid", "platform_fees"
 ] as const;
 
-// Every coach who recorded a payment in the calendar year, or has a
-// package or tax details: their details and what they were paid each quarter
-// (amounts in major units, e.g. pounds), one row per currency. Coaches
-// without details show details_added = no, so the admin can chase them.
+const DETAIL_KEYS = ["seller_type", "legal_name", "date_of_birth", "company_number", "tax_number_type", "tax_number", "vat_number", "address_line1", "address_line2", "city", "postcode", "country"];
+
+type Quarters = { amount: number; count: number }[];
+
+// Every seller paid in the calendar year, or who sells packages or has tax
+// details: their details and what they were paid each quarter (amounts in
+// major units, e.g. pounds), one row per currency. The seller is whoever
+// the package belongs to: a payment on a gym's package was paid to the gym,
+// even though the coach who delivers it recorded it. Sellers without
+// details show details_added = no, so the admin can chase them.
 export async function sellerTaxReport(yearInput: unknown): Promise<{ year: number; columns: readonly string[]; rows: Record<string, string>[] }> {
   const year = Number(yearInput);
   const thisYear = new Date().getUTCFullYear();
@@ -164,45 +176,60 @@ export async function sellerTaxReport(yearInput: unknown): Promise<{ year: numbe
   const from = `${year}-01-01`;
   const to = `${year + 1}-01-01`;
   const paid = await pool.query(
-    `SELECT coach_user_id, currency, EXTRACT(QUARTER FROM recorded_at AT TIME ZONE 'UTC')::int AS quarter,
-            sum(amount_minor)::bigint AS amount_minor, count(*) FILTER (WHERE periods <> 0)::int AS payments
-     FROM product_package_payments
-     WHERE recorded_at >= $1::date AND recorded_at < $2::date
-     GROUP BY coach_user_id, currency, quarter`,
+    `SELECT COALESCE(p.org_id, pp.coach_user_id) AS seller_id, pp.currency, EXTRACT(QUARTER FROM pp.recorded_at AT TIME ZONE 'UTC')::int AS quarter,
+            sum(pp.amount_minor)::bigint AS amount_minor, count(*) FILTER (WHERE pp.periods <> 0)::int AS payments
+     FROM product_package_payments pp
+     JOIN product_package_memberships m ON m.membership_id = pp.membership_id
+     JOIN product_service_packages p ON p.package_id = m.package_id
+     WHERE pp.recorded_at >= $1::date AND pp.recorded_at < $2::date
+     GROUP BY 1, pp.currency, quarter`,
     [from, to]
   );
+  const sellerIds = [...new Set(paid.rows.map((row) => String(row.seller_id)))];
   const coaches = await pool.query(
-    `SELECT a.user_id, a.email_canonical, d.seller_type, d.legal_name, d.date_of_birth::text AS date_of_birth, d.company_number, d.tax_number_type,
-            d.tax_number, d.vat_number, d.address_line1, d.address_line2, d.city, d.postcode, d.country
+    `SELECT a.user_id AS seller_id, a.display_name AS seller_name, a.email_canonical, d.seller_type, d.legal_name, d.date_of_birth::text AS date_of_birth, d.company_number,
+            d.tax_number_type, d.tax_number, d.vat_number, d.address_line1, d.address_line2, d.city, d.postcode, d.country
      FROM product_accounts a
      LEFT JOIN product_coach_tax_details d ON d.coach_user_id = a.user_id
      WHERE a.user_id = ANY($1::text[])
         OR d.coach_user_id IS NOT NULL
-        OR EXISTS (SELECT 1 FROM product_package_memberships m WHERE m.coach_user_id = a.user_id AND m.started_on < $2::date)
+        OR EXISTS (SELECT 1 FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id
+                   WHERE m.coach_user_id = a.user_id AND p.org_id IS NULL AND m.started_on < $2::date)
      ORDER BY a.user_id`,
-    [[...new Set(paid.rows.map((row) => String(row.coach_user_id)))], to]
+    [sellerIds, to]
   );
-  const byCoach = new Map<string, Map<string, { quarters: { amount: number; count: number }[] }>>();
+  const gyms = await pool.query(
+    `SELECT o.org_id AS seller_id, COALESCE(l.display_name, o.org_name) AS seller_name, w.email_canonical
+     FROM product_organisations o
+     JOIN product_org_owner_accounts w ON w.user_id = o.owner_user_id
+     LEFT JOIN product_gym_listings l ON l.org_id = o.org_id
+     WHERE o.org_id = ANY($1::text[])
+        OR EXISTS (SELECT 1 FROM product_package_memberships m JOIN product_service_packages p ON p.package_id = m.package_id
+                   WHERE p.org_id = o.org_id AND m.started_on < $2::date)
+     ORDER BY o.org_id`,
+    [sellerIds, to]
+  );
+  const bySeller = new Map<string, Map<string, Quarters>>();
   for (const row of paid.rows) {
-    const coach = byCoach.get(String(row.coach_user_id)) ?? new Map();
-    const currency = coach.get(String(row.currency)) ?? { quarters: [0, 1, 2, 3].map(() => ({ amount: 0, count: 0 })) };
-    const q = currency.quarters[Number(row.quarter) - 1];
+    const seller = bySeller.get(String(row.seller_id)) ?? new Map<string, Quarters>();
+    const quarters = seller.get(String(row.currency)) ?? [0, 1, 2, 3].map(() => ({ amount: 0, count: 0 }));
+    const q = quarters[Number(row.quarter) - 1];
     q.amount += Number(row.amount_minor);
     q.count += Number(row.payments);
-    coach.set(String(row.currency), currency);
-    byCoach.set(String(row.coach_user_id), coach);
+    seller.set(String(row.currency), quarters);
+    bySeller.set(String(row.seller_id), seller);
   }
   const major = (minor: number) => (minor / 100).toFixed(2);
   const rows: Record<string, string>[] = [];
-  for (const coach of coaches.rows as Json[]) {
+  const sellers = [...(coaches.rows as Json[]).map((row) => ({ kind: "coach", row })), ...(gyms.rows as Json[]).map((row) => ({ kind: "gym", row }))];
+  for (const { kind, row: seller } of sellers) {
     const base: Record<string, string> = {
-      coach_user_id: String(coach.user_id), account_email: String(coach.email_canonical ?? ""), details_added: coach.seller_type ? "yes" : "no"
+      seller_kind: kind, seller_id: String(seller.seller_id), seller_name: text(seller.seller_name),
+      account_email: String(seller.email_canonical ?? ""), details_added: seller.seller_type ? "yes" : "no"
     };
-    for (const key of ["seller_type", "legal_name", "date_of_birth", "company_number", "tax_number_type", "tax_number", "vat_number", "address_line1", "address_line2", "city", "postcode", "country"]) {
-      base[key] = coach[key] == null ? "" : String(coach[key]);
-    }
-    const currencies = byCoach.get(String(coach.user_id)) ?? new Map([["GBP", { quarters: [0, 1, 2, 3].map(() => ({ amount: 0, count: 0 })) }]]);
-    for (const [currency, { quarters }] of currencies) {
+    for (const key of DETAIL_KEYS) base[key] = seller[key] == null ? "" : String(seller[key]);
+    const currencies = bySeller.get(String(seller.seller_id)) ?? new Map([["GBP", [0, 1, 2, 3].map(() => ({ amount: 0, count: 0 }))]]);
+    for (const [currency, quarters] of currencies) {
       const row: Record<string, string> = { ...base, currency };
       quarters.forEach((q, i) => { row[`q${i + 1}_paid`] = major(q.amount); row[`q${i + 1}_payments`] = String(q.count); });
       row.year_paid = major(quarters.reduce((sum, q) => sum + q.amount, 0));
