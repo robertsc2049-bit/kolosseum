@@ -3705,3 +3705,45 @@ ON product_package_memberships (athlete_user_id);
 -- once.
 ALTER TABLE product_package_memberships
   ADD COLUMN IF NOT EXISTS emailed_reminders TEXT[] NOT NULL DEFAULT '{}';
+
+-- Each payment a coach records against a package (package_membership_
+-- service.ts): the paid-up date it moved from and to, and what it's worth at
+-- the package price - so what a coach was paid each quarter can be reported
+-- (seller_tax_service.ts). A date moved back records a negative amount.
+CREATE TABLE IF NOT EXISTS product_package_payments (
+  payment_id       TEXT PRIMARY KEY,
+  membership_id    TEXT NOT NULL,
+  coach_user_id    TEXT NOT NULL,
+  athlete_user_id  TEXT NOT NULL,
+  paid_until_from  DATE,
+  paid_until_to    DATE,
+  paid_in_full     BOOLEAN NOT NULL DEFAULT false,
+  periods          INTEGER NOT NULL,
+  amount_minor     INTEGER NOT NULL,
+  currency         TEXT NOT NULL,
+  recorded_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_package_payments_coach
+ON product_package_payments (coach_user_id, recorded_at);
+
+-- A coach's details for reporting what they earn through Kolosseum to HMRC
+-- (seller_tax_service.ts). Only the coach and the platform admin see them.
+CREATE TABLE IF NOT EXISTS product_coach_tax_details (
+  coach_user_id    TEXT PRIMARY KEY,
+  seller_type      TEXT NOT NULL CHECK (seller_type IN ('individual', 'company')),
+  legal_name       TEXT NOT NULL,
+  date_of_birth    DATE,
+  company_number   TEXT,
+  tax_number_type  TEXT CHECK (tax_number_type IN ('nino', 'utr', 'other')),
+  tax_number       TEXT,
+  vat_number       TEXT,
+  address_line1    TEXT NOT NULL,
+  address_line2    TEXT,
+  city             TEXT NOT NULL,
+  postcode         TEXT NOT NULL,
+  country          TEXT NOT NULL DEFAULT 'GB',
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
+);

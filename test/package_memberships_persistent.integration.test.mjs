@@ -67,6 +67,7 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   const userIds = [];
   t.after(async () => {
     await new Promise((resolve) => server.close(resolve));
+    await pool.query("DELETE FROM product_package_payments WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_package_memberships WHERE coach_user_id = ANY($1::text[]) OR athlete_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_coach_checkins WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_coach_availability_blocks WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});

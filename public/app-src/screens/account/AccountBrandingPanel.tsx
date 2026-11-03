@@ -7,6 +7,7 @@ import { CoachShareLinkPanel } from "./CoachShareLinkPanel";
 import { CoachCallSettingsPanel } from "./CoachCallSettingsPanel";
 import { CoachAvailabilityPanel } from "./CoachAvailabilityPanel";
 import { CoachPackagesPanel } from "./CoachPackagesPanel";
+import { CoachTaxDetailsPanel } from "./CoachTaxDetailsPanel";
 
 // DEV NOTE: FULL-UI-65 coach branding - ported from coach_branding_ui.js's
 // #accountBrandingPanel. This panel mounts inside the shared #view-account
@@ -87,6 +88,7 @@ export function AccountBrandingPanel() {
     </section>
     <CoachGymsPanel />
     <CoachPackagesPanel />
+    <CoachTaxDetailsPanel />
     <CoachShareLinkPanel />
     <CoachCallSettingsPanel />
     <CoachAvailabilityPanel />

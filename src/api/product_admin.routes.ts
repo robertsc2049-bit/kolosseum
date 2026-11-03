@@ -49,6 +49,7 @@ import {
   searchAdminOrgOwnerAccounts
 } from "./product_admin_review_service.js";
 import { badRequest, conflict, notFound } from "./http_errors.js";
+import { SellerTaxReportError, sellerTaxReport } from "./seller_tax_service.js";
 import {
   ExerciseDemoVideoError,
   listExerciseDemoVideos,
@@ -486,6 +487,24 @@ productAdminRouter.delete(
     await authenticatedAdmin(request, true);
     await removeExerciseDemoVideo(String(request.params.exercise_id), null);
     return response.status(200).json({ ok: true });
+  })
+);
+
+// Coaches' tax details and what they were paid each quarter, for the yearly
+// digital platform report to HMRC (seller_tax_service.ts). The console turns
+// it into a CSV.
+productAdminRouter.get(
+  "/seller-tax-report",
+  dataErasureRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    try {
+      return response.status(200).json({ ok: true, report: await sellerTaxReport(request.query.year) });
+    }
+    catch (error) {
+      if (error instanceof SellerTaxReportError) throw badRequest(error.message, { failure_token: error.message });
+      throw error;
+    }
   })
 );
 

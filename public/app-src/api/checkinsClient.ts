@@ -92,3 +92,12 @@ export function cancelUpcomingForUnpaid(athleteUserId: string, csrfToken: string
 export function loadPackageMembers(): Promise<JsonRecord> {
   return request("GET", "/check-ins/package-members");
 }
+
+// The coach's tax details for HMRC reporting (seller_tax_service.ts).
+export function loadTaxDetails(): Promise<JsonRecord> {
+  return request("GET", "/check-ins/tax-details");
+}
+
+export function saveTaxDetails(details: JsonRecord, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/check-ins/tax-details", details, csrfToken);
+}

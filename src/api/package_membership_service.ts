@@ -88,6 +88,35 @@ export function paymentOutlook(
   return { owed, upcoming };
 }
 
+// How many whole periods a payment covers: the period ends passed moving the
+// paid-up date from `from` (null: not paid yet) to `to`. Back: negative.
+export function periodsCovered(startedOn: string, billing: string, from: string | null, to: string | null): number {
+  const before = from ?? addDays(startedOn, -1);
+  const after = to ?? addDays(startedOn, -1);
+  const [low, high, sign] = after >= before ? [before, after, 1] : [after, before, -1];
+  let n = 0;
+  let end = periodOf(startedOn, billing, startedOn).end as string;
+  for (let i = 0; i < 1000 && end <= high; i += 1) {
+    if (end > low) n += 1;
+    end = periodOf(startedOn, billing, addDays(end, 1)).end as string;
+  }
+  return sign * n;
+}
+
+// Keep a record of a recorded payment (product_package_payments), valued at
+// the package price.
+async function logPayment(
+  client: QueryClient,
+  entry: { membershipId: string; coachUserId: string; athleteUserId: string; from: string | null; to: string | null; paidInFull: boolean; periods: number; priceMinor: number; currency: string }
+): Promise<void> {
+  if (!entry.periods) return;
+  await client.query(
+    `INSERT INTO product_package_payments (payment_id, membership_id, coach_user_id, athlete_user_id, paid_until_from, paid_until_to, paid_in_full, periods, amount_minor, currency)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    [`ppay_${crypto.randomUUID().replaceAll("-", "")}`, entry.membershipId, entry.coachUserId, entry.athleteUserId, entry.from, entry.to, entry.paidInFull, entry.periods, entry.periods * entry.priceMinor, entry.currency]
+  );
+}
+
 // --- Reading ---------------------------------------------------------------------
 
 const MEMBERSHIP_SELECT = `
@@ -246,15 +275,20 @@ export async function startAthletePackage(coachUserId: string, athleteUserIdInpu
       `UPDATE product_package_memberships SET ended_at = now(), updated_at = now() WHERE coach_user_id = $1 AND athlete_user_id = $2 AND ended_at IS NULL`,
       [coachUserId, athleteUserId]
     );
+    const membershipId = `pmem_${crypto.randomUUID().replaceAll("-", "")}`;
+    const paidUntil = paidNow && billing !== "one_off" ? nextPaidUntil(startedOn, billing, null) : null;
     await client.query(
       `INSERT INTO product_package_memberships (membership_id, package_id, coach_user_id, athlete_user_id, started_on, paid_until, paid_in_full)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [
-        `pmem_${crypto.randomUUID().replaceAll("-", "")}`, option.package_id, coachUserId, athleteUserId, startedOn,
-        paidNow && billing !== "one_off" ? nextPaidUntil(startedOn, billing, null) : null,
-        paidNow && billing === "one_off"
-      ]
+      [membershipId, option.package_id, coachUserId, athleteUserId, startedOn, paidUntil, paidNow && billing === "one_off"]
     );
+    if (paidNow) {
+      const price = (await client.query(`SELECT price_minor, currency FROM product_service_packages WHERE package_id = $1`, [option.package_id])).rows[0] as Json;
+      await logPayment(client, {
+        membershipId, coachUserId, athleteUserId, from: null, to: paidUntil, paidInFull: billing === "one_off",
+        periods: 1, priceMinor: Number(price.price_minor), currency: String(price.currency)
+      });
+    }
     await client.query("COMMIT");
   }
   catch (error) {
@@ -281,18 +315,22 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
   const row = await requireCurrent(coachUserId, athleteUserId);
   const billing = String(row.billing);
   const startedOn = dayValue(row.started_on) as string;
+  const entry = {
+    membershipId: String(row.membership_id), coachUserId, athleteUserId, priceMinor: Number(row.price_minor), currency: String(row.currency)
+  };
   if (billing === "one_off") {
-    await pool.query(`UPDATE product_package_memberships SET paid_in_full = true, updated_at = now() WHERE membership_id = $1`, [row.membership_id]);
+    const updated = await pool.query(`UPDATE product_package_memberships SET paid_in_full = true, updated_at = now() WHERE membership_id = $1 AND NOT paid_in_full`, [row.membership_id]);
+    if (updated.rowCount) await logPayment(pool, { ...entry, from: null, to: null, paidInFull: true, periods: 1 });
   }
   else {
     const given = isRecord(input) && input.paid_until !== undefined && input.paid_until !== "" ? dayValue(input.paid_until) : undefined;
     if (given === null || (given && (given < addDays(startedOn, -1) || given > addDays(today(), 400)))) {
       throw new CoachCheckinError("package_membership_invalid", 422, { paid_until: "A date from the start to about a year ahead." });
     }
-    await pool.query(
-      `UPDATE product_package_memberships SET paid_until = $2, updated_at = now() WHERE membership_id = $1`,
-      [row.membership_id, given ?? nextPaidUntil(startedOn, billing, dayValue(row.paid_until))]
-    );
+    const from = dayValue(row.paid_until);
+    const to = given ?? nextPaidUntil(startedOn, billing, from);
+    await pool.query(`UPDATE product_package_memberships SET paid_until = $2, updated_at = now() WHERE membership_id = $1`, [row.membership_id, to]);
+    await logPayment(pool, { ...entry, from, to, paidInFull: false, periods: periodsCovered(startedOn, billing, from, to) });
   }
   return getAthletePackageForCoach(coachUserId, athleteUserId);
 }
