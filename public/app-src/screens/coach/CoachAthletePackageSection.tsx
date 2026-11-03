@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import { cancelUpcomingForUnpaid, endAthletePackage, loadAthletePackage, recordPackagePayment, startAthletePackage } from "../../api/checkinsClient";
+import { cancelUpcomingForUnpaid, endAthletePackage, loadAthletePackage, recordPackagePayment, startAthletePackage, undoPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { errorCode } from "../../utils/checkins";
-import { dayLabel, paidLabel, periodLine, usageLines } from "../../utils/packages";
+import { dayLabel, paidLabel, paymentLine, periodLine, usageLines } from "../../utils/packages";
 
 // The athlete's package with this coach, inside their check-ins: put them on
 // one of the coach's packages (or a gym package they deliver), record
@@ -15,6 +15,8 @@ import { dayLabel, paidLabel, periodLine, usageLines } from "../../utils/package
 const ERRORS: Record<string, string> = {
   package_membership_not_found: "They're not on a package any more.",
   package_payment_not_due: "Payment isn't due - nothing was cancelled.",
+  package_payment_not_found: "That payment can't be undone now - correct the paid-up date instead.",
+  package_payment_undo_expired: "It's too late to undo that - correct the paid-up date instead.",
   checkin_athlete_not_coached: "You no longer coach this athlete."
 };
 
@@ -45,12 +47,15 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // The payment just recorded, while it can still be undone.
+  const [undoable, setUndoable] = useState<string | null>(null);
 
   useEffect(() => {
     setData(null);
     setMode("view");
     setError(null);
     setNotice(null);
+    setUndoable(null);
     let live = true;
     loadAthletePackage(athleteUserId).then((payload) => { if (live) setData(payload); }, () => { if (live) setData(null); });
     return () => { live = false; };
@@ -70,6 +75,7 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
     setBusy(true);
     setError(null);
     setNotice(null);
+    setUndoable(null);
     try {
       const account = await loadAccountDetail();
       const payload = await action(typeof account.csrf_token === "string" ? account.csrf_token : "");
@@ -88,6 +94,22 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
     }
   }
 
+  // Record a payment, then offer to undo it.
+  async function recordPayment(date: string) {
+    const payload = await act((token) => recordPackagePayment(athleteUserId, date, token));
+    if (!payload?.recorded_payment_id) return;
+    const after = (payload.membership ?? {}) as JsonRecord;
+    setNotice(after.paid_in_full ? "Recorded: paid in full." : `Recorded: paid up to ${dayLabel(after.paid_until)}.`);
+    setUndoable(String(payload.recorded_payment_id));
+  }
+
+  async function undo() {
+    const paymentId = undoable;
+    if (!paymentId) return;
+    const payload = await act((token) => undoPackagePayment(athleteUserId, paymentId, token));
+    if (payload) setNotice("Payment undone.");
+  }
+
   function openChoose() {
     setPackageId(String(options[0]?.package_id ?? ""));
     setStartedOn(todayInput());
@@ -99,7 +121,12 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
     <div className="athlete-package" data-testid="coach-athlete-package">
       <p className="eyebrow">Package</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {notice ? <p className="muted small" role="status">{notice}</p> : null}
+      {notice ? (
+        <p className="muted small" role="status">
+          {notice}
+          {undoable ? <> <button className="link-button" type="button" disabled={busy} onClick={() => void undo()}>Undo</button></> : null}
+        </p>
+      ) : null}
 
       {membership && mode !== "choose" ? (
         <div>
@@ -109,6 +136,14 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
           {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
           {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
           {membership.payment_due ? <p className="muted small">They can't book your open slots until you record a payment.</p> : null}
+          {Array.isArray(membership.payments) && membership.payments.length ? (
+            <details className="payment-history">
+              <summary>{`Payments recorded (${(membership.payments as JsonRecord[]).length})`}</summary>
+              <ul className="muted small">
+                {(membership.payments as JsonRecord[]).map((payment) => <li key={String(payment.payment_id)}>{paymentLine(payment, String(pkg.billing))}</li>)}
+              </ul>
+            </details>
+          ) : null}
         </div>
       ) : null}
       {!membership && mode !== "choose" ? (
@@ -146,7 +181,7 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
       ) : null}
 
       {mode === "pay" ? (
-        <form className="athlete-detail-note-form" onSubmit={(event) => { event.preventDefault(); void act((token) => recordPackagePayment(athleteUserId, paidUntil, token)); }}>
+        <form className="athlete-detail-note-form" onSubmit={(event) => { event.preventDefault(); void recordPayment(paidUntil); }}>
           <label className="field">
             <span>Paid up to (optional - leave empty for one more {String(pkg.billing) === "weekly" ? "week" : "month"})</span>
             <input type="date" value={paidUntil} onChange={(event) => setPaidUntil(event.target.value)} />
@@ -186,7 +221,7 @@ export function CoachAthletePackageSection({ athleteUserId, upcomingCount, onChe
           {membership ? (
             <>
               {oneOff ? (
-                !membership.paid_in_full ? <button className="button secondary small" type="button" disabled={busy} onClick={() => void act((token) => recordPackagePayment(athleteUserId, "", token))}>Mark paid in full</button> : null
+                !membership.paid_in_full ? <button className="button secondary small" type="button" disabled={busy} onClick={() => void recordPayment("")}>Mark paid in full</button> : null
               ) : (
                 <button className="button secondary small" type="button" disabled={busy} onClick={() => { setPaidUntil(""); setMode("pay"); }}>Record a payment</button>
               )}

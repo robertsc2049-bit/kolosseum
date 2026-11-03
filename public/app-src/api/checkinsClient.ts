@@ -81,6 +81,11 @@ export function recordPackagePayment(athleteUserId: string, paidUntil: string, c
   return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/payment`, paidUntil ? { paid_until: paidUntil } : {}, csrfToken);
 }
 
+// Undo the payment just recorded.
+export function undoPackagePayment(athleteUserId: string, paymentId: string, csrfToken: string): Promise<JsonRecord> {
+  return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/payments/${encodeURIComponent(paymentId)}/undo`, {}, csrfToken);
+}
+
 export function endAthletePackage(athleteUserId: string, csrfToken: string): Promise<JsonRecord> {
   return request("POST", `/check-ins/athletes/${encodeURIComponent(athleteUserId)}/package/end`, {}, csrfToken);
 }

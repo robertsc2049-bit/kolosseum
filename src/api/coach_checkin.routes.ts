@@ -37,6 +37,7 @@ import {
   getAthletePackageForCoach,
   listCoachPackageMembers,
   recordPackagePayment,
+  undoPackagePayment,
   startAthletePackage
 } from "./package_membership_service.js";
 
@@ -148,6 +149,12 @@ coachCheckinRouter.put("/athletes/:athlete_user_id/package", writeLimit, asyncHa
 coachCheckinRouter.post("/athletes/:athlete_user_id/package/payment", writeLimit, asyncHandler(async (request, response) => {
   const coachUserId = await authenticatedCoach(request, true);
   return response.status(200).json(await recordPackagePayment(coachUserId, request.params.athlete_user_id, request.body));
+}));
+
+// Undo the payment just recorded (package_membership_service.ts).
+coachCheckinRouter.post("/athletes/:athlete_user_id/package/payments/:payment_id/undo", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await undoPackagePayment(coachUserId, request.params.athlete_user_id, request.params.payment_id));
 }));
 
 coachCheckinRouter.post("/athletes/:athlete_user_id/package/end", writeLimit, asyncHandler(async (request, response) => {

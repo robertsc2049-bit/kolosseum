@@ -4,7 +4,7 @@ import { type JsonRecord } from "../../api/transport";
 import { PackageList } from "../../components/PackageList";
 import { coachLabel } from "../../utils/coachName";
 import { formatAttachmentSize, formatDate, titleCase } from "../../utils/format";
-import { paidLabel, periodLine, usageLines } from "../../utils/packages";
+import { paidLabel, paymentLine, periodLine, usageLines } from "../../utils/packages";
 import { useRole } from "../../utils/role";
 import { useAccountCoachRelationship } from "./useAccountCoachRelationship";
 
@@ -24,6 +24,14 @@ function MyPackage({ membership }: { membership: JsonRecord }) {
       {(Array.isArray(pkg.includes_summary) ? (pkg.includes_summary as string[]) : []).length ? <p className="muted small">{`Includes: ${(pkg.includes_summary as string[]).join(" · ")}`}</p> : null}
       {periodLine(membership) ? <p className="muted small">{periodLine(membership)}</p> : null}
       {usageLines(membership).map((line) => <p className="muted small" key={line}>{line}</p>)}
+      {Array.isArray(membership.payments) && membership.payments.length ? (
+        <details className="payment-history">
+          <summary>{`Payments recorded (${(membership.payments as JsonRecord[]).length})`}</summary>
+          <ul className="muted small">
+            {(membership.payments as JsonRecord[]).map((payment) => <li key={String(payment.payment_id)}>{paymentLine(payment, String(pkg.billing))}</li>)}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }

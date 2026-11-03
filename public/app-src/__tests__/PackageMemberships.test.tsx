@@ -10,7 +10,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { CoachAthletePackageSection } from "../screens/coach/CoachAthletePackageSection";
 import { CoachPaymentsPanel, money, paymentGroups } from "../screens/coach/CoachPaymentsPanel";
 import { notificationTypeLabel } from "../api/notificationsClient";
-import { dayLabel, paidLabel, usageLines } from "../utils/packages";
+import { dayLabel, paidLabel, paymentLine, usageLines } from "../utils/packages";
 
 function jsonResponse(body: unknown, status = 200): Response {
   return { ok: status < 400, status, text: async () => JSON.stringify(body) } as Response;
@@ -137,6 +137,10 @@ test("payments on the Athletes page: who's due, what's owed, and recording a pay
     if (path.startsWith("/account/detail")) return jsonResponse({ account: { user_id: "coach_1" }, csrf_token: "csrf" });
     if (path === "/check-ins/athletes/ath_lee/package/payment") {
       lee = { ...lee, paid_until: "2026-11-01", next_paid_until: "2026-12-01", owed_periods: 1, owed_minor: 8000 };
+      return jsonResponse({ ok: true, membership: lee, options: OPTIONS, recorded_payment_id: "ppay_lee" });
+    }
+    if (path === "/check-ins/athletes/ath_lee/package/payments/ppay_lee/undo") {
+      lee = { ...lee, paid_until: "2026-10-01", next_paid_until: "2026-11-01", owed_periods: 2, owed_minor: 16000 };
       return jsonResponse({ ok: true, membership: lee, options: OPTIONS });
     }
     if (path === "/check-ins/package-members") {
@@ -168,4 +172,28 @@ test("payments on the Athletes page: who's due, what's owed, and recording a pay
   await screen.findByText(`Lee Lapsed: paid until ${dayLabel("2026-11-01")}.`);
   await screen.findByText(/£80 owed$/u);
   assert.equal((screen.getByTestId("coach-payments") as HTMLDetailsElement).open, true, "stays open to show it went through");
+
+  // Tapped by mistake: undo it.
+  await act(async () => {
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+  });
+  assert.ok(calls.some((c) => c.method === "POST" && c.path === "/check-ins/athletes/ath_lee/package/payments/ppay_lee/undo"));
+  await screen.findByText("Lee Lapsed: payment undone.");
+  await screen.findByText(/£160 owed \(2 months\)/u);
+  assert.equal(screen.queryByRole("button", { name: "Undo" }), null);
+
+  // A change made elsewhere (the athlete's profile) clears the old message.
+  await act(async () => {
+    document.dispatchEvent(new Event("kolosseum:athlete-directory-changed"));
+  });
+  assert.equal(screen.queryByText("Lee Lapsed: payment undone."), null);
+});
+
+test("recorded payments read plainly, with amounts only for the coach", () => {
+  const at = "2026-11-03T10:00:00Z";
+  const on = new Date(at).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  assert.equal(paymentLine({ recorded_at: at, paid_until_from: "2026-11-22", paid_until_to: "2026-12-22", periods: 1, amount_minor: 8000, currency: "GBP" }, "monthly"), `${on} - paid up to ${dayLabel("2026-12-22")} (1 month) · £80`);
+  assert.equal(paymentLine({ recorded_at: at, paid_until_from: null, paid_until_to: "2026-11-15", periods: 2 }, "weekly"), `${on} - paid up to ${dayLabel("2026-11-15")} (2 weeks)`);
+  assert.equal(paymentLine({ recorded_at: at, paid_until_from: "2026-12-22", paid_until_to: "2026-11-22", periods: -1, amount_minor: -8000, currency: "GBP" }, "monthly"), `${on} - paid-up date moved back to ${dayLabel("2026-11-22")}`);
+  assert.equal(paymentLine({ recorded_at: at, paid_in_full: true, periods: 1 }, "one_off"), `${on} - paid in full`);
 });
