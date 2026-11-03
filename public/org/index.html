@@ -308,6 +308,41 @@
         <div class="button-row"><button id="orgAddPackageButton" class="button secondary" type="button">Add a package</button></div>
         <p id="orgGymPackagesError" class="field-error" role="alert" hidden></p>
       </div>
+      <div class="gym-tax-details" style="margin-top: 1.5rem;" data-testid="org-gym-tax-details">
+        <p class="eyebrow">Tax details</p>
+        <h3>For HMRC reporting</h3>
+        <p class="muted small">Kolosseum may have to tell HMRC each year what your gym is paid through its packages, with its name, address and tax number. Only you and Kolosseum's admin see these.</p>
+        <p id="orgGymTaxStatus" role="status"></p>
+        <div id="orgGymTaxSummary"></div>
+        <div class="button-row"><button id="orgGymTaxEditButton" class="button secondary" type="button">Add tax details</button></div>
+        <form id="orgGymTaxForm" hidden novalidate>
+          <fieldset class="choice-section">
+            <legend>The gym is paid as</legend>
+            <label><input type="radio" name="orgGymTaxSellerType" value="company" checked /> A company</label>
+            <label><input type="radio" name="orgGymTaxSellerType" value="individual" /> Its owner (sole trader)</label>
+          </fieldset>
+          <label class="field"><span id="orgGymTaxNameLabel">Company name (as registered)</span><input id="orgGymTaxLegalName" maxlength="200" /></label>
+          <label class="field" id="orgGymTaxCompanyField"><span>Company registration number</span><input id="orgGymTaxCompanyNumber" maxlength="20" /></label>
+          <label class="field" id="orgGymTaxBirthField" hidden><span>Owner's date of birth</span><input id="orgGymTaxDateOfBirth" type="date" /></label>
+          <div class="button-row">
+            <label class="field"><span>Tax number</span><select id="orgGymTaxNumberType"><option value="">None</option><option value="utr">UTR (Unique Taxpayer Reference)</option><option value="nino">National Insurance number</option><option value="other">Another country's tax number</option></select></label>
+            <label class="field"><span>Number</span><input id="orgGymTaxNumber" maxlength="30" autocomplete="off" /></label>
+          </div>
+          <label class="field"><span>VAT number (if VAT registered)</span><input id="orgGymTaxVat" maxlength="20" /></label>
+          <label class="field"><span id="orgGymTaxAddressLabel">Registered address</span><input id="orgGymTaxAddress1" maxlength="200" autocomplete="address-line1" /></label>
+          <label class="field"><span>Address line 2 (optional)</span><input id="orgGymTaxAddress2" maxlength="200" autocomplete="address-line2" /></label>
+          <div class="button-row">
+            <label class="field"><span>Town or city</span><input id="orgGymTaxCity" maxlength="100" autocomplete="address-level2" /></label>
+            <label class="field"><span>Postcode</span><input id="orgGymTaxPostcode" maxlength="20" autocomplete="postal-code" /></label>
+          </div>
+          <label class="field"><span>Country</span><select id="orgGymTaxCountry"><option value="GB">United Kingdom</option><option value="IE">Ireland</option><option value="US">United States</option><option value="AU">Australia</option><option value="CA">Canada</option><option value="NZ">New Zealand</option></select></label>
+          <div class="button-row">
+            <button class="button primary" type="submit">Save tax details</button>
+            <button id="orgGymTaxCancelButton" class="button secondary" type="button">Cancel</button>
+          </div>
+        </form>
+        <p id="orgGymTaxError" class="field-error" role="alert" hidden></p>
+      </div>
     </section>
 
     <section id="orgVisibilitySection" class="panel" hidden>
