@@ -232,3 +232,20 @@ test("an athlete says they've paid: the coach sees it, and can say it hasn't arr
   assert.equal(notificationTypeLabel({ notification_type: "package_payment_recorded", notification_payload: { package_name: "Online coaching", paid_until: "2026-12-23", paid_in_full: false } }), `Payment recorded for Online coaching - paid up to ${dayLabel("2026-12-23")}`);
   assert.equal(notificationTypeLabel({ notification_type: "package_payment_recorded", notification_payload: { package_name: "PT block", paid_until: null, paid_in_full: true } }), "Payment recorded for PT block - paid in full");
 });
+
+test("a gym's package is paid to the gym: Payments names that money apart from the coach's own", async () => {
+  const own = { ...membership({ membership_id: "pmem_own", paid_until: "2026-11-24" }), athlete_user_id: "ath_own", athlete_display_name: "Sam Own", owed_periods: 0, owed_minor: 0, currency: "GBP" };
+  const gym = { ...membership({ membership_id: "pmem_gym", paid_until: "2026-11-25", package: { package_id: "pkg_gym", name: "PT block", price_label: "£120 a month", billing: "monthly", includes_summary: [], gym_name: "Forge" } }), athlete_user_id: "ath_gym", athlete_display_name: "Jo Gym", owed_periods: 0, owed_minor: 0, currency: "GBP" };
+  globalThis.fetch = (async (input: RequestInfo | URL) => {
+    if (String(input) === "/check-ins/package-members") {
+      return jsonResponse({ ok: true, today: "2026-11-20", outlook_days: 30, members: [own, gym], totals: [
+        { currency: "GBP", gym_name: null, owed_minor: 0, upcoming_minor: 8000 },
+        { currency: "GBP", gym_name: "Forge", owed_minor: 0, upcoming_minor: 12000 }
+      ] });
+    }
+    return jsonResponse({ error: "unhandled" }, 404);
+  }) as typeof fetch;
+  render(<CoachPaymentsPanel />);
+  await screen.findByText("Due in the next 30 days: £80, £120 to Forge.");
+  screen.getByText("Worked out from the package prices - athletes pay you, or the gym for its packages, directly.");
+});

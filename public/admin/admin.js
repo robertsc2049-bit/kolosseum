@@ -815,7 +815,7 @@ async function downloadSellerTaxReport(event) {
     const blob = new Blob([`${lines.join("\r\n")}\r\n`], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `kolosseum-coach-tax-${report.year}.csv`;
+    link.download = `kolosseum-seller-tax-${report.year}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();

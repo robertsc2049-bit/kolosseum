@@ -274,26 +274,31 @@ export async function listCoachPackageMembers(coachUserId: string): Promise<Json
     [coachUserId]
   );
   const members: Json[] = [];
-  // Money owed now and coming up in the next 30 days, per currency - worked
-  // out from the package prices, as payments are made outside the app.
-  const totals = new Map<string, { currency: string; owed_minor: number; upcoming_minor: number }>();
+  // Money owed now and coming up in the next 30 days, per currency and per
+  // who's paid (the coach, or the gym whose package it is) - worked out from
+  // the package prices, as payments are made outside the app.
+  const totals = new Map<string, { currency: string; gym_name: string | null; owed_minor: number; upcoming_minor: number }>();
   const now = today();
   for (const row of result.rows) {
     const view = await membershipView(row);
     const outlook = paymentOutlook({ billing: String(row.billing), started_on: view.started_on as string, paid_until: view.paid_until as string | null, paid_in_full: view.paid_in_full === true }, now);
     const priceMinor = Number(row.price_minor ?? 0);
     const currency = String(row.currency ?? "GBP");
-    const total = totals.get(currency) ?? { currency, owed_minor: 0, upcoming_minor: 0 };
+    const gymName = ((view.package ?? {}) as Json).gym_name ? String(((view.package ?? {}) as Json).gym_name) : null;
+    const key = `${currency}|${gymName ?? ""}`;
+    const total = totals.get(key) ?? { currency, gym_name: gymName, owed_minor: 0, upcoming_minor: 0 };
     total.owed_minor += outlook.owed * priceMinor;
     total.upcoming_minor += outlook.upcoming * priceMinor;
-    totals.set(currency, total);
+    totals.set(key, total);
     members.push({
       athlete_user_id: String(row.athlete_user_id), athlete_display_name: text(row.athlete_display_name) || "An athlete", ...view,
       price_minor: priceMinor, currency, owed_periods: outlook.owed, owed_minor: outlook.owed * priceMinor
     });
   }
   members.sort((a, b) => Number(b.payment_due) - Number(a.payment_due));
-  return { ok: true, today: now, outlook_days: OUTLOOK_DAYS, members, totals: [...totals.values()].filter((t) => t.owed_minor || t.upcoming_minor) };
+  // The coach's own money first, then each gym's.
+  const ordered = [...totals.values()].filter((t) => t.owed_minor || t.upcoming_minor).sort((a, b) => Number(a.gym_name !== null) - Number(b.gym_name !== null) || String(a.gym_name).localeCompare(String(b.gym_name)));
+  return { ok: true, today: now, outlook_days: OUTLOOK_DAYS, members, totals: ordered };
 }
 
 // --- The coach's changes ---------------------------------------------------------------
