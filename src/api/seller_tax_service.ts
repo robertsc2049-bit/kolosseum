@@ -165,7 +165,7 @@ export async function sellerTaxReport(yearInput: unknown): Promise<{ year: numbe
   const to = `${year + 1}-01-01`;
   const paid = await pool.query(
     `SELECT coach_user_id, currency, EXTRACT(QUARTER FROM recorded_at AT TIME ZONE 'UTC')::int AS quarter,
-            sum(amount_minor)::bigint AS amount_minor, count(*)::int AS payments
+            sum(amount_minor)::bigint AS amount_minor, count(*) FILTER (WHERE periods <> 0)::int AS payments
      FROM product_package_payments
      WHERE recorded_at >= $1::date AND recorded_at < $2::date
      GROUP BY coach_user_id, currency, quarter`,

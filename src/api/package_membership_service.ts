@@ -104,17 +104,43 @@ export function periodsCovered(startedOn: string, billing: string, from: string 
 }
 
 // Keep a record of a recorded payment (product_package_payments), valued at
-// the package price.
+// the package price - every change to the paid-up date, so it can be undone
+// (part of a period is worth nothing until the period is complete).
 async function logPayment(
   client: QueryClient,
   entry: { membershipId: string; coachUserId: string; athleteUserId: string; from: string | null; to: string | null; paidInFull: boolean; periods: number; priceMinor: number; currency: string }
-): Promise<void> {
-  if (!entry.periods) return;
+): Promise<string | null> {
+  if (!entry.paidInFull && entry.from === entry.to) return null;
+  const paymentId = `ppay_${crypto.randomUUID().replaceAll("-", "")}`;
   await client.query(
     `INSERT INTO product_package_payments (payment_id, membership_id, coach_user_id, athlete_user_id, paid_until_from, paid_until_to, paid_in_full, periods, amount_minor, currency)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-    [`ppay_${crypto.randomUUID().replaceAll("-", "")}`, entry.membershipId, entry.coachUserId, entry.athleteUserId, entry.from, entry.to, entry.paidInFull, entry.periods, entry.periods * entry.priceMinor, entry.currency]
+    [paymentId, entry.membershipId, entry.coachUserId, entry.athleteUserId, entry.from, entry.to, entry.paidInFull, entry.periods, entry.periods * entry.priceMinor, entry.currency]
   );
+  return paymentId;
+}
+
+// A payment can be undone for a while after it's recorded - the newest one
+// on the athlete's current package only.
+export const UNDO_MINUTES = 10;
+
+// The payments recorded on a membership, newest first. Athletes see dates
+// and periods, not amounts.
+async function paymentHistory(membershipId: string, forAthlete: boolean, client: QueryClient = pool): Promise<Json[]> {
+  const result = await client.query(
+    `SELECT payment_id, recorded_at, paid_until_from::text AS paid_until_from, paid_until_to::text AS paid_until_to, paid_in_full, periods, amount_minor, currency
+     FROM product_package_payments WHERE membership_id = $1 ORDER BY recorded_at DESC, payment_id DESC LIMIT 12`,
+    [membershipId]
+  );
+  return result.rows.map((row: Json) => ({
+    payment_id: String(row.payment_id),
+    recorded_at: row.recorded_at instanceof Date ? row.recorded_at.toISOString() : String(row.recorded_at),
+    paid_until_from: row.paid_until_from ?? null,
+    paid_until_to: row.paid_until_to ?? null,
+    paid_in_full: row.paid_in_full === true,
+    periods: Number(row.periods),
+    ...(forAthlete ? {} : { amount_minor: Number(row.amount_minor), currency: String(row.currency) })
+  }));
 }
 
 // --- Reading ---------------------------------------------------------------------
@@ -182,7 +208,7 @@ export async function athletePaymentDue(coachUserId: string, athleteUserId: stri
 // What the athlete sees on their coach's card.
 export async function athleteMembershipWith(coachUserId: string, athleteUserId: string): Promise<Json | null> {
   const row = await currentRow(coachUserId, athleteUserId);
-  return row ? membershipView(row) : null;
+  return row ? { ...(await membershipView(row)), payments: await paymentHistory(String(row.membership_id), true) } : null;
 }
 
 // The packages a coach can put an athlete on: their own, and gym packages
@@ -213,7 +239,8 @@ export async function getAthletePackageForCoach(coachUserId: string, athleteUser
   const athleteUserId = text(athleteUserIdInput);
   await assertCoachesAthlete(coachUserId, athleteUserId);
   const [row, options] = await Promise.all([currentRow(coachUserId, athleteUserId), packageOptions(coachUserId)]);
-  return { ok: true, membership: row ? await membershipView(row) : null, options };
+  const membership = row ? { ...(await membershipView(row)), payments: await paymentHistory(String(row.membership_id), false) } : null;
+  return { ok: true, membership, options, undo_minutes: UNDO_MINUTES };
 }
 
 // The coach's athletes on a package, payment due first (for the Packages
@@ -318,9 +345,10 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
   const entry = {
     membershipId: String(row.membership_id), coachUserId, athleteUserId, priceMinor: Number(row.price_minor), currency: String(row.currency)
   };
+  let recordedPaymentId: string | null = null;
   if (billing === "one_off") {
     const updated = await pool.query(`UPDATE product_package_memberships SET paid_in_full = true, updated_at = now() WHERE membership_id = $1 AND NOT paid_in_full`, [row.membership_id]);
-    if (updated.rowCount) await logPayment(pool, { ...entry, from: null, to: null, paidInFull: true, periods: 1 });
+    if (updated.rowCount) recordedPaymentId = await logPayment(pool, { ...entry, from: null, to: null, paidInFull: true, periods: 1 });
   }
   else {
     const given = isRecord(input) && input.paid_until !== undefined && input.paid_until !== "" ? dayValue(input.paid_until) : undefined;
@@ -330,7 +358,43 @@ export async function recordPackagePayment(coachUserId: string, athleteUserIdInp
     const from = dayValue(row.paid_until);
     const to = given ?? nextPaidUntil(startedOn, billing, from);
     await pool.query(`UPDATE product_package_memberships SET paid_until = $2, updated_at = now() WHERE membership_id = $1`, [row.membership_id, to]);
-    await logPayment(pool, { ...entry, from, to, paidInFull: false, periods: periodsCovered(startedOn, billing, from, to) });
+    recordedPaymentId = await logPayment(pool, { ...entry, from, to, paidInFull: false, periods: periodsCovered(startedOn, billing, from, to) });
+  }
+  return { ...(await getAthletePackageForCoach(coachUserId, athleteUserId)), recorded_payment_id: recordedPaymentId };
+}
+
+// Undo a payment recorded by mistake: the paid-up date goes back to what it
+// was (or a one-off back to not paid) and the payment is no longer counted.
+// Only the newest payment on the current package, within UNDO_MINUTES.
+export async function undoPackagePayment(coachUserId: string, athleteUserIdInput: unknown, paymentIdInput: unknown): Promise<Json> {
+  const athleteUserId = text(athleteUserIdInput);
+  const row = await requireCurrent(coachUserId, athleteUserId);
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    await client.query(`SELECT 1 FROM product_package_memberships WHERE membership_id = $1 FOR UPDATE`, [row.membership_id]);
+    const newest = (await client.query(
+      `SELECT payment_id, paid_until_from::text AS paid_until_from, paid_in_full, recorded_at > now() - make_interval(mins => $2) AS recent
+       FROM product_package_payments WHERE membership_id = $1 ORDER BY recorded_at DESC, payment_id DESC LIMIT 1`,
+      [row.membership_id, UNDO_MINUTES]
+    )).rows[0] as Json | undefined;
+    if (!newest || newest.payment_id !== text(paymentIdInput)) throw new CoachCheckinError("package_payment_not_found", 404);
+    if (!newest.recent) throw new CoachCheckinError("package_payment_undo_expired", 409);
+    if (newest.paid_in_full) {
+      await client.query(`UPDATE product_package_memberships SET paid_in_full = false, updated_at = now() WHERE membership_id = $1`, [row.membership_id]);
+    }
+    else {
+      await client.query(`UPDATE product_package_memberships SET paid_until = $2, updated_at = now() WHERE membership_id = $1`, [row.membership_id, newest.paid_until_from ?? null]);
+    }
+    await client.query(`DELETE FROM product_package_payments WHERE payment_id = $1`, [newest.payment_id]);
+    await client.query("COMMIT");
+  }
+  catch (error) {
+    await client.query("ROLLBACK").catch(() => undefined);
+    throw error;
+  }
+  finally {
+    client.release();
   }
   return getAthletePackageForCoach(coachUserId, athleteUserId);
 }

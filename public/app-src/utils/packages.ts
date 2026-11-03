@@ -11,6 +11,24 @@ export function paidLabel(membership: JsonRecord): string {
   return `Starts ${dayLabel(membership.started_on)}`;
 }
 
+// One recorded payment: "3 Nov - paid up to 22 Dec (1 month)", "Paid in
+// full", or a correction ("Paid-up date moved back to 22 Nov"). Coaches also
+// see the amount at the package price.
+export function paymentLine(payment: JsonRecord, billing: string): string {
+  const on = new Date(String(payment.recorded_at)).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+  if (payment.paid_in_full) return `${on} - paid in full`;
+  const periods = Number(payment.periods ?? 0);
+  const unit = billing === "weekly" ? "week" : "month";
+  const to = payment.paid_until_to ? dayLabel(payment.paid_until_to) : "not paid";
+  if (periods < 0 || (payment.paid_until_from && payment.paid_until_to && String(payment.paid_until_to) < String(payment.paid_until_from))) {
+    return `${on} - paid-up date moved back to ${to}`;
+  }
+  const amount = typeof payment.amount_minor === "number" && payment.amount_minor !== 0 && payment.currency
+    ? ` · ${new Intl.NumberFormat("en-GB", { style: "currency", currency: String(payment.currency), minimumFractionDigits: Number(payment.amount_minor) % 100 ? 2 : 0 }).format(Number(payment.amount_minor) / 100)}`
+    : "";
+  return `${on} - paid up to ${to}${periods > 0 ? ` (${periods} ${unit}${periods === 1 ? "" : "s"})` : ""}${amount}`;
+}
+
 const PERIOD: Record<string, string> = { monthly: "this month", weekly: "this week", one_off: "so far" };
 
 // "This month: 23 Oct - 22 Nov" - billing periods run from the start date,

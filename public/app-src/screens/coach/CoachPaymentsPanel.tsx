@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { loadPackageMembers, recordPackagePayment } from "../../api/checkinsClient";
+import { loadPackageMembers, recordPackagePayment, undoPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { dayLabel, paidLabel } from "../../utils/packages";
@@ -80,14 +80,30 @@ export function CoachPaymentsPanel() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  // The payment just recorded, while it can still be undone.
+  const [undoable, setUndoable] = useState<{ athleteUserId: string; paymentId: string; name: string } | null>(null);
   // Open while payment is due, until the coach opens or closes it - and it
   // stays open after recording a payment, so they see it went through.
   const [open, setOpen] = useState<boolean | null>(null);
 
+  // Set while this panel's own change is being announced, so its message
+  // stays; any other change (e.g. on the athlete's profile) clears it.
+  const ownChange = useRef(false);
+
   const refresh = useCallback(async () => {
+    if (!ownChange.current) {
+      setNotice(null);
+      setUndoable(null);
+    }
     try { setPayload(await loadPackageMembers()); }
     catch { setPayload(null); }
   }, []);
+
+  const announce = () => {
+    ownChange.current = true;
+    document.dispatchEvent(new Event("kolosseum:athlete-directory-changed"));
+    ownChange.current = false;
+  };
 
   useEffect(() => {
     refresh();
@@ -109,17 +125,40 @@ export function CoachPaymentsPanel() {
     setBusyId(id);
     setError(null);
     setNotice(null);
+    setUndoable(null);
     setOpen(true);
     try {
       const account = await loadAccountDetail();
       const result = await recordPackagePayment(id, "", typeof account.csrf_token === "string" ? account.csrf_token : "");
       const after = (result.membership ?? {}) as JsonRecord;
       setNotice(`${String(member.athlete_display_name)}: ${after.paid_in_full ? "paid in full" : `paid until ${dayLabel(after.paid_until)}`}.`);
+      if (result.recorded_payment_id) setUndoable({ athleteUserId: id, paymentId: String(result.recorded_payment_id), name: String(member.athlete_display_name) });
       // The roster's Payment due badge, and this list, reload.
-      document.dispatchEvent(new Event("kolosseum:athlete-directory-changed"));
+      announce();
     }
     catch {
       setError("That payment didn't save. Try again.");
+    }
+    finally {
+      setBusyId(null);
+    }
+  }
+
+  async function undo() {
+    if (!undoable || busyId) return;
+    const { athleteUserId, paymentId, name } = undoable;
+    setBusyId(athleteUserId);
+    setError(null);
+    try {
+      const account = await loadAccountDetail();
+      await undoPackagePayment(athleteUserId, paymentId, typeof account.csrf_token === "string" ? account.csrf_token : "");
+      setUndoable(null);
+      setNotice(`${name}: payment undone.`);
+      announce();
+    }
+    catch {
+      setError("It's too late to undo that - open their profile to correct the paid-up date.");
+      setUndoable(null);
     }
     finally {
       setBusyId(null);
@@ -144,7 +183,12 @@ export function CoachPaymentsPanel() {
         {" "}Worked out from your package prices - athletes pay you directly.
       </p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      {notice ? <p className="muted small" role="status">{notice}</p> : null}
+      {notice ? (
+        <p className="muted small" role="status">
+          {notice}
+          {undoable ? <> <button className="link-button" type="button" disabled={busyId !== null} onClick={() => void undo()}>Undo</button></> : null}
+        </p>
+      ) : null}
       {due.length ? <><h4>Payment due</h4>{rows(due)}</> : null}
       {soon.length ? <><h4>Due in the next week</h4>{rows(soon)}</> : null}
       {paid.length ? (

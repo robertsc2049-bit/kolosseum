@@ -3591,6 +3591,10 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
 .coach-payments > summary { display: flex; flex-direction: column; gap: 2px; cursor: pointer; }
 .coach-payments h4 { margin: var(--k-space-3) 0 var(--k-space-1); }
 .payment-row { display: flex; justify-content: space-between; align-items: center; gap: var(--k-space-2); flex-wrap: wrap; }
+.payment-history { margin-top: var(--k-space-2); }
+.payment-history ul { margin: var(--k-space-1) 0 0; padding-left: var(--k-space-4); }
+.coach-payments .link-button,
+.athlete-package .link-button,
 .payment-row .link-button { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: inherit; text-decoration: underline; cursor: pointer; }
 .payments-paid { margin-top: var(--k-space-3); }
 

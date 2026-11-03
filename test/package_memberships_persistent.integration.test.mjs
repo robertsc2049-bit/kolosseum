@@ -158,11 +158,33 @@ test("a coach puts an athlete on a package, payment due blocks booking and lets 
   assert.deepEqual(mine.my_package.usage, { checkin_calls: { used: 0, included: 2 }, in_person_sessions: { used: 1, included: 1 } });
   assert.equal(mine.my_package.payment_due, false);
 
+  // A payment tapped by mistake is undone: the date goes back, the record goes.
+  const paidUntilBefore = view.membership.paid_until;
+  const extra = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "one too many");
+  assert.ok(extra.recorded_payment_id);
+  assert.equal(extra.membership.payments.length, 3, "first month, the payment, and this one");
+  assert.deepEqual([extra.membership.payments[0].paid_until_from, extra.membership.payments[0].periods, extra.membership.payments[0].amount_minor], [paidUntilBefore, 1, 8000]);
+  expect(await request(base, "POST", `${packageOf}/payments/${extra.membership.payments[1].payment_id}/undo`, {}, coach), 404, "only the newest");
+  expect(await request(base, "POST", `${packageOf}/payments/${extra.recorded_payment_id}/undo`, {}, other), 404, "not their athlete");
+  view = expect(await request(base, "POST", `${packageOf}/payments/${extra.recorded_payment_id}/undo`, {}, coach), 200, "undo");
+  assert.deepEqual([view.membership.paid_until, view.membership.payments.length], [paidUntilBefore, 2]);
+  expect(await request(base, "POST", `${packageOf}/payments/${extra.recorded_payment_id}/undo`, {}, coach), 404, "already undone");
+  // Too late to undo the one before.
+  await pool.query("UPDATE product_package_payments SET recorded_at = recorded_at - interval '11 minutes' WHERE athlete_user_id = $1", [sam.userId]);
+  assert.equal(expect(await request(base, "POST", `${packageOf}/payments/${view.membership.payments[0].payment_id}/undo`, {}, coach), 409, "too late").error, "package_payment_undo_expired");
+  // The athlete sees dates, not amounts.
+  mine = expect(await request(base, "GET", "/coach-workspace/relationships/mine", undefined, sam), 200, "my coach").relationships.find((r) => r.coach_user_id === coach.userId);
+  assert.deepEqual(mine.my_package.payments.map((p) => [p.paid_until_to, p.periods, "amount_minor" in p]), view.membership.payments.map((p) => [p.paid_until_to, p.periods, false]));
+
   // Switched to the one-off block, not yet paid; then paid in full.
   view = expect(await request(base, "PUT", packageOf, { package_id: block.package_id }, coach), 200, "switch");
   assert.deepEqual([view.membership.package.name, view.membership.started_on, view.membership.payment_due, view.membership.period_end], ["PT block", day(0), true, null]);
   view = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "paid in full");
   assert.deepEqual([view.membership.paid_in_full, view.membership.payment_due], [true, false]);
+  view = expect(await request(base, "POST", `${packageOf}/payments/${view.recorded_payment_id}/undo`, {}, coach), 200, "undo paid in full");
+  assert.deepEqual([view.membership.paid_in_full, view.membership.payment_due, view.membership.payments.length], [false, true, 0]);
+  view = expect(await request(base, "POST", `${packageOf}/payment`, {}, coach), 200, "paid in full again");
+  assert.equal(view.membership.paid_in_full, true);
   const rows = await pool.query("SELECT count(*)::int AS n, count(*) FILTER (WHERE ended_at IS NULL)::int AS current FROM product_package_memberships WHERE athlete_user_id = $1", [sam.userId]);
   assert.deepEqual([rows.rows[0].n, rows.rows[0].current], [2, 1], "the old one is ended, not deleted");
 
