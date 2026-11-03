@@ -15,6 +15,7 @@ import { getSessionStateQuery } from "./session_state_query_service.js";
 import { loadActiveCoachTemplateById, orderedTemplateSessions } from "./beta18_programme_template_service.js";
 import { deriveAthleteVisibleNoteNotifications } from "./product_notification_note_derivation.js";
 import { coachBusinessName } from "./coach_branding_service.js";
+import { REMINDER_SELECT, reminderRow, remindersFor } from "./package_payment_reminders.js";
 
 type JsonRecord = Record<string, unknown>;
 export type QueryClient = { query: (typeof pool)["query"] };
@@ -79,7 +80,10 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "checkin_confirmed",
   "checkin_move_requested",
   "checkin_booked",
-  "checkin_cancelled_by_athlete"
+  "checkin_cancelled_by_athlete",
+  "package_payment_upcoming",
+  "package_payment_due",
+  "athlete_package_payment_due"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -1744,6 +1748,55 @@ async function deriveMessageNotificationsForOrgOwner(
   }
 }
 
+// --- Package payment reminders ----------------------------------------------
+// The athlete: their package's paid-up date is close, or has passed. The
+// coach: an athlete's paid-up date lapsed. Keyed by the paid-up date, so each
+// period is reminded once (package_payment_reminders.ts also emails them).
+
+async function derivePackagePaymentNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const result = await client.query(
+    `${REMINDER_SELECT} AND (m.athlete_user_id = $1 OR m.coach_user_id = $1)`,
+    [recipientUserId]
+  );
+  const now = new Date().toISOString();
+  for (const row of result.rows) {
+    const plain = reminderRow(row);
+    const athleteId = cleanString(row.athlete_user_id);
+    const coachId = cleanString(row.coach_user_id);
+    const payload = { package_name: cleanString(row.package_name), paid_until: plain.paid_until };
+    for (const reminder of remindersFor(plain)) {
+      const sourceRecordId = `${cleanString(row.membership_id)}:${reminder.key}`;
+      if (reminder.kind === "coach_due") {
+        if (coachId !== recipientUserId) continue;
+        await insertDerivedNotification(client, {
+          recipientUserId,
+          notificationType: "athlete_package_payment_due",
+          sourceRecordType: "product_package_memberships",
+          sourceRecordId,
+          deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail,
+          deepLinkParams: { athlete_id: athleteId },
+          notificationPayload: { ...payload, athlete_user_id: athleteId },
+          occurredAtIso8601: now
+        });
+      }
+      else if (athleteId === recipientUserId) {
+        await insertDerivedNotification(client, {
+          recipientUserId,
+          notificationType: reminder.kind === "due" ? "package_payment_due" : "package_payment_upcoming",
+          sourceRecordType: "product_package_memberships",
+          sourceRecordId,
+          deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+          notificationPayload: { ...payload, coach_user_id: coachId },
+          occurredAtIso8601: now
+        });
+      }
+    }
+  }
+}
+
 async function deriveNotificationsForRecipient(
   client: QueryClient,
   recipientUserId: string
@@ -1780,6 +1833,7 @@ async function deriveNotificationsForRecipient(
   await deriveCoachingRequestedNotifications(client, recipientUserId);
   await deriveCoachingRequestDeclinedNotifications(client, recipientUserId);
   await deriveCheckinNotifications(client, recipientUserId);
+  await derivePackagePaymentNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

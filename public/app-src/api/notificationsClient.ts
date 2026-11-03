@@ -2,6 +2,7 @@
 // public/app/app.js's notification bell/panel functions.
 
 import { coachLabel } from "../utils/coachName";
+import { dayLabel } from "../utils/packages";
 import { titleCase } from "../utils/format";
 import { type JsonRecord, request } from "./transport";
 
@@ -50,7 +51,10 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   checkin_confirmed: "Athlete confirmed a check-in call",
   checkin_move_requested: "Athlete asked to move a check-in call",
   checkin_booked: "Athlete booked a check-in call",
-  checkin_cancelled_by_athlete: "Athlete cancelled a check-in call"
+  checkin_cancelled_by_athlete: "Athlete cancelled a check-in call",
+  package_payment_upcoming: "Package payment due soon",
+  package_payment_due: "Package payment due",
+  athlete_package_payment_due: "Athlete's package payment is due"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -60,6 +64,18 @@ export function notificationTypeLabel(notification: JsonRecord): string {
     const payload = (notification.notification_payload ?? {}) as JsonRecord;
     if (payload.programme_finished === true) return "Finished the programme - report ready";
     if (typeof payload.block_name === "string" && payload.block_name.trim()) return `Finished ${payload.block_name.trim()} - report ready`;
+  }
+  // Package reminders say which package and the paid-up date.
+  if (type === "package_payment_upcoming" || type === "package_payment_due" || type === "athlete_package_payment_due") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    const name = typeof payload.package_name === "string" ? payload.package_name.trim() : "";
+    const paidUntil = typeof payload.paid_until === "string" ? payload.paid_until : "";
+    if (name && paidUntil) {
+      if (type === "package_payment_upcoming") return `${name} is paid up to ${dayLabel(paidUntil)} - payment due soon`;
+      if (type === "package_payment_due") return `Payment due for ${name} - paid up to ${dayLabel(paidUntil)}`;
+      return `Payment due for ${name} - was paid up to ${dayLabel(paidUntil)}`;
+    }
+    if (name && type === "package_payment_due") return `Payment due for ${name}`;
   }
   return NOTIFICATION_TYPE_LABELS[type] ?? titleCase(type);
 }
