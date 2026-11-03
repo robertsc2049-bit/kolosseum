@@ -303,6 +303,16 @@
     </div>
   </section>
 
+  <section id="sellerTaxSection" hidden>
+    <h2>Coach tax details</h2>
+    <p class="muted">For the yearly digital platform report to HMRC (due 31 January after the year): each coach's tax details and what they recorded being paid through packages each quarter, at package prices. Coaches without details show "no" under details_added. Download it as a spreadsheet (CSV).</p>
+    <form id="sellerTaxForm">
+      <label>Year<br /><input id="sellerTaxYear" type="number" min="2024" step="1" required /></label>
+      <button type="submit">Download CSV</button>
+    </form>
+    <p id="sellerTaxResult" class="muted" role="status" hidden></p>
+  </section>
+
   <script type="module" src="/admin/admin.js"></script>
 </body>
 </html>

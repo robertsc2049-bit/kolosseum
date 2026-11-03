@@ -9,6 +9,7 @@ import { PRODUCT_SESSION_COOKIE, ProductAccountError, assertProductCsrf, resolve
 import { forbidden, unauthorized } from "./http_errors.js";
 import { authenticatedCoach, cookieValue } from "./coach_session_auth.js";
 import { accountRateLimitKey } from "./rate_limit_key.js";
+import { getCoachTaxDetails, saveCoachTaxDetails } from "./seller_tax_service.js";
 import {
   CoachCheckinError,
   cancelCheckin,
@@ -120,6 +121,18 @@ coachCheckinRouter.get("/athletes/:athlete_user_id", readLimit, asyncHandler(asy
 coachCheckinRouter.get("/package-members", readLimit, asyncHandler(async (request, response) => {
   const coachUserId = await authenticatedCoach(request, false);
   return response.status(200).json(await listCoachPackageMembers(coachUserId));
+}));
+
+// The coach's tax details, for reporting what they're paid through packages
+// to HMRC (seller_tax_service.ts). Only they and the platform admin see them.
+coachCheckinRouter.get("/tax-details", readLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, false);
+  return response.status(200).json(await getCoachTaxDetails(coachUserId));
+}));
+
+coachCheckinRouter.put("/tax-details", writeLimit, asyncHandler(async (request, response) => {
+  const coachUserId = await authenticatedCoach(request, true);
+  return response.status(200).json(await saveCoachTaxDetails(coachUserId, request.body));
 }));
 
 coachCheckinRouter.get("/athletes/:athlete_user_id/package", readLimit, asyncHandler(async (request, response) => {

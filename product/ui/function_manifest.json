@@ -5963,7 +5963,8 @@
             "/admin/exercise-demo-videos",
             "/admin/exercise-demo-videos/:exercise_id",
             "/admin/gym-listings",
-            "/admin/gym-listings/:org_id/review"
+            "/admin/gym-listings/:org_id/review",
+            "/admin/seller-tax-report"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8955,6 +8956,12 @@
     {
       "method": "POST",
       "path": "/admin/gym-listings/:org_id/review",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/seller-tax-report",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

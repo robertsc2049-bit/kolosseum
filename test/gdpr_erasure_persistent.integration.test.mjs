@@ -117,6 +117,7 @@ test("GDPR erasure: an athlete's data and files are deleted, billing and terms r
     const clipId = crypto.randomUUID();
     fs.mkdirSync(path.join(DEMO_ROOT, clipId), { recursive: true });
     fs.writeFileSync(path.join(DEMO_ROOT, clipId, "original.mp4"), "mp4");
+    await pool.query(`INSERT INTO product_coach_tax_details (coach_user_id, seller_type, legal_name, date_of_birth, tax_number_type, tax_number, address_line1, city, postcode) VALUES ($1,'individual','Erased Coach','1985-01-01','nino','QQ123456C','1 High St','Leeds','LS1 1AB')`, [coach.userId]);
     await pool.query(`INSERT INTO product_exercise_demo_videos (demo_key, exercise_id, coach_user_id, provider, video_id, storage_key, set_by_user_id) VALUES ($1,'sled_push',$2,'upload',$3,$4,$2)`, [`sled_push|${coach.userId}`, coach.userId, clipId, `${clipId}/original.mp4`]);
 
     const athleteRequest = await requestDeletion(baseUrl, athlete, nonce);
@@ -173,6 +174,7 @@ test("GDPR erasure: an athlete's data and files are deleted, billing and terms r
     assert.equal(coachErased.status, 200, coachErased.text);
     assert.equal(await rows(`SELECT 1 FROM beta_product_records WHERE record_id = $1`, [templateId]), 1, "the programme they wrote survives");
     assert.equal(await rows(`SELECT 1 FROM product_exercise_demo_videos WHERE coach_user_id = $1`, [coach.userId]), 0);
+    assert.equal(await rows(`SELECT 1 FROM product_coach_tax_details WHERE coach_user_id = $1`, [coach.userId]), 0, "their tax details go");
     assert.equal(fs.existsSync(path.join(DEMO_ROOT, clipId)), false, "their demo clip");
     assert.equal(await rows(`SELECT 1 FROM beta_product_records WHERE record_type = 'beta17_coach_relationship' AND actor_user_id = $1`, [coach.userId]), 0, "their relationships end");
     assert.equal((await pool.query(`SELECT display_name FROM product_accounts WHERE user_id = $1`, [coach.userId])).rows[0].display_name, "Erased account");

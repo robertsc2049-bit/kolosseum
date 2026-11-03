@@ -79,6 +79,7 @@ function showWorkspace() {
   el("auditSection").hidden = false;
   el("exerciseDemoVideoSection").hidden = false;
   el("gymListingSection").hidden = false;
+  el("sellerTaxSection").hidden = false;
 
   refreshCommercialRecords();
   refreshSupportRequests();
@@ -793,6 +794,43 @@ function renderAuditRecords() {
     tbody.appendChild(emptyRow);
   }
 }
+
+// Coaches' tax details and quarterly totals as a CSV, for the yearly HMRC
+// digital platform report (src/api/seller_tax_service.ts).
+function csvCell(value) {
+  const textValue = String(value ?? "");
+  // Quote everything; a leading = + - @ is prefixed so spreadsheets don't run it as a formula.
+  const safe = /^[=+\-@\t\r]/u.test(textValue) && !/^-\d+(\.\d+)?$/u.test(textValue) ? `'${textValue}` : textValue;
+  return `"${safe.replaceAll('"', '""')}"`;
+}
+
+async function downloadSellerTaxReport(event) {
+  event.preventDefault();
+  const result = el("sellerTaxResult");
+  const year = el("sellerTaxYear").value;
+  try {
+    const { report } = await api("GET", `/admin/seller-tax-report?year=${encodeURIComponent(year)}`);
+    const lines = [report.columns.map(csvCell).join(",")];
+    for (const row of report.rows) lines.push(report.columns.map((column) => csvCell(row[column])).join(","));
+    const blob = new Blob([`${lines.join("\r\n")}\r\n`], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `kolosseum-coach-tax-${report.year}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    const missing = report.rows.filter((row) => row.details_added !== "yes").length;
+    result.textContent = `${report.rows.length} row${report.rows.length === 1 ? "" : "s"} for ${report.year}${missing ? ` - ${missing} without tax details yet` : ""}.`;
+  }
+  catch (error) {
+    result.textContent = error.message === "seller_tax_report_year_invalid" ? "Choose a year from 2024 to this year." : `Couldn't build the report (${error.message}).`;
+  }
+  result.hidden = false;
+}
+
+el("sellerTaxYear").value = String(new Date().getFullYear() - (new Date().getMonth() === 0 ? 1 : 0));
+el("sellerTaxForm").addEventListener("submit", (event) => { downloadSellerTaxReport(event).catch(console.error); });
 
 // Platform default exercise demo videos (src/api/exercise_demo_video_service.ts).
 async function refreshExerciseDemoVideos() {

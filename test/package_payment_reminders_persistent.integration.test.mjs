@@ -55,6 +55,7 @@ test("athletes and coaches are reminded in the bell and by email, once each", { 
   const userIds = [];
   t.after(async () => {
     await new Promise((resolve) => server.close(resolve));
+    await pool.query("DELETE FROM product_package_payments WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_package_memberships WHERE coach_user_id = ANY($1::text[]) OR athlete_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_service_packages WHERE coach_user_id = ANY($1::text[])", [userIds]).catch(() => {});
     await pool.query("DELETE FROM product_notifications WHERE recipient_user_id = ANY($1::text[])", [userIds]).catch(() => {});
