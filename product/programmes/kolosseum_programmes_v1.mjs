@@ -21,6 +21,7 @@
 import { readFileSync } from "node:fs";
 
 import { sessionBookends } from "../../shared/session-bookends/sessionBookends.mjs";
+import { sourcesFor } from "./programme_sources.mjs";
 import { RECOGNISED_PROGRAMMES } from "./recognised_programmes.mjs";
 
 export const ex = (id, sets, reps, load, rest, note) => ({ id, sets, reps, load, rest, ...(note ? { note } : {}) });
@@ -257,7 +258,7 @@ const collisionBacksOffSeason = {
   template_name: "Collision off-season: backs and skill players",
   activity_id: "general_strength",
   description: "Twelve weeks, three days a week, for rugby backs and American football skill players: acceleration and top-speed sprints first, then heavy lifting through 8s, 5s and 3s, Nordic curls for the hamstrings, Copenhagen planks for the groin, and neck strength twice a week - every collision athlete is tackled.",
-  listing: { title: "Collision off-season: backs and skill players (12 weeks)", summary: "Rugby backs and American football skill players. Three days a week: acceleration and top-speed sprints first, heavy lifting from 8s to 3s, and hamstring, groin and neck work - fast, and robust in contact.", levels: ["amateur", "pro"], activity_ids: COLLISION_SPORTS, days_per_week: 3, next: "collision_in_season" },
+  listing: { title: "Collision off-season: backs and skill players (12 weeks)", summary: "Rugby backs and American football skill players. Three days a week: acceleration and top-speed sprints first, heavy lifting from 8s to 3s, and hamstring, groin and neck work for the contact the position takes.", levels: ["amateur", "pro"], activity_ids: COLLISION_SPORTS, days_per_week: 3, next: "collision_in_season" },
   blocks: [
     { name: "Hypertrophy", block_type: "volume", weeks: [1, 2, 3, 4].map(collisionBacksWeek) },
     { name: "Max strength", block_type: "strength", weeks: [5, 6, 7, 8].map(collisionBacksWeek) },
@@ -320,7 +321,7 @@ const fieldIceOffSeason = {
   key: "field_ice_off_season",
   template_name: "Field and ice off-season build",
   activity_id: "general_strength",
-  description: "Eight weeks, three days a week, for football, field hockey and ice hockey: acceleration, deceleration and lateral bounds first, base strength then strength and power, and the hamstring (Nordic curl) and groin (Copenhagen plank, adduction) work that prevents these sports' most common injuries.",
+  description: "Eight weeks, three days a week, for football, field hockey and ice hockey: acceleration, deceleration and lateral bounds first, base strength then strength and power, and hamstring (Nordic curl) and groin (Copenhagen plank, adduction) work - the exercises studied for these sports' most common injuries.",
   listing: { title: "Field and ice off-season build (8 weeks)", summary: "Football, field hockey and ice hockey. Three days a week: acceleration, cutting and lateral power, heavy squats and deadlifts, and Nordic curls and Copenhagen planks every week - the hamstring and groin work that keeps players available.", levels: ["amateur", "pro"], activity_ids: FIELD_ICE_SPORTS, days_per_week: 3, next: "field_ice_in_season" },
   blocks: [
     { name: "Base strength", block_type: "volume", weeks: [1, 2, 3, 4].map(fieldIceWeek) },
@@ -442,7 +443,7 @@ const enduranceRunRide = {
   key: "endurance_run_ride_strength",
   template_name: "Run and ride strength",
   activity_id: "general_strength",
-  description: "Twelve weeks, two short sessions a week, for distance runners and cyclists: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work for robustness.",
+  description: "Twelve weeks, two short sessions a week, for distance runners and cyclists: heavy squats and deadlifts at low reps to improve economy without adding bulk, plyometrics for a stiffer lower leg, and calf, shin and single-leg work.",
   listing: { title: "Run and ride strength (12 weeks)", summary: "For distance runners and cyclists. Two short sessions a week: heavy, low-rep lifting that makes each stride or pedal stroke cheaper without adding bulk, plus jumps and calf, shin and single-leg work. Built to sit alongside your miles.", levels: ["amateur", "pro"], activity_ids: RUN_RIDE_SPORTS, days_per_week: 2, next: "endurance_in_season" },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(runRideWeek) },
@@ -470,7 +471,7 @@ const triathlonStrength = {
   key: "triathlon_strength",
   template_name: "Triathlon strength",
   activity_id: "general_strength",
-  description: "Twelve weeks, two short sessions a week, for triathletes: heavy, low-rep squats and deadlifts for run and bike economy, plyometrics for a stiffer lower leg, pull-ups and rows for the swim, and rotator-cuff, calf and shin work for robustness across three sports.",
+  description: "Twelve weeks, two short sessions a week, for triathletes: heavy, low-rep squats and deadlifts for run and bike economy, plyometrics for a stiffer lower leg, pull-ups and rows for the swim, and rotator-cuff, calf and shin work across three sports.",
   listing: { title: "Triathlon strength (12 weeks)", summary: "For triathletes. Two short sessions a week: heavy, low-rep leg strength for the bike and run, pulling for the swim, jumps, and the shoulder, calf and shin work that keeps you training across three sports.", levels: ["amateur", "pro"], activity_ids: ["triathlon"], days_per_week: 2, next: "endurance_in_season" },
   blocks: [
     { name: "Foundation", block_type: "general", weeks: [1, 2, 3, 4].map(triathlonWeek) },
@@ -1450,7 +1451,7 @@ const cricketFastBowler = {
   template_name: "Cricket off-season: fast bowlers",
   activity_id: "general_strength",
   description: "Eight weeks, three days a week, for fast bowlers in the off-season: heavy single-leg and posterior-chain strength, front-foot landing and Nordic curls for the delivery stride and the hamstrings, side planks and anti-rotation for side strain, rotator-cuff work for the bowling shoulder - and no loaded spinal flexion with rotation, the lumbar stress pattern. Bowling workload stays with your coach.",
-  listing: { title: "Cricket off-season: fast bowlers (8 weeks)", summary: "Fast bowlers. Three days a week: heavy single-leg and posterior-chain strength, front-foot landing, Nordic curls, side-strain and anti-rotation trunk work, and the bowling shoulder - built around the injuries fast bowlers lose most time to.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
+  listing: { title: "Cricket off-season: fast bowlers (8 weeks)", summary: "Fast bowlers. Three days a week: heavy single-leg and posterior-chain strength, front-foot landing, Nordic curls, side-strain and anti-rotation trunk work, and the bowling shoulder - the areas fast bowlers lose most time to injury in.", levels: ["amateur", "pro"], activity_ids: ["cricket"], days_per_week: 3, next: "cricket_in_season" },
   blocks: [{ name: "Off-season build", block_type: "strength", weeks: [1, 2, 3, 4, 5, 6, 7, 8].map(fastBowlerWeek) }]
 };
 
@@ -1683,4 +1684,6 @@ export const PROGRAMMES = [
   ...GRIP_PROGRAMMES,
   // The programmes coaches know by name (recognised_programmes.mjs).
   ...RECOGNISED_PROGRAMMES
-].map(withSessionBookends);
+].map(withSessionBookends)
+  // What each is based on, shown with the programme (programme_sources.mjs).
+  .map((programme) => ({ ...programme, listing: { ...programme.listing, sources: sourcesFor(programme.key) } }));

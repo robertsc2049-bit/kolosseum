@@ -6,6 +6,7 @@ import { type JsonRecord } from "../../api/transport";
 import { ActivityCategoryFilter } from "../../components/ActivityCategoryFilter";
 import { titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
+import { ProgrammeSources } from "../../components/ProgrammeSources";
 import { sportGroupLabel } from "./kolosseumProgrammeGroups";
 
 // "Start from a Kolosseum programme": the coach-written Kolosseum programmes
@@ -139,6 +140,7 @@ export function KolosseumStarterForm({ onCreated }: { onCreated: (templateId: st
                 </div>
                 <p className="muted small">{`${Number(programme.days_per_week) || 0} days a week · ${levels.join(", ")}`}</p>
                 {programme.summary ? <p>{String(programme.summary)}</p> : null}
+                <ProgrammeSources sources={programme.sources} />
                 <button className="button primary" type="button" disabled={copying !== null} onClick={() => void copy(id)}>
                   {copying === id ? "Copying…" : "Copy to my library"}
                 </button>
