@@ -1,7 +1,10 @@
 // DEV NOTE: Pure readiness rules (no database). An athlete's optional
 // pre-session check-in - sleep, soreness and stress, each 1 (poor) to 5
-// (great) - trims that day's session when readiness is low, the way a coach
-// would on a bad day. It never adds work.
+// (great) - is recorded as a fact. It changes a session only when someone
+// has chosen the rule: the athlete's coach for that athlete, or a
+// self-directed athlete for themselves (readiness_service.ts). Off by
+// default - Kolosseum doesn't decide on its own that a session is too much.
+// It never adds work.
 //
 // Low: any answer is 1, or the three total 7 or less. Then every exercise
 // loses a set (never below 1) and is a notch lighter (5% of 1RM / 1 RPE).
@@ -50,15 +53,21 @@ function lighter(intensity: Json | undefined): Json | undefined {
   return intensity;
 }
 
-// Trim a session for a low-readiness day; unchanged otherwise.
-export function applyReadiness(exercises: Json[], check: ReadinessCheckIn | null): Json[] {
+export type LighteningRule = "athlete" | "coach";
+
+// Trim a session for a low-readiness day; unchanged otherwise. `rule` says
+// who turned the rule on, so the session can say why it is lighter.
+export function applyReadiness(exercises: Json[], check: ReadinessCheckIn | null, rule: LighteningRule = "athlete"): Json[] {
   if (!check || !isLowReadiness(check)) return exercises;
-  const readiness = { sleep: check.sleep, soreness: check.soreness, stress: check.stress, low: true };
+  const readiness = { sleep: check.sleep, soreness: check.soreness, stress: check.stress, low: true, rule };
   return exercises.map((exercise) => {
     const sets = Number(exercise.sets);
+    const kept = Number.isInteger(sets) ? Math.max(1, sets - 1) : null;
     return {
       ...exercise,
-      sets: Number.isInteger(sets) ? Math.max(1, sets - 1) : exercise.sets,
+      sets: kept ?? exercise.sets,
+      // Set by set: the last set is the one dropped.
+      ...(kept !== null && Array.isArray(exercise.set_targets) ? { set_targets: (exercise.set_targets as Json[]).slice(0, kept) } : {}),
       intensity: lighter(exercise.intensity as Json | undefined),
       readiness
     };

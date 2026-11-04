@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 
-import { loadReadiness, saveReadiness } from "../../api/athleteOnboardingClient";
+import { loadReadiness, saveOwnLightening, saveReadiness } from "../../api/athleteOnboardingClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 
-// Today's optional readiness check-in before training. A low score (any 1,
-// or 7 or less in total) makes today's session lighter and says why.
+// Today's optional readiness check-in before training. It is recorded, and
+// the coach sees it. It changes a session only where a rule someone chose is
+// on: the athlete's coach for a coached athlete, the athlete themselves when
+// self-directed. Off by default. A low score is any 1, or 7 or less in total.
 
 const QUESTIONS: Array<["sleep" | "soreness" | "stress", string, string, string]> = [
   ["sleep", "How did you sleep?", "1 very badly", "5 very well"],
@@ -19,12 +21,14 @@ const EXTRA_QUESTIONS: Array<["fatigue" | "mood", string, string, string]> = [
   ["mood", "How's your mood?", "1 very low", "5 great"]
 ];
 
-export function ReadinessCard() {
+export function ReadinessCard({ selfDirected = false }: { selfDirected?: boolean }) {
   const [extrasOpen, setExtrasOpen] = useState(false);
   const [readings, setReadings] = useState<{ resting_hr: string; hrv_ms: string }>({ resting_hr: "", hrv_ms: "" });
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [today, setToday] = useState<JsonRecord | null>(null);
   const [low, setLow] = useState(false);
+  const [lightening, setLightening] = useState<{ own: boolean; coach_on: boolean }>({ own: false, coach_on: false });
+  const [switching, setSwitching] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +37,8 @@ export function ReadinessCard() {
     const check = (result.today as JsonRecord | null) ?? null;
     setToday(check);
     setLow(result.low === true);
+    const rule = (result.lightening as JsonRecord | undefined) ?? {};
+    setLightening({ own: rule.own === true, coach_on: rule.coach_on === true });
     if (check) {
       setAnswers({ sleep: Number(check.sleep), soreness: Number(check.soreness), stress: Number(check.stress), ...(typeof check.fatigue === "number" ? { fatigue: check.fatigue } : {}), ...(typeof check.mood === "number" ? { mood: check.mood } : {}) });
       setReadings({ resting_hr: typeof check.resting_hr === "number" ? String(check.resting_hr) : "", hrv_ms: typeof check.hrv_ms === "number" ? String(check.hrv_ms) : "" });
@@ -70,16 +76,45 @@ export function ReadinessCard() {
     }
   }
 
+  async function switchOwn(enabled: boolean) {
+    setSwitching(true);
+    setError(null);
+    try {
+      const account = await loadAccountDetail();
+      apply(await saveOwnLightening(enabled, typeof account.csrf_token === "string" ? account.csrf_token : ""));
+    }
+    catch {
+      setError("Your choice could not be saved. Try again.");
+    }
+    finally {
+      setSwitching(false);
+    }
+  }
+
   if (!loaded) return null;
+  const ruleOn = selfDirected ? lightening.own : lightening.coach_on;
   const complete = QUESTIONS.every(([key]) => Number.isInteger(answers[key]));
 
   return (
     <article className="onboarding-card readiness" data-testid="readiness">
       <p className="eyebrow">Today's readiness</p>
       <h3>How are you today? (optional)</h3>
-      <p className="muted">If today looks like a hard day, your session is made a little lighter.</p>
+      <p className="muted">{selfDirected ? "Your answers are recorded for you." : "Your answers are recorded, and your coach sees them."}</p>
+      {selfDirected ? (
+        <div className="readiness-rule" data-testid="readiness-rule">
+          <label className="checkbox-field">
+            <input type="checkbox" checked={lightening.own} disabled={switching} onChange={(event) => void switchOwn(event.target.checked)} />
+            <span>Lighten my sessions after a low check-in</span>
+          </label>
+          <small className="muted">Off unless you turn it on. When it's on, a low check-in (any answer of 1, or 7 or less in total) takes one set off each exercise and makes it a little lighter. It's a simple rule you choose - not an assessment of your health or of what you should do.</small>
+        </div>
+      ) : (
+        <p className="muted small" data-testid="readiness-rule">{lightening.coach_on
+          ? "Your coach has turned on a rule for your sessions: a low check-in takes one set off each exercise and makes it a little lighter."
+          : "Your check-in doesn't change your sessions unless your coach turns that on."}</p>
+      )}
       {today ? (
-        <p className="muted" role="status">{low ? "Saved - today's session will be lighter." : "Saved - train as planned."}</p>
+        <p className="muted" role="status">{low && ruleOn ? "Saved - today's session will be lighter." : "Saved."}</p>
       ) : null}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {QUESTIONS.map(([key, label, lowText, highText]) => (

@@ -67,6 +67,7 @@ import { loadCoachAthleteProgramme } from "./athlete_my_programme_service.js";
 import { analyseAthleteForCoach, analyseRosterForCoach } from "./coach_analysis_service.js";
 import { AthleteTestInputError, listTestResultsForCoach, recordTestResult, removeTestResult } from "./athlete_tests_service.js";
 import { InjuryInputError, listInjuriesForCoach, recordInjury, removeInjury, updateInjury } from "./injury_log_service.js";
+import { ReadinessError, coachLightening, setCoachLightening } from "./readiness_service.js";
 import { ProgrammeOverrideError, clearProgrammeOverride, setProgrammeOverride } from "./athlete_programme_override_service.js";
 import { analyseAthleteForHeadCoach } from "./team_analysis_service.js";
 import { SquadEntryError, importExternalLoad, recordSquadSession, recordTestDay } from "./squad_entry_service.js";
@@ -536,6 +537,21 @@ coachWorkspaceRouter.get("/athletes/:athlete_id/injuries", coachAnalysisRateLimi
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => recordInjury(coachUserId, String(req.params.athlete_id), req.body)));
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/status", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => updateInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id), req.body)));
 coachWorkspaceRouter.post("/athletes/:athlete_id/injuries/:injury_id/remove", coachAnalysisRateLimit, injuryHandler((coachUserId, req) => removeInjury(coachUserId, String(req.params.athlete_id), String(req.params.injury_id))));
+
+// Whether a low readiness check-in lightens this athlete's sessions on the
+// coach's programme - the coach's own rule, off by default (readiness_service.ts).
+const lighteningErrorStatus = (error: unknown) =>
+  error instanceof Beta19CoachWorkspaceError ? 403 : error instanceof ReadinessError ? error.status : null;
+coachWorkspaceRouter.get("/athletes/:athlete_id/readiness-lightening", coachAnalysisRateLimit, asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, false);
+  try { return res.status(200).json(await coachLightening(coachUserId, String(req.params.athlete_id))); }
+  catch (error) { const status = lighteningErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message, ...(error instanceof ReadinessError && error.fieldErrors ? { field_errors: error.fieldErrors } : {}) }); throw error; }
+}));
+coachWorkspaceRouter.put("/athletes/:athlete_id/readiness-lightening", coachAnalysisRateLimit, asyncHandler(async (req, res) => {
+  const coachUserId = await authenticatedCoach(req, true);
+  try { return res.status(200).json(await setCoachLightening(coachUserId, String(req.params.athlete_id), req.body)); }
+  catch (error) { const status = lighteningErrorStatus(error); if (status) return res.status(status).json({ ok: false, error: (error as Error).message, ...(error instanceof ReadinessError && error.fieldErrors ? { field_errors: error.fieldErrors } : {}) }); throw error; }
+}));
 
 // Getting a squad's data in at once (squad_entry_service.ts): a squad
 // session's effort, a test day, a GPS / heart-rate import.
