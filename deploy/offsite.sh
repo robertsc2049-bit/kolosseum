@@ -6,17 +6,28 @@
 # BACKUP_KEEP_DAYS days are deleted there. Off until OFFSITE_BACKUP_BUCKET and
 # the access key are set in .env (docs/ops/IONOS_VPS_DEPLOYMENT.md).
 #
-# How each run went is written to STATUS_DIR (offsite_state on/off,
-# offsite_last_ok, offsite_last_failed), which the app reads to email the
-# admin when copies stop (backup_health.ts).
+# With OFFSITE_BACKUP_PASSPHRASE set, each file is encrypted here, before it
+# leaves the server (rclone crypt: contents and file names), into
+# kolosseum-encrypted/ in the bucket; the storage provider only ever holds
+# ciphertext. Copies made before encryption was turned on (kolosseum/) age out
+# after BACKUP_KEEP_DAYS days like any other. Without the passphrase the
+# encrypted copies can't be read by anyone - keep it in a password manager,
+# not only on the server.
 #
-#   sh /offsite.sh once   copy now
-#   sh /offsite.sh list   what's stored off the server
+# How each run went is written to STATUS_DIR (offsite_state on/off,
+# offsite_encrypted on/off, offsite_last_ok, offsite_last_failed), which the
+# app reads to email the admin when copies stop (backup_health.ts).
+#
+#   sh /offsite.sh once         copy now
+#   sh /offsite.sh list         what's stored off the server
+#   sh /offsite.sh fetch DIR    copy everything back into DIR (decrypted)
 set -eu
 KEEP_DAYS="${BACKUP_KEEP_DAYS:-14}"
 BACKUP_DIR="${BACKUP_DIR:-/backups}"
 STATUS_DIR="${STATUS_DIR:-/status}"
-REMOTE="offsite:${OFFSITE_BACKUP_BUCKET:-}/kolosseum"
+PLAIN="offsite:${OFFSITE_BACKUP_BUCKET:-}/kolosseum"
+REMOTE="$PLAIN"
+MIN_PASSPHRASE=20
 
 configured() {
   [ -n "${OFFSITE_BACKUP_BUCKET:-}" ] && [ -n "${RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID:-}" ] && [ -n "${RCLONE_CONFIG_OFFSITE_SECRET_ACCESS_KEY:-}" ]
@@ -35,6 +46,10 @@ copy_offsite() {
   # Files still being written (a dump in progress) wait for the next run.
   rclone copy "$BACKUP_DIR" "$REMOTE" --include "db_*.dump" --include "uploads_*.tar.gz" --min-age 10m || return 1
   rclone delete "$REMOTE" --min-age "${KEEP_DAYS}d" || return 1
+  # Unencrypted copies from before encryption was turned on age out too.
+  if [ "$REMOTE" != "$PLAIN" ]; then
+    rclone delete "$PLAIN" --min-age "${KEEP_DAYS}d" || return 1
+  fi
   stored="$(rclone lsf "$REMOTE")" || return 1
   status offsite_last_ok "$(now)"
   echo "offsite copy done $(now): $(printf '%s\n' "$stored" | grep -c .) files stored off the server"
@@ -49,6 +64,23 @@ if ! configured; then
 fi
 status offsite_state on
 
+if [ -n "${OFFSITE_BACKUP_PASSPHRASE:-}" ]; then
+  if [ "${#OFFSITE_BACKUP_PASSPHRASE}" -lt "$MIN_PASSPHRASE" ]; then
+    status offsite_last_failed "$(now)"
+    echo "OFFSITE_BACKUP_PASSPHRASE is too short - use at least $MIN_PASSPHRASE characters (a few random words). Nothing was copied." >&2
+    exit 1
+  fi
+  obscured="$(rclone obscure "$OFFSITE_BACKUP_PASSPHRASE")"
+  export RCLONE_CONFIG_SECURE_TYPE=crypt
+  export RCLONE_CONFIG_SECURE_REMOTE="offsite:${OFFSITE_BACKUP_BUCKET}/kolosseum-encrypted"
+  export RCLONE_CONFIG_SECURE_PASSWORD="$obscured"
+  REMOTE="secure:"
+  status offsite_encrypted on
+else
+  status offsite_encrypted off
+  echo "off-server backups are NOT encrypted - set OFFSITE_BACKUP_PASSPHRASE in .env to encrypt them before they leave the server" >&2
+fi
+
 run_once() {
   if copy_offsite; then
     return 0
@@ -61,6 +93,11 @@ run_once() {
 case "${1:-}" in
   once) run_once; exit $? ;;
   list) rclone lsl "$REMOTE"; exit 0 ;;
+  fetch)
+    target="${2:?usage: sh /offsite.sh fetch DIR}"
+    rclone copy "$REMOTE" "$target"
+    ls -l "$target"
+    exit 0 ;;
 esac
 
 while true; do
