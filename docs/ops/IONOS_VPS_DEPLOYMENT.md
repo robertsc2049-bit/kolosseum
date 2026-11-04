@@ -207,6 +207,18 @@ When asked, give the `POSTGRES_PASSWORD` from `.env`. Check the restored copy, t
 
 **Restoring uploads:** extract the matching `uploads_<time>.tar.gz` into the `kolosseum-uploads` volume.
 
+## Alerts
+
+**Backups.** The backup and offsite containers record how each run went in the `kolosseum-status` volume. Every hour the app checks it. If there's been no database backup for 26 hours, no successful off-server copy for 3 hours, or off-server copies are switched off, it emails `KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO`. It sends that once a day while the problem lasts, and once more when it's fixed. Set `KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO` to your email in `.env`, along with `RESEND_API_KEY`, and run `docker compose -f docker-compose.prod.yml up -d`. The admin console also shows "Backups: last … · copied off the server …" at the top, or what's wrong.
+
+**The site being down.** The app can't report that itself, so use a free outside monitor:
+
+1. Create a free account at [uptimerobot.com](https://uptimerobot.com).
+2. **Add New Monitor**: type **HTTP(s)**, URL `https://<your-domain>/health`, interval **5 minutes**.
+3. Under alert contacts, tick your email.
+
+It emails you when the site stops answering, and again when it's back.
+
 ## Day to day
 
 - **Logs:** `docker compose -f docker-compose.prod.yml logs -f app`

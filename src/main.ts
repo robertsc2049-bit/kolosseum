@@ -8,6 +8,7 @@ import { app } from "./server.js";
 import { attachRealtimeWebSocketServer } from "./api/realtime_hub.js";
 import { startPushSweeps } from "./api/product_push_service.js";
 import { startPackageReminderSweeps } from "./api/package_payment_reminders.js";
+import { startBackupHealthChecks } from "./api/backup_health.js";
 
 function getPort(): number {
   const raw = process.env.PORT;
@@ -52,3 +53,6 @@ startPushSweeps();
 
 // Package payment reminder emails - a no-op unless email is configured.
 startPackageReminderSweeps();
+
+// Emails the admin when backups stop - a no-op without the backup status folder.
+startBackupHealthChecks();

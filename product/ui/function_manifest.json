@@ -5964,7 +5964,8 @@
             "/admin/exercise-demo-videos/:exercise_id",
             "/admin/gym-listings",
             "/admin/gym-listings/:org_id/review",
-            "/admin/seller-tax-report"
+            "/admin/seller-tax-report",
+            "/admin/system-status"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8962,6 +8963,12 @@
     {
       "method": "GET",
       "path": "/admin/seller-tax-report",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/system-status",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },
