@@ -511,8 +511,11 @@ productAdminRouter.get(
 
 // Whether the server's backups are working (backup_health.ts): when the last
 // backup and off-server copy finished, and anything wrong.
+const systemStatusRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+
 productAdminRouter.get(
   "/system-status",
+  systemStatusRateLimit,
   asyncHandler(async (request, response) => {
     await authenticatedAdmin(request, false);
     return response.status(200).json({ ok: true, backups: assessBackupHealth(readBackupStatus()) });
