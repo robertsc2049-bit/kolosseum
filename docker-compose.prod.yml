@@ -98,6 +98,8 @@ services:
     environment:
       OFFSITE_BACKUP_BUCKET: ${OFFSITE_BACKUP_BUCKET:-}
       BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      # Settings come from these variables; no rclone.conf file.
+      RCLONE_CONFIG: /notfound
       RCLONE_CONFIG_OFFSITE_TYPE: s3
       RCLONE_CONFIG_OFFSITE_PROVIDER: ${OFFSITE_BACKUP_PROVIDER:-IONOS}
       RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID: ${OFFSITE_BACKUP_ACCESS_KEY:-}

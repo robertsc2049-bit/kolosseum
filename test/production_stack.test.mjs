@@ -4,7 +4,10 @@
 // only Caddy is published to the internet; and every setting a server needs
 // is passed through from .env.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 import { trustProxySetting } from "../dist/src/trust_proxy.js";
@@ -50,8 +53,41 @@ test("nightly backups dump the database and the uploads, and Caddy serves the co
   assert.match(backup, /kolosseum-backups:\/backups/u);
   const script = fs.readFileSync("deploy/backup.sh", "utf8");
   assert.match(script, /pg_dump --format=custom/u);
-  assert.match(script, /tar -czf "\/backups\/uploads_/u);
   assert.match(fs.readFileSync("deploy/Caddyfile", "utf8"), /\{\$KOLOSSEUM_DOMAIN\} \{[\s\S]*reverse_proxy app:3000/u);
+});
+
+// Runs deploy/backup.sh once with stand-in pg_dump and tar: "ok" writes a
+// dump, "fail" exits with an error, "empty" exits cleanly but writes nothing.
+function runBackupOnce(pgDump) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-backup-"));
+  const bin = path.join(dir, "bin");
+  const backups = path.join(dir, "backups");
+  fs.mkdirSync(bin);
+  fs.mkdirSync(backups);
+  const stub = (name, body) => fs.writeFileSync(path.join(bin, name), `#!/bin/sh\n${body}\n`, { mode: 0o755 });
+  stub("pg_dump", `for a in "$@"; do case "$a" in --file=*) f="\${a#--file=}" ;; esac; done
+case "$STUB_PG" in ok) echo dump > "$f" ;; empty) : > "$f" ;; *) echo "connection refused" >&2; exit 1 ;; esac`);
+  stub("tar", `echo archive > "$2"`);
+  const result = spawnSync("sh", ["deploy/backup.sh", "once"], {
+    encoding: "utf8",
+    env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, STUB_PG: pgDump, BACKUP_DIR: backups, UPLOADS_DIR: dir, DATABASE_URL: "postgres://stub" }
+  });
+  const files = fs.readdirSync(backups).sort();
+  fs.rmSync(dir, { recursive: true, force: true });
+  return { status: result.status, stderr: result.stderr, files };
+}
+
+test("a backup that fails leaves no half-written file behind, and says it failed", { skip: spawnSync("sh", ["-c", "exit 0"]).status !== 0 && "no sh" }, () => {
+  const ok = runBackupOnce("ok");
+  assert.equal(ok.status, 0);
+  assert.deepEqual(ok.files.map((f) => f.replace(/\d{8}T\d{6}Z/u, "<stamp>")), ["db_<stamp>.dump", "uploads_<stamp>.tar.gz"]);
+  for (const outcome of ["fail", "empty"]) {
+    const failed = runBackupOnce(outcome);
+    assert.notEqual(failed.status, 0, outcome);
+    assert.deepEqual(failed.files, [], `${outcome}: nothing for the restore check or the off-server copy to pick up`);
+    assert.match(failed.stderr, /FAILED: the database dump didn't complete/u);
+  }
+  assert.match(fs.readFileSync("deploy/backup.sh", "utf8"), /trying again in 10 minutes/u);
 });
 
 test("backups are copied off the server once a bucket is set, and the newest one can be test-restored", () => {
