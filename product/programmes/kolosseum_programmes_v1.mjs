@@ -1686,4 +1686,4 @@ export const PROGRAMMES = [
   ...RECOGNISED_PROGRAMMES
 ].map(withSessionBookends)
   // What each is based on, shown with the programme (programme_sources.mjs).
-  .map((programme) => ({ ...programme, listing: { ...programme.listing, sources: sourcesFor(programme.key) } }));
+  .map((programme) => ({ ...programme, listing: { ...programme.listing, sources: sourcesFor(programme) } }));

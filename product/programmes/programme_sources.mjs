@@ -28,6 +28,14 @@ const S = {
   pritchard2016: { cite: "Pritchard HJ, Tod DA, Barnes MJ, Keogh JW, McGuigan MR. Tapering practices of New Zealand's elite raw powerlifters. J Strength Cond Res 2016;30(7):1796-1804.", url: "https://doi.org/10.1519/JSC.0000000000001292" },
   sheiko2018: { cite: "Sheiko B. Powerlifting: Foundations and Methods. Ufa; 2018." },
 
+  // ---- named methods a programme uses ----
+  haroy2019: { cite: "Harøy J, Clarsen B, Wiger EG, et al. The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial. Br J Sports Med 2019;53(3):150-157 (the Copenhagen adduction exercise).", url: "https://doi.org/10.1136/bjsports-2017-098937" },
+  markovic2007: { cite: "Markovic G. Does plyometric training improve vertical jump height? A meta-analytical review. Br J Sports Med 2007;41(6):349-355.", url: "https://doi.org/10.1136/bjsm.2007.035113" },
+  seitzHaff2016: { cite: "Seitz LB, Haff GG. Factors modulating post-activation potentiation of jump, sprint, throw, and upper-body ballistic performances: a systematic review with meta-analysis. Sports Med 2016;46(2):231-240 (contrast pairs).", url: "https://doi.org/10.1007/s40279-015-0415-7" },
+  glassman2002: { cite: "Glassman G. What is fitness? CrossFit Journal, October 2002 (the AMRAP, EMOM and for-time formats as CrossFit uses them).", url: "https://games.crossfit.com/article/what-fitness" },
+  tabata1996: { cite: "Tabata I, Nishimura K, Kouzaki M, et al. Effects of moderate-intensity endurance and high-intensity intermittent training on anaerobic capacity and VO2max. Med Sci Sports Exerc 1996;28(10):1327-1330 (the 20 s on / 10 s off protocol).", url: "https://doi.org/10.1097/00005768-199610000-00018" },
+  zatsiorsky2006: { cite: "Zatsiorsky VM, Kraemer WJ. Science and Practice of Strength Training. 2nd ed. Champaign, IL: Human Kinetics; 2006 (the conjugate method)." },
+
   // ---- the originals behind the recognised programmes ----
   rippetoe2011: { cite: "Rippetoe M. Starting Strength: Basic Barbell Training. 3rd ed. Wichita Falls, TX: The Aasgaard Company; 2011." },
   rippetoeBaker2014: { cite: "Rippetoe M, Baker A. Practical Programming for Strength Training. 3rd ed. Wichita Falls, TX: The Aasgaard Company; 2014 (the Texas Method)." },
@@ -127,9 +135,28 @@ export const PROGRAMME_SOURCES = {
   bulgarian_daily_max_pro: own("bulgarian")
 };
 
-// A programme's sources: its own, or its base programme's for a pro version.
-export function sourcesFor(key) {
-  return PROGRAMME_SOURCES[key] ?? PROGRAMME_SOURCES[String(key).replace(/_pro$/u, "")] ?? [];
+// Named methods: whatever a programme contains cites where the method comes
+// from, so a programme with Copenhagen adductions cites the trial behind
+// them, one with contrast pairs the research on them, and so on.
+const METHODS = [
+  { test: /copenhagen/iu, source: S.haroy2019 },
+  { test: /nordic/iu, source: S.vanderhorst2015 },
+  { test: /plyometric|bound|depth_jump|box_jump|hurdle_hop|pogo/iu, source: S.markovic2007 },
+  { test: /contrast/iu, source: S.seitzHaff2016 },
+  { test: /"type":"(?:amrap|emom|for_time)"/u, source: S.glassman2002 },
+  { test: /tabata/iu, source: S.tabata1996 },
+  { test: /conjugate|max effort|dynamic effort/iu, source: S.zatsiorsky2006 }
+];
+
+// A programme's sources: its own (or its base programme's, for a pro
+// version), then the source of each named method it uses.
+export function sourcesFor(programme) {
+  const key = typeof programme === "string" ? programme : programme.key;
+  const own = PROGRAMME_SOURCES[key] ?? PROGRAMME_SOURCES[String(key).replace(/_pro$/u, "")] ?? [];
+  if (typeof programme === "string") return own;
+  const body = JSON.stringify(programme.blocks ?? []);
+  const methods = METHODS.filter((method) => method.test.test(body)).map((method) => method.source);
+  return [...new Set([...own, ...methods])].slice(0, 12);
 }
 
 // Method references for programmes Kolosseum builds on request (quick build
