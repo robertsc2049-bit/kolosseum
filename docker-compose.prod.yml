@@ -34,14 +34,18 @@ services:
       - "3000"
     # Uploaded progress photos, video submissions, message attachments and
     # demo clips live under /app/var.
+    # The backup and offsite services write how their last runs went to
+    # /status; the app reads it to email the admin when backups stop.
     volumes:
       - kolosseum-uploads:/app/var
+      - kolosseum-status:/status:ro
     environment:
       HOST: 0.0.0.0
       PORT: 3000
       DATABASE_URL: postgres://postgres:${POSTGRES_PASSWORD}@db:5432/kolosseum
       # One proxy hop (Caddy) - per-user rate limits need the real client IP.
       KOLOSSEUM_TRUST_PROXY: 1
+      KOLOSSEUM_BACKUP_STATUS_DIR: /status
       KOLOSSEUM_PUBLIC_APP_URL: ${KOLOSSEUM_PUBLIC_APP_URL:?set KOLOSSEUM_PUBLIC_APP_URL in .env}
       VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
@@ -88,6 +92,7 @@ services:
       - ./deploy/restore-check.sh:/restore-check.sh:ro
       - kolosseum-uploads:/uploads:ro
       - kolosseum-backups:/backups
+      - kolosseum-status:/status
 
   # Copies the backups off the server to S3-compatible object storage (IONOS
   # S3 Object Storage by default) - off until the bucket and key are in .env.
@@ -109,10 +114,12 @@ services:
     volumes:
       - ./deploy/offsite.sh:/offsite.sh:ro
       - kolosseum-backups:/backups:ro
+      - kolosseum-status:/status
 
 volumes:
   kolosseum-db-data:
   kolosseum-uploads:
   kolosseum-backups:
+  kolosseum-status:
   caddy-data:
   caddy-config:

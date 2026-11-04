@@ -457,6 +457,14 @@
       "value": "node test/athlete_activity_change_session_declaration.test.mjs"
     },
     {
+      "kind": "command",
+      "value": "node test/production_stack.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/backup_health.test.mjs"
+    },
+    {
       "kind": "npm_command",
       "value": "test:react"
     },

@@ -62,32 +62,85 @@ function runBackupOnce(pgDump) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-backup-"));
   const bin = path.join(dir, "bin");
   const backups = path.join(dir, "backups");
+  const statusDir = path.join(dir, "status");
   fs.mkdirSync(bin);
   fs.mkdirSync(backups);
+  fs.mkdirSync(statusDir);
   const stub = (name, body) => fs.writeFileSync(path.join(bin, name), `#!/bin/sh\n${body}\n`, { mode: 0o755 });
   stub("pg_dump", `for a in "$@"; do case "$a" in --file=*) f="\${a#--file=}" ;; esac; done
 case "$STUB_PG" in ok) echo dump > "$f" ;; empty) : > "$f" ;; *) echo "connection refused" >&2; exit 1 ;; esac`);
   stub("tar", `echo archive > "$2"`);
   const result = spawnSync("sh", ["deploy/backup.sh", "once"], {
     encoding: "utf8",
-    env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, STUB_PG: pgDump, BACKUP_DIR: backups, UPLOADS_DIR: dir, DATABASE_URL: "postgres://stub" }
+    env: { ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, STUB_PG: pgDump, BACKUP_DIR: backups, UPLOADS_DIR: dir, STATUS_DIR: statusDir, DATABASE_URL: "postgres://stub" }
   });
   const files = fs.readdirSync(backups).sort();
+  const statusFiles = fs.readdirSync(statusDir).sort();
   fs.rmSync(dir, { recursive: true, force: true });
-  return { status: result.status, stderr: result.stderr, files };
+  return { status: result.status, stderr: result.stderr, files, statusFiles };
 }
 
 test("a backup that fails leaves no half-written file behind, and says it failed", { skip: spawnSync("sh", ["-c", "exit 0"]).status !== 0 && "no sh" }, () => {
   const ok = runBackupOnce("ok");
   assert.equal(ok.status, 0);
   assert.deepEqual(ok.files.map((f) => f.replace(/\d{8}T\d{6}Z/u, "<stamp>")), ["db_<stamp>.dump", "uploads_<stamp>.tar.gz"]);
+  assert.deepEqual(ok.statusFiles, ["backup_last_ok"], "the app is told it worked");
   for (const outcome of ["fail", "empty"]) {
     const failed = runBackupOnce(outcome);
     assert.notEqual(failed.status, 0, outcome);
     assert.deepEqual(failed.files, [], `${outcome}: nothing for the restore check or the off-server copy to pick up`);
     assert.match(failed.stderr, /FAILED: the database dump didn't complete/u);
+    assert.deepEqual(failed.statusFiles, ["backup_last_failed"], `${outcome}: the app is told it failed`);
   }
   assert.match(fs.readFileSync("deploy/backup.sh", "utf8"), /trying again in 10 minutes/u);
+});
+
+// Runs deploy/offsite.sh once with a stand-in rclone whose "copy" fails when
+// told to.
+function runOffsiteOnce(copyFails) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-offsite-"));
+  const bin = path.join(dir, "bin");
+  const statusDir = path.join(dir, "status");
+  fs.mkdirSync(bin);
+  fs.mkdirSync(statusDir);
+  fs.writeFileSync(path.join(bin, "rclone"), [
+    "#!/bin/sh",
+    "case \"$1\" in",
+    "  copy) if [ \"$STUB_COPY\" = fail ]; then echo AccessDenied >&2; exit 1; fi ;;",
+    "  lsf) echo db_x.dump ;;",
+    "esac",
+    "exit 0",
+    ""
+  ].join("\n"), { mode: 0o755 });
+  const result = spawnSync("sh", ["deploy/offsite.sh", "once"], {
+    encoding: "utf8",
+    env: {
+      ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, STUB_COPY: copyFails ? "fail" : "ok", BACKUP_DIR: dir, STATUS_DIR: statusDir,
+      OFFSITE_BACKUP_BUCKET: "b", RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID: "k", RCLONE_CONFIG_OFFSITE_SECRET_ACCESS_KEY: "s"
+    }
+  });
+  const statusFiles = fs.readdirSync(statusDir).sort();
+  fs.rmSync(dir, { recursive: true, force: true });
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr, statusFiles };
+}
+
+test("a failed off-server copy is reported as failed, never as done", { skip: spawnSync("sh", ["-c", "exit 0"]).status !== 0 && "no sh" }, () => {
+  const ok = runOffsiteOnce(false);
+  assert.equal(ok.status, 0);
+  assert.match(ok.stdout, /offsite copy done .*: 1 files stored off the server/u);
+  assert.deepEqual(ok.statusFiles, ["offsite_last_ok", "offsite_state"]);
+  const failed = runOffsiteOnce(true);
+  assert.notEqual(failed.status, 0);
+  assert.doesNotMatch(failed.stdout, /offsite copy done/u);
+  assert.match(failed.stderr, /offsite copy FAILED/u);
+  assert.deepEqual(failed.statusFiles, ["offsite_last_failed", "offsite_state"]);
+});
+
+test("the app reads the backup status the backup services write, read-only", () => {
+  assert.match(service("app"), /kolosseum-status:\/status:ro/u);
+  assert.match(service("app"), /KOLOSSEUM_BACKUP_STATUS_DIR: \/status\n/u);
+  assert.match(service("backup"), /kolosseum-status:\/status\n/u);
+  assert.match(service("offsite"), /kolosseum-status:\/status\n/u);
 });
 
 test("backups are copied off the server once a bucket is set, and the newest one can be test-restored", () => {

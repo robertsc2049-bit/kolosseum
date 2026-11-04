@@ -50,6 +50,7 @@ import {
 } from "./product_admin_review_service.js";
 import { badRequest, conflict, notFound } from "./http_errors.js";
 import { SellerTaxReportError, sellerTaxReport } from "./seller_tax_service.js";
+import { assessBackupHealth, readBackupStatus } from "./backup_health.js";
 import {
   ExerciseDemoVideoError,
   listExerciseDemoVideos,
@@ -505,6 +506,19 @@ productAdminRouter.get(
       if (error instanceof SellerTaxReportError) throw badRequest(error.message, { failure_token: error.message });
       throw error;
     }
+  })
+);
+
+// Whether the server's backups are working (backup_health.ts): when the last
+// backup and off-server copy finished, and anything wrong.
+const systemStatusRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 120, standardHeaders: true, legacyHeaders: false });
+
+productAdminRouter.get(
+  "/system-status",
+  systemStatusRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    return response.status(200).json({ ok: true, backups: assessBackupHealth(readBackupStatus()) });
   })
 );
 

@@ -89,6 +89,33 @@ function showWorkspace() {
   refreshAuditRecords();
   refreshExerciseDemoVideos().catch(console.error);
   refreshGymListings().catch(console.error);
+  refreshSystemStatus().catch(console.error);
+}
+
+// Backups (backup_health.ts): when the last backup and off-server copy
+// finished, or what's wrong. Nothing shows where there's no backup status
+// (local development).
+function sinceLabel(iso) {
+  if (!iso) return "never";
+  const minutes = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+  if (minutes < 90) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.round(minutes / 60);
+  return hours < 48 ? `${hours} hours ago` : `${Math.round(hours / 24)} days ago`;
+}
+
+async function refreshSystemStatus() {
+  const box = el("systemStatus");
+  const { backups } = await api("GET", "/admin/system-status");
+  if (!backups.checked) {
+    box.hidden = true;
+    return;
+  }
+  const line = `Backups: last ${sinceLabel(backups.backup_last_ok)}` + (backups.offsite_state === "on" ? ` · copied off the server ${sinceLabel(backups.offsite_last_ok)}` : "");
+  box.className = backups.healthy ? "muted" : "error-text";
+  box.innerHTML = backups.healthy
+    ? `<p>${escapeHtml(line)}</p>`
+    : `<p><strong>Backups need attention.</strong> ${escapeHtml(line)}</p><ul>${backups.problems.map((problem) => `<li>${escapeHtml(problem)}</li>`).join("")}</ul>`;
+  box.hidden = false;
 }
 
 async function signIn(event) {
