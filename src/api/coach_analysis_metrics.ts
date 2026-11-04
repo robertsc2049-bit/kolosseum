@@ -1095,7 +1095,7 @@ function evidenceFor(finding: Finding): string | undefined {
   if (id.startsWith("velocity_")) return finding.level === "good"
     ? "Bar speed at a fixed weight rises as strength rises, so their recorded max may now be below their current max."
     : "Lower bar speed at the same weight can reflect fatigue.";
-  if (id === "prilepin_high") return "Prilepin's table is a coaching guide from Soviet weightlifting practice, not a controlled study.";
+  if (id === "prilepin_high") return "Prilepin's table describes Soviet weightlifters' training in the 1970s (Laputin & Oleshko 1982). It is a descriptive guide from weightlifting, not a controlled study.";
   const injury = injuryEvidenceFor(id);
   if (injury) return injury;
   if (id === "hrv_low" || id === "rhr_high") return "HRV and resting heart rate compared with the athlete's own baseline are used to monitor how they respond to training (Plews 2013).";

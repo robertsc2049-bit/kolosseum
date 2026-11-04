@@ -33,7 +33,11 @@ export const SOURCES = {
   hopkins2004: { cite: "Hopkins WG. How to interpret changes in an athletic performance test. Sportscience 2004;8:1-7.", url: "https://sportsci.org/jour/04/wghtests.htm" },
   duhig2016: { cite: "Duhig S, Shield AJ, Opar D, et al. Effect of high-speed running on hamstring strain injury risk. Br J Sports Med 2016;50(24):1536-1540.", url: "https://doi.org/10.1136/bjsports-2015-095679" },
   visnes2013: { cite: "Visnes H, Bahr R. Training volume and body composition as risk factors for developing jumper's knee among young elite volleyball players. Scand J Med Sci Sports 2013;23(5):607-613." },
-  acsm2009: { cite: "American College of Sports Medicine. Position stand: progression models in resistance training for healthy adults. Med Sci Sports Exerc 2009;41(3):687-708.", url: "https://doi.org/10.1249/MSS.0b013e3181915670" }
+  acsm2009: { cite: "American College of Sports Medicine. Position stand: progression models in resistance training for healthy adults. Med Sci Sports Exerc 2009;41(3):687-708.", url: "https://doi.org/10.1249/MSS.0b013e3181915670" },
+  laputin1982: { cite: "Laputin NP, Oleshko VG. Managing the Training of Weightlifters. Kiev: Zdorov'ya; 1982 (English translation: Sportivny Press) - reports A.S. Prilepin's table of reps per intensity zone." },
+  bangsbo2008: { cite: "Bangsbo J, Iaia FM, Krustrup P. The Yo-Yo intermittent recovery test: a useful tool for evaluation of physical performance in intermittent sports. Sports Med 2008;38(1):37-51.", url: "https://doi.org/10.2165/00007256-200838010-00004" },
+  draper1985: { cite: "Draper JA, Lancaster MG. The 505 test: a test for agility in the horizontal plane. Aust J Sci Med Sport 1985;17(1):15-18." },
+  kelly2013: { cite: "Kelly VG, Wood A. The 1.2 km shuttle (Bronco) test in rugby players. Presented at the Australian Strength and Conditioning Association conference, 2013 - the test has no peer-reviewed original publication." },
 } as const satisfies Record<string, { cite: string; url?: string }>;
 
 export type SourceId = keyof typeof SOURCES;
@@ -98,9 +102,10 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     mind: [
       "An estimate, not a tested max. It is most accurate from sets of 1-5 reps and honest RPE ratings; sets of 8-10 reps tend to over- or under-estimate.",
       "Only an RPE rating feeds the RTS chart (it is built on reps in reserve). Borg and CR10 ratings still count for effort and load, but those sets use Epley.",
-      "Bodyweight exercises (pull-ups, dips, push-ups) have no estimated max from unweighted sets - their own chart shows the best set in reps each week instead. A weighted set (for example a pull-up with 20 kg) counts the added weight only."
+      "Bodyweight exercises (pull-ups, dips, push-ups) have no estimated max from unweighted sets - their own chart shows the best set in reps each week instead. A weighted set (for example a pull-up with 20 kg) counts the added weight only.",
+      "Prilepin's range: a note appears when 2 or more recent sessions logged more total reps at 70% of max or above than Prilepin's table lists for that zone (Laputin & Oleshko 1982). The table records what Soviet weightlifters did in the 1970s, mostly in the snatch, clean and jerk - a description of practice, not a controlled study - so it is shown as a note, never a flag."
     ],
-    sources: ["epley1985", "lesuer1997", "tuchscherer2008", "zourdos2016"]
+    sources: ["epley1985", "lesuer1997", "tuchscherer2008", "zourdos2016", "laputin1982"]
   },
   execution: {
     title: "Doing the plan",
@@ -131,14 +136,15 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
     read: [
       "Real improvement / Real decline: the change since the previous result is bigger than the test's smallest worthwhile change. Within normal variation: it isn't - the athlete may have improved, or it may be a good or bad day; a retest shows which.",
       "Smallest worthwhile changes used: CMJ and squat jump 1.5 cm, broad jump 5 cm, 10 m sprint 0.03 s, 20 m 0.04 s, 40 m 0.06 s, 505 0.05 s, Yo-Yo IR1 40 m, Bronco 5 s, 2 km row 3 s, grip 2 kg, pull-ups 1 rep. Hover a verdict to see it.",
-      "Test in the same conditions each time - same warm-up, surface, time of day, and not the day after a hard session - or the change measures the conditions, not the athlete."
+      "Test in the same conditions each time - same warm-up, surface, time of day, and not the day after a hard session - or the change measures the conditions, not the athlete.",
+      "The tests follow their published protocols: Yo-Yo IR1 (Bangsbo 2008), the 505 (Draper & Lancaster 1985) and the Bronco 1.2 km shuttle (Kelly & Wood 2013)."
     ],
     how: [
       "Record a result with the form below the table; remove a wrong one with ×. Results are kept on the athlete's record, with who recorded them.",
       "Lower is better for times (sprints, 505, Bronco, 2 km row); higher for the rest."
     ],
     mind: ["The smallest worthwhile changes are typical values for trained athletes. With a squad of 10 or more, the team view works out your own squad's (0.2 × the spread between athletes)."],
-    sources: ["hopkins2004"]
+    sources: ["hopkins2004", "bangsbo2008", "draper1985", "kelly2013"]
   },
   intensity: {
     title: "Intensity (% of max)",
