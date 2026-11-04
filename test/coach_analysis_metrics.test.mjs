@@ -126,9 +126,10 @@ test("the powerlifter: squat rising, bench stuck and feeling harder, knee pain r
   assert.ok(benchFinding, texts.join("\n"));
   assert.match(benchFinding.text, /, and it feels harder \(RPE 7\.5 → 9 at about 90 kg\)\.$/u);
   assert.equal(texts.some((t) => t.startsWith("Bench press feels harder")), false, "not listed twice");
-  // Every finding comes with a suggested next step.
-  assert.ok(list.every((f) => typeof f.action === "string" && f.action.length > 10), list.filter((f) => !f.action).map((f) => f.id).join(", "));
-  assert.match(list.find((f) => f.id.startsWith("pain_")).action, /refer them to a medical professional/u);
+  // Every finding states what happened; none tells the coach what to do.
+  // Facts and research, never instructions (the coach decides).
+  assert.ok(list.every((f) => f.action === undefined), "no suggested next steps");
+  assert.match(list.find((f) => f.id.startsWith("pain_")).evidence, /does not diagnose.*medical professional/u);
   assert.ok(texts.some((t) => /^Knee pain reported in 2 different weeks \(Back squat\)/u.test(t)), texts.join("\n"));
   assert.ok(texts.some((t) => /^Readiness well below their normal/u.test(t)));
   assert.ok(texts.some((t) => /^Back squat estimated max up/u.test(t)));
@@ -174,5 +175,5 @@ test("a big week then a drop is one story, not two lines that look like they dis
   const story = list.find((f) => f.id === "load_story");
   assert.equal(story.text, "Training load spiked to 2.3x their 4-week normal in the week of 28 Sep, then dropped 60% below their 4-week normal (ratio 0.4).");
   assert.equal(list.some((f) => f.id === "load" || f.id === "load_spike"), false);
-  assert.match(story.action, /planned recovery/u);
+  assert.equal(story.evidence, undefined);
 });

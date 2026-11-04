@@ -22,8 +22,8 @@
 
 type Json = Record<string, unknown>;
 
-import { analyseInjuries, injuryActionFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
-import { ewmaRatios, forwardActionFor, forwardFindings, forwardRows, type PlannedWeek } from "./forward_load.js";
+import { analyseInjuries, injuryEvidenceFor, injuryFindings, type InjuryRecord } from "./injury_metrics.js";
+import { ewmaRatios, forwardFindings, forwardRows, type PlannedWeek } from "./forward_load.js";
 import { attemptPlan, prilepinCheck, velocitySummary, type HeavySet, type VelocitySet } from "./strength_top_end.js";
 import { muscleVolumeRange, rangeText, volumeLevel, volumeStatus } from "../../shared/muscle-volume-ranges/muscleVolumeRanges.mjs";
 
@@ -1073,48 +1073,41 @@ export function analyseAthlete(input: AnalysisInput): Json {
 }
 
 // ---------- findings: plain-English headlines and flags ----------
-// text: what happened; action: a suggested next step (the coach decides).
-export type Finding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; action?: string; exercise_id?: string }>;
+// text: what the data shows. evidence: what published research found about
+// that kind of signal, with author-year citations matching the sources under
+// the section's "What this means" (analysisGuide.tsx), or a safety statement.
+// Kolosseum states facts and the research; it never tells the coach what to
+// do - the coach decides.
+export type Finding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; evidence?: string; exercise_id?: string }>;
 
-// The suggested next step for each kind of finding.
-function actionFor(finding: Finding): string | undefined {
+const LOAD_RESEARCH = "In team sports, weeks well above an athlete's 4-week average were associated with more injuries the following week (Gabbett 2016; Hulin 2014). Whether the ratio predicts injury for an individual is disputed (Impellizzeri 2020).";
+const RIR_RESEARCH = "An RPE rating reflects reps left in reserve - RPE 8 about two, RPE 10 none - so a higher rating at the same weight means fewer reps left (Zourdos 2016; Helms 2016).";
+const WELLBEING_RESEARCH = "Self-reported wellbeing has tracked changes in training load more consistently than commonly used objective measures (Saw 2016).";
+
+// The research behind each kind of finding, where there is any.
+function evidenceFor(finding: Finding): string | undefined {
   const { id, level } = finding;
-  if (id === "adherence") return level === "alert"
-    ? "Ask what's getting in the way - time, energy or the plan itself - before adding anything. Fewer or shorter sessions they will do beat a plan they won't."
-    : level === "watch" ? "Check in on their week, and consider moving or shortening the session they miss most." : "Keep the plan as it is.";
-  if (id === "load") return level === "alert" ? "Hold or reduce load next week instead of adding more, and let this jump settle before the next step up."
-    : finding.text.includes("dropped") ? "If this was a planned deload or taper, nothing to do. If not, ask what happened - illness, travel, work or motivation."
-    : level === "watch" ? "Don't add more this week; check soreness and sleep." : "Load is building steadily - keep progressing at this pace.";
-  if (id === "load_spike") return "Watch for soreness or niggles from that week, and build up in smaller steps next time.";
-  if (id === "jumps_spike") return "Big jumps in jump count load the patellar and Achilles tendons - hold plyometrics in the gym this week and build jump volume back in smaller steps.";
-  if (id === "bowling_spike") return "Sharp rises in bowling workload are linked to lumbar stress injuries in fast bowlers - agree the next weeks' overs with their coach and keep heavy spinal loading light meanwhile.";
-  if (id.startsWith("grind_")) return "The weight is above what they have right now: take 5-10% off the top sets next session (or set them by RPE 8) and build back up - grinding out missed reps adds fatigue, not strength.";
-  if (id.startsWith("vloss_")) return "Stop the sets at about a 20-25% speed loss (or cut a set) for strength and power work; past 30% fatigue builds fast for little extra gain.";
-  if (id.startsWith("velocity_")) return finding.level === "good" ? "Faster at the same weight usually means stronger - an estimated max may be behind; consider retesting." : "Slower at the same weight is an early sign of fatigue - check sleep and recent load, and consider a lighter few days before the next heavy session.";
-  if (id === "prilepin_high") return "Prilepin's table is a guide built on weightlifters, not a rule - but if heavy sessions keep running long, watch bar speed and recovery between them.";
-  const injury = injuryActionFor(id) ?? forwardActionFor(id);
+  if (id === "load") return level === "alert" ? LOAD_RESEARCH : undefined;
+  if (id === "load_spike") return LOAD_RESEARCH;
+  if (id === "jumps_spike") return "In young elite volleyball players, more weekly training and match exposure was associated with more jumper's knee (Visnes & Bahr 2013).";
+  if (id === "bowling_spike") return "In elite fast bowlers, a week's workload well above their 4-week average was associated with more injuries the following week (Hulin 2014).";
+  if (id.startsWith("vloss_")) return "In an 8-week squat study, stopping sets at a 20% speed loss gave similar strength gains to 40% with fewer reps, while 40% gave more thigh muscle growth (Pareja-Blanco 2017).";
+  if (id.startsWith("velocity_")) return finding.level === "good"
+    ? "Bar speed at a fixed weight rises as strength rises, so their recorded max may now be below their current max."
+    : "Lower bar speed at the same weight can reflect fatigue.";
+  if (id === "prilepin_high") return "Prilepin's table is a coaching guide from Soviet weightlifting practice, not a controlled study.";
+  const injury = injuryEvidenceFor(id);
   if (injury) return injury;
-  if (id === "load_story") return "If the drop was planned recovery after the big week, that's fine. If not, ask what happened - and build back up gradually rather than with another jump.";
-  if (id === "hrv_low" || id === "rhr_high") return "A sign the body is under strain - illness, poor sleep or accumulated fatigue. Ask how they are, and consider a lighter session until it settles.";
-  if (id === "hsr_spike") return "Big jumps in high-speed running are the ones most linked to hamstring and calf niggles - build exposure up in smaller steps.";
-  if (id === "load_estimated") return "Ask the athlete to rate each session (how hard, how long) when they finish, and to log practice and matches - the load figures then reflect their real week.";
-  if (id === "monotony") return "Make the easy days easier: alternate hard and light sessions through the week.";
-  if (id === "readiness") return "Ask how they're sleeping and coping. Consider a lighter session, or moving the hardest session later in the week.";
-  if (id.startsWith("checkin_")) return "Have a conversation - a drop in energy, sleep or motivation often comes before missed sessions.";
-  if (id.startsWith("strength_fatigue_")) return "Signs of fatigue: plan a lighter week before pushing this lift again.";
-  if (id.startsWith("strength_")) return level === "alert" ? "Look at fatigue, sleep and pain first - a lighter week often brings it back. If it keeps falling, change the stimulus."
-    : level === "watch" ? "Change something: the rep range, an exercise variation, the volume or how often it's trained." : "Tell them - and keep the current plan going.";
-  if (id === "beginner_heavy") return "In their first months a beginner gains most from moderate weights (about RPE 6-7, 60-75%) and practising technique - keep the heavy sets for when their form holds under load.";
-  if (id === "execution") return "The weights are probably too heavy: drop the load a little or widen the rep range.";
-  if (id === "creep") return "Fatigue is building on this lift - consider a lighter week soon.";
-  if (id.startsWith("effort_target_")) return level === "info" ? "Add weight next time - they have more in the tank." : "Lighten it to match the effort you meant, or check they understand the rating scale.";
-  if (id.startsWith("test_")) return level === "good" ? "The training is working for this quality - tell them, and keep it in the plan." : "Check fatigue and the test conditions (warm-up, surface, time of day) first; if it holds on a retest, look at what the training gives this quality.";
-  if (id === "plan_under") return "Find out what's being cut - whole sessions, the last exercises, or lighter weights - and adjust the plan to what they can do.";
-  if (id === "plan_over") return "They're adding extra on top of the plan - check it's intended, as it adds fatigue you didn't plan for.";
-  if (id.startsWith("bodyweight_")) return "Progress it: more reps, a harder variation or a little added weight.";
-  if (id.startsWith("muscle_over_")) return "Trim this group's accessory sets first - keep the main lifts - or check it's a planned overreach with a lighter week after it. Watch soreness and their performance on the lifts that use it.";
-  if (id.startsWith("muscle_under_")) return "If you want it to grow, add a few direct sets across the week (2-4 per session) rather than one big day.";
-  if (id.startsWith("pain_")) return "Check technique and load on the exercises involved and swap them if needed. If it continues, refer them to a medical professional.";
+  if (id === "hrv_low" || id === "rhr_high") return "HRV and resting heart rate compared with the athlete's own baseline are used to monitor how they respond to training (Plews 2013).";
+  if (id === "hsr_spike") return "In elite Australian football, large rises in high-speed running above a player's usual were associated with hamstring strains (Duhig 2016).";
+  if (id === "load_estimated") return "Measured load is the athlete's rating of the whole session × its minutes (Foster 2001). It needs the athlete to rate each session when they finish it, and to log practice and matches.";
+  if (id === "monotony") return "Foster tracked monotony and strain alongside illness in athletes (Foster 1998).";
+  if (id === "readiness" || id.startsWith("checkin_")) return WELLBEING_RESEARCH;
+  if (id.startsWith("strength_fatigue_") || id === "creep" || id.startsWith("effort_target_")) return RIR_RESEARCH;
+  if (id === "beginner_heavy") return "The ACSM position stand describes lighter loads for novice lifters than for advanced lifters (ACSM 2009).";
+  if (id.startsWith("test_")) return "A change smaller than the test's smallest worthwhile change can't be told apart from day-to-day variation (Hopkins 2004).";
+  if (id.startsWith("muscle_over_") || id.startsWith("muscle_under_")) return "The ranges are Kolosseum's guide ranges by level. In a meta-analysis, more weekly sets per muscle were associated with more muscle growth (Schoenfeld 2017).";
+  if (id.startsWith("pain_")) return "Kolosseum records pain reports and does not diagnose. Pain that persists or worsens needs a medical professional.";
   return undefined;
 }
 
@@ -1341,9 +1334,9 @@ export function findings(analysis: Json): Finding[] {
       const overWeeks = group.max === null ? 0 : done.filter((sets) => sets > Number(group.max)).length;
       const underWeeks = group.min === null ? 0 : done.filter((sets) => sets < Number(group.min)).length;
       if (span >= 2 && overWeeks >= 2) {
-        out.push({ id: `muscle_over_${group.group}`, section: "volume", level: "watch", text: `${group.label}: over ${group.max} sets a week (the most ${who} usually recovers from) in ${overWeeks} of the last ${span} weeks trained, up to ${Math.max(...done)}.` });
+        out.push({ id: `muscle_over_${group.group}`, section: "volume", level: "watch", text: `${group.label}: over ${group.max} sets a week (the top of Kolosseum's guide range for ${who}) in ${overWeeks} of the last ${span} weeks trained, up to ${Math.max(...done)}.` });
       } else if (span >= 3 && underWeeks >= 3 && muscleVolume.activity_id === "general_strength") {
-        out.push({ id: `muscle_under_${group.group}`, section: "volume", level: "info", text: `${group.label}: under ${group.min} sets a week (the usual minimum to build it) in ${underWeeks} of the last ${span} weeks trained.` });
+        out.push({ id: `muscle_under_${group.group}`, section: "volume", level: "info", text: `${group.label}: under ${group.min} sets a week (the bottom of Kolosseum's guide range) in ${underWeeks} of the last ${span} weeks trained.` });
       }
     }
   }
@@ -1351,7 +1344,7 @@ export function findings(analysis: Json): Finding[] {
 
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
   return mergeRelated(out)
-    .map((finding) => { const action = actionFor(finding); return action ? { ...finding, action } : finding; })
+    .map((finding) => { const evidence = evidenceFor(finding); return evidence ? { ...finding, evidence } : finding; })
     .sort((x, y) => order[x.level] - order[y.level] || (SECTION_ORDER[x.section] ?? 9) - (SECTION_ORDER[y.section] ?? 9));
 }
 

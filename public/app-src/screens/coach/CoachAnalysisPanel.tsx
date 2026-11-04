@@ -32,9 +32,9 @@ const show = (value: unknown, suffix = "") => (num(value) === null ? "–" : `${
 function statusOf(attention: number | null, trained = true): { label: string; level: string } {
   if (attention === null) return { label: "No data", level: "info" };
   if (!trained && attention === 0) return { label: "No training yet", level: "info" };
-  if (attention >= 3) return { label: "Needs a look", level: "alert" };
-  if (attention >= 1) return { label: "Keep an eye on", level: "watch" };
-  return { label: "On track", level: "good" };
+  if (attention >= 3) return { label: "Red flag", level: "alert" };
+  if (attention >= 1) return { label: "Amber flag", level: "watch" };
+  return { label: "No flags", level: "good" };
 }
 
 function Numbers({ children }: { children: React.ReactNode }) {
@@ -552,7 +552,7 @@ export function CoachAnalysisPanel() {
       <div className="page-heading">
         <div>
           <p className="eyebrow">Analysis</p>
-          <h2>{team ? team.org_name : "Who needs a look"}</h2>
+          <h2>{team ? team.org_name : "Athletes by flags"}</h2>
           <p className="muted">{team
             ? "The whole team over the last 8 weeks: how it's doing as a group, by position and by coach, then every athlete."
             : "Your athletes over the last 8 weeks, the ones needing attention first. Open an athlete for their trends and the numbers behind them."}</p>
@@ -589,7 +589,7 @@ export function CoachAnalysisPanel() {
                   <tr key={String(athlete.athlete_user_id)}>
                     <td data-label="Athlete"><button type="button" className="analysis-athlete-link" onClick={() => { setOpenOnReport(null); setSelected(String(athlete.athlete_user_id)); }}>{String(athlete.display_name)}</button></td>
                     <td data-label="Status"><span className={`analysis-status is-${status.level}`}>{status.label}</span></td>
-                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
+                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 3)} compact /> : <span className="muted small">{athlete.unavailable ? "Couldn't be analysed" : athlete.last_session ? "No flags" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>
                     <td data-label="Load vs usual" className={ratio === null ? "" : ratio > 1.5 || ratio < 0.8 ? "is-alert-text" : ratio > 1.3 ? "is-watch-text" : ""}>{ratio === null ? "–" : `${ratio}×`}</td>
                     <td data-label="Readiness" className={z === null ? "" : z <= -1.5 ? "is-alert-text" : z <= -1 ? "is-watch-text" : ""}>{z === null ? "–" : z > -1 ? "Normal" : "Low"}</td>

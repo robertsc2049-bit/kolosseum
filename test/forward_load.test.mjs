@@ -51,7 +51,7 @@ test("in the athlete's analysis: EWMA in the load rows, the weeks ahead in the p
   });
   assert.ok(a.load.rows.every((row) => "ewma_ratio" in row));
   assert.equal(a.plan.ahead.rows.length, 2);
-  assert.ok(findings(a).some((f) => f.id === "forward_load" && /check they're ready/iu.test(f.action)));
+  assert.ok(findings(a).some((f) => f.id === "forward_load" && f.evidence === undefined), "the planned jump is stated as a fact, with no instruction");
   const report = analyseAthlete({ today: "2026-10-18", weeks: 8, closed: true, sessions: [], readiness: [], checkins: [], planned_days_per_week: 3, exercise_name: (id) => id, is_strength_lift: () => false, planned_ahead: [week(5, { current: true }), week(6, { working_sets: 80 })] });
   assert.ok(!findings(report).some((f) => f.id === "forward_load"), "a report on an ended period doesn't look ahead");
 });
