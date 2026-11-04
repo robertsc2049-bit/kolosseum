@@ -2376,7 +2376,8 @@ async function register(event) {
     const result = await api("POST", "/org/register", {
       display_name: el("orgRegisterDisplayName").value,
       email: el("orgRegisterEmail").value,
-      password: el("orgRegisterPassword").value
+      password: el("orgRegisterPassword").value,
+      accepted_terms: el("orgRegisterTerms").checked
     });
     state.csrfToken = result.csrf_token;
     state.ownerUserId = result.org_owner.user_id;

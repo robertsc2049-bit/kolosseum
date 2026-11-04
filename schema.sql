@@ -2526,6 +2526,12 @@ CREATE TABLE IF NOT EXISTS product_org_owner_accounts (
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- The Terms of Service version a gym/organisation owner accepted at sign-up
+-- (public/app/legal/terms.html), and when. Null for accounts created before
+-- acceptance was recorded.
+ALTER TABLE product_org_owner_accounts ADD COLUMN IF NOT EXISTS accepted_terms_version TEXT;
+ALTER TABLE product_org_owner_accounts ADD COLUMN IF NOT EXISTS accepted_terms_at TIMESTAMPTZ;
+
 DO $$
 BEGIN
   IF NOT EXISTS (

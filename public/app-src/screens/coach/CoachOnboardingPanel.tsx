@@ -91,6 +91,11 @@ function TermsForm({ termsVersion, busy, onAccept }: { termsVersion: string; bus
         <p className="eyebrow">Coach terms</p>
         <h3>Explicit acceptance</h3>
         <p className="muted">Current version: {termsVersion || "Unavailable"}</p>
+        <p className="muted small">
+          As a coach you run your own business: you set and collect your own fees, and you are responsible for your coaching
+          and for your athletes' data you use outside Kolosseum. The business-user terms are in the Schedule to the{" "}
+          <a href="/app/legal/terms.html#schedule" target="_blank" rel="noopener">Terms of Service</a>.
+        </p>
       </div>
       <label className="checkbox-field">
         <input type="checkbox" required checked={accepted} onChange={(event) => setAccepted(event.target.checked)} />
