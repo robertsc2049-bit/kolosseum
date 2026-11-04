@@ -118,7 +118,7 @@ Re-applying the schema is always safe (see `test/schema_reapply_safety.test.mjs`
 
 ## Backups
 
-The `backup` container runs once at start-up and then every 24 hours. Each run writes `db_<time>.dump` and `uploads_<time>.tar.gz` to the `kolosseum-backups` volume, and keeps the last `BACKUP_KEEP_DAYS` days of them (14 by default).
+The `backup` container runs once at start-up and then every 24 hours. Each run writes `db_<time>.dump` and `uploads_<time>.tar.gz` to the `kolosseum-backups` volume, and keeps the last `BACKUP_KEEP_DAYS` days of them (14 by default). A run that fails (for example while the database is restarting) leaves no file behind, logs `backup … FAILED` (`docker compose -f docker-compose.prod.yml logs backup`) and tries again 10 minutes later.
 
 To take a backup immediately:
 
