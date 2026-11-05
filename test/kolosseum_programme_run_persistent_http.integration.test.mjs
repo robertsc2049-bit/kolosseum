@@ -17,6 +17,11 @@ import { Client } from "pg";
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 import { templateBody } from "../product/programmes/programme_template_body.mjs";
 
+const SOURCES = [
+  { cite: "American College of Sports Medicine. Position stand: progression models in resistance training for healthy adults. Med Sci Sports Exerc 2009;41(3):687-708.", url: "https://doi.org/10.1249/MSS.0b013e3181915670" },
+  { cite: "Haff GG, Triplett NT (eds). Essentials of Strength Training and Conditioning. 4th ed. NSCA / Human Kinetics; 2016." }
+];
+
 // The training itself - a self-directed session also opens with a warm-up and ends with a cool-down.
 const training = (exercises) => exercises.filter((e) => e.segment !== "warm_up" && e.segment !== "cool_down");
 
@@ -287,9 +292,16 @@ test(
 
     const listed = await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, {
       cookie: author.cookie, csrf: author.csrf,
-      body: { title: "Beginner full-body", summary: "Three full-body sessions.", levels: ["beginner"], activity_ids: [], days_per_week: 3 }
+      body: { title: "Beginner full-body", summary: "Three full-body sessions.", levels: ["beginner"], activity_ids: [], days_per_week: 3, sources: SOURCES }
     });
     assertStatus(listed, 200, "list programme");
+    assert.deepEqual(listed.json.listing.sources, SOURCES, "what it's based on is kept");
+    const badSources = await requestJson(base, "PUT", `/templates/${templateId}/catalogue-listing`, {
+      cookie: author.cookie, csrf: author.csrf,
+      body: { title: "Beginner full-body", summary: "Three full-body sessions.", levels: ["beginner"], activity_ids: [], days_per_week: 3, sources: [{ cite: "x", url: "http://not-https.example" }] }
+    });
+    assertStatus(badSources, 422, "a source link must be https");
+    assert.ok(badSources.json.field_errors.sources);
 
     // A beginner rugby player: the general programme suits them.
     const athlete = await registerAccount(base, { actor_type: "athlete", display_name: "Rugby Beginner", email: `rugby-beginner-${nonce}@example.test` });
@@ -416,6 +428,7 @@ test(
     }), 200, "name the follow-on");
     const authorView = await requestJson(base, "GET", `/templates/${templateId}/catalogue-listing`, { cookie: author.cookie });
     assert.equal(authorView.json.listing.next_listing_id, nextListed.json.listing.listing_id);
+    assert.deepEqual(authorView.json.listing.sources, SOURCES, "saving from the programme page (no sources sent) keeps them");
     assert.deepEqual(authorView.json.other_listings.map((l) => l.title), ["Intermediate upper/lower"]);
 
     // Any coach can browse the listed programmes and copy one into their own
@@ -423,13 +436,14 @@ test(
     // programme untouched.
     const browse = await requestJson(base, "GET", "/templates/kolosseum-programmes", { cookie: other.cookie });
     assertStatus(browse, 200, "coach browses Kolosseum programmes");
-    assert.ok(browse.json.programmes.some((p) => p.title === "Beginner full-body"));
+    assert.deepEqual(browse.json.programmes.find((p) => p.title === "Beginner full-body").sources, SOURCES);
     const copied = await requestJson(base, "POST", `/templates/kolosseum-programmes/${encodeURIComponent(listed.json.listing.listing_id)}/copy`, { cookie: other.cookie, csrf: other.csrf, body: {} });
     assertStatus(copied, 201, "coach copies a Kolosseum programme");
     const copy = copied.json.template;
     assert.equal(copy.coach_user_id, other.userId);
     assert.equal(copy.template_status, "draft");
     assert.equal(copy.template_name, "Beginner full-body");
+    assert.match(copy.description, /Based on: American 2009; Haff 2016\./u, "the copy keeps short references");
     assert.notEqual(copy.template_id, templateId);
     const sessionTitles = (t) => t.template_structure.blocks.flatMap((b) => b.weeks.flatMap((w) => [...(w.sessions ?? []), ...(w.days ?? []).flatMap((d) => d.sessions ?? [])])).map((s) => s.title);
     assert.deepEqual(sessionTitles(copy), ["Day A", "Day B", "Day A again"]);

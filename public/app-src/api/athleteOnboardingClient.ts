@@ -74,6 +74,11 @@ export function saveReadiness(input: { sleep: number; soreness: number; stress: 
   return request("PUT", "/account/onboarding/readiness", input, csrfToken);
 }
 
+// A self-directed athlete's own choice: does a low check-in lighten their sessions?
+export function saveOwnLightening(enabled: boolean, csrfToken: string): Promise<JsonRecord> {
+  return request("PUT", "/account/onboarding/readiness/lightening", { enabled }, csrfToken);
+}
+
 // Medical stand-down (e.g. after a head injury).
 export function loadStandDown(): Promise<JsonRecord> {
   return request("GET", "/account/onboarding/stand-down");

@@ -59,8 +59,33 @@ export type ProgrammeListing = {
   // The programme to offer when an athlete finishes this one ("" for none).
   next_listing_id: string;
   listed: boolean;
+  // What the programme is based on: the original it follows, or the research
+  // behind its method (product/programmes/programme_sources.mjs).
+  sources: ProgrammeSource[];
   updated_at: string;
 };
+
+export type ProgrammeSource = { cite: string; url?: string };
+
+const MAX_SOURCES = 12;
+
+// "Suchomel 2016" from "Suchomel TJ, Nimphius S, Stone MH. ... 2016;46(10)..." -
+// short enough to fit a copied programme's description.
+function shortSource(source: ProgrammeSource): string {
+  const year = [...source.cite.matchAll(/\b(?:19|20)\d{2}\b/gu)][0]?.[0];
+  const author = source.cite.match(/^([A-Z][\p{L}'-]+)/u)?.[1];
+  return author && year ? `${author} ${year}` : source.cite.split(".")[0].slice(0, 80);
+}
+
+// A listing's sources, kept to a citation and an https link.
+function sourcesFrom(value: unknown): ProgrammeSource[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(isRecord).map((source) => {
+    const cite = text(source.cite).slice(0, 400);
+    const url = text(source.url);
+    return /^https:\/\/[^\s]{4,500}$/u.test(url) ? { cite, url } : { cite };
+  }).filter((source) => source.cite.length > 0).slice(0, MAX_SOURCES);
+}
 
 export type ProgrammeRun = {
   run_id: string;
@@ -105,6 +130,7 @@ function listingFrom(payload: unknown, authorUserId: string, at: unknown): Progr
     days_per_week: Number(payload.days_per_week) || 0,
     next_listing_id: text(payload.next_listing_id),
     listed: payload.listed !== false,
+    sources: sourcesFrom(payload.sources),
     updated_at: at instanceof Date ? at.toISOString() : text(at)
   };
 }
@@ -143,6 +169,10 @@ export async function saveProgrammeListing(authorUserId: string, templateIdInput
   if (!Number.isInteger(days) || days < 1 || days > 7) fieldErrors.days_per_week = "Choose 1 to 7 training days a week.";
   const summary = text(input.summary);
   if (summary.length > 400) fieldErrors.summary = "Keep the summary under 400 characters.";
+  if (input.sources !== undefined && (!Array.isArray(input.sources) || input.sources.length > MAX_SOURCES
+    || input.sources.some((source) => !isRecord(source) || !text(source.cite) || text(source.cite).length > 400 || (source.url !== undefined && !/^https:\/\/[^\s]{4,500}$/u.test(text(source.url)))))) {
+    fieldErrors.sources = `Up to ${MAX_SOURCES} sources, each a citation (under 400 characters) and an optional https link.`;
+  }
   // One listing per programme family: a new version replaces the old one.
   const listingId = `programme_${text(template.template_family_id) || templateId}`;
   // The next programme is another of the author's own listings.
@@ -152,6 +182,10 @@ export async function saveProgrammeListing(authorUserId: string, templateIdInput
     if (nextListingId === listingId || !own) fieldErrors.next_listing_id = "Choose another of your published programmes, or none.";
   }
   if (Object.keys(fieldErrors).length) throw new ProgrammeCatalogueError("programme_catalogue_listing_invalid", 422, fieldErrors);
+  // Saving the listing from the programme page doesn't send its sources: keep them.
+  const sources = input.sources === undefined
+    ? ((await allListings()).find((l) => l.listing_id === listingId)?.sources ?? [])
+    : sourcesFrom(input.sources);
 
   const payload = {
     listing_id: listingId,
@@ -163,6 +197,7 @@ export async function saveProgrammeListing(authorUserId: string, templateIdInput
     days_per_week: days,
     next_listing_id: nextListingId,
     listed: input.listed !== false,
+    sources,
     schema_version: "kolosseum_programme_listing_v1"
   };
   const client = await pool.connect();
@@ -245,7 +280,7 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
     const shape = template ? programmeShape(orderedTemplateSessions(template)) : { weeks_total: 0, ends_with_taper: false };
     return {
       listing_id: listing.listing_id, title: listing.title, summary: listing.summary, levels: listing.levels,
-      activity_ids: listing.activity_ids, days_per_week: listing.days_per_week, sport_specific: fit === 2,
+      activity_ids: listing.activity_ids, days_per_week: listing.days_per_week, sources: listing.sources, sport_specific: fit === 2,
       fit: programmeFit(shape, listing.days_per_week, plan, today)
     };
   }));
@@ -264,7 +299,7 @@ export async function getAthleteProgrammes(userId: string): Promise<Readonly<Jso
     activity_id: profile.activity_id ?? null,
     training_days_per_week: plan?.training_days_per_week ?? null,
     competition_date: plan?.competition_date ?? null,
-    current: run ? { ...run, ...progress } : null,
+    current: run ? { ...run, ...progress, sources: listings.find((l) => l.listing_id === run.listing_id)?.sources ?? [] } : null,
     options
   });
 }
@@ -282,7 +317,7 @@ function whatNext(run: ProgrammeRun, listings: ProgrammeListing[], profile: { ex
     if (fit > 0 || sportOk) {
       suggestion = {
         listing_id: next.listing_id, title: next.title, summary: next.summary, levels: next.levels,
-        activity_ids: next.activity_ids, days_per_week: next.days_per_week,
+        activity_ids: next.activity_ids, days_per_week: next.days_per_week, sources: next.sources,
         // Not for their level yet: they'd change their level to start it.
         suits_level: fit > 0
       };
@@ -372,7 +407,7 @@ export async function listProgrammesForCoaches(): Promise<Readonly<Json>> {
   const programmes = (await allListings())
     .filter((l) => l.listed)
     .sort((a, b) => a.title.localeCompare(b.title))
-    .map((l) => ({ listing_id: l.listing_id, title: l.title, summary: l.summary, levels: l.levels, activity_ids: l.activity_ids, days_per_week: l.days_per_week }));
+    .map((l) => ({ listing_id: l.listing_id, title: l.title, summary: l.summary, levels: l.levels, activity_ids: l.activity_ids, days_per_week: l.days_per_week, sources: l.sources }));
   return Object.freeze({ programmes });
 }
 
@@ -394,7 +429,11 @@ export async function copyProgrammeForCoach(coachUserId: string, listingIdInput:
     coach_user_id: coachUserId,
     template_version: 1,
     template_name: listing.title,
-    description: [listing.summary, "Copied from Kolosseum programmes - yours to change before you assign it."].filter(Boolean).join(" "),
+    description: [
+      listing.summary,
+      listing.sources.length ? `Based on: ${listing.sources.map(shortSource).join("; ")}.` : "",
+      "Copied from Kolosseum programmes - yours to change before you assign it."
+    ].filter(Boolean).join(" ").slice(0, 1000),
     event_plan: null,
     updated_at_iso8601: new Date().toISOString()
   };

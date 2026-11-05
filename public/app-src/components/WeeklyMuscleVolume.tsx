@@ -52,7 +52,7 @@ export function MuscleVolumeList({ volume, title, note, open = false, level = DE
       {untrained.length ? <p className="muted small">{`No direct work: ${untrained.join(", ")}.`}</p> : null}
       {coach ? (
         <p className="muted small">
-          {`Ranges for ${LEVEL_LABELS[volumeLevel(level)]}: under is less than usually builds muscle there - fine when size there isn't the aim; over is more than most recover from.`}
+          {`Ranges for ${LEVEL_LABELS[volumeLevel(level)]}: Kolosseum's guide ranges. In a meta-analysis, more weekly sets per muscle were associated with more muscle growth (Schoenfeld 2017). Being under or over can be intended.`}
         </p>
       ) : null}
     </details>

@@ -85,7 +85,7 @@ test("a forward who misses reps on his top squat sets at RPE 10 twice gets an al
   const twice = findings(analyse([week("2026-09-21", 140), grind("2026-10-05", 10, 3), grind("2026-10-12", 10, 2)])).find((f) => f.id === "grind_back_squat");
   assert.equal(twice.level, "alert");
   assert.equal(twice.text, "back squat: reps missed at RPE 10 (2 of 5) in 2 sessions, the last on 12 Oct.");
-  assert.match(twice.action, /take 5-10% off/u);
+  assert.equal(twice.evidence, undefined, "missed reps are stated, not prescribed for");
   assert.equal(findings(analyse([week("2026-09-21", 140), grind("2026-10-12", 8, 4)])).find((f) => f.id === "grind_back_squat"), undefined);
 });
 

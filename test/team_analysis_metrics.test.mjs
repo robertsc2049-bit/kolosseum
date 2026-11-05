@@ -54,11 +54,11 @@ test("the team in plain sentences with next steps: a group-wide load jump and re
   const list = groupFindings(summariseGroup(squad), "the team");
   const byId = Object.fromEntries(list.map((finding) => [finding.id, finding]));
   assert.equal(byId.group_load_high.text, "3 athletes of 7 had a big jump in training load last week (over 1.3× their usual).");
-  assert.match(byId.group_load_high.action, /plan or the fixture list/u);
+  assert.match(byId.group_load_high.evidence, /Gabbett 2016; Hulin 2014/u);
   assert.equal(byId.group_readiness.text, "3 athletes of 7 are well below their normal readiness.");
   assert.equal(byId.group_pain.text, "1 athlete has reported pain in the same area in 2 or more weeks.");
   assert.equal(byId.group_no_training.text, "1 athlete has no sessions logged in the last 8 weeks.");
-  assert.ok(list.every((finding) => finding.action), "every finding has a next step");
+  assert.ok(list.every((finding) => finding.action === undefined), "no suggested next steps");
   assert.equal(JSON.stringify(list).includes("knee"), false, "no pain detail in team findings");
 });
 

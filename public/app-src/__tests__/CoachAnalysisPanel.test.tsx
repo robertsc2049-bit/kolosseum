@@ -59,10 +59,10 @@ test("the roster ranks athletes by what needs a look, with the reasons in plain 
   await screen.findByText("Jordan");
   const rowsShown = [...document.querySelectorAll("[data-testid='analysis-roster'] tbody tr")];
   assert.equal(rowsShown[0].textContent?.includes("Jordan"), true);
-  assert.ok(rowsShown[0].textContent?.includes("Needs a look"));
+  assert.ok(rowsShown[0].textContent?.includes("Red flag"));
   assert.ok(rowsShown[0].textContent?.includes("Knee pain reported in 2 different weeks"));
-  assert.ok(rowsShown[1].textContent?.includes("On track"));
-  assert.ok(rowsShown[1].textContent?.includes("Nothing needs a look"), "good news is not listed as a problem");
+  assert.ok(rowsShown[1].textContent?.includes("No flags"));
+  assert.ok(rowsShown[1].textContent?.includes("No flags"), "good news is not listed as a problem");
   assert.ok(rowsShown[2].textContent?.includes("No training yet"), "no sessions is not 'on track'");
   assert.ok(rowsShown[2].textContent?.includes("No sessions logged in the last 8 weeks"));
 });
@@ -88,7 +88,7 @@ test("an athlete's analysis: findings first, each section a headline and a chart
   await act(async () => { fireEvent.click(screen.getByText("26 wks")); });
   assert.ok(paths.some((p) => p === "/coach-workspace/athletes/a1/analysis?weeks=26"));
   await act(async () => { fireEvent.click(screen.getByText("‹ All athletes")); });
-  await screen.findByText("Who needs a look");
+  await screen.findByText("Athletes by flags");
 });
 
 test("the roster is only worked out while the Analysis page is open - not on every page load", async () => {

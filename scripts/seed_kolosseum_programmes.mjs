@@ -20,6 +20,11 @@
 // seeded) - but only a draft nobody has saved since it was seeded. A draft
 // the author has edited is left as is and listed, as is anything already
 // completed or active.
+//
+// --add-sources: adds what each programme is based on (its sources, from
+// product/programmes/programme_sources.mjs) to the author's programmes that
+// are already listed for athletes. Everything else on each listing - title,
+// summary, levels, whether it's listed, what comes next - stays as it is.
 
 import { PROGRAMMES } from "../product/programmes/kolosseum_programmes_v1.mjs";
 import { templateBody } from "../product/programmes/programme_template_body.mjs";
@@ -29,6 +34,7 @@ const email = process.env.KOLOSSEUM_AUTHOR_EMAIL;
 const password = process.env.KOLOSSEUM_AUTHOR_PASSWORD;
 const publish = process.argv.includes("--publish");
 const refreshDrafts = process.argv.includes("--refresh-drafts");
+const addSources = process.argv.includes("--add-sources");
 if (!email || !password) {
   console.error("Set KOLOSSEUM_AUTHOR_EMAIL and KOLOSSEUM_AUTHOR_PASSWORD (the catalogue author's account).");
   process.exit(1);
@@ -84,6 +90,25 @@ function untouchedSinceSeeded(template) {
 
 const libraryTemplates = (await call("GET", `/templates?coach_user_id=${encodeURIComponent(coachUserId)}`)).templates ?? [];
 const existing = new Map(libraryTemplates.map((t) => [t.template_name, t]));
+
+if (addSources) {
+  let updated = 0;
+  for (const programme of PROGRAMMES) {
+    const template = existing.get(programme.template_name);
+    if (!template || template.template_status !== "active") continue;
+    const { listing } = await call("GET", `/templates/${template.template_id}/catalogue-listing`);
+    if (!listing) continue;
+    await call("PUT", `/templates/${template.template_id}/catalogue-listing`, {
+      title: listing.title, summary: listing.summary, levels: listing.levels, activity_ids: listing.activity_ids,
+      days_per_week: listing.days_per_week, listed: listing.listed, next_listing_id: listing.next_listing_id,
+      sources: programme.listing.sources
+    });
+    updated += 1;
+    console.log(`sources ${programme.template_name} (${programme.listing.sources.length})`);
+  }
+  console.log(`${updated} listed programme(s) now show what they're based on.`);
+  process.exit(0);
+}
 const edited = [];
 for (const programme of PROGRAMMES) {
   const current = existing.get(programme.template_name);
@@ -149,7 +174,7 @@ if (publish) {
     const { listing } = from;
     await call("PUT", `/templates/${from.template_id}/catalogue-listing`, {
       title: listing.title, summary: listing.summary, levels: listing.levels, activity_ids: listing.activity_ids,
-      days_per_week: listing.days_per_week, listed: listing.listed, next_listing_id: to.listing.listing_id
+      days_per_week: listing.days_per_week, listed: listing.listed, sources: listing.sources, next_listing_id: to.listing.listing_id
     });
     console.log(`next   ${programme.template_name} -> ${titleOf[programme.listing.next]}`);
   }

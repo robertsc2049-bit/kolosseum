@@ -1,5 +1,5 @@
 // DEV NOTE: Human-maintained repo surface. Readiness rules: a low check-in
-// trims that day's session; it never adds work.
+// trims that day's session when someone chose that rule; it never adds work.
 
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -19,7 +19,7 @@ test("readiness: a lifter who slept 2 hours before a squat day gets a lighter se
   assert.deepEqual(trimmed.map((e) => e.sets), [4, 1, 2], "a set fewer, never below 1");
   assert.deepEqual(trimmed[0].intensity, { type: "percent_1rm", value: 72.5 });
   assert.deepEqual(trimmed[1].intensity, { type: "rpe", value: 7 });
-  assert.deepEqual(trimmed[0].readiness, { sleep: 1, soreness: 4, stress: 4, low: true });
+  assert.deepEqual(trimmed[0].readiness, { sleep: 1, soreness: 4, stress: 4, low: true, rule: "athlete" });
 });
 
 test("readiness: a tired-but-fine day (total 8+) or no check-in leaves the session as planned", () => {
@@ -44,4 +44,14 @@ test("readiness: fatigue, mood, resting heart rate and HRV are optional extras -
   assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, mood: 6 }, "2026-09-27").ok, false);
   assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, resting_hr: 250 }, "2026-09-27").ok, false);
   assert.equal(validateReadiness({ sleep: 4, soreness: 4, stress: 4, hrv_ms: "" }, "2026-09-27").ok, true, "a blank extra is just left out");
+});
+
+test("readiness: the session says whose rule lightened it, and a set-by-set session drops its last set", () => {
+  const sets = [
+    { exercise_id: "back_squat", sets: 3, reps: 5, intensity: { type: "percent_1rm", value: 80 }, set_targets: [{ set: 1 }, { set: 2 }, { set: 3 }] }
+  ];
+  const byCoach = applyReadiness(sets, check(1, 4, 4), "coach");
+  assert.equal(byCoach[0].readiness.rule, "coach");
+  assert.deepEqual(byCoach[0].set_targets, [{ set: 1 }, { set: 2 }], "the last set is the one dropped");
+  assert.equal(applyReadiness(sets, check(1, 4, 4))[0].readiness.rule, "athlete", "a self-directed athlete's own rule by default");
 });

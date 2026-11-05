@@ -1,5 +1,5 @@
 // What stands out, readable by a busy coach: the top 5 first with the rest
-// one tap away, and a suggested next step under each finding.
+// one tap away, and the research behind a finding (cited) where there is any.
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -8,7 +8,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 
 import { FindingList, type Finding } from "../screens/coach/FindingList";
 
-const finding = (n: number, level: Finding["level"]): Finding => ({ id: `f${n}`, section: "load", level, text: `Finding ${n}.`, action: `Do thing ${n}.` });
+const finding = (n: number, level: Finding["level"]): Finding => ({ id: `f${n}`, section: "load", level, text: `Finding ${n}.`, evidence: `Research ${n} (Author 2020).` });
 const twelve = [
   ...[1, 2, 3].map((n) => finding(n, "alert")),
   ...[4, 5, 6, 7, 8].map((n) => finding(n, "watch")),
@@ -17,11 +17,13 @@ const twelve = [
 
 test.afterEach(() => cleanup());
 
-test("twelve findings: the top 5 show, each with its next step; the rest one tap away", async () => {
+test("twelve findings: the top 5 show, each with its research line; the rest one tap away", async () => {
   render(<FindingList findings={twelve} />);
   assert.equal(document.querySelectorAll(".analysis-finding").length, 5);
   assert.ok(screen.getByText("Finding 1."));
-  assert.ok(screen.getByText("Do thing 1."), "the next step is shown");
+  assert.ok(screen.getByText("Research 1 (Author 2020)."), "the research line is shown");
+  assert.equal(screen.queryByText(/Next step/), null);
+  assert.ok(screen.getAllByText("Red flag").length > 0, "levels say what they are, not what to do");
   assert.equal(screen.queryByText("Finding 6."), null);
   await act(async () => { fireEvent.click(screen.getByText("Show all 12")); });
   assert.equal(document.querySelectorAll(".analysis-finding").length, 12);
@@ -29,10 +31,10 @@ test("twelve findings: the top 5 show, each with its next step; the rest one tap
   assert.equal(document.querySelectorAll(".analysis-finding").length, 5);
 });
 
-test("the roster's compact list and a printed report show every finding given, without next steps or a toggle", () => {
+test("the roster's compact list and a printed report show every finding given, without research lines or a toggle", () => {
   render(<FindingList findings={twelve.slice(0, 3)} compact />);
   assert.equal(document.querySelectorAll(".analysis-finding").length, 3);
-  assert.equal(screen.queryByText("Do thing 1."), null);
+  assert.equal(screen.queryByText("Research 1 (Author 2020)."), null);
   cleanup();
   render(<FindingList findings={twelve} showAll />);
   assert.equal(document.querySelectorAll(".analysis-finding").length, 12);

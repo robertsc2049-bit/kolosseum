@@ -42,7 +42,7 @@ import { PainFlagError, getAthletePainFlags, recordPainCheckIn } from "./pain_fl
 // js/missing-rate-limiting); the profile reads flags on every visit.
 const painFlagsRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
 
-import { ReadinessError, describeReadiness, saveReadiness } from "./readiness_service.js";
+import { ReadinessError, describeReadiness, saveReadiness, setOwnLightening } from "./readiness_service.js";
 import { StandDownError, describeStandDown, endStandDown, recordStandDown } from "./medical_stand_down_service.js";
 import { currentInjury } from "./injury_log_service.js";
 import { AthleteEquipmentError, describeAthleteEquipment, saveAthleteEquipment, saveAthleteGyms } from "./athlete_equipment_service.js";
@@ -569,6 +569,18 @@ athleteOnboardingRouter.put(
     const { token, session } = await athleteSession(request);
     assertMutation(request, token);
     return response.status(200).json(await saveReadiness(session.account_row.user_id, request.body));
+  })
+);
+
+// A self-directed athlete choosing whether a low check-in lightens their own
+// sessions (off by default).
+athleteOnboardingRouter.put(
+  "/readiness/lightening",
+  readinessRateLimit,
+  asyncHandler(async (request, response) => {
+    const { token, session } = await athleteSession(request);
+    assertMutation(request, token);
+    return response.status(200).json(await setOwnLightening(session.account_row.user_id, request.body));
   })
 );
 

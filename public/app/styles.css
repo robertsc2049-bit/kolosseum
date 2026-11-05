@@ -5323,14 +5323,14 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .analysis-explain-body { padding-bottom: var(--k-space-3); font-size: 0.9rem; line-height: 1.5; color: var(--k-text-secondary); }
 .analysis-explain-body > p:first-child { margin-top: 0; color: var(--k-text); }
 .analysis-explain-body ul { margin: 0 0 var(--k-space-2); padding-left: 1.1em; display: grid; gap: 4px; }
+.analysis-sources { margin: 0 0 var(--k-space-2); padding-left: 1.4em; display: grid; gap: 4px; font-size: 0.82rem; }
 .analysis-explain-body .eyebrow { margin: var(--k-space-2) 0 4px; }
 @media print { .analysis-explain { display: none !important; } }
 
 /* Findings with a suggested next step (FindingList.tsx), "their usual"
    under report numbers, and the roster's one-line key. */
 .analysis-finding-body { display: grid; gap: 3px; min-width: 0; }
-.analysis-finding-action { font-size: 0.85rem; color: var(--k-text-secondary); }
-.analysis-finding-action strong { color: var(--k-text); font-weight: 600; }
+.analysis-finding-evidence { font-size: 0.85rem; color: var(--k-text-secondary); }
 .analysis-findings-more { margin-top: var(--k-space-2); min-height: 44px; }
 .report-tile-usual { font-size: 0.78rem; color: var(--k-text-secondary); }
 .analysis-roster-key { margin: var(--k-space-2) 0 0; }
@@ -5572,3 +5572,20 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 @media (prefers-reduced-motion: reduce) {
   .guided-tour-spotlight { transition: none; }
 }
+
+/* Readiness lightening: an opt-in rule, with what it does under it. */
+.readiness-rule {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+}
+.coach-readiness-rule {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.25));
+}
+
+/* What a Kolosseum programme is based on (ProgrammeSources). */
+.programme-sources { font-size: 0.82rem; color: var(--k-text-secondary); }
+.programme-sources summary { cursor: pointer; }
+.programme-sources ol { margin: var(--k-space-1) 0 0; padding-left: 1.4em; display: grid; gap: 4px; }
