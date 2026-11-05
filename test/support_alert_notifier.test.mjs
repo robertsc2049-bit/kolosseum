@@ -16,15 +16,15 @@ const productSupportRoutes = readFileSync("src/api/product_support.routes.ts", "
 const orgOwnerSupportRoutes = readFileSync("src/api/org_owner_support.routes.ts", "utf8");
 const envExample = readFileSync(".env.example", "utf8");
 
-test("the notifier is a safe no-op unless all three env vars are configured", () => {
+test("the notifier is a safe no-op unless a key, a recipient and a sender are configured - the sender falls back to KOLOSSEUM_EMAIL_FROM like the backup alerts", () => {
   assert.match(notifierSource, /const apiKey = process\.env\.RESEND_API_KEY;/u);
   assert.match(notifierSource, /const to = process\.env\.KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO;/u);
-  assert.match(notifierSource, /const from = process\.env\.KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM;/u);
+  assert.match(notifierSource, /const from = process\.env\.KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM \|\| process\.env\.KOLOSSEUM_EMAIL_FROM;/u);
   assert.match(notifierSource, /if \(!apiKey \|\| !to \|\| !from\) return;/u);
 });
 
 test("the notifier never throws - a failed send is caught and logged, never propagated", () => {
-  assert.match(notifierSource, /catch \(error\) \{\s*\n\s*\/\/ eslint-disable-next-line no-console\s*\n\s*console\.error\("WARN: support alert email failed to send"/u);
+  assert.match(notifierSource, /catch \(error\) \{\s*\n\s*\/\/ eslint-disable-next-line no-console\s*\n\s*console\.error\(`WARN: \$\{what\} email failed to send`/u);
   assert.match(notifierSource, /if \(!response\.ok\) \{/u);
 });
 
@@ -50,4 +50,14 @@ test(".env.example documents all three optional support-alert env vars", () => {
 
 test("the notifier never imports engine code", () => {
   assert.doesNotMatch(notifierSource, /@kolosseum\/engine|from "\.\.\/engine|from "\.\/engine|engine\/src\//u);
+});
+
+test("a reported message emails the admin once per new report, saying what kind of report it is - never the message itself", () => {
+  const safety = readFileSync("src/api/message_safety_service.ts", "utf8");
+  assert.match(safety, /import \{ notifyMessageReported \} from "\.\/support_alert_notifier\.js";/u);
+  assert.match(safety, /if \(inserted\.rows\[0\]\) \{\s*\n\s*void notifyMessageReported\(/u, "only a new report, not a repeat");
+  const alert = notifierSource.slice(notifierSource.indexOf("export async function notifyMessageReported"));
+  assert.match(alert, /Message reported: \$\{input\.reason_label\}/u);
+  assert.match(alert, /admin console, Reported messages/u);
+  assert.doesNotMatch(alert, /body_text|message_snapshot|storage_key/u, "reported content stays in the admin console");
 });

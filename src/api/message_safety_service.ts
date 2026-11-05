@@ -15,6 +15,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import { notifyMessageReported } from "./support_alert_notifier.js";
 
 type Json = Record<string, unknown>;
 
@@ -180,6 +181,15 @@ export async function reportMessage(userId: string, input: unknown): Promise<Rea
      RETURNING report_id`,
     [randomId("msg_report"), messageId, String(message.thread_id), userId, String(message.sender_user_id), reason, note || null, JSON.stringify(snapshot)]
   );
+  // A new report emails the admin (not a repeat of the same report).
+  if (inserted.rows[0]) {
+    void notifyMessageReported({
+      report_id: String(inserted.rows[0].report_id),
+      reason_label: REPORT_REASON_LABELS[reason],
+      sender_role: String(message.sender_role),
+      has_attachment: Boolean(message.attachment_media_type)
+    });
+  }
   const existing = inserted.rows[0]
     ? inserted.rows[0]
     : (await pool.query(`SELECT report_id FROM product_message_reports WHERE message_id = $1 AND reporter_user_id = $2`, [messageId, userId])).rows[0];
