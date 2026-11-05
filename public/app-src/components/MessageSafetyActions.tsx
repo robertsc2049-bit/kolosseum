@@ -12,6 +12,7 @@ export function MessageSafetyActions({ message, received }: { message: JsonRecor
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!received || message.removed === true) return null;
@@ -44,6 +45,7 @@ export function MessageSafetyActions({ message, received }: { message: JsonRecor
     setError(null);
     try {
       await blockUser(senderId);
+      setBlocked(true);
       setDone("Blocked. Their messages won't reach you. You can unblock them under Account, Blocked people.");
       setMode("idle");
     }
@@ -55,7 +57,19 @@ export function MessageSafetyActions({ message, received }: { message: JsonRecor
     }
   }
 
-  if (done) return <p className="muted small message-safety-done" role="status">{done}</p>;
+  // After a report, blocking the sender is still offered.
+  if (done && (blocked || mode !== "block")) {
+    return (
+      <div className="message-safety">
+        <p className="muted small message-safety-done" role="status">{done}</p>
+        {!blocked && mode === "idle" ? (
+          <div className="message-safety-actions">
+            <button className="text-button small" type="button" onClick={() => setMode("block")}>Block</button>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className="message-safety">

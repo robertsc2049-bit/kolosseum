@@ -236,7 +236,7 @@ test("each headline number says what usual looks like - the athlete's own normal
   const tiles = screen.getByTestId("report-tiles").textContent ?? "";
   assert.ok(tiles.includes("Their usual: 12-13"), tiles);
   assert.ok(tiles.includes("Their usual before this: 4,800"));
-  assert.ok(tiles.includes("On track: 90%+"));
+  assert.ok(tiles.includes("Guide: 90%+"));
   assert.ok(tiles.includes("5,250 points"), "load points, not AU");
   assert.equal(tiles.includes("AU"), false);
   delete original.baseline;

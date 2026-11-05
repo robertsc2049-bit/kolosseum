@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { loadBlocks, unblockUser } from "../../api/messageSafetyClient";
+import { BLOCKS_CHANGED_EVENT, loadBlocks, unblockUser } from "../../api/messageSafetyClient";
 import { type JsonRecord } from "../../api/transport";
 import { formatDate } from "../../utils/format";
 
@@ -16,11 +16,14 @@ export function BlockedPeoplePanel() {
       .then((result) => { if (!cancelled) setBlocks(Array.isArray(result.blocks) ? (result.blocks as JsonRecord[]) : []); })
       .catch(() => { if (!cancelled) setBlocks([]); });
     load();
-    // A block made under a message elsewhere shows up here after sign-in.
+    // After sign-in, and whenever someone is blocked or unblocked under a
+    // message elsewhere on the page.
     window.addEventListener("kolosseum:entry-auth-succeeded", load);
+    document.addEventListener(BLOCKS_CHANGED_EVENT, load);
     return () => {
       cancelled = true;
       window.removeEventListener("kolosseum:entry-auth-succeeded", load);
+      document.removeEventListener(BLOCKS_CHANGED_EVENT, load);
     };
   }, []);
 

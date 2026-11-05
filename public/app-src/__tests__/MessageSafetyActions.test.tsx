@@ -95,3 +95,33 @@ test("blocked people are listed under Account and can be unblocked; the panel hi
   await waitFor(() => assert.deepEqual(posts.map((post) => post.path), ["/messages/safety/blocks/coach_grim/remove"]));
   await waitFor(() => assert.equal(screen.queryByTestId("blocked-people"), null));
 });
+
+test("after reporting, the sender can still be blocked from the same message", async () => {
+  const posts = installMocks();
+  render(<MessageSafetyActions message={received} received />);
+  fireEvent.click(screen.getByText("Report"));
+  fireEvent.click(screen.getByLabelText("Abuse or harassment"));
+  await act(async () => {
+    fireEvent.click(screen.getByText("Send report"));
+  });
+  await screen.findByText(/Reported - thank you/);
+  fireEvent.click(screen.getByText("Block"));
+  await act(async () => {
+    fireEvent.click(screen.getAllByText("Block").at(-1) as HTMLElement);
+  });
+  await waitFor(() => assert.deepEqual(posts.map((post) => post.path), ["/messages/safety/reports", "/messages/safety/blocks"]));
+  await screen.findByText(/Blocked. Their messages won't reach you/);
+  assert.equal(screen.queryByText("Block"), null, "nothing more to do once blocked");
+});
+
+test("a block made under a message shows up in Blocked people on the same page straight away", async () => {
+  installMocks();
+  render(<><MessageSafetyActions message={received} received /><BlockedPeoplePanel /></>);
+  await waitFor(() => assert.equal(screen.queryByTestId("blocked-people"), null));
+  fireEvent.click(screen.getByText("Block"));
+  await act(async () => {
+    fireEvent.click(screen.getAllByText("Block").at(-1) as HTMLElement);
+  });
+  await screen.findByTestId("blocked-people");
+  assert.ok(screen.getByText("Coach Grim"));
+});

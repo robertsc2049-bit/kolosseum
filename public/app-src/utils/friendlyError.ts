@@ -166,7 +166,10 @@ export const FRIENDLY_ERROR_MESSAGES: Record<string, string> = {
   event_programme_week_count_mismatch: "The programme week count must match the event preparation calendar.",
   event_not_active: "Select an active event.",
   event_activity_mismatch: "The event activity does not match the athlete.",
-  template_not_active_for_activity: "Select an active programme for this athlete activity."
+  template_not_active_for_activity: "Select an active programme for this athlete activity.",
+  // Message safety (message_safety_service.ts).
+  message_recipient_unavailable: "This person isn't accepting messages from you at the moment.",
+  messaging_restricted: "Kolosseum has stopped this account sending messages after a report about a message it sent. The reason is in your notifications. If you think this is wrong, use Report a problem."
 };
 
 // FULL-UI-22 cross-product quality (ported): an unmapped internal reason/
