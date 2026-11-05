@@ -51,6 +51,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/beta19_coach_event_assignment.integration.test.mjs",
     "node test/full_ui_08c_strength_reference_lifecycle_persistent.integration.test.mjs",
     "node test/set_logging_persistent_http.integration.test.mjs",
+    "node test/message_safety_persistent.integration.test.mjs",
     "node test/readiness_lightening_coach_persistent.integration.test.mjs",
     "node test/pain_carry_forward_persistent_http.integration.test.mjs",
     "node test/pain_carry_forward_coach_persistent.integration.test.mjs",

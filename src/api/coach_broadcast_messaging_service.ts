@@ -24,6 +24,7 @@ import crypto from "node:crypto";
 import { pool } from "../db/pool.js";
 import { listConnectedCoachAthletes } from "./beta19_coach_workspace_service.js";
 import { sendCoachAthleteMessage } from "./coach_athlete_messaging_service.js";
+import { recipientsWhoBlocked } from "./message_safety_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -74,9 +75,13 @@ export async function sendCoachBroadcastMessage(
   // client), matching sendCoachAthleteMessage's own fallback.
   const broadcastId = cleanString(clientRequestIdInput) || randomId("broadcast");
 
+  // Athletes who blocked this coach don't get it (message_safety_service.ts).
+  const blockedBy = await recipientsWhoBlocked(coachUserId, athletes.map((athlete) => cleanString(athlete.athlete_user_id)));
+
   const results: JsonRecord[] = [];
   for (const athlete of athletes) {
     const athleteUserId = cleanString(athlete.athlete_user_id);
+    if (blockedBy.has(athleteUserId)) continue;
     const sent = await sendCoachAthleteMessage("coach", coachUserId, athleteUserId, bodyText, broadcastId, null);
     results.push({
       athlete_user_id: athleteUserId,

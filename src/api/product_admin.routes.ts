@@ -51,6 +51,7 @@ import {
 import { badRequest, conflict, notFound } from "./http_errors.js";
 import { SellerTaxReportError, sellerTaxReport } from "./seller_tax_service.js";
 import { assessBackupHealth, readBackupStatus } from "./backup_health.js";
+import { MessageSafetyError, decideReport, liftRestriction, listReportsForAdmin } from "./message_safety_service.js";
 import {
   ExerciseDemoVideoError,
   listExerciseDemoVideos,
@@ -550,6 +551,56 @@ productAdminRouter.post(
     }
     catch (error) {
       return rethrowActionError(error);
+    }
+  })
+);
+
+// Reported messages (message_safety_service.ts): open reports with the
+// message and its context, a decision on each (dismiss, remove, or remove
+// and restrict the sender), and lifting a restriction.
+const messageReportsRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 300, standardHeaders: true, legacyHeaders: false });
+const safetyError = (error: unknown): never => {
+  if (error instanceof MessageSafetyError) {
+    if (error.status === 404) throw notFound(error.code, { failure_token: error.code });
+    if (error.status === 409) throw conflict(error.code, { failure_token: error.code });
+    throw badRequest(error.code, { failure_token: error.code });
+  }
+  throw error;
+};
+
+productAdminRouter.get(
+  "/message-reports",
+  messageReportsRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, false);
+    return response.status(200).json({ ok: true, ...(await listReportsForAdmin(String(request.query.status ?? "open"))) });
+  })
+);
+
+productAdminRouter.post(
+  "/message-reports/:report_id/decide",
+  messageReportsRateLimit,
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    try {
+      return response.status(200).json({ ok: true, ...(await decideReport(admin.user_id, String(request.params.report_id), request.body)) });
+    }
+    catch (error) {
+      return safetyError(error);
+    }
+  })
+);
+
+productAdminRouter.post(
+  "/messaging-restrictions/:user_id/lift",
+  messageReportsRateLimit,
+  asyncHandler(async (request, response) => {
+    await authenticatedAdmin(request, true);
+    try {
+      return response.status(200).json({ ok: true, ...(await liftRestriction(String(request.params.user_id))) });
+    }
+    catch (error) {
+      return safetyError(error);
     }
   })
 );

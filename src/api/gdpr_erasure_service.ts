@@ -97,6 +97,12 @@ export async function eraseUserData(client: PoolClient, userId: string): Promise
   counts.coach_checkins = await count(client, `DELETE FROM product_coach_checkins WHERE coach_user_id = $1 OR athlete_user_id = $1`, [userId]);
   counts.coaching_requests = await count(client, `DELETE FROM product_coaching_requests WHERE athlete_user_id = $1 OR coach_user_id = $1`, [userId]);
   counts.account_events = await count(client, `DELETE FROM product_account_events WHERE user_id = $1`, [userId]);
+  // Message safety (message_safety_service.ts): who they blocked or were
+  // blocked by, reports they made or that were made about their messages,
+  // and any restriction on them.
+  counts.blocks = await count(client, `DELETE FROM product_user_blocks WHERE blocker_user_id = $1 OR blocked_user_id = $1`, [userId]);
+  counts.message_reports = await count(client, `DELETE FROM product_message_reports WHERE reporter_user_id = $1 OR reported_user_id = $1`, [userId]);
+  counts.messaging_restriction = await count(client, `DELETE FROM product_messaging_restrictions WHERE user_id = $1`, [userId]);
   counts.support_reports = await count(client, `DELETE FROM product_support_requests WHERE user_id = $1`, [userId]);
   counts.export_requests = await count(client, `DELETE FROM data_export_requests WHERE user_id = $1`, [userId]);
   counts.closure_requests = await count(client, `DELETE FROM product_account_closure_requests WHERE user_id = $1`, [userId]);
@@ -259,6 +265,9 @@ export async function eraseOrgOwnerData(
 
   const counts: Record<string, number> = {};
   counts.messages = await count(client, `DELETE FROM product_messages WHERE sender_user_id = $1`, [orgOwnerUserId]);
+  counts.blocks = await count(client, `DELETE FROM product_user_blocks WHERE blocked_user_id = $1`, [orgOwnerUserId]);
+  counts.message_reports = await count(client, `DELETE FROM product_message_reports WHERE reported_user_id = $1`, [orgOwnerUserId]);
+  counts.messaging_restriction = await count(client, `DELETE FROM product_messaging_restrictions WHERE user_id = $1`, [orgOwnerUserId]);
   // The tax details they gave for their gyms are theirs (a sole trader's date
   // of birth and tax number); whoever takes a gym over gives their own.
   counts.gym_tax_details = await count(client, `DELETE FROM product_gym_tax_details WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)`, [orgOwnerUserId]);

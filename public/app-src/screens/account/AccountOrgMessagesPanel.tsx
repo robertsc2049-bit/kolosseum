@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 
+import { MessageSafetyActions } from "../../components/MessageSafetyActions";
 import { type JsonRecord } from "../../api/transport";
 import { formatAttachmentSize, formatDate } from "../../utils/format";
 import { useRole } from "../../utils/role";
@@ -61,7 +62,8 @@ function OrgThread({ entry, sending, sendError, onSend }: {
               <span className="muted small">{formatDate(message.created_at_iso8601)}</span>
             </div>
             <MessageAttachment attachment={message.attachment as JsonRecord | null | undefined} />
-            {message.body_text ? <p>{String(message.body_text)}</p> : null}
+            {message.body_text ? <p className={message.removed === true ? "muted message-removed" : undefined}>{String(message.body_text)}</p> : null}
+            <MessageSafetyActions message={message} received={message.sender_role !== "athlete"} />
           </article>
         )) : <p className="muted small">No messages yet.</p>}
       </div>

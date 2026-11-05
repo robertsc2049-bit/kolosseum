@@ -79,6 +79,7 @@ function showWorkspace() {
   el("auditSection").hidden = false;
   el("exerciseDemoVideoSection").hidden = false;
   el("gymListingSection").hidden = false;
+  el("messageReportSection").hidden = false;
   el("sellerTaxSection").hidden = false;
 
   refreshCommercialRecords();
@@ -89,6 +90,7 @@ function showWorkspace() {
   refreshAuditRecords();
   refreshExerciseDemoVideos().catch(console.error);
   refreshGymListings().catch(console.error);
+  refreshMessageReports().catch(console.error);
   refreshSystemStatus().catch(console.error);
 }
 
@@ -629,6 +631,89 @@ async function reviewGymListing(orgId, decision) {
 }
 
 el("gymListingStatusFilter").addEventListener("change", () => { refreshGymListings().catch(console.error); });
+
+// Reported messages (message_safety_service.ts): each report with what was
+// said and the messages before it; dismiss, remove, or remove and restrict.
+async function refreshMessageReports() {
+  const status = el("messageReportStatusFilter").value;
+  const result = await api("GET", `/admin/message-reports?status=${encodeURIComponent(status)}`);
+  renderMessageReports(result.reports ?? []);
+}
+
+function messageLine(message) {
+  const body = message.body_text ? escapeHtml(message.body_text) : "";
+  const media = message.attachment_media_type || message.attachment?.media_type;
+  const attachment = media ? ` <span class="muted">[${escapeHtml(media)} attached]</span>` : "";
+  return `${body}${attachment}`;
+}
+
+function renderMessageReports(reports) {
+  const list = el("messageReportList");
+  list.innerHTML = reports.length ? "" : `<p class="muted">No reported messages here.</p>`;
+  for (const report of reports) {
+    const card = document.createElement("article");
+    card.className = "message-report";
+    const context = (report.context_before ?? []).map((entry) => `<li><span class="muted">${escapeHtml(entry.sender_role)} · ${escapeHtml(new Date(entry.sent_at).toLocaleString("en-GB"))}</span><br />${messageLine(entry)}</li>`).join("");
+    const decided = report.status !== "open";
+    card.innerHTML = `
+      <h3>${escapeHtml(report.reason_label)} <span class="muted">· reported ${escapeHtml(new Date(report.reported_at_iso8601).toLocaleString("en-GB"))}</span></h3>
+      <p><strong>From:</strong> ${escapeHtml(report.sender.name)} (${escapeHtml(report.sender.kind)}, ${escapeHtml(report.sender.email)})${report.sender_restricted ? ` <strong>- restricted from messaging</strong> <button type="button" class="lift-restriction" data-user-id="${escapeHtml(report.sender.user_id)}">Lift restriction</button>` : ""}<br />
+      <strong>Reported by:</strong> ${escapeHtml(report.reporter.name)} (${escapeHtml(report.reporter.kind)}, ${escapeHtml(report.reporter.email)})</p>
+      ${report.note ? `<p><strong>Their note:</strong> ${escapeHtml(report.note)}</p>` : ""}
+      ${context ? `<details><summary>The ${report.context_before.length} message${report.context_before.length === 1 ? "" : "s"} before it</summary><ol>${context}</ol></details>` : ""}
+      <blockquote>${messageLine(report.message)}<br /><span class="muted">Sent ${escapeHtml(new Date(report.message.sent_at).toLocaleString("en-GB"))}${report.message.removed ? " · removed" : ""}</span></blockquote>
+      ${decided
+        ? `<p class="muted">Decided: ${escapeHtml(report.status.replaceAll("_", " "))}${report.decision_note ? ` - ${escapeHtml(report.decision_note)}` : ""} (${escapeHtml(new Date(report.decided_at_iso8601).toLocaleString("en-GB"))})</p>`
+        : `<p><button type="button" class="decide-report" data-report-id="${escapeHtml(report.report_id)}" data-decision="dismiss">Dismiss - no rule broken</button>
+           <button type="button" class="decide-report" data-report-id="${escapeHtml(report.report_id)}" data-decision="remove">Remove the message</button>
+           <button type="button" class="decide-report" data-report-id="${escapeHtml(report.report_id)}" data-decision="remove_and_restrict">Remove and stop them messaging</button></p>`}
+    `;
+    list.appendChild(card);
+  }
+  list.querySelectorAll(".decide-report").forEach((button) => {
+    button.addEventListener("click", () => { decideMessageReport(button.dataset.reportId, button.dataset.decision).catch(console.error); });
+  });
+  list.querySelectorAll(".lift-restriction").forEach((button) => {
+    button.addEventListener("click", () => { liftMessagingRestriction(button.dataset.userId).catch(console.error); });
+  });
+}
+
+async function decideMessageReport(reportId, decision) {
+  const note = decision === "dismiss"
+    ? ""
+    : window.prompt("The reason, shown to the sender (e.g. 'Abusive language towards an athlete'):", "");
+  if (note === null) return;
+  if (decision !== "dismiss" && !note.trim()) {
+    window.alert("A reason is needed to remove a message.");
+    return;
+  }
+  const result = el("messageReportResult");
+  try {
+    await api("POST", `/admin/message-reports/${encodeURIComponent(reportId)}/decide`, { decision, note });
+    result.textContent = decision === "dismiss" ? "Report dismissed." : "Message removed.";
+  }
+  catch (error) {
+    result.textContent = `The report couldn't be decided (${error.message}).`;
+  }
+  result.hidden = false;
+  await refreshMessageReports();
+}
+
+async function liftMessagingRestriction(userId) {
+  if (!window.confirm("Let this person send messages again?")) return;
+  const result = el("messageReportResult");
+  try {
+    await api("POST", `/admin/messaging-restrictions/${encodeURIComponent(userId)}/lift`, {});
+    result.textContent = "Restriction lifted.";
+  }
+  catch (error) {
+    result.textContent = `The restriction couldn't be lifted (${error.message}).`;
+  }
+  result.hidden = false;
+  await refreshMessageReports();
+}
+
+el("messageReportStatusFilter").addEventListener("change", () => { refreshMessageReports().catch(console.error); });
 
 async function refreshDataRightsReview() {
   const [exportsResult, deletionsResult] = await Promise.all([

@@ -5965,7 +5965,10 @@
             "/admin/gym-listings",
             "/admin/gym-listings/:org_id/review",
             "/admin/seller-tax-report",
-            "/admin/system-status"
+            "/admin/system-status",
+            "/admin/message-reports",
+            "/admin/message-reports/:report_id/decide",
+            "/admin/messaging-restrictions/:user_id/lift"
           ],
           "persistence": "server_product_records",
           "state": "implemented",
@@ -8969,6 +8972,24 @@
     {
       "method": "GET",
       "path": "/admin/system-status",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "GET",
+      "path": "/admin/message-reports",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/message-reports/:report_id/decide",
+      "source": "src/api/product_admin.routes.ts",
+      "tracked_by_area": "founder_admin"
+    },
+    {
+      "method": "POST",
+      "path": "/admin/messaging-restrictions/:user_id/lift",
       "source": "src/api/product_admin.routes.ts",
       "tracked_by_area": "founder_admin"
     },

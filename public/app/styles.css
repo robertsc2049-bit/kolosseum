@@ -5589,3 +5589,9 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 .programme-sources { font-size: 0.82rem; color: var(--k-text-secondary); }
 .programme-sources summary { cursor: pointer; }
 .programme-sources ol { margin: var(--k-space-1) 0 0; padding-left: 1.4em; display: grid; gap: 4px; }
+
+/* Message safety: report or block under a received message (MessageSafetyActions). */
+.message-safety-actions { display: flex; gap: 12px; margin-top: 4px; }
+.message-safety-form { display: grid; gap: 8px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border, rgba(127, 127, 127, 0.25)); }
+.message-safety-form fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 4px; }
+.message-removed { font-style: italic; }

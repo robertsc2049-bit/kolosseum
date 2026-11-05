@@ -2295,6 +2295,76 @@ ALTER TABLE product_notifications
         'package_payment_claim_declined',
         'package_payment_recorded'
       )
+    ) NOT VALID;
+
+-- product_notifications_message_safety_type_migration
+-- Additive: a user who reported a message is told the outcome, and a sender
+-- whose message was removed is told why (message_safety_service.ts).
+-- Same DROP/ADD pattern as every migration above.
+ALTER TABLE product_notifications
+  DROP CONSTRAINT IF EXISTS product_notifications_notification_type_check;
+
+ALTER TABLE product_notifications
+  ADD CONSTRAINT product_notifications_notification_type_check
+    CHECK (
+      notification_type IN (
+        'relationship_invited',
+        'relationship_accepted',
+        'relationship_declined',
+        'relationship_revoked',
+        'assignment_created',
+        'assignment_replaced',
+        'assignment_cancelled',
+        'event_linked',
+        'event_unlinked',
+        'event_cancelled',
+        'programme_available',
+        'session_completed',
+        'coach_note_visible',
+        'billing_action_required',
+        'marketplace_template_released',
+        'weekly_checkin_submitted',
+        'video_feedback_received',
+        'athlete_goal_achieved',
+        'video_submitted',
+        'marketplace_template_sold',
+        'attendance_event_invited',
+        'attendance_event_cancelled',
+        'attendance_event_occurrence_changed',
+        'activity_change_proposed',
+        'activity_change_applied',
+        'athlete_position_overridden',
+        'attendance_rsvp_declined',
+        'activity_change_declined',
+        'relationship_ended_by_athlete',
+        'coach_athlete_message_received',
+        'org_owner_message_received',
+        'owner_message_received_from_coach',
+        'owner_message_received_from_athlete',
+        'athlete_pain_reported',
+        'athlete_strength_reference_missing',
+        'athlete_block_completed',
+        'gym_coach_link_requested',
+        'coach_gym_confirmed',
+        'coach_gym_declined',
+        'coach_gym_now_listed',
+        'coaching_requested',
+        'coaching_request_declined',
+        'checkin_scheduled',
+        'checkin_cancelled',
+        'checkin_confirmed',
+        'checkin_move_requested',
+        'checkin_booked',
+        'checkin_cancelled_by_athlete',
+        'package_payment_upcoming',
+        'package_payment_due',
+        'athlete_package_payment_due',
+        'athlete_package_payment_claimed',
+        'package_payment_claim_declined',
+        'package_payment_recorded',
+        'message_report_outcome',
+        'message_removed'
+      )
     );
 
 -- FULL-UI-20 factual status, support and error-reporting.
@@ -3231,6 +3301,79 @@ CREATE INDEX IF NOT EXISTS
 ON product_messages (
   thread_id,
   created_at ASC
+);
+
+-- Message safety (Online Safety Act 2023; Terms of Service clause 10):
+-- blocking, reporting, and removal or restriction by Kolosseum.
+-- message_safety_service.ts.
+--
+-- A removed message stays in the thread as a placeholder ("removed by
+-- Kolosseum") for both people; its text and attachment are no longer
+-- served. The report keeps a snapshot of what was reported.
+ALTER TABLE product_messages ADD COLUMN IF NOT EXISTS removed_at TIMESTAMPTZ;
+ALTER TABLE product_messages ADD COLUMN IF NOT EXISTS removed_reason TEXT;
+
+-- Who has blocked whom. The blocker is always a coach or athlete account;
+-- the blocked person may also be an organisation owner (no foreign key).
+CREATE TABLE IF NOT EXISTS product_user_blocks (
+  blocker_user_id  TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  blocked_user_id  TEXT NOT NULL,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (blocker_user_id, blocked_user_id),
+  CHECK (blocker_user_id <> blocked_user_id)
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_user_blocks_blocked
+ON product_user_blocks (blocked_user_id);
+
+-- A report of one message by someone who received it. message_snapshot keeps
+-- what was reported (text, attachment details, when, who sent it), so a
+-- later edit or removal can't change the evidence. Decided once, by an
+-- admin: dismissed, removed, or removed and the sender restricted.
+CREATE TABLE IF NOT EXISTS product_message_reports (
+  report_id         TEXT PRIMARY KEY,
+  message_id        TEXT NOT NULL,
+  thread_id         TEXT NOT NULL,
+  reporter_user_id  TEXT NOT NULL
+    REFERENCES product_accounts(user_id)
+    ON DELETE CASCADE,
+  reported_user_id  TEXT NOT NULL,
+  reason            TEXT NOT NULL
+    CHECK (
+      reason IN ('abuse', 'threat', 'sexual', 'spam', 'illegal', 'other')
+    ),
+  note              TEXT
+    CHECK (note IS NULL OR char_length(note) <= 1000),
+  message_snapshot  JSONB NOT NULL,
+  status            TEXT NOT NULL DEFAULT 'open'
+    CHECK (
+      status IN ('open', 'dismissed', 'removed', 'removed_and_restricted')
+    ),
+  decision_note     TEXT
+    CHECK (decision_note IS NULL OR char_length(decision_note) <= 1000),
+  decided_by        TEXT,
+  decided_at        TIMESTAMPTZ,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (message_id, reporter_user_id),
+  CHECK ((status = 'open') = (decided_at IS NULL))
+);
+
+CREATE INDEX IF NOT EXISTS
+  idx_product_message_reports_open
+ON product_message_reports (status, created_at);
+
+-- People Kolosseum has stopped from sending messages, after a report.
+-- Lifted by deleting the row.
+CREATE TABLE IF NOT EXISTS product_messaging_restrictions (
+  user_id          TEXT PRIMARY KEY,
+  report_id        TEXT,
+  reason           TEXT NOT NULL
+    CHECK (char_length(reason) BETWEEN 1 AND 1000),
+  restricted_by    TEXT NOT NULL,
+  restricted_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Migration for environments that already applied product_messages before

@@ -29,6 +29,7 @@ import {
 } from "./attendance_event_org_invite_service.js";
 import { sendOrgAthleteMessageFromOwner } from "./org_athlete_messaging_service.js";
 import { sendOrgCoachMessageFromOwner } from "./org_coach_messaging_service.js";
+import { recipientsWhoBlocked } from "./message_safety_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -106,8 +107,12 @@ export async function sendOrgCoachBroadcastMessage(
   const coachUserIds = await activeCoachIdsForOrg(orgId);
   const broadcastId = randomId("broadcast");
 
+  // Coaches who blocked this owner don't get it (message_safety_service.ts).
+  const blockedBy = await recipientsWhoBlocked(ownerUserId, coachUserIds);
+
   const results: JsonRecord[] = [];
   for (const coachUserId of coachUserIds) {
+    if (blockedBy.has(coachUserId)) continue;
     const sent = await sendOrgCoachMessageFromOwner(ownerUserId, orgId, coachUserId, bodyText, broadcastId);
     results.push({
       coach_user_id: coachUserId,
@@ -138,9 +143,13 @@ export async function sendOrgAthleteBroadcastMessage(
   const athletes = await resolveOrgActiveCoachAcceptedAthletes(orgId);
   const broadcastId = randomId("broadcast");
 
+  // Athletes who blocked this owner don't get it (message_safety_service.ts).
+  const blockedBy = await recipientsWhoBlocked(ownerUserId, athletes.map((athlete) => cleanString(athlete.athlete_user_id)));
+
   const results: JsonRecord[] = [];
   for (const athlete of athletes) {
     const athleteUserId = cleanString(athlete.athlete_user_id);
+    if (blockedBy.has(athleteUserId)) continue;
     const sent = await sendOrgAthleteMessageFromOwner(ownerUserId, orgId, athleteUserId, bodyText, broadcastId);
     results.push({
       athlete_user_id: athleteUserId,

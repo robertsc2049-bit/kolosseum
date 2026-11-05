@@ -14,6 +14,7 @@ import type { PoolClient } from "pg";
 
 import { pool } from "../db/pool.js";
 import { pushToUser } from "./realtime_hub.js";
+import { removedMessageView, sendBlockReason } from "./message_safety_service.js";
 import {
   cleanupAttachmentFiles,
   finalizeAttachment,
@@ -154,7 +155,14 @@ function attachmentRouteBase(viewer: MessageViewer): string {
     : `/coach-workspace/org-messages/attachments`;
 }
 
+// A message Kolosseum removed (message_safety_service.ts) shows as a
+// placeholder: its text and attachment are never served again.
 function mapMessageRow(value: unknown, viewer: MessageViewer): OrgCoachMessageRow | null {
+  const message = mapMessageRowAsSent(value, viewer);
+  return message && isRecord(value) ? Object.freeze(removedMessageView({ ...message }, value)) as OrgCoachMessageRow : message;
+}
+
+function mapMessageRowAsSent(value: unknown, viewer: MessageViewer): OrgCoachMessageRow | null {
   if (!isRecord(value)) return null;
   const role = value.sender_role;
   if (role !== "org_owner" && role !== "coach") return null;
@@ -225,6 +233,10 @@ async function sendMessageToThread(
   clientRequestIdInput: unknown,
   attachment: PendingAttachmentUpload | null = null
 ): Promise<SentOrgCoachMessage> {
+  // Restricted by Kolosseum, or (an owner's message) blocked by the coach.
+  const blockReason = await sendBlockReason(senderUserId, senderRole === "org_owner" ? coachUserId : null);
+  if (blockReason) throw new OrgCoachMessagingError(blockReason, 403);
+
   const bodyTextRaw = cleanString(bodyTextInput);
   if (!attachment && !bodyTextRaw) {
     throw new OrgCoachMessagingError("org_coach_messaging_body_text_invalid", 400);
@@ -543,6 +555,7 @@ async function loadOrgMessageAttachmentRowForCoach(messageId: string, coachUserI
 }
 
 function resolvedAttachmentFromRow(row: JsonRecord, key: "attachment_storage_key" | "attachment_thumbnail_storage_key"): ResolvedOrgMessageAttachmentFile | null {
+  if (row.removed_at) return null;
   const storageKey = cleanString(row[key]);
   if (!storageKey) return null;
   const absolutePath = resolveAttachmentPath(storageKey);

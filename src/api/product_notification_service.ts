@@ -87,7 +87,9 @@ export const NOTIFICATION_TYPES = Object.freeze([
   "athlete_package_payment_due",
   "athlete_package_payment_claimed",
   "package_payment_claim_declined",
-  "package_payment_recorded"
+  "package_payment_recorded",
+  "message_report_outcome",
+  "message_removed"
 ] as const);
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -1674,6 +1676,48 @@ async function deriveOrgOwnerMessageNotifications(
   }
 }
 
+// Message safety (message_safety_service.ts): the person who reported a
+// message is told the outcome once an admin decides it; the sender of a
+// removed message is told it was removed, and why (the statement of reasons
+// the Terms of Service promise).
+async function deriveMessageSafetyNotifications(
+  client: QueryClient,
+  recipientUserId: string
+): Promise<void> {
+  const outcomes = await client.query(
+    `SELECT report_id, status, decided_at FROM product_message_reports
+     WHERE reporter_user_id = $1 AND status <> 'open' AND decided_at > now() - interval '30 days'`,
+    [recipientUserId]
+  );
+  for (const row of outcomes.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "message_report_outcome",
+      sourceRecordType: "product_message_reports",
+      sourceRecordId: cleanString(row.report_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { outcome: row.status === "dismissed" ? "no_action" : "removed" },
+      occurredAtIso8601: row.decided_at instanceof Date ? row.decided_at.toISOString() : cleanString(row.decided_at)
+    });
+  }
+  const removed = await client.query(
+    `SELECT message_id, removed_reason, removed_at FROM product_messages
+     WHERE sender_user_id = $1 AND removed_at > now() - interval '30 days'`,
+    [recipientUserId]
+  );
+  for (const row of removed.rows) {
+    await insertDerivedNotification(client, {
+      recipientUserId,
+      notificationType: "message_removed",
+      sourceRecordType: "product_messages",
+      sourceRecordId: cleanString(row.message_id),
+      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
+      notificationPayload: { reason: cleanString(row.removed_reason).slice(0, 1000) },
+      occurredAtIso8601: row.removed_at instanceof Date ? row.removed_at.toISOString() : cleanString(row.removed_at)
+    });
+  }
+}
+
 // The mirror image of deriveOrgOwnerMessageNotifications above: that one
 // notifies a coach/athlete when the ORG OWNER is the sender; this one
 // notifies the ORG OWNER when a coach or athlete is the sender. Aggregated
@@ -1903,6 +1947,7 @@ async function deriveNotificationsForRecipient(
   await deriveCheckinNotifications(client, recipientUserId);
   await derivePackagePaymentNotifications(client, recipientUserId);
   await derivePackagePaymentRecordedNotifications(client, recipientUserId);
+  await deriveMessageSafetyNotifications(client, recipientUserId);
 }
 
 // --- Target availability -----------------------------------------------------

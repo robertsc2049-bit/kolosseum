@@ -22,6 +22,7 @@ import type { PoolClient } from "pg";
 import { pool } from "../db/pool.js";
 import { loadBeta17StoredCoachContext } from "./beta_product_record_store.js";
 import { pushToUser } from "./realtime_hub.js";
+import { removedMessageView, sendBlockReason } from "./message_safety_service.js";
 import {
   cleanupAttachmentFiles,
   finalizeAttachment,
@@ -138,7 +139,14 @@ export type CoachAthleteMessageRow = Readonly<{
 // (see the two mapMessageRow calls in sendCoachAthleteMessage), since a
 // coach and an athlete authenticate via different cookies/routes even
 // when looking at the exact same message.
+// A message Kolosseum removed (message_safety_service.ts) shows as a
+// placeholder: its text and attachment are never served again.
 function mapMessageRow(value: unknown, viewerRole: "coach" | "athlete"): CoachAthleteMessageRow | null {
+  const message = mapMessageRowAsSent(value, viewerRole);
+  return message && isRecord(value) ? Object.freeze(removedMessageView({ ...message }, value)) as CoachAthleteMessageRow : message;
+}
+
+function mapMessageRowAsSent(value: unknown, viewerRole: "coach" | "athlete"): CoachAthleteMessageRow | null {
   if (!isRecord(value)) return null;
   const role = value.sender_role;
   if (role !== "coach" && role !== "athlete") return null;
@@ -215,6 +223,10 @@ export async function sendCoachAthleteMessage(
   }
 
   await requireAcceptedCoachAthleteRelationship(coachUserId, athleteUserId);
+
+  // Restricted by Kolosseum, or blocked by the person they're messaging.
+  const blockReason = await sendBlockReason(senderUserId, senderRole === "coach" ? athleteUserId : coachUserId);
+  if (blockReason) throw new CoachAthleteMessagingError(blockReason, 403);
 
   const bodyTextRaw = cleanString(bodyTextInput);
   if (!attachment && !bodyTextRaw) {
@@ -410,6 +422,7 @@ export async function resolveCoachAthleteMessageAttachment(
   role: "coach" | "athlete"
 ): Promise<ResolvedMessageAttachmentFile | null> {
   const row = await loadMessageAttachmentRow(messageId, userId, role);
+  if (row.removed_at) return null;
   const storageKey = cleanString(row.attachment_storage_key);
   if (!storageKey) return null;
   const absolutePath = resolveAttachmentPath(storageKey);
@@ -423,6 +436,7 @@ export async function resolveCoachAthleteMessageAttachmentThumbnail(
   role: "coach" | "athlete"
 ): Promise<ResolvedMessageAttachmentFile | null> {
   const row = await loadMessageAttachmentRow(messageId, userId, role);
+  if (row.removed_at) return null;
   const storageKey = cleanString(row.attachment_thumbnail_storage_key);
   if (!storageKey) return null;
   const absolutePath = resolveAttachmentPath(storageKey);
