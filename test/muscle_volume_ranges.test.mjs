@@ -119,12 +119,12 @@ test("Analysis: planned and done hard sets per group each week; a 0-rep set and 
   assert.deepEqual([hams.label, hams.min, hams.max, hams.average_done, hams.weeks_under, hams.weeks_complete], ["Hamstrings", 6, 20, 4, 4, 4], "this week is partial and not counted");
 });
 
-test("an amateur doing 26 sets of quads a week for 4 weeks is told it's over what they usually recover from", () => {
+test("an amateur doing 26 sets of quads a week for 4 weeks is shown as over the guide range for their level", () => {
   const list = findings(athlete({ quads: 26, hams: 8, level: "amateur", activity: "powerlifting" }));
   const over = list.find((finding) => finding.id === "muscle_over_quads");
-  assert.equal(over.text, "Quads: over 22 sets a week (the most an amateur usually recovers from) in 4 of the last 4 weeks trained, up to 26.");
+  assert.equal(over.text, "Quads: over 22 sets a week (the top of Kolosseum's guide range for an amateur) in 4 of the last 4 weeks trained, up to 26.");
   assert.equal(over.section, "volume");
-  assert.match(over.action, /accessory sets/u);
+  assert.match(over.evidence, /guide ranges.*Schoenfeld 2017/u);
 });
 
 test("the same 18 sets of quads: over for a beginner, in range for a pro", () => {
@@ -134,7 +134,7 @@ test("the same 18 sets of quads: over for a beginner, in range for a pro", () =>
 
 test("too few hamstring sets is flagged for general strength, never for a runner - their gym work isn't for size", () => {
   const lifter = findings(athlete({ quads: 10, hams: 3, level: "amateur", activity: "general_strength" })).find((finding) => finding.id === "muscle_under_hamstrings");
-  assert.equal(lifter.text, "Hamstrings: under 6 sets a week (the usual minimum to build it) in 4 of the last 4 weeks trained.");
+  assert.equal(lifter.text, "Hamstrings: under 6 sets a week (the bottom of Kolosseum's guide range) in 4 of the last 4 weeks trained.");
   assert.equal(lifter.level, "info");
   assert.ok(!findings(athlete({ quads: 10, hams: 3, level: "amateur", activity: "athletics" })).some((finding) => finding.id.startsWith("muscle_under")));
 });

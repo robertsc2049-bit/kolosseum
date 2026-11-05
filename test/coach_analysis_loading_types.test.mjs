@@ -134,6 +134,6 @@ test("a beginner given RPE 8 bench and squat at 70-75% is flagged for the bench;
   })).find((finding) => finding.id === "beginner_heavy");
   const beginner = flag("beginner");
   assert.equal(beginner.text, "A beginner on heavy work: 6 sessions in this period set RPE 8+ or 80%+ of max (bench press).");
-  assert.match(beginner.action, /moderate weights/u);
+  assert.match(beginner.evidence, /ACSM 2009/u);
   assert.equal(flag("amateur"), undefined);
 });

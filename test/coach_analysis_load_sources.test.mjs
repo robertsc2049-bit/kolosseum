@@ -45,7 +45,7 @@ test("mostly estimated loads say so, with what to ask the athlete", () => {
   const list = findings(analyse());
   const note = list.find((f) => f.id === "load_estimated");
   assert.equal(note.text, "100% of gym session loads are estimated from the app's timings - the athlete didn't rate them when they finished.");
-  assert.match(note.action, /rate each session/u);
+  assert.match(note.evidence, /rate each session/u);
   const rated = Object.fromEntries(sessions.map((s) => [s.session_id, { srpe: 7, minutes: 60 }]));
   assert.equal(findings(analyse({ session_reports: rated })).some((f) => f.id === "load_estimated"), false);
 });

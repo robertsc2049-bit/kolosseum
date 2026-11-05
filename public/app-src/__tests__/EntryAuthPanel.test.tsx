@@ -56,7 +56,17 @@ test("renders create mode by default with role and consent fields - and no sport
   assert.ok(screen.getByText("Create your account"));
   assert.equal(screen.queryByText("Your sport (optional)"), null);
   assert.equal(screen.queryByText("Powerlifting"), null);
-  assert.ok(screen.getByLabelText(/controlled-beta terms/));
+  assert.ok(screen.getByLabelText(/I agree to the Terms of Service/));
+});
+
+test("sign-up links to the Terms of Service and the Privacy Notice, and asks for explicit consent to health information", async () => {
+  installMocks();
+  render(<EntryAuthPanel />);
+  await screen.findByText("v3");
+
+  assert.equal(screen.getByRole("link", { name: "Terms of Service" }).getAttribute("href"), "/app/legal/terms.html");
+  assert.equal(screen.getByRole("link", { name: "Privacy Notice" }).getAttribute("href"), "/app/legal/privacy.html");
+  assert.match(screen.getByLabelText(/explicitly consent/).closest("label")?.textContent ?? "", /I can withdraw this consent at any time/);
 });
 
 test("switching to the sign-in tab hides create-only fields and changes the submit label", async () => {
@@ -98,8 +108,8 @@ test("a successful registration dispatches the session bridge event with the raw
   enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
-  fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/activity records/));
+  fireEvent.click(screen.getByLabelText(/I agree to the Terms of Service/));
+  fireEvent.click(screen.getByLabelText(/explicitly consent to Kolosseum using the health information/));
 
   let captured: { response?: JsonRecordLike; mode?: string } | null = null;
   document.addEventListener("kolosseum:entry-auth-succeeded", (event) => {
@@ -134,8 +144,8 @@ test("registering an athlete with no activity chosen succeeds - the activity pic
   enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
-  fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/activity records/));
+  fireEvent.click(screen.getByLabelText(/I agree to the Terms of Service/));
+  fireEvent.click(screen.getByLabelText(/explicitly consent to Kolosseum using the health information/));
 
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
@@ -161,8 +171,8 @@ test("sign-up asks for a date of birth and says the beta is for adults, and an u
   enterDateOfBirth("2010-05-01");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "sam@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
-  fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/activity records/));
+  fireEvent.click(screen.getByLabelText(/I agree to the Terms of Service/));
+  fireEvent.click(screen.getByLabelText(/explicitly consent to Kolosseum using the health information/));
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -187,8 +197,8 @@ test("a rejected registration (account already exists) shows the mapped factual 
   enterDateOfBirth("1990-01-15");
   fireEvent.change(screen.getByLabelText("Email"), { target: { value: "alex@example.com" } });
   fireEvent.change(screen.getByLabelText("Password", { exact: false }), { target: { value: "correcthorsebattery" } });
-  fireEvent.click(screen.getByLabelText(/controlled-beta terms/));
-  fireEvent.click(screen.getByLabelText(/activity records/));
+  fireEvent.click(screen.getByLabelText(/I agree to the Terms of Service/));
+  fireEvent.click(screen.getByLabelText(/explicitly consent to Kolosseum using the health information/));
 
   await act(async () => {
     fireEvent.click(screen.getByRole("button", { name: "Create account" }));

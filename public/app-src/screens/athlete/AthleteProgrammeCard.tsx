@@ -5,6 +5,7 @@ import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
 import { titleCase } from "../../utils/format";
 import { sportLabel } from "../../utils/sportLabel";
+import { ProgrammeSources } from "../../components/ProgrammeSources";
 
 // Kolosseum programmes (src/api/programme_catalogue_service.ts): coach-written
 // programmes an athlete without a coach runs. Shows the one they're running
@@ -17,7 +18,7 @@ type Fit = {
   days: { programme: number; athlete: number } | null;
   competition: { date: string; weeks_away: number; start_on: string; timing: "too_late" | "on_time" | "too_early" } | null;
 };
-type Option = { listing_id: string; title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; sport_specific: boolean; fit: Fit | null };
+type Option = { listing_id: string; title: string; summary: string; levels: string[]; activity_ids: string[]; days_per_week: number; sport_specific: boolean; fit: Fit | null; sources: unknown };
 
 const dayLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
 
@@ -46,7 +47,8 @@ const asOptions = (value: unknown): Option[] => (Array.isArray(value) ? (value a
   listing_id: String(o.listing_id), title: String(o.title ?? ""), summary: String(o.summary ?? ""),
   levels: Array.isArray(o.levels) ? o.levels.map(String) : [], activity_ids: Array.isArray(o.activity_ids) ? o.activity_ids.map(String) : [],
   days_per_week: Number(o.days_per_week) || 0, sport_specific: o.sport_specific === true,
-  fit: o.fit && typeof o.fit === "object" ? (o.fit as unknown as Fit) : null
+  fit: o.fit && typeof o.fit === "object" ? (o.fit as unknown as Fit) : null,
+  sources: o.sources
 }));
 
 // "Week 7 of 12 · Heavy strength" - where the athlete's next session sits.
@@ -116,6 +118,7 @@ export function AthleteProgrammeCard() {
     <article className="onboarding-card athlete-programme" data-testid="athlete-programme">
       <p className="eyebrow">Your programme</p>
       <h3>{current ? String(current.title) : "Choose your programme"}</h3>
+      {current ? <ProgrammeSources sources={current.sources} /> : null}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
       {current && finished ? (
         <>
@@ -126,6 +129,7 @@ export function AthleteProgrammeCard() {
               <strong>{String(next.title)}</strong>
               <p className="muted small">{`${Number(next.days_per_week) || 0} days a week`}</p>
               {next.summary ? <p>{String(next.summary)}</p> : null}
+              <ProgrammeSources sources={next.sources} />
               {next.suits_level === true ? (
                 <button className="button primary" type="button" disabled={busy} onClick={() => void choose(String(next.listing_id))}>{`Start ${String(next.title)}`}</button>
               ) : (
@@ -187,6 +191,7 @@ export function AthleteProgrammeCard() {
                 <p key={note.text} className={note.caution ? "programme-fit small" : "muted small"} data-tone={note.caution ? "warning" : undefined}>{note.text}</p>
               ))}
               {option.summary ? <p>{option.summary}</p> : null}
+              <ProgrammeSources sources={option.sources} />
               {current && !finished && confirming === option.listing_id ? (
                 <div className="inline-result" data-tone="warning">
                   <p>{`Switch to ${option.title}? Your progress on ${String(current.title)} ends.`}</p>

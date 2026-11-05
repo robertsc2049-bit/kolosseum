@@ -7,6 +7,7 @@ import { useAthleteHistory } from "./useAthleteHistory";
 import { topPersonalRecord } from "../../utils/personalRecords";
 import { CoachProgrammePrintButton } from "./CoachProgrammePrintButton";
 import { AthleteProgrammeAdjust } from "./AthleteProgrammeAdjust";
+import { AthleteReadinessLightening } from "./AthleteReadinessLightening";
 
 // DEV NOTE: current programme, current event, and the assignment/
 // strength/bodyweight/event-link/session history lists from
@@ -153,6 +154,7 @@ export function AthleteCurrentProgrammeCard() {
         <CoachProgrammePrintButton athleteUserId={athleteUserId} />
       </div>
       <AthleteProgrammeAdjust athleteUserId={athleteUserId} />
+      <AthleteReadinessLightening athleteUserId={athleteUserId} />
     </article>
   );
 }

@@ -11,6 +11,7 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import { CURRENT_TERMS_VERSION } from "./product_account_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -157,6 +158,13 @@ export async function registerOrgOwnerAccount(
     throw new OrgOwnerAuthError("org_owner_email_already_registered", 409);
   }
 
+  // Acceptance of the Terms of Service is recorded with its version when the
+  // owner ticks it at sign-up (the org console requires it).
+  const termsVersion = inputValue.accepted_terms === true ? CURRENT_TERMS_VERSION : null;
+  if (inputValue.accepted_terms === true && cleanString(inputValue.accepted_terms_version) && cleanString(inputValue.accepted_terms_version) !== CURRENT_TERMS_VERSION) {
+    throw new OrgOwnerAuthError("org_owner_terms_version_mismatch", 409);
+  }
+
   const userId = randomId("org_owner");
   const salt = randomToken(24);
   const hash = await derivePassword(password, salt);
@@ -164,11 +172,11 @@ export async function registerOrgOwnerAccount(
   await pool.query(
     `
     INSERT INTO product_org_owner_accounts (
-      user_id, email_canonical, display_name, password_salt, password_hash
+      user_id, email_canonical, display_name, password_salt, password_hash, accepted_terms_version, accepted_terms_at
     )
-    VALUES ($1, $2, $3, $4, $5)
+    VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $6::text IS NULL THEN NULL ELSE now() END)
     `,
-    [userId, email, displayName, salt, hash]
+    [userId, email, displayName, salt, hash, termsVersion]
   );
 
   return Object.freeze({ user_id: userId });

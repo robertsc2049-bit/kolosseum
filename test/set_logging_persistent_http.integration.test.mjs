@@ -879,7 +879,7 @@ test(
 );
 
 test(
-  "readiness: after a bad night a powerlifter's session is a set shorter and a notch lighter, with her check-in shown",
+  "readiness: a bad night is recorded but changes nothing until the self-directed powerlifter turns the rule on - then her session is a set shorter and a notch lighter, saying it's her rule",
   { timeout: 180000 },
   async (testContext) => {
     const root = repoRoot();
@@ -936,13 +936,30 @@ test(
     const saved = await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness", { cookie, csrf, body: { sleep: 1, soreness: 3, stress: 3 } });
     assertStatus(saved, 200, "save a bad night");
     assert.equal(saved.json.low, true);
+    assert.deepEqual(saved.json.lightening, { own: false, coach_on: false }, "off by default");
+
+    const unchanged = await compile();
+    assertStatus(unchanged, 201, "session after the check-in, rule off");
+    const sameSquat = unchanged.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
+    assert.equal(sameSquat.sets, plannedSquat.sets, "a low check-in alone changes nothing");
+    assert.equal(sameSquat.intensity.value, plannedSquat.intensity.value);
+    assert.equal(sameSquat.readiness, undefined);
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness/lightening", { cookie, csrf, body: { enabled: "yes" } }), 422, "on or off only");
+    const turnedOn = await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness/lightening", { cookie, csrf, body: { enabled: true } });
+    assertStatus(turnedOn, 200, "she turns the rule on");
+    assert.deepEqual(turnedOn.json.lightening, { own: true, coach_on: false });
 
     const lighter = await compile();
     assertStatus(lighter, 201, "session after the check-in");
     const squat = lighter.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat");
     assert.equal(squat.sets, plannedSquat.sets - 1);
     assert.equal(squat.intensity.value, plannedSquat.intensity.value - 5);
-    assert.deepEqual(squat.readiness, { sleep: 1, soreness: 3, stress: 3, low: true });
+    assert.deepEqual(squat.readiness, { sleep: 1, soreness: 3, stress: 3, low: true, rule: "athlete" });
+
+    assertStatus(await requestJson(server.baseUrl, "PUT", "/account/onboarding/readiness/lightening", { cookie, csrf, body: { enabled: false } }), 200, "she turns it off again");
+    const offAgain = await compile();
+    assert.equal(offAgain.json.planned_session.exercises.find((e) => e.exercise_id === "back_squat").sets, plannedSquat.sets, "off means off");
   }
 );
 

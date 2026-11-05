@@ -1295,7 +1295,7 @@ function renderProgress(rollup, coachNamesById) {
 // steps, by coach (and by position for a team), and every athlete for a
 // team. A gym ('individual') shows averages only, withheld under 3 athletes
 // with logged training; pain is never shown beyond a team's count.
-const ORG_LEVEL_LABEL = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
+const ORG_LEVEL_LABEL = { alert: "Red flag", watch: "Amber flag", good: "Going well", info: "Note" };
 const orgShow = (value, suffix = "") => (typeof value === "number" && Number.isFinite(value) ? `${value}${suffix}` : "–");
 
 function renderOrgFindings(findings) {
@@ -1303,7 +1303,7 @@ function renderOrgFindings(findings) {
   return `<ul class="analysis-findings">${findings.map((finding) => `
     <li class="analysis-finding is-${escapeHtml(finding.level)}">
       <span class="analysis-finding-level">${escapeHtml(ORG_LEVEL_LABEL[finding.level] || "Note")}</span>
-      <span class="analysis-finding-body"><span>${escapeHtml(finding.text)}</span>${finding.action ? `<span class="analysis-finding-action"><strong>Next step: </strong>${escapeHtml(finding.action)}</span>` : ""}</span>
+      <span class="analysis-finding-body"><span>${escapeHtml(finding.text)}</span>${finding.evidence ? `<span class="analysis-finding-evidence">${escapeHtml(finding.evidence)}</span>` : ""}</span>
     </li>`).join("")}</ul>`;
 }
 
@@ -1342,7 +1342,7 @@ function renderOrgAthletes(athletes) {
   const status = (row) => {
     const attention = Number(row.attention || 0);
     if (!row.last_session && attention === 0) return ["No training yet", "info"];
-    return attention >= 3 ? ["Needs a look", "alert"] : attention >= 1 ? ["Keep an eye on", "watch"] : ["On track", "good"];
+    return attention >= 3 ? ["Red flag", "alert"] : attention >= 1 ? ["Amber flag", "watch"] : ["No flags", "good"];
   };
   return `<h3>Every athlete</h3>
     <div class="analysis-table-wrap"><table class="analysis-table analysis-roster">
@@ -1351,7 +1351,7 @@ function renderOrgAthletes(athletes) {
         const [label, level] = status(row);
         const top = (row.findings || []).find((finding) => finding.level === "alert" || finding.level === "watch");
         const ratio = (row.load || {}).acute_chronic;
-        return `<tr><td>${escapeHtml(row.display_name)}</td><td><span class="analysis-status is-${level}">${label}</span></td><td class="small">${escapeHtml(top ? top.text : row.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks")}</td><td>${escapeHtml(row.coach_name || "Coach")}</td><td>${orgShow((row.adherence || {}).latest_pct, "%")}</td><td>${typeof ratio === "number" ? `${ratio}×` : "–"}</td></tr>`;
+        return `<tr><td>${escapeHtml(row.display_name)}</td><td><span class="analysis-status is-${level}">${label}</span></td><td class="small">${escapeHtml(top ? top.text : row.last_session ? "No flags" : "No sessions logged in the last 8 weeks")}</td><td>${escapeHtml(row.coach_name || "Coach")}</td><td>${orgShow((row.adherence || {}).latest_pct, "%")}</td><td>${typeof ratio === "number" ? `${ratio}×` : "–"}</td></tr>`;
       }).join("")}</tbody>
     </table></div>`;
 }
@@ -2376,7 +2376,8 @@ async function register(event) {
     const result = await api("POST", "/org/register", {
       display_name: el("orgRegisterDisplayName").value,
       email: el("orgRegisterEmail").value,
-      password: el("orgRegisterPassword").value
+      password: el("orgRegisterPassword").value,
+      accepted_terms: el("orgRegisterTerms").checked
     });
     state.csrfToken = result.csrf_token;
     state.ownerUserId = result.org_owner.user_id;

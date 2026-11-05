@@ -15,6 +15,11 @@ import {
 } from "@kolosseum/engine/phases/phase4.js";
 import { saveCoachProgrammeTemplate } from "./beta18_programme_template_service.js";
 
+// The method references these generated programmes rest on: progressive
+// loading by level, blocks ending in a deload, RPE where chosen (the same
+// sources as the catalogue's general programmes, programme_sources.mjs).
+const METHOD_SOURCES = "Method based on: ACSM 2009 (progression models in resistance training); Haff & Triplett 2016 (NSCA Essentials); Helms 2016 (RPE by reps in reserve); Bell 2023 (deloading).";
+
 type Json = Record<string, unknown>;
 
 const LEVELS = new Set(["beginner", "amateur", "pro"]);
@@ -147,7 +152,7 @@ export async function createKolosseumStarterTemplate(coachUserId: string, input:
     coach_user_id: coachUserId,
     template_version: 1,
     template_name: `Kolosseum ${titleCase(activity)} - ${LEVEL_LABEL[level]}, ${days} day${days === 1 ? "" : "s"}`,
-    description: `Started from the Kolosseum ${titleCase(activity)} programme (${LEVEL_LABEL[level].toLowerCase()}): one 4-week block - three loading weeks and a deload. Change anything before assigning it.`,
+    description: `Started from the Kolosseum ${titleCase(activity)} programme (${LEVEL_LABEL[level].toLowerCase()}): one 4-week block - three loading weeks and a deload. ${METHOD_SOURCES} Change anything before assigning it.`,
     activity_id: activity,
     event_plan: null,
     blocks: [{
@@ -331,7 +336,7 @@ export async function createQuickBuildProgramme(coachUserId: string, input: unkn
     coach_user_id: coachUserId,
     template_version: 1,
     template_name: `${titleCase(activity)} - ${goal.label}, ${LEVEL_LABEL[level]}, ${totalWeeks} weeks`,
-    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} Change anything before assigning it.`,
+    description: `Quick build: ${goal.label.toLowerCase()} for ${titleCase(activity)} (${LEVEL_LABEL[level].toLowerCase()}), ${days} day${days === 1 ? "" : "s"} a week, ${equipmentLabel}${minutes ? `, about ${minutes} minutes a session` : ""}, weights by ${weights === "rpe" ? "RPE (no maxes needed)" : "% of max (needs each athlete's maxes)"}. ${phases.length} block${phases.length === 1 ? "" : "s"} of 4 weeks, each ending in a deload.${leftOut.length ? ` Left out - needs equipment that isn't there: ${leftOut.join(", ")}.` : ""} ${METHOD_SOURCES} Change anything before assigning it.`,
     activity_id: activity,
     event_plan: null,
     blocks,

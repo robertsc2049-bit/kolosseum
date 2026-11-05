@@ -129,13 +129,11 @@ export function injuryFindings(analysis: Json, today: string): Json[] {
   return out;
 }
 
-export function injuryActionFor(id: string): string | null {
-  if (id === "injury_out") return "Follow their medical team's plan. Keep their programme replaced with what they're cleared to do, and plan the return in stages.";
-  if (id === "injury_modified") return "Check their sessions only include what they're cleared for, and agree the next step back with their physio.";
-  if (id === "injury_reinjury") return "Coming back too soon is the usual cause. Talk to their physio before the next step and slow the return.";
-  if (id === "injury_recurrence") return "Look at what keeps causing it - load spikes, a weak link, the return plan - with their physio.";
-  if (id === "injury_pain_same_area") return "Ask them about it today and check with their physio before more high-intensity work.";
-  if (id === "injury_returned") return "Rebuild load in steps of no more than 10-20% a week and keep an eye on pain in the same area.";
+// What the consensus definitions say, where it applies. Return decisions are
+// the athlete's and their medical team's - Kolosseum records the status.
+export function injuryEvidenceFor(id: string): string | null {
+  if (id === "injury_out" || id === "injury_modified") return "Kolosseum records the status. What the athlete is cleared to do, and when they return, is decided by the athlete and their medical team.";
+  if (id === "injury_reinjury") return "Recorded as a recurrence: the same place and side within 2 months of returning, as in the sports-injury consensus definitions (Fuller 2006; Bahr 2020).";
   return null;
 }
 

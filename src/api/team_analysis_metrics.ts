@@ -15,7 +15,7 @@ const round = (value: number, places = 0) => Math.round(value * 10 ** places) / 
 const mean = (values: readonly number[]) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null);
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
-export type GroupFinding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; action?: string }>;
+export type GroupFinding = Readonly<{ id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; evidence?: string }>;
 
 const statusOf = (row: Json) => {
   if (row.unavailable) return "unavailable";
@@ -91,45 +91,45 @@ export function groupFindings(summary: Json, noun = "the team"): GroupFinding[] 
   if (finite(adherence.average_pct) && Number(adherence.counted) >= 2) {
     const pct = adherence.average_pct;
     const under = Number(adherence.under_70);
-    if (pct < 70) out.push({ id: "group_adherence", section: "adherence", level: "alert", text: `${Noun} did ${pct}% of planned sessions last week on average${under ? ` - ${plural(under, "athlete")} under 70%` : ""}.`, action: "Look at what changed for the whole group - fixtures, exams, holidays, travel or the session times - before chasing individuals." });
-    else if (pct < 85) out.push({ id: "group_adherence", section: "adherence", level: "watch", text: `${Noun} did ${pct}% of planned sessions last week on average${under ? ` - ${plural(under, "athlete")} under 70%` : ""}.`, action: "Check in with the athletes under 70% first; if it's most of the group, look at the schedule." });
-    else out.push({ id: "group_adherence", section: "adherence", level: "good", text: `${Noun} is training as planned: ${pct}% of planned sessions done last week on average.`, action: "Keep the plan and schedule as they are." });
+    if (pct < 70) out.push({ id: "group_adherence", section: "adherence", level: "alert", text: `${Noun} did ${pct}% of planned sessions last week on average${under ? ` - ${plural(under, "athlete")} under 70%` : ""}.` });
+    else if (pct < 85) out.push({ id: "group_adherence", section: "adherence", level: "watch", text: `${Noun} did ${pct}% of planned sessions last week on average${under ? ` - ${plural(under, "athlete")} under 70%` : ""}.` });
+    else out.push({ id: "group_adherence", section: "adherence", level: "good", text: `${Noun} is training as planned: ${pct}% of planned sessions done last week on average.` });
   }
   const counted = Number(load.counted ?? 0);
   if (counted >= 2) {
     const high = Number(load.high);
     const low = Number(load.low);
-    if (high >= 2 && high / counted >= 0.25) out.push({ id: "group_load_high", section: "load", level: high / counted >= 0.5 ? "alert" : "watch", text: `${plural(high, "athlete")} of ${counted} had a big jump in training load last week (over 1.3× their usual).`, action: "A jump across the group usually comes from the plan or the fixture list, not the athletes - ease the next week for everyone affected." });
-    if (low >= 2 && low / counted >= 0.3) out.push({ id: "group_load_low", section: "load", level: "watch", text: `${plural(low, "athlete")} of ${counted} trained well below their usual load last week (under 0.8×).`, action: "If it wasn't a planned deload, taper or match week, find out why - illness going round, travel or motivation." });
+    if (high >= 2 && high / counted >= 0.25) out.push({ id: "group_load_high", section: "load", level: high / counted >= 0.5 ? "alert" : "watch", text: `${plural(high, "athlete")} of ${counted} had a big jump in training load last week (over 1.3× their usual).`, evidence: "In team sports, weeks well above an athlete's 4-week average were associated with more injuries the following week (Gabbett 2016; Hulin 2014). Whether the ratio predicts injury for an individual is disputed (Impellizzeri 2020)." });
+    if (low >= 2 && low / counted >= 0.3) out.push({ id: "group_load_low", section: "load", level: "watch", text: `${plural(low, "athlete")} of ${counted} trained well below their usual load last week (under 0.8×).` });
   }
   const zCounted = Number(readiness.counted ?? 0);
   if (zCounted >= 2 && Number(readiness.low) >= 2 && Number(readiness.low) / zCounted >= 0.25) {
-    out.push({ id: "group_readiness", section: "readiness", level: Number(readiness.low) / zCounted >= 0.4 ? "alert" : "watch", text: `${plural(Number(readiness.low), "athlete")} of ${zCounted} ${Number(readiness.low) === 1 ? "is" : "are"} well below their normal readiness.`, action: "When several dip together it's usually the schedule, exams or an illness going round - consider lightening the group's next session and asking how they are." });
+    out.push({ id: "group_readiness", section: "readiness", level: Number(readiness.low) / zCounted >= 0.4 ? "alert" : "watch", text: `${plural(Number(readiness.low), "athlete")} of ${zCounted} ${Number(readiness.low) === 1 ? "is" : "are"} well below their normal readiness.`, evidence: "Self-reported wellbeing has tracked changes in training load more consistently than commonly used objective measures (Saw 2016)." });
   }
   if (pain && Number(pain.athletes_with_recurring_pain) > 0) {
     const n = Number(pain.athletes_with_recurring_pain);
-    out.push({ id: "group_pain", section: "pain", level: n >= 3 ? "alert" : "watch", text: `${plural(n, "athlete")} ${n === 1 ? "has" : "have"} reported pain in the same area in 2 or more weeks.`, action: "Each athlete's own coach has the detail and handles their case. If several share it, check the exercises and loads the group has in common." });
+    out.push({ id: "group_pain", section: "pain", level: n >= 3 ? "alert" : "watch", text: `${plural(n, "athlete")} ${n === 1 ? "has" : "have"} reported pain in the same area in 2 or more weeks.`, evidence: "Each athlete's own coach has the detail. Kolosseum records pain reports and does not diagnose." });
   }
   if (Number(lifts.counted) >= 3) {
     const falling = Number(lifts.falling);
     const rising = Number(lifts.rising);
-    if (falling / Number(lifts.counted) >= 0.25 && falling >= 2) out.push({ id: "group_lifts_falling", section: "strength", level: "watch", text: `${falling} of ${lifts.counted} main lifts across ${noun} are going backwards.`, action: "Several athletes losing strength at once points at accumulated fatigue - consider a lighter week for the group." });
-    else if (rising / Number(lifts.counted) >= 0.5) out.push({ id: "group_lifts_rising", section: "strength", level: "good", text: `${rising} of ${lifts.counted} main lifts across ${noun} are rising.`, action: "The plan is working - keep progressing it." });
+    if (falling / Number(lifts.counted) >= 0.25 && falling >= 2) out.push({ id: "group_lifts_falling", section: "strength", level: "watch", text: `${falling} of ${lifts.counted} main lifts across ${noun} are going backwards.` });
+    else if (rising / Number(lifts.counted) >= 0.5) out.push({ id: "group_lifts_rising", section: "strength", level: "good", text: `${rising} of ${lifts.counted} main lifts across ${noun} are rising.` });
   }
   const injuries = summary.injuries as Json | undefined;
   if (injuries && Number(injuries.injuries) > 0) {
-    out.push({ id: "group_injuries", section: "pain", level: Number(injuries.out) >= 3 ? "alert" : "info", text: `${plural(Number(injuries.injuries), "injury", "injuries")} in the last 8 weeks, ${plural(Number(injuries.days_lost), "day")} lost${finite(injuries.burden_per_1000h) ? ` (${injuries.burden_per_1000h} days lost per 1000 training hours)` : ""}.`, action: "Look for a pattern in the injury log - the same body area, the same week of the plan, or after load spikes - and plan returns in stages." });
+    out.push({ id: "group_injuries", section: "pain", level: Number(injuries.out) >= 3 ? "alert" : "info", text: `${plural(Number(injuries.injuries), "injury", "injuries")} in the last 8 weeks, ${plural(Number(injuries.days_lost), "day")} lost${finite(injuries.burden_per_1000h) ? ` (${injuries.burden_per_1000h} days lost per 1000 training hours)` : ""}.` });
   }
   const availability = summary.availability as Json | undefined;
   if (availability && Number(availability.unavailable) + Number(availability.modified) > 0) {
     const out_ = Number(availability.unavailable);
     const modified = Number(availability.modified);
-    out.push({ id: "group_availability", section: "pain", level: out_ > 0 ? "watch" : "info", text: `${[out_ ? `${plural(out_, "athlete")} unavailable` : "", modified ? `${plural(modified, "athlete")} on modified training` : ""].filter(Boolean).join(", ")} today.`, action: "Plan the week around who's available. Modified athletes follow their pain or injury plan; unavailable ones return only when their stand-down ends or their medical team clears them." });
+    out.push({ id: "group_availability", section: "pain", level: out_ > 0 ? "watch" : "info", text: `${[out_ ? `${plural(out_, "athlete")} unavailable` : "", modified ? `${plural(modified, "athlete")} on modified training` : ""].filter(Boolean).join(", ")} today.`, evidence: "Unavailable athletes return when their stand-down ends or their medical team clears them." });
   }
   if (Number(status.no_training) > 0) {
-    out.push({ id: "group_no_training", section: "adherence", level: "info", text: `${plural(Number(status.no_training), "athlete")} ${Number(status.no_training) === 1 ? "has" : "have"} no sessions logged in the last 8 weeks.`, action: "Check they have a programme and know how to log their sessions." });
+    out.push({ id: "group_no_training", section: "adherence", level: "info", text: `${plural(Number(status.no_training), "athlete")} ${Number(status.no_training) === 1 ? "has" : "have"} no sessions logged in the last 8 weeks.` });
   }
-  if (trained === 0) out.push({ id: "group_empty", section: "adherence", level: "info", text: `No one in ${noun} has logged a session in the last 8 weeks yet.`, action: "Once athletes log sessions, the group's patterns show here." });
+  if (trained === 0) out.push({ id: "group_empty", section: "adherence", level: "info", text: `No one in ${noun} has logged a session in the last 8 weeks yet.`, evidence: "Once athletes log sessions, the group's patterns show here." });
   const order = { alert: 0, watch: 1, info: 2, good: 3 };
   return out.sort((x, y) => order[x.level] - order[y.level]);
 }
@@ -218,7 +218,7 @@ export function withoutPainDetail(row: Json): Json {
     ...(availability ? { availability: { status: availability.status } } : {}),
     pain: { recurring: areas > 0 },
     findings: areas > 0
-      ? [{ id: "pain_reported", section: "pain", level: "alert", text: "Recurring pain reported - the detail is with their coach.", action: "Their coach handles it; check with them before changing this athlete's training." }, ...findings]
+      ? [{ id: "pain_reported", section: "pain", level: "alert", text: "Recurring pain reported - the detail is with their coach.", evidence: "Their coach has the detail." }, ...findings]
       : findings
   };
 }

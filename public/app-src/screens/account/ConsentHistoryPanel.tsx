@@ -23,6 +23,10 @@ export function ConsentHistoryPanel({
         <p className="eyebrow">Terms and consent</p>
         <h3>Current and accepted versions</h3>
         <p className="muted">Each time our terms or consent wording changes, it gets a new version. This shows the version you last accepted, and the current one you're on.</p>
+        <p className="muted small">
+          Read the <a href="/app/legal/terms.html" target="_blank" rel="noopener">Terms of Service</a> and the{" "}
+          <a href="/app/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>.
+        </p>
       </div>
 
       <div className="commercial-fact-grid account-version-grid">

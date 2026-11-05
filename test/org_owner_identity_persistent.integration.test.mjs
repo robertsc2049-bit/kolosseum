@@ -211,12 +211,25 @@ test(
     const registration = await request(baseUrl, "POST", "/org/register", {
       email: orgOwnerEmail,
       display_name: "Org Owner Identity",
-      password: "OrgOwnerIdentity!2026"
+      password: "OrgOwnerIdentity!2026",
+      accepted_terms: true
     });
     assertStatus(registration, 201, "org owner registration");
     const orgOwnerUserId = registration.json?.org_owner?.user_id ?? "";
     assert.ok(orgOwnerUserId.startsWith("org_owner_"), "expected an org_owner_-prefixed user id");
     orgOwnerUserIds.push(orgOwnerUserId);
+    // The Terms of Service version the owner accepted is recorded, with when.
+    const acceptance = await pool.query("SELECT accepted_terms_version, accepted_terms_at FROM product_org_owner_accounts WHERE user_id = $1", [orgOwnerUserId]);
+    assert.equal(acceptance.rows[0].accepted_terms_version, "terms_v1");
+    assert.ok(acceptance.rows[0].accepted_terms_at instanceof Date, "acceptance time recorded");
+    const staleTerms = await request(baseUrl, "POST", "/org/register", {
+      email: `stale_terms_${orgOwnerEmail}`,
+      display_name: "Org Owner Stale Terms",
+      password: "OrgOwnerIdentity!2026",
+      accepted_terms: true,
+      accepted_terms_version: "terms_v0"
+    });
+    assertStatus(staleTerms, 409, "accepting an out-of-date terms version is refused");
     const orgOwnerCookie = cookieNamed(registration, "kolosseum_org_owner_session", "org owner registration");
     const orgOwnerCsrf = registration.json?.csrf_token;
     assert.ok(orgOwnerCsrf, "expected a csrf token on registration");
