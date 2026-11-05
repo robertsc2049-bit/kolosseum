@@ -65,7 +65,7 @@ test("in the athlete's analysis: injuries come first, with a next step", () => {
   assert.equal(a.injuries.current.id, "inj2");
   const list = findings(a);
   assert.equal(list[0].id, "injury_out");
-  assert.match(list[0].action, /medical team's plan/u);
+  assert.match(list[0].evidence, /decided by the athlete and their medical team/u);
 });
 
 test("injury rates per 1000 hours need 100 hours: one injury in 7 hours is a count, not a rate of 143", () => {

@@ -27,7 +27,7 @@ const summary = {
 const teamData = {
   ok: true, weeks: 8, org: { org_id: "org_rfc", org_name: "Riverside RFC" },
   summary,
-  findings: [{ id: "group_load_high", section: "load", level: "watch", text: "3 athletes of 7 had a big jump in training load last week (over 1.3× their usual).", action: "Ease the next week for everyone affected." }],
+  findings: [{ id: "group_load_high", section: "load", level: "watch", text: "3 athletes of 7 had a big jump in training load last week (over 1.3× their usual).", evidence: "In team sports, spikes were associated with more injuries (Gabbett 2016)." }],
   by_position: [
     { key: "prop", label: "Prop", athletes: 3, summary: { ...summary, athletes: 3, load: { average_ratio: 1.52, high: 3, low: 0, counted: 3 } }, findings: [{ id: "group_load_high", level: "alert", text: "3 athletes of 3 had a big jump in training load last week (over 1.3× their usual)." }] },
     { key: "centre", label: "Centre", athletes: 2, summary: { ...summary, athletes: 2 }, findings: [] }
@@ -70,7 +70,7 @@ test("a coach in a team org opens the team: group findings with next steps, by p
   await screen.findByTestId("team-analysis");
   assert.ok(paths.includes("/coach-workspace/organisations/org_rfc/team-analysis"));
   assert.ok(screen.getByText("3 athletes of 7 had a big jump in training load last week (over 1.3× their usual)."));
-  assert.ok(screen.getByText("Ease the next week for everyone affected."), "next step shown");
+  assert.ok(screen.getByText("In team sports, spikes were associated with more injuries (Gabbett 2016)."), "research line shown");
   const tiles = screen.getByTestId("team-tiles").textContent ?? "";
   assert.ok(tiles.includes("7 of 8") && tiles.includes("88%") && tiles.includes("1.21×") && tiles.includes("details with their coach"));
   const positions = screen.getByTestId("team-by-position").textContent ?? "";
@@ -114,7 +114,7 @@ test("a gym owner who is also its head coach sees the gym's averages from their 
       return jsonResponse({ ok: true, analysis: {
         visibility_mode: "individual", org_name: "City Gym", min_cohort_size: 3,
         summary: { ...summary, pain: undefined },
-        findings: [{ id: "group_adherence", section: "adherence", level: "good", text: "The gym is training as planned: 92% of planned sessions done last week on average.", action: "Keep the plan and schedule as they are." }],
+        findings: [{ id: "group_adherence", section: "adherence", level: "good", text: "The gym is training as planned: 92% of planned sessions done last week on average." }],
         by_coach: [{ coach_user_id: "c_me", label: "You", summary, findings: [] }, { coach_user_id: "c_two", label: "Robin", withheld: true }]
       } });
     }

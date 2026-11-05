@@ -45,9 +45,9 @@ function statusLabel(row: JsonRecord): { label: string; level: string } {
   if (row.unavailable) return { label: "No data", level: "info" };
   const attention = Number(row.attention ?? 0);
   if (!row.last_session && attention === 0) return { label: "No training yet", level: "info" };
-  if (attention >= 3) return { label: "Needs a look", level: "alert" };
-  if (attention >= 1) return { label: "Keep an eye on", level: "watch" };
-  return { label: "On track", level: "good" };
+  if (attention >= 3) return { label: "Red flag", level: "alert" };
+  if (attention >= 1) return { label: "Amber flag", level: "watch" };
+  return { label: "No flags", level: "good" };
 }
 
 // A position or coach group in one table row.
@@ -123,7 +123,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
 
       <div className="report-tiles" data-testid="team-tiles">
         <div className="report-tile"><span className="report-tile-label">Athletes</span><strong>{`${show(summary.trained)} of ${show(summary.athletes)}`}</strong><span className="report-tile-usual">trained in the last 8 weeks</span></div>
-        <div className="report-tile"><span className="report-tile-label">Need a look</span><strong>{show(status.needs_a_look)}</strong><span className="report-tile-usual">{`${show(status.keep_an_eye_on)} to keep an eye on`}</span></div>
+        <div className="report-tile"><span className="report-tile-label">Red flags</span><strong>{show(status.needs_a_look)}</strong><span className="report-tile-usual">{`${show(status.keep_an_eye_on)} to keep an eye on`}</span></div>
         <div className="report-tile"><span className="report-tile-label">Sessions done (avg)</span><strong>{show(adherence.average_pct, "%")}</strong><span className="report-tile-usual">On track: 90%+</span></div>
         <div className="report-tile"><span className="report-tile-label">Load vs usual (avg)</span><strong>{num(load.average_ratio) === null ? "–" : `${load.average_ratio}×`}</strong><span className="report-tile-usual">{`Normal 0.8-1.3× · ${show(load.high)} big jumps`}</span></div>
         <div className="report-tile"><span className="report-tile-label">Low readiness</span><strong>{show(readiness.low)}</strong><span className="report-tile-usual">well below their own normal</span></div>
@@ -166,7 +166,7 @@ export function TeamAnalysis({ team, onOpenAthlete }: { team: TeamOption; onOpen
                       : <span>{String(athlete.display_name)}</span>}</td>
                     <td data-label="Status"><span className={`analysis-status is-${statusInfo.level}`}>{statusInfo.label}</span></td>
                     <td data-label="Available"><AvailabilityBadge availability={athlete.availability} /></td>
-                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 2)} compact /> : <span className="muted small">{athlete.last_session ? "Nothing needs a look" : "No sessions logged in the last 8 weeks"}</span>}</td>
+                    <td data-label="What stands out" className="analysis-roster-findings">{findings.length ? <FindingList findings={findings.slice(0, 2)} compact /> : <span className="muted small">{athlete.last_session ? "No flags" : "No sessions logged in the last 8 weeks"}</span>}</td>
                     <td data-label="Position">{athlete.position ? String(athlete.position).replaceAll("_", " ") : "–"}</td>
                     <td data-label="Coach">{athlete.yours ? "You" : String(athlete.coach_name ?? "Coach")}</td>
                     <td data-label="Sessions">{show((athlete.adherence as JsonRecord | undefined)?.latest_pct, "%")}</td>

@@ -74,7 +74,3 @@ export function forwardFindings(rows: readonly Json[]): Json[] {
     : `Week ${pick.week_number} of the plan (${pick.block_name}) is ${vs}× the work they've done lately.`;
   return [{ id: "forward_load", section: "load", level: spike ? "watch" : "info", text }];
 }
-
-export function forwardActionFor(id: string): string | null {
-  return id === "forward_load" ? "Check they're ready for it - if they've missed sessions lately, build up over 2 weeks instead or trim the extra sets." : null;
-}
