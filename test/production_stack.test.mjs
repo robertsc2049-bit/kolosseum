@@ -97,7 +97,7 @@ test("a backup that fails leaves no half-written file behind, and says it failed
 
 // Runs deploy/offsite.sh once with a stand-in rclone whose "copy" fails when
 // told to.
-function runOffsiteOnce(copyFails) {
+function runOffsiteOnce(copyFails, extraEnv = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kolosseum-offsite-"));
   const bin = path.join(dir, "bin");
   const statusDir = path.join(dir, "status");
@@ -108,7 +108,9 @@ function runOffsiteOnce(copyFails) {
     "case \"$1\" in",
     "  copy) if [ \"$STUB_COPY\" = fail ]; then echo AccessDenied >&2; exit 1; fi ;;",
     "  lsf) echo db_x.dump ;;",
+    "  obscure) echo obscured-$2 ;;",
     "esac",
+    "echo \"rclone $* secure=${RCLONE_CONFIG_SECURE_REMOTE:-none} pass=${RCLONE_CONFIG_SECURE_PASSWORD:-none}\" >> \"$STUB_LOG\"",
     "exit 0",
     ""
   ].join("\n"), { mode: 0o755 });
@@ -116,24 +118,48 @@ function runOffsiteOnce(copyFails) {
     encoding: "utf8",
     env: {
       ...process.env, PATH: `${bin}${path.delimiter}${process.env.PATH}`, STUB_COPY: copyFails ? "fail" : "ok", BACKUP_DIR: dir, STATUS_DIR: statusDir,
-      OFFSITE_BACKUP_BUCKET: "b", RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID: "k", RCLONE_CONFIG_OFFSITE_SECRET_ACCESS_KEY: "s"
+      STUB_LOG: path.join(dir, "calls.log"), OFFSITE_BACKUP_PASSPHRASE: "",
+      OFFSITE_BACKUP_BUCKET: "b", RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID: "k", RCLONE_CONFIG_OFFSITE_SECRET_ACCESS_KEY: "s", ...extraEnv
     }
   });
   const statusFiles = fs.readdirSync(statusDir).sort();
+  const encrypted = fs.existsSync(path.join(statusDir, "offsite_encrypted")) ? fs.readFileSync(path.join(statusDir, "offsite_encrypted"), "utf8").trim() : null;
+  const calls = fs.existsSync(path.join(dir, "calls.log")) ? fs.readFileSync(path.join(dir, "calls.log"), "utf8").trim().split("\n") : [];
   fs.rmSync(dir, { recursive: true, force: true });
-  return { status: result.status, stdout: result.stdout, stderr: result.stderr, statusFiles };
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr, statusFiles, encrypted, calls };
 }
 
 test("a failed off-server copy is reported as failed, never as done", { skip: spawnSync("sh", ["-c", "exit 0"]).status !== 0 && "no sh" }, () => {
   const ok = runOffsiteOnce(false);
   assert.equal(ok.status, 0);
   assert.match(ok.stdout, /offsite copy done .*: 1 files stored off the server/u);
-  assert.deepEqual(ok.statusFiles, ["offsite_last_ok", "offsite_state"]);
+  assert.deepEqual(ok.statusFiles, ["offsite_encrypted", "offsite_last_ok", "offsite_state"]);
   const failed = runOffsiteOnce(true);
   assert.notEqual(failed.status, 0);
   assert.doesNotMatch(failed.stdout, /offsite copy done/u);
   assert.match(failed.stderr, /offsite copy FAILED/u);
-  assert.deepEqual(failed.statusFiles, ["offsite_last_failed", "offsite_state"]);
+  assert.deepEqual(failed.statusFiles, ["offsite_encrypted", "offsite_last_failed", "offsite_state"]);
+});
+
+test("with a passphrase, backups are encrypted before they leave the server, and the old plain copies age out", { skip: spawnSync("sh", ["-c", "exit 0"]).status !== 0 && "no sh" }, () => {
+  const plain = runOffsiteOnce(false);
+  assert.equal(plain.encrypted, "off");
+  assert.match(plain.stderr, /NOT encrypted - set OFFSITE_BACKUP_PASSPHRASE/u);
+  assert.ok(plain.calls.some((call) => call.startsWith("rclone copy") && call.includes("offsite:b/kolosseum ")), "no passphrase: the plain copy as before");
+
+  const secure = runOffsiteOnce(false, { OFFSITE_BACKUP_PASSPHRASE: "correct horse battery staple" });
+  assert.equal(secure.status, 0);
+  assert.equal(secure.encrypted, "on");
+  const copy = secure.calls.find((call) => call.startsWith("rclone copy"));
+  assert.match(copy, / secure: /u, "copied through the crypt remote");
+  assert.match(copy, /secure=offsite:b\/kolosseum-encrypted pass=obscured-correct horse battery staple/u, "the passphrase is obscured for rclone, never passed as a flag");
+  assert.ok(secure.calls.some((call) => /^rclone delete offsite:b\/kolosseum --min-age 14d/u.test(call)), "unencrypted copies from before still age out");
+  assert.doesNotMatch(secure.stderr, /NOT encrypted/u);
+
+  const short = runOffsiteOnce(false, { OFFSITE_BACKUP_PASSPHRASE: "too short" });
+  assert.notEqual(short.status, 0, "a weak passphrase stops the copy");
+  assert.match(short.stderr, /at least 20 characters/u);
+  assert.ok(!short.calls.some((call) => call.startsWith("rclone copy")), "nothing is copied unencrypted instead");
 });
 
 test("the app reads the backup status the backup services write, read-only", () => {
@@ -148,6 +174,7 @@ test("backups are copied off the server once a bucket is set, and the newest one
   assert.match(offsite, /image: rclone\/rclone:\d+\.\d+\.\d+\n/u, "a pinned rclone version");
   assert.match(offsite, /kolosseum-backups:\/backups:ro/u, "it only reads the backups");
   assert.match(offsite, /RCLONE_CONFIG_OFFSITE_PROVIDER: \$\{OFFSITE_BACKUP_PROVIDER:-IONOS\}/u);
+  assert.match(offsite, /OFFSITE_BACKUP_PASSPHRASE: \$\{OFFSITE_BACKUP_PASSPHRASE:-\}/u, "the passphrase reaches the offsite service");
   assert.match(offsite, /RCLONE_CONFIG_OFFSITE_ENDPOINT: \$\{OFFSITE_BACKUP_ENDPOINT:-s3-eu-central-1\.ionoscloud\.com\}/u);
   const script = fs.readFileSync("deploy/offsite.sh", "utf8");
   assert.match(script, /OFFSITE_BACKUP_BUCKET:-\}" \] && \[ -n "\$\{RCLONE_CONFIG_OFFSITE_ACCESS_KEY_ID/u, "off until the bucket and key are set");

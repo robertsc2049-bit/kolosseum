@@ -2,7 +2,8 @@
 // (docker-compose.prod.yml). The backup and offsite services write how their
 // last runs went to a shared status folder (deploy/backup.sh,
 // deploy/offsite.sh: backup_last_ok, backup_last_failed, offsite_state,
-// offsite_last_ok, offsite_last_failed - one UTC time per file); the app
+// offsite_encrypted, offsite_last_ok, offsite_last_failed - one value per
+// file); the app
 // reads it, shows it on the admin console, and emails the admin
 // (KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO) when backups stop - once a day while
 // it lasts, and once when it's fixed. Without KOLOSSEUM_BACKUP_STATUS_DIR
@@ -14,6 +15,8 @@ export type BackupStatus = {
   backup_last_ok: string | null;
   backup_last_failed: string | null;
   offsite_state: "on" | "off" | null;
+  // Whether the off-server copies are encrypted before they leave the server.
+  offsite_encrypted: "on" | "off" | null;
   offsite_last_ok: string | null;
   offsite_last_failed: string | null;
 };
@@ -37,17 +40,23 @@ function readTime(dir: string, name: string): string | null {
   }
 }
 
+function readOnOff(dir: string, name: string): "on" | "off" | null {
+  try {
+    const value = fs.readFileSync(path.join(dir, name), "utf8").trim();
+    return value === "on" || value === "off" ? value : null;
+  }
+  catch {
+    return null; // not written yet
+  }
+}
+
 export function readBackupStatus(dir: string | undefined = process.env.KOLOSSEUM_BACKUP_STATUS_DIR): BackupStatus | null {
   if (!dir || !fs.existsSync(dir)) return null;
-  let state: string | null = null;
-  try {
-    state = fs.readFileSync(path.join(dir, "offsite_state"), "utf8").trim();
-  }
-  catch { /* not written yet */ }
   return {
     backup_last_ok: readTime(dir, "backup_last_ok"),
     backup_last_failed: readTime(dir, "backup_last_failed"),
-    offsite_state: state === "on" || state === "off" ? state : null,
+    offsite_state: readOnOff(dir, "offsite_state"),
+    offsite_encrypted: readOnOff(dir, "offsite_encrypted"),
     offsite_last_ok: readTime(dir, "offsite_last_ok"),
     offsite_last_failed: readTime(dir, "offsite_last_failed")
   };
@@ -62,7 +71,7 @@ function when(iso: string): string {
 // What's wrong, in words the admin can act on.
 export function assessBackupHealth(status: BackupStatus | null, now: Date = new Date()): BackupHealth {
   if (!status) {
-    return { backup_last_ok: null, backup_last_failed: null, offsite_state: null, offsite_last_ok: null, offsite_last_failed: null, checked: false, healthy: true, problems: [] };
+    return { backup_last_ok: null, backup_last_failed: null, offsite_state: null, offsite_encrypted: null, offsite_last_ok: null, offsite_last_failed: null, checked: false, healthy: true, problems: [] };
   }
   const problems: string[] = [];
   if (!status.backup_last_ok || hoursSince(status.backup_last_ok, now) > BACKUP_MAX_AGE_HOURS) {
@@ -77,6 +86,9 @@ export function assessBackupHealth(status: BackupStatus | null, now: Date = new 
     const last = status.offsite_last_ok ? `The last copy worked ${when(status.offsite_last_ok)}` : "No copy has worked yet";
     const failed = status.offsite_last_failed ? `; the last attempt failed ${when(status.offsite_last_failed)}` : "";
     problems.push(`Backups haven't been copied off the server in the last ${OFFSITE_MAX_AGE_HOURS} hours. ${last}${failed}.`);
+  }
+  if (status.offsite_state === "on" && status.offsite_encrypted === "off") {
+    problems.push("Backups copied off the server aren't encrypted - set OFFSITE_BACKUP_PASSPHRASE in .env (docs/ops/IONOS_VPS_DEPLOYMENT.md).");
   }
   return { ...status, checked: true, healthy: problems.length === 0, problems };
 }

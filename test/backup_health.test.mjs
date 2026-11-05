@@ -13,7 +13,7 @@ import { alertToSend, assessBackupHealth, readBackupStatus } from "../dist/src/a
 const NOW = new Date("2026-11-04T12:00:00Z");
 const hoursAgo = (h) => new Date(NOW.getTime() - h * 3600_000).toISOString();
 const status = (overrides = {}) => ({
-  backup_last_ok: hoursAgo(3), backup_last_failed: null, offsite_state: "on", offsite_last_ok: hoursAgo(1), offsite_last_failed: null, ...overrides
+  backup_last_ok: hoursAgo(3), backup_last_failed: null, offsite_state: "on", offsite_encrypted: "on", offsite_last_ok: hoursAgo(1), offsite_last_failed: null, ...overrides
 });
 
 test("the status folder is read as the scripts write it, and is optional", () => {
@@ -21,9 +21,10 @@ test("the status folder is read as the scripts write it, and is optional", () =>
   try {
     fs.writeFileSync(path.join(dir, "backup_last_ok"), "2026-11-04T09:01:21Z\n");
     fs.writeFileSync(path.join(dir, "offsite_state"), "on\n");
+    fs.writeFileSync(path.join(dir, "offsite_encrypted"), "on\n");
     fs.writeFileSync(path.join(dir, "offsite_last_failed"), "not a time\n");
     assert.deepEqual(readBackupStatus(dir), {
-      backup_last_ok: "2026-11-04T09:01:21.000Z", backup_last_failed: null, offsite_state: "on", offsite_last_ok: null, offsite_last_failed: null
+      backup_last_ok: "2026-11-04T09:01:21.000Z", backup_last_failed: null, offsite_state: "on", offsite_encrypted: "on", offsite_last_ok: null, offsite_last_failed: null
     });
   }
   finally {
@@ -53,6 +54,14 @@ test("a late backup, a stalled copy, or copies switched off are each explained",
 
   assert.match(assessBackupHealth(status({ offsite_state: "off" }), NOW).problems[0], /OFFSITE_BACKUP_\* settings are missing/u);
   assert.deepEqual(assessBackupHealth(status({ offsite_state: null, offsite_last_ok: null }), NOW).problems, [], "the copy hasn't reported yet");
+});
+
+test("copies that leave the server unencrypted are a problem until a passphrase is set", () => {
+  const plain = assessBackupHealth(status({ offsite_encrypted: "off" }), NOW);
+  assert.equal(plain.healthy, false);
+  assert.deepEqual(plain.problems, ["Backups copied off the server aren't encrypted - set OFFSITE_BACKUP_PASSPHRASE in .env (docs/ops/IONOS_VPS_DEPLOYMENT.md)."]);
+  assert.deepEqual(assessBackupHealth(status({ offsite_encrypted: null }), NOW).problems, [], "an offsite service from before this change hasn't said");
+  assert.equal(assessBackupHealth(status({ offsite_state: "off", offsite_encrypted: "off" }), NOW).problems.length, 1, "copies switched off is the one problem");
 });
 
 test("the admin is emailed once a day while backups are broken, and once when they're fixed", () => {

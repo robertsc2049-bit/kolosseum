@@ -110,7 +110,7 @@ async function refreshSystemStatus() {
     box.hidden = true;
     return;
   }
-  const line = `Backups: last ${sinceLabel(backups.backup_last_ok)}` + (backups.offsite_state === "on" ? ` · copied off the server ${sinceLabel(backups.offsite_last_ok)}` : "");
+  const line = `Backups: last ${sinceLabel(backups.backup_last_ok)}` + (backups.offsite_state === "on" ? ` · copied off the server ${sinceLabel(backups.offsite_last_ok)}${backups.offsite_encrypted === "on" ? ", encrypted" : backups.offsite_encrypted === "off" ? ", not encrypted" : ""}` : "");
   box.className = backups.healthy ? "muted" : "error-text";
   box.innerHTML = backups.healthy
     ? `<p>${escapeHtml(line)}</p>`

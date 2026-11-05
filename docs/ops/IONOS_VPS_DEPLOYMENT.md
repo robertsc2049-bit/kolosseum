@@ -141,6 +141,14 @@ The backups above sit on the same server, so losing the server would lose them t
    ```
 
    If the bucket isn't in Frankfurt, also set `OFFSITE_BACKUP_ENDPOINT` and `OFFSITE_BACKUP_REGION` to the endpoint and region the IONOS console shows for it (Berlin is `s3-eu-central-2.ionoscloud.com` and `eu-central-2`).
+
+   **Encrypt the backups before they leave the server.** Add a passphrase of at least 20 characters (a few random words) - type it in yourself:
+
+   ```bash
+   OFFSITE_BACKUP_PASSPHRASE=<passphrase>
+   ```
+
+   Each backup is then encrypted on the server (contents and file name) and stored under `kolosseum-encrypted/` in the bucket, so IONOS only ever holds ciphertext. **Save the passphrase in a password manager as well** - if the server is lost, it is the only way to read the backups. Copies made before you set it (under `kolosseum/`) are deleted after `BACKUP_KEEP_DAYS` days like any other. Without a passphrase the copies are not encrypted, and the offsite log says so on every start.
 4. Restart it, copy now, and check the files arrived:
 
    ```bash
@@ -172,11 +180,10 @@ It ends with `restore check passed`, or says what failed.
    docker compose -f docker-compose.prod.yml up -d db
    ```
 
-3. Pull the backups down from IONOS into the backups volume:
+3. Pull the backups down from IONOS into the backups volume, decrypting them on the way (the `.env` must have the same `OFFSITE_BACKUP_PASSPHRASE`):
 
    ```bash
-   docker compose -f docker-compose.prod.yml run --rm --entrypoint sh -v kolosseum_kolosseum-backups:/restore offsite \
-     -c 'rclone copy "offsite:$OFFSITE_BACKUP_BUCKET/kolosseum" /restore && ls -l /restore'
+   docker compose -f docker-compose.prod.yml run --rm -v kolosseum_kolosseum-backups:/restore offsite fetch /restore
    ```
 
    The volume names start with the folder's name (`kolosseum_` for `/opt/kolosseum`); `docker volume ls` shows them.

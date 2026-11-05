@@ -102,6 +102,8 @@ services:
     entrypoint: ["sh", "/offsite.sh"]
     environment:
       OFFSITE_BACKUP_BUCKET: ${OFFSITE_BACKUP_BUCKET:-}
+      # Encrypts each backup before it leaves the server (deploy/offsite.sh).
+      OFFSITE_BACKUP_PASSPHRASE: ${OFFSITE_BACKUP_PASSPHRASE:-}
       BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
       # Settings come from these variables; no rclone.conf file.
       RCLONE_CONFIG: /notfound
