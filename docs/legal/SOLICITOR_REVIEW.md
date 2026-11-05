@@ -9,7 +9,7 @@ The drafts are written in the style of English law consumer and platform terms. 
 
 ## 1. The business and the product
 
-- **The operator.** A sole founder based in England, currently a **sole trader** trading as "Kolosseum", **not VAT registered**, and **not yet registered with the Information Commission** (the data protection fee is to be paid). The founder intends to incorporate a limited company later (see question 11).
+- **The operator.** A sole founder based in England, currently a **sole trader** trading as "Kolosseum", **not VAT registered**, and **not yet registered with the Information Commission** (the data protection fee has not yet been paid; the founder wants advice on whether, and when, it must be paid during the beta). The founder intends to incorporate a limited company later (see question 11).
 - **What Kolosseum is.** A web application (a PWA at app.kolosseum.tools) that strength and conditioning coaches and athletes use to:
   - write and assign programmes;
   - log training;
@@ -79,7 +79,7 @@ Completed:
 - **Log retention (Privacy 8.4):** server logs are capped at 3 × 10 MB per service, rotated, and deleted on each update. This is enforced in the server configuration.
 
 Still to complete before publication:
-1. The founder's full name and trading address (Terms 1.2 and 12.4; Privacy 1.1). If the address is the founder's home, please advise whether a business or service address should be used instead, since it will be public.
+1. The trading address (Terms 1.2 and 12.4; Privacy 1.1). The founder is Christopher Connor Roberts, and intends to use a virtual office address rather than his home address. Please confirm a virtual office address satisfies the Electronic Commerce (EC Directive) Regulations 2002 (reg. 6, geographic address) and the consumer information requirements.
 
 2. The Information Commission registration number, once the fee is paid. The line has been removed for now.
 
