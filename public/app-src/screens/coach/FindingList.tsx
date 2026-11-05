@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 
-// What stands out, most important first: each finding in a plain sentence
-// with a suggested next step (the coach decides). The top few show, the rest
+// What stands out, most important first: each finding in a plain sentence,
+// with what published research found about it where there is any (cited by
+// author and year - the full sources are under "What this means"). Kolosseum
+// states facts and research; the coach decides. The top few show, the rest
 // one tap away, so the two that matter aren't lost in twelve.
 
-export type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; action?: string };
-export const LEVEL_LABEL: Record<string, string> = { alert: "Needs a look", watch: "Keep an eye on", good: "Going well", info: "Note" };
+export type Finding = { id: string; section: string; level: "alert" | "watch" | "good" | "info"; text: string; evidence?: string };
+export const LEVEL_LABEL: Record<string, string> = { alert: "Red flag", watch: "Amber flag", good: "Going well", info: "Note" };
 export const TOP_FINDINGS = 5;
 
 export function FindingList({ findings, compact = false, showAll = false, emptyText = "Nothing stands out yet - more logged sessions will show patterns." }: {
@@ -26,7 +28,7 @@ export function FindingList({ findings, compact = false, showAll = false, emptyT
             {compact ? null : <span className="analysis-finding-level">{LEVEL_LABEL[finding.level]}</span>}
             <span className="analysis-finding-body">
               <span>{finding.text}</span>
-              {!compact && finding.action ? <span className="analysis-finding-action"><strong>Next step: </strong>{finding.action}</span> : null}
+              {!compact && finding.evidence ? <span className="analysis-finding-evidence">{finding.evidence}</span> : null}
             </span>
           </li>
         ))}
