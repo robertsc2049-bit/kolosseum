@@ -281,8 +281,9 @@ export function EntryAuthPanel() {
                     onChange={(event) => setBetaConsent(event.target.checked)}
                   />
                   <span>
-                    I accept the controlled-beta terms
-                    (<strong>{terms?.current_terms_version ? String(terms.current_terms_version) : "unavailable"}</strong>).
+                    I am 18 or over and I agree to the{" "}
+                    <a href="/app/legal/terms.html" target="_blank" rel="noopener">Terms of Service</a>
+                    {" "}(<strong>{terms?.current_terms_version ? String(terms.current_terms_version) : "unavailable"}</strong>).
                   </span>
                 </label>
                 <label>
@@ -293,8 +294,11 @@ export function EntryAuthPanel() {
                     onChange={(event) => setDeclarationConsent(event.target.checked)}
                   />
                   <span>
-                    I consent to my account and activity records being stored
-                    (<strong>{terms?.current_consent_version ? String(terms.current_consent_version) : "unavailable"}</strong>).
+                    I explicitly consent to Kolosseum using the health information I choose to record (such as pain,
+                    injuries and readiness) to provide the service, as set out in the{" "}
+                    <a href="/app/legal/privacy.html" target="_blank" rel="noopener">Privacy Notice</a>
+                    {" "}(<strong>{terms?.current_consent_version ? String(terms.current_consent_version) : "unavailable"}</strong>).
+                    I can withdraw this consent at any time.
                   </span>
                 </label>
               </div>

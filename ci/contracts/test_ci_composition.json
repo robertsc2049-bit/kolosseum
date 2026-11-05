@@ -507,6 +507,10 @@
     {
       "kind": "command",
       "value": "node test/athlete_training_week.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/legal_pages.test.mjs"
     }
   ]
 }
