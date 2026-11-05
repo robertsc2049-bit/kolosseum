@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import { MessageSafetyActions } from "../../components/MessageSafetyActions";
 import { claimPackagePayment } from "../../api/checkinsClient";
 import { loadAccountDetail } from "../../api/client";
 import { type JsonRecord } from "../../api/transport";
@@ -229,7 +230,8 @@ export function AccountCoachRelationshipPanel() {
                   <span className="muted small">{formatDate(message.created_at_iso8601)}</span>
                 </div>
                 <MessageAttachment attachment={message.attachment as JsonRecord | null | undefined} />
-                {message.body_text ? <p>{String(message.body_text)}</p> : null}
+                {message.body_text ? <p className={message.removed === true ? "muted message-removed" : undefined}>{String(message.body_text)}</p> : null}
+                <MessageSafetyActions message={message} received={message.sender_role !== "athlete"} />
               </article>
             ))}
           </div>

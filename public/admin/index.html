@@ -266,6 +266,19 @@
     </div>
   </section>
 
+  <section id="messageReportSection" hidden>
+    <h2>Reported messages</h2>
+    <p class="muted">Messages users have reported (Online Safety Act; Terms of Service clause 10). Read the message and the messages before it, then decide. Removing a message replaces it with "removed by Kolosseum" for both people; restricting also stops the sender sending messages until you lift it. Your reason is shown to the sender, and the person who reported it is told the outcome. If something shows a risk to someone's life or a child, contact the police.</p>
+    <label>Show<br />
+      <select id="messageReportStatusFilter">
+        <option value="open">Waiting for a decision</option>
+        <option value="all">All, including decided</option>
+      </select>
+    </label>
+    <p id="messageReportResult" class="muted" role="status" hidden></p>
+    <div id="messageReportList"></div>
+  </section>
+
   <section id="gymListingSection" hidden>
     <h2>Gym listings</h2>
     <p class="muted">A gym's free listing reaches athletes only once it's approved here. Check it's a real gym with a sensible name, area and equipment. Your note is shown to the gym's owner.</p>

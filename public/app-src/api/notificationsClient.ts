@@ -57,7 +57,9 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   athlete_package_payment_due: "Athlete's package payment is due",
   athlete_package_payment_claimed: "Athlete says they've paid",
   package_payment_claim_declined: "Your coach hasn't received your payment yet",
-  package_payment_recorded: "Your coach recorded your payment"
+  package_payment_recorded: "Your coach recorded your payment",
+  message_report_outcome: "We've looked at the message you reported",
+  message_removed: "A message you sent was removed"
 };
 
 export function notificationTypeLabel(notification: JsonRecord): string {
@@ -91,6 +93,18 @@ export function notificationTypeLabel(notification: JsonRecord): string {
     const paidUntil = typeof payload.paid_until === "string" ? payload.paid_until : "";
     if (name && payload.paid_in_full === true) return `Payment recorded for ${name} - paid in full`;
     if (name && paidUntil) return `Payment recorded for ${name} - paid up to ${dayLabel(paidUntil)}`;
+  }
+  // Message safety: the reporter learns the outcome; the sender learns why.
+  if (type === "message_report_outcome") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    return payload.outcome === "removed"
+      ? "The message you reported was removed - thank you for reporting it"
+      : "We looked at the message you reported and found it didn't break our terms";
+  }
+  if (type === "message_removed") {
+    const payload = (notification.notification_payload ?? {}) as JsonRecord;
+    const reason = typeof payload.reason === "string" ? payload.reason.trim() : "";
+    return reason ? `A message you sent was removed by Kolosseum: ${reason}` : "A message you sent was removed by Kolosseum for breaking the Terms of Service";
   }
   return NOTIFICATION_TYPE_LABELS[type] ?? titleCase(type);
 }

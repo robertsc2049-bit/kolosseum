@@ -17,6 +17,7 @@ import { createGdprExportHandling } from "../v1GdprExportHandling.mjs";
 import { createGdprDeleteQueueRequest } from "../v1GdprDeleteQueue.mjs";
 import { loadEnrichedAthleteSessions } from "./athlete_history_service.js";
 import { ApiError, badRequest, conflict, forbidden, notFound } from "./http_errors.js";
+import { messageSafetyRecordsFor } from "./message_safety_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -334,7 +335,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     coachShareLink,
     coachCheckins,
     coachingRequests,
-    accountEvents
+    accountEvents,
+    messageSafety
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -357,7 +359,8 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadCoachShareLink(userId),
     loadCoachCheckins(userId),
     loadCoachingRequests(userId),
-    loadAccountEvents(userId)
+    loadAccountEvents(userId),
+    messageSafetyRecordsFor(userId)
   ]);
 
   const account = [tagOwnedRecord({
@@ -397,7 +400,14 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     coach_share_link: coachShareLink.map((r) => tagOwnedRecord(r, userId)),
     coach_checkins: coachCheckins.map((r) => tagOwnedRecord(r, userId)),
     coaching_requests: coachingRequests.map((r) => tagOwnedRecord(r, userId)),
-    account_events: accountEvents.map((r) => tagOwnedRecord(r, userId))
+    account_events: accountEvents.map((r) => tagOwnedRecord(r, userId)),
+    // People they blocked, messages they reported, and any messaging
+    // restriction on them (message_safety_service.ts).
+    message_safety: [
+      ...(messageSafety.blocks as JsonRecord[]).map((r) => tagOwnedRecord({ record: "block", ...r }, userId)),
+      ...(messageSafety.reports_made as JsonRecord[]).map((r) => tagOwnedRecord({ record: "report_made", ...r }, userId)),
+      ...(messageSafety.messaging_restriction ? [tagOwnedRecord({ record: "messaging_restriction", ...(messageSafety.messaging_restriction as JsonRecord) }, userId)] : [])
+    ]
   };
 
   const categoryPreviewCounts = Object.fromEntries(

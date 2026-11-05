@@ -12,6 +12,7 @@ import {
   type Response
 } from "express";
 import { MulterError } from "multer";
+import { rateLimit } from "express-rate-limit";
 
 import {
   PRODUCT_SESSION_COOKIE,
@@ -46,6 +47,15 @@ import {
   resolveOrgAthleteMessageAttachmentThumbnailForCoach,
   sendOrgAthleteMessageFromAthlete
 } from "./org_athlete_messaging_service.js";
+import {
+  MessageSafetyError,
+  blockUser,
+  listBlocks,
+  listOwnReports,
+  reportMessage,
+  unblockUser
+} from "./message_safety_service.js";
+import { accountRateLimitKey } from "./rate_limit_key.js";
 import {
   MessageAttachmentError,
   attachmentUpload,
@@ -283,6 +293,78 @@ messagingRouter.get(
   })
 );
 
+// Any coach or athlete (message safety applies to both).
+async function authenticatedMessagingUser(request: Request, mutation: boolean): Promise<string> {
+  const rawToken = cookieValue(request, PRODUCT_SESSION_COOKIE);
+  if (!rawToken) {
+    throw unauthorized("ACCOUNT_SESSION_REQUIRED", { failure_token: "account_session_missing" });
+  }
+  try {
+    if (mutation) assertProductCsrf(rawToken, request.get("x-kolosseum-csrf"));
+    const session = await resolveProductSession(rawToken);
+    if (session.account_row.actor_type !== "athlete" && session.account_row.actor_type !== "coach") {
+      throw forbidden("ACCOUNT_ACTION_DENIED", { failure_token: "messaging_account_required" });
+    }
+    return session.account_row.user_id;
+  }
+  catch (error) {
+    if (error instanceof ProductAccountError) {
+      if (error.status === 401) throw unauthorized("ACCOUNT_SESSION_REQUIRED", { failure_token: error.code });
+      throw forbidden("ACCOUNT_ACTION_DENIED", { failure_token: error.code });
+    }
+    throw error;
+  }
+}
+
+// Message safety (message_safety_service.ts): report a message you received,
+// and block or unblock a person who has messaged you.
+const messageSafetyRateLimit = rateLimit({ keyGenerator: accountRateLimitKey, windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+
+messagingRouter.get(
+  "/safety/blocks",
+  messageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const userId = await authenticatedMessagingUser(request, false);
+    return response.status(200).json({ ok: true, ...(await listBlocks(userId)) });
+  })
+);
+
+messagingRouter.post(
+  "/safety/blocks",
+  messageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const userId = await authenticatedMessagingUser(request, true);
+    return response.status(200).json({ ok: true, ...(await blockUser(userId, request.body)) });
+  })
+);
+
+messagingRouter.post(
+  "/safety/blocks/:user_id/remove",
+  messageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const userId = await authenticatedMessagingUser(request, true);
+    return response.status(200).json({ ok: true, ...(await unblockUser(userId, String(request.params.user_id))) });
+  })
+);
+
+messagingRouter.get(
+  "/safety/reports",
+  messageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const userId = await authenticatedMessagingUser(request, false);
+    return response.status(200).json({ ok: true, ...(await listOwnReports(userId)) });
+  })
+);
+
+messagingRouter.post(
+  "/safety/reports",
+  messageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const userId = await authenticatedMessagingUser(request, true);
+    return response.status(201).json({ ok: true, ...(await reportMessage(userId, request.body)) });
+  })
+);
+
 // Part O.8 - coach visibility into an org owner's thread with their own
 // athlete, read-only (no POST route - the coach never sends into this
 // thread, it stays exactly two-party for writes). Nested under
@@ -346,6 +428,11 @@ messagingRouter.use(
       error instanceof MessageAttachmentError
     ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof MessageSafetyError) {
+      const fieldErrors = (error as MessageSafetyError & { fieldErrors?: unknown }).fieldErrors;
+      response.status(error.status).json({ error: error.code, ...(fieldErrors ? { field_errors: fieldErrors } : {}) });
       return;
     }
     if (error instanceof MulterError) {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { AccountClosurePanel } from "./AccountClosurePanel";
+import { BlockedPeoplePanel } from "./BlockedPeoplePanel";
 import { ConsentHistoryPanel } from "./ConsentHistoryPanel";
 import { EmailVerificationPanel } from "./EmailVerificationPanel";
 import { PasswordForm } from "./PasswordForm";
@@ -74,6 +75,7 @@ export function AccountIdentityPanel() {
       />
       <PasswordForm csrfToken={csrfToken} />
       <ConsentHistoryPanel account={account} terms={terms} consentHistory={consentHistory} />
+      <BlockedPeoplePanel />
       <SignOutPanel csrfToken={csrfToken} />
       <AccountClosurePanel csrfToken={csrfToken} />
     </>
