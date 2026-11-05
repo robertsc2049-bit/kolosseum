@@ -5572,3 +5572,8 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
 @media (prefers-reduced-motion: reduce) {
   .guided-tour-spotlight { transition: none; }
 }
+
+/* What a Kolosseum programme is based on (ProgrammeSources). */
+.programme-sources { font-size: 0.82rem; color: var(--k-text-secondary); }
+.programme-sources summary { cursor: pointer; }
+.programme-sources ol { margin: var(--k-space-1) 0 0; padding-left: 1.4em; display: grid; gap: 4px; }

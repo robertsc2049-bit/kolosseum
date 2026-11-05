@@ -458,6 +458,10 @@
     },
     {
       "kind": "command",
+      "value": "node test/programme_sources.test.mjs"
+    },
+    {
+      "kind": "command",
       "value": "node test/no_direct_advice.test.mjs"
     },
     {

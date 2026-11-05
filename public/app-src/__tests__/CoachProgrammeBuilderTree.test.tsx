@@ -184,6 +184,17 @@ test("a percent-1RM work item shows a Prilepin's chart reference for the current
   assert.ok(screen.getByText(/Intermediate \(70-79% 1RM\)/, { exact: false }));
 });
 
+test("the Prilepin reference names its source and says the modified zones have no traceable original", async () => {
+  const { container } = render(<CoachProgrammeBuilderTree />);
+  await broadcast(draftWithWorkItem());
+
+  const source = container.querySelector(".template-prilepin-source");
+  assert.ok(source);
+  assert.match(source.textContent ?? "", /Laputin NP, Oleshko VG\. Managing the Training of Weightlifters/);
+  assert.match(source.textContent ?? "", /not a controlled study/);
+  assert.match(source.textContent ?? "", /no traceable original/);
+});
+
 test("typing a new percent-1RM live-updates the Prilepin reference, showing both tables when their zones overlap", async () => {
   const { container } = render(<CoachProgrammeBuilderTree />);
   await broadcast(draftWithWorkItem());

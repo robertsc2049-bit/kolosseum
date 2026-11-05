@@ -429,6 +429,10 @@ function LoadControls({ workItem, blockIndex, weekIndex, sessionIndex, workItemI
 // shows. If a percentage falls in both the classic and modified table's
 // range, both matching zones are shown side by side, clearly labelled -
 // there is no auto-selection between them.
+// Where Prilepin's table comes from - and that the higher-rep "modified"
+// zones have no traceable original.
+const PRILEPIN_SOURCE = "Source: A.S. Prilepin's analysis of Soviet weightlifters' training (1970s), as reported in Laputin NP, Oleshko VG. Managing the Training of Weightlifters. Kiev: Zdorov'ya; 1982 (English translation: Sportivny Press). A descriptive guide from weightlifting, not a controlled study. The \"modified chart\" zones are a later coaching extension with no traceable original.";
+
 function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, workItemIndex }: WorkItemControlProps) {
   const storedPercent = Number.isFinite(workItem.percent_1rm) ? workItem.percent_1rm : 75;
   const [hintPercent, setHintPercent] = React.useState(storedPercent);
@@ -458,11 +462,14 @@ function PercentOneRmField({ workItem, blockIndex, weekIndex, sessionIndex, work
         {zones.length === 0 ? (
           <p>No Prilepin's chart reference zone for this percentage.</p>
         ) : (
-          zones.map((zoneRow) => (
-            <p key={zoneRow.zone_id}>
-              {zoneRow.zone_label}: {zoneRow.reps_per_set_min}-{zoneRow.reps_per_set_max} reps/set, optimal {zoneRow.optimal_total_reps_min} total reps (range {zoneRow.total_reps_min}-{zoneRow.total_reps_max})
-            </p>
-          ))
+          <>
+            {zones.map((zoneRow) => (
+              <p key={zoneRow.zone_id}>
+                {zoneRow.zone_label}: {zoneRow.reps_per_set_min}-{zoneRow.reps_per_set_max} reps/set, optimal {zoneRow.optimal_total_reps_min} total reps (range {zoneRow.total_reps_min}-{zoneRow.total_reps_max})
+              </p>
+            ))}
+            <p className="template-prilepin-source">{PRILEPIN_SOURCE}</p>
+          </>
         )}
       </div>
     </>
