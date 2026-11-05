@@ -29,7 +29,7 @@ test("a winger's HRV drops and resting HR rises in the last week: both flagged a
   assert.ok(ids.includes("hrv_low") && ids.includes("rhr_high"));
   const hrv = findings(a).find((f) => f.id === "hrv_low");
   assert.match(hrv.text, /HRV well below their normal this week \(48 ms on average\)/u);
-  assert.match(hrv.action, /lighter session/u);
+  assert.match(hrv.evidence, /Plews 2013/u);
 });
 
 test("GPS: weekly distance, HSR and sprint, and an HSR spike against their usual", () => {
