@@ -74,14 +74,14 @@ Completed:
   - Coaches at a gym are the ones the gym has confirmed, listed alphabetically.
   - There is no paid placement.
 - **Mediators (Terms Schedule S.9):** CEDR, or a mediator accredited by the Civil Mediation Council and agreed between the parties, with Kolosseum paying a reasonable proportion of the costs. Please confirm this is suitable.
+- **Contact email:** the founder's own address for now (Terms 1.3, 12.2 and 20.1; Privacy 1.2).
+- **Hosting:** the server is in the UK, and the encrypted off-server backups are in Germany (Privacy section 6). The backups are encrypted on the server before upload, and their decryption was verified on 2026-11-05.
 - **Log retention (Privacy 8.4):** server logs are capped at 3 × 10 MB per service, rotated, and deleted on each update. This is enforced in the server configuration.
 
 Still to complete before publication:
 1. The founder's full name and trading address (Terms 1.2 and 12.4; Privacy 1.1). If the address is the founder's home, please advise whether a business or service address should be used instead, since it will be public.
-2. The contact and privacy email addresses.
-3. The effective date.
-4. The VPS hosting location (UK or Germany), in Privacy section 6.
-5. The Information Commission registration number, once the fee is paid. The line has been removed for now.
+
+2. The Information Commission registration number, once the fee is paid. The line has been removed for now.
 
 ## 4. Points on which we would like advice
 
@@ -103,7 +103,7 @@ Still to complete before publication:
 
 ## 5. Known technical follow-ups (not legal drafting)
 
-- Off-site backups are stored in IONOS S3 but are not encrypted by Kolosseum before upload. We recommend client-side encryption (for example, rclone crypt). The Privacy Notice currently claims no more than "restricted access".
+- Off-site backups are now encrypted on the server before upload (rclone crypt, done 2026-11-05).
 - The gym-owner sign-up records `accepted_terms_version` and `accepted_terms_at`. Gym owner accounts created before this change have no record.
 
 ## 6. Finding a solicitor (note for the founder)
