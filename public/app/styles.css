@@ -5573,6 +5573,18 @@ button, a, label, select, summary, [role="button"] { touch-action: manipulation;
   .guided-tour-spotlight { transition: none; }
 }
 
+/* Readiness lightening: an opt-in rule, with what it does under it. */
+.readiness-rule {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+}
+.coach-readiness-rule {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border, rgba(127, 127, 127, 0.25));
+}
+
 /* What a Kolosseum programme is based on (ProgrammeSources). */
 .programme-sources { font-size: 0.82rem; color: var(--k-text-secondary); }
 .programme-sources summary { cursor: pointer; }

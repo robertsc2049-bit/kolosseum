@@ -748,12 +748,17 @@ export async function compileBlock(req: Request, res: Response) {
       } as any;
     }
   }
-  // A low readiness check-in today trims a self-directed session (readiness.ts).
-  if (create_session && beta_individual_subject_user_id) {
-    planned_session_from_engine = {
-      ...planned_session_from_engine,
-      exercises: (await applyTodaysReadiness(beta_individual_subject_user_id, planned_session_from_engine.exercises as any)) as any
-    };
+  // A low readiness check-in today trims the session only where its chooser
+  // turned that rule on: the coach whose programme it is, or a self-directed
+  // athlete for themselves (readiness_service.ts). Off by default.
+  if (create_session && pain_subject_user_id) {
+    const lighteningCoach = beta_individual_subject_user_id ? null : beta_session_binding?.coach_user_id ?? null;
+    if (beta_individual_subject_user_id || lighteningCoach) {
+      planned_session_from_engine = {
+        ...planned_session_from_engine,
+        exercises: rescaleResolvedLoads(await applyTodaysReadiness(pain_subject_user_id, planned_session_from_engine.exercises as any, lighteningCoach) as any) as any
+      };
+    }
   }
   // Exercises a self-directed athlete can't do with their equipment are
   // swapped for a flagged substitute, or flagged when nothing fits.

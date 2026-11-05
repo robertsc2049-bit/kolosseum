@@ -388,7 +388,7 @@ export function AthleteSessionExecutionPanel() {
                 </div>
                 {isRecord(exercise?.readiness) ? (
                   <p className="inline-result readiness-note" data-tone="warning">
-                    {`Lighter today - your readiness check-in was low (sleep ${Number((exercise.readiness as JsonRecord).sleep)}/5, soreness ${Number((exercise.readiness as JsonRecord).soreness)}/5, stress ${Number((exercise.readiness as JsonRecord).stress)}/5).`}
+                    {`Lighter today - ${(exercise.readiness as JsonRecord).rule === "coach" ? "your coach's rule" : "the rule you turned on"} for a low check-in (sleep ${Number((exercise.readiness as JsonRecord).sleep)}/5, soreness ${Number((exercise.readiness as JsonRecord).soreness)}/5, stress ${Number((exercise.readiness as JsonRecord).stress)}/5).`}
                   </p>
                 ) : null}
                 {isRecord(exercise?.equipment_swap) ? (

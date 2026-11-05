@@ -704,7 +704,7 @@ function CompletedView({ api }: { api: OnboardingApi }) {
       <ProgrammeGrantsCard />
       <AthleteProgrammeCard />
       {/* Keyed on the declaration so a new sport, level, event or week reloads its slots. */}
-      <ReadinessCard />
+      <ReadinessCard selfDirected={fields.execution_scope === "individual"} />
       <StandDownCard />
       <InjuryStatusCard />
       <PainCheckInCard />

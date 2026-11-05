@@ -9652,6 +9652,18 @@
     },
     {
       "method": "GET",
+      "path": "/coach-workspace/athletes/:athlete_id/readiness-lightening",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "PUT",
+      "path": "/coach-workspace/athletes/:athlete_id/readiness-lightening",
+      "source": "src/api/coach_workspace.routes.ts",
+      "tracked_by_area": "coach_workspace"
+    },
+    {
+      "method": "GET",
       "path": "/coach-workspace/athletes/:athlete_id/tests",
       "source": "src/api/coach_workspace.routes.ts",
       "tracked_by_area": "coach_workspace"
