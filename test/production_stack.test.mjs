@@ -187,3 +187,10 @@ test("backups are copied off the server once a bucket is set, and the newest one
   for (const drop of check.matchAll(/DROP DATABASE[^;"]*/gu)) assert.equal(drop[0], "DROP DATABASE IF EXISTS $CHECK_DB", "only the throwaway copy is ever dropped");
   assert.match(check, /CHECK_DB="kolosseum_restore_check"/u);
 });
+
+test("every service's logs (which can include IP addresses) are rotated and capped, as the Privacy Notice says", () => {
+  for (const name of ["db", "app", "caddy", "backup", "offsite"]) {
+    const block = service(name);
+    assert.match(block, /logging:\n\s+driver: json-file\n\s+options:\n\s+max-size: "10m"\n\s+max-file: "3"/u, `${name} rotates its logs`);
+  }
+});
