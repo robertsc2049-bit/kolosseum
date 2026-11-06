@@ -350,6 +350,14 @@ export type SentOrgAthleteMessage = Readonly<{
   message: OrgAthleteMessageRow;
 }>;
 
+
+// The owner of an organisation (who receives its coaches' and athletes'
+// messages, and can block them).
+async function orgOwnerUserId(orgId: string): Promise<string | null> {
+  const result = await pool.query(`SELECT owner_user_id FROM product_organisations WHERE org_id = $1 LIMIT 1`, [orgId]);
+  return cleanString(result.rows[0]?.owner_user_id) || null;
+}
+
 async function sendMessageToThread(
   orgId: string,
   athleteUserId: string,
@@ -359,8 +367,9 @@ async function sendMessageToThread(
   clientRequestIdInput: unknown,
   attachment: PendingAttachmentUpload | null = null
 ): Promise<SentOrgAthleteMessage> {
-  // Restricted by Kolosseum, or (an owner's message) blocked by the athlete.
-  const blockReason = await sendBlockReason(senderUserId, senderRole === "org_owner" ? athleteUserId : null);
+  // Restricted by Kolosseum, or blocked by whoever receives it (the athlete,
+  // or for an athlete's message the organisation's owner).
+  const blockReason = await sendBlockReason(senderUserId, senderRole === "org_owner" ? athleteUserId : await orgOwnerUserId(orgId));
   if (blockReason) throw new OrgAthleteMessagingError(blockReason, 403);
 
   const bodyTextRaw = cleanString(bodyTextInput);

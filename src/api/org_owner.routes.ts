@@ -109,6 +109,14 @@ import {
   overrideAthletePositionForOrgOwner
 } from "./org_owner_position_override_service.js";
 import { AthleteOnboardingError } from "./athlete_onboarding_service.js";
+import {
+  MessageSafetyError,
+  blockUser,
+  listBlocks,
+  listOwnReports,
+  reportMessage,
+  unblockUser
+} from "./message_safety_service.js";
 
 export const orgOwnerRouter = Router();
 
@@ -982,6 +990,63 @@ orgOwnerRouter.post(
   })
 );
 
+// Message safety (message_safety_service.ts): an org owner can report a
+// message a coach or athlete sent to one of their organisations, and block
+// that person so their messages stop arriving - the same as /messages/safety
+// for coaches and athletes.
+const orgOwnerMessageSafetyRateLimit = rateLimit({
+  keyGenerator: accountRateLimitKey,
+  windowMs: 15 * 60 * 1000,
+  limit: 60,
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+orgOwnerRouter.get(
+  "/messages/safety/blocks",
+  orgOwnerMessageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    return response.status(200).json({ ok: true, ...(await listBlocks(user_id)) });
+  })
+);
+
+orgOwnerRouter.post(
+  "/messages/safety/blocks",
+  orgOwnerMessageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    return response.status(200).json({ ok: true, ...(await blockUser(user_id, request.body)) });
+  })
+);
+
+orgOwnerRouter.post(
+  "/messages/safety/blocks/:user_id/remove",
+  orgOwnerMessageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    return response.status(200).json({ ok: true, ...(await unblockUser(user_id, String(request.params.user_id))) });
+  })
+);
+
+orgOwnerRouter.get(
+  "/messages/safety/reports",
+  orgOwnerMessageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, false);
+    return response.status(200).json({ ok: true, ...(await listOwnReports(user_id)) });
+  })
+);
+
+orgOwnerRouter.post(
+  "/messages/safety/reports",
+  orgOwnerMessageSafetyRateLimit,
+  asyncHandler(async (request, response) => {
+    const { user_id } = await authenticatedOrgOwner(request, true);
+    return response.status(201).json({ ok: true, ...(await reportMessage(user_id, request.body)) });
+  })
+);
+
 // OrgOwnerAuthError/OrgRosterError/OrgBillingError/OrgVisibilityError/
 // OrgCoachMessagingError/OrgAthleteMessagingError/OrgBroadcastMessagingError/
 // MessageAttachmentError/AttendanceEventGymRosterError/AttendanceEventError
@@ -1007,6 +1072,11 @@ orgOwnerRouter.use(
       error instanceof OrgOwnerPositionOverrideError
     ) {
       response.status(error.status).json({ error: error.message });
+      return;
+    }
+    if (error instanceof MessageSafetyError) {
+      const fieldErrors = (error as MessageSafetyError & { fieldErrors?: unknown }).fieldErrors;
+      response.status(error.status).json({ error: error.code, ...(fieldErrors ? { field_errors: fieldErrors } : {}) });
       return;
     }
     if (error instanceof AthleteOnboardingError) {

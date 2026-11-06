@@ -54,19 +54,19 @@ Each kind is rated on likelihood (how likely it is to appear on Kolosseum) and i
 ## 4. Measures in place
 
 1. **Terms of Service clause 10** sets out what is not allowed. It explains how users can report content, what Kolosseum may do in response, and that reports may be passed to the police.
-2. **Reporting.** A **Report** action sits under every message a user receives, including broadcasts and attachments.
+2. **Reporting.** A **Report** action sits under every message a user receives, including broadcasts and attachments. This applies to coaches and athletes in the app, and to gym and organisation owners in the organisation console.
    - The user chooses a reason: abuse or harassment, threats, sexual content, spam or scam, illegal, or other. They can add an optional note.
    - A snapshot of the reported message is kept as evidence.
    - The sender is not told who reported it.
    - The report form reminds users to call 999 if they are in danger.
-3. **Blocking.** A **Block** action under every received message stops that person's messages and broadcasts reaching the user. Users can unblock under Account. Blocking doesn't end a coaching relationship.
+3. **Blocking.** A **Block** action under every received message stops that person's messages and broadcasts reaching the user. Users can unblock under Account. Blocking doesn't end a coaching relationship. A gym or organisation owner who blocks someone stops that person's messages reaching all of their organisations, and can unblock them under Account in the organisation console.
 4. **Review and action.** An admin reviews every report in the admin console, seeing the message and the messages before it. The admin then decides one of three outcomes:
    - **dismiss** the report;
    - **remove** the message: both people see "removed by Kolosseum", and the text and attachment are no longer served;
    - **remove and restrict** the sender: they cannot send messages until the restriction is lifted.
 
    Every decision records who made it, when, and the reason.
-5. **Telling people the outcome.** The reporter is notified of the outcome. The sender is notified of the removal and the reason, which is the statement of reasons required by Terms 10.2 and Schedule S.5.
+5. **Telling people the outcome.** The reporter is notified of the outcome. The sender is notified of the removal and the reason, which is the statement of reasons required by Terms 10.2 and Schedule S.5. Each notification opens the conversation concerned: an athlete's messages for a coach, and that organisation's messages for an organisation owner.
 6. **Complaints.** Users can complain about a decision via "Report a problem" (Terms 20). Account suspension for serious or repeated breaches uses the existing admin account controls.
 7. **Structural limits.** There is no public content, no messaging between strangers, adults only, and gym listings need admin approval.
 

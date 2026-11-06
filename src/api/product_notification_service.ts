@@ -1679,40 +1679,72 @@ async function deriveOrgOwnerMessageNotifications(
 // Message safety (message_safety_service.ts): the person who reported a
 // message is told the outcome once an admin decides it; the sender of a
 // removed message is told it was removed, and why (the statement of reasons
-// the Terms of Service promise).
+// the Terms of Service promise). Each opens the conversation it was in: a
+// coach's thread with an athlete opens that athlete; an organisation's
+// thread opens its messages in the org console when the recipient owns it;
+// everything else opens Account, where athletes and coaches read messages.
+function messageSafetyTarget(row: Record<string, unknown>, recipientUserId: string): Readonly<{
+  deepLinkRouteId: string;
+  deepLinkParams?: Record<string, string>;
+  payload: Record<string, string>;
+}> {
+  const threadType = cleanString(row.thread_type);
+  const orgId = cleanString(row.org_id);
+  if (orgId && cleanString(row.org_owner_user_id) === recipientUserId) {
+    return { deepLinkRouteId: DEEP_LINK_ROUTE_IDS.orgMessages, deepLinkParams: { org_id: orgId }, payload: { org_id: orgId, org_name: cleanString(row.org_name) } };
+  }
+  if (threadType === "coach_athlete" && cleanString(row.coach_user_id) === recipientUserId) {
+    const athleteId = cleanString(row.athlete_user_id);
+    return { deepLinkRouteId: DEEP_LINK_ROUTE_IDS.coachAthleteDetail, deepLinkParams: { athlete_id: athleteId }, payload: { athlete_user_id: athleteId } };
+  }
+  return { deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount, payload: {} };
+}
+
+const MESSAGE_SAFETY_THREAD_COLUMNS = `t.thread_type, t.coach_user_id, t.athlete_user_id, t.org_id, o.org_name, o.owner_user_id AS org_owner_user_id`;
+
 async function deriveMessageSafetyNotifications(
   client: QueryClient,
   recipientUserId: string
 ): Promise<void> {
   const outcomes = await client.query(
-    `SELECT report_id, status, decided_at FROM product_message_reports
-     WHERE reporter_user_id = $1 AND status <> 'open' AND decided_at > now() - interval '30 days'`,
+    `SELECT r.report_id, r.status, r.decided_at, ${MESSAGE_SAFETY_THREAD_COLUMNS}
+     FROM product_message_reports r
+     LEFT JOIN product_message_threads t ON t.thread_id = r.thread_id
+     LEFT JOIN product_organisations o ON o.org_id = t.org_id
+     WHERE r.reporter_user_id = $1 AND r.status <> 'open' AND r.decided_at > now() - interval '30 days'`,
     [recipientUserId]
   );
   for (const row of outcomes.rows) {
+    const target = messageSafetyTarget(row, recipientUserId);
     await insertDerivedNotification(client, {
       recipientUserId,
       notificationType: "message_report_outcome",
       sourceRecordType: "product_message_reports",
       sourceRecordId: cleanString(row.report_id),
-      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
-      notificationPayload: { outcome: row.status === "dismissed" ? "no_action" : "removed" },
+      deepLinkRouteId: target.deepLinkRouteId,
+      ...(target.deepLinkParams ? { deepLinkParams: target.deepLinkParams } : {}),
+      notificationPayload: { outcome: row.status === "dismissed" ? "no_action" : "removed", ...target.payload },
       occurredAtIso8601: row.decided_at instanceof Date ? row.decided_at.toISOString() : cleanString(row.decided_at)
     });
   }
   const removed = await client.query(
-    `SELECT message_id, removed_reason, removed_at FROM product_messages
-     WHERE sender_user_id = $1 AND removed_at > now() - interval '30 days'`,
+    `SELECT m.message_id, m.removed_reason, m.removed_at, ${MESSAGE_SAFETY_THREAD_COLUMNS}
+     FROM product_messages m
+     LEFT JOIN product_message_threads t ON t.thread_id = m.thread_id
+     LEFT JOIN product_organisations o ON o.org_id = t.org_id
+     WHERE m.sender_user_id = $1 AND m.removed_at > now() - interval '30 days'`,
     [recipientUserId]
   );
   for (const row of removed.rows) {
+    const target = messageSafetyTarget(row, recipientUserId);
     await insertDerivedNotification(client, {
       recipientUserId,
       notificationType: "message_removed",
       sourceRecordType: "product_messages",
       sourceRecordId: cleanString(row.message_id),
-      deepLinkRouteId: DEEP_LINK_ROUTE_IDS.sharedAccount,
-      notificationPayload: { reason: cleanString(row.removed_reason).slice(0, 1000) },
+      deepLinkRouteId: target.deepLinkRouteId,
+      ...(target.deepLinkParams ? { deepLinkParams: target.deepLinkParams } : {}),
+      notificationPayload: { reason: cleanString(row.removed_reason).slice(0, 1000), ...target.payload },
       occurredAtIso8601: row.removed_at instanceof Date ? row.removed_at.toISOString() : cleanString(row.removed_at)
     });
   }

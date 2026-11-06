@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
+import { revealSection } from "../../components/GuideChecklist";
 import { MessageSafetyActions } from "../../components/MessageSafetyActions";
 import { type JsonRecord } from "../../api/transport";
 import { formatAttachmentSize, formatDate } from "../../utils/format";
@@ -31,11 +32,33 @@ function MessageAttachment({ attachment }: { attachment: JsonRecord | null | und
   );
 }
 
+// A "message removed" or "report outcome" notification opens the athlete
+// the conversation was with: scroll to their messages once they've loaded.
+const OPEN_TARGET_EVENT = "kolosseum:open-notification-target";
+const MESSAGE_SAFETY_NOTIFICATIONS = new Set(["message_removed", "message_report_outcome"]);
+
 export function CoachAthleteMessagePanel() {
   const { athleteUserId, loading, messages, sending, sendError, send } = useCoachAthleteMessages();
   const [composing, setComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const revealFor = useRef<string | null>(null);
+
+  useEffect(() => {
+    const openTarget = (event: Event) => {
+      const detail = ((event as CustomEvent).detail ?? {}) as JsonRecord;
+      const athleteId = ((detail.params ?? {}) as JsonRecord).athlete_id;
+      if (MESSAGE_SAFETY_NOTIFICATIONS.has(String(detail.notification_type ?? "")) && athleteId) revealFor.current = String(athleteId);
+    };
+    document.addEventListener(OPEN_TARGET_EVENT, openTarget);
+    return () => document.removeEventListener(OPEN_TARGET_EVENT, openTarget);
+  }, []);
+
+  useEffect(() => {
+    if (!athleteUserId || loading || revealFor.current !== athleteUserId) return;
+    revealFor.current = null;
+    revealSection(".athlete-detail-messages-panel");
+  }, [athleteUserId, loading]);
 
   useEffect(() => {
     if (composing) textareaRef.current?.focus();

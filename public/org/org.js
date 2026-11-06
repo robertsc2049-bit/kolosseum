@@ -15,7 +15,7 @@
 // public/admin/admin.js's shape exactly - it never imports anything from
 // public/app/, never reads the athlete/coach session cookie, and never
 // calls any /account, /coach-workspace, /sessions, /blocks or /messages
-// endpoint. Every route called here already exists and is already
+// endpoint (message safety - report and block - is /org/messages/safety). Every route called here already exists and is already
 // covered by real Postgres integration tests (parts B.1/B.2) - this file
 // adds no new backend routes, only a UI on top of what already worked
 // via curl.
@@ -34,7 +34,15 @@ const state = {
   coachCounterparts: [],
   athleteCounterparts: [],
   lastBroadcastAudience: null,
-  lastBroadcastId: null
+  lastBroadcastId: null,
+  // Message safety: the open thread's messages, which received message has
+  // its Report or Block form open, what's been reported this visit, and
+  // who the owner has blocked.
+  threadMessages: [],
+  safetyOpen: null,
+  safetyNotice: null,
+  reportedMessageIds: new Set(),
+  blockedUserIds: new Set()
 };
 
 // Slice 3 of the sport-declaration redesign - org-owner direct position
@@ -278,6 +286,7 @@ async function showWorkspace(displayName) {
   await Promise.all([
     refreshOrganisations(),
     refreshAccountDataRights().catch(console.error),
+    refreshBlockedPeople().catch(console.error),
     refreshOrgSupportHistory().catch(console.error),
     refreshNotificationBadge().catch(console.error)
   ]);
@@ -300,6 +309,20 @@ async function refreshNotificationBadge() {
   badge.textContent = count > 99 ? "99+" : String(count);
 }
 
+const MESSAGE_SAFETY_NOTIFICATIONS = new Set(["message_report_outcome", "message_removed"]);
+
+// The same wording as the main app's bell (notificationsClient.ts).
+function messageSafetyNotificationText(notification) {
+  const payload = notification.notification_payload || {};
+  if (notification.notification_type === "message_report_outcome") {
+    return payload.outcome === "removed"
+      ? "The message you reported was removed - thank you for reporting it"
+      : "We looked at the message you reported and found it didn't break our terms";
+  }
+  const reason = String(payload.reason || "").trim();
+  return reason ? `A message you sent was removed by Kolosseum: ${reason}` : "A message you sent was removed by Kolosseum for breaking the Terms of Service";
+}
+
 function notificationOrgLabel(notification) {
   const payload = notification.notification_payload || {};
   return String(payload.org_name || "An organisation");
@@ -316,9 +339,14 @@ function renderNotificationPanel(notifications) {
   // A coach who says they coach at one of the owner's gyms: one line each,
   // opening that gym's coaches to confirm or decline (coach_gym_service.ts).
   const coachRequests = notifications.filter((notification) => notification.notification_type === "gym_coach_link_requested");
+  // Message safety: the outcome of a report the owner made, and a message of
+  // theirs Kolosseum removed (with the reason) - one line each, opening that
+  // gym's messages.
+  const safety = notifications.filter((notification) => MESSAGE_SAFETY_NOTIFICATIONS.has(notification.notification_type));
   const countsByOrg = new Map();
   for (const notification of notifications) {
     if (notification.notification_type === "gym_coach_link_requested") continue;
+    if (MESSAGE_SAFETY_NOTIFICATIONS.has(notification.notification_type)) continue;
     const payload = notification.notification_payload || {};
     const orgId = String(payload.org_id || "");
     if (!orgId) continue;
@@ -328,13 +356,26 @@ function renderNotificationPanel(notifications) {
   }
 
   const groups = [...countsByOrg.values()];
-  if (groups.length === 0 && coachRequests.length === 0) {
+  if (groups.length === 0 && coachRequests.length === 0 && safety.length === 0) {
     body.innerHTML = '<div class="notification-empty">No notifications yet.</div>';
     return;
   }
 
   body.innerHTML = `
     <ul class="notification-list">
+      ${safety.map((notification) => {
+        const payload = notification.notification_payload || {};
+        return `
+        <li class="notification-item">
+          <button type="button" class="notification-item-open" data-open-org-notifications="${escapeHtml(payload.org_id || "")}" data-org-name="${escapeHtml(payload.org_name || "")}">
+            <span class="notification-item-dot" aria-hidden="true"></span>
+            <span class="notification-item-body">
+              <span class="notification-item-type">${escapeHtml(payload.org_name || "Messages")}</span>
+              <span class="notification-item-subject">${escapeHtml(messageSafetyNotificationText(notification))}</span>
+            </span>
+          </button>
+        </li>`;
+      }).join("")}
       ${coachRequests.map((notification) => {
         const payload = notification.notification_payload || {};
         const coach = `${payload.coach_display_name || "A coach"}${payload.coach_business_name ? ` · ${payload.coach_business_name}` : ""}`;
@@ -373,7 +414,8 @@ function renderNotificationPanel(notifications) {
   for (const button of body.querySelectorAll("[data-open-org-notifications]")) {
     button.addEventListener("click", () => {
       closeNotificationPanel();
-      showMessagesSection(button.getAttribute("data-open-org-notifications"), button.getAttribute("data-org-name"));
+      const orgId = button.getAttribute("data-open-org-notifications");
+      if (orgId) showMessagesSection(orgId, button.getAttribute("data-org-name"));
     });
   }
 }
@@ -2208,6 +2250,7 @@ function renderThreadMessages(messages) {
         <h3>${message.sender_role === "org_owner" ? "You" : escapeHtml(state.selectedCounterpartName)}</h3>
         ${message.body_text ? `<p>${escapeHtml(message.body_text)}</p>` : ""}
         ${renderMessageAttachment(message.attachment)}
+        ${renderMessageSafety(message)}
       </div>
       <div class="record-meta">
         <span class="muted small">${escapeHtml(formatDate(message.created_at_iso8601))}</span>
@@ -2216,16 +2259,198 @@ function renderThreadMessages(messages) {
   `).join("");
 }
 
+// ---------------------------------------------------------------- message safety
+// Under a message a coach or athlete sent: report it to Kolosseum, or block
+// them so their messages stop reaching the owner's gyms (the same as the
+// main app's MessageSafetyActions.tsx). Nothing under the owner's own
+// messages or one Kolosseum removed.
+const REPORT_REASONS = [
+  ["abuse", "Abuse or harassment"],
+  ["threat", "Threats or violence"],
+  ["sexual", "Sexual content"],
+  ["spam", "Spam or scam"],
+  ["illegal", "Something illegal"],
+  ["other", "Something else"]
+];
+
+function renderMessageSafety(message) {
+  if (message.sender_role === "org_owner" || message.removed === true) return "";
+  const id = escapeHtml(message.message_id);
+  const blocked = state.blockedUserIds.has(message.sender_user_id);
+  const open = state.safetyOpen?.messageId === message.message_id ? state.safetyOpen : null;
+  const notice = state.safetyNotice?.messageId === message.message_id ? state.safetyNotice.text : "";
+  const error = open?.error ? `<p class="field-error" role="alert">${escapeHtml(open.error)}</p>` : "";
+
+  if (open?.mode === "report") {
+    return `
+      <form class="message-safety-form" data-safety-report="${id}">
+        <fieldset>
+          <legend>Why are you reporting this message?</legend>
+          ${REPORT_REASONS.map(([value, label]) => `
+            <label class="radio-field">
+              <input type="radio" name="report-reason-${id}" value="${value}" />
+              <span>${label}</span>
+            </label>`).join("")}
+        </fieldset>
+        <label class="field">
+          <span>Anything else we should know (optional)</span>
+          <textarea name="note" maxlength="1000"></textarea>
+        </label>
+        <p class="muted small">The person who sent it isn't told who reported it. If you're in danger, call 999.</p>
+        ${error}
+        <div class="button-row">
+          <button class="button secondary" type="button" data-safety-cancel="${id}">Cancel</button>
+          <button class="button primary" type="submit">Send report</button>
+        </div>
+      </form>`;
+  }
+  if (open?.mode === "block") {
+    return `
+      <div class="message-safety-form">
+        <p>Block this person? Their messages won't reach any of your gyms or organisations. You can still message them, and nothing else changes - their coaching and membership stay as they are.</p>
+        ${error}
+        <div class="button-row">
+          <button class="button secondary" type="button" data-safety-cancel="${id}">Cancel</button>
+          <button class="button primary" type="button" data-safety-confirm-block="${escapeHtml(message.sender_user_id)}" data-message-id="${id}">Block</button>
+        </div>
+      </div>`;
+  }
+  const reported = state.reportedMessageIds.has(message.message_id);
+  const blockedLine = blocked && !notice ? "<p class=\"muted small\">You've blocked them. Unblock them under Account, Blocked people.</p>" : "";
+  return `
+    <div class="message-safety">
+      ${notice ? `<p class="muted small message-safety-done" role="status">${escapeHtml(notice)}</p>` : ""}
+      ${blockedLine}
+      <div class="message-safety-actions">
+        ${reported ? "" : `<button class="text-button small" type="button" data-safety-report-open="${id}">Report</button>`}
+        ${blocked ? "" : `<button class="text-button small" type="button" data-safety-block-open="${id}">Block</button>`}
+      </div>
+    </div>`;
+}
+
+function rerenderThread() {
+  renderThreadMessages(state.threadMessages);
+}
+
+async function submitMessageReport(form) {
+  const messageId = form.getAttribute("data-safety-report");
+  const reason = form.querySelector("input[type=radio]:checked")?.value ?? "";
+  if (!reason) {
+    state.safetyOpen = { messageId, mode: "report", error: "Choose a reason." };
+    rerenderThread();
+    return;
+  }
+  const note = String(form.querySelector("textarea[name=note]")?.value ?? "").trim();
+  try {
+    await api("POST", "/org/messages/safety/reports", { message_id: messageId, reason, ...(note ? { note } : {}) });
+    state.reportedMessageIds.add(messageId);
+    state.safetyOpen = null;
+    state.safetyNotice = { messageId, text: "Reported - thank you. Kolosseum will look at it and let you know the outcome." };
+  }
+  catch (error) {
+    state.safetyOpen = { messageId, mode: "report", error: "Your report could not be sent. Try again." };
+    console.error(error);
+  }
+  rerenderThread();
+}
+
+async function confirmMessageBlock(userId, messageId) {
+  try {
+    const result = await api("POST", "/org/messages/safety/blocks", { user_id: userId });
+    renderBlockedPeople(Array.isArray(result.blocks) ? result.blocks : []);
+    state.safetyOpen = null;
+    state.safetyNotice = { messageId, text: "Blocked. Their messages won't reach your gyms. You can unblock them under Account, Blocked people." };
+  }
+  catch (error) {
+    state.safetyOpen = { messageId, mode: "block", error: "They could not be blocked. Try again." };
+    console.error(error);
+  }
+  rerenderThread();
+}
+
+function onThreadMessageClick(event) {
+  const target = event.target.closest("button");
+  if (!target) return;
+  const reportOpen = target.getAttribute("data-safety-report-open");
+  const blockOpen = target.getAttribute("data-safety-block-open");
+  const cancel = target.getAttribute("data-safety-cancel");
+  const confirmBlock = target.getAttribute("data-safety-confirm-block");
+  if (reportOpen) state.safetyOpen = { messageId: reportOpen, mode: "report" };
+  else if (blockOpen) state.safetyOpen = { messageId: blockOpen, mode: "block" };
+  else if (cancel) state.safetyOpen = null;
+  else if (confirmBlock) {
+    target.disabled = true;
+    confirmMessageBlock(confirmBlock, target.getAttribute("data-message-id")).catch(console.error);
+    return;
+  }
+  else return;
+  rerenderThread();
+}
+
+function onThreadMessageSubmit(event) {
+  const form = event.target.closest("[data-safety-report]");
+  if (!form) return;
+  event.preventDefault();
+  const submit = form.querySelector("button[type=submit]");
+  if (submit) submit.disabled = true;
+  submitMessageReport(form).catch(console.error);
+}
+
+// Account, Blocked people: everyone the owner has blocked, with Unblock.
+function renderBlockedPeople(blocks) {
+  state.blockedUserIds = new Set(blocks.map((block) => block.user_id));
+  const list = el("orgBlockedPeopleList");
+  if (!list) return;
+  list.innerHTML = blocks.length === 0
+    ? "<p class=\"muted small\">You haven't blocked anyone.</p>"
+    : blocks.map((block) => `
+      <div class="record-row">
+        <div>
+          <strong>${escapeHtml(block.display_name || "Someone")}</strong>
+          <p class="muted small">Blocked ${escapeHtml(formatDate(block.blocked_at_iso8601))}</p>
+        </div>
+        <button class="button secondary small-button" type="button" data-unblock="${escapeHtml(block.user_id)}">Unblock</button>
+      </div>`).join("");
+}
+
+async function refreshBlockedPeople() {
+  const result = await api("GET", "/org/messages/safety/blocks");
+  renderBlockedPeople(Array.isArray(result.blocks) ? result.blocks : []);
+}
+
+async function unblockPerson(userId) {
+  el("orgBlockedPeopleError").hidden = true;
+  try {
+    const result = await api("POST", `/org/messages/safety/blocks/${encodeURIComponent(userId)}/remove`, {});
+    renderBlockedPeople(Array.isArray(result.blocks) ? result.blocks : []);
+    if (state.threadMessages.length) rerenderThread();
+  }
+  catch (error) {
+    el("orgBlockedPeopleError").hidden = false;
+    el("orgBlockedPeopleError").textContent = "They could not be unblocked. Try again.";
+    console.error(error);
+  }
+}
+
+// Why a message couldn't be sent, in plain words.
+function sendErrorText(error) {
+  if (error?.message === "message_recipient_unavailable") return "This person isn't accepting messages from you at the moment.";
+  if (error?.message === "messaging_restricted") return "Kolosseum has stopped this account sending messages after a report about a message it sent. The reason is in your notifications. If you think this is wrong, use Report a problem.";
+  return "Could not send that message.";
+}
+
 async function refreshThreadMessages() {
   // No thread exists yet for a not-yet-started conversation - nothing to
   // fetch, the reply form's first successful send resolves this via the
   // sent message's own thread_id (see sendThreadReply).
   if (!state.selectedThreadId) {
+    state.threadMessages = [];
     renderThreadMessages([]);
     return;
   }
   const result = await api("GET", threadMessagesRoute());
-  renderThreadMessages(Array.isArray(result.messages) ? result.messages : []);
+  state.threadMessages = Array.isArray(result.messages) ? result.messages : [];
+  renderThreadMessages(state.threadMessages);
 }
 
 function showThreadDetail(kind, thread, counterpartId, counterpartName) {
@@ -2233,6 +2458,8 @@ function showThreadDetail(kind, thread, counterpartId, counterpartName) {
   state.selectedThreadId = thread ? thread.thread_id : null;
   state.selectedCounterpartId = counterpartId;
   state.selectedCounterpartName = counterpartName;
+  state.safetyOpen = null;
+  state.safetyNotice = null;
 
   el("orgMessagesSection").hidden = true;
   el("orgThreadDetailSection").hidden = false;
@@ -2273,7 +2500,7 @@ async function sendThreadReply(event) {
   }
   catch (error) {
     el("orgThreadReplyError").hidden = false;
-    el("orgThreadReplyError").textContent = "Could not send that message.";
+    el("orgThreadReplyError").textContent = sendErrorText(error);
     console.error(error);
   }
 }
@@ -2805,6 +3032,12 @@ function boot() {
   el("orgBroadcastRefreshButton").addEventListener("click", () => refreshBroadcastReadStatus().catch(console.error));
   el("orgThreadDetailBackButton").addEventListener("click", () => hideThreadDetailSection());
   el("orgThreadReplyForm").addEventListener("submit", (event) => sendThreadReply(event).catch(console.error));
+  el("orgThreadMessageList").addEventListener("click", onThreadMessageClick);
+  el("orgThreadMessageList").addEventListener("submit", onThreadMessageSubmit);
+  el("orgBlockedPeopleList").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-unblock]");
+    if (button) unblockPerson(button.getAttribute("data-unblock")).catch(console.error);
+  });
   el("orgAccountExportRequestButton").addEventListener("click", () => requestAccountExport().catch(console.error));
   el("orgAccountDeletionReviewButton").addEventListener("click", () => reviewAccountDeletion().catch(console.error));
   el("orgAccountDeletionConfirmForm").addEventListener("submit", (event) => confirmAccountDeletion(event).catch(console.error));

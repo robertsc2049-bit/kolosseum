@@ -265,8 +265,8 @@ export async function eraseOrgOwnerData(
 
   const counts: Record<string, number> = {};
   counts.messages = await count(client, `DELETE FROM product_messages WHERE sender_user_id = $1`, [orgOwnerUserId]);
-  counts.blocks = await count(client, `DELETE FROM product_user_blocks WHERE blocked_user_id = $1`, [orgOwnerUserId]);
-  counts.message_reports = await count(client, `DELETE FROM product_message_reports WHERE reported_user_id = $1`, [orgOwnerUserId]);
+  counts.blocks = await count(client, `DELETE FROM product_user_blocks WHERE blocker_user_id = $1 OR blocked_user_id = $1`, [orgOwnerUserId]);
+  counts.message_reports = await count(client, `DELETE FROM product_message_reports WHERE reporter_user_id = $1 OR reported_user_id = $1`, [orgOwnerUserId]);
   counts.messaging_restriction = await count(client, `DELETE FROM product_messaging_restrictions WHERE user_id = $1`, [orgOwnerUserId]);
   // The tax details they gave for their gyms are theirs (a sole trader's date
   // of birth and tax number); whoever takes a gym over gives their own.

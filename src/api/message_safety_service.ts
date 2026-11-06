@@ -1,6 +1,7 @@
 // DEV NOTE: Message safety (Online Safety Act 2023; Terms of Service clause
-// 10). Anyone who received a message can report it, and coaches and
-// athletes can block a person so their messages stop arriving. An admin
+// 10). Anyone who received a message can report it, and anyone who has
+// been messaged (coaches, athletes and gym/organisation owners) can block
+// the person so their messages stop arriving. An admin
 // decides each report: dismiss it, remove the message, or remove it and stop
 // the sender from sending messages. The reporter is told the outcome and
 // the sender is told why their message was removed (both as derived
@@ -49,7 +50,7 @@ const iso = (value: unknown) => (value instanceof Date ? value.toISOString() : v
 
 // Why a message from sender to recipient can't be sent, or null when it can:
 // the sender is restricted by Kolosseum, or the recipient has blocked them.
-// recipientUserId is null where the recipient can't block (an org owner).
+// For a message to a gym or organisation, the recipient is its owner.
 export async function sendBlockReason(senderUserId: string, recipientUserId: string | null): Promise<"messaging_restricted" | "message_recipient_unavailable" | null> {
   const result = await pool.query(
     `SELECT
@@ -102,14 +103,18 @@ export async function listBlocks(userId: string): Promise<Readonly<Json>> {
 }
 
 // Only someone who has messaged you can be blocked - you can't block a
-// stranger's id you happened to learn.
+// stranger's id you happened to learn. An org owner is messaged in their
+// organisations' threads.
 export async function blockUser(userId: string, input: unknown): Promise<Readonly<Json>> {
   const blocked = text((input as Json | null)?.user_id);
   if (!blocked || blocked === userId) throw new MessageSafetyError("block_user_invalid", 422);
   const messaged = await pool.query(
     `SELECT 1 FROM product_messages m
      JOIN product_message_threads t ON t.thread_id = m.thread_id
-     WHERE m.sender_user_id = $2 AND (t.coach_user_id = $1 OR t.athlete_user_id = $1)
+     WHERE m.sender_user_id = $2 AND (
+       t.coach_user_id = $1 OR t.athlete_user_id = $1
+       OR (t.thread_type IN ('org_owner_coach', 'org_owner_athlete') AND t.org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1))
+     )
      LIMIT 1`,
     [userId, blocked]
   );
@@ -140,6 +145,8 @@ async function receivedMessage(userId: string, messageId: string): Promise<Json 
          (t.thread_type = 'coach_athlete' AND $2 IN (t.coach_user_id, t.athlete_user_id))
          OR (t.thread_type = 'org_owner_coach' AND t.coach_user_id = $2)
          OR (t.thread_type = 'org_owner_athlete' AND t.athlete_user_id = $2)
+         OR (t.thread_type IN ('org_owner_coach', 'org_owner_athlete') AND m.sender_role <> 'org_owner'
+             AND t.org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $2))
        )
      LIMIT 1`,
     [messageId, userId]

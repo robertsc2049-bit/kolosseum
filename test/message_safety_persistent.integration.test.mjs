@@ -164,7 +164,8 @@ test("a reported abusive message is removed by an admin, the coach is restricted
   assert.deepEqual(outcome[0].notification_payload, { outcome: "removed" });
   const removedNotice = await notes(coach, "message_removed");
   assert.equal(removedNotice.length, 1);
-  assert.deepEqual(removedNotice[0].notification_payload, { reason: "Abusive language towards an athlete." });
+  assert.deepEqual(removedNotice[0].notification_payload, { reason: "Abusive language towards an athlete.", athlete_user_id: danAccount.userId });
+  assert.equal(removedNotice[0].deep_link?.route_id ?? removedNotice[0].deep_link_route_id, "coach_athlete_detail", "the coach is taken to that athlete, where the conversation is");
 
   // The admin lifts the restriction; the coach can send again.
   ok(await admin.req("POST", `/admin/messaging-restrictions/${coachAccount.userId}/lift`, {}), 200, "lifted");
