@@ -26,10 +26,21 @@ export function loadBlocks(): Promise<JsonRecord> {
   return request("GET", "/messages/safety/blocks");
 }
 
+// A block or unblock anywhere tells the Blocked people panel to refresh.
+export const BLOCKS_CHANGED_EVENT = "kolosseum:message-blocks-changed";
+function blocksChanged(): void {
+  document.dispatchEvent(new CustomEvent("kolosseum:data-changed"));
+  document.dispatchEvent(new CustomEvent(BLOCKS_CHANGED_EVENT));
+}
+
 export async function blockUser(userId: string): Promise<JsonRecord> {
-  return request("POST", "/messages/safety/blocks", { user_id: userId }, await csrf());
+  const result = await request("POST", "/messages/safety/blocks", { user_id: userId }, await csrf());
+  blocksChanged();
+  return result;
 }
 
 export async function unblockUser(userId: string): Promise<JsonRecord> {
-  return request("POST", `/messages/safety/blocks/${encodeURIComponent(userId)}/remove`, {}, await csrf());
+  const result = await request("POST", `/messages/safety/blocks/${encodeURIComponent(userId)}/remove`, {}, await csrf());
+  blocksChanged();
+  return result;
 }

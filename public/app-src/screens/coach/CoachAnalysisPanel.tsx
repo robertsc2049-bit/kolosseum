@@ -476,7 +476,7 @@ function AthleteAnalysis({ athleteUserId, onBack, initialView = "trends", initia
               ) : null}
               <Method>
                 <p>Each logged set's weight ÷ the max the programme's % was worked out from. Zones count sets, for all lifts together and per lift.</p>
-                <p>Prilepin's table (from weightlifters, 1974): reps per lift per session - 55-69%: 18-30 (best about 24); 70-79%: 12-24 (18); 80-89%: 10-20 (15); 90%+: up to 10 (4). Sessions with work at 70%+ are checked. A guide to how much heavy work a session holds, not a rule; it was built on the Olympic lifts.</p>
+                <p>Prilepin's table (Soviet weightlifters' training in the 1970s, reported by Laputin & Oleshko 1982): reps per lift per session - 55-69%: 18-30 (best about 24); 70-79%: 12-24 (18); 80-89%: 10-20 (15); 90%+: up to 10 (4). Sessions with work at 70%+ are checked. A guide to how much heavy work a session holds, not a rule; it was built on the Olympic lifts.</p>
               </Method>
             </Numbers>
           </Section>
@@ -600,7 +600,7 @@ export function CoachAnalysisPanel() {
             </tbody>
           </table>
           <SquadEntry athletes={athletes.filter((athlete) => !athlete.unavailable).map((athlete) => ({ athlete_user_id: String(athlete.athlete_user_id), display_name: String(athlete.display_name), email: typeof athlete.email === "string" ? athlete.email : null }))} />
-          <p className="muted small analysis-roster-key">Sessions: planned sessions done last week (90%+ is on track). Load vs usual: last week against their own 4-week normal - 1.0× is a normal week, 0.8-1.3× is normal. Readiness: their pre-session check-ins against their own usual.</p>
+          <p className="muted small analysis-roster-key">Sessions: planned sessions done last week (Kolosseum's guide is 90%+). Load vs usual: last week against their own 4-week normal - 1.0× is a normal week; 0.8-1.3× is the range most often quoted as normal. Readiness: their pre-session check-ins against their own usual.</p>
         </div>
       ) : null}
       </>}

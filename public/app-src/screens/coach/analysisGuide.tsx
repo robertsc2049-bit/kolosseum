@@ -59,16 +59,17 @@ export const GUIDE: Readonly<Record<string, GuideEntry>> = {
       "Red flag: at least one serious flag - for example recurring pain, a main lift down 5% or more, readiness far below their normal, or fewer than 7 in 10 planned sessions done.",
       "Amber flag: something outside their normal range - load rising quickly, a lift stalling, effort creeping up, a dip in wellbeing.",
       "No flags: nothing is outside the rules described on this page.",
-      "Sessions: planned sessions done in their latest complete week. Load: this week's training load against their own last 4 weeks (1.0 = the same; 0.8-1.3 is normal). Readiness: Normal, or Low when their pre-session check-ins are well below their own usual. Main lifts: ↑ rising, · steady, → plateau (no new best for 6+ weeks), ↓ falling. Load and Readiness turn amber or red when they are outside the athlete's normal."
+      "Sessions: planned sessions done in their latest complete week. Load: this week's training load against their own last 4 weeks (1.0 = the same; 0.8-1.3 is the range most often quoted as normal (Gabbett 2016), a contested measure (Impellizzeri 2020)). Readiness: Normal, or Low when their pre-session check-ins are well below their own usual. Main lifts: ↑ rising, · steady, → plateau (no new best for 6+ weeks), ↓ falling. Load and Readiness turn amber or red when they are outside the athlete's normal."
     ],
     how: [
       "Each athlete is scored from their flags: a red flag counts 3, an amber flag counts 1. The list is sorted by that score, highest first.",
       "Everything is worked out from what the athlete logged - sets, reps, weights, effort ratings, readiness check-ins, weekly check-ins and pain reports. Nothing is entered by hand."
     ],
     mind: [
-      "An athlete who logs little will look 'on track' because there is little to flag. Check the Sessions column alongside the status.",
+      "An athlete who logs little will show no flags because there is little to flag. Check the Sessions column alongside the status.",
       "A flag means a number is outside the rule described here. It is not a judgement on the athlete, and what to do about it is your call."
-    ]
+    ],
+    sources: ["gabbett2016", "impellizzeri2020"]
   },
   summary: {
     title: "What stands out",

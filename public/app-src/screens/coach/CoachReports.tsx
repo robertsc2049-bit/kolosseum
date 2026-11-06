@@ -116,7 +116,7 @@ export function ReportBody({ report, typeTitle, printing = false }: { report: Js
       <Explain id="summary" />
       <div className="report-tiles" data-testid="report-tiles">
         <Tile label={num(sessions.planned) ? `Sessions (${sessions.planned} planned)` : "Sessions"} value={`${show(sessions.completed)}${num(sessions.partial) ? ` + ${sessions.partial} part` : ""}`} change={<Change value={compared?.sessions_completed} />} />
-        <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} usual="On track: 90%+" change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
+        <Tile label="Turned up" value={show(sessions.adherence_pct, "%")} usual="Guide: 90%+" change={<Change value={compared?.adherence_pct} suffix=" pts" />} />
         <Tile label="Sets" value={show(training.sets)} change={<Change value={compared?.sets_pct} suffix="%" />} />
         <Tile label="Tonnage" value={show(training.tonnage_kg, " kg")} change={<Change value={compared?.tonnage_pct} suffix="%" />} />
         <Tile label="Weekly load (avg)" value={show(training.load_weekly_average, " points")} usual={num(baseline?.weekly_load) ? `Their usual before this: ${Number(baseline!.weekly_load).toLocaleString()}` : null} change={<Change value={compared?.load_weekly_average_pct} suffix="%" upIsGood={false} />} />
