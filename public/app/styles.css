@@ -2714,6 +2714,11 @@ html[data-a11y-screen-reader-optimised="true"] [tabindex]:focus-visible {
   overflow-wrap: anywhere;
 }
 
+/* A deletion request's reference is one long word: wrap it on a phone. */
+#orgAccountDeletionResult {
+  overflow-wrap: anywhere;
+}
+
 .relationship-detail-actions {
   display: flex;
   justify-content: flex-end;

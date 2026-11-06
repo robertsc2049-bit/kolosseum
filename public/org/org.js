@@ -2756,7 +2756,7 @@ async function requestAccountExport() {
   try {
     const result = await api("POST", "/org/data-rights/export", {});
     el("orgAccountExportResult").hidden = false;
-    el("orgAccountExportResult").textContent = `Export ready: ${result.export_request_id}`;
+    el("orgAccountExportResult").textContent = "Your copy is ready - press Download below to save it.";
     await refreshAccountDataRights();
   }
   catch (error) {
