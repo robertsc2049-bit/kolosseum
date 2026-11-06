@@ -19,6 +19,17 @@ import { createGdprExportHandling } from "../v1GdprExportHandling.mjs";
 import { createGdprDeleteQueueRequest } from "../v1GdprDeleteQueue.mjs";
 import { ApiError, badRequest, conflict, forbidden, notFound } from "./http_errors.js";
 import { messageSafetyRecordsFor } from "./message_safety_service.js";
+import {
+  loadAccountRequests,
+  loadGymListings,
+  loadGymPackages,
+  loadMessages,
+  loadNotifications,
+  loadPackagePayments,
+  loadProductRecords,
+  loadSupportRequests,
+  loadTaxDetails
+} from "./data_export_records.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -159,12 +170,24 @@ async function assembleOrgOwnerDataSources(userId: string): Promise<{ dataSource
     throw notFound("Account not found", { failure_token: "org_owner_data_rights_account_not_found" });
   }
 
-  const [organisationsOwned, orgCoachMemberships, orgMessagesSent, orgAuditRecords, messageSafety] = await Promise.all([
+  const [
+    organisationsOwned, orgCoachMemberships, orgMessagesSent, orgAuditRecords, messageSafety,
+    messages, notifications, supportRequests, accountRequests, gymListings, gymPackages, packagePayments, taxDetails, productRecords
+  ] = await Promise.all([
     loadOrganisationsOwned(userId),
     loadOrgCoachMemberships(userId),
     loadOrgMessagesSent(userId),
     loadOrgAuditRecords(userId),
-    messageSafetyRecordsFor(userId)
+    messageSafetyRecordsFor(userId),
+    loadMessages(userId, true),
+    loadNotifications(userId),
+    loadSupportRequests(userId, true),
+    loadAccountRequests(userId, true),
+    loadGymListings(userId),
+    loadGymPackages(userId),
+    loadPackagePayments(userId, true),
+    loadTaxDetails(userId, true),
+    loadProductRecords(userId, [])
   ]);
 
   const account = [tagOwnedRecord({
@@ -188,7 +211,20 @@ async function assembleOrgOwnerDataSources(userId: string): Promise<{ dataSource
       ...(messageSafety.blocks as JsonRecord[]).map((r) => tagOwnedRecord({ record: "block", ...r }, userId)),
       ...(messageSafety.reports_made as JsonRecord[]).map((r) => tagOwnedRecord({ record: "report_made", ...r }, userId)),
       ...(messageSafety.messaging_restriction ? [tagOwnedRecord({ record: "messaging_restriction", ...(messageSafety.messaging_restriction as JsonRecord) }, userId)] : [])
-    ]
+    ],
+    // data_export_records.ts: the rest of what's theirs - every conversation
+    // of their gyms, their bell, problems they reported, account requests,
+    // gym listings, packages, payments and seller details, and the events
+    // and other product records they made or that are about them.
+    messages: messages.map((r) => tagOwnedRecord(r, userId)),
+    notifications: notifications.map((r) => tagOwnedRecord(r, userId)),
+    support_requests: supportRequests.map((r) => tagOwnedRecord(r, userId)),
+    account_requests: accountRequests.map((r) => tagOwnedRecord(r, userId)),
+    gym_listings: gymListings.map((r) => tagOwnedRecord(r, userId)),
+    gym_packages: gymPackages.map((r) => tagOwnedRecord(r, userId)),
+    package_payments: packagePayments.map((r) => tagOwnedRecord(r, userId)),
+    tax_details: taxDetails.map((r) => tagOwnedRecord(r, userId)),
+    product_records: productRecords.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(

@@ -56,7 +56,20 @@ export const GDPR_EXPORT_ALLOWED_DATA_CATEGORIES = Object.freeze([
   "coaching_requests",
   "org_audit_records",
   "account_events",
-  "message_safety"
+  "message_safety",
+  "messages",
+  "notifications",
+  "support_requests",
+  "account_requests",
+  "session_reviews",
+  "video_submissions",
+  "package_payments",
+  "tax_details",
+  "exercise_demo_videos",
+  "push_subscriptions",
+  "gym_listings",
+  "gym_packages",
+  "product_records"
 ]);
 
 export const GDPR_EXPORT_COPY_IDS = Object.freeze([
@@ -234,6 +247,12 @@ function getTemporalSortKey(record) {
     record.started_at,
     record.completed_at,
     record.event_at,
+    // The product's own records name their times *_iso8601.
+    record.recorded_at_iso8601,
+    record.occurred_at_iso8601,
+    record.effective_at_iso8601,
+    record.created_at_iso8601,
+    record.requested_at_iso8601,
     record.id,
     record.record_id
   ];

@@ -53,6 +53,7 @@ test("package.json test:ci:integration is single-owner and resolves from determi
     "node test/set_logging_persistent_http.integration.test.mjs",
     "node test/message_safety_persistent.integration.test.mjs",
     "node test/org_owner_message_safety_persistent.integration.test.mjs",
+    "node test/data_export_completeness_persistent.integration.test.mjs",
     "node test/readiness_lightening_coach_persistent.integration.test.mjs",
     "node test/pain_carry_forward_persistent_http.integration.test.mjs",
     "node test/pain_carry_forward_coach_persistent.integration.test.mjs",
