@@ -3313,12 +3313,11 @@ ON product_messages (
 ALTER TABLE product_messages ADD COLUMN IF NOT EXISTS removed_at TIMESTAMPTZ;
 ALTER TABLE product_messages ADD COLUMN IF NOT EXISTS removed_reason TEXT;
 
--- Who has blocked whom. The blocker is always a coach or athlete account;
--- the blocked person may also be an organisation owner (no foreign key).
+-- Who has blocked whom. Either side may be a coach or athlete account or an
+-- organisation owner (product_org_owner_accounts), so neither column has a
+-- foreign key; account erasure (gdpr_erasure_service.ts) deletes the rows.
 CREATE TABLE IF NOT EXISTS product_user_blocks (
-  blocker_user_id  TEXT NOT NULL
-    REFERENCES product_accounts(user_id)
-    ON DELETE CASCADE,
+  blocker_user_id  TEXT NOT NULL,
   blocked_user_id  TEXT NOT NULL,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (blocker_user_id, blocked_user_id),
@@ -3329,17 +3328,22 @@ CREATE INDEX IF NOT EXISTS
   idx_product_user_blocks_blocked
 ON product_user_blocks (blocked_user_id);
 
+-- Organisation owners can block too: drop the original coach/athlete-only
+-- foreign key where it was already created.
+ALTER TABLE product_user_blocks
+  DROP CONSTRAINT IF EXISTS product_user_blocks_blocker_user_id_fkey;
+
 -- A report of one message by someone who received it. message_snapshot keeps
 -- what was reported (text, attachment details, when, who sent it), so a
 -- later edit or removal can't change the evidence. Decided once, by an
--- admin: dismissed, removed, or removed and the sender restricted.
+-- admin: dismissed, removed, or removed and the sender restricted. The
+-- reporter may be a coach, an athlete or an organisation owner (no foreign
+-- key; erasure deletes the rows).
 CREATE TABLE IF NOT EXISTS product_message_reports (
   report_id         TEXT PRIMARY KEY,
   message_id        TEXT NOT NULL,
   thread_id         TEXT NOT NULL,
-  reporter_user_id  TEXT NOT NULL
-    REFERENCES product_accounts(user_id)
-    ON DELETE CASCADE,
+  reporter_user_id  TEXT NOT NULL,
   reported_user_id  TEXT NOT NULL,
   reason            TEXT NOT NULL
     CHECK (
@@ -3364,6 +3368,9 @@ CREATE TABLE IF NOT EXISTS product_message_reports (
 CREATE INDEX IF NOT EXISTS
   idx_product_message_reports_open
 ON product_message_reports (status, created_at);
+
+ALTER TABLE product_message_reports
+  DROP CONSTRAINT IF EXISTS product_message_reports_reporter_user_id_fkey;
 
 -- People Kolosseum has stopped from sending messages, after a report.
 -- Lifted by deleting the row.

@@ -18,6 +18,7 @@ import { createGdprExportHandling } from "../v1GdprExportHandling.mjs";
 // @ts-ignore - .mjs source, no type declarations
 import { createGdprDeleteQueueRequest } from "../v1GdprDeleteQueue.mjs";
 import { ApiError, badRequest, conflict, forbidden, notFound } from "./http_errors.js";
+import { messageSafetyRecordsFor } from "./message_safety_service.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -158,11 +159,12 @@ async function assembleOrgOwnerDataSources(userId: string): Promise<{ dataSource
     throw notFound("Account not found", { failure_token: "org_owner_data_rights_account_not_found" });
   }
 
-  const [organisationsOwned, orgCoachMemberships, orgMessagesSent, orgAuditRecords] = await Promise.all([
+  const [organisationsOwned, orgCoachMemberships, orgMessagesSent, orgAuditRecords, messageSafety] = await Promise.all([
     loadOrganisationsOwned(userId),
     loadOrgCoachMemberships(userId),
     loadOrgMessagesSent(userId),
-    loadOrgAuditRecords(userId)
+    loadOrgAuditRecords(userId),
+    messageSafetyRecordsFor(userId)
   ]);
 
   const account = [tagOwnedRecord({
@@ -179,7 +181,14 @@ async function assembleOrgOwnerDataSources(userId: string): Promise<{ dataSource
     organisations_owned: organisationsOwned.map((r) => tagOwnedRecord(r, userId)),
     org_coach_memberships: orgCoachMemberships.map((r) => tagOwnedRecord(r, userId)),
     org_messages_sent: orgMessagesSent.map((r) => tagOwnedRecord(r, userId)),
-    org_audit_records: orgAuditRecords.map((r) => tagOwnedRecord(r, userId))
+    org_audit_records: orgAuditRecords.map((r) => tagOwnedRecord(r, userId)),
+    // People they blocked, messages they reported, and any messaging
+    // restriction on them (message_safety_service.ts).
+    message_safety: [
+      ...(messageSafety.blocks as JsonRecord[]).map((r) => tagOwnedRecord({ record: "block", ...r }, userId)),
+      ...(messageSafety.reports_made as JsonRecord[]).map((r) => tagOwnedRecord({ record: "report_made", ...r }, userId)),
+      ...(messageSafety.messaging_restriction ? [tagOwnedRecord({ record: "messaging_restriction", ...(messageSafety.messaging_restriction as JsonRecord) }, userId)] : [])
+    ]
   };
 
   const categoryPreviewCounts = Object.fromEntries(

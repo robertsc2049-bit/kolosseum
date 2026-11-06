@@ -236,3 +236,21 @@ test("closing the profile clears the panel back to rendering nothing", async () 
 
   assert.equal(container.innerHTML, "");
 });
+
+test("a 'message removed' notification for this athlete scrolls the coach to their messages once loaded", async () => {
+  installMocks({ messages: [{ message_id: "m1", sender_role: "coach", body_text: "This message was removed by Kolosseum for breaking the Terms of Service.", removed: true, created_at_iso8601: "2026-11-06T10:00:00.000Z" }] });
+  const scrolls: unknown[] = [];
+  const originalScrollTo = window.scrollTo;
+  window.scrollTo = ((options: unknown) => { scrolls.push(options); }) as typeof window.scrollTo;
+  try {
+    render(<CoachAthleteMessagePanel />);
+    document.dispatchEvent(new CustomEvent("kolosseum:open-notification-target", { detail: { route_id: "coach_athlete_detail", params: { athlete_id: "athlete_1" }, notification_type: "message_removed" } }));
+    await openProfile();
+    await screen.findByText(/removed by Kolosseum/);
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 400)); });
+    assert.equal(scrolls.length, 1, "scrolled to the messages");
+  }
+  finally {
+    window.scrollTo = originalScrollTo;
+  }
+});

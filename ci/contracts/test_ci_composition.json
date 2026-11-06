@@ -511,6 +511,18 @@
     {
       "kind": "command",
       "value": "node test/legal_pages.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/org_gym_coach_decisions_dom.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/org_gym_packages_dom.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/org_message_safety_dom.test.mjs"
     }
   ]
 }
