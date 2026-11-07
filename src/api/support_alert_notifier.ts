@@ -1,6 +1,7 @@
 // DEV NOTE: API boundary surface. Sends a factual email to the admin
 // (KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO) when a new support report is created,
-// and when a user reports a message (message_safety_service.ts), so
+// when a user reports a message (message_safety_service.ts), and when
+// someone asks for their data to be deleted (deletion_request_deadlines.ts), so
 // founder_admin does not have to poll the admin console. Safe no-op if not
 // configured (KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO, RESEND_API_KEY, and a sender:
 // KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM, or KOLOSSEUM_EMAIL_FROM like the
@@ -16,7 +17,7 @@ export type SupportAlertInput = {
   description: string;
 };
 
-async function sendAdminEmail(subject: string, lines: string[], what: string): Promise<void> {
+export async function sendAdminEmail(subject: string, lines: string[], what: string): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.KOLOSSEUM_SUPPORT_ALERT_EMAIL_TO;
   const from = process.env.KOLOSSEUM_SUPPORT_ALERT_EMAIL_FROM || process.env.KOLOSSEUM_EMAIL_FROM;

@@ -17,6 +17,7 @@ import { createGdprExportHandling } from "../v1GdprExportHandling.mjs";
 import { createGdprDeleteQueueRequest } from "../v1GdprDeleteQueue.mjs";
 import { loadEnrichedAthleteSessions } from "./athlete_history_service.js";
 import { ApiError, badRequest, conflict, forbidden, notFound } from "./http_errors.js";
+import { notifyDeletionRequested } from "./deletion_request_deadlines.js";
 import { messageSafetyRecordsFor } from "./message_safety_service.js";
 import {
   loadAccountRequests,
@@ -809,7 +810,7 @@ export async function confirmDataDeletion(
 
   const deletionRequestId = `deletion_request_${crypto.randomUUID().replaceAll("-", "")}`;
 
-  await pool.query(
+  const inserted = await pool.query(
     `INSERT INTO data_deletion_requests (
       deletion_request_id, user_id, reason_code, queue_status, request_hash,
       retained_records, retention_boundary, client_request_id, requested_at
@@ -827,6 +828,12 @@ export async function confirmDataDeletion(
       requestedAt
     ]
   );
+
+  // A new request (not a retry of one already made): tell the admin, who
+  // has 30 days to erase it (deletion_request_deadlines.ts).
+  if ((inserted.rowCount ?? 0) > 0) {
+    await notifyDeletionRequested({ kind: "athlete_or_coach", deletion_request_id: deletionRequestId, user_id: userId, requested_at: requestedAt });
+  }
 
   const stored = await pool.query(
     `SELECT deletion_request_id, reason_code, queue_status, retained_records, retention_boundary, requested_at
