@@ -124,7 +124,7 @@ test("requesting an export shows the export id and refreshes the list with a dow
   installMocks({ exports: [{ export_request_id: "export_req_1", status: "ready", requested_at_iso8601: "2026-08-26T00:00:00.000Z" }] });
   fireEvent.click(screen.getByText("Request data export"));
 
-  await waitFor(() => screen.getByText("Export ready: export_req_1"));
+  await waitFor(() => screen.getByText("Your copy is ready - press Download below to save it."));
   await waitFor(() => screen.getByText("Download"));
 });
 

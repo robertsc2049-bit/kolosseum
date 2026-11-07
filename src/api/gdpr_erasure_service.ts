@@ -189,7 +189,7 @@ export async function eraseUserFiles(files: ErasureFiles): Promise<ErasureCounts
 //
 // An org owner is a separate account (product_org_owner_accounts). Erasing
 // one deletes their sign-in sessions, closure/export requests, support
-// reports and the messages they sent (with attachments), and leaves their
+// reports, notifications and the messages they sent (with attachments), and leaves their
 // account as a tombstone. Each organisation they own is either handed to one
 // of its active coaches - who takes it over from their own coach account
 // (org_handover_service.ts) - or, with no coach to hand it to, closed. The
@@ -271,6 +271,8 @@ export async function eraseOrgOwnerData(
   // The tax details they gave for their gyms are theirs (a sole trader's date
   // of birth and tax number); whoever takes a gym over gives their own.
   counts.gym_tax_details = await count(client, `DELETE FROM product_gym_tax_details WHERE org_id IN (SELECT org_id FROM product_organisations WHERE owner_user_id = $1)`, [orgOwnerUserId]);
+  // Their bell (support, safety and gym notifications).
+  counts.notifications = await count(client, `DELETE FROM product_notifications WHERE recipient_user_id = $1`, [orgOwnerUserId]);
   counts.sign_in_sessions = await count(client, `DELETE FROM product_org_owner_sessions WHERE user_id = $1`, [orgOwnerUserId]);
   counts.closure_requests = await count(client, `DELETE FROM org_owner_closure_requests WHERE user_id = $1`, [orgOwnerUserId]);
   counts.export_requests = await count(client, `DELETE FROM org_owner_data_export_requests WHERE user_id = $1`, [orgOwnerUserId]);

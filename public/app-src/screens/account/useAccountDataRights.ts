@@ -92,8 +92,8 @@ export function useAccountDataRights() {
     try {
       const account = await loadAccountDetail();
       const csrfToken = typeof account.csrf_token === "string" ? account.csrf_token : "";
-      const result = await requestDataExport(csrfToken);
-      setState((current) => ({ ...current, requestingExport: false, exportResultText: `Export ready: ${String(result.export_request_id)}` }));
+      await requestDataExport(csrfToken);
+      setState((current) => ({ ...current, requestingExport: false, exportResultText: "Your copy is ready - press Download below to save it." }));
       await refresh();
     }
     catch {

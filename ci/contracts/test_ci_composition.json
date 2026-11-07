@@ -523,6 +523,10 @@
     {
       "kind": "command",
       "value": "node test/org_message_safety_dom.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/data_export_coverage.test.mjs"
     }
   ]
 }

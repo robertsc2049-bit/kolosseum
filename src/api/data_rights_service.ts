@@ -18,6 +18,19 @@ import { createGdprDeleteQueueRequest } from "../v1GdprDeleteQueue.mjs";
 import { loadEnrichedAthleteSessions } from "./athlete_history_service.js";
 import { ApiError, badRequest, conflict, forbidden, notFound } from "./http_errors.js";
 import { messageSafetyRecordsFor } from "./message_safety_service.js";
+import {
+  loadAccountRequests,
+  loadExerciseDemoVideos,
+  loadMessages,
+  loadNotifications,
+  loadPackagePayments,
+  loadProductRecords,
+  loadPushSubscriptions,
+  loadSessionReviews,
+  loadSupportRequests,
+  loadTaxDetails,
+  loadVideoSubmissions
+} from "./data_export_records.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -307,6 +320,22 @@ async function loadRuntimeEventRecords(userId: string): Promise<JsonRecord[]> {
   }));
 }
 
+// Product record types an export lists under their own category; every
+// other record about the person goes under product_records.
+const OWN_CATEGORY_RECORD_TYPES = [
+  "beta16_phase1_declaration",
+  "beta16_acknowledgement",
+  "beta17_coach_relationship",
+  "beta17_assignment_trigger",
+  "beta_progress_photo",
+  "body_metric_entry",
+  "habit_definition",
+  "habit_completion",
+  "device_connection_record",
+  "device_metric_entry",
+  "athlete_goal"
+];
+
 async function assembleDataSources(userId: string): Promise<{ dataSources: JsonRecord; categoryPreviewCounts: JsonRecord }> {
   const accountRow = await resolveAccountRow(userId);
   if (!accountRow) {
@@ -336,7 +365,18 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     coachCheckins,
     coachingRequests,
     accountEvents,
-    messageSafety
+    messageSafety,
+    messages,
+    notifications,
+    supportRequests,
+    accountRequests,
+    sessionReviews,
+    videoSubmissions,
+    packagePayments,
+    taxDetails,
+    exerciseDemoVideos,
+    pushSubscriptions,
+    productRecords
   ] = await Promise.all([
     loadBetaProductRecordsByType(userId, "beta16_phase1_declaration"),
     loadBetaProductRecordsByType(userId, "beta16_acknowledgement"),
@@ -360,7 +400,18 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
     loadCoachCheckins(userId),
     loadCoachingRequests(userId),
     loadAccountEvents(userId),
-    messageSafetyRecordsFor(userId)
+    messageSafetyRecordsFor(userId),
+    loadMessages(userId),
+    loadNotifications(userId),
+    loadSupportRequests(userId),
+    loadAccountRequests(userId),
+    loadSessionReviews(userId),
+    loadVideoSubmissions(userId),
+    loadPackagePayments(userId),
+    loadTaxDetails(userId),
+    loadExerciseDemoVideos(userId),
+    loadPushSubscriptions(userId),
+    loadProductRecords(userId, OWN_CATEGORY_RECORD_TYPES)
   ]);
 
   const account = [tagOwnedRecord({
@@ -407,7 +458,19 @@ async function assembleDataSources(userId: string): Promise<{ dataSources: JsonR
       ...(messageSafety.blocks as JsonRecord[]).map((r) => tagOwnedRecord({ record: "block", ...r }, userId)),
       ...(messageSafety.reports_made as JsonRecord[]).map((r) => tagOwnedRecord({ record: "report_made", ...r }, userId)),
       ...(messageSafety.messaging_restriction ? [tagOwnedRecord({ record: "messaging_restriction", ...(messageSafety.messaging_restriction as JsonRecord) }, userId)] : [])
-    ]
+    ],
+    // data_export_records.ts: the rest of what's theirs.
+    messages: messages.map((r) => tagOwnedRecord(r, userId)),
+    notifications: notifications.map((r) => tagOwnedRecord(r, userId)),
+    support_requests: supportRequests.map((r) => tagOwnedRecord(r, userId)),
+    account_requests: accountRequests.map((r) => tagOwnedRecord(r, userId)),
+    session_reviews: sessionReviews.map((r) => tagOwnedRecord(r, userId)),
+    video_submissions: videoSubmissions.map((r) => tagOwnedRecord(r, userId)),
+    package_payments: packagePayments.map((r) => tagOwnedRecord(r, userId)),
+    tax_details: taxDetails.map((r) => tagOwnedRecord(r, userId)),
+    exercise_demo_videos: exerciseDemoVideos.map((r) => tagOwnedRecord(r, userId)),
+    push_subscriptions: pushSubscriptions.map((r) => tagOwnedRecord(r, userId)),
+    product_records: productRecords.map((r) => tagOwnedRecord(r, userId))
   };
 
   const categoryPreviewCounts = Object.fromEntries(
