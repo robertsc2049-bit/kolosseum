@@ -7,6 +7,7 @@
 // in separate files.
 
 import { pool } from "../db/pool.js";
+import { deletionDeadline } from "./deletion_request_deadlines.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -230,6 +231,10 @@ export async function listAdminDataExportRequests(
   );
 }
 
+// Requests still waiting to be erased come first, oldest (nearest its
+// 30-day deadline) at the top; erased ones follow, newest first.
+const DELETION_QUEUE_ORDER = "(queue_status = 'completed'), CASE WHEN queue_status <> 'completed' THEN requested_at END ASC, requested_at DESC";
+
 export async function listAdminDataDeletionRequests(
   filterUserId: unknown
 ): Promise<readonly Readonly<JsonRecord>[]> {
@@ -241,13 +246,13 @@ export async function listAdminDataDeletionRequests(
         SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
         FROM data_deletion_requests
         WHERE user_id = $1
-        ORDER BY requested_at DESC
+        ORDER BY ${DELETION_QUEUE_ORDER}
         LIMIT 200
         `
       : `
         SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
         FROM data_deletion_requests
-        ORDER BY requested_at DESC
+        ORDER BY ${DELETION_QUEUE_ORDER}
         LIMIT 200
         `,
     userId ? [userId] : []
@@ -260,7 +265,8 @@ export async function listAdminDataDeletionRequests(
         user_id: cleanString(row.user_id),
         reason_code: cleanString(row.reason_code),
         queue_status: cleanString(row.queue_status),
-        requested_at_iso8601: toIso(row.requested_at)
+        requested_at_iso8601: toIso(row.requested_at),
+        ...deletionDeadline(row.requested_at, cleanString(row.queue_status))
       })
     )
   );
@@ -397,13 +403,13 @@ export async function listAdminOrgOwnerDataDeletionRequests(
         SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
         FROM org_owner_data_deletion_requests
         WHERE user_id = $1
-        ORDER BY requested_at DESC
+        ORDER BY ${DELETION_QUEUE_ORDER}
         LIMIT 200
         `
       : `
         SELECT deletion_request_id, user_id, reason_code, queue_status, requested_at
         FROM org_owner_data_deletion_requests
-        ORDER BY requested_at DESC
+        ORDER BY ${DELETION_QUEUE_ORDER}
         LIMIT 200
         `,
     userId ? [userId] : []
@@ -416,7 +422,8 @@ export async function listAdminOrgOwnerDataDeletionRequests(
         user_id: cleanString(row.user_id),
         reason_code: cleanString(row.reason_code),
         queue_status: cleanString(row.queue_status),
-        requested_at_iso8601: toIso(row.requested_at)
+        requested_at_iso8601: toIso(row.requested_at),
+        ...deletionDeadline(row.requested_at, cleanString(row.queue_status))
       })
     )
   );

@@ -715,6 +715,30 @@ async function liftMessagingRestriction(userId) {
 
 el("messageReportStatusFilter").addEventListener("change", () => { refreshMessageReports().catch(console.error); });
 
+// Deletion requests must be erased within 30 days (privacy notice 8.2);
+// the server works out each one's due-by date and state
+// (deletion_request_deadlines.ts) and the queue lists the oldest open first.
+function deadlineCell(request) {
+  if (request.deadline_state === "done" || !request.due_by_iso8601) return `<td class="deadline muted">-</td>`;
+  const due = escapeHtml(String(request.due_by_iso8601).slice(0, 10));
+  const days = Number(request.days_left);
+  const label = request.deadline_state === "overdue"
+    ? `Overdue by ${-days} day${days === -1 ? "" : "s"}`
+    : `${days} day${days === 1 ? "" : "s"} left`;
+  return `<td class="deadline deadline-${escapeHtml(request.deadline_state)}">${due}<br />${escapeHtml(label)}</td>`;
+}
+
+function deadlineSummary(requests) {
+  const open = requests.filter((request) => request.queue_status !== "completed");
+  if (!open.length) return "No deletion requests waiting.";
+  const overdue = open.filter((request) => request.deadline_state === "overdue").length;
+  const dueSoon = open.filter((request) => request.deadline_state === "due_soon").length;
+  const parts = [`${open.length} waiting to be erased`];
+  if (overdue) parts.push(`${overdue} overdue`);
+  if (dueSoon) parts.push(`${dueSoon} due within 9 days`);
+  return `${parts.join(", ")}. Each must be erased within 30 days of the request.`;
+}
+
 async function refreshDataRightsReview() {
   const [exportsResult, deletionsResult] = await Promise.all([
     api("GET", "/admin/data-rights/exports"),
@@ -759,6 +783,7 @@ function renderDataRightsReview() {
     exportsBody.appendChild(emptyRow);
   }
 
+  el("deletionDeadlineSummary").textContent = deadlineSummary(state.dataRightsDeletions);
   const deletionsBody = el("deletionRequestsList");
   deletionsBody.innerHTML = "";
   const deletionRequests = filteredDeletionRequests();
@@ -767,12 +792,12 @@ function renderDataRightsReview() {
     const eraseCell = request.queue_status === "completed"
       ? `<td class="muted">Erased</td>`
       : `<td><button type="button" class="confirm" data-erase-request="${escapeHtml(request.deletion_request_id)}" data-erase-user="${escapeHtml(request.user_id)}">Erase</button></td>`;
-    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
+    row.innerHTML = `${deadlineCell(request)}<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
     deletionsBody.appendChild(row);
   }
   if (state.dataRightsDeletions.length > 0 && deletionRequests.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="6" class="muted">No deletion requests match.</td>`;
+    emptyRow.innerHTML = `<td colspan="7" class="muted">No deletion requests match.</td>`;
     deletionsBody.appendChild(emptyRow);
   }
 }
@@ -850,6 +875,7 @@ function renderOrgOwnerDataRightsReview() {
     exportsBody.appendChild(emptyRow);
   }
 
+  el("orgOwnerDeletionDeadlineSummary").textContent = deadlineSummary(state.orgOwnerDataRightsDeletions);
   const deletionsBody = el("orgOwnerDeletionRequestsList");
   deletionsBody.innerHTML = "";
   const deletionRequests = filteredOrgOwnerDeletionRequests();
@@ -858,12 +884,12 @@ function renderOrgOwnerDataRightsReview() {
     const eraseCell = request.queue_status === "completed"
       ? `<td class="muted">Erased</td>`
       : `<td><button type="button" class="confirm" data-org-owner-erase-request="${escapeHtml(request.deletion_request_id)}" data-org-owner-erase-user="${escapeHtml(request.user_id)}">Erase</button></td>`;
-    row.innerHTML = `<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
+    row.innerHTML = `${deadlineCell(request)}<td>${escapeHtml(request.deletion_request_id)}</td><td>${escapeHtml(request.user_id)}</td><td>${escapeHtml(request.reason_code)}</td><td>${escapeHtml(request.queue_status)}</td><td>${escapeHtml(request.requested_at_iso8601 ?? "")}</td>${eraseCell}`;
     deletionsBody.appendChild(row);
   }
   if (state.orgOwnerDataRightsDeletions.length > 0 && deletionRequests.length === 0) {
     const emptyRow = document.createElement("tr");
-    emptyRow.innerHTML = `<td colspan="6" class="muted">No deletion requests match.</td>`;
+    emptyRow.innerHTML = `<td colspan="7" class="muted">No deletion requests match.</td>`;
     deletionsBody.appendChild(emptyRow);
   }
 }
