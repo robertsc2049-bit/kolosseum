@@ -14,6 +14,11 @@
 // Usage (PowerShell or bash):
 //   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> \
 //   node scripts/bootstrap_admin_account.mjs --email founder@example.com --name "Founder Name" --password "at-least-16-characters"
+//
+// Reset two-step sign-in for an admin who has lost their authenticator and
+// backup codes (admin_two_step.ts). Signs them out everywhere; they set it
+// up again at their next sign-in:
+//   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> //   node scripts/bootstrap_admin_account.mjs --reset-two-step --email founder@example.com
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -58,16 +63,20 @@ function argValue(flag) {
 }
 
 const email = String(argValue("--email") ?? "").trim().toLowerCase();
+const resetTwoStep = process.argv.includes("--reset-two-step");
 const displayName = String(argValue("--name") ?? "").trim();
 const password = String(argValue("--password") ?? "");
 
 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
   die("Pass a valid --email <address>.");
 }
-if (!displayName) {
+if (resetTwoStep) {
+  // Only --email is needed.
+}
+else if (!displayName) {
   die("Pass a --name <display name>.");
 }
-if (password.length < 16) {
+if (!resetTwoStep && password.length < 16) {
   die("Pass a --password <at least 16 characters>.");
 }
 
@@ -94,10 +103,35 @@ function derivePassword(rawPassword, salt) {
   });
 }
 
+async function resetTwoStepSignIn(pool) {
+  const found = await pool.query("SELECT user_id FROM product_admin_accounts WHERE email_canonical = $1", [email]);
+  const userId = found.rows[0]?.user_id;
+  if (!userId) die(`No admin account for ${email}.`);
+  await pool.query(
+    `UPDATE product_admin_accounts
+        SET totp_secret_encrypted = NULL, totp_pending_secret_encrypted = NULL, totp_enabled_at = NULL, totp_last_step = NULL
+      WHERE user_id = $1`,
+    [userId]
+  );
+  await pool.query("DELETE FROM product_admin_backup_codes WHERE user_id = $1", [userId]);
+  await pool.query("UPDATE product_admin_sign_in_challenges SET used_at = now() WHERE user_id = $1 AND used_at IS NULL", [userId]);
+  await pool.query("UPDATE product_admin_sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL", [userId]);
+  await pool.query(
+    "INSERT INTO product_admin_security_events (event_id, user_id, event_type) VALUES ($1, $2, 'two_step_reset')",
+    [randomId("admin_security"), userId]
+  );
+  console.log(`Two-step sign-in reset for ${email} (user_id=${userId}). Signed out everywhere; set it up again at the next sign-in.`);
+}
+
 async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   try {
+    if (resetTwoStep) {
+      await resetTwoStepSignIn(pool);
+      return;
+    }
+
     const existing = await pool.query(
       "SELECT user_id FROM product_admin_accounts WHERE email_canonical = $1",
       [email]

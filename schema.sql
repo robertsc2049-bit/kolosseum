@@ -4071,3 +4071,49 @@ CREATE TABLE IF NOT EXISTS product_gym_tax_details (
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Two-step sign-in for the admin console (admin_two_step.ts). The
+-- authenticator secret is encrypted with KOLOSSEUM_ADMIN_TWO_STEP_KEY;
+-- totp_last_step stops a used code being used again.
+ALTER TABLE product_admin_accounts ADD COLUMN IF NOT EXISTS totp_secret_encrypted TEXT;
+ALTER TABLE product_admin_accounts ADD COLUMN IF NOT EXISTS totp_pending_secret_encrypted TEXT;
+ALTER TABLE product_admin_accounts ADD COLUMN IF NOT EXISTS totp_enabled_at TIMESTAMPTZ;
+ALTER TABLE product_admin_accounts ADD COLUMN IF NOT EXISTS totp_last_step BIGINT;
+
+-- Single-use backup codes, stored hashed.
+CREATE TABLE IF NOT EXISTS product_admin_backup_codes (
+  user_id     TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id)
+    ON DELETE CASCADE,
+  code_hash   TEXT NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  used_at     TIMESTAMPTZ,
+  PRIMARY KEY (user_id, code_hash)
+);
+
+-- The short-lived step between a right password and the code: 5 minutes,
+-- 5 wrong codes, used once.
+CREATE TABLE IF NOT EXISTS product_admin_sign_in_challenges (
+  challenge_hash   TEXT PRIMARY KEY,
+  user_id          TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id)
+    ON DELETE CASCADE,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at       TIMESTAMPTZ NOT NULL,
+  failed_attempts  INTEGER NOT NULL DEFAULT 0,
+  used_at          TIMESTAMPTZ
+);
+
+-- Two-step sign-in changes on an admin account, shown back to the admin.
+CREATE TABLE IF NOT EXISTS product_admin_security_events (
+  event_id    TEXT PRIMARY KEY,
+  user_id     TEXT NOT NULL
+    REFERENCES product_admin_accounts(user_id)
+    ON DELETE CASCADE,
+  event_type  TEXT NOT NULL
+    CHECK (event_type IN ('two_step_turned_on', 'backup_code_used', 'backup_codes_replaced', 'two_step_reset')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_product_admin_security_events_user
+  ON product_admin_security_events (user_id, created_at DESC);

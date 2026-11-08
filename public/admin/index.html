@@ -62,6 +62,10 @@
     td.deadline { white-space: nowrap; }
     .deadline-due_soon { color: var(--k-warning); font-weight: 700; }
     .deadline-overdue { color: var(--k-danger); font-weight: 700; }
+    .qr-box svg { width: 220px; height: 220px; max-width: 100%; border-radius: var(--k-radius-s); }
+    .two-step-secret { font-family: ui-monospace, Consolas, monospace; word-break: break-all; }
+    .backup-codes { font-family: ui-monospace, Consolas, monospace; font-size: 1.05rem; columns: 2; padding-left: 1.4rem; }
+    .backup-codes li { margin-bottom: 0.3rem; }
     [hidden] { display: none !important; }
     .row-actions { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
     .support-detail-row td { background: var(--k-surface-2); font-size: 0.85rem; }
@@ -87,7 +91,40 @@
       <label>Password<br /><input id="adminSignInPassword" type="password" required autocomplete="current-password" /></label><br />
       <button type="submit" class="primary">Sign in</button>
     </form>
-    <p id="adminSignInError" class="error-text" hidden></p>
+    <form id="adminTwoStepForm" hidden>
+      <label>Code from your authenticator app, or a backup code<br /><input id="adminTwoStepCode" type="text" required autocomplete="one-time-code" inputmode="text" autocapitalize="off" spellcheck="false" maxlength="20" /></label><br />
+      <div class="row-actions">
+        <button type="submit" class="primary">Continue</button>
+        <button id="adminTwoStepRestart" type="button">Start again</button>
+      </div>
+    </form>
+    <p id="adminSignInError" class="error-text" role="alert" hidden></p>
+  </section>
+
+  <section id="adminTwoStepSetupSection" hidden>
+    <h2>Set up two-step sign-in</h2>
+    <p id="adminTwoStepSetupIntro">After your password, you'll also enter a 6-digit code from an authenticator app on your phone (Google Authenticator, 1Password, Authy and so on). Someone with only your password can't get in.</p>
+    <div class="row-actions">
+      <button id="adminTwoStepStartButton" type="button" class="primary">Start</button>
+      <button id="adminTwoStepSetupSignOut" type="button" hidden>Sign out</button>
+    </div>
+    <div id="adminTwoStepSetupSteps" hidden>
+      <p>1. In your authenticator app, add an account and scan this code.</p>
+      <div id="adminTwoStepQr" class="qr-box"></div>
+      <p class="muted">Can't scan it? Enter this key instead: <span id="adminTwoStepSecret" class="two-step-secret"></span></p>
+      <form id="adminTwoStepConfirmForm">
+        <label>2. Enter the 6-digit code the app shows<br /><input id="adminTwoStepConfirmCode" type="text" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" /></label><br />
+        <button type="submit" class="primary">Turn on</button>
+      </form>
+    </div>
+    <p id="adminTwoStepSetupError" class="error-text" role="alert" hidden></p>
+  </section>
+
+  <section id="adminBackupCodesSection" hidden>
+    <h2>Your backup codes</h2>
+    <p>Each code signs you in once if you lose your phone. Save them now, somewhere safe and away from your password (a password manager, or printed). They won't be shown again.</p>
+    <ol id="adminBackupCodesList" class="backup-codes"></ol>
+    <button id="adminBackupCodesDone" type="button" class="primary">I've saved them</button>
   </section>
 
   <section id="adminWorkspaceSection" hidden>
@@ -95,6 +132,18 @@
       <p>Signed in as <strong id="adminDisplayName"></strong></p>
       <button id="adminSignOutButton" type="button">Sign out</button>
     </div>
+    <div class="row-actions">
+      <p id="adminTwoStepStatus" class="muted" role="status"></p>
+      <button id="adminTwoStepManageButton" type="button" hidden></button>
+    </div>
+    <form id="adminReplaceCodesForm" hidden>
+      <label>To get new backup codes, enter a code from your authenticator app. Your old backup codes stop working.<br /><input id="adminReplaceCodesCode" type="text" required autocomplete="one-time-code" inputmode="numeric" pattern="[0-9 ]{6,7}" maxlength="7" /></label><br />
+      <div class="row-actions">
+        <button type="submit" class="primary">Get new backup codes</button>
+        <button id="adminReplaceCodesCancel" type="button">Cancel</button>
+      </div>
+      <p id="adminReplaceCodesError" class="error-text" role="alert" hidden></p>
+    </form>
     <div id="systemStatus" role="status" hidden></div>
   </section>
 

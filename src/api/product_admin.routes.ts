@@ -17,9 +17,17 @@ import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE_SECONDS,
   AdminAuthError,
+  completeAdminTwoStepSignIn,
   signInAdminAccount,
   signOutAdminSession
 } from "./product_admin_account_service.js";
+import {
+  TwoStepError,
+  confirmTwoStepSetup,
+  replaceBackupCodesWithCode,
+  startTwoStepSetup,
+  twoStepStatus
+} from "./admin_two_step.js";
 import { adminCookieValue, authenticatedAdmin } from "./product_admin_auth.js";
 import { GymListingError, listGymListingsForAdmin, reviewGymListing } from "./gym_listing_service.js";
 import {
@@ -106,13 +114,72 @@ function rethrowActionError(error: unknown): never {
 productAdminRouter.post(
   "/sign-in",
   asyncHandler(async (request, response) => {
-    const session = await signInAdminAccount(request.body);
+    const outcome = await signInAdminAccount(request.body);
+    // Two-step sign-in on: no session until the code step.
+    if ("two_step_required" in outcome) {
+      return response.status(200).json({ two_step_required: true, challenge_token: outcome.challenge_token });
+    }
+    setAdminSessionCookie(response, outcome.raw_session_token);
+    return response.status(200).json({
+      admin: outcome.admin,
+      csrf_token: outcome.csrf_token,
+      session_expires_at_iso8601: outcome.expires_at_iso8601,
+      two_step: await twoStepStatus(outcome.admin.user_id)
+    });
+  })
+);
+
+// Two-step sign-in (admin_two_step.ts): the code after the password, then
+// setting it up, and replacing backup codes.
+productAdminRouter.post(
+  "/sign-in/two-step",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const session = await completeAdminTwoStepSignIn(request.body);
     setAdminSessionCookie(response, session.raw_session_token);
     return response.status(200).json({
       admin: session.admin,
       csrf_token: session.csrf_token,
-      session_expires_at_iso8601: session.expires_at_iso8601
+      session_expires_at_iso8601: session.expires_at_iso8601,
+      used_backup_code: session.used_backup_code,
+      two_step: await twoStepStatus(session.admin.user_id)
     });
+  })
+);
+
+productAdminRouter.get(
+  "/two-step",
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, false, { allowTwoStepSetup: true });
+    return response.status(200).json({ two_step: await twoStepStatus(admin.user_id) });
+  })
+);
+
+productAdminRouter.post(
+  "/two-step/setup",
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true, { allowTwoStepSetup: true });
+    return response.status(200).json(await startTwoStepSetup(admin.user_id));
+  })
+);
+
+productAdminRouter.post(
+  "/two-step/setup/confirm",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true, { allowTwoStepSetup: true });
+    const result = await confirmTwoStepSetup(admin.user_id, admin.session_hash, request.body?.code);
+    return response.status(200).json({ ...result, two_step: await twoStepStatus(admin.user_id) });
+  })
+);
+
+productAdminRouter.post(
+  "/two-step/backup-codes",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: true, legacyHeaders: false }),
+  asyncHandler(async (request, response) => {
+    const admin = await authenticatedAdmin(request, true);
+    const result = await replaceBackupCodesWithCode(admin.user_id, request.body?.code);
+    return response.status(200).json({ ...result, two_step: await twoStepStatus(admin.user_id) });
   })
 );
 
@@ -611,6 +678,10 @@ productAdminRouter.post(
 // instead of the correct 401/403/423/429.
 productAdminRouter.use(
   (error: unknown, _request: Request, response: Response, next: NextFunction) => {
+    if (error instanceof TwoStepError) {
+      response.status(error.status).json({ error: error.code });
+      return;
+    }
     if (!(error instanceof AdminAuthError)) {
       next(error);
       return;

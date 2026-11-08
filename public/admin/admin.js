@@ -8,6 +8,9 @@
 
 const state = {
   csrfToken: "",
+  challengeToken: "",
+  twoStep: null,
+  usedBackupCode: false,
   selectedUserId: null,
   pendingStateChange: null,
   pendingTestMarking: null,
@@ -120,6 +123,36 @@ async function refreshSystemStatus() {
   box.hidden = false;
 }
 
+// Two-step sign-in (src/api/admin_two_step.ts): password, then a code from
+// an authenticator app or a backup code. In production an admin who hasn't
+// set it up has to before the console does anything else.
+const TWO_STEP_MESSAGES = {
+  admin_two_step_code_invalid: "That code didn't work. Enter the latest code from your app, or a backup code.",
+  admin_two_step_expired: "That took too long. Sign in again.",
+  admin_temporarily_locked: "Too many wrong tries. Wait 15 minutes, then sign in again.",
+  admin_two_step_unavailable: "Two-step sign-in isn't available: the server has no KOLOSSEUM_ADMIN_TWO_STEP_KEY.",
+  admin_two_step_already_on: "Two-step sign-in is already on."
+};
+const twoStepMessage = (error, fallback) => TWO_STEP_MESSAGES[error?.message] ?? fallback;
+// Setting up or replacing codes takes an authenticator code only.
+const appCodeMessage = (error, fallback) => (error?.message === "admin_two_step_code_invalid"
+  ? "That code didn't match. Enter the code your app shows now."
+  : twoStepMessage(error, fallback));
+
+function showSignInError(text) {
+  el("adminSignInError").textContent = text;
+  el("adminSignInError").hidden = false;
+}
+
+function restartSignIn() {
+  state.challengeToken = "";
+  el("adminTwoStepForm").hidden = true;
+  el("adminTwoStepCode").value = "";
+  el("adminSignInForm").hidden = false;
+  el("adminSignInPassword").value = "";
+  el("adminSignInPassword").focus();
+}
+
 async function signIn(event) {
   event.preventDefault();
   el("adminSignInError").hidden = true;
@@ -129,14 +162,172 @@ async function signIn(event) {
       email: el("adminSignInEmail").value,
       password: el("adminSignInPassword").value
     });
-    state.csrfToken = result.csrf_token;
-    el("adminDisplayName").textContent = result.admin.display_name;
-    showWorkspace();
+    if (result.two_step_required) {
+      state.challengeToken = result.challenge_token;
+      el("adminSignInForm").hidden = true;
+      el("adminTwoStepForm").hidden = false;
+      el("adminTwoStepCode").focus();
+      return;
+    }
+    signedIn(result);
   }
   catch (error) {
-    el("adminSignInError").hidden = false;
-    el("adminSignInError").textContent = "Sign-in failed.";
+    showSignInError(error.message === "admin_temporarily_locked" ? TWO_STEP_MESSAGES.admin_temporarily_locked : "Sign-in failed.");
     console.error(error);
+  }
+}
+
+async function submitTwoStepCode(event) {
+  event.preventDefault();
+  el("adminSignInError").hidden = true;
+  try {
+    const result = await api("POST", "/admin/sign-in/two-step", {
+      challenge_token: state.challengeToken,
+      code: el("adminTwoStepCode").value
+    });
+    state.challengeToken = "";
+    signedIn(result);
+  }
+  catch (error) {
+    el("adminTwoStepCode").value = "";
+    showSignInError(twoStepMessage(error, "Sign-in failed."));
+    if (error.message === "admin_two_step_expired" || error.message === "admin_temporarily_locked") restartSignIn();
+    else el("adminTwoStepCode").focus();
+  }
+}
+
+function signedIn(result) {
+  state.csrfToken = result.csrf_token;
+  el("adminDisplayName").textContent = result.admin.display_name;
+  state.twoStep = result.two_step ?? null;
+  state.usedBackupCode = result.used_backup_code === true;
+  if (state.twoStep?.required && !state.twoStep.enabled) {
+    el("adminSignInSection").hidden = true;
+    openTwoStepSetup(true);
+    return;
+  }
+  showWorkspace();
+  renderTwoStepStatus();
+}
+
+function dateLabel(iso) {
+  return iso ? new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+}
+
+function renderTwoStepStatus() {
+  const status = state.twoStep;
+  const line = el("adminTwoStepStatus");
+  const button = el("adminTwoStepManageButton");
+  button.hidden = true;
+  line.className = "muted";
+  if (!status) { line.textContent = ""; return; }
+  if (!status.available) {
+    line.textContent = "Two-step sign-in is off: the server has no KOLOSSEUM_ADMIN_TWO_STEP_KEY.";
+    line.className = "error-text";
+    return;
+  }
+  if (!status.enabled) {
+    line.textContent = "Two-step sign-in is off.";
+    button.textContent = "Set it up";
+    button.hidden = false;
+    return;
+  }
+  const left = status.backup_codes_left;
+  line.textContent = `Two-step sign-in is on (since ${dateLabel(status.enabled_at_iso8601)}). ${left} backup code${left === 1 ? "" : "s"} left.`
+    + (state.usedBackupCode ? " You just used one." : "");
+  if (left <= 2) line.className = "error-text";
+  button.textContent = "New backup codes";
+  button.hidden = false;
+}
+
+function openTwoStepSetup(mandatory) {
+  el("adminTwoStepSetupSection").hidden = false;
+  el("adminTwoStepSetupSignOut").hidden = !mandatory;
+  el("adminTwoStepSetupSteps").hidden = true;
+  el("adminTwoStepSetupError").hidden = true;
+  el("adminTwoStepStartButton").hidden = false;
+  el("adminTwoStepSetupIntro").textContent = (mandatory ? "Before you can use the admin console, set up two-step sign-in. " : "")
+    + "After your password, you'll also enter a 6-digit code from an authenticator app on your phone (Google Authenticator, 1Password, Authy and so on). Someone with only your password can't get in.";
+  el("adminTwoStepSetupSection").scrollIntoView({ block: "start" });
+}
+
+async function startTwoStepSetup() {
+  el("adminTwoStepSetupError").hidden = true;
+  try {
+    const result = await api("POST", "/admin/two-step/setup", {});
+    // The QR code is an SVG drawn by our own server from the setup key.
+    el("adminTwoStepQr").innerHTML = result.qr_svg;
+    el("adminTwoStepSecret").textContent = result.secret_base32.match(/.{1,4}/gu).join(" ");
+    el("adminTwoStepStartButton").hidden = true;
+    el("adminTwoStepSetupSteps").hidden = false;
+    el("adminTwoStepConfirmCode").focus();
+  }
+  catch (error) {
+    el("adminTwoStepSetupError").textContent = twoStepMessage(error, `Couldn't start: ${error.message}`);
+    el("adminTwoStepSetupError").hidden = false;
+  }
+}
+
+function showBackupCodes(codes) {
+  el("adminBackupCodesList").innerHTML = codes.map((code) => `<li>${escapeHtml(code)}</li>`).join("");
+  el("adminBackupCodesSection").hidden = false;
+  el("adminBackupCodesSection").scrollIntoView({ block: "start" });
+}
+
+async function confirmTwoStepSetup(event) {
+  event.preventDefault();
+  el("adminTwoStepSetupError").hidden = true;
+  try {
+    const result = await api("POST", "/admin/two-step/setup/confirm", { code: el("adminTwoStepConfirmCode").value });
+    state.twoStep = result.two_step;
+    state.usedBackupCode = false;
+    el("adminTwoStepConfirmCode").value = "";
+    el("adminTwoStepQr").innerHTML = "";
+    el("adminTwoStepSecret").textContent = "";
+    el("adminTwoStepSetupSection").hidden = true;
+    renderTwoStepStatus();
+    showBackupCodes(result.backup_codes);
+  }
+  catch (error) {
+    el("adminTwoStepConfirmCode").value = "";
+    el("adminTwoStepSetupError").textContent = appCodeMessage(error, `Couldn't turn it on: ${error.message}`);
+    el("adminTwoStepSetupError").hidden = false;
+  }
+}
+
+function backupCodesSaved() {
+  el("adminBackupCodesSection").hidden = true;
+  el("adminBackupCodesList").innerHTML = "";
+  if (el("adminWorkspaceSection").hidden) showWorkspace();
+  renderTwoStepStatus();
+}
+
+function manageTwoStep() {
+  if (!state.twoStep?.enabled) {
+    openTwoStepSetup(false);
+    return;
+  }
+  el("adminReplaceCodesForm").hidden = false;
+  el("adminReplaceCodesError").hidden = true;
+  el("adminReplaceCodesCode").focus();
+}
+
+async function replaceBackupCodes(event) {
+  event.preventDefault();
+  el("adminReplaceCodesError").hidden = true;
+  try {
+    const result = await api("POST", "/admin/two-step/backup-codes", { code: el("adminReplaceCodesCode").value });
+    state.twoStep = result.two_step;
+    state.usedBackupCode = false;
+    el("adminReplaceCodesCode").value = "";
+    el("adminReplaceCodesForm").hidden = true;
+    renderTwoStepStatus();
+    showBackupCodes(result.backup_codes);
+  }
+  catch (error) {
+    el("adminReplaceCodesCode").value = "";
+    el("adminReplaceCodesError").textContent = appCodeMessage(error, `Couldn't replace them: ${error.message}`);
+    el("adminReplaceCodesError").hidden = false;
   }
 }
 
@@ -1084,6 +1275,15 @@ async function submitOrgOwnerErase() {
 }
 
 el("adminSignInForm").addEventListener("submit", signIn);
+el("adminTwoStepForm").addEventListener("submit", (event) => submitTwoStepCode(event).catch(console.error));
+el("adminTwoStepRestart").addEventListener("click", restartSignIn);
+el("adminTwoStepSetupSignOut").addEventListener("click", signOut);
+el("adminTwoStepStartButton").addEventListener("click", () => startTwoStepSetup().catch(console.error));
+el("adminTwoStepConfirmForm").addEventListener("submit", (event) => confirmTwoStepSetup(event).catch(console.error));
+el("adminBackupCodesDone").addEventListener("click", backupCodesSaved);
+el("adminTwoStepManageButton").addEventListener("click", manageTwoStep);
+el("adminReplaceCodesForm").addEventListener("submit", (event) => replaceBackupCodes(event).catch(console.error));
+el("adminReplaceCodesCancel").addEventListener("click", () => { el("adminReplaceCodesForm").hidden = true; });
 el("orgOwnerDeletionRequestsList").addEventListener("click", (event) => {
   const button = event.target?.closest?.("[data-org-owner-erase-request]");
   if (button) openOrgOwnerErase(button.dataset.orgOwnerEraseRequest, button.dataset.orgOwnerEraseUser).catch((error) => showOrgOwnerEraseResult(`Couldn't load the organisations: ${error.message}`));

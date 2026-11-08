@@ -9,6 +9,14 @@
 import crypto from "node:crypto";
 
 import { pool } from "../db/pool.js";
+import {
+  createSignInChallenge,
+  failChallenge,
+  openChallenge,
+  twoStepRequired,
+  useChallenge,
+  verifySignInCode
+} from "./admin_two_step.js";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -98,6 +106,7 @@ export type AdminAccountRow = Readonly<{
   account_state: "active" | "suspended";
   failed_sign_in_count: number;
   locked_until: string | null;
+  two_step_enabled: boolean;
 }>;
 
 function mapAdminAccountRow(value: unknown): AdminAccountRow | null {
@@ -113,7 +122,8 @@ function mapAdminAccountRow(value: unknown): AdminAccountRow | null {
     password_hash: cleanString(value.password_hash),
     account_state: state,
     failed_sign_in_count: Number(value.failed_sign_in_count ?? 0),
-    locked_until: value.locked_until instanceof Date ? value.locked_until.toISOString() : null
+    locked_until: value.locked_until instanceof Date ? value.locked_until.toISOString() : null,
+    two_step_enabled: value.totp_enabled_at instanceof Date && typeof value.totp_secret_encrypted === "string"
   });
 }
 
@@ -217,7 +227,27 @@ async function createAdminSession(row: AdminAccountRow): Promise<AdminSession> {
   });
 }
 
-export async function signInAdminAccount(inputValue: unknown): Promise<AdminSession> {
+// Password right and two-step sign-in on: no session yet, just a short-lived
+// token for the code step (completeAdminTwoStepSignIn).
+export type AdminTwoStepChallenge = Readonly<{ two_step_required: true; challenge_token: string }>;
+
+async function recordFailedSignIn(row: AdminAccountRow): Promise<boolean> {
+  const failedCount = row.failed_sign_in_count + 1;
+  const shouldLock = failedCount >= MAX_FAILED_SIGN_INS;
+
+  await pool.query(
+    `
+    UPDATE product_admin_accounts
+    SET failed_sign_in_count = $2,
+        locked_until = CASE WHEN $3 THEN now() + interval '${LOCKOUT_MINUTES} minutes' ELSE locked_until END
+    WHERE user_id = $1
+    `,
+    [row.user_id, failedCount, shouldLock]
+  );
+  return shouldLock;
+}
+
+export async function signInAdminAccount(inputValue: unknown): Promise<AdminSession | AdminTwoStepChallenge> {
   if (!isRecord(inputValue)) {
     throw new AdminAuthError("admin_sign_in_failed", 401);
   }
@@ -248,18 +278,7 @@ export async function signInAdminAccount(inputValue: unknown): Promise<AdminSess
   const actualHash = await derivePassword(password, row.password_salt);
 
   if (!safeEqual(actualHash, row.password_hash)) {
-    const failedCount = row.failed_sign_in_count + 1;
-    const shouldLock = failedCount >= MAX_FAILED_SIGN_INS;
-
-    await pool.query(
-      `
-      UPDATE product_admin_accounts
-      SET failed_sign_in_count = $2,
-          locked_until = CASE WHEN $3 THEN now() + interval '${LOCKOUT_MINUTES} minutes' ELSE locked_until END
-      WHERE user_id = $1
-      `,
-      [row.user_id, failedCount, shouldLock]
-    );
+    const shouldLock = await recordFailedSignIn(row);
 
     throw new AdminAuthError(
       shouldLock ? "admin_temporarily_locked" : "admin_sign_in_failed",
@@ -271,6 +290,10 @@ export async function signInAdminAccount(inputValue: unknown): Promise<AdminSess
     throw new AdminAuthError("admin_account_unavailable", 423);
   }
 
+  if (row.two_step_enabled) {
+    return Object.freeze({ two_step_required: true, challenge_token: await createSignInChallenge(row.user_id) });
+  }
+
   await pool.query(
     `UPDATE product_admin_accounts SET failed_sign_in_count = 0, locked_until = NULL WHERE user_id = $1`,
     [row.user_id]
@@ -279,9 +302,39 @@ export async function signInAdminAccount(inputValue: unknown): Promise<AdminSess
   return createAdminSession(row);
 }
 
+// The code step. A wrong code counts towards the same lockout as a wrong
+// password, and a challenge stops working after MAX_CHALLENGE_ATTEMPTS
+// wrong codes, after 5 minutes, or once used.
+export async function completeAdminTwoStepSignIn(inputValue: unknown): Promise<AdminSession & Readonly<{ used_backup_code: boolean }>> {
+  const input = isRecord(inputValue) ? inputValue : {};
+  const token = typeof input.challenge_token === "string" ? input.challenge_token : "";
+  const userId = await openChallenge(token);
+  if (!userId) throw new AdminAuthError("admin_two_step_expired", 401);
+
+  const row = await adminAccountByUserId(userId);
+  if (!row || row.account_state !== "active") throw new AdminAuthError("admin_account_unavailable", 423);
+  if (row.locked_until && Date.parse(row.locked_until) > Date.now()) {
+    throw new AdminAuthError("admin_temporarily_locked", 429);
+  }
+
+  const proof = await verifySignInCode(userId, input.code);
+  if (!proof) {
+    await failChallenge(token);
+    const shouldLock = await recordFailedSignIn(row);
+    throw new AdminAuthError(shouldLock ? "admin_temporarily_locked" : "admin_two_step_code_invalid", shouldLock ? 429 : 401);
+  }
+  if (!(await useChallenge(token))) throw new AdminAuthError("admin_two_step_expired", 401);
+
+  await pool.query(
+    `UPDATE product_admin_accounts SET failed_sign_in_count = 0, locked_until = NULL WHERE user_id = $1`,
+    [row.user_id]
+  );
+  return Object.freeze({ ...(await createAdminSession(row)), used_backup_code: proof === "backup_code" });
+}
+
 export async function resolveAdminSession(
   rawSessionToken: string
-): Promise<Readonly<{ admin: Readonly<JsonRecord>; user_id: string }>> {
+): Promise<Readonly<{ admin: Readonly<JsonRecord>; user_id: string; two_step_setup_required: boolean; session_hash: string }>> {
   if (!rawSessionToken) {
     throw new AdminAuthError("admin_session_missing", 401);
   }
@@ -318,7 +371,12 @@ export async function resolveAdminSession(
     [sessionHash]
   );
 
-  return Object.freeze({ admin: publicAdmin(row), user_id: row.user_id });
+  return Object.freeze({
+    admin: publicAdmin(row),
+    user_id: row.user_id,
+    two_step_setup_required: twoStepRequired() && !row.two_step_enabled,
+    session_hash: sessionHash
+  });
 }
 
 export async function signOutAdminSession(rawSessionToken: string): Promise<void> {
