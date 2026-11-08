@@ -149,6 +149,7 @@ productAdminRouter.post(
 
 productAdminRouter.get(
   "/two-step",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
     const admin = await authenticatedAdmin(request, false, { allowTwoStepSetup: true });
     return response.status(200).json({ two_step: await twoStepStatus(admin.user_id) });
@@ -157,6 +158,7 @@ productAdminRouter.get(
 
 productAdminRouter.post(
   "/two-step/setup",
+  rateLimit({ windowMs: 15 * 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false }),
   asyncHandler(async (request, response) => {
     const admin = await authenticatedAdmin(request, true, { allowTwoStepSetup: true });
     return response.status(200).json(await startTwoStepSetup(admin.user_id));

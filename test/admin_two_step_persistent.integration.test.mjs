@@ -126,7 +126,10 @@ test("an admin sets up two-step sign-in, then needs a code after their password"
   // Set up: scan, then prove the app has it.
   const setup = await call("POST", "/admin/two-step/setup", {}, session);
   assert.equal(setup.status, 200, setup.text);
-  assert.match(setup.json.otpauth_uri, new RegExp(`^otpauth://totp/Kolosseum%20admin%3A${encodeURIComponent(email).replace(/[.]/gu, "\\.")}\\?secret=${setup.json.secret_base32}&issuer=Kolosseum%20admin`, "u"));
+  assert.ok(
+    setup.json.otpauth_uri.startsWith(`otpauth://totp/Kolosseum%20admin%3A${encodeURIComponent(email)}?secret=${setup.json.secret_base32}&issuer=Kolosseum%20admin`),
+    setup.json.otpauth_uri
+  );
   assert.match(setup.json.qr_svg, /^<svg [^>]*aria-label="QR code for your authenticator app"/u);
   const secret = base32Decode(setup.json.secret_base32);
   assert.equal(secret.length, 20);
