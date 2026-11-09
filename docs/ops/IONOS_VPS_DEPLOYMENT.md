@@ -90,7 +90,7 @@ The first build takes a few minutes. Then create your founder/admin account. The
 
 ```bash
 docker compose -f docker-compose.prod.yml exec -e ADMIN_BOOTSTRAP_TOKEN=<any-value-you-choose> app \
-  node scripts/bootstrap_admin_account.mjs --email you@example.com --name "Your Name" --password "<16+ characters>"
+  node scripts/bootstrap_admin_account.mjs --email you@example.com --name "Your Name" --password "<12+ characters>"
 ```
 
 ## 6. Check it
@@ -240,7 +240,7 @@ docker compose -f docker-compose.prod.yml exec -e ADMIN_BOOTSTRAP_TOKEN=<any-val
   node scripts/bootstrap_admin_account.mjs --reset-two-step --email you@example.com
 ```
 
-**Forgot the admin password?** Set a new one over SSH. It asks for the password twice at a hidden prompt (so it never lands in shell history), needs at least 16 characters, clears any lockout and signs that admin out everywhere. Two-step sign-in stays on:
+**Forgot the admin password?** Set a new one over SSH. It asks for the password twice at a hidden prompt (so it never lands in shell history), needs at least 12 characters, clears any lockout and signs that admin out everywhere. Two-step sign-in stays on:
 
 ```bash
 docker compose -f docker-compose.prod.yml exec -e ADMIN_BOOTSTRAP_TOKEN=<any-value-you-choose> app \

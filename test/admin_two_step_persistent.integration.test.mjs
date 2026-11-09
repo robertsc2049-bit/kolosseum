@@ -290,8 +290,8 @@ test("the operator can set a new password for an admin who forgot theirs, typed 
   assert.equal(await hashOf(), originalHash);
 
   // Too short, and a mismatch, change nothing.
-  const short = await runWithTerminal(["--reset-password", "--email", email], ["short\r"]);
-  assert.match(short.stderr, /16 to 200 characters\. Nothing was changed\./u);
+  const short = await runWithTerminal(["--reset-password", "--email", email], ["elevenchars\r"]);
+  assert.match(short.stderr, /12 to 200 characters\. Nothing was changed\./u);
   const mismatch = await runWithTerminal(["--reset-password", "--email", email], [`${newPassword}\r`, `${newPassword}X\r`]);
   assert.match(mismatch.stderr, /didn't match\. Nothing was changed\./u);
   assert.equal(await hashOf(), originalHash);

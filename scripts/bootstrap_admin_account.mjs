@@ -13,7 +13,7 @@
 //
 // Usage (PowerShell or bash):
 //   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> \
-//   node scripts/bootstrap_admin_account.mjs --email founder@example.com --name "Founder Name" --password "at-least-16-characters"
+//   node scripts/bootstrap_admin_account.mjs --email founder@example.com --name "Founder Name" --password "at-least-12-characters"
 //
 // Reset two-step sign-in for an admin who has lost their authenticator and
 // backup codes (admin_two_step.ts). Signs them out everywhere; they set it
@@ -84,8 +84,8 @@ if (resetTwoStep || resetPassword) {
 else if (!displayName) {
   die("Pass a --name <display name>.");
 }
-if (!resetTwoStep && !resetPassword && password.length < 16) {
-  die("Pass a --password <at least 16 characters>.");
+if (!resetTwoStep && !resetPassword && password.length < 12) {
+  die("Pass a --password <at least 12 characters>.");
 }
 
 function randomId(prefix) {
@@ -191,8 +191,8 @@ async function resetAdminPassword(pool) {
   const userId = found.rows[0]?.user_id;
   if (!userId) die(`No admin account for ${email}.`);
   startHiddenInput();
-  const first = await askHidden("New password (at least 16 characters, hidden): ");
-  if (first.length < 16 || first.length > 200) die("The password must be 16 to 200 characters. Nothing was changed.");
+  const first = await askHidden("New password (at least 12 characters, hidden): ");
+  if (first.length < 12 || first.length > 200) die("The password must be 12 to 200 characters. Nothing was changed.");
   const second = await askHidden("Type it again: ");
   stopHiddenInput();
   if (first !== second) die("The two passwords didn't match. Nothing was changed.");
