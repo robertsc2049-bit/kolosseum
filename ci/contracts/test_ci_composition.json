@@ -535,6 +535,10 @@
     {
       "kind": "command",
       "value": "node test/admin_two_step_surface.test.mjs"
+    },
+    {
+      "kind": "command",
+      "value": "node test/server_error_alerts.test.mjs"
     }
   ]
 }

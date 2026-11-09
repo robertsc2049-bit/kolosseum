@@ -9,6 +9,7 @@ import { attachRealtimeWebSocketServer } from "./api/realtime_hub.js";
 import { startPushSweeps } from "./api/product_push_service.js";
 import { startPackageReminderSweeps } from "./api/package_payment_reminders.js";
 import { startBackupHealthChecks } from "./api/backup_health.js";
+import { startServerErrorDigests } from "./api/server_error_alerts.js";
 import { startDeletionDeadlineSweeps } from "./api/deletion_request_deadlines.js";
 
 function getPort(): number {
@@ -61,3 +62,7 @@ startDeletionDeadlineSweeps();
 
 // Emails the admin when backups stop - a no-op without the backup status folder.
 startBackupHealthChecks();
+
+// Emails the admin when the app sends server errors - the first within
+// minutes, then at most hourly; a no-op unless email is configured.
+startServerErrorDigests();

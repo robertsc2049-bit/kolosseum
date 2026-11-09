@@ -108,19 +108,28 @@ function sinceLabel(iso) {
   return hours < 48 ? `${hours} hours ago` : `${Math.round(hours / 24)} days ago`;
 }
 
+// Server errors (server_error_alerts.ts): how many 5xx responses the app
+// sent in the last 24 hours, and the commonest kinds.
+function serverErrorsHtml(summary) {
+  if (!summary) return "";
+  if (!summary.last_24h) return `<p class="muted">Server errors: none in the last 24 hours.</p>`;
+  const count = `${summary.last_24h} in the last 24 hours, the latest ${sinceLabel(summary.last_at)}`;
+  const kinds = summary.groups.map((group) => `<li>${escapeHtml(`${group.method} ${group.route}`)} - ${escapeHtml(group.error_code)} (${group.status}): ${group.count}</li>`).join("");
+  return `<div class="error-text"><p><strong>Server errors:</strong> ${escapeHtml(count)}. The details are in the server log.</p><ul class="server-error-kinds">${kinds}</ul></div>`;
+}
+
 async function refreshSystemStatus() {
   const box = el("systemStatus");
-  const { backups } = await api("GET", "/admin/system-status");
-  if (!backups.checked) {
-    box.hidden = true;
-    return;
+  const { backups, server_errors: serverErrors } = await api("GET", "/admin/system-status");
+  let backupsHtml = "";
+  if (backups.checked) {
+    const line = `Backups: last ${sinceLabel(backups.backup_last_ok)}` + (backups.offsite_state === "on" ? ` · copied off the server ${sinceLabel(backups.offsite_last_ok)}${backups.offsite_encrypted === "on" ? ", encrypted" : backups.offsite_encrypted === "off" ? ", not encrypted" : ""}` : "");
+    backupsHtml = backups.healthy
+      ? `<p class="muted">${escapeHtml(line)}</p>`
+      : `<div class="error-text"><p><strong>Backups need attention.</strong> ${escapeHtml(line)}</p><ul>${backups.problems.map((problem) => `<li>${escapeHtml(problem)}</li>`).join("")}</ul></div>`;
   }
-  const line = `Backups: last ${sinceLabel(backups.backup_last_ok)}` + (backups.offsite_state === "on" ? ` · copied off the server ${sinceLabel(backups.offsite_last_ok)}${backups.offsite_encrypted === "on" ? ", encrypted" : backups.offsite_encrypted === "off" ? ", not encrypted" : ""}` : "");
-  box.className = backups.healthy ? "muted" : "error-text";
-  box.innerHTML = backups.healthy
-    ? `<p>${escapeHtml(line)}</p>`
-    : `<p><strong>Backups need attention.</strong> ${escapeHtml(line)}</p><ul>${backups.problems.map((problem) => `<li>${escapeHtml(problem)}</li>`).join("")}</ul>`;
-  box.hidden = false;
+  box.innerHTML = backupsHtml + serverErrorsHtml(serverErrors);
+  box.hidden = !box.innerHTML;
 }
 
 // Two-step sign-in (src/api/admin_two_step.ts): password, then a code from

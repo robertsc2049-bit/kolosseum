@@ -47,12 +47,17 @@ import { productCommercialRouter } from "./api/product_commercial.routes.js";
 import { productCommercialWebhookRouter } from "./api/product_commercial_webhook.routes.js";
 import { v1StatusPageRouter } from "./api/v1_status_page.routes.js";
 import { apiErrorMiddleware } from "./api/error_middleware.js";
+import { recordServerErrors } from "./api/server_error_alerts.js";
 import { initialiseErrorReporting } from "./v1ErrorReportingInitialisation.mjs";
 
 import { VERSION } from "./version.js";
 import { trustProxySetting } from "./trust_proxy.js";
 
 export const app = express();
+
+// First, so every 5xx response - from any router or the final error
+// handler - is recorded for the admin (server_error_alerts.ts).
+app.use(recordServerErrors);
 
 // See src/trust_proxy.ts.
 app.set("trust proxy", trustProxySetting(process.env.KOLOSSEUM_TRUST_PROXY));
