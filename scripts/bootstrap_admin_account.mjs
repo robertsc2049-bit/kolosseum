@@ -18,7 +18,14 @@
 // Reset two-step sign-in for an admin who has lost their authenticator and
 // backup codes (admin_two_step.ts). Signs them out everywhere; they set it
 // up again at their next sign-in:
-//   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> //   node scripts/bootstrap_admin_account.mjs --reset-two-step --email founder@example.com
+//   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> \
+//   node scripts/bootstrap_admin_account.mjs --reset-two-step --email founder@example.com
+//
+// Set a new password for an existing admin who has forgotten theirs. The
+// password is typed at a hidden prompt so it never lands in shell history;
+// clears any lockout and signs them out everywhere. Two-step stays on:
+//   ADMIN_BOOTSTRAP_TOKEN=<any-non-empty-value-you-choose> \
+//   node scripts/bootstrap_admin_account.mjs --reset-password --email founder@example.com
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -64,19 +71,20 @@ function argValue(flag) {
 
 const email = String(argValue("--email") ?? "").trim().toLowerCase();
 const resetTwoStep = process.argv.includes("--reset-two-step");
+const resetPassword = process.argv.includes("--reset-password");
 const displayName = String(argValue("--name") ?? "").trim();
 const password = String(argValue("--password") ?? "");
 
 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(email)) {
   die("Pass a valid --email <address>.");
 }
-if (resetTwoStep) {
-  // Only --email is needed.
+if (resetTwoStep || resetPassword) {
+  // Only --email is needed; --reset-password asks for the password itself.
 }
 else if (!displayName) {
   die("Pass a --name <display name>.");
 }
-if (!resetTwoStep && password.length < 16) {
+if (!resetTwoStep && !resetPassword && password.length < 16) {
   die("Pass a --password <at least 16 characters>.");
 }
 
@@ -123,12 +131,94 @@ async function resetTwoStepSignIn(pool) {
   console.log(`Two-step sign-in reset for ${email} (user_id=${userId}). Signed out everywhere; set it up again at the next sign-in.`);
 }
 
+// Reads lines from the terminal without echoing them. Keystrokes are
+// buffered, so a pasted password (with or without a trailing newline)
+// works as well as typing.
+const hiddenLines = [];
+let hiddenWaiter = null;
+let hiddenCurrent = "";
+let hiddenLastWasCr = false;
+
+function startHiddenInput() {
+  const input = process.stdin;
+  if (!input.isTTY) {
+    die("Run this in an interactive terminal (docker compose exec, not exec -T) so the password can be typed hidden. Nothing was changed.");
+  }
+  input.setRawMode(true);
+  input.setEncoding("utf8");
+  input.on("data", (chunk) => {
+    for (const char of chunk) {
+      if (char === "\n" && hiddenLastWasCr) {
+        hiddenLastWasCr = false;
+        continue;
+      }
+      hiddenLastWasCr = char === "\r";
+      if (char === "\r" || char === "\n") {
+        hiddenLines.push(hiddenCurrent);
+        hiddenCurrent = "";
+        process.stdout.write("\n");
+      }
+      else if (char === "\u0003") {
+        input.setRawMode(false);
+        process.stdout.write("\n");
+        process.exit(130);
+      }
+      else if (char === "\u007f" || char === "\b") hiddenCurrent = hiddenCurrent.slice(0, -1);
+      else hiddenCurrent += char;
+    }
+    if (hiddenWaiter && hiddenLines.length) {
+      const resolve = hiddenWaiter;
+      hiddenWaiter = null;
+      resolve(hiddenLines.shift());
+    }
+  });
+  input.resume();
+}
+
+function stopHiddenInput() {
+  if (process.stdin.isTTY) process.stdin.setRawMode(false);
+  process.stdin.pause();
+}
+
+function askHidden(question) {
+  process.stdout.write(question);
+  if (hiddenLines.length) return Promise.resolve(hiddenLines.shift());
+  return new Promise((resolve) => { hiddenWaiter = resolve; });
+}
+
+async function resetAdminPassword(pool) {
+  const found = await pool.query("SELECT user_id FROM product_admin_accounts WHERE email_canonical = $1", [email]);
+  const userId = found.rows[0]?.user_id;
+  if (!userId) die(`No admin account for ${email}.`);
+  startHiddenInput();
+  const first = await askHidden("New password (at least 16 characters, hidden): ");
+  if (first.length < 16 || first.length > 200) die("The password must be 16 to 200 characters. Nothing was changed.");
+  const second = await askHidden("Type it again: ");
+  stopHiddenInput();
+  if (first !== second) die("The two passwords didn't match. Nothing was changed.");
+  const salt = randomToken(24);
+  const hash = await derivePassword(first, salt);
+  await pool.query(
+    `UPDATE product_admin_accounts
+        SET password_salt = $2, password_hash = $3, failed_sign_in_count = 0, locked_until = NULL
+      WHERE user_id = $1`,
+    [userId, salt, hash]
+  );
+  await pool.query("UPDATE product_admin_sign_in_challenges SET used_at = now() WHERE user_id = $1 AND used_at IS NULL", [userId]);
+  await pool.query("UPDATE product_admin_sessions SET revoked_at = now() WHERE user_id = $1 AND revoked_at IS NULL", [userId]);
+  console.log(`Password changed for ${email} (user_id=${userId}). Signed out everywhere; sign in with the new password.`);
+}
+
 async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
   try {
     if (resetTwoStep) {
       await resetTwoStepSignIn(pool);
+      return;
+    }
+    if (resetPassword) {
+      await resetAdminPassword(pool);
       return;
     }
 
